@@ -33,15 +33,16 @@ class ReceiveTokenDisplay extends StatelessWidget {
               child: Row(
                 spacing: 4,
                 children: [
-                  CakeImageWidget(
-                    imageUrl:
-                        walletTypeToCryptoCurrency(addressListViewModel.wallet.type).chainIconPath,
-                    width: 16,
-                    height: 16,
-                    colorFilter:
-                        ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
-                  ),
-                  Text(walletTypeToString(addressListViewModel.wallet.type),
+                  if (addressListViewModel.wallet.type != WalletType.evm)
+                    CakeImageWidget(
+                      imageUrl:
+                          walletTypeToCryptoCurrency(addressListViewModel.wallet.type).chainIconPath,
+                      width: 16,
+                      height: 16,
+                      colorFilter:
+                          ColorFilter.mode(Theme.of(context).colorScheme.primary, BlendMode.srcIn),
+                    ),
+                  Text(addressListViewModel.walletTypeName,
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,

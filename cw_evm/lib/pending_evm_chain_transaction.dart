@@ -9,6 +9,7 @@ class PendingEVMChainTransaction with PendingTransaction {
   final Function sendTransaction;
   final Uint8List signedTransaction;
   final bool isInfiniteApproval;
+  final int? nonce;
 
   PendingEVMChainTransaction({
     required this.sendTransaction,
@@ -16,7 +17,11 @@ class PendingEVMChainTransaction with PendingTransaction {
     required this.fee,
     required this.amount,
     this.isInfiniteApproval = false,
+    this.nonce,
   });
+
+  @override
+  int? get evmNonce => nonce;
 
   @override
   String get amountFormatted {

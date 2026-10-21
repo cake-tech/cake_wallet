@@ -13,6 +13,7 @@ import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/crypto_amount_format.dart';
+import "package:cw_core/evm_network.dart";
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -140,6 +141,10 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
   @override
   Widget build(BuildContext context) {
     final detectedCurrency = widget.paymentFlowResult.detectedCurrency!;
+    final depositNetwork =
+        AddedNetworkCurrency.tryWithNetworkIcon(widget.exchangeViewModel.depositCurrency);
+    final detectedNetwork = AddedNetworkCurrency.tryWithNetworkIcon(detectedCurrency);
+    final badgeNetwork = AddedNetworkCurrency.tryFromChainId(widget.paymentFlowResult.chainId);
 
     return Form(
       key: _formKey,
@@ -153,9 +158,12 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 CakeImageWidget(
-                  imageUrl: widget.exchangeViewModel.depositCurrency.iconPath!,
+                  imageUrl: widget.exchangeViewModel.depositCurrency.iconPath,
                   width: 32,
                   height: 32,
+                  isRoundedSquare: depositNetwork != null,
+                  isOutlined: depositNetwork != null,
+                  fallbackName: depositNetwork?.fullName,
                 ),
                 const SizedBox(width: 12),
                 Icon(Icons.arrow_forward, size: 24),
@@ -167,6 +175,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                       imageUrl: detectedCurrency.iconPath ?? '',
                       width: 32,
                       height: 32,
+                      isRoundedSquare: detectedNetwork != null,
+                      isOutlined: detectedNetwork != null,
+                      fallbackName: detectedNetwork?.fullName,
                     ),
                     if (isEVMCompatibleChain(widget.paymentFlowResult.walletType!)) ...[
                       Positioned(
@@ -179,6 +190,9 @@ class SwapConfirmationContentState extends State<SwapConfirmationContent> {
                           ),
                           width: 16,
                           height: 16,
+                          isRoundedSquare: badgeNetwork != null,
+                          isOutlined: badgeNetwork != null,
+                          fallbackName: badgeNetwork?.fullName,
                         ),
                       ),
                     ],

@@ -1,6 +1,7 @@
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
@@ -77,13 +78,14 @@ class SettingsSectionData {
 class WalletSettingsResolver {
   const WalletSettingsResolver();
 
-  String titleFor(WalletType walletType, S strings) =>
-      '${walletTypeToString(walletType)} ${strings.settings_title}'.trim();
+  String titleFor(WalletType walletType, S strings, {ChainInfo? addedNetwork}) =>
+      "${addedNetwork?.name ?? walletTypeToString(walletType)} ${strings.settings_title}".trim();
 
-  String iconPathFor(WalletType walletType) =>
-      walletType == WalletType.robinhood
-          ? "assets/new-ui/crypto_full_icons/robinhood.svg"
-          : "assets/new-ui/network_icons/${walletType.name.toLowerCase()}.svg";
+  String iconPathFor(WalletType walletType, {ChainInfo? addedNetwork}) => switch (walletType) {
+        WalletType.robinhood => "assets/new-ui/crypto_full_icons/robinhood.svg",
+        WalletType.evm => addedNetwork?.iconPath ?? "",
+        _ => "assets/new-ui/network_icons/${walletType.name.toLowerCase()}.svg",
+      };
 
   List<List<SettingsListItem>> resolveSections(DashboardViewModel viewModel) {
     final visibleItems = <SettingsListItem>[
@@ -298,8 +300,21 @@ class SettingsMainPage extends StatelessWidget {
                 label: _walletSettingsResolver.titleFor(
                   dashboardViewModel.wallet.type,
                   S.of(context),
+                  addedNetwork: dashboardViewModel.addedNetwork,
                 ),
-                iconPath: _walletSettingsResolver.iconPathFor(dashboardViewModel.wallet.type),
+                iconPath: dashboardViewModel.addedNetwork == null
+                    ? _walletSettingsResolver.iconPathFor(dashboardViewModel.wallet.type)
+                    : null,
+                leadingWidget: dashboardViewModel.addedNetwork == null
+                    ? null
+                    : CakeImageWidget(
+                        imageUrl: dashboardViewModel.addedNetwork?.iconPath,
+                        width: 24,
+                        height: 24,
+                        isRoundedSquare: true,
+                        isOutlined: true,
+                        fallbackName: dashboardViewModel.addedNetwork?.name,
+                      ),
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute<void>(
                     builder: (_) => WalletSettingsPage(
@@ -370,17 +385,28 @@ class WalletSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = S.of(context);
     final sections = _resolver.resolveSections(dashboardViewModel);
+    final addedNetwork = dashboardViewModel.addedNetwork;
 
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           ModalTopBar(
-            title: _resolver.titleFor(dashboardViewModel.wallet.type, strings),
+            title: _resolver.titleFor(
+              dashboardViewModel.wallet.type,
+              strings,
+              addedNetwork: addedNetwork,
+            ),
             titleLeadingWidget: CakeImageWidget(
-              imageUrl: _resolver.iconPathFor(dashboardViewModel.wallet.type),
+              imageUrl: _resolver.iconPathFor(
+                dashboardViewModel.wallet.type,
+                addedNetwork: addedNetwork,
+              ),
               width: 24,
               height: 24,
+              isRoundedSquare: addedNetwork != null,
+              isOutlined: addedNetwork != null,
+              fallbackName: addedNetwork?.name,
             ),
             leadingIcon: const Icon(Icons.arrow_back_ios_new),
             leadingSemanticLabel: strings.seed_alert_back,

@@ -57,7 +57,8 @@ class ReceiveAmountDisplay extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (!walletAddressListViewModel.isFiatDisabled)
+                  if (!walletAddressListViewModel.isFiatDisabled &&
+                      !walletAddressListViewModel.isCurrencyUnpriced)
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(

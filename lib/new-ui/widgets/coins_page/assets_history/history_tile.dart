@@ -1,6 +1,8 @@
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ class HistoryTile extends StatelessWidget {
     required this.hasTokens,
     this.chainIconPath,
     this.asset,
+    this.addedNetwork,
   });
 
   final String title;
@@ -35,6 +38,8 @@ class HistoryTile extends StatelessWidget {
   final TransactionDirection direction;
   final bool pending;
   final CryptoCurrency? asset;
+
+  final ChainInfo? addedNetwork;
 
   String _getDirectionIcon() {
     if (pending) {
@@ -96,14 +101,29 @@ class HistoryTile extends StatelessWidget {
     }
 
     if (hasTokens) {
+      final addedNetwork = this.addedNetwork;
+      final iconAsset = addedNetwork != null && asset?.raw == addedNetwork.currency.raw
+          ? addedNetwork.currency
+          : asset;
+      final networkIconNative = AddedNetworkCurrency.tryWithNetworkIcon(iconAsset);
+
       return Stack(
         children: [
           Opacity(
             opacity: pending ? 0.5 : 1,
-            child: TokenImageWidget(
-              imageUrl: asset?.iconPath ?? "",
-              size: 34,
-            ),
+            child: networkIconNative != null
+                ? CakeImageWidget(
+                    imageUrl: networkIconNative.iconPath,
+                    width: 34,
+                    height: 34,
+                    isRoundedSquare: true,
+                    isOutlined: true,
+                    fallbackName: networkIconNative.fullName,
+                  )
+                : TokenImageWidget(
+                    imageUrl: iconAsset?.iconPath ?? "",
+                    size: 34,
+                  ),
           ),
           Align(
               alignment: Alignment.bottomRight,
@@ -115,12 +135,21 @@ class HistoryTile extends StatelessWidget {
                       color: Colors.white),
                   child: Padding(
                     padding: const EdgeInsets.all(2.0),
-                    child: CakeImageWidget(
-                      imageUrl: chainIconPath,
-                      width: 12,
-                      height: 12,
-                      colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
-                    ),
+                    child: addedNetwork != null
+                        ? CakeImageWidget(
+                            imageUrl: addedNetwork.iconPath,
+                            width: 12,
+                            height: 12,
+                            isRoundedSquare: true,
+                            isOutlined: true,
+                            fallbackName: addedNetwork.name,
+                          )
+                        : CakeImageWidget(
+                            imageUrl: chainIconPath,
+                            width: 12,
+                            height: 12,
+                            colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn),
+                          ),
                   )))
         ],
       );

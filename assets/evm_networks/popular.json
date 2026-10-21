@@ -1,0 +1,154 @@
+[
+  {
+    "chainId": 10,
+    "name": "OP Mainnet",
+    "shortName": "oeth",
+    "symbol": "ETH",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://optimism-rpc.publicnode.com",
+        "tracking": "none"
+      },
+      {
+        "url": "https://mainnet.optimism.io",
+        "tracking": null
+      }
+    ],
+    "explorer": "https://optimistic.etherscan.io",
+    "icon": "assets/new-ui/network_icons/optimism.svg"
+  },
+  {
+    "chainId": 999,
+    "name": "HyperEVM",
+    "shortName": "hyper_evm",
+    "symbol": "HYPE",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://rpc.hyperliquid.xyz/evm",
+        "tracking": null
+      },
+      {
+        "url": "https://hyperliquid-rpc.publicnode.com",
+        "tracking": null
+      }
+    ],
+    "explorer": "https://hyperevmscan.io/",
+    "icon": "assets/new-ui/network_icons/hyperliquid.svg"
+  },
+  {
+    "chainId": 5042,
+    "name": "Arc",
+    "shortName": "arc",
+    "symbol": "USDC",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://arc-rpc.publicnode.com",
+        "tracking": "none"
+      },
+      {
+        "url": "https://rpc.mainnet.arc.io",
+        "tracking": null
+      }
+    ],
+    "explorer": "https://explorer.arc.io/",
+    "icon": "assets/new-ui/network_icons/arc.svg"
+  },
+  {
+    "chainId": 143,
+    "name": "Monad",
+    "shortName": "monad",
+    "symbol": "MON",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://rpc.monad.xyz",
+        "tracking": null
+      },
+      {
+        "url": "https://rpc-mainnet.monadinfra.com",
+        "tracking": null
+      }
+    ],
+    "explorer": "https://monadvision.com",
+    "icon": "assets/new-ui/network_icons/monad.svg"
+  },
+  {
+    "chainId": 9745,
+    "name": "Plasma",
+    "shortName": "plasma",
+    "symbol": "XPL",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://rpc.plasma.to",
+        "tracking": null
+      },
+      {
+        "url": "https://rpc.swiftnodes.io/rpc/plasma",
+        "tracking": "limited"
+      }
+    ],
+    "explorer": "https://plasmascan.to",
+    "icon": "assets/new-ui/network_icons/plasma.svg"
+  },
+  {
+    "chainId": 57073,
+    "name": "Ink",
+    "shortName": "ink",
+    "symbol": "ETH",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://ink-rpc.publicnode.com",
+        "tracking": "none"
+      },
+      {
+        "url": "https://rpc-gel.inkonchain.com",
+        "tracking": null
+      }
+    ],
+    "explorer": "https://explorer.inkonchain.com",
+    "icon": "assets/new-ui/network_icons/ink.svg"
+  },
+  {
+    "chainId": 196,
+    "name": "X Layer",
+    "shortName": "okb",
+    "symbol": "OKB",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://rpc.xlayer.tech",
+        "tracking": null
+      },
+      {
+        "url": "https://xlayer-mainnet.rpc.sentio.xyz",
+        "tracking": "limited"
+      }
+    ],
+    "explorer": "https://www.oklink.com/xlayer",
+    "icon": "assets/new-ui/network_icons/xlayer.svg"
+  },
+  {
+    "chainId": 25,
+    "name": "Cronos",
+    "shortName": "cro",
+    "symbol": "CRO",
+    "decimals": 18,
+    "rpc": [
+      {
+        "url": "https://cronos-evm-rpc.publicnode.com",
+        "tracking": "none"
+      },
+      {
+        "url": "https://evm.cronos.org",
+        "tracking": null
+      }
+    ],
+    "explorer": "https://explorer.cronos.org",
+    "icon": "assets/new-ui/network_icons/cronos.svg"
+  }
+]

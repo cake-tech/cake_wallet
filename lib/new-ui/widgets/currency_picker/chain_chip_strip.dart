@@ -1,18 +1,20 @@
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class ChainChipStrip extends StatelessWidget {
   const ChainChipStrip({
     super.key,
-    required this.walletTypes,
+    required this.networks,
     required this.selected,
     required this.onSelected,
   });
 
-  final List<WalletType> walletTypes;
-  final WalletType? selected;
-  final ValueChanged<WalletType?> onSelected;
+  final List<WalletNetwork> networks;
+  final WalletNetwork? selected;
+  final ValueChanged<WalletNetwork?> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -28,11 +30,13 @@ class ChainChipStrip extends StatelessWidget {
             isSelected: selected == null,
             onTap: () => onSelected(null),
           ),
-          for (final type in walletTypes)
+          for (final network in networks)
             _ChainChip(
-              label: walletTypeToString(type),
-              isSelected: selected == type,
-              onTap: () => onSelected(type),
+              label: network.type == WalletType.evm
+                  ? networkDisplayName(network.type, network.chainId)
+                  : walletTypeToString(network.type),
+              isSelected: selected == network,
+              onTap: () => onSelected(network),
             ),
         ],
       ),

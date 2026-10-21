@@ -63,7 +63,7 @@ class CardCustomizer extends StatefulWidget {
         child: CardCustomizer(
           cryptoTitle: dashboardViewModel.wallet.currency.fullName ??
               dashboardViewModel.wallet.currency.name,
-          cryptoName: dashboardViewModel.wallet.currency.name,
+          cryptoName: dashboardViewModel.walletCurrencyName,
           account: account,
           fiatBalance: account == null ? null : balanceViewModel.accountFiatBalance(account),
         ),
@@ -331,6 +331,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                         const SizedBox(width: 8),
                                                     itemBuilder: (context, index) {
                                                       final icon = state.availableIconPaths[index];
+                                                      final addedNetwork = icon.addedNetwork;
                                                       final isSelected =
                                                           index == state.selectedIconIndex;
                                                       return GestureDetector(
@@ -368,6 +369,13 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                                             padding: const EdgeInsets.all(10),
                                                             child: CakeImageWidget(
                                                               imageUrl: icon.path,
+                                                              width:
+                                                                  addedNetwork == null ? null : 24,
+                                                              height:
+                                                                  addedNetwork == null ? null : 24,
+                                                              isRoundedSquare: addedNetwork != null,
+                                                              isOutlined: addedNetwork != null,
+                                                              fallbackName: addedNetwork?.fullName,
                                                             ),
                                                           ),
                                                         ),

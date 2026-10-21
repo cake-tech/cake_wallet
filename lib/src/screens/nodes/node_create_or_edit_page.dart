@@ -10,9 +10,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -22,13 +20,11 @@ class NodeCreateOrEditPage extends StatefulWidget {
     required this.nodeCreateOrEditViewModel,
     this.editingNode,
     this.isSelected,
-    this.type,
   });
 
   final NodeCreateOrEditViewModel nodeCreateOrEditViewModel;
   final Node? editingNode;
   final bool? isSelected;
-  final WalletType? type;
 
   @override
   State<NodeCreateOrEditPage> createState() => _NodeCreateOrEditPageState();
@@ -127,7 +123,8 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
                                 Navigator.of(context).push(CupertinoPageRoute(
                                     builder: (context) => NodeSharePage(
                                         uri: widget.editingNode!.uri,
-                                        currency: walletTypeToCryptoCurrency(widget.type!))));
+                                        currency: widget
+                                            .nodeCreateOrEditViewModel.network.nativeCurrency)));
                               }),
                         if (!(widget.editingNode == null ||
                             !widget.nodeCreateOrEditViewModel.isReady ||

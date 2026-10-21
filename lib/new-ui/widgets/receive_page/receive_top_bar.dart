@@ -18,7 +18,8 @@ class ModalTopBar extends StatelessWidget {
       this.trailingWidget,
       this.titleLeadingWidget,
       this.leadingSemanticLabel,
-      this.trailingSemanticLabel}) {
+      this.trailingSemanticLabel,
+      this.titleStyle}) {
     if (leadingIcon != null && leadingWidget != null) {
       throw ArgumentError("Cannot have both leadingIcon and leadingWidget");
     }
@@ -38,6 +39,7 @@ class ModalTopBar extends StatelessWidget {
   final Widget? leadingWidget;
   final Widget? trailingWidget;
   final Widget? titleLeadingWidget;
+  final TextStyle? titleStyle;
 
   /// Accessible name for the leading chrome button. Required (and must be
   /// non-empty) whenever a [leadingIcon] is supplied, because the icon alone
@@ -55,6 +57,8 @@ class ModalTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasBottomText = bottomText != null && bottomText!.isNotEmpty;
+    final titleTextStyle = titleStyle ??
+        Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: hasBottomText ? 16 : 18);
     final titleContent = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -69,9 +73,7 @@ class ModalTopBar extends StatelessWidget {
             child: titleLeadingWidget == null
                 ? Text(
                     title,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontSize: hasBottomText ? 16 : 18,
-                        ),
+                    style: titleTextStyle,
                   )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
@@ -84,9 +86,7 @@ class ModalTopBar extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontSize: hasBottomText ? 16 : 18,
-                              ),
+                          style: titleTextStyle,
                         ),
                       ),
                     ],

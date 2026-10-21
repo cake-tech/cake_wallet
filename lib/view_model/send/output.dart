@@ -20,7 +20,7 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/erc20_token.dart";
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -151,7 +151,7 @@ abstract class OutputBase with Store {
         case WalletType.dogecoin:
         case WalletType.decred:
         case WalletType.zano:
-          estimatedFee = Money.fromInt(fee, walletTypeToCryptoCurrency(_wallet.type));
+          estimatedFee = Money.fromInt(fee, _wallet.currency);
           break;
         case WalletType.bitcoin:
           if (cryptoCurrencyHandler() == CryptoCurrency.btcln) {
@@ -185,26 +185,19 @@ abstract class OutputBase with Store {
 
         /// EVMs
         case WalletType.ethereum:
+        case WalletType.evm:
         case WalletType.polygon:
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
         case WalletType.robinhood:
-          final isNative = [
-            CryptoCurrency.eth,
-            CryptoCurrency.maticpoly,
-            CryptoCurrency.baseEth,
-            CryptoCurrency.arbEth,
-            CryptoCurrency.bnb,
-            CryptoCurrency.robEth
-          ].contains(cryptoCurrencyHandler());
+          final isNative = cryptoCurrencyHandler() is! Erc20Token;
 
           final fee = isNative
               ? evm!.getEVMNativeEstimatedFee(_wallet)
               : evm!.getEVMERC20EstimatedFee(_wallet);
 
-          estimatedFee =
-              Money(BigInt.parse(fee ?? '0.0'), walletTypeToCryptoCurrency(_wallet.type));
+          estimatedFee = Money(BigInt.parse(fee ?? "0.0"), _wallet.currency);
           break;
 
         /// end EVMs

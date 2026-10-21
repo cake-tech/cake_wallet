@@ -14,6 +14,7 @@ import "package:cw_core/transaction_info.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/foundation.dart";
 import "package:mobx/mobx.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
@@ -82,7 +83,25 @@ abstract class AppStoreBase with Store {
     _lastWalletConnectAction = _lastWalletConnectAction.then((_) => action());
   }
 
+  ReactionDisposer? _evmNetworksReaction;
+
   Future<void> _setupWalletConnect() async {
+    final wallet = this.wallet;
+    if (wallet == null || !isWalletConnectCompatibleChain(wallet.type)) {
+      return;
+    }
+
+    _evmNetworksReaction ??= reaction(
+      (_) => settingsStore.evmNetworks.keys.toSet(),
+      (_) {
+        final walletType = this.wallet?.type;
+        if (walletType != null && isEVMCompatibleChain(walletType)) {
+          _queueWalletConnectAction(_setupWalletConnect);
+        }
+      },
+      equals: setEquals,
+    );
+
     try {
       final wcService = getIt.get<WalletKitService>();
       await wcService.onDispose();
@@ -94,6 +113,9 @@ abstract class AppStoreBase with Store {
   }
 
   Future<void> _disposeWalletConnect() async {
+    _evmNetworksReaction?.call();
+    _evmNetworksReaction = null;
+
     try {
       await getIt.get<WalletKitService>().onDispose();
     } catch (e) {

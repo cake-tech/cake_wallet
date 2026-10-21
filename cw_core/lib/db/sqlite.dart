@@ -71,7 +71,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -198,12 +198,27 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
         await _migrateBitcoinCardStylesForAccounts(db);
       }
-      if(oldVersion <= 14) {
+      if (oldVersion <= 14) {
         await _addColumnIfNotExists(
           db,
           table: "BalanceCardStyleSettings",
           column: "hidden",
           definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
+      if (oldVersion <= 15) {
+        await _createEvmNetworkTable(db);
+        await _addColumnIfNotExists(
+          db,
+          table: "Node",
+          column: "chainId",
+          definition: "INTEGER",
+        );
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "chainId",
+          definition: "INTEGER",
         );
       }
     },
@@ -237,7 +252,8 @@ CREATE TABLE WalletInfo (
   favoriteTokenAddress TEXT DEFAULT NULL,
   accountDiscoveryLimit INTEGER DEFAULT NULL,
   isMultiAccountsEnabled INTEGER DEFAULT NULL,
-  showSeedBackupReminder BOOLEAN DEFAULT FALSE
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE,
+  chainId INTEGER
 );
 ''');
 
@@ -313,6 +329,7 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createEvmNetworkTable(db);
     },
   );
 }
@@ -599,7 +616,27 @@ socksProxyAddress TEXT,
 isEnabledForAutoSwitching BOOLEAN DEFAULT FALSE,
 isOfficial BOOLEAN DEFAULT FALSE,
 isBuiltin BOOLEAN DEFAULT FALSE,
-isDefault BOOLEAN DEFAULT FALSE
+isDefault BOOLEAN DEFAULT FALSE,
+chainId INTEGER
 );
         """);
+}
+
+Future<void> _createEvmNetworkTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS EvmNetwork (
+  chainId INTEGER NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  symbol TEXT NOT NULL,
+  decimals INTEGER NOT NULL,
+  tag TEXT NOT NULL,
+  rpcUrl TEXT NOT NULL,
+  failoverUrl TEXT,
+  explorerUrl TEXT,
+  iconUrl TEXT,
+  isManual INTEGER NOT NULL DEFAULT 0,
+  isEnabled INTEGER NOT NULL DEFAULT 0,
+  enabledAt INTEGER NOT NULL DEFAULT 0
+);
+""");
 }

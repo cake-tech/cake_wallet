@@ -1,12 +1,12 @@
 import 'dart:async';
 
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
-import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -40,6 +40,7 @@ abstract class ContactListViewModelBase with Store {
       contacts,
       (contact) => ContactRecord(contactSource, contact),
       initialFire: true,
+      filter: (contact) => CryptoCurrency.safeDeserialize(raw: contact.raw) != null,
     );
 
     setOrderType(settingsStore.contactListOrder);
@@ -73,8 +74,10 @@ abstract class ContactListViewModelBase with Store {
                 name,
                 getCryptoCurrencyForWalletListItem(
                   info.type,
+                  chainId: info.chainId,
                 ),
                 walletType: info.type,
+                chainId: info.chainId,
               ));
             }
           }
@@ -88,8 +91,10 @@ abstract class ContactListViewModelBase with Store {
               name,
               getCryptoCurrencyForWalletListItem(
                 info.type,
+                chainId: info.chainId,
               ),
               walletType: info.type,
+              chainId: info.chainId,
             ));
           } else {
             addresses.forEach((address, label) {
@@ -105,8 +110,10 @@ abstract class ContactListViewModelBase with Store {
                   isTestnet: info.network == null
                       ? false
                       : info.network!.toLowerCase().contains("testnet"),
+                  chainId: info.chainId,
                 ),
                 walletType: info.type,
+                chainId: info.chainId,
               ));
             });
           }
@@ -119,8 +126,10 @@ abstract class ContactListViewModelBase with Store {
                     : null),
             getCryptoCurrencyForWalletListItem(
               info.type,
+              chainId: info.chainId,
             ),
             walletType: info.type,
+            chainId: info.chainId,
           ));
         }
       }
@@ -191,7 +200,7 @@ abstract class ContactListViewModelBase with Store {
 
       if (isEVMCompatibleChain(walletType)) {
         final currencyChainId = TokenUtilities.getChainId(_currency);
-        final walletChainId = evm!.getChainIdByWalletType(walletType);
+        final walletChainId = WalletNetwork(walletType, element.chainId).evmChainId;
 
         if (currencyChainId != walletChainId) matches = false;
       }

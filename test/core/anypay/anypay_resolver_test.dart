@@ -17,6 +17,7 @@ class _FakeTokenLookup implements AnyPayTokenLookup {
   Future<CryptoCurrency?> findTokenByAddress({
     required WalletType walletType,
     required String address,
+    int? chainId,
   }) {
     if (onFindToken == null) {
       fail("no token lookup expected");

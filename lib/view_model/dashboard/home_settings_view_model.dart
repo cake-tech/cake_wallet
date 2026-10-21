@@ -1,8 +1,6 @@
-import 'dart:convert';
-
+import "package:cake_wallet/core/erc20_token_checks.dart";
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/erc20_token_info_moralis.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -10,16 +8,13 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/homoglyph_normalizer.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'home_settings_view_model.g.dart';
 
@@ -194,19 +189,21 @@ abstract class HomeSettingsViewModelBase with Store {
         return false;
       }
 
-      final moralisChainName = evm!.getMoralisChainName(_balanceViewModel.wallet);
+      final chainId = evm!.getSelectedChainId(_balanceViewModel.wallet);
+      if (chainId == null) {
+        return false;
+      }
 
-      final isPotentialScamViaMoralis = moralisChainName != null &&
-          await _isPotentialScamTokenViaMoralis(contractAddress, moralisChainName);
+      final checks = [
+        await Erc20TokenChecks.moralisScamCheck(contractAddress, chainId),
+        await Erc20TokenChecks.contractVerificationCheck(contractAddress, chainId),
+      ];
 
-      bool isUnverifiedContract = await _isContractUnverified(
-        contractAddress,
-        chainId: evm!.getSelectedChainId(_balanceViewModel.wallet).toString(),
-      );
+      final isCheckedSafe = checks.contains(TokenCheckResult.safe) &&
+          !checks.contains(TokenCheckResult.risky) &&
+          !checks.contains(TokenCheckResult.failed);
 
-      final showWarningForContractAddress = isPotentialScamViaMoralis || isUnverifiedContract;
-
-      return showWarningForContractAddress;
+      return !isCheckedSafe;
     } finally {
       isValidatingContractAddress = false;
     }
@@ -217,6 +214,7 @@ abstract class HomeSettingsViewModelBase with Store {
     List<String> defaultTokenAddresses = [];
     switch (_balanceViewModel.wallet.type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -259,6 +257,7 @@ abstract class HomeSettingsViewModelBase with Store {
     List<String> defaultTokenSymbols = [];
     switch (_balanceViewModel.wallet.type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -289,105 +288,6 @@ abstract class HomeSettingsViewModelBase with Store {
     }
 
     return defaultTokenSymbols.any((s) => s.toUpperCase() == normalizedSymbol);
-  }
-
-  Future<bool> _isPotentialScamTokenViaMoralis(
-    String contractAddress,
-    String chainName,
-  ) async {
-    final uri = Uri.https(
-      'deep-index.moralis.io',
-      '/api/v2.2/erc20/metadata',
-      {
-        "chain": chainName,
-        "addresses": contractAddress,
-      },
-    );
-
-    try {
-      final response = await ProxyWrapper().get(
-        clearnetUri: uri,
-        headers: {
-          "Accept": "application/json",
-          "X-API-Key": secrets.moralisApiKey,
-        },
-      );
-
-      final decodedResponse = jsonDecode(response.body);
-
-      final tokenInfo = Erc20TokenInfoMoralis.fromJson(decodedResponse[0] as Map<String, dynamic>);
-
-      // Based on analysis using Moralis internal metrics
-      if (tokenInfo.possibleSpam == true) {
-        return true;
-      }
-
-      // Tokens whose contract have not been verified are potentially risky tokens.
-      // if (tokenInfo.verifiedContract == false) {
-      //   return true;
-      // }
-
-      // Tokens with a security score less than 40 are potentially risky, requiring caution when dealing with them.
-      if (tokenInfo.securityScore != null && tokenInfo.securityScore! < 40) {
-        return true;
-      }
-
-      // Having a Fully Diluted Valiuation of 0 is a significant red flag that could signify:
-      // - An abandoned/unlaunched project
-      // - Incorrect/missing token data
-      // - Suspicious manipulation of token data
-
-      /// commented out as it's failing a lot of legit tokens
-      // if (tokenInfo.fullyDilutedValuation == '0') {
-      //   return true;
-      // }
-
-      return false;
-    } catch (e) {
-      printV('Error while checking scam via moralis: ${e.toString()}');
-      return true;
-    }
-  }
-
-  Future<bool> _isContractUnverified(
-    String contractAddress, {
-    required String chainId,
-  }) async {
-    final uri = Uri.https(
-      "api.etherscan.io",
-      "/v2/api",
-      {
-        "chainid": chainId,
-        "module": "contract",
-        "action": "getsourcecode",
-        "address": contractAddress,
-        "apikey": secrets.etherScanApiKey,
-      },
-    );
-
-    try {
-      final response = await ProxyWrapper().get(clearnetUri: uri);
-
-      final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
-
-      if (decodedResponse['status'] == '0') {
-        printV('${response.body}\n');
-        printV('${decodedResponse['result']}\n');
-        return true;
-      }
-
-      if (decodedResponse['status'] == '1' &&
-          decodedResponse['result'][0]['ABI'] == 'Contract source code not verified') {
-        printV('Call is valid but contract is not verified');
-        return true; // Contract is not verified
-      } else {
-        printV('Call is valid and contract is verified');
-        return false; // Contract is verified
-      }
-    } catch (e) {
-      printV('Error while checking contract verification: ${e.toString()}');
-      return true;
-    }
   }
 
   Future<CryptoCurrency?> getToken(String contractAddress) async {
@@ -542,7 +442,8 @@ abstract class HomeSettingsViewModelBase with Store {
   Future<void> _updateLocalFavoriteToken() async {
     favoriteToken = await TokenUtilities.findTokenByAddress(
             walletType: _balanceViewModel.wallet.type,
-            address: _balanceViewModel.wallet.walletInfo.favoriteTokenAddress ?? "") ??
+            address: _balanceViewModel.wallet.walletInfo.favoriteTokenAddress ?? "",
+            chainId: _balanceViewModel.wallet.walletInfo.chainId) ??
         _balanceViewModel.wallet.currency;
   }
 

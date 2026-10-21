@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
@@ -24,12 +25,14 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     this._walletManager,
     this.walletListViewModel, {
     required this.type,
+    this.chainId,
   }) : isFetchingMnemonic = false {
     reaction((_) => _appStore.wallet, (_) => unawaited(updateWalletInfoSourceList()));
     unawaited(updateWalletInfoSourceList());
   }
 
   final WalletType type;
+  final int? chainId;
   final AppStore _appStore;
   final WalletManager _walletManager;
   final WalletLoadingService _walletLoadingService;
@@ -124,7 +127,8 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
                 di.derivationType == DerivationType.electrum;
 
         // Check that selected wallet type is not present already in group
-        bool isSameTypeAsSelectedWallet = wallet.type == type;
+        bool isSameTypeAsSelectedWallet =
+            WalletNetwork.fromWallet(wallet) == WalletNetwork(type, chainId);
 
         bool isNonSeedWallet = wallet.isNonSeedWallet;
 
@@ -171,6 +175,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
       isHardware: info.isHardwareWallet,
+      chainId: info.chainId,
     );
   }
 }

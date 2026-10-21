@@ -40,6 +40,7 @@ String getQrImage(WalletType type) {
       return 'assets/images/zec_icon_qr.svg';
     case WalletType.banano:
     case WalletType.haven:
+    case WalletType.evm:
     case WalletType.none:
       return 'assets/images/qr-cake.png';
   }
@@ -65,6 +66,8 @@ String getChainMonoImage(WalletType type) {
       return 'assets/images/trx_chain_mono.svg';
     case WalletType.zano:
       return 'assets/images/zano_chain_mono.svg';
+    case WalletType.evm:
+      return "assets/images/qr-cake.png";
     default:
       return 'assets/images/eth_chain_mono.svg';
   }

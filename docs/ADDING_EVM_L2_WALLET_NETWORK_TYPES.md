@@ -22,7 +22,14 @@ With the unified EVM architecture, all chains are managed through:
 - **ChainId-based operations**: All operations use `chainId` instead of `WalletType`
 - **Backward compatibility**: Old wallet types (ethereum, polygon, base, arbitrum) still work
 
-**Key Principle**: New chains should use `WalletType.evm` and be identified by their `chainId`. Old chains maintain backward compatibility.
+**Key Principle**: There are two kinds of EVM network, and this guide is about the first one.
+
+- **Built-in networks** are compiled into the app. Each has its own `WalletType` (ethereum, polygon, base, arbitrum, bsc) and its own native `CryptoCurrency`, and is registered in `EvmChainRegistry.initialize()`. Adding one is what the steps below describe.
+- **Added networks** are the ones a user adds at runtime, from the ChainList feed or by hand. They all share `WalletType.evm`, and a wallet on one carries the chain in `WalletInfo.chainId`. Their settings live in the `EvmNetwork` SQLite table (`cw_core/lib/evm_network.dart`), and at start `evm.loadNetworks()` (called from `lib/main.dart`) registers every row with `EvmChainRegistry.registerAddedNetworkChain`, or only its native currency when the network is disabled. Their native currency is built at runtime and resolved through `EvmNativeCurrencies` (`cw_core/lib/currency_for_wallet_type.dart`). No code change is needed for a user to add one.
+
+`WalletType.evm` is never used for a built-in network. `registerAddedNetworkCurrency` refuses a chain ID the registry already has as built-in.
+
+`WalletType.evm` is stored three different ways, one per store. The `WalletInfo` table stores the enum index, which is 20. The `Node` table stores `serializeToInt` in `typeRaw`, which is 19. The Hive adapter in `cw_core/lib/wallet_type.part.dart` writes byte 20. A query has to use the encoding of the table it reads: `EvmNetworkService.walletCount` filters `WalletInfo` with `WalletType.evm.index`, and the node queries (`Node.getAllForEvmChain`, `Node.getDefaultForEvmChain`) filter with `serializeToInt(WalletType.evm)`. Mixing them up returns nothing and fails silently. `cw_core/test/wallet_type_codec_test.dart` pins all three.
 
 ## Step-by-Step Guide
 
@@ -34,42 +41,26 @@ Add your chain configuration in the `initialize()` method:
 
 ```dart
 // Example: Adding Optimism
-_registerChain(
+_registerBuiltinChain(
   const ChainConfig(
     chainId: 10, // Optimism mainnet
     name: 'Optimism',
     shortCode: 'op',
     caip2: 'eip155:10',
     nativeCurrency: CryptoCurrency.op, // Must exist in cw_core/lib/crypto_currency.dart
-    capabilities: ChainCapabilities(
-      supportsERC20: true,
-      supportsEIP1559: true,
-      supportsInternalTx: true,
-      supportsSubscriptions: false,
-      supportsENS: false,
-    ),
-    defaultRpcEndpoints: [
-      'mainnet.optimism.io',
-      'optimism.publicnode.com',
-      // Add more RPC endpoints
-    ],
     explorerUrls: [
       'https://optimistic.etherscan.io',
     ],
-    feeModel: FeeModel(
-      type: FeeType.eip1559,
-      defaultGasLimit: 21000,
-    ),
+    feeModel: FeeModel(type: FeeType.eip1559),
   ),
-  WalletType.evm, // Use WalletType.evm for new chains (or old type if backward compatibility needed)
+  WalletType.optimism, // The chain's own WalletType, see Step 7
   'OP', // Native currency symbol
 );
 ```
 
 **Notes**:
-- For **new chains**, use `WalletType.evm` (unified type)
-- For **backward compatibility** with existing wallets, you can map to an old `WalletType` (e.g., `WalletType.optimism` if it exists)
-- The registry automatically creates mappings: `chainId` → `WalletType`, `tag` → `chainId`, `caip2` → `chainId`
+- A built-in chain always maps to its own `WalletType`. Never pass `WalletType.evm` here, that type belongs to the networks users add at runtime
+- The registry automatically creates mappings: `chainId` → `WalletType` and `tag` → `chainId`
 - If the chain uses a standard EVM client, you can use the default `EVMChainClient` (no custom client needed)
 
 ### Step 2: Add Native Currency (If New)
@@ -102,46 +93,15 @@ The unified EVM and PayAnything flows rely on a **two-way mapping** between
 
 **File**: `cw_core/lib/currency_for_wallet_type.dart`
 
-1. **Map `chainId` → `CryptoCurrency`** in `getCryptoCurrencyByChainId`:
+Add the chain to the `_natives` map in `EvmNativeCurrencies`. Both
+`getCryptoCurrencyByChainId` and `getChainIdByCryptoCurrency` read it:
 
 ```dart
-CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
-  switch (chainId) {
-    case 1:
-      return CryptoCurrency.eth;
-    case 137:
-      return CryptoCurrency.maticpoly;
-    case 8453:
-      return CryptoCurrency.baseEth;
-    case 42161:
-      return CryptoCurrency.arbEth;
-    case 10:
-      return CryptoCurrency.op; // NEW: Optimism
-    default:
-      return CryptoCurrency.eth;
-  }
-}
-```
-
-2. **Map `CryptoCurrency` → `chainId`** in `getChainIdByCryptoCurrency`:
-
-```dart
-int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
-  switch (currency) {
-    case CryptoCurrency.eth:
-      return 1;
-    case CryptoCurrency.maticpoly:
-      return 137;
-    case CryptoCurrency.baseEth:
-      return 8453;
-    case CryptoCurrency.arbEth:
-      return 42161;
-    case CryptoCurrency.op: // NEW: Optimism
-      return 10;
-    default:
-      return null;
-  }
-}
+static final Map<int, _EvmNative> _natives = {
+  1: const _EvmNative(currency: CryptoCurrency.eth, walletType: WalletType.ethereum),
+  // ...
+  10: const _EvmNative(currency: CryptoCurrency.op, walletType: WalletType.optimism), // NEW
+};
 ```
 
 **Why this matters**:
@@ -283,52 +243,9 @@ static String getScanProviderPreferenceKey(int chainId) {
 }
 ```
 
-#### 4.5 Default Token Tag
+#### 4.5 Token Tag and Fee Currency
 
-```dart
-static String getDefaultTokenTag(int chainId) {
-  return switch (chainId) {
-    1 => 'ETH',
-    137 => 'POL',
-    8453 => 'ETH',
-    42161 => 'ETH',
-    10 => 'OP', // NEW
-    _ => 'ETH', // Default
-  };
-}
-```
-
-#### 4.6 Fee Currency Symbol
-
-```dart
-static String getFeeCurrency(int chainId) {
-  return switch (chainId) {
-    1 => 'ETH',
-    137 => 'MATIC', // Polygon uses MATIC, not POL
-    8453 => 'ETH',
-    42161 => 'ETH',
-    10 => 'ETH', // Optimism uses ETH
-    _ => 'ETH', // Default
-  };
-}
-```
-
-**Note**: This is used in transaction fetching APIs. Polygon uses 'MATIC' even though the currency tag is 'POL'.
-
-#### 4.7 Default Token Symbol
-
-```dart
-static String getDefaultTokenSymbol(int chainId) {
-  return switch (chainId) {
-    1 => 'ETH',
-    137 => 'MATIC',
-    8453 => 'ETH',
-    42161 => 'ETH',
-    10 => 'ETH', // Optimism uses ETH
-    _ => 'ETH', // Default
-  };
-}
-```
+Nothing to add. `getDefaultTokenTag` and `getFeeCurrency` read the `nativeCurrency` of the chain's `ChainConfig` from Step 1.
 
 ### Step 5: Create Custom Client (Only If Needed)
 
@@ -411,11 +328,7 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
   String path;
   switch (type) {
     // ... existing cases ...
-    case WalletType.evm: // For new chains using WalletType.evm
-      // Nodes are loaded based on chainId, not WalletType
-      // This is handled automatically by the node switching service
-      return [];
-    case WalletType.optimism: // Only if using old WalletType for backward compatibility
+    case WalletType.optimism:
       path = 'assets/optimism_node_list.yml';
       break;
   }
@@ -423,23 +336,23 @@ Future<List<Node>> loadDefaultNodes(WalletType type) async {
 }
 ```
 
-**Note**: For `WalletType.evm` wallets, nodes are managed dynamically based on `chainId`. The node switching service automatically loads the correct nodes.
+**Note**: A built-in chain gets its nodes from its YAML list like any other wallet type. Added networks (`WalletType.evm`) have no YAML list: their node rows are written when the user enables or saves the network, keyed by `chainId`.
 
-### Step 7: Update DI Registration (If Using Old WalletType)
+### Step 7: Add the WalletType and DI Registration
 
-**Only needed if you're adding a new `WalletType` enum value for backward compatibility**
+**Needed for every built-in chain**, since each one has its own `WalletType`
 
 **File**: `cw_core/lib/wallet_type.dart`
-
-If you need a new `WalletType` (not recommended for new chains):
 
 ```dart
 enum WalletType {
   // ... existing types ...
   @HiveField(19) // Next available field ID
-  optimism, // Only if needed for backward compatibility
+  optimism,
 }
 ```
+
+A new `WalletType` touches every exhaustive `switch` over the enum, so expect the analyzer to point at many files. Follow the `WalletType.bsc` cases.
 
 **File**: `lib/di.dart`
 
@@ -449,15 +362,17 @@ Add your wallet type to the `WalletService` factory:
 factory WalletService(WalletType type, bool isDirect) {
   switch (type) {
     // ... existing cases ...
-    case WalletType.optimism: // Only if using old WalletType
-      return evm!.createEVMWalletService(type, isDirect);
-    case WalletType.evm: // For new unified wallets
+    case WalletType.optimism:
       return evm!.createEVMWalletService(type, isDirect);
   }
 }
 ```
 
-**Note**: **For new chains, use `WalletType.evm`** - no DI changes needed! The unified proxy already handles all EVM chains.
+**Note**: The unified `evm` proxy handles the new type, so no proxy file is needed, only the new `case`.
+
+#### Promoting an added network to built-in
+
+Users may already have the chain as an added network. To make it built-in later, add it as a built-in chain with the steps in this guide, and keep its chain ID out of the add list: the Add EVM networks page (`manage_evm_networks_bloc.dart`) drops any chain the registry reports as built-in, and the chain should also leave `assets/evm_networks/popular.json`. Existing users still have an `EvmNetwork` row and `WalletType.evm` wallets with that chain ID, and `registerAddedNetworkCurrency` throws for a built-in chain ID, so the promotion also needs a migration that moves those rows and wallets to the new type.
 
 ### Step 8: Add Erc20Token Box Name Constant (If Needed)
 
@@ -480,7 +395,7 @@ class Erc20Token extends CryptoCurrency {
 Once you've completed the steps above, the following will work automatically:
 
 ✅ **Chain appears in dropdown** - The chain selection UI (`EvmSwitcher`) automatically shows your new chain from the registry  
-✅ **Wallet creation** - Users can create `WalletType.evm` wallets and switch to your chain  
+✅ **Wallet creation** - Users can create wallets of your chain's `WalletType` from the Wallet Network picker  
 ✅ **Chain switching** - Users can switch between chains seamlessly  
 ✅ **All operations** - Balance fetching, transaction sending, etc. all work  
 ✅ **Transaction filtering** - Transactions are automatically filtered by `chainId`  
@@ -492,7 +407,8 @@ Once you've completed the steps above, the following will work automatically:
 
 ## Testing Checklist
 
-- [ ] Create a new `WalletType.evm` wallet
+- [ ] Create a new wallet of the chain's `WalletType`
+- [ ] Check the chain no longer shows in the Add EVM networks list
 - [ ] Switch to your new chain and verify it appears in the chain switcher
 - [ ] Verify balances update correctly
 - [ ] Switch between chains and verify balances update
@@ -518,7 +434,7 @@ Once you've completed the steps above, the following will work automatically:
 **Solution**: Check that:
 - Node list YAML file exists and is properly formatted
 - RPC endpoints are correct and accessible
-- For `WalletType.evm` wallets, nodes are retrieved using `chainId` via `settingsStore.getCurrentNode(WalletType.evm, chainId: chainId)`
+- For a built-in chain, nodes come from its YAML list through `settingsStore.getCurrentNode(walletType, chainId: chainId)`. Only added networks (`WalletType.evm`) are looked up by `chainId` alone, in `settingsStore.evmChainNodes`
 - Node switching service uses `isEVMCompatibleChain()` to handle all EVM wallets
 
 ### Issue: Transactions not showing
@@ -561,16 +477,16 @@ Once you've completed the steps above, the following will work automatically:
 3. **Add default tokens** (Step 3) - Recommended
 4. **Add node list YAML** (Step 6) - Required
 5. **Update chain utilities** (Step 4) - Only if chain has special requirements
+6. **Add the WalletType and DI registration** (Step 7) - Required
 
 ### For Chains with Custom Behavior
 
 - Add **Step 5** (Custom Client) only if needed
-- Add **Step 7** (DI Registration) only if using old `WalletType` (not recommended)
 - Add **Step 8** (Box Name Constant) only if custom box name needed
 
 ### Key Points
 
-✅ **Use `WalletType.evm` for new chains** - No need to create new `WalletType` enum values  
+✅ **One `WalletType` per built-in chain** - `WalletType.evm` is only for networks users add at runtime  
 ✅ **Everything is `chainId`-based** - All operations use `chainId`, not `walletType`  
 ✅ **Registry-driven** - Chain configuration is centralized in `EvmChainRegistry`  
 ✅ **Backward compatible** - Old wallet types (ethereum, polygon, base, arbitrum) still work  
@@ -579,7 +495,6 @@ Once you've completed the steps above, the following will work automatically:
 
 ### What You DON'T Need to Do
 
-❌ Create a new `WalletType` enum value (use `WalletType.evm`)  
 ❌ Create a new proxy file (unified proxy handles all chains)  
 ❌ Create a new wallet service (unified service handles all chains)  
 ❌ Create a new wallet class (unified `EVMChainWallet` handles all chains)  

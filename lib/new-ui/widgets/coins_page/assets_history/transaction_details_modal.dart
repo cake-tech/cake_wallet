@@ -8,9 +8,11 @@ import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/transaction_details/address_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
+import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -51,6 +53,9 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
     }
   }
 
+  AddedNetworkCurrency? get _networkIconNative =>
+      AddedNetworkCurrency.tryWithNetworkIcon(widget.transactionDetailsViewModel.transactionAsset);
+
   @override
   Widget build(BuildContext context) => SafeArea(
         bottom: false,
@@ -76,11 +81,23 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                       controller: ModalScrollController.of(context),
                       child: Column(
                         children: [
-                          TokenImageWidget(
-                            imageUrl:
-                                widget.transactionDetailsViewModel.transactionAsset.iconPath ?? "",
-                            size: 64,
-                          ),
+                          if (_networkIconNative == null)
+                            TokenImageWidget(
+                              imageUrl:
+                                  widget.transactionDetailsViewModel.transactionAsset.iconPath ??
+                                      "",
+                              size: 64,
+                            )
+                          else
+                            CakeImageWidget(
+                              imageUrl:
+                                  widget.transactionDetailsViewModel.transactionAsset.iconPath,
+                              width: 64,
+                              height: 64,
+                              isRoundedSquare: true,
+                              isOutlined: _networkIconNative != null,
+                              fallbackName: _networkIconNative?.fullName,
+                            ),
                           const SizedBox(height: 10),
                           Text(
                             widget.transactionDetailsViewModel.formattedTitle +
@@ -174,17 +191,19 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                 Observer(
                                   builder: (_) => NewListSections(
                                     sections: {
-                                      "view tx": [
-                                        ListItemRegularRow(
-                                          keyValue: "view tx on",
-                                          label: widget
-                                              .transactionDetailsViewModel.explorerDescription,
-                                          onTap: widget.transactionDetailsViewModel.launchExplorer,
-                                          foregroundColor: Theme.of(context).colorScheme.primary,
-                                          trailingIconPath: "assets/new-ui/link_arrow.svg",
-                                          trailingIconSize: 8,
-                                        ),
-                                      ],
+                                      if (widget.transactionDetailsViewModel.hasExplorer)
+                                        "view tx": [
+                                          ListItemRegularRow(
+                                            keyValue: "view tx on",
+                                            label: widget
+                                                .transactionDetailsViewModel.explorerDescription,
+                                            onTap:
+                                                widget.transactionDetailsViewModel.launchExplorer,
+                                            foregroundColor: Theme.of(context).colorScheme.primary,
+                                            trailingIconPath: "assets/new-ui/link_arrow.svg",
+                                            trailingIconSize: 8,
+                                          ),
+                                        ],
                                       if (widget.transactionDetailsViewModel.canReplaceByFee)
                                         "rbf": [
                                           ListItemRegularRow(

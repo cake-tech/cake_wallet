@@ -80,6 +80,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           mnemonic: newWalletArguments!.mnemonic,
         );
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.polygon:
       case WalletType.base:
       case WalletType.arbitrum:
@@ -90,6 +91,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
           password: walletPassword,
           mnemonic: newWalletArguments!.mnemonic,
           passphrase: passphrase,
+          chainId: newWalletArguments!.chainId,
         );
       case WalletType.bitcoinCash:
         return bitcoinCash!.createBitcoinCashNewWalletCredentials(

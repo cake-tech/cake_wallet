@@ -11,6 +11,7 @@ class NewPrimaryButton extends StatelessWidget {
     this.isLoading = false,
     this.borderColor = Colors.transparent,
     this.disabled = false,
+    this.labelStyle,
     super.key,
   });
 
@@ -22,6 +23,7 @@ class NewPrimaryButton extends StatelessWidget {
   final Color textColor;
   final Color borderColor;
   final String text;
+  final TextStyle? labelStyle;
 
   @override
   Widget build(BuildContext context) => SizedBox(
@@ -35,6 +37,9 @@ class NewPrimaryButton extends StatelessWidget {
             shape: WidgetStateProperty.all<RoundedSuperellipseBorder>(
               RoundedSuperellipseBorder(
                 borderRadius: BorderRadius.circular(18),
+                side: borderColor == Colors.transparent
+                    ? BorderSide.none
+                    : BorderSide(color: disabled ? borderColor.withAlpha(128) : borderColor),
               ),
             ),
           ),
@@ -48,11 +53,12 @@ class NewPrimaryButton extends StatelessWidget {
                       if (image != null) image!,
                       Text(
                         text,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                            ),
+                        style: labelStyle?.copyWith(color: textColor) ??
+                            Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: textColor,
+                                ),
                       ),
                     ],
                   ),

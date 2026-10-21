@@ -100,8 +100,7 @@ Future<void> defaultSettingsMigration(
               PreferencesKey.currentFiatCurrencyKey, FiatCurrency.usd.toString());
 
           if (monero != null) {
-            await sharedPreferences.setInt(
-                PreferencesKey.currentTransactionPriorityKeyLegacy,
+            await sharedPreferences.setInt(PreferencesKey.currentTransactionPriorityKeyLegacy,
                 monero!.getDefaultTransactionPriority().raw);
           }
           await sharedPreferences.setInt(
@@ -834,7 +833,7 @@ Future<void> _validateWalletInfoBoxData() async {
     final root = await getAppDir();
 
     for (var type in WalletType.values) {
-      if (type == WalletType.none) {
+      if (type == WalletType.none || type == WalletType.evm) {
         continue;
       }
 
@@ -1373,7 +1372,7 @@ Future<void> _addTbbTokenToExistingSolanaWallets() async {
     final solanaWallets = allWallets.where((wallet) => wallet.type == WalletType.solana).toList();
 
     for (final walletInfo in solanaWallets) {
-     final existingToken = await SPLToken.getByMint(walletInfo.name, tbbToken.mintAddress);
+      final existingToken = await SPLToken.getByMint(walletInfo.name, tbbToken.mintAddress);
 
       if (existingToken != null) {
         continue;

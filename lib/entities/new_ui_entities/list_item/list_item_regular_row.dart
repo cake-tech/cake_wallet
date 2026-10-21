@@ -24,6 +24,7 @@ class ListItemRegularRow extends ListItem {
     this.iconColor,
     this.secondaryLabel,
     this.subtitleColor,
+    this.leadingWidget,
   });
 
   final String? subtitle;
@@ -39,6 +40,7 @@ class ListItemRegularRow extends ListItem {
   final Widget? trailingWidget;
   final bool truncateTrailingText;
   final Color? subtitleColor;
+  final Widget? leadingWidget;
   final Color? foregroundColor;
   final double? trailingIconSize;
   final Widget? leadingIconErrorWidget;

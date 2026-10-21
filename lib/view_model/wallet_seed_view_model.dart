@@ -1,6 +1,7 @@
 import "dart:async";
 import 'dart:math';
 
+import "package:cake_wallet/reactions/wallet_connect.dart";
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/wallet_info.dart";
@@ -25,6 +26,8 @@ abstract class WalletSeedViewModelBase with Store {
   }
 
   final WalletInfo _walletInfo;
+
+  String get networkName => networkDisplayName(walletType, _walletInfo.chainId);
 
   @observable
   String name;

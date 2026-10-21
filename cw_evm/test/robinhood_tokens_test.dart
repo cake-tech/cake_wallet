@@ -1,4 +1,5 @@
 import "package:cw_core/currency_groups.dart";
+import "package:cw_evm/history/moralis_history_provider.dart";
 import "package:cw_evm/tokens/robinhood_tokens.dart";
 import "package:cw_evm/utils/evm_chain_utils.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -63,20 +64,8 @@ void main() {
   });
 
   group("EVMChainUtils Robinhood chain params", () {
-    test("getMoralisChainName is null for Robinhood (Moralis does not index 4663)", () {
-      expect(EVMChainUtils.getMoralisChainName(4663), isNull);
-    });
-
-    test("getMoralisChainName maps supported chains to Moralis slugs", () {
-      expect(EVMChainUtils.getMoralisChainName(1), "eth");
-      expect(EVMChainUtils.getMoralisChainName(137), "polygon");
-      expect(EVMChainUtils.getMoralisChainName(8453), "base");
-      expect(EVMChainUtils.getMoralisChainName(42161), "arbitrum");
-      expect(EVMChainUtils.getMoralisChainName(56), "bsc");
-    });
-
-    test("getMoralisChainName is null for unknown chains", () {
-      expect(EVMChainUtils.getMoralisChainName(999999), isNull);
+    test("Moralis does not index Robinhood, so token discovery skips it", () {
+      expect(MoralisHistoryProvider.supportedChainIds, isNot(contains(4663)));
     });
 
     test("Robinhood is an Orbit chain with no priority fee", () {

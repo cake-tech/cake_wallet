@@ -21,7 +21,8 @@ class RestoredWallet {
       this.txDescription,
       this.recipientName,
       this.height,
-      this.privateKey});
+      this.privateKey,
+      this.chainId});
 
   final WalletRestoreMode restoreMode;
   final WalletType type;
@@ -39,6 +40,7 @@ class RestoredWallet {
   final String? recipientName;
   final int? height;
   final String? privateKey;
+  final int? chainId;
 
   factory RestoredWallet.fromKey(Map<String, dynamic> json) {
     try {
@@ -74,6 +76,7 @@ class RestoredWallet {
       spendPubkey: json['spend_pubkey'] as String?,
       height: height != null ? int.tryParse(height) ?? 0 : 0,
       privateKey: json['private_key'] as String?,
+      chainId: json["chainId"] as int?,
     );
   }
 
@@ -89,6 +92,7 @@ class RestoredWallet {
       mnemonicSeed: mnemonic_seed ?? seed,
       passphrase: passphrase,
       height: height != null ? int.parse(height) : 0,
+      chainId: json["chainId"] as int?,
     );
   }
 

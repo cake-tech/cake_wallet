@@ -181,6 +181,7 @@ void main() {
     when(() => dashboardViewModel.isMultiAccountsEnabled).thenReturn(true);
     when(() => dashboardViewModel.canToggleMultiAccounts).thenReturn(false);
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
+    when(() => dashboardViewModel.walletCurrencyName).thenReturn(CryptoCurrency.xmr.name);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {});
     when(() => wallet.walletInfo).thenReturn(walletInfo);
     when(() => wallet.type).thenReturn(WalletType.monero);

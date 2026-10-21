@@ -6,6 +6,7 @@ import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +36,36 @@ abstract class BuyProvider {
 
   @override
   String toString() => title;
+
+  String? addedEvmNetworkCode(CryptoCurrency currency) => null;
+
+  bool supportsCurrencyNetwork(CryptoCurrency currency) =>
+      !EvmNativeCurrencies.isAddedNetworkCurrency(currency) ||
+      addedEvmNetworkCode(currency) != null;
+
+  bool isPairSupported(CryptoCurrency cryptoCurrency, FiatCurrency fiatCurrency, bool isBuyAction) {
+    if (EvmNativeCurrencies.isAddedNetworkCurrency(cryptoCurrency)) {
+      if (!supportsCurrencyNetwork(cryptoCurrency)) {
+        return false;
+      }
+
+      return isBuyAction
+          ? supportedCryptoList.any((pair) => pair.to.symbol == fiatCurrency.symbol)
+          : supportedFiatList.any((pair) => pair.from.symbol == fiatCurrency.symbol);
+    }
+
+    if (isBuyAction) {
+      return supportedCryptoList.any((pair) =>
+          pair.from.symbol == cryptoCurrency.symbol &&
+          pair.from.tag == cryptoCurrency.tag &&
+          pair.to.symbol == fiatCurrency.symbol);
+    }
+
+    return supportedFiatList.any((pair) =>
+        pair.from.symbol == fiatCurrency.symbol &&
+        pair.to.symbol == cryptoCurrency.symbol &&
+        pair.to.tag == cryptoCurrency.tag);
+  }
 
   Future<void>? launchProvider(
           {required BuildContext context,

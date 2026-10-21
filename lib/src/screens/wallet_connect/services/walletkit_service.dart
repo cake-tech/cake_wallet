@@ -10,10 +10,10 @@ import 'package:reown_walletkit/reown_walletkit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/evm/evm.dart";
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
@@ -48,6 +48,8 @@ abstract class WalletKitServiceBase with Store {
   final SharedPreferences sharedPreferences;
   final BottomSheetService _bottomSheetHandler;
   final WalletConnectKeyService walletKeyService;
+
+  final Set<String> _evmChainsWithHandler = {};
 
   late ReownWalletKit _walletKit;
 
@@ -94,6 +96,7 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.onSessionProposal.subscribe(_onSessionProposal);
     _walletKit.onSessionProposalError.subscribe(_onSessionProposalError);
     _walletKit.onSessionConnect.subscribe(_onSessionConnect);
+    _walletKit.onSessionRequest.subscribe(_onSessionRequest);
 
     if (isEVMCompatibleChain(appStore.wallet!.type)) {
       _walletKit.onSessionAuthRequest.subscribe(_onSessionAuthRequest);
@@ -102,6 +105,29 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.pairings.onSync.subscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.subscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.subscribe(_onPairingDelete);
+
+    _evmChainsWithHandler.clear();
+    final evmChainService = EvmChainServiceImpl(
+      appStore: appStore,
+      wcKeyService: walletKeyService,
+      bottomSheetService: _bottomSheetHandler,
+      walletKit: _walletKit,
+    );
+    for (final chain in evm?.getAllChains() ?? const <ChainInfo>[]) {
+      final caip2ChainId = evm!.getCaip2ByChainId(chain.chainId);
+      evmChainService.registerChain(caip2ChainId);
+      _evmChainsWithHandler.add(caip2ChainId);
+    }
+
+    for (final cId in SolanaChainId.values) {
+      SolanaChainService(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
+    }
 
     // Setup our accounts
     final chainKeys = walletKeyService.getKeys(appStore.wallet!);
@@ -147,25 +173,6 @@ abstract class WalletKitServiceBase with Store {
     auth.addAll(newAuthRequests);
 
     isLoadingConnections = false;
-    for (final cId in EVMChainId.values) {
-      EvmChainServiceImpl(
-        reference: cId,
-        appStore: appStore,
-        wcKeyService: walletKeyService,
-        bottomSheetService: _bottomSheetHandler,
-        walletKit: _walletKit,
-      );
-    }
-
-    for (final cId in SolanaChainId.values) {
-      SolanaChainService(
-        reference: cId,
-        appStore: appStore,
-        wcKeyService: walletKeyService,
-        bottomSheetService: _bottomSheetHandler,
-        walletKit: _walletKit,
-      );
-    }
 
     unawaited(() async {
       try {
@@ -251,6 +258,7 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.onSessionProposal.unsubscribe(_onSessionProposal);
     _walletKit.onSessionProposalError.unsubscribe(_onSessionProposalError);
     _walletKit.onSessionConnect.unsubscribe(_onSessionConnect);
+    _walletKit.onSessionRequest.unsubscribe(_onSessionRequest);
     _walletKit.onSessionAuthRequest.unsubscribe(_onSessionAuthRequest);
 
     _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
@@ -355,6 +363,29 @@ abstract class WalletKitServiceBase with Store {
         message: errorMessage,
         success: false,
       );
+    }
+  }
+
+  Future<void> _onSessionRequest(SessionRequestEvent? args) async {
+    if (args == null || !args.chainId.startsWith("eip155:")) {
+      return;
+    }
+
+    if (_evmChainsWithHandler.contains(args.chainId)) {
+      return;
+    }
+
+    try {
+      await _walletKit.respondSessionRequest(
+        topic: args.topic,
+        response: JsonRpcResponse(
+          id: args.id,
+          jsonrpc: "2.0",
+          error: unsupportedChainError(args.chainId),
+        ),
+      );
+    } catch (e) {
+      printV("WalletConnect unsupported chain response failed: $e");
     }
   }
 

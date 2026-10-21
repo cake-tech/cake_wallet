@@ -3,6 +3,7 @@ import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import "package:flutter/material.dart";
 
 class NetworkDecisionPage extends StatelessWidget {
@@ -14,6 +15,8 @@ class NetworkDecisionPage extends StatelessWidget {
     required this.onPrimary,
     required this.secondaryText,
     this.currentIconPath,
+    this.destinationAddedChainId,
+    this.currentAddedChainId,
     this.primaryIconPath,
     this.secondaryIconPath,
     this.onSecondary,
@@ -24,6 +27,9 @@ class NetworkDecisionPage extends StatelessWidget {
   final String description;
   final String destinationIconPath;
   final String? currentIconPath;
+
+  final int? destinationAddedChainId;
+  final int? currentAddedChainId;
   final String primaryText;
   final VoidCallback onPrimary;
   final String? primaryIconPath;
@@ -58,6 +64,8 @@ class NetworkDecisionPage extends StatelessWidget {
                         child: _DecisionHeader(
                           destinationIconPath: destinationIconPath,
                           currentIconPath: currentIconPath,
+                          destinationAddedChainId: destinationAddedChainId,
+                          currentAddedChainId: currentAddedChainId,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -129,44 +137,65 @@ class NetworkDecisionPage extends StatelessWidget {
 }
 
 class _DecisionHeader extends StatelessWidget {
-  const _DecisionHeader({required this.destinationIconPath, this.currentIconPath});
+  const _DecisionHeader({
+    required this.destinationIconPath,
+    this.currentIconPath,
+    this.destinationAddedChainId,
+    this.currentAddedChainId,
+  });
 
   final String destinationIconPath;
   final String? currentIconPath;
+  final int? destinationAddedChainId;
+  final int? currentAddedChainId;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final current = currentIconPath;
+    final destinationNetwork = AddedNetworkCurrency.tryFromChainId(destinationAddedChainId);
+    final destinationUrl =
+        destinationNetwork == null ? destinationIconPath : destinationNetwork.chainIconPath;
 
     if (current == null) {
       return CakeImageWidget(
-        imageUrl: destinationIconPath,
+        imageUrl: destinationUrl,
         width: 75,
         height: 75,
         fit: BoxFit.contain,
         color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
+        isRoundedSquare: destinationNetwork != null,
+        isOutlined: destinationNetwork != null,
+        fallbackName: destinationNetwork?.fullName,
       );
     }
+
+    final currentNetwork = AddedNetworkCurrency.tryFromChainId(currentAddedChainId);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       spacing: 12,
       children: [
         CakeImageWidget(
-          imageUrl: current,
+          imageUrl: currentNetwork == null ? current : currentNetwork.chainIconPath,
           width: 50,
           height: 50,
           fit: BoxFit.contain,
           color: isMonochromeSymbolIcon(current) ? colors.primary : null,
+          isRoundedSquare: currentNetwork != null,
+          isOutlined: currentNetwork != null,
+          fallbackName: currentNetwork?.fullName,
         ),
         Icon(Icons.arrow_forward, color: colors.primary, size: 28),
         CakeImageWidget(
-          imageUrl: destinationIconPath,
+          imageUrl: destinationUrl,
           width: 50,
           height: 50,
           fit: BoxFit.contain,
           color: isMonochromeSymbolIcon(destinationIconPath) ? colors.primary : null,
+          isRoundedSquare: destinationNetwork != null,
+          isOutlined: destinationNetwork != null,
+          fallbackName: destinationNetwork?.fullName,
         ),
       ],
     );

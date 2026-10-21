@@ -1,3 +1,4 @@
+import "package:cake_wallet/core/wallet_network.dart";
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -14,6 +15,10 @@ import 'package:cw_core/wallet_type.dart';
 
 class TokenUtilities {
   static Future<List<Erc20Token>> loadAllUniqueEvmTokens() async {
+    if (evm == null) {
+      return [];
+    }
+
     final allWi = await WalletInfo.getAll();
     final evmWallets = allWi.where(
       (w) => isEVMCompatibleChain(w.type),
@@ -23,11 +28,16 @@ class TokenUtilities {
     final unique = <Erc20Token>[];
 
     for (final wallet in evmWallets) {
-      final chain = getTokenNameBasedOnWalletType(wallet.type);
-      final tokens = await Erc20Token.getAllForWallet(wallet.name, _getDefaultChainId(wallet.type));
+      final chainId = WalletNetwork(wallet.type, wallet.chainId).evmChainId;
+      if (chainId == null) {
+        printV("Skipping tokens of ${wallet.name}, its EVM network has no chain ID");
+        continue;
+      }
+
+      final tokens = await Erc20Token.getAllForWallet(wallet.name, chainId);
 
       for (final t in tokens.where((t) => t.enabled)) {
-        final key = "$chain|${t.contractAddress.toLowerCase()}";
+        final key = "$chainId|${t.contractAddress.toLowerCase()}";
         if (seen.add(key)) {
           unique.add(t);
         }
@@ -107,16 +117,33 @@ class TokenUtilities {
       tron != null ? tron!.getDefaultTronTokens() : [];
 
   static Future<List<Erc20Token>> loadEvmTokensForSwap() async {
-    final defaultTokens = loadDefaultEvmTokensForSwap();
-    final userTokens = await loadAllUniqueEvmTokens();
+    final defaultTokensByChainId = <int, List<Erc20Token>>{
+      if (evm != null)
+        for (final chain in evm!.getAllChains())
+          chain.chainId: evm!.getDefaultTokensByChainId(chain.chainId),
+    };
 
+    return uniqueEvmTokensForSwap(defaultTokensByChainId, await loadAllUniqueEvmTokens());
+  }
+
+  static List<Erc20Token> uniqueEvmTokensForSwap(
+    Map<int, List<Erc20Token>> defaultTokensByChainId,
+    List<Erc20Token> userTokens,
+  ) {
     final seen = <String>{};
     final result = <Erc20Token>[];
 
-    for (final t in [...defaultTokens, ...userTokens]) {
-      final key = '${t.tag ?? 'ETH'}|${t.contractAddress.toLowerCase()}';
-      if (seen.add(key)) {
-        result.add(t);
+    for (final entry in defaultTokensByChainId.entries) {
+      for (final token in entry.value) {
+        if (seen.add("${entry.key}|${token.contractAddress.toLowerCase()}")) {
+          result.add(token);
+        }
+      }
+    }
+
+    for (final token in userTokens) {
+      if (seen.add("${token.chainId}|${token.contractAddress.toLowerCase()}")) {
+        result.add(token);
       }
     }
 
@@ -164,12 +191,13 @@ class TokenUtilities {
   static Future<CryptoCurrency?> findTokenByAddress({
     required WalletType walletType,
     required String address,
+    int? chainId,
   }) async {
     if (address.isEmpty) {
       return null;
     }
     final lower = address.toLowerCase();
-    final tokens = await getAvailableTokensForNetwork(walletType);
+    final tokens = await getAvailableTokensForNetwork(walletType, chainId: chainId);
     for (final t in tokens) {
       if (t is Erc20Token && t.contractAddress.toLowerCase() == lower) {
         return t;
@@ -183,16 +211,6 @@ class TokenUtilities {
     }
     return null;
   }
-
-  static int _getDefaultChainId(WalletType walletType) => switch (walletType) {
-      WalletType.ethereum => 1,
-      WalletType.polygon => 137,
-      WalletType.base => 8453,
-      WalletType.arbitrum => 42161,
-      WalletType.bsc => 56,
-      WalletType.robinhood => 4663,
-      _ => 1,
-    };
 
   static Future<int?> findEvmChainIdForContract(
     String contractAddress, {
@@ -213,7 +231,11 @@ class TokenUtilities {
           continue;
         }
 
-        final token = await findTokenByAddress(walletType: walletType, address: contractAddress);
+        final token = await findTokenByAddress(
+          walletType: walletType,
+          address: contractAddress,
+          chainId: chain.chainId,
+        );
         if (token != null) {
           return chain.chainId;
         }
@@ -290,7 +312,12 @@ class TokenUtilities {
         tag == "avalanche";
   }
 
-  static int getChainId(CryptoCurrency currency) {
+  static int? getChainId(CryptoCurrency currency) {
+    final chainId = getChainIdByCryptoCurrency(currency);
+    if (chainId != null) {
+      return chainId;
+    }
+
     final tag = currency.tag?.toUpperCase();
     final title = currency.title.toLowerCase();
 
@@ -333,13 +360,14 @@ class TokenUtilities {
       return 250;
     }
 
-    return 1;
+    return null;
   }
 
   static Future<List<CryptoCurrency>> getAvailableTokensForNetwork(
-    WalletType network,
-  ) async {
-    final baseCurrency = walletTypeToCryptoCurrency(network);
+    WalletType network, {
+    int? chainId,
+  }) async {
+    final baseCurrency = walletTypeToCryptoCurrency(network, chainId: chainId);
     final allTokens = <CryptoCurrency>[baseCurrency];
     final addedAddresses = <String>{};
 
@@ -354,9 +382,9 @@ class TokenUtilities {
         }
       }
 
-      if (evm != null) {
-        final chainId = evm!.getChainIdByWalletType(network);
-        for (final token in evm!.getDefaultTokensByChainId(chainId)) {
+      final networkChainId = getChainIdByCryptoCurrency(baseCurrency);
+      if (evm != null && networkChainId != null) {
+        for (final token in evm!.getDefaultTokensByChainId(networkChainId)) {
           final address = token.contractAddress.toLowerCase();
           if (addedAddresses.add(address)) {
             allTokens.add(token);
@@ -365,7 +393,8 @@ class TokenUtilities {
       }
 
       // Add tokens from CryptoCurrency.all that don't duplicate user tokens
-      for (final currency in CryptoCurrency.all) {
+      for (final currency
+          in network == WalletType.evm ? const <CryptoCurrency>[] : CryptoCurrency.all) {
         // Match by tag for POL/BASE, match by title==tag for ETH
         final matches = (baseCurrency.tag == null && baseCurrency.title == currency.tag) ||
             (baseCurrency.tag != null &&
@@ -454,15 +483,10 @@ class TokenUtilities {
     }
 
     if (isEVMCompatibleChain(walletType)) {
+      final chainId = getChainIdByCryptoCurrency(baseCurrency);
       final tokens = await TokenUtilities.loadAllUniqueEvmTokens();
 
-      return tokens.where((token) {
-        if (baseCurrency.tag == null) {
-          return token.tag == baseCurrency.title;
-        }
-
-        return token.tag?.toLowerCase() == baseCurrency.tag?.toLowerCase();
-      }).toList();
+      return tokens.where((token) => token.chainId != null && token.chainId == chainId).toList();
     }
 
     if (walletType == WalletType.solana) {

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/evm_network.dart";
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 
@@ -106,6 +107,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             final currentColor = item.isCurrent
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface;
+            final addedNetwork = AddedNetworkCurrency.tryFromChainId(item.chainId);
             return ListTile(
               contentPadding: EdgeInsets.zero,
               key: ValueKey(item.name),
@@ -130,9 +132,15 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                         : SizedBox(width: 7),
                     SizedBox(width: 24),
                     CakeImageWidget(
-                      imageUrl: getCryptoCurrencyIconForWalletListItem(item.type),
+                      imageUrl: getCryptoCurrencyIconForWalletListItem(
+                        item.type,
+                        chainId: item.chainId,
+                      ),
                       width: 32,
                       height: 32,
+                      isRoundedSquare: addedNetwork != null,
+                      isOutlined: addedNetwork != null,
+                      fallbackName: addedNetwork?.fullName,
                     ),
                   ],
                 ),

@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/hive_type_ids.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -26,6 +27,7 @@ const walletTypes = [
   WalletType.zcash,
   WalletType.bsc,
   WalletType.robinhood,
+  WalletType.evm,
 ];
 
 const electrumWalletTypes = [
@@ -41,7 +43,8 @@ const evmWalletTypes = [
   WalletType.base,
   WalletType.arbitrum,
   WalletType.bsc,
-  WalletType.robinhood
+  WalletType.robinhood,
+  WalletType.evm,
 ];
 
 // @HiveType(typeId: WALLET_TYPE_TYPE_ID)
@@ -108,6 +111,9 @@ enum WalletType {
 
   // @HiveField(20)
   robinhood,
+
+  // @HiveField(21)
+  evm,
 }
 
 int serializeToInt(WalletType type) {
@@ -152,6 +158,8 @@ int serializeToInt(WalletType type) {
       return 18;
     case WalletType.robinhood:
       return 19;
+    case WalletType.evm:
+      return 20;
     case WalletType.none:
       return -1;
   }
@@ -199,6 +207,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.bsc;
     case 19:
       return WalletType.robinhood;
+    case 20:
+      return WalletType.evm;
     default:
       throw DeserializeException('Unexpected token: $raw for WalletType deserializeFromInt');
   }
@@ -246,6 +256,8 @@ String walletTypeToString(WalletType type) {
       return 'BNB Smart Chain';
     case WalletType.robinhood:
       return "Robinhood Chain";
+    case WalletType.evm:
+      return "EVM";
     case WalletType.none:
       return '';
   }
@@ -272,6 +284,7 @@ String walletTypeToDisplayName(WalletType type) => switch (type) {
       WalletType.zcash => 'Zcash',
       WalletType.bsc => 'BNB Smart Chain',
       WalletType.robinhood => "Robinhood Chain",
+      WalletType.evm => "EVM",
       WalletType.none => ''
     };
 
@@ -296,6 +309,7 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
       WalletType.robinhood => "",
+      WalletType.evm => "",
       WalletType.none => ''
     };
 
@@ -349,6 +363,11 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
 }
 
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
+  final chainId = getChainIdByCryptoCurrency(type);
+  if (chainId != null) {
+    return EvmNativeCurrencies.getWalletTypeByChainId(chainId);
+  }
+
   try {
     if (type.tag == CryptoCurrency.bnb.tag) {
       return _cryptoCurrencyToWalletType(CryptoCurrency.bnb);

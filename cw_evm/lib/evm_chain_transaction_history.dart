@@ -13,6 +13,30 @@ part 'evm_chain_transaction_history.g.dart';
 
 class EVMChainTransactionHistory = EVMChainTransactionHistoryBase with _$EVMChainTransactionHistory;
 
+enum PendingTransactionOutcome { keep, confirm, remove, missing }
+
+PendingTransactionOutcome pendingTransactionOutcome({
+  required bool hasReceipt,
+  required bool isReverted,
+  required bool isKnownToNode,
+  required int? nonce,
+  required int transactionCount,
+}) {
+  if (hasReceipt) {
+    return isReverted ? PendingTransactionOutcome.remove : PendingTransactionOutcome.confirm;
+  }
+
+  if (isKnownToNode) {
+    return PendingTransactionOutcome.keep;
+  }
+
+  if (nonce != null && transactionCount > nonce) {
+    return PendingTransactionOutcome.missing;
+  }
+
+  return PendingTransactionOutcome.keep;
+}
+
 abstract class EVMChainTransactionHistoryBase
     extends TransactionHistoryBase<EVMChainTransactionInfo> with Store {
   EVMChainTransactionHistoryBase({
@@ -78,6 +102,8 @@ abstract class EVMChainTransactionHistoryBase
       transactions[transaction.id] = transaction;
     }
   }
+
+  void remove(String id) => transactions.remove(id);
 
   @override
   void addMany(Map<String, EVMChainTransactionInfo> transactionsToAdd) {

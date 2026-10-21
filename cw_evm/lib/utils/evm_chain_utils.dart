@@ -1,18 +1,20 @@
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_evm/evm_chain_exceptions.dart";
+import "package:cw_evm/evm_chain_registry.dart";
 import "package:cw_evm/evm_chain_transaction_priority.dart";
 import "package:web3dart/web3dart.dart" show EtherAmount, EtherUnit;
 
 /// Utility class for chain-specific EVM chain operations
 class EVMChainUtils {
-  static int getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) =>
-      switch (chainId) {
-        1 => _ethereumPriorityFee(priority),
-        137 => _polygonPriorityFee(priority),
-        8453 => _basePriorityFee(priority),
-        56 => _ethereumPriorityFee(priority),
-        42161 => 0, // Arbitrum doesn't use priority fees
-        4663 => 0, // Robinhood Chain (Arbitrum Orbit) doesn't use priority fees
-        _ => _ethereumPriorityFee(priority),
-      };
+  static int? getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) => switch (chainId) {
+      1 => _ethereumPriorityFee(priority),
+      137 => _polygonPriorityFee(priority),
+      8453 => _basePriorityFee(priority),
+      56 => _ethereumPriorityFee(priority),
+      42161 => 0, // Arbitrum doesn't use priority fees
+      4663 => 0, // Robinhood Chain (Arbitrum Orbit) doesn't use priority fees
+      _ => null,
+    };
 
   static bool hasPriorityFee(int chainId) => switch (chainId) {
         42161 => false, // Arbitrum doesn't use priority fees
@@ -26,15 +28,26 @@ class EVMChainUtils {
     required int priorityFeeWei,
     required bool chainHasPriorityFee,
   }) {
+    final priorityFee = BigInt.from(priorityFeeWei);
     if (gasBaseFee != null && gasBaseFee > 0) {
-      final baseFeeWithPriority = gasBaseFee + priorityFeeWei;
-      final bufferMultiplier = chainHasPriorityFee ? 115 : 105;
-      final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ 100;
-      final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ 100);
-      return bufferPercent > bufferMin ? bufferPercent : bufferMin;
+      final baseFeeWithPriority = BigInt.from(gasBaseFee) + priorityFee;
+      final bufferMultiplier = BigInt.from(chainHasPriorityFee ? 115 : 105);
+      final bufferPercent = (baseFeeWithPriority * bufferMultiplier) ~/ BigInt.from(100);
+      final bufferMin = baseFeeWithPriority + (baseFeeWithPriority ~/ BigInt.from(100));
+      return weiAsInt(bufferPercent > bufferMin ? bufferPercent : bufferMin);
     }
-    return gasPrice + priorityFeeWei;
+    return weiAsInt(BigInt.from(gasPrice) + priorityFee);
   }
+
+  static int weiAsInt(BigInt wei) {
+    if (wei.isNegative || !wei.isValidInt) {
+      throw EVMChainTransactionFeesException("Fee out of range: $wei wei");
+    }
+
+    return wei.toInt();
+  }
+
+  static String hexChainId(int chainId) => "0x${chainId.toRadixString(16)}";
 
   static String getTransactionHistoryFileName(int chainId) => switch (chainId) {
         1 => "transactions.json", // Ethereum
@@ -48,53 +61,30 @@ class EVMChainUtils {
 
   /// Get scan provider preference key for a wallet type
   static String getScanProviderPreferenceKey(int chainId) => switch (chainId) {
-        1 => "use_etherscan",
-        137 => "use_polygonscan",
-        8453 => "use_base_scan",
-        42161 => "use_arbitrum_scan",
-        56 => "use_bscscan",
-        4663 => "use_robinhood_scan",
-        _ => "use_etherscan",
-      };
+      1 => "use_etherscan",
+      137 => "use_polygonscan",
+      8453 => "use_base_scan",
+      42161 => "use_arbitrum_scan",
+      56 => "use_bscscan",
+      4663 => "use_robinhood_scan",
+      _ => "use_evm_scan_$chainId",
+    };
 
-  static String getDefaultTokenTag(int chainId) => switch (chainId) {
-        1 => "ETH",
-        137 => "POL",
-        8453 => "BASE",
-        42161 => "ARB",
-        56 => "BSC",
-        4663 => "ROB",
-        _ => "ETH",
-      };
+  static String getDefaultTokenTag(int chainId) {
+    final nativeCurrency = _getNativeCurrency(chainId);
+    return nativeCurrency.tag ?? nativeCurrency.title;
+  }
 
-  static String getFeeCurrency(int chainId) => switch (chainId) {
-        1 => "ETH",
-        137 => "POL",
-        8453 => "ETH",
-        42161 => "ETH",
-        56 => "BNB",
-        4663 => "ETH",
-        _ => "ETH",
-      };
+  static String getFeeCurrency(int chainId) => _getNativeCurrency(chainId).title;
 
-  static String getDefaultTokenSymbol(int chainId) => switch (chainId) {
-        1 => "ETH",
-        137 => "POL",
-        8453 => "BASE",
-        42161 => "ARBITRUM",
-        56 => "BSC",
-        4663 => "ETH",
-        _ => "ETH",
-      };
+  static CryptoCurrency _getNativeCurrency(int chainId) {
+    final config = EvmChainRegistry().getChainConfig(chainId);
+    if (config == null) {
+      throw Exception("No EVM network registered for chain ID $chainId");
+    }
 
-  static String? getMoralisChainName(int chainId) => switch (chainId) {
-        1 => "eth",
-        137 => "polygon",
-        8453 => "base",
-        42161 => "arbitrum",
-        56 => "bsc",
-        _ => null,
-      };
+    return config.nativeCurrency;
+  }
 
   static int _ethereumPriorityFee(EVMChainTransactionPriority priority) =>
       EtherAmount.fromInt(EtherUnit.gwei, priority.tip).getInWei.toInt();

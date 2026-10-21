@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tra
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -54,8 +55,9 @@ class HistorySection extends StatelessWidget {
           builder: (_) {
             final localeName = Localizations.localeOf(context).toString();
             final items = short ? dashboardViewModel.itemsShort : dashboardViewModel.items;
+            final isHistoryComplete = dashboardViewModel.wallet.hasCompleteHistory;
 
-            return (items.isEmpty)
+            final list = (items.isEmpty)
                 ? SliverPadding(
                     padding: EdgeInsets.only(top: 24),
                     sliver: SliverToBoxAdapter(
@@ -122,7 +124,8 @@ class HistorySection extends StatelessWidget {
                                 amount: item.formattedCryptoAmount,
                                 amountFiat: item.formattedFiatAmount,
                                 hasTokens: item.hasTokens,
-                                chainIconPath: _getChainIconPath(),
+                                chainIconPath: dashboardViewModel.chainIconPath,
+                                addedNetwork: dashboardViewModel.addedNetwork,
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
@@ -231,18 +234,17 @@ class HistorySection extends StatelessWidget {
                       ),
                     ),
                   );
+
+            if (isHistoryComplete) {
+              return list;
+            }
+
+            return SliverMainAxisGroup(slivers: [
+              const SliverToBoxAdapter(child: _IncompleteHistoryNote()),
+              list,
+            ]);
           },
         ));
-  }
-
-  String _getChainIconPath() {
-    try {
-      return CryptoCurrency.fromString(
-              dashboardViewModel.wallet.currency.tag ?? dashboardViewModel.wallet.currency.title)
-          .chainIconPath!;
-    } catch (e) {
-      return dashboardViewModel.wallet.currency.chainIconPath ?? "";
-    }
   }
 
   String _formatTransactionDate(DateTime date, String localeName) {
@@ -275,5 +277,36 @@ class HistorySection extends StatelessWidget {
 
     final full = DateFormat("d MMM yyyy", localeName).format(date);
     return "$full, $timeStr";
+  }
+}
+
+class _IncompleteHistoryNote extends StatelessWidget {
+  const _IncompleteHistoryNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 12),
+      child: Row(
+        spacing: 8,
+        children: [
+          CakeImageWidget(
+            imageUrl: "assets/new-ui/info.svg",
+            width: 16,
+            height: 16,
+            colorFilter: ColorFilter.mode(colors.onSurfaceVariant, BlendMode.srcIn),
+          ),
+          Expanded(
+            child: Text(
+              S.of(context).incomplete_history_note,
+              style:
+                  Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import "package:cake_wallet/core/popular_evm_tokens.dart";
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -15,6 +16,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
+import "package:shared_preferences/shared_preferences.dart";
 import 'package:cake_wallet/reactions/check_connection.dart';
 import 'package:cake_wallet/reactions/on_wallet_sync_status_change.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -110,6 +112,7 @@ void startCurrentWalletChangeReaction(
 
       if (isEVMCompatibleChain(wallet.type)) {
         await evm!.discoverAndAddWalletTokens(wallet);
+        await PopularEvmTokens.addToWallet(wallet, getIt.get<SharedPreferences>());
       }
 
       if (wallet.type == WalletType.solana) {

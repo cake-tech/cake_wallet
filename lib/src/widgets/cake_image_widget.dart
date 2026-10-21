@@ -1,3 +1,6 @@
+import "dart:typed_data";
+
+import "package:cake_wallet/src/widgets/remote_image_cache.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -19,7 +22,15 @@ class CakeImageWidget extends StatelessWidget {
     this.allowDrawingOutsideViewBox,
     this.filterQuality,
     this.semanticsLabel,
-  });
+    this.isRoundedSquare = false,
+    this.isOutlined = false,
+    this.fallbackName,
+  }) : assert(
+          (!isRoundedSquare && !isOutlined && fallbackName == null) || width != null,
+          "A rounded square, an outline or a fallback letter is sized from width",
+        );
+
+  static const networkIconCornerRatio = 7 / 24;
 
   final String? imageUrl;
   final double? height;
@@ -42,12 +53,19 @@ class CakeImageWidget extends StatelessWidget {
   /// sole carrier of information for the user.
   final String? semanticsLabel;
 
+  final bool isRoundedSquare;
+  final bool isOutlined;
+  final String? fallbackName;
+
   bool get _isDecorative => semanticsLabel == null;
+
+  bool get _isFramed => isRoundedSquare || isOutlined;
 
   @override
   Widget build(BuildContext context) {
     if (imageUrl == null || imageUrl!.isEmpty) {
-      return _buildErrorWidget(context);
+      final placeholder = _buildErrorWidget(context);
+      return _isFramed ? _ImageFrame(image: this, child: placeholder) : placeholder;
     }
 
     final isSvg = imageUrl!.toLowerCase().endsWith('.svg');
@@ -93,10 +111,22 @@ class CakeImageWidget extends StatelessWidget {
           errorBuilder: (_, __, ___) => _buildErrorWidget(context),
         );
       }
-    } else {
-      imageWidget = isSvg
-          ? SvgPicture.network(
-              imageUrl!,
+    } else if (RemoteImageCache.isRemote(imageUrl!)) {
+      final remoteImage = RemoteImageCache.load(imageUrl!);
+      imageWidget = FutureBuilder<Uint8List?>(
+        future: remoteImage.bytesFuture,
+        initialData: remoteImage.bytes,
+        builder: (context, snapshot) {
+          final bytes = snapshot.data;
+          if (bytes == null) {
+            return snapshot.connectionState == ConnectionState.done
+                ? _buildErrorWidget(context)
+                : _buildLoadingWidget();
+          }
+
+          if (RemoteImageCache.isSvg(bytes)) {
+            return SvgPicture.memory(
+              bytes,
               height: height,
               width: width,
               colorFilter: effectiveColorFilter,
@@ -107,36 +137,53 @@ class CakeImageWidget extends StatelessWidget {
               excludeFromSemantics: _isDecorative,
               placeholderBuilder: (_) => _buildLoadingWidget(),
               errorBuilder: (_, __, ___) => _buildErrorWidget(context),
-            )
-          : Image.network(
-              imageUrl!,
-              height: height,
-              width: width,
-              fit: fit ?? BoxFit.cover,
-              color: color,
-              filterQuality: filterQuality ?? FilterQuality.medium,
-              semanticLabel: semanticsLabel,
-              excludeFromSemantics: _isDecorative,
-              loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
-                if (progress == null) return child;
-                return _buildLoadingWidget();
-              },
-              errorBuilder: (_, __, ___) => _buildErrorWidget(context),
             );
+          }
+
+          return Image.memory(
+            bytes,
+            height: height,
+            width: width,
+            fit: fit ?? BoxFit.cover,
+            color: color,
+            filterQuality: filterQuality ?? FilterQuality.medium,
+            semanticLabel: semanticsLabel,
+            excludeFromSemantics: _isDecorative,
+            errorBuilder: (_, __, ___) => _buildErrorWidget(context),
+          );
+        },
+      );
+    } else {
+      imageWidget = _buildErrorWidget(context);
     }
 
-    return imageWidget;
+    return _isFramed ? _ImageFrame(image: this, child: imageWidget) : imageWidget;
   }
 
   /// A caller-supplied [loadingWidget] owns its own semantics; the built-in
   /// spinner is purely visual and must not become an unnamed focus stop.
-  Widget _buildLoadingWidget() =>
-      loadingWidget ?? ExcludeSemantics(child:SizedBox(
-          height: height,
-          width: width,
-          child: Center(child: CupertinoActivityIndicator())));
+  Widget _buildLoadingWidget() {
+    final fallbackName = this.fallbackName;
+    if (loadingWidget == null && fallbackName != null) {
+      return _FallbackLetter(name: fallbackName, size: width!);
+    }
+
+    return loadingWidget ??
+        ExcludeSemantics(
+          child: SizedBox(
+            height: height,
+            width: width,
+            child: const Center(child: CupertinoActivityIndicator()),
+          ),
+        );
+  }
 
   Widget _buildErrorWidget(BuildContext context) {
+    final fallbackName = this.fallbackName;
+    if (fallbackName != null) {
+      return _FallbackLetter(name: fallbackName, size: width!);
+    }
+
     final Widget placeholder = Container(
       height: height,
       width: width,
@@ -168,5 +215,65 @@ class CakeImageWidget extends StatelessWidget {
             label: semanticsLabel,
             child: ExcludeSemantics(child: placeholder),
           );
+  }
+}
+
+class _ImageFrame extends StatelessWidget {
+  const _ImageFrame({required this.image, required this.child});
+
+  final CakeImageWidget image;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(
+      image.isRoundedSquare ? image.width! * CakeImageWidget.networkIconCornerRatio : 0,
+    );
+
+    return Container(
+      width: image.width,
+      height: image.height,
+      foregroundDecoration: image.isOutlined
+          ? BoxDecoration(
+              borderRadius: radius,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.onSurface,
+                width: image.width! / 24,
+              ),
+            )
+          : null,
+      child: ClipRRect(borderRadius: radius, child: child),
+    );
+  }
+}
+
+class _FallbackLetter extends StatelessWidget {
+  const _FallbackLetter({required this.name, required this.size});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final trimmed = name.trim();
+
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        color: colors.primary,
+        alignment: Alignment.center,
+        child: Text(
+          trimmed.isEmpty ? "" : trimmed.characters.first.toUpperCase(),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: colors.onPrimary,
+                fontSize: size * 0.7,
+                fontWeight: FontWeight.w400,
+                height: 1,
+              ),
+        ),
+      ),
+    );
   }
 }

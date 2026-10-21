@@ -1,3 +1,4 @@
+import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -20,6 +21,9 @@ abstract class ExchangeProvider {
   bool get supportsOnionAddress => false;
 
   bool get supportsMemoOrDestinationTag => true;
+
+  bool supportsCurrencyNetwork(CryptoCurrency currency) =>
+      isCurrencyNetworkSupported(currency, description);
 
   @override
   String toString() => title;

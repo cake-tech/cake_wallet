@@ -19,7 +19,6 @@ import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:collection/collection.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/transaction_direction.dart";
 import "package:cw_core/transaction_info.dart";
 import "package:cw_core/transaction_priority.dart";
@@ -335,7 +334,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       WalletType.solana => solana!.assetOfTransaction(wallet, transactionInfo),
       WalletType.tron => tron!.assetOfTransaction(wallet, transactionInfo),
       WalletType.zano => zano!.assetOfTransaction(wallet, transactionInfo) ?? CryptoCurrency.zano,
-      _ => walletTypeToCryptoCurrency(wallet.type)
+      _ => wallet.currency
     };
   }
 
@@ -498,10 +497,13 @@ abstract class TransactionDetailsViewModelBase with Store {
         return "https://blockchair.com/dogecoin/transaction/${txId}";
       case WalletType.zcash:
         return "https://blockchair.com/zcash/transaction/${txId}";
+      case WalletType.evm:
       case WalletType.none:
         return "";
     }
   }
+
+  bool get hasExplorer => _explorerUrl.isNotEmpty;
 
   String get explorerDescription => S.current.view_transaction_on + Uri.parse(_explorerUrl).host;
 

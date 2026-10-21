@@ -31,10 +31,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get canUseBlinkProtection {
     if (!isEVMCompatibleChain(type)) return false;
 
-    // Get the chainId from the wallet type
     final chainId = evm!.getChainIdByWalletType(type);
 
-    return canSupportBlinkProtection(chainId);
+    return chainId != null && canSupportBlinkProtection(chainId);
   }
 
   @observable
@@ -50,6 +49,7 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
     // thus we don't forget about it
     switch (type) {
       case WalletType.ethereum:
+      case WalletType.evm:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
       case WalletType.polygon:

@@ -135,7 +135,8 @@ void main() {
 
   test("settings icons are bundled for available wallet types", () async {
     const resolver = WalletSettingsResolver();
-    for (final type in availableWalletTypes) {
+    // An added network's icon belongs to that network, nothing is bundled for WalletType.evm
+    for (final type in availableWalletTypes.where((type) => type != WalletType.evm)) {
       final path = resolver.iconPathFor(type);
       final asset = await rootBundle.load("$path.vec");
       expect(asset.lengthInBytes, greaterThan(0), reason: "$type: $path");

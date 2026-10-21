@@ -21,7 +21,8 @@ class NewListSections extends StatelessWidget {
         this.tapHandlers = const {},
         this.getCheckboxValue,
         this.updateCheckboxValue,
-        this.showHeader = false});
+      this.showHeader = false,
+      this.isDense = false});
 
   final Map<String, List<ListItem>> sections;
   final Map<String, TextEditingController> controllers;
@@ -29,6 +30,8 @@ class NewListSections extends StatelessWidget {
   final void Function(String key, bool value)? updateCheckboxValue;
   final Map<String, VoidCallback> tapHandlers;
   final bool showHeader;
+
+  final bool isDense;
 
   static const double sectionSpacing = 20.0;
 
@@ -114,6 +117,8 @@ class NewListSections extends StatelessWidget {
         leadingIconSize: item.leadingIconSize,
         badgeIconSize: item.badgeIconSize,
         iconColor: item.iconColor,
+        leadingWidget: item.leadingWidget,
+        isDense: isDense,
       );
     }
 
@@ -146,6 +151,7 @@ class NewListSections extends StatelessWidget {
         onChanged: item.onChanged,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
+        isDense: isDense,
       );
     }
 

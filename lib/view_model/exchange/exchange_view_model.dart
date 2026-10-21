@@ -58,6 +58,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/currencies_with_memo.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/spl_token.dart';
@@ -193,11 +194,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       providerDisplay = val;
     }, delay: 300));
 
-    receiveCurrencies = CryptoCurrency.all
+    receiveCurrencies = [...CryptoCurrency.all, ..._addedNetworkNatives]
         .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
         .toList()
         .asObservable();
-    depositCurrencies = CryptoCurrency.all
+    depositCurrencies = [...CryptoCurrency.all, ..._addedNetworkNatives]
         .where((cryptoCurrency) => !excludeDepositCurrencies.contains(cryptoCurrency))
         .toList()
         .asObservable();
@@ -441,11 +442,29 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
             cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(receiveCurrency.tag ?? ""));
       }
 
-      return await WalletInfo.selectList("type = ?", [type!.index]);
+      final wallets = await WalletInfo.selectList("type = ?", [type!.index]);
+      return _walletsOnCurrencyNetwork(wallets, type, receiveCurrency);
     } catch (e) {
       return [];
     }
   }
+
+  List<WalletInfo> _walletsOnCurrencyNetwork(
+    List<WalletInfo> wallets,
+    WalletType type,
+    CryptoCurrency currency,
+  ) {
+    if (type != WalletType.evm) {
+      return wallets;
+    }
+
+    return wallets
+        .where((wallet) => EvmNativeCurrencies.isWalletForCurrency(wallet, currency))
+        .toList();
+  }
+
+  static List<CryptoCurrency> get _addedNetworkNatives =>
+      [for (final chain in evm?.getAddedChains() ?? const <ChainInfo>[]) chain.currency];
 
   Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
     final List<WalletInfoAddressInfo> ret = [];
@@ -469,7 +488,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }
 
     if (type != null) {
-      return await WalletInfo.selectList("type = ?", [type.index]);
+      final wallets = await WalletInfo.selectList("type = ?", [type.index]);
+      return _walletsOnCurrencyNetwork(wallets, type, depositCurrency);
     }
 
     return await WalletInfo.getAll();
@@ -632,6 +652,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get receiveAmountFiatFormatted {
+    if (fiatConversionStore.isUnpricedAddedNetworkCurrency(receiveCurrency)) {
+      return "";
+    }
+
     var amount = '0.00';
     try {
       if (_receiveAmount != null) {
@@ -650,6 +674,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get depositAmountFiatFormatted {
+    if (fiatConversionStore.isUnpricedAddedNetworkCurrency(depositCurrency)) {
+      return "";
+    }
+
     var amount = '0.00';
     try {
       if (_depositAmount != null) {
@@ -668,6 +696,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get receiveAmountFiat {
+    if (fiatConversionStore.isUnpricedAddedNetworkCurrency(receiveCurrency)) {
+      return "";
+    }
+
     var amount = '';
     try {
       if (_receiveAmount != null) {
@@ -686,6 +718,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   String get depositAmountFiat {
+    if (fiatConversionStore.isUnpricedAddedNetworkCurrency(depositCurrency)) {
+      return "";
+    }
+
     var amount = '';
     try {
       if (_depositAmount != null) {
@@ -883,7 +919,9 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   Future<void> calculateForcedProviderRate() async {
-    if (forcedProvider == null || depositCurrency == receiveCurrency) {
+    if (forcedProvider == null ||
+        depositCurrency == receiveCurrency ||
+        !_supportsPairNetworks(forcedProvider!)) {
       forcedProviderRate = 0.0;
       return;
     }
@@ -899,6 +937,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         isFixedRateMode: isFixedRateMode,
         isReceiveAmount: isFixedRateMode);
   }
+
+  bool _supportsPairNetworks(ExchangeProvider provider) =>
+      provider.supportsCurrencyNetwork(depositCurrency) &&
+      provider.supportsCurrencyNetwork(receiveCurrency);
 
   bool _excludeProviderForSwapAll(ExchangeProvider provider) =>
       isSendAllEnabled &&
@@ -999,6 +1041,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     try {
       final futures = selectedProviders
           .where((provider) => providerList.contains(provider))
+          .where(_supportsPairNetworks)
           .where((provider) => !_excludeProviderForReceiveExtraId(provider))
           .map((provider) async {
         final limits = await provider
@@ -1242,6 +1285,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         }
 
         if (_excludeProviderForReceiveExtraId(provider)) {
+          continue;
+        }
+
+        if (!_supportsPairNetworks(provider)) {
           continue;
         }
 
@@ -1546,6 +1593,10 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         depositCurrency = CryptoCurrency.eth;
         receiveCurrency = CryptoCurrency.xmr;
         break;
+      case WalletType.evm:
+        depositCurrency = wallet.currency;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
       case WalletType.nano:
         depositCurrency = CryptoCurrency.nano;
         receiveCurrency = CryptoCurrency.xmr;
@@ -1724,8 +1775,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         );
       }
 
-      final isNativeSupportedToken =
-          walletTypes.contains(cryptoCurrencyOrTokenToWalletType(tradeFrom));
+      final fromWalletType = cryptoCurrencyOrTokenToWalletType(tradeFrom);
+      // Every added network shares WalletType.evm, so only this wallet's own chain counts
+      final isNativeSupportedToken = fromWalletType == WalletType.evm
+          ? EvmNativeCurrencies.isWalletForCurrency(wallet.walletInfo, tradeFrom)
+          : walletTypes.contains(fromWalletType);
 
       if (!isNativeSupportedToken) {
         bool _isEthToken() =>
@@ -1886,10 +1940,19 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   }
 
   bool _listContainsToken(List<CryptoCurrency> list, Erc20Token token) {
+    // A token on an added network is only ever a duplicate of the same contract on its own chain
+    final isAddedNetworkToken = EvmNativeCurrencies.isAddedNetworkCurrency(token);
+
     return list.any((item) {
       if (item is Erc20Token) {
-        return item.contractAddress.toLowerCase() == token.contractAddress.toLowerCase();
+        return item.contractAddress.toLowerCase() == token.contractAddress.toLowerCase() &&
+            (!isAddedNetworkToken || item.chainId == token.chainId);
       }
+
+      if (isAddedNetworkToken) {
+        return false;
+      }
+
       return item.title.toUpperCase() == token.symbol.toUpperCase() &&
           (item.tag?.toUpperCase() == token.tag?.toUpperCase() || item.tag == null);
     });

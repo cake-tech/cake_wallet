@@ -122,6 +122,7 @@ class WalletRestorePage extends BasePage {
                           arguments: {
                             'isFromRestore': true,
                             'type': walletRestoreViewModel.type,
+                            "chainId": walletRestoreViewModel.chainId,
                             'useTestnet': walletRestoreViewModel.useTestnet,
                             'toggleTestnet': walletRestoreViewModel.toggleUseTestnet,
                             'zcashNetwork': walletRestoreViewModel.zcashNetwork,

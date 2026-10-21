@@ -18,6 +18,7 @@ class FiatAmountBar extends StatelessWidget {
     this.textColor,
     this.allAmountColor,
     this.allAmountTextColor,
+    this.hasFiatValue = true,
   });
 
   final bool fiatInputMode;
@@ -34,6 +35,8 @@ class FiatAmountBar extends StatelessWidget {
   final Color? allAmountColor;
   final Color? allAmountTextColor;
 
+  final bool hasFiatValue;
+
   @override
   Widget build(BuildContext context) {
     final convertedAmount = fiatInputMode
@@ -43,32 +46,35 @@ class FiatAmountBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Row(
-          spacing: 8,
-          children: [
-            ModernButton.svg(
-              backgroundColor: foregroundElementColor,
-              size: 28,
-              svgPath: "assets/new-ui/switch.svg",
-              iconSize: 18,
-              onPressed: onSwitchButtonPressed,
-              semanticLabel: S.of(context).switch_input_currency,
-            ),
-            // Announced as the converted value only: the switch button next to it already
-            // exposes the same action, so this must not become a second control.
-            Semantics(
-              label: convertedAmount,
-              excludeSemantics: true,
-              child: GestureDetector(
-                onTap: onSwitchButtonPressed,
-                child: Text(
-                  convertedAmount,
-                  style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+        if (hasFiatValue || fiatInputMode)
+          Row(
+            spacing: 8,
+            children: [
+              ModernButton.svg(
+                backgroundColor: foregroundElementColor,
+                size: 28,
+                svgPath: "assets/new-ui/switch.svg",
+                iconSize: 18,
+                onPressed: onSwitchButtonPressed,
+                semanticLabel: S.of(context).switch_input_currency,
+              ),
+              // Announced as the converted value only: the switch button next to it already
+              // exposes the same action, so this must not become a second control.
+              Semantics(
+                label: convertedAmount,
+                excludeSemantics: true,
+                child: GestureDetector(
+                  onTap: onSwitchButtonPressed,
+                  child: Text(
+                    convertedAmount,
+                    style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          )
+        else
+          const SizedBox.shrink(),
         if (allAmount != null && allAmount!.isNotEmpty)
           Row(
             spacing: 8,

@@ -119,7 +119,10 @@ class AnyPayService {
     }
 
     final wallet = appStore.wallet!;
-    if (chainId != null && evm != null && isEVMCompatibleChain(wallet.type)) {
+    if (chainId != null &&
+        evm != null &&
+        isEVMCompatibleChain(wallet.type) &&
+        wallet.type != WalletType.evm) {
       try {
         final node = appStore.settingsStore.getCurrentNode(wallet.type, chainId: chainId);
         await evm!.selectChain(wallet, chainId, node: node);

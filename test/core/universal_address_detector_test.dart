@@ -1,5 +1,7 @@
 import 'package:cake_wallet/core/universal_address_detector.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/evm_network.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -342,8 +344,32 @@ void main() {
         final result = UniversalAddressDetector.detectAddress(uri);
 
         expect(result.isValid, true);
-        expect(result.detectedWalletType, WalletType.ethereum);
+        expect(result.detectedWalletType, isNull);
         expect(result.chainId, 999999);
+        expect(result.address, recipient);
+      });
+
+      test("detects an added network's chainId as an evm wallet with its own native", () {
+        const opChainId = 10;
+        final opNative = AddedNetworkCurrency(
+          EvmNetwork(
+            chainId: opChainId,
+            name: "OP Mainnet",
+            symbol: "ETH",
+            decimals: 18,
+            tag: "OETH",
+            rpcUrl: "https://rpc.example",
+          ),
+        );
+        EvmNativeCurrencies.register(opChainId, opNative, WalletType.evm);
+        addTearDown(() => EvmNativeCurrencies.unregister(opChainId));
+
+        final result = UniversalAddressDetector.detectAddress("ethereum:$recipient@$opChainId");
+
+        expect(result.isValid, true);
+        expect(result.detectedWalletType, WalletType.evm);
+        expect(result.detectedCurrency, same(opNative));
+        expect(result.chainId, opChainId);
         expect(result.address, recipient);
       });
     });
