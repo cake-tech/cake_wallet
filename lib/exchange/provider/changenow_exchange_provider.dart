@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -72,11 +73,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
-      throw Exception('${error}\n$message');
+      throw ExchangeProviderResponseCodeException('${error}\n$message', response.statusCode);
     }
 
     if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final min = double.tryParse(responseJSON['minAmount']?.toString() ?? '');
@@ -220,11 +221,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
       final message = responseJSON['message'] as String;
-      throw Exception('${error}\n$message');
+      throw ExchangeProviderResponseCodeException('${error}\n$message', response.statusCode);
     }
 
     if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
@@ -270,7 +271,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
     if (response.statusCode != 200)
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 

@@ -6,6 +6,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
@@ -27,6 +28,8 @@ class TronClient {
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
 
+  static const _historyRequestTimeout = Duration(seconds: 30);
+
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
     try {
@@ -43,7 +46,7 @@ class TronClient {
           'Content-Type': 'application/json',
           'TRON-PRO-API-KEY': secrets.tronGridApiKey,
         },
-      );
+      ).timeout(_historyRequestTimeout);
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 &&
@@ -76,7 +79,7 @@ class TronClient {
           'Content-Type': 'application/json',
           'TRON-PRO-API-KEY': secrets.tronGridApiKey,
         },
-      );
+      ).timeout(_historyRequestTimeout);
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 &&
@@ -380,7 +383,7 @@ class TronClient {
 
     if (feeLimit > tronBalanceInt) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
-      throw Exception(
+      throw TransactionGenerationException(
         'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up.\nTransaction fee: $feeInTrx TRX',
       );
     }
@@ -409,7 +412,7 @@ class TronClient {
 
     if (!request.isSuccess) {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
-      throw Exception('An error occurred while creating the transfer request. Please try again.');
+      throw TransactionGenerationException('An error occurred while creating the transfer request. Please try again.');
     }
 
     final feeLimit = await getFeeLimit(
@@ -421,7 +424,7 @@ class TronClient {
 
     if (feeLimit > tronBalance.toInt()) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
-      throw Exception(
+      throw TransactionGenerationException(
         'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up. Transaction fee: $feeInTrx TRX',
       );
     }
@@ -443,11 +446,11 @@ class TronClient {
       if (txBroadcastResult.isSuccess) {
         return txBroadcastResult.txId!;
       } else {
-        throw Exception(txBroadcastResult.error);
+        throw TransactionSendingException(txBroadcastResult.error??"");
       }
     } catch (e) {
       log('Send block Exception: ${e.toString()}');
-      throw Exception(e);
+      throw TransactionSendingException(e.toString());
     }
   }
 

@@ -5,6 +5,7 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_zcash/cw_zcash.dart';
+import "package:cw_zcash/src/util/exceptions.dart";
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart' as p;
 
@@ -92,5 +93,5 @@ Future<void> migrateOldSqliteToZkool2({required final String walletName}) async 
     return;
   }
 
-  throw Exception("migration not finished (wallet name: $walletName not found)");
+  throw MigrationException("migration not finished (wallet name: $walletName not found)");
 }

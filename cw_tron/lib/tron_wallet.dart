@@ -7,6 +7,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -84,6 +85,11 @@ abstract class TronWalletBase
   late final TronClient _client;
 
   Timer? _transactionsUpdateTimer;
+
+  bool _isTimerUpdatingHistory = false;
+
+  /// TRC20 symbol and decimals by contract address; they never change on-chain.
+  final Map<String, CryptoCurrency> _trc20Currencies = {};
 
   @override
   WalletAddresses walletAddresses;
@@ -249,7 +255,7 @@ abstract class TronWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("${walletInfo.type.name.toUpperCase()} Node connection failed");
+        throw ConnectionException("${walletInfo.type.name.toUpperCase()} Node connection failed");
       }
 
       _getEstimatedFees();
@@ -305,8 +311,14 @@ abstract class TronWalletBase
         return;
       }
       await _updateBalance();
-      await fetchTransactions();
-      fetchTrc20ExcludedTransactions();
+
+      // History is best-effort: a TronGrid or parsing failure must not fail the sync.
+      try {
+        await fetchTransactions();
+        fetchTrc20ExcludedTransactions();
+      } catch (e) {
+        printV("Failed to fetch the Tron transaction history: $e");
+      }
 
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -326,7 +338,7 @@ abstract class TronWalletBase
         (currency) =>
             currency.title == tronCredentials.currency.title &&
             currency.tag == tronCredentials.currency.tag,
-        orElse: () => throw Exception(
+        orElse: () => throw TransactionGenerationException(
             'Currency ${tronCredentials.currency.title} ${tronCredentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
@@ -400,82 +412,51 @@ abstract class TronWalletBase
 
     final ownerAddress = TronAddress(_tronAddress);
 
+    // Looked up once per token contract in this update, not once per transaction.
+    final Map<String, CryptoCurrency> trc20Currencies = {};
+
     for (var transactionModel in transactions) {
-      if (transactionModel.isError) {
-        continue;
-      }
-
-      // Filter out spam transactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
-      if (transactionModel.contracts?.first.type == "TransferAssetContract") {
-        continue;
-      }
-
-      if (transactionModel.contractAddress != null && !transactionModel.isTrc20Transfer) {
-        final saved = transactionHistory.transactions[transactionModel.hash];
-        if (saved != null && saved.amount.currency.symbol != currency.symbol) {
-          result[transactionModel.hash] = saved;
+      // A transaction that can't be parsed must not drop the rest of the history.
+      try {
+        if (transactionModel.isError) {
           continue;
+        }
+
+        // Filter out spam transactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
+        if (transactionModel.contracts?.first.type == "TransferAssetContract") {
+          continue;
+        }
+
+        final saved = transactionHistory.transactions[transactionModel.hash];
+        if (!transactionModel.isTrc20TransferCall &&
+            saved != null &&
+            saved.amount.currency.symbol != currency.symbol) {
+          continue;
+        }
+
+        // Only a TRC20 transfer moves tokens, any other contract call is a TRX transaction.
+        var txCurrency = currency;
+        if (transactionModel.isTrc20TransferCall) {
+          final contractAddress = transactionModel.contractAddress!;
+          txCurrency = trc20Currencies[contractAddress] ??=
+              await _getTrc20Currency(contractAddress, contract, ownerAddress);
         }
 
         result[transactionModel.hash] = TronTransactionInfo(
           id: transactionModel.hash,
-          amount: Money(transactionModel.callValue ?? BigInt.zero, currency),
-          direction: TransactionDirection.outgoing,
+          amount: Money(transactionModel.amount ?? BigInt.zero, txCurrency),
+          direction: TronAddress(transactionModel.from!, visible: false).toAddress() == address
+              ? TransactionDirection.outgoing
+              : TransactionDirection.incoming,
           blockTime: transactionModel.date,
           fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
-          to: TronAddress(transactionModel.contractAddress!).toAddress(),
+          to: transactionModel.to,
           from: transactionModel.from,
           isPending: false,
         );
-        continue;
-      }
-
-      var txCurrency = currency;
-      if (transactionModel.contractAddress != null) {
-        final tokenAddress = TronAddress(transactionModel.contractAddress!);
-
-        final tokenSymbol = (await _client.getTokenDetail(
-              contract,
-              "symbol",
-              ownerAddress,
-              tokenAddress,
-            ) as String?) ??
-            '';
-
-        final decimals = (await _client.getTokenDetail(
-              contract,
-              "decimals",
-              ownerAddress,
-              tokenAddress,
-            ) as BigInt?)
-                ?.toInt() ??
-            txCurrency.decimals;
-
-        txCurrency = CryptoCurrency(name: tokenSymbol, title: tokenSymbol, decimals: decimals);
-      }
-
-      final BigInt amount;
-      final String? to;
-      final String from;
-      try {
-        amount = transactionModel.amount ?? BigInt.zero;
-        to = transactionModel.to;
-        from = TronAddress(transactionModel.from!, visible: false).toAddress();
       } catch (e) {
-        printV("Tron transaction ${transactionModel.hash} skipped: $e");
-        continue;
+        printV("Skipping Tron transaction ${transactionModel.txID}: $e");
       }
-
-      result[transactionModel.hash] = TronTransactionInfo(
-        id: transactionModel.hash,
-        amount: Money(amount, txCurrency),
-        direction: from == address ? TransactionDirection.outgoing : TransactionDirection.incoming,
-        blockTime: transactionModel.date,
-        fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
-        to: to,
-        from: transactionModel.from,
-        isPending: false,
-      );
     }
 
     transactionHistory.addMany(result);
@@ -483,6 +464,47 @@ abstract class TronWalletBase
     await transactionHistory.save();
 
     return transactionHistory.transactions;
+  }
+
+  Future<CryptoCurrency> _getTrc20Currency(
+    String contractAddress,
+    ContractABI contract,
+    TronAddress ownerAddress,
+  ) async {
+    final cachedCurrency = _trc20Currencies[contractAddress];
+    if (cachedCurrency != null) {
+      return cachedCurrency;
+    }
+
+    final tokenAddress = TronAddress(contractAddress);
+
+    final tokenSymbol = await _client.getTokenDetail(
+      contract,
+      "symbol",
+      ownerAddress,
+      tokenAddress,
+    ) as String?;
+
+    final decimals = (await _client.getTokenDetail(
+      contract,
+      "decimals",
+      ownerAddress,
+      tokenAddress,
+    ) as BigInt?)
+        ?.toInt();
+
+    final txCurrency = CryptoCurrency(
+      name: tokenSymbol ?? "",
+      title: tokenSymbol ?? "",
+      decimals: decimals ?? currency.decimals,
+    );
+
+    // Failed lookups aren't cached, so the next history update retries them.
+    if (tokenSymbol != null && decimals != null) {
+      _trc20Currencies[contractAddress] = txCurrency;
+    }
+
+    return txCurrency;
   }
 
   Future<void> fetchTrc20ExcludedTransactions() async {
@@ -497,25 +519,29 @@ abstract class TronWalletBase
     final Map<String, TronTransactionInfo> result = {};
 
     for (final transactionModel in transactions) {
-      final saved = transactionHistory.transactions[transactionModel.hash];
-      if (saved != null && saved.amount.currency.symbol != currency.symbol) {
-        continue;
-      }
+      try {
+        final saved = transactionHistory.transactions[transactionModel.hash];
+        if (saved != null && saved.amount.currency.symbol != currency.symbol) {
+          continue;
+        }
 
-      result[transactionModel.hash] = TronTransactionInfo(
-        id: transactionModel.hash,
-        amount: Money(transactionModel.amount ?? BigInt.zero, transactionModel.currency),
-        direction: transactionModel.from! == address
-            ? TransactionDirection.outgoing
-            : TransactionDirection.incoming,
-        blockTime: transactionModel.date,
-        fee: transactionModel.fee != null
-            ? Money.fromInt(transactionModel.fee!, currency)
-            : saved?.fee,
-        to: transactionModel.to,
-        from: transactionModel.from,
-        isPending: false,
-      );
+        result[transactionModel.hash] = TronTransactionInfo(
+          id: transactionModel.hash,
+          amount: Money(transactionModel.amount ?? BigInt.zero, transactionModel.currency),
+          direction: transactionModel.from! == address
+              ? TransactionDirection.outgoing
+              : TransactionDirection.incoming,
+          blockTime: transactionModel.date,
+          fee: transactionModel.fee != null
+              ? Money.fromInt(transactionModel.fee!, currency)
+              : saved?.fee,
+          to: transactionModel.to,
+          from: transactionModel.from,
+          isPending: false,
+        );
+      } catch (e) {
+        printV("Skipping Tron TRC20 transaction ${transactionModel.transactionId}: $e");
+      }
     }
 
     transactionHistory.addMany(result);
@@ -672,8 +698,21 @@ abstract class TronWalletBase
 
     _transactionsUpdateTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
       _updateBalance();
-      await fetchTransactions();
-      fetchTrc20ExcludedTransactions();
+
+      // A history update can outlast the period; don't stack another one on top of it.
+      if (_isTimerUpdatingHistory) {
+        return;
+      }
+
+      _isTimerUpdatingHistory = true;
+      try {
+        await fetchTransactions();
+        await fetchTrc20ExcludedTransactions();
+      } catch (e) {
+        printV("Failed to update the Tron transaction history: $e");
+      } finally {
+        _isTimerUpdatingHistory = false;
+      }
     });
   }
 
