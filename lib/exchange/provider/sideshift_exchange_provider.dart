@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import "package:cake_wallet/exchange/evm_provider_network_codes.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -50,7 +51,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
-      throw Exception('$error');
+      throw ExchangeProviderResponseCodeException('$error', response.statusCode);
     }
 
     if (response.statusCode != 200) return false;
@@ -80,11 +81,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
-      throw Exception('$error');
+      throw ExchangeProviderResponseCodeException('$error', response.statusCode);
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -144,7 +145,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
           },
         );
 
-        throw Exception('SideShift Internal Server Error: $error');
+        throw ExchangeProviderResponseCodeException('SideShift Internal Server Error: $error', response.statusCode);
       }
 
       if (response.statusCode != 200) {
@@ -163,7 +164,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
           },
         );
 
-        throw Exception('Unexpected http status: ${response.statusCode}');
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
       }
 
       final rate = double.parse(responseJSON['rate'] as String);
@@ -353,11 +354,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
-      throw TradeNotFoundException(id, provider: description, description: error);
+      throw ExchangeProviderResponseCodeException(error, response.statusCode);
     }
 
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;

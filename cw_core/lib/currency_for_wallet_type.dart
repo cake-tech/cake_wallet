@@ -1,6 +1,7 @@
 import "package:collection/collection.dart";
 import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/erc20_token.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/wallet_info.dart";
 import 'package:cw_core/wallet_type.dart';
 
@@ -124,8 +125,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
     case WalletType.evm:
       throw Exception("An EVM wallet's currency needs its chain ID");
     case WalletType.none:
-      throw Exception(
-          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
+      throw BadWalletTypeException(
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency', type);
   }
 }
 

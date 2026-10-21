@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:flutter/material.dart';
 import "package:flutter_svg/svg.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -290,7 +291,7 @@ class MenuWidgetState extends State<MenuWidget> {
       case WalletType.zcash:
         return zcashIcon;
       default:
-        throw Exception('No icon for ${type.toString()}');
+        throw BadWalletTypeException('No icon for ${type.toString()}',type);
     }
   }
 }

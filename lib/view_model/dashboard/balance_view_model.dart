@@ -11,8 +11,10 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -512,7 +514,7 @@ abstract class BalanceViewModelBase with Store {
   Balance _currencyBalance(CryptoCurrency cryptoCurrency) {
     final balance = wallet.balance[cryptoCurrency];
 
-    if (balance == null) throw Exception('No balance for ${wallet.currency}');
+    if (balance == null) throw BadCurrencyException('No balance for ${wallet.currency}', wallet.currency);
 
     return balance;
   }
@@ -548,6 +550,21 @@ abstract class BalanceViewModelBase with Store {
     } else {
       settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
     }
+  }
+
+  String? accountFiatBalance(AccountListItem account) {
+    if (isFiatDisabled) {
+      return null;
+    }
+
+    final fiat = settingsStore.fiatCurrency.title;
+    final value = savedDisplayMode == BalanceDisplayMode.hiddenBalance
+        ? "●●●●●"
+        : calculateFiatAmount(
+            price: price,
+            cryptoAmount: account.balance.toString(),
+          ).withLocalSeperator(settingsStore.languageCode);
+    return "$value $fiat";
   }
 
   String _getFiatBalance({required double price, Money? cryptoAmount}) {

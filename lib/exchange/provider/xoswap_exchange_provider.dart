@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/erc20_token.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
@@ -198,7 +200,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
     if (response.statusCode != 200) {
-      throw Exception("Failed to fetch assets for $query on $network");
+      throw ExchangeProviderResponseCodeException(
+        "Failed to fetch assets for $query on $network",
+        response.statusCode,
+      );
     }
 
     final decoded = jsonDecode(response.body);
@@ -236,7 +241,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }) async {
     try {
       final rates = await getRatesForPair(from: from, to: to);
-      if (rates.isEmpty) throw Exception('No rates found for $from to $to');
+      if (rates.isEmpty) throw BadCurrencyPairException('No rates found for $from to $to', from, to);
 
       double minLimit = double.infinity;
       double maxLimit = 0;
@@ -250,7 +255,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       return Limits(min: minLimit, max: maxLimit);
     } catch (e) {
       printV(e.toString());
-      throw Exception('StealthEx failed to fetch limits');
+      throw ExchangeProviderResponseException('StealthEx failed to fetch limits');
     }
   }
 
@@ -424,8 +429,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-
-        throw Exception('$error\n$message');
+        
+        throw ExchangeProviderResponseException('$error\n$message');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -441,7 +446,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final parsedAmount = double.tryParse(depositAmountStr);
 
       if (parsedAmount == null || parsedAmount <= 0) {
-        throw Exception('Invalid deposit amount received from API');
+        throw ExchangeProviderResponseException('Invalid deposit amount received from API');
       }
 
       final receiveAmount = toAmount['value'] as String;
@@ -528,11 +533,11 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (response.statusCode != 200) {
         final responseJSON = json.decode(response.body) as Map<String, dynamic>;
         if (responseJSON.containsKey('code') && responseJSON['code'] == 'NOT_FOUND') {
-          throw Exception('Trade not found');
+          throw TradeNotFoundException(id, description: 'Trade not found', provider: description);
         }
         final error = responseJSON['error'] ?? 'Unknown error';
         final message = responseJSON['message'] ?? responseJSON['details'] ?? '';
-        throw Exception('$error\n$message');
+        throw ExchangeProviderResponseException('$error\n$message');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -587,7 +592,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final parsedAmount = double.tryParse(depositAmountStr);
 
       if (parsedAmount == null || parsedAmount <= 0) {
-        throw Exception('Invalid deposit amount received from API');
+        throw ExchangeProviderResponseException('Invalid deposit amount received from API');
       }
 
       final receiveAmount = toAmount['value'] as String;

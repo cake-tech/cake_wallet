@@ -185,7 +185,7 @@ class EvmChainRegistry {
     final registered = EvmNativeCurrencies.getNativeCurrencyByChainId(network.chainId);
     final currency =
         registered is AddedNetworkCurrency ? registered : AddedNetworkCurrency(network);
-    currency.network = network;
+    currency.evmNetwork = network;
 
     EvmNativeCurrencies.register(network.chainId, currency, WalletType.evm);
     return currency;
@@ -193,7 +193,7 @@ class EvmChainRegistry {
 
   EvmNetwork? getAddedNetwork(int chainId) {
     final currency = _chains[chainId]?.nativeCurrency;
-    return currency is AddedNetworkCurrency ? currency.network : null;
+    return currency is AddedNetworkCurrency ? currency.evmNetwork : null;
   }
 
   ChainConfig? getChainConfig(int chainId) => _chains[chainId];

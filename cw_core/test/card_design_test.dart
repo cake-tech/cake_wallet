@@ -28,6 +28,7 @@ void main() {
         backgroundImagePath: "",
         iconStyleIndex: iconStyleIndex,
         cardOrder: 0,
+        hidden: false,
       );
 
   group("CardDesign for an added network", () {

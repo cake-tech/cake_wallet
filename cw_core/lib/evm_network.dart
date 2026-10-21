@@ -212,13 +212,13 @@ class EvmNetwork {
 }
 
 class AddedNetworkCurrency extends CryptoCurrency {
-  AddedNetworkCurrency(this.network)
+  AddedNetworkCurrency(this.evmNetwork)
       : super(
-          title: network.symbol,
-          tag: network.tag,
-          name: "evm${network.chainId}",
-          raw: EvmNativeCurrencies.addedNetworkRaw(network.chainId),
-          decimals: network.decimals,
+          title: evmNetwork.symbol,
+          tag: evmNetwork.tag,
+          name: "evm${evmNetwork.chainId}",
+          raw: EvmNativeCurrencies.addedNetworkRaw(evmNetwork.chainId),
+          decimals: evmNetwork.decimals,
         );
 
   static AddedNetworkCurrency? of(CryptoCurrency? currency) =>
@@ -232,12 +232,12 @@ class AddedNetworkCurrency extends CryptoCurrency {
     return native != null && native.usesNetworkIcon ? native : null;
   }
 
-  EvmNetwork network;
+  EvmNetwork evmNetwork;
 
-  int get chainId => network.chainId;
+  int get chainId => evmNetwork.chainId;
 
   @override
-  String get fullName => network.name;
+  String get fullName => evmNetwork.name;
 
   static final _bundledIconPaths = <String, String>{
     for (final currency in CryptoCurrency.all.reversed)
@@ -245,11 +245,11 @@ class AddedNetworkCurrency extends CryptoCurrency {
         currency.title.toUpperCase(): currency.iconPath!,
   };
 
-  bool get usesNetworkIcon => !_bundledIconPaths.containsKey(network.symbol.toUpperCase());
+  bool get usesNetworkIcon => !_bundledIconPaths.containsKey(evmNetwork.symbol.toUpperCase());
 
   @override
-  String? get iconPath => _bundledIconPaths[network.symbol.toUpperCase()] ?? network.iconUrl;
+  String? get iconPath => _bundledIconPaths[evmNetwork.symbol.toUpperCase()] ?? evmNetwork.iconUrl;
 
   @override
-  String? get chainIconPath => network.iconUrl?.isNotEmpty == true ? network.iconUrl : null;
+  String? get chainIconPath => evmNetwork.iconUrl?.isNotEmpty == true ? evmNetwork.iconUrl : null;
 }

@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -91,11 +92,11 @@ abstract class WalletCreationVMBase with Store {
       }
 
       if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
-        throw Exception(S.current.wallet_password_is_empty);
+        throw WalletCreationException(S.current.wallet_password_is_empty);
       }
 
       if (hasWalletPassword && walletPassword != repeatedWalletPassword) {
-        throw Exception(S.current.repeated_password_is_incorrect);
+        throw WalletCreationException(S.current.repeated_password_is_incorrect);
       }
 
       await walletCreationService.checkIfExists(name);

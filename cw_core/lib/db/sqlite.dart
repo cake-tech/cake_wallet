@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:cw_core/db/sqlite_debug.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
@@ -32,6 +33,10 @@ Future<File> sqliteDebugMarkerFile() async {
   return File(dbDebugMarker);
 }
 
+class DebugMarkerException extends CakeException {
+  const DebugMarkerException() : super("Debug marker is present");
+}
+
 Future<void> initDb({String? pathOverride}) async {
   if (!kDebugMode && !kProfileMode) {
     await _initDb(pathOverride: pathOverride);
@@ -40,7 +45,7 @@ Future<void> initDb({String? pathOverride}) async {
   final dbDebugMarker = await sqliteDebugMarkerFile();
   try {
     if (dbDebugMarker.existsSync()) {
-      throw Exception("Debug marker is present");
+      throw const DebugMarkerException();
     }
     await _initDb(pathOverride: pathOverride);
   } catch (e, s) {
@@ -66,7 +71,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -194,6 +199,14 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _migrateBitcoinCardStylesForAccounts(db);
       }
       if (oldVersion <= 14) {
+        await _addColumnIfNotExists(
+          db,
+          table: "BalanceCardStyleSettings",
+          column: "hidden",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
+      if (oldVersion <= 15) {
         await _createEvmNetworkTable(db);
         await _addColumnIfNotExists(
           db,
@@ -302,6 +315,7 @@ CREATE TABLE BalanceCardStyleSettings (
   iconStyleIndex INTEGER DEFAULT 0,
   isGradientOnly BOOLEAN DEFAULT FALSE,
   cardOrder INTEGER DEFAULT 0,
+  hidden BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
@@ -328,7 +342,7 @@ CREATE TABLE PriceData (
   timestamp INTEGER NOT NULL,
   price TEXT NOT NULL,
   PRIMARY KEY (fromCurrency, toCurrency, timestamp)
-);        
+);
 """);
   await db.execute("""
 CREATE TABLE ChartsAssets (

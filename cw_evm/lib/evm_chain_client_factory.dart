@@ -1,4 +1,5 @@
 import "package:collection/collection.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_evm/.secrets.g.dart" as secrets;
 import "package:cw_evm/clients/evm_chain_client.dart";
 import "package:cw_evm/evm_chain_registry.dart";
@@ -14,7 +15,7 @@ class EVMChainClientFactory {
     final config = _registry.getChainConfig(chainId);
 
     if (config == null) {
-      throw Exception("Chain config not found for chainId: $chainId");
+      throw BadChainIdException("Chain config not found for chainId: $chainId");
     }
 
     final historyProvider =
