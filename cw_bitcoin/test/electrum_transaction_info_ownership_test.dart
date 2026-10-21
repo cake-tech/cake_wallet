@@ -61,7 +61,7 @@ void main() {
         addresses: {ownedAddress},
       );
 
-      expect(info.additionalInfo["inputsOwnershipFullyResolved"], true);
+      expect(info.inputsOwnershipFullyResolved, true);
       expect(info.fee, null);
     });
 
@@ -78,7 +78,7 @@ void main() {
         addresses: {ownedAddress},
       );
 
-      expect(info.additionalInfo["inputsOwnershipFullyResolved"], false);
+      expect(info.inputsOwnershipFullyResolved, false);
       expect(info.fee, null);
       expect(info.direction, TransactionDirection.outgoing);
     });
@@ -108,7 +108,7 @@ void main() {
         addresses: {ownedAddress},
       );
 
-      expect(info.additionalInfo["inputsOwnershipFullyResolved"], true);
+      expect(info.inputsOwnershipFullyResolved, true);
       expect(info.fee?.amount.toInt(), 300);
     });
 
@@ -138,7 +138,7 @@ void main() {
         addresses: {ownedAddress},
       );
 
-      expect(info.additionalInfo["inputsOwnershipFullyResolved"], true);
+      expect(info.inputsOwnershipFullyResolved, true);
       expect(info.fee?.amount.toInt(), 150);
       expect(info.direction, TransactionDirection.incoming);
     });
@@ -252,7 +252,7 @@ void main() {
       );
 
       expect(info.direction, TransactionDirection.outgoing);
-      expect(info.additionalInfo["inputsOwnershipFullyResolved"], false);
+      expect(info.inputsOwnershipFullyResolved, false);
       expect(info.amount.amount.toInt(), ownedInputAmount);
     });
 
@@ -393,7 +393,7 @@ void main() {
         addresses: {ownedAddress},
       );
 
-      expect(info.additionalInfo["inputsOwnershipFullyResolved"], false);
+      expect(info.inputsOwnershipFullyResolved, false);
       expect(info.fee, null);
     });
   });

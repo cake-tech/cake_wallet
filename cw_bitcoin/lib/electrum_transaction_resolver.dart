@@ -8,7 +8,7 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:flutter/foundation.dart";
 
 /// Resolves fee/ownership/direction details for transactions that the
-/// first pass sync (see [ElectrumWalletBase.getTransactionExpanded]) left
+/// initial sync (see [ElectrumWalletBase.getTransactionExpanded]) left
 /// unresolved, via a single background resolution pass (newest-first) that
 /// every sync cycle restarts (see [resolvePending]).
 ///

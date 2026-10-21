@@ -25,6 +25,10 @@ abstract class TransactionInfo extends Object with Keyable {
 
   Map<String, dynamic> additionalInfo = {};
 
+  /// Whether every input's ownership has been settled. `null` for wallets
+  /// that don't track it (everything but Electrum).
+  bool? get inputsOwnershipFullyResolved => null;
+
   /// Whether the displayed amount (and direction) may still change.
   ///
   /// The amount is computed from the inputs this wallet owns, and ownership is
@@ -36,8 +40,6 @@ abstract class TransactionInfo extends Object with Keyable {
   /// Always false for wallets other than Electrum, which never set the
   /// `additionalInfo` flags read here.
   bool get isAmountPending {
-    final inputsOwnershipFullyResolved = additionalInfo['inputsOwnershipFullyResolved'] as bool?;
-
     // Checked first: every input being resolved guarantees the amount is
     // exact, safe since this tx will never be re-fetched to change it.
     if (inputsOwnershipFullyResolved == true) {

@@ -33,7 +33,7 @@ void main() {
         isPending: false,
         date: base.subtract(Duration(days: daysOld)),
         confirmations: 1,
-        additionalInfo: {'inputsOwnershipFullyResolved': inputsResolved},
+        inputsOwnershipFullyResolved: inputsResolved,
       );
     }
 

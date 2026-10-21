@@ -44,6 +44,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
   bool isReceivedSilentPayment;
   bool isHogEx;
 
+  /// Whether every input's ownership has been settled, so ownership,
+  /// direction and amount need no further resolution. History saved without
+  /// the flag defaults to `false`, so it gets re-resolved after an upgrade.
+  @override
+  bool inputsOwnershipFullyResolved;
+
   ElectrumTransactionInfo(
     this.type, {
     required String id,
@@ -62,6 +68,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.unspents,
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
+    this.inputsOwnershipFullyResolved = false,
     Map<String, dynamic>? additionalInfo,
   }) {
     this.id = id;
@@ -139,7 +146,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         : DateTime.now();
     var direction = TransactionDirection.incoming;
     // How much is displayed as the amount of the transaction, either as
-    // X sent or Y received. Fees and change alter the display amount.
+    // X sent or Y received. For sends, fees and change are deducted from
+    // the display amount
     var walletDisplayAmount = 0;
     var inputAmount = 0;
     var totalOutAmount = 0;
@@ -157,7 +165,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     for (var i = 0; i < totalInputCount; i++) {
       final input = bundle.originalTransaction.inputs[i];
-      final inputTransaction = i < bundle.ins.length ? bundle.ins[i] : null;
+      final inputsParentTransaction = i < bundle.ins.length ? bundle.ins[i] : null;
       final witness = i < bundle.originalTransaction.witnesses.length
           ? bundle.originalTransaction.witnesses[i]
           : null;
@@ -173,7 +181,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
       // Input tx not yet fetched to check the spent output against - fall back to
       // whatever the local scriptSig/witness check above could tell us.
-      if (inputTransaction == null || input.txIndex >= inputTransaction.outputs.length) {
+
+      final isParentTxMissing = inputsParentTransaction == null;
+      final isSpentOutputMissing = inputsParentTransaction != null &&
+          input.txIndex >= inputsParentTransaction.outputs.length;
+
+      if (isParentTxMissing || isSpentOutputMissing) {
         unresolvedInputTxids.add(input.txId);
 
         // Only still ambiguous while the prevout is missing; once fetched,
@@ -192,15 +205,20 @@ class ElectrumTransactionInfo extends TransactionInfo {
       // Input tx was fetched: look up the actual output this input spends
       // to get its real amount/address.
       alreadyFetchedInputCount++;
-      final outTransaction = inputTransaction.outputs[input.txIndex];
+
+      final outTransaction = inputsParentTransaction.outputs[input.txIndex];
       inputAmount += outTransaction.amount.toInt();
+
       final outAddress = addressFromOutputScript(outTransaction.scriptPubKey, network);
       final addressExistsInOurAddresses = addresses.contains(outAddress);
+
       if (addressExistsInOurAddresses || inputConfirmedOwnedByInputData) {
         ownedInputCount++;
+
         direction = TransactionDirection.outgoing;
         inputAddresses.add(outAddress);
         ownedInputTotal += outTransaction.amount.toInt();
+
         if (outAddress.isNotEmpty) {
           ownedInputs.add({'address': outAddress, 'amount': outTransaction.amount.toInt()});
         }
@@ -240,12 +258,15 @@ class ElectrumTransactionInfo extends TransactionInfo {
             .add({'address': outputAddress, 'amount': out.amount.toInt(), 'vout': voutIndex});
       }
 
-      // TransactionDirection.incoming (default) means the above inputs check
-      // did not swap direction to outgoing yet, so we only receive and this is not change
+      // TransactionDirection.incoming (default) means the above inputs loop
+      // did not swap direction to outgoing yet, no sends so we only receive from this tx
+      // and this cannot be a change
       final isOnlyReceive =
           direction == TransactionDirection.incoming && addressExistsInOurAddresses;
-      // The above inputs block found an input that we sent, and we did not receive
-      // so we only sent the transaction externally.
+
+      // The above inputs loop found an input that we did send, and we did not receive from
+      // this output, so it cannot be change and this can only have been sent externally to
+      // someone else.
       final isExternalSend =
           direction == TransactionDirection.outgoing && !addressExistsInOurAddresses;
 
@@ -358,12 +379,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
       amount: Money.fromInt(walletDisplayAmount, walletCurrency),
       date: date,
       isHogEx: isHogEx,
+      inputsOwnershipFullyResolved: inputsOwnershipFullyResolved,
       additionalInfo: {
         'unresolvedInputTxids': unresolvedInputTxids,
         'txSize': txSize,
         'ownedInputs': ownedInputs,
         'ownedOutputs': ownedOutputs,
-        'inputsOwnershipFullyResolved': inputsOwnershipFullyResolved,
         'isWalletDisplayAmountExact': isWalletDisplayAmountExact,
         'totalInputCount': totalInputCount,
         // Size of the wallet address set this was classified against; see
@@ -406,32 +427,16 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
+      inputsOwnershipFullyResolved: data['inputsOwnershipFullyResolved'] as bool? ?? false,
       additionalInfo: additionalInfo,
     );
   }
 
   final WalletType type;
 
-  /// Whether this transaction needs any more pass-2 work. Older persisted
-  /// history (from before `inputsOwnershipFullyResolved` existed) is treated
-  /// as already complete if it has an exact fee or has no recorded gaps, so
-  /// upgrading the app doesn't trigger a large one-time re-fetch of history
-  /// that was already resolved under the old scheme.
-  bool get inputsOwnershipFullyResolved {
-    final explicit = additionalInfo['inputsOwnershipFullyResolved'] as bool?;
-    if (explicit != null) {
-      return explicit;
-    }
-    if (fee != null) {
-      return true;
-    }
-    final unresolved = additionalInfo['unresolvedInputTxids'] as List?;
-    return unresolved == null || unresolved.isEmpty;
-  }
-
   /// Whether this transaction still needs any resolution work - either
-  /// pass 2 (ownership/direction/amount, see [inputsOwnershipFullyResolved])
-  /// or pass 3 (fee for an already-settled receive).
+  /// input resolution (ownership/direction/amount, see [inputsOwnershipFullyResolved])
+  /// or fee resolution (fee for an already-settled receive).
   bool get needsResolution => !inputsOwnershipFullyResolved || fee == null;
 
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
@@ -444,6 +449,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         date: date,
         isPending: isPending,
         isReplaced: isReplaced ?? false,
+        inputsOwnershipFullyResolved: inputsOwnershipFullyResolved,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
         confirmations: info.confirmations,
@@ -468,6 +474,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
+    m['inputsOwnershipFullyResolved'] = inputsOwnershipFullyResolved;
     m['additionalInfo'] = additionalInfo;
     return m;
   }
