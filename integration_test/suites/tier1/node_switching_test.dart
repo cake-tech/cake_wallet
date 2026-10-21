@@ -31,6 +31,7 @@ void main() {
     await homePageRobot.openSettingsSheet();
     await settingsRobot.isDisplayed();
 
+    await settingsRobot.openWalletSettings();
     await settingsRobot.openRow(Routes.manageNodes);
     await nodesRobot.isDisplayed();
 
