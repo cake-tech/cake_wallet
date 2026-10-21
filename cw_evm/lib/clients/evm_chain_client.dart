@@ -234,7 +234,7 @@ class EVMChainClient {
         function: _l1FeeContract.function("getL1FeeUpperBound"),
         params: [BigInt.from(unsignedTransaction.length)],
       );
-      return result.first as BigInt;
+      return (result.first as BigInt) * BigInt.two;
     } catch (e) {
       printV("L1 fee lookup failed on chain $chainId: $e");
       return BigInt.zero;

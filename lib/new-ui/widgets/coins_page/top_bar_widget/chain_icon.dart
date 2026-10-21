@@ -25,6 +25,7 @@ class ChainIcon extends StatelessWidget {
         final progress = dashboardViewModel.status.progress();
         final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
         final addedNetwork = dashboardViewModel.addedNetwork;
+        final progressColor = showSyncedMessage ? Color(0xFFFF12A439) : Color(0xFFFFB84E);
 
         return Stack(
           children: [
@@ -34,13 +35,25 @@ class ChainIcon extends StatelessWidget {
               // Faded out means "nothing to report", so it must leave the tree too.
               child: ExcludeSemantics(
                 excluding: done || showSyncedMessage,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  color: showSyncedMessage ? Color(0xFFFF12A439) : Color(0xFFFFB84E),
-                  strokeWidth: 2,
-                  semanticsLabel: S.of(context).synchronizing,
-                  semanticsValue: "${(progress * 100).round()}%",
-                ),
+                child: addedNetwork != null
+                    ? Semantics(
+                        label: S.of(context).synchronizing,
+                        value: "${(progress * 100).round()}%",
+                        child: CustomPaint(
+                          size: const Size.square(36),
+                          painter: _RoundedSquareProgressPainter(
+                            progress: progress,
+                            color: progressColor,
+                          ),
+                        ),
+                      )
+                    : CircularProgressIndicator(
+                        value: progress,
+                        color: progressColor,
+                        strokeWidth: 2,
+                        semanticsLabel: S.of(context).synchronizing,
+                        semanticsValue: "${(progress * 100).round()}%",
+                      ),
               ),
             ),
             AnimatedScale(
@@ -80,4 +93,36 @@ class ChainIcon extends StatelessWidget {
       },
     );
   }
+}
+
+class _RoundedSquareProgressPainter extends CustomPainter {
+  const _RoundedSquareProgressPainter({required this.progress, required this.color});
+
+  final double progress;
+  final Color color;
+
+  static const _strokeWidth = 2.0;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final outline = Path()
+      ..addRRect(RRect.fromRectAndRadius(
+        rect.deflate(_strokeWidth / 2),
+        Radius.circular(size.width * CakeImageWidget.networkIconCornerRatio),
+      ));
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = _strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    for (final metric in outline.computeMetrics()) {
+      canvas.drawPath(metric.extractPath(0, metric.length * progress.clamp(0.0, 1.0)), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_RoundedSquareProgressPainter oldDelegate) =>
+      oldDelegate.progress != progress || oldDelegate.color != color;
 }
