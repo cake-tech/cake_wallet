@@ -219,12 +219,6 @@ abstract class TronWalletBase
   }
 
   @override
-  Future<bool> isTokenIconRefreshDisabled() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool("disable_token_image_refresh") ?? false;
-  }
-
-  @override
   Future<String?> fetchTokenIconUrl(TronToken token) =>
       _client.fetchTrc20IconUrl(token.contractAddress);
 

@@ -178,12 +178,6 @@ abstract class SolanaWalletBase
   }
 
   @override
-  Future<bool> isTokenIconRefreshDisabled() async {
-    final prefs = await _sharedPrefs.future;
-    return prefs.getBool("disable_token_image_refresh") ?? false;
-  }
-
-  @override
   Future<String?> fetchTokenIconUrl(SPLToken token) async =>
       (await _client.getTokenInfo(token.mintAddress))?.iconPath;
 

@@ -1,16 +1,16 @@
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 mixin TokenIconRefresh<T extends CryptoCurrency> {
-  Future<bool> isTokenIconRefreshDisabled();
-
   Future<String?> fetchTokenIconUrl(T token);
 
   Future<void> saveTokenIconUrl(T token, String iconUrl);
 
   Future<void> refreshTokenIcons(List<T> tokens) async {
     try {
-      if (await isTokenIconRefreshDisabled()) {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool("disable_token_image_refresh") ?? false) {
         return;
       }
 

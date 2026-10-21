@@ -557,12 +557,6 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  Future<bool> isTokenIconRefreshDisabled() async {
-    final prefs = await sharedPrefs.future;
-    return prefs.getBool("disable_token_image_refresh") ?? false;
-  }
-
-  @override
   Future<String?> fetchTokenIconUrl(Erc20Token token) async {
     final chainId = token.chainId;
     if (chainId == null) {
