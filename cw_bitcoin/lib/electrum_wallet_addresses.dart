@@ -668,24 +668,24 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
   }
 
-  void addLitecoinAddressTypes(String activeAddress) {
+  void addLitecoinAddressTypes() {
     final lastP2wpkh = _addresses
         .where((addressRecord) =>
             _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
         .toList()
         .last;
-    if (lastP2wpkh.address != activeAddress) {
+    if (lastP2wpkh.address != address) {
       addressesMap[lastP2wpkh.address] = 'P2WPKH';
     } else {
-      addressesMap[activeAddress] = 'Active - P2WPKH';
+      addressesMap[address] = 'Active - P2WPKH';
     }
 
     final lastMweb = _addresses.firstWhere(
         (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
-    if (lastMweb.address != activeAddress) {
+    if (lastMweb.address != address) {
       addressesMap[lastMweb.address] = 'MWEB';
     } else {
-      addressesMap[activeAddress] = 'Active - MWEB';
+      addressesMap[address] = 'Active - MWEB';
     }
   }
 
@@ -703,7 +703,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
-      // Not every sender can pay Lightning or Silent Payments; offer plain SegWit instead.
       final activeAddress = addressPageType == LightningAddressType.p2l ||
               addressPageType == SilentPaymentsAddresType.p2sp
           ? addressForBuy
@@ -720,7 +719,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           addBitcoinAddressTypes(activeAddress);
           break;
         case WalletType.litecoin:
-          addLitecoinAddressTypes(activeAddress);
+          addLitecoinAddressTypes();
           break;
         case WalletType.bitcoinCash:
           addP2PKHAddressTypes();
