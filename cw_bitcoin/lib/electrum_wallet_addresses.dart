@@ -703,10 +703,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
-      // Not every sender can pay Lightning, Silent Payments or MWEB; offer plain SegWit instead.
+      // Not every sender can pay Lightning or Silent Payments; offer plain SegWit instead.
       final activeAddress = addressPageType == LightningAddressType.p2l ||
-              addressPageType == SilentPaymentsAddresType.p2sp ||
-              addressPageType == SegwitAddresType.mweb
+              addressPageType == SilentPaymentsAddresType.p2sp
           ? addressForBuy
           : address;
       addressesMap[activeAddress] = 'Active';
