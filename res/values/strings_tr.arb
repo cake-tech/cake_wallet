@@ -1622,6 +1622,7 @@
   "wc_warning_swap_amounts_estimated": "Swap tutarları çağrı verilerinden çözülür ve nihai ödemeden farklı olabilir.",
   "wc_warning_swap_amounts_unavailable": "Bu swapın tutarları istekten okunamadı. Bağlandığınız uygulamada bunları kontrol edin.",
   "wc_warning_swap_direction_inferred": "Cüzdan bakiyenizden anlaşılan takas yönü. Onaylamadan önce dApp'teki miktarları ve jetonları doğrulayın.",
+  "wc_warning_swap_extra_transfers": "Bu işlem takastan daha fazlasını yapar. Onaylamadan önce aşağıda listelenen aktarımları ve onayları kontrol edin.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet bu bağlantıyı ${name} ile değiştiremez. Onaylarsanız uygulamaya geçişin başarısız olduğu bildirilir.",
   "wc_warning_typed_data_invalid": "Yazılan veri yükü hatalı biçimlendirilmiş ve ayrıştırılamadı.",
   "wc_warning_unknown_contract": "Bu sözleşme tanınmıyor. Onaylamadan önce sözleşme adresini doğrulayın.",

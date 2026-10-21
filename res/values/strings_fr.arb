@@ -1622,6 +1622,7 @@
   "wc_warning_swap_amounts_estimated": "Les montants des swaps sont décodés à partir des données d'appel et peuvent différer du règlement final.",
   "wc_warning_swap_amounts_unavailable": "Les montants de ce swap n'ont pas pu être lus dans la demande. Vérifiez-les dans l'application à laquelle vous vous connectez.",
   "wc_warning_swap_direction_inferred": "Changez la direction déduite du solde de votre portefeuille. Vérifiez les montants et les jetons dans la dApp avant d'approuver.",
+  "wc_warning_swap_extra_transfers": "Cette transaction fait plus que le swap. Vérifiez les transferts et les approbations répertoriés ci-dessous avant d’approuver.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet ne peut pas basculer cette connexion vers ${name}. Si vous approuvez, l’application sera informée que le changement a échoué.",
   "wc_warning_typed_data_invalid": "La charge utile des données saisies est mal formée et n’a pas pu être analysée.",
   "wc_warning_unknown_contract": "Ce contrat n'est pas reconnu. Vérifiez l’adresse du contrat avant d’approuver.",

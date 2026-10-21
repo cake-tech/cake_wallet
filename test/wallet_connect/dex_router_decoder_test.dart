@@ -32,6 +32,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: halfEth,
+      chainId: 1,
     );
     expect(decoded!.actionTitle, S.current.wc_action_swap);
     expect(decoded.rows.first.label, S.current.wc_swap_from);
@@ -52,6 +53,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.rows.first.value.startsWith("1000"), isTrue);
     expect(decoded.rows[1].value.startsWith("900"), isTrue);
@@ -73,6 +75,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.actionTitle, S.current.wc_action_swap);
     expect(decoded.rows.first.value.startsWith("5000"), isTrue);
@@ -93,6 +96,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.actionTitle, S.current.wc_action_swap);
     expect(decoded.rows.first.value.startsWith("7000"), isTrue);
@@ -112,6 +116,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.rows.first.label, S.current.wc_swap_from_max);
     expect(decoded.rows.first.value.startsWith("1000"), isTrue);
@@ -131,6 +136,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: halfEth,
+      chainId: 1,
     );
     expect(decoded!.rows.first.label, S.current.wc_swap_from_max);
     expect(decoded.rows.first.value, "0.5 ETH");
@@ -151,6 +157,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.rows[1].value.endsWith("ETH"), isTrue);
   });
@@ -170,6 +177,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.rows.first.label, S.current.wc_swap_from_max);
     expect(decoded.rows.first.value.startsWith("4200"), isTrue);
@@ -191,41 +199,121 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.rows.first.value.startsWith("4200"), isTrue);
     expect(decoded.rows[1].value.startsWith("4000"), isTrue);
   });
 
   group("opaque routers", () {
-    final opaque = <String, String>{
-      "c04b8d59": "Uniswap V3",
-      "f28c0498": "Uniswap V3",
-      "b858183f": "Uniswap V3",
-      "09b81346": "Uniswap V3",
-      "415565b0": "0x Protocol",
-      "f6274f66": "0x Protocol",
-      "7c025200": "1inch",
-      "0502b1c5": "1inch",
-      "b0431182": "1inch",
-      "12aa3caf": "1inch",
+    const uniswapV3Router = "0xE592427A0AEce92De3Edee1F18E0157C05861564";
+    const zeroXExchangeProxy = "0xDef1C0ded9bec7F1a1670819833240f027b25EfF";
+    const oneInchV5Router = "0x1111111254EEB25477B68fb85Ed929f73A960582";
+    final opaque = <String, (String, String)>{
+      "c04b8d59": ("Uniswap V3", uniswapV3Router),
+      "f28c0498": ("Uniswap V3", uniswapV3Router),
+      "b858183f": ("Uniswap V3", uniswapV3Router),
+      "09b81346": ("Uniswap V3", uniswapV3Router),
+      "415565b0": ("0x Protocol", zeroXExchangeProxy),
+      "f6274f66": ("0x Protocol", zeroXExchangeProxy),
+      "7c025200": ("1inch", oneInchV5Router),
+      "0502b1c5": ("1inch", oneInchV5Router),
+      "b0431182": ("1inch", oneInchV5Router),
+      "12aa3caf": ("1inch", oneInchV5Router),
     };
 
     for (final entry in opaque.entries) {
-      test("${entry.key} names ${entry.value} and admits the amounts are unknown", () async {
+      final (protocol, deployment) = entry.value;
+      test("${entry.key} on $protocol's own router names it and admits the amounts are unknown",
+          () async {
         final decoded = await decoder.decode(
           calldata: EvmCalldata.parse("0x${entry.key}${wordInt(1)}")!,
           nativeSymbol: "ETH",
-          routerAddress: router,
+          routerAddress: deployment,
           walletAddress: recipient,
           valueWei: BigInt.zero,
+          chainId: 1,
         );
         expect(decoded, isNotNull);
         expect(decoded!.actionTitle, S.current.wc_action_swap);
-        expect(decoded.actionSubtitle, S.current.wc_via(entry.value));
-        expect(decoded.rows.single.value, router);
+        expect(decoded.actionSubtitle, S.current.wc_via(protocol));
+        expect(decoded.rows.single.value, deployment);
         expect(decoded.warnings, contains(S.current.wc_warning_swap_amounts_unavailable));
+        expect(decoded.warnings, isNot(contains(S.current.wc_warning_unknown_contract)));
       });
     }
+  });
+
+  group("router identity", () {
+    String swapExactEthForTokens() =>
+        "0x7ff36ab5${wordInt(90)}${wordInt(0x80)}${wordAddr(recipient)}${wordInt(1700000000)}"
+        "${addressArrayBody([weth, tokenOut])}";
+
+    test("an unlisted contract using a Uniswap selector is not called Uniswap", () async {
+      const impostor = "0x9999999999999999999999999999999999999999";
+      final decoded = await decoder.decode(
+        calldata: EvmCalldata.parse(swapExactEthForTokens())!,
+        nativeSymbol: "ETH",
+        routerAddress: impostor,
+        walletAddress: recipient,
+        valueWei: halfEth,
+        chainId: 1,
+      );
+      expect(decoded!.actionSubtitle, S.current.wc_via("0x9999…9999"));
+      expect(decoded.rows.firstWhere((r) => r.label == S.current.wc_router).value, impostor);
+      expect(decoded.warnings, contains(S.current.wc_warning_unknown_contract));
+    });
+
+    test("a Uniswap router on another chain is not trusted by address alone", () async {
+      const mainnetV2Router = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+      final decoded = await decoder.decode(
+        calldata: EvmCalldata.parse(swapExactEthForTokens())!,
+        nativeSymbol: "ETH",
+        routerAddress: mainnetV2Router,
+        walletAddress: recipient,
+        valueWei: halfEth,
+        chainId: 8453,
+      );
+      expect(decoded!.actionSubtitle, isNot(S.current.wc_via("Uniswap V2")));
+      expect(decoded.warnings, contains(S.current.wc_warning_unknown_contract));
+    });
+
+    test("a V2 swap to the signing wallet names it as you, a stranger stays an address", () async {
+      const mainnetV2Router = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+      const stranger = "0x7777777777777777777777777777777777777777";
+      Future<String> recipientShownFor(String walletAddress) async {
+        final decoded = await decoder.decode(
+          calldata: EvmCalldata.parse(swapExactEthForTokens())!,
+          nativeSymbol: "ETH",
+          routerAddress: mainnetV2Router,
+          walletAddress: walletAddress,
+          valueWei: halfEth,
+          chainId: 1,
+        );
+        return decoded!.rows.firstWhere((r) => r.label == S.current.wc_recipient).value;
+      }
+
+      expect(await recipientShownFor(recipient), S.current.wc_recipient_you);
+      expect(await recipientShownFor(stranger), recipient);
+    });
+
+    test("the listed router keeps its name and still shows its address", () async {
+      const mainnetV2Router = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+      final decoded = await decoder.decode(
+        calldata: EvmCalldata.parse(swapExactEthForTokens())!,
+        nativeSymbol: "ETH",
+        routerAddress: mainnetV2Router,
+        walletAddress: recipient,
+        valueWei: halfEth,
+        chainId: 1,
+      );
+      expect(decoded!.actionSubtitle, S.current.wc_via("Uniswap V2"));
+      expect(
+        decoded.rows.firstWhere((r) => r.label == S.current.wc_router).value,
+        mainnetV2Router,
+      );
+      expect(decoded.warnings, isNot(contains(S.current.wc_warning_unknown_contract)));
+    });
   });
 
   test("a router selector with unreadable arguments degrades to the opaque view", () async {
@@ -235,6 +323,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded!.actionTitle, S.current.wc_action_swap);
     expect(decoded.warnings, contains(S.current.wc_warning_swap_amounts_unavailable));
@@ -247,6 +336,7 @@ void main() {
       routerAddress: router,
       walletAddress: recipient,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded, isNull);
   });
@@ -282,6 +372,7 @@ void main() {
         nativeSymbol: "ETH",
         routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
         valueWei: twoTenthsEth,
+        chainId: 1,
       );
       expect(decoded!.rows.first.value, "0.2 ETH");
       expect(decoded.hideValue, isTrue);
@@ -293,6 +384,7 @@ void main() {
         nativeSymbol: "ETH",
         routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
         valueWei: twoTenthsEth,
+        chainId: 1,
       );
       expect(decoded!.rows.first.value, "0.2 DAI");
       expect(decoded.hideValue, isFalse);

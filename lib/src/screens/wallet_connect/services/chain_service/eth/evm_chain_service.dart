@@ -578,6 +578,7 @@ class EvmChainServiceImpl {
         fromAddress: fromAddress,
         nativeSymbol: nativeSymbol,
         valueWei: valueWei,
+        chainId: reference.chainId,
       );
     } catch (e, s) {
       printV("decodeTransaction threw, falling back to the contract-call view: $e\n$s");

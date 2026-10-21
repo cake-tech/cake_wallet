@@ -1622,6 +1622,7 @@
   "wc_warning_swap_amounts_estimated": "掉期金额是从通话数据中解码的，可能与最终结算有所不同。",
   "wc_warning_swap_amounts_unavailable": "无法从请求中读取此交换的金额。在您正在连接的应用程序中检查它们。",
   "wc_warning_swap_direction_inferred": "根据您的钱包余额推断的交换方向。在批准之前验证 dApp 中的金额和代币。",
+  "wc_warning_swap_extra_transfers": "这笔交易的作用不仅仅是互换。在批准之前检查下面列出的转让和批准。",
   "wc_warning_switch_chain_unavailable": "Cake Wallet 无法将此连接切换到 ${name}。如果您批准，应用程序将被告知切换失败。",
   "wc_warning_typed_data_invalid": "类型化数据有效负载格式错误且无法解析。",
   "wc_warning_unknown_contract": "该合同不被承认。在批准之前验证合同地址。",

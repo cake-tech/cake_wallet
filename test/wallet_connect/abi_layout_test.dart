@@ -91,6 +91,7 @@ void main() {
       routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
       walletAddress: owner.hex,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
 
     expect(decoded!.rows[0].value, startsWith("10000000000000000"));
@@ -131,6 +132,7 @@ void main() {
       routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
       walletAddress: owner.hex,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
 
     expect(
@@ -201,6 +203,7 @@ void main() {
       routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
       walletAddress: "0xf204f3acb05c405c0010f2a2ecfa9fe61783f1d1",
       valueWei: BigInt.zero,
+      chainId: 1,
     );
 
     expect(decoded!.rows[0].value, startsWith("1128058998"));
@@ -229,6 +232,7 @@ void main() {
       routerAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
       walletAddress: "0xcd9b94d67f5a1688526585e72d0499e499ba2c06",
       valueWei: BigInt.zero,
+      chainId: 1,
     );
 
     expect(decoded!.rows[0].value, startsWith("185479563"));
@@ -252,6 +256,7 @@ void main() {
       routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
       walletAddress: owner.hex,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
 
     expect(decoded!.rows[0].label, S.current.wc_swap_from);
@@ -277,6 +282,7 @@ void main() {
       routerAddress: "0xE592427A0AEce92De3Edee1F18E0157C05861564",
       walletAddress: owner.hex,
       valueWei: BigInt.zero,
+      chainId: 1,
     );
 
     expect(decoded!.rows[0].label, S.current.wc_swap_from_max);
@@ -305,6 +311,7 @@ void main() {
       routerAddress: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
       walletAddress: "0xb84aa1eea10cf3347ef95f13ac5e09e40bdd3f03",
       valueWei: BigInt.zero,
+      chainId: 1,
     );
 
     expect(decoded!.rows[0].value, startsWith("3159009627416659000000 "));

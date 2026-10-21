@@ -1624,6 +1624,7 @@
   "wc_warning_swap_amounts_estimated": "Gli importi dello swap vengono decodificati dai dati delle chiamate e possono differire dalla liquidazione finale.",
   "wc_warning_swap_amounts_unavailable": "Impossibile leggere gli importi di questo swap dalla richiesta. Controllali nell'app a cui ti stai connettendo.",
   "wc_warning_swap_direction_inferred": "Direzione dello scambio dedotta dal saldo del tuo portafoglio. Verifica importi e token nella dApp prima di approvare.",
+  "wc_warning_swap_extra_transfers": "Questa transazione fa più dello scambio. Controlla i trasferimenti e le approvazioni elencati di seguito prima di approvare.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet non può trasferire questa connessione a ${name}. Se approvi, all'app verrà comunicato che il passaggio non è riuscito.",
   "wc_warning_typed_data_invalid": "Il payload dei dati digitati non è valido e non è stato possibile analizzarlo.",
   "wc_warning_unknown_contract": "Questo contratto non è riconosciuto. Verificare l'indirizzo del contratto prima di approvarlo.",

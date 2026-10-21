@@ -1614,6 +1614,7 @@
   "wc_warning_swap_amounts_estimated": "Swap amounts are decoded from calldata and may differ from the final settlement.",
   "wc_warning_swap_amounts_unavailable": "Os valores desta troca não puderam ser lidos da solicitação. Verifique-os no aplicativo ao qual você está se conectando.",
   "wc_warning_swap_direction_inferred": "Swap direction inferred from your wallet balance. Verify amounts and tokens in the dApp before approving.",
+  "wc_warning_swap_extra_transfers": "Esta transação faz mais do que a troca. Verifique as transferências e aprovações listadas abaixo antes de aprovar.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet não pode mudar esta conexão para ${name}. Se você aprovar, o aplicativo será informado de que a troca falhou.",
   "wc_warning_typed_data_invalid": "The typed-data payload is malformed and could not be parsed.",
   "wc_warning_unknown_contract": "This contract is not recognized. Verify the contract address before approving.",

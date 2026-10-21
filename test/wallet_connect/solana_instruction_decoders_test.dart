@@ -49,8 +49,12 @@ void main() {
     });
 
     test("decodes create account and ignores unknown tags", () {
-      final created = decoder.decode(data: u32Le(0), accounts: [source, dest]);
+      final created = decoder.decode(
+        data: [...u32Le(0), ...u64Le(BigInt.from(2039280)), ...u64Le(BigInt.from(165))],
+        accounts: [source, dest],
+      );
       expect(created!.title, S.current.wc_action_create_account);
+      expect(created.rows.first.value, "0.00203928 SOL");
       expect(decoder.decode(data: u32Le(9), accounts: [source, dest]), isNull);
     });
   });

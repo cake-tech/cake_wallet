@@ -1623,6 +1623,7 @@
   "wc_warning_swap_amounts_estimated": "Số tiền hoán đổi được giải mã từ dữ liệu cuộc gọi và có thể khác với quyết toán cuối cùng.",
   "wc_warning_swap_amounts_unavailable": "Không thể đọc được số tiền của giao dịch hoán đổi này từ yêu cầu. Kiểm tra chúng trong ứng dụng bạn đang kết nối.",
   "wc_warning_swap_direction_inferred": "Hướng hoán đổi được suy ra từ số dư ví của bạn. Xác minh số tiền và mã thông báo trong dApp trước khi phê duyệt.",
+  "wc_warning_swap_extra_transfers": "Giao dịch này thực hiện nhiều hơn là trao đổi. Kiểm tra các giao dịch chuyển khoản và phê duyệt được liệt kê bên dưới trước khi phê duyệt.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet không thể chuyển kết nối này sang ${name}. Nếu bạn chấp thuận, ứng dụng sẽ được thông báo rằng quá trình chuyển đổi không thành công.",
   "wc_warning_typed_data_invalid": "Tải trọng dữ liệu đã nhập không đúng định dạng và không thể phân tích cú pháp.",
   "wc_warning_unknown_contract": "Hợp đồng này không được công nhận. Xác minh địa chỉ hợp đồng trước khi phê duyệt.",

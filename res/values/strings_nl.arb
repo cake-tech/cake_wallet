@@ -1623,6 +1623,7 @@
   "wc_warning_swap_amounts_estimated": "Swapbedragen worden gedecodeerd uit calldata en kunnen afwijken van de uiteindelijke afrekening.",
   "wc_warning_swap_amounts_unavailable": "De bedragen van deze swap konden niet uit het verzoek worden afgelezen. Controleer ze in de app waarmee u verbinding maakt.",
   "wc_warning_swap_direction_inferred": "Wisselrichting afgeleid van uw portemonneesaldo. Controleer bedragen en tokens in de dApp voordat u deze goedkeurt.",
+  "wc_warning_swap_extra_transfers": "Deze transactie doet meer dan de swap. Controleer de onderstaande overdrachten en goedkeuringen voordat u deze goedkeurt.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet kan deze verbinding niet omschakelen naar ${name}. Als u hiermee akkoord gaat, krijgt de app te horen dat de overstap is mislukt.",
   "wc_warning_typed_data_invalid": "De payload met getypte gegevens is onjuist ingedeeld en kan niet worden geparseerd.",
   "wc_warning_unknown_contract": "Dit contract wordt niet erkend. Controleer het contractadres voordat u het goedkeurt.",

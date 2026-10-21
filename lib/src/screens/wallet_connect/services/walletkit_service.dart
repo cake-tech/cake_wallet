@@ -370,6 +370,8 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> _onSessionConnect(SessionConnect? args) async {
+    _proposalTimeout?.cancel();
+
     if (args != null) {
       final session = jsonEncode(args.session.toJson());
 
@@ -424,6 +426,8 @@ abstract class WalletKitServiceBase with Store {
   }
 
   Future<void> _onSessionAuthRequest(SessionAuthRequest? args) async {
+    _proposalTimeout?.cancel();
+
     if (args != null) {
       final SessionAuthPayload authPayload = args.authPayload;
       final jsonPyaload = jsonEncode(authPayload.toJson());

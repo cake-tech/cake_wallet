@@ -1622,6 +1622,7 @@
   "wc_warning_swap_amounts_estimated": "스왑 금액은 통화 데이터에서 디코딩되므로 최종 정산 금액과 다를 수 있습니다.",
   "wc_warning_swap_amounts_unavailable": "요청에서 이 스왑 금액을 읽을 수 없습니다. 연결하려는 앱에서 확인하세요.",
   "wc_warning_swap_direction_inferred": "지갑 잔액에서 유추되는 스왑 방향. 승인하기 전에 dApp에서 금액과 토큰을 확인하세요.",
+  "wc_warning_swap_extra_transfers": "이 거래는 스왑 이상의 역할을 합니다. 승인하기 전에 아래 나열된 이체 및 승인 사항을 확인하세요.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet은 이 연결을 ${name}(으)로 전환할 수 없습니다. 승인하면 앱에 전환이 실패했다는 메시지가 표시됩니다.",
   "wc_warning_typed_data_invalid": "입력된 데이터 페이로드의 형식이 잘못되어 구문 분석할 수 없습니다.",
   "wc_warning_unknown_contract": "이 계약은 인정되지 않습니다. 승인하기 전에 계약 주소를 확인하세요.",

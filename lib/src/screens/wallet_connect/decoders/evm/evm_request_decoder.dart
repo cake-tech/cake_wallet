@@ -41,19 +41,21 @@ class EvmRequestDecoder {
     required String? fromAddress,
     required String nativeSymbol,
     required BigInt valueWei,
+    required int? chainId,
   }) async {
     final calldata = EvmCalldata.parse(rawData);
     if (calldata == null) {
       return _decodeNativeTransfer(toAddress, nativeSymbol, valueWei);
     }
 
-    final known = await _decodeKnownCall(calldata, toAddress, fromAddress, nativeSymbol, valueWei);
+    final known =
+        await _decodeKnownCall(calldata, toAddress, fromAddress, nativeSymbol, valueWei, chainId);
     if (known != null) {
       return known;
     }
 
     final multicall =
-        await _decodeMulticall(calldata, toAddress, fromAddress, nativeSymbol, valueWei);
+        await _decodeMulticall(calldata, toAddress, fromAddress, nativeSymbol, valueWei, chainId);
     if (multicall != null) {
       return multicall;
     }
@@ -67,6 +69,7 @@ class EvmRequestDecoder {
     String? fromAddress,
     String nativeSymbol,
     BigInt valueWei,
+    int? chainId,
   ) async {
     final erc20Result = await _erc20.decode(
       calldata: calldata,
@@ -93,6 +96,7 @@ class EvmRequestDecoder {
       routerAddress: toAddress,
       walletAddress: fromAddress,
       valueWei: valueWei,
+      chainId: chainId,
     );
     if (routerResult != null) {
       return routerResult;
@@ -107,6 +111,7 @@ class EvmRequestDecoder {
     String? fromAddress,
     String nativeSymbol,
     BigInt valueWei,
+    int? chainId,
   ) async {
     if (!_multicallSelectors.contains(calldata.selector)) {
       return null;
@@ -128,7 +133,14 @@ class EvmRequestDecoder {
         continue;
       }
       decodedInners.add(
-        await _decodeKnownCall(innerCalldata, toAddress, fromAddress, nativeSymbol, valueWei),
+        await _decodeKnownCall(
+          innerCalldata,
+          toAddress,
+          fromAddress,
+          nativeSymbol,
+          valueWei,
+          chainId,
+        ),
       );
     }
 

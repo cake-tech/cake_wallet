@@ -1,3 +1,4 @@
+import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/sol_instruction_bytes.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/solana_program_ids.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/spl_token_resolver.dart";
 import "package:cake_wallet/store/app_store.dart";
@@ -13,6 +14,7 @@ class SwapInference {
     this.directionInferred = false,
     this.unknownTokens = false,
     this.receiveAmountUnknown = false,
+    this.legInstructions = const {},
   });
 
   final String payAmountFormatted;
@@ -21,6 +23,7 @@ class SwapInference {
   final bool directionInferred;
   final bool unknownTokens;
   final bool receiveAmountUnknown;
+  final Set<int> legInstructions;
 }
 
 class SwapInferenceEngine {
@@ -35,12 +38,11 @@ class SwapInferenceEngine {
   Future<SwapInference?> infer({
     required List<String> accounts,
     required List<CompiledInstruction> instructions,
+    required String signer,
   }) async {
     if (accounts.isEmpty || instructions.isEmpty) {
       return null;
     }
-
-    final signer = accounts.first;
 
     final pathA = await _tryTransferPattern(
       accounts: accounts,
@@ -58,6 +60,103 @@ class SwapInferenceEngine {
     );
   }
 
+  List<int> instructionsOutsideSwap({
+    required List<String> accounts,
+    required List<CompiledInstruction> instructions,
+    required SwapInference swap,
+    required String signer,
+  }) {
+    final userWsolAta = _deriveAta(owner: signer, mint: SolanaProgramIds.wrappedSolMint);
+    bool wrapsForSigner = userWsolAta != null;
+    if (userWsolAta != null) {
+      for (var i = 0; i < instructions.length; i++) {
+        if (!swap.legInstructions.contains(i) &&
+            _handsAccountAway(instructions[i], accounts, userWsolAta, signer)) {
+          wrapsForSigner = false;
+          break;
+        }
+      }
+    }
+    final outside = <int>[];
+    for (var i = 0; i < instructions.length; i++) {
+      if (swap.legInstructions.contains(i)) {
+        continue;
+      }
+      final wrapDestination = wrapsForSigner ? userWsolAta : null;
+      if (!_isSwapSetup(instructions[i], accounts, signer, wrapDestination)) {
+        outside.add(i);
+      }
+    }
+    return outside;
+  }
+
+  static const _ataCreateTags = {0, 1};
+  static const _splCloseAccountTag = 9;
+  static const _splSyncNativeTag = 17;
+  static const _systemTransferTag = 2;
+
+  String? _accountAt(CompiledInstruction ix, List<String> accounts, int position) {
+    if (position >= ix.accounts.length) {
+      return null;
+    }
+    final index = ix.accounts[position];
+    return index < accounts.length ? accounts[index] : null;
+  }
+
+  bool _handsAccountAway(
+    CompiledInstruction ix,
+    List<String> accounts,
+    String tokenAccount,
+    String signer,
+  ) {
+    if (ix.programIdIndex >= accounts.length ||
+        !SolanaProgramIds.isTokenProgram(accounts[ix.programIdIndex]) ||
+        _accountAt(ix, accounts, 0) != tokenAccount) {
+      return false;
+    }
+
+    final tag = ix.data.isEmpty ? null : ix.data[0];
+    final closesToSigner = tag == _splCloseAccountTag && _accountAt(ix, accounts, 1) == signer;
+    return tag != _splSyncNativeTag && !closesToSigner;
+  }
+
+  bool _isSwapSetup(
+    CompiledInstruction ix,
+    List<String> accounts,
+    String signer,
+    String? wrapDestination,
+  ) {
+    String? accountAt(int position) => _accountAt(ix, accounts, position);
+
+    if (ix.programIdIndex >= accounts.length) {
+      return false;
+    }
+
+    final programId = accounts[ix.programIdIndex];
+    if (SolanaProgramIds.isInternal(programId) || SolanaProgramIds.isMemoProgram(programId)) {
+      return true;
+    }
+
+    if (programId == SolanaProgramIds.associatedTokenProgram) {
+      final createsAccount = ix.data.isEmpty || _ataCreateTags.contains(ix.data[0]);
+      return createsAccount && accountAt(2) == signer;
+    }
+
+    if (programId == SolanaProgramIds.systemProgram) {
+      final destination = accountAt(1);
+      return SolInstructionBytes(ix.data).u32Le(0) == _systemTransferTag &&
+          destination != null &&
+          (destination == signer || destination == wrapDestination);
+    }
+
+    if (SolanaProgramIds.isTokenProgram(programId) && ix.data.isNotEmpty) {
+      final tag = ix.data[0];
+      return tag == _splSyncNativeTag || (tag == _splCloseAccountTag && accountAt(1) == signer);
+    }
+
+    return false;
+  }
+
   Future<SwapInference?> _tryTransferPattern({
     required List<String> accounts,
     required List<CompiledInstruction> instructions,
@@ -65,10 +164,13 @@ class SwapInferenceEngine {
   }) async {
     final delta = <String, BigInt>{};
     final ownedAtaCache = <String, String>{};
+    final debitLegs = <String, int>{};
+    final creditLegs = <String, int>{};
 
     String? findRouter;
 
-    for (final ix in instructions) {
+    for (var i = 0; i < instructions.length; i++) {
+      final ix = instructions[i];
       if (ix.programIdIndex >= accounts.length) {
         continue;
       }
@@ -123,8 +225,16 @@ class SwapInferenceEngine {
       }
 
       if (src == userAta) {
+        if (debitLegs.containsKey(mint)) {
+          return null;
+        }
+        debitLegs[mint] = i;
         delta[mint] = (delta[mint] ?? BigInt.zero) - amount;
       } else if (dst == userAta) {
+        if (creditLegs.containsKey(mint)) {
+          return null;
+        }
+        creditLegs[mint] = i;
         delta[mint] = (delta[mint] ?? BigInt.zero) + amount;
       }
     }
@@ -165,6 +275,10 @@ class SwapInferenceEngine {
       receiveAmount: receiveAmount,
       routerName: findRouter,
       directionInferred: false,
+      legInstructions: {
+        if (debitLegs[payMint] case final int payLeg) payLeg,
+        if (creditLegs[receiveMint] case final int receiveLeg) receiveLeg,
+      },
     );
   }
 
@@ -174,9 +288,11 @@ class SwapInferenceEngine {
     required String signer,
   }) async {
     CompiledInstruction? main;
+    int? mainIndex;
     String? mainProgramId;
     String? routerName;
-    for (final ix in instructions) {
+    for (var i = 0; i < instructions.length; i++) {
+      final ix = instructions[i];
       if (ix.programIdIndex >= accounts.length) {
         continue;
       }
@@ -188,10 +304,11 @@ class SwapInferenceEngine {
         return null;
       }
       main = ix;
+      mainIndex = i;
       mainProgramId = programId;
       routerName = SolanaProgramIds.swapRouterName(programId);
     }
-    if (main == null || mainProgramId == null) {
+    if (main == null || mainIndex == null || mainProgramId == null) {
       return null;
     }
 
@@ -287,6 +404,7 @@ class SwapInferenceEngine {
           receiveAmount: minOut,
           routerName: routerName,
           directionInferred: false,
+          legInstructions: {mainIndex},
         );
       }
 
@@ -305,6 +423,7 @@ class SwapInferenceEngine {
         receiveAmount: minOut,
         routerName: routerName,
         directionInferred: true,
+        legInstructions: {mainIndex},
       );
     }
 
@@ -327,7 +446,7 @@ class SwapInferenceEngine {
         final wrappedLamports = _findSolWrapTransferLamports(
           accounts: accounts,
           instructions: instructions,
-          signerIndex: 0,
+          signerIndex: accounts.indexOf(signer),
           destIndex: tempWsolIndex,
         );
 
@@ -339,6 +458,7 @@ class SwapInferenceEngine {
             receiveAmount: null,
             routerName: routerName,
             directionInferred: false,
+            legInstructions: {mainIndex},
           );
         }
 
@@ -349,6 +469,7 @@ class SwapInferenceEngine {
           receiveAmount: minOut,
           routerName: routerName,
           directionInferred: false,
+          legInstructions: {mainIndex},
         );
       }
 
@@ -361,6 +482,7 @@ class SwapInferenceEngine {
           receiveAmount: minOut,
           routerName: routerName,
           directionInferred: true,
+          legInstructions: {mainIndex},
         );
       }
       if (_nativeSolBalance() > BigInt.zero) {
@@ -371,6 +493,7 @@ class SwapInferenceEngine {
           receiveAmount: minOut,
           routerName: routerName,
           directionInferred: true,
+          legInstructions: {mainIndex},
         );
       }
     }
@@ -478,6 +601,7 @@ class SwapInferenceEngine {
     required BigInt? receiveAmount,
     required String? routerName,
     required bool directionInferred,
+    Set<int> legInstructions = const {},
   }) async {
     final payRender = await _renderAmount(payMint, payAmount);
     final receiveRender = await _renderAmount(receiveMint, receiveAmount);
@@ -491,6 +615,7 @@ class SwapInferenceEngine {
       directionInferred: directionInferred,
       unknownTokens: payRender.unknown || receiveRender.unknown,
       receiveAmountUnknown: receiveRender.amount == null,
+      legInstructions: legInstructions,
     );
   }
 

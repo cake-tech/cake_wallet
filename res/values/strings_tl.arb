@@ -1622,6 +1622,7 @@
   "wc_warning_swap_amounts_estimated": "Ang mga halaga ng swap ay nade-decode mula sa calldata at maaaring mag-iba sa panghuling settlement.",
   "wc_warning_swap_amounts_unavailable": "Ang mga halaga ng swap na ito ay hindi mababasa mula sa kahilingan. Suriin ang mga ito sa app kung saan ka kumukonekta.",
   "wc_warning_swap_direction_inferred": "Pagpalitin ang direksyon na hinuha mula sa balanse ng iyong wallet. I-verify ang mga halaga at token sa dApp bago aprubahan.",
+  "wc_warning_swap_extra_transfers": "Ang transaksyong ito ay higit pa sa swap. Tingnan ang mga paglilipat at pag-apruba na nakalista sa ibaba bago aprubahan.",
   "wc_warning_switch_chain_unavailable": "Hindi mailipat ng Cake Wallet ang koneksyong ito sa ${name}. Kung aprubahan mo, sasabihin sa app na nabigo ang switch.",
   "wc_warning_typed_data_invalid": "Mali ang na-type na data payload at hindi ma-parse.",
   "wc_warning_unknown_contract": "Ang kontratang ito ay hindi kinikilala. I-verify ang address ng kontrata bago aprubahan.",

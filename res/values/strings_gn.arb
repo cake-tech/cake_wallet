@@ -1625,6 +1625,7 @@
   "wc_warning_swap_amounts_estimated": "Umi monto intercambio ojedescodifica calldata-gui ha ikatu iñambue liquidación pahagui.",
   "wc_warning_swap_amounts_unavailable": "Ko swap monto ndikatúi ojelee pedido-gui. Ehecháke umíva pe app reñembojoajuhápe.",
   "wc_warning_swap_direction_inferred": "Intercambio dirección inferida nde saldo billetera-gui. Emoañete monto ha tokens dApp-pe omonéî mboyve.",
+  "wc_warning_swap_extra_transfers": "Ko transacción ojapo hetave mba’e pe intercambio-gui. Ehecháke umi transferencia ha aprobación oje’éva ko’ápe remoneĩ mboyve.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet ndaikatúi ombohasa ko joaju ${name}-pe. Remoneĩramo, oje’éta pe app-pe pe interruptor ndoikói hague.",
   "wc_warning_typed_data_invalid": "Pe carga útil dato-kuéra ojehai va’ekue oñeforma vai ha ndaikatúikuri oñeanalisa.",
   "wc_warning_unknown_contract": "Ko contrato ndojehechakuaái. Omoañete dirección contrato omonéî mboyve.",

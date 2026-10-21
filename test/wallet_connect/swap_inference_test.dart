@@ -84,6 +84,7 @@ void main() {
       ).infer(
         accounts: accounts,
         instructions: _pathAInstructions(accounts),
+        signer: signer,
       );
 
       expect(inference, isNotNull, reason: "two netted transfers should infer a swap");
@@ -113,6 +114,7 @@ void main() {
             data: jupiterRouteData(BigInt.from(2500000), BigInt.from(2400000)),
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNotNull);
@@ -137,6 +139,7 @@ void main() {
             data: [1, 2, 3, 4, 5, 6, 7, 8, ...u64Le(BigInt.from(99))],
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNull, reason: "wrong bytes must not become a displayed amount");
@@ -156,6 +159,7 @@ void main() {
             data: jupiterRouteData(BigInt.from(1), BigInt.from(1)),
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNull);
@@ -183,6 +187,7 @@ void main() {
             data: const [1],
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNull);
@@ -229,6 +234,7 @@ void main() {
             data: const [9],
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNotNull);
@@ -261,6 +267,7 @@ void main() {
             data: const [9],
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNotNull);
@@ -286,6 +293,7 @@ void main() {
             data: jupiterRouteData(BigInt.from(7000000), BigInt.from(150000000)),
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNotNull);
@@ -314,10 +322,91 @@ void main() {
             data: jupiterRouteData(BigInt.from(100), BigInt.from(200)),
           ),
         ],
+        signer: signer,
       );
 
       expect(inference, isNotNull);
       expect(inference!.payAmountFormatted, contains("100"));
+    });
+  });
+
+  test("a SOL transfer whose destination is not resolved counts as outside the swap", () {
+    final inference = SwapInference(
+      payAmountFormatted: "",
+      receiveAmountFormatted: "",
+      routerName: null,
+    );
+    final outside = engineWith().instructionsOutsideSwap(
+      accounts: [signer, systemProgram],
+      instructions: [
+        CompiledInstruction(
+          programIdIndex: 1,
+          accounts: [0, 7],
+          data: [...u32Le(2), ...u64Le(BigInt.from(10000000000))],
+        ),
+      ],
+      swap: inference,
+      signer: signer,
+    );
+    expect(outside, [0]);
+  });
+
+  group("router instructions outside the swap", () {
+    final userUsdc = ataFor(signer, usdcMint);
+    final userUsdt = ataFor(signer, usdtMint);
+    final routerCall = CompiledInstruction(
+      programIdIndex: 1,
+      accounts: [2, 3],
+      data: jupiterRouteData(BigInt.from(2500000), BigInt.from(2400000)),
+    );
+
+    test("the router call a direct swap was read from stays part of the swap", () async {
+      final accounts = [signer, jupiter, userUsdc, userUsdt];
+      final engine = engineWith(mints: {usdcMint: usdc, usdtMint: usdt});
+      final instructions = [routerCall];
+      final inference = await engine.infer(
+        accounts: accounts,
+        instructions: instructions,
+        signer: signer,
+      );
+      final outside = engine.instructionsOutsideSwap(
+        accounts: accounts,
+        instructions: instructions,
+        swap: inference!,
+        signer: signer,
+      );
+      expect(outside, isEmpty);
+    });
+
+    test("router calls next to a transfer-netted swap are lifted", () async {
+      final accounts = [
+        signer,
+        tokenProgram,
+        jupiter,
+        userUsdc,
+        usdcMint,
+        "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+        userUsdt,
+        usdtMint,
+        "5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1",
+      ];
+      final engine = engineWith(mints: {usdcMint: usdc, usdtMint: usdt});
+      final instructions = [
+        ..._pathAInstructions(accounts),
+        CompiledInstruction(programIdIndex: 2, accounts: [3], data: const [1, 2, 3]),
+      ];
+      final inference = await engine.infer(
+        accounts: accounts,
+        instructions: instructions,
+        signer: signer,
+      );
+      final outside = engine.instructionsOutsideSwap(
+        accounts: accounts,
+        instructions: instructions,
+        swap: inference!,
+        signer: signer,
+      );
+      expect(outside, [2, 3]);
     });
   });
 }

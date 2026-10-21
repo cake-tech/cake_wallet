@@ -1622,6 +1622,7 @@
   "wc_warning_swap_amounts_estimated": "Částky swapů jsou dekódovány z dat volání a mohou se lišit od konečného zúčtování.",
   "wc_warning_swap_amounts_unavailable": "Částky tohoto swapu nebylo možné vyčíst z požadavku. Zkontrolujte je v aplikaci, ke které se připojujete.",
   "wc_warning_swap_direction_inferred": "Směr swapu odvozený ze zůstatku v peněžence. Před schválením ověřte částky a tokeny v dApp.",
+  "wc_warning_swap_extra_transfers": "Tato transakce dělá více než jen swap. Před schválením zkontrolujte níže uvedené převody a schválení.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet nemůže toto připojení přepnout na ${name}. Pokud to schválíte, aplikace bude informována, že přepínač selhal.",
   "wc_warning_typed_data_invalid": "Užitná zátěž zadávaných dat je chybná a nelze ji analyzovat.",
   "wc_warning_unknown_contract": "Tato smlouva není uznána. Před schválením ověřte adresu smlouvy.",

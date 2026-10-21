@@ -1623,6 +1623,7 @@
   "wc_warning_swap_amounts_estimated": "スワップ金額はコールデータからデコードされ、最終的な決済とは異なる場合があります。",
   "wc_warning_swap_amounts_unavailable": "このスワップの金額をリクエストから読み取ることができませんでした。接続しているアプリで確認してください。",
   "wc_warning_swap_direction_inferred": "ウォレット残高から推測されるスワップ方向。承認する前に、dApp 内の金額とトークンを確認してください。",
+  "wc_warning_swap_extra_transfers": "このトランザクションはスワップ以上のことを行います。承認する前に、以下の転送と承認を確認してください。",
   "wc_warning_switch_chain_unavailable": "Cake Wallet はこの接続を ${name} に切り替えることができません。承認すると、アプリには切り替えが失敗したことが通知されます。",
   "wc_warning_typed_data_invalid": "型付きデータのペイロードの形式が正しくないため、解析できませんでした。",
   "wc_warning_unknown_contract": "この契約は認められません。承認する前に、契約アドレスを確認してください。",

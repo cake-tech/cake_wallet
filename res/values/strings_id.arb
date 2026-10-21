@@ -1625,6 +1625,7 @@
   "wc_warning_swap_amounts_estimated": "Jumlah swap diterjemahkan dari data panggilan dan mungkin berbeda dari penyelesaian akhir.",
   "wc_warning_swap_amounts_unavailable": "Jumlah swap ini tidak dapat dibaca dari permintaan. Periksa di aplikasi yang Anda sambungkan.",
   "wc_warning_swap_direction_inferred": "Arah pertukaran disimpulkan dari saldo dompet Anda. Verifikasi jumlah dan token di dApp sebelum menyetujui.",
+  "wc_warning_swap_extra_transfers": "Transaksi ini melakukan lebih dari sekedar swap. Periksa transfer dan persetujuan yang tercantum di bawah sebelum menyetujui.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet tidak dapat mengalihkan koneksi ini ke ${name}. Jika Anda menyetujuinya, aplikasi akan diberi tahu bahwa peralihan gagal.",
   "wc_warning_typed_data_invalid": "Payload data yang diketik salah format dan tidak dapat diurai.",
   "wc_warning_unknown_contract": "Kontrak ini tidak diakui. Verifikasi alamat kontrak sebelum menyetujui.",

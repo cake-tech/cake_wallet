@@ -57,7 +57,10 @@ class SolanaRequestDecoder {
     );
   }
 
-  Future<WCDecodedRequest> decodeTransaction(Map<String, dynamic> params) async {
+  Future<WCDecodedRequest> decodeTransaction(
+    Map<String, dynamic> params, {
+    required String walletAddress,
+  }) async {
     final raw = const JsonEncoder.withIndent("  ").convert(params);
     final transaction = transactionFromParams(params);
     if (transaction == null) {
@@ -75,13 +78,22 @@ class SolanaRequestDecoder {
     final feeRow = _feeRow(transaction, accounts);
 
     final perInstructionRows = <WCDecodedRow>[];
+    final instructionRowStarts = <int>[];
     final warnings = <String>{};
     final routerNames = <String>{};
     String? overallTitle;
 
     for (var i = 0; i < instructions.length; i++) {
+      instructionRowStarts.add(perInstructionRows.length);
       final compiled = instructions[i];
       if (compiled.programIdIndex >= accounts.length) {
+        perInstructionRows.add(
+          WCDecodedRow(
+            label: S.current.wc_instruction_n((i + 1).toString()),
+            value: "${S.current.wc_program}: ${S.current.wc_decode_failed}",
+          ),
+        );
+        warnings.add(S.current.wc_warning_unresolved_accounts);
         continue;
       }
       final programId = accounts[compiled.programIdIndex];
@@ -93,6 +105,12 @@ class SolanaRequestDecoder {
       final swapName = SolanaProgramIds.swapRouterName(programId);
       if (swapName != null) {
         routerNames.add(swapName);
+        perInstructionRows.add(
+          WCDecodedRow(
+            label: S.current.wc_instruction_n((i + 1).toString()),
+            value: "${S.current.wc_program}: $swapName",
+          ),
+        );
         continue;
       }
 
@@ -155,9 +173,24 @@ class SolanaRequestDecoder {
       }
     }
 
-    final inferredSwap = await _inferSwap(transaction, accounts);
+    final inferredSwap = await _inferSwap(transaction, accounts, walletAddress);
 
     if (inferredSwap != null) {
+      final outsideSwap = _swapInference.instructionsOutsideSwap(
+        accounts: accounts,
+        instructions: instructions,
+        swap: inferredSwap,
+        signer: walletAddress,
+      );
+      final outsideSwapRows = [
+        for (final i in outsideSwap)
+          ...perInstructionRows.sublist(
+            instructionRowStarts[i],
+            i + 1 < instructionRowStarts.length
+                ? instructionRowStarts[i + 1]
+                : perInstructionRows.length,
+          ),
+      ];
       final subtitleSource = inferredSwap.routerName ?? routerNames.firstOrNull;
       final swapRows = <WCDecodedRow>[
         WCDecodedRow(
@@ -176,14 +209,15 @@ class SolanaRequestDecoder {
       return WCDecodedRequest(
         actionTitle: S.current.wc_action_swap,
         actionSubtitle: subtitleSource != null ? S.current.wc_via(subtitleSource) : null,
-        rows: [...swapRows, if (feeRow != null) feeRow],
+        rows: [...swapRows, ...outsideSwapRows, if (feeRow != null) feeRow],
         detailRows: perInstructionRows,
-        warnings: [
+        warnings: {
+          if (outsideSwap.isNotEmpty) S.current.wc_warning_swap_extra_transfers,
           S.current.wc_warning_swap_amounts_estimated,
           if (inferredSwap.directionInferred) S.current.wc_warning_swap_direction_inferred,
           if (inferredSwap.unknownTokens) S.current.wc_warning_unknown_token,
           ...warnings,
-        ],
+        }.toList(),
         rawFallback: raw,
         hideTo: true,
         hideValue: true,
@@ -192,16 +226,16 @@ class SolanaRequestDecoder {
 
     if (routerNames.isNotEmpty) {
       final name = routerNames.first;
-      final hasAmounts = perInstructionRows.isNotEmpty;
+      final hasAmounts = perInstructionRows.any((row) => row.kind == WCDecodedRowKind.amount);
       return WCDecodedRequest(
         actionTitle: S.current.wc_action_swap,
         actionSubtitle: S.current.wc_via(name),
         rows: [...perInstructionRows, if (feeRow != null) feeRow],
-        warnings: [
+        warnings: {
           if (hasAmounts) S.current.wc_warning_swap_amounts_estimated,
           if (!hasAmounts) S.current.wc_warning_swap_amounts_unavailable,
           ...warnings,
-        ],
+        }.toList(),
         rawFallback: raw,
         hideTo: true,
         hideValue: true,
@@ -257,11 +291,16 @@ class SolanaRequestDecoder {
     }
   }
 
-  Future<SwapInference?> _inferSwap(SolanaTransaction transaction, List<String> accounts) async {
+  Future<SwapInference?> _inferSwap(
+    SolanaTransaction transaction,
+    List<String> accounts,
+    String walletAddress,
+  ) async {
     try {
       return await _swapInference.infer(
         accounts: accounts,
         instructions: transaction.message.compiledInstructions,
+        signer: walletAddress,
       );
     } catch (e, s) {
       printV("SolanaRequestDecoder: swap inference failed: $e\n$s");
@@ -269,7 +308,10 @@ class SolanaRequestDecoder {
     }
   }
 
-  Future<WCDecodedRequest> decodeAllTransactions(Map<String, dynamic> params) async {
+  Future<WCDecodedRequest> decodeAllTransactions(
+    Map<String, dynamic> params, {
+    required String walletAddress,
+  }) async {
     final raw = const JsonEncoder.withIndent("  ").convert(params);
     final transactions = (params["transactions"] as List?)?.cast<String>() ?? const [];
     if (transactions.isEmpty) {
@@ -286,7 +328,10 @@ class SolanaRequestDecoder {
     final detailRows = <WCDecodedRow>[];
     final warnings = <String>{};
     for (var i = 0; i < transactions.length; i++) {
-      final decoded = await decodeTransaction({"transaction": transactions[i]});
+      final decoded = await decodeTransaction(
+        {"transaction": transactions[i]},
+        walletAddress: walletAddress,
+      );
       final label = S.current.wc_transaction_n((i + 1).toString());
       rows.add(WCDecodedRow(label: label, value: decoded.actionTitle));
       rows.addAll(decoded.rows);

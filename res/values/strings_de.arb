@@ -1675,6 +1675,7 @@
   "wc_warning_swap_amounts_estimated": "Swap-Beträge werden aus den Anrufdaten entschlüsselt und können von der endgültigen Abrechnung abweichen.",
   "wc_warning_swap_amounts_unavailable": "Die Beträge dieses Swaps konnten der Anfrage nicht entnommen werden. Überprüfen Sie sie in der App, mit der Sie eine Verbindung herstellen.",
   "wc_warning_swap_direction_inferred": "Die Swap-Richtung wird aus Ihrem Wallet-Guthaben abgeleitet. Überprüfen Sie Beträge und Token in der dApp, bevor Sie sie genehmigen.",
+  "wc_warning_swap_extra_transfers": "Diese Transaktion bewirkt mehr als der Tausch. Überprüfen Sie vor der Genehmigung die unten aufgeführten Übertragungen und Genehmigungen.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet kann diese Verbindung nicht auf ${name} umstellen. Wenn Sie zustimmen, wird der App mitgeteilt, dass der Wechsel fehlgeschlagen ist.",
   "wc_warning_typed_data_invalid": "Die Nutzlast der typisierten Daten ist fehlerhaft und konnte nicht analysiert werden.",
   "wc_warning_unknown_contract": "Dieser Vertrag wird nicht anerkannt. Überprüfen Sie vor der Genehmigung die Vertragsadresse.",

@@ -17,39 +17,101 @@ class DexRouterDecoder {
     required String nativeSymbol,
     required String? routerAddress,
     required BigInt valueWei,
+    required int? chainId,
     String? walletAddress,
   }) async {
     final routerName = EvmSelectors.routerNameFor(calldata.selector);
-    if (routerName == null) {
+    if (routerName == null || routerAddress == null) {
       return null;
     }
 
+    final decoded = await _decodeSwap(
+      calldata: calldata,
+      nativeSymbol: nativeSymbol,
+      routerName: routerName,
+      valueWei: valueWei,
+      walletAddress: walletAddress,
+    );
+    if (decoded == null) {
+      return null;
+    }
+
+    final isKnownRouter = EvmSelectors.isKnownRouter(routerName, chainId, routerAddress);
+    return decoded.copyWith(
+      actionSubtitle: isKnownRouter
+          ? decoded.actionSubtitle
+          : S.current.wc_via(tokenResolver.shortAddress(routerAddress)),
+      rows: [
+        ...decoded.rows,
+        WCDecodedRow(
+          label: S.current.wc_router,
+          value: routerAddress,
+          kind: WCDecodedRowKind.address,
+        ),
+      ],
+      warnings: [
+        ...decoded.warnings,
+        if (!isKnownRouter) S.current.wc_warning_unknown_contract,
+      ],
+    );
+  }
+
+  Future<WCDecodedRequest?> _decodeSwap({
+    required EvmCalldata calldata,
+    required String nativeSymbol,
+    required String routerName,
+    required BigInt valueWei,
+    required String? walletAddress,
+  }) async {
     switch (calldata.selector) {
       case EvmSelectors.uniV2SwapExactTokensForTokens:
       case EvmSelectors.uniV2SwapExactTokensForTokensSupportingFeeOnTransferTokens:
-        return _decodeUniV2ExactIn(calldata, nativeSymbol, routerName, routerAddress);
+        return _decodeUniV2ExactIn(
+          calldata,
+          nativeSymbol,
+          routerName,
+          walletAddress,
+        );
       case EvmSelectors.uniV2SwapTokensForExactTokens:
         return _decodeUniV2ExactOut(
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
+          walletAddress,
           ethOut: false,
         );
       case EvmSelectors.uniV2SwapExactETHForTokens:
       case EvmSelectors.uniV2SwapExactETHForTokensSupportingFeeOnTransferTokens:
-        return _decodeUniV2ExactInEth(calldata, nativeSymbol, routerName, routerAddress, valueWei);
+        return _decodeUniV2ExactInEth(
+          calldata,
+          nativeSymbol,
+          routerName,
+          walletAddress,
+          valueWei,
+        );
       case EvmSelectors.uniV2SwapETHForExactTokens:
-        return _decodeUniV2ExactOutEth(calldata, nativeSymbol, routerName, routerAddress, valueWei);
+        return _decodeUniV2ExactOutEth(
+          calldata,
+          nativeSymbol,
+          routerName,
+          walletAddress,
+          valueWei,
+        );
       case EvmSelectors.uniV2SwapExactTokensForETH:
       case EvmSelectors.uniV2SwapExactTokensForETHSupportingFeeOnTransferTokens:
-        return _decodeUniV2ExactIn(calldata, nativeSymbol, routerName, routerAddress, ethOut: true);
+        return _decodeUniV2ExactIn(
+          calldata,
+          nativeSymbol,
+          routerName,
+          walletAddress,
+          ethOut: true,
+        );
       case EvmSelectors.uniV2SwapTokensForExactETH:
         return _decodeUniV2ExactOut(
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
+          walletAddress,
           ethOut: true,
         );
       case EvmSelectors.uniV3ExactInputSingle:
@@ -57,7 +119,6 @@ class DexRouterDecoder {
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: true,
@@ -67,7 +128,6 @@ class DexRouterDecoder {
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: false,
@@ -77,7 +137,6 @@ class DexRouterDecoder {
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: true,
@@ -88,7 +147,6 @@ class DexRouterDecoder {
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: false,
@@ -102,13 +160,12 @@ class DexRouterDecoder {
           routerName: routerName,
           walletAddress: walletAddress,
         );
-        return decoded ?? _decodeOpaqueSwap(routerName, routerAddress);
+        return decoded ?? _decodeOpaqueSwap(routerName);
       case EvmSelectors.uniV3ExactInput:
         return _decodeUniV3Path(
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: true,
@@ -118,7 +175,6 @@ class DexRouterDecoder {
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: false,
@@ -128,7 +184,6 @@ class DexRouterDecoder {
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: true,
@@ -139,7 +194,6 @@ class DexRouterDecoder {
           calldata,
           nativeSymbol,
           routerName,
-          routerAddress,
           walletAddress,
           valueWei,
           isExactIn: false,
@@ -151,7 +205,7 @@ class DexRouterDecoder {
       case EvmSelectors.oneInchUnoswap:
       case EvmSelectors.oneInchClipperSwap:
       case EvmSelectors.oneInchAggregationSwap:
-        return _decodeOpaqueSwap(routerName, routerAddress);
+        return _decodeOpaqueSwap(routerName);
     }
     return null;
   }
@@ -160,7 +214,7 @@ class DexRouterDecoder {
     EvmCalldata calldata,
     String nativeSymbol,
     String routerName,
-    String? routerAddress, {
+    String? walletAddress, {
     bool ethOut = false,
   }) async {
     final amountIn = calldata.uintAt(0);
@@ -168,7 +222,7 @@ class DexRouterDecoder {
     final path = calldata.addressArrayAt(2);
     final recipient = calldata.addressAt(3);
     if (amountIn == null || amountOutMin == null || path == null || path.length < 2) {
-      return _decodeOpaqueSwap(routerName, routerAddress);
+      return _decodeOpaqueSwap(routerName);
     }
     final tokenIn = path.first;
     final tokenOut = path.last;
@@ -183,12 +237,7 @@ class DexRouterDecoder {
       rows: [
         WCDecodedRow(label: S.current.wc_swap_from, value: descs[0]),
         WCDecodedRow(label: S.current.wc_swap_to_min, value: descs[1]),
-        if (recipient != null)
-          WCDecodedRow(
-            label: S.current.wc_recipient,
-            value: recipient,
-            kind: WCDecodedRowKind.address,
-          ),
+        if (recipient != null) _v2RecipientRow(recipient, walletAddress),
       ],
       hideTo: true,
     );
@@ -198,7 +247,7 @@ class DexRouterDecoder {
     EvmCalldata calldata,
     String nativeSymbol,
     String routerName,
-    String? routerAddress, {
+    String? walletAddress, {
     required bool ethOut,
   }) async {
     final amountOut = calldata.uintAt(0);
@@ -206,7 +255,7 @@ class DexRouterDecoder {
     final path = calldata.addressArrayAt(2);
     final recipient = calldata.addressAt(3);
     if (amountOut == null || amountInMax == null || path == null || path.length < 2) {
-      return _decodeOpaqueSwap(routerName, routerAddress);
+      return _decodeOpaqueSwap(routerName);
     }
     final tokenIn = path.first;
     final tokenOut = path.last;
@@ -221,12 +270,7 @@ class DexRouterDecoder {
       rows: [
         WCDecodedRow(label: S.current.wc_swap_from_max, value: descs[0]),
         WCDecodedRow(label: S.current.wc_swap_to, value: descs[1]),
-        if (recipient != null)
-          WCDecodedRow(
-            label: S.current.wc_recipient,
-            value: recipient,
-            kind: WCDecodedRowKind.address,
-          ),
+        if (recipient != null) _v2RecipientRow(recipient, walletAddress),
       ],
       hideTo: true,
     );
@@ -236,14 +280,14 @@ class DexRouterDecoder {
     EvmCalldata calldata,
     String nativeSymbol,
     String routerName,
-    String? routerAddress,
+    String? walletAddress,
     BigInt valueWei,
   ) async {
     final amountOutMin = calldata.uintAt(0);
     final path = calldata.addressArrayAt(1);
     final recipient = calldata.addressAt(2);
     if (amountOutMin == null || path == null || path.length < 2) {
-      return _decodeOpaqueSwap(routerName, routerAddress);
+      return _decodeOpaqueSwap(routerName);
     }
     final tokenOut = path.last;
     final outDesc = await _formatAmount(tokenOut, amountOutMin, nativeSymbol, asNative: false);
@@ -255,12 +299,7 @@ class DexRouterDecoder {
       rows: [
         WCDecodedRow(label: S.current.wc_swap_from, value: inDesc),
         WCDecodedRow(label: S.current.wc_swap_to_min, value: outDesc),
-        if (recipient != null)
-          WCDecodedRow(
-            label: S.current.wc_recipient,
-            value: recipient,
-            kind: WCDecodedRowKind.address,
-          ),
+        if (recipient != null) _v2RecipientRow(recipient, walletAddress),
       ],
       hideTo: true,
       hideValue: true,
@@ -271,14 +310,14 @@ class DexRouterDecoder {
     EvmCalldata calldata,
     String nativeSymbol,
     String routerName,
-    String? routerAddress,
+    String? walletAddress,
     BigInt valueWei,
   ) async {
     final amountOut = calldata.uintAt(0);
     final path = calldata.addressArrayAt(1);
     final recipient = calldata.addressAt(2);
     if (amountOut == null || path == null || path.length < 2) {
-      return _decodeOpaqueSwap(routerName, routerAddress);
+      return _decodeOpaqueSwap(routerName);
     }
     final tokenOut = path.last;
     final outDesc = await _formatAmount(tokenOut, amountOut, nativeSymbol, asNative: false);
@@ -291,12 +330,7 @@ class DexRouterDecoder {
       rows: [
         WCDecodedRow(label: S.current.wc_swap_from_max, value: inDesc),
         WCDecodedRow(label: S.current.wc_swap_to, value: outDesc),
-        if (recipient != null)
-          WCDecodedRow(
-            label: S.current.wc_recipient,
-            value: recipient,
-            kind: WCDecodedRowKind.address,
-          ),
+        if (recipient != null) _v2RecipientRow(recipient, walletAddress),
       ],
       hideTo: true,
       hideValue: true,
@@ -307,7 +341,6 @@ class DexRouterDecoder {
     EvmCalldata calldata,
     String nativeSymbol,
     String routerName,
-    String? routerAddress,
     String? walletAddress,
     BigInt valueWei, {
     required bool isExactIn,
@@ -320,7 +353,7 @@ class DexRouterDecoder {
     final amountLimit = calldata.uintAt(hasDeadlineWord ? 6 : 5);
 
     if (tokenIn == null || tokenOut == null || amountSpecified == null || amountLimit == null) {
-      return _decodeOpaqueSwap(routerName, routerAddress);
+      return _decodeOpaqueSwap(routerName);
     }
 
     return _uniV3SwapRequest(
@@ -342,7 +375,6 @@ class DexRouterDecoder {
     EvmCalldata calldata,
     String nativeSymbol,
     String routerName,
-    String? routerAddress,
     String? walletAddress,
     BigInt valueWei, {
     required bool isExactIn,
@@ -359,7 +391,7 @@ class DexRouterDecoder {
         (path.length - 20) % 23 != 0 ||
         amountSpecified == null ||
         amountLimit == null) {
-      return _decodeOpaqueSwap(routerName, routerAddress);
+      return _decodeOpaqueSwap(routerName);
     }
 
     final first = EvmCalldata.addressFromBytes(path, 0);
@@ -430,17 +462,20 @@ class DexRouterDecoder {
     );
   }
 
-  WCDecodedRequest _decodeOpaqueSwap(String routerName, String? routerAddress) => WCDecodedRequest(
+  WCDecodedRow _v2RecipientRow(String recipient, String? walletAddress) {
+    if (walletAddress != null && recipient.toLowerCase() == walletAddress.toLowerCase()) {
+      return WCDecodedRow(label: S.current.wc_recipient, value: S.current.wc_recipient_you);
+    }
+    return WCDecodedRow(
+      label: S.current.wc_recipient,
+      value: recipient,
+      kind: WCDecodedRowKind.address,
+    );
+  }
+
+  WCDecodedRequest _decodeOpaqueSwap(String routerName) => WCDecodedRequest(
         actionTitle: S.current.wc_action_swap,
         actionSubtitle: S.current.wc_via(routerName),
-        rows: [
-          if (routerAddress != null)
-            WCDecodedRow(
-              label: S.current.wc_router,
-              value: routerAddress,
-              kind: WCDecodedRowKind.address,
-            ),
-        ],
         warnings: [S.current.wc_warning_swap_amounts_unavailable],
         hideTo: true,
       );

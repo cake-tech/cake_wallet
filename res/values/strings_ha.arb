@@ -1624,6 +1624,7 @@
   "wc_warning_swap_amounts_estimated": "Ana yanke adadin adadin musanyawa daga bayanan kira kuma yana iya bambanta da sulhu na ƙarshe.",
   "wc_warning_swap_amounts_unavailable": "Ba za a iya karanta adadin wannan musanya ba daga buƙatar. Duba su a cikin app ɗin da kuke haɗawa da su.",
   "wc_warning_swap_direction_inferred": "Canza hanyar da aka fayyace daga ma'aunin walat ɗin ku. Tabbatar da adadi da alamu a cikin dApp kafin amincewa.",
+  "wc_warning_swap_extra_transfers": "Wannan ma'amala yana yin fiye da musanyawa. Bincika canja wurin da yarda da aka jera a ƙasa kafin amincewa.",
   "wc_warning_switch_chain_unavailable": "Wallet Cake ba zai iya canza wannan haɗin zuwa ${name} ba. Idan kun yarda, za a gaya wa ƙa'idar canjin ya gaza.",
   "wc_warning_typed_data_invalid": "Matsalolin da aka buga-bayanai ba su da kyau kuma ba za a iya misalta su ba.",
   "wc_warning_unknown_contract": "Ba a gane wannan kwangilar ba. Tabbatar da adireshin kwangilar kafin amincewa.",

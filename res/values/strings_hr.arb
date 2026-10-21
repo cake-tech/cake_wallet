@@ -1622,6 +1622,7 @@
   "wc_warning_swap_amounts_estimated": "Iznosi zamjene dekodiraju se iz podataka o pozivu i mogu se razlikovati od konačne namire.",
   "wc_warning_swap_amounts_unavailable": "Iznosi ove zamjene nisu se mogli očitati iz zahtjeva. Provjerite ih u aplikaciji s kojom se povezujete.",
   "wc_warning_swap_direction_inferred": "Smjer zamjene na temelju stanja vašeg novčanika. Provjerite iznose i tokene u dApp-u prije odobrenja.",
+  "wc_warning_swap_extra_transfers": "Ova transakcija čini više od zamjene. Provjerite dolje navedene prijenose i odobrenja prije odobravanja.",
   "wc_warning_switch_chain_unavailable": "Cake Wallet ne može prebaciti ovu vezu na ${name}. Ako odobrite, aplikaciji će biti rečeno da promjena nije uspjela.",
   "wc_warning_typed_data_invalid": "Korisni teret unesenih podataka je neispravan i ne može se analizirati.",
   "wc_warning_unknown_contract": "Ovaj ugovor nije priznat. Provjerite adresu ugovora prije odobrenja.",

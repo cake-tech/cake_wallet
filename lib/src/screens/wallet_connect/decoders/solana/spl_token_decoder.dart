@@ -14,6 +14,8 @@ class SplTokenDecoder {
   final SplTokenResolver resolver;
   final SolanaAccountFetcher accountFetcher;
 
+  static final _u64Max = (BigInt.one << 64) - BigInt.one;
+
   Future<CryptoCurrency?> _tokenForAccount(String tokenAccount) async {
     try {
       final data = await accountFetcher.fetchAccountData(tokenAccount);
@@ -166,7 +168,10 @@ class SplTokenDecoder {
           kind: WCDecodedRowKind.address,
         ),
       ],
-      warnings: [if (token == null) S.current.wc_warning_raw_token_amount],
+      warnings: [
+        if (token == null) S.current.wc_warning_raw_token_amount,
+        if (amount == _u64Max) S.current.wc_warning_unlimited_approval,
+      ],
     );
   }
 
@@ -199,7 +204,10 @@ class SplTokenDecoder {
           kind: WCDecodedRowKind.address,
         ),
       ],
-      warnings: [if (token == null) S.current.wc_warning_unknown_token],
+      warnings: [
+        if (token == null) S.current.wc_warning_unknown_token,
+        if (amount == _u64Max) S.current.wc_warning_unlimited_approval,
+      ],
     );
   }
 
@@ -283,6 +291,12 @@ class SplTokenDecoder {
             WCDecodedRow(
               label: S.current.wc_token_account,
               value: accounts.first,
+              kind: WCDecodedRowKind.address,
+            ),
+          if (accounts.length >= 2)
+            WCDecodedRow(
+              label: S.current.to,
+              value: accounts[1],
               kind: WCDecodedRowKind.address,
             ),
         ],

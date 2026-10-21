@@ -24,6 +24,7 @@ void main() {
       fromAddress: sender,
       nativeSymbol: "ETH",
       valueWei: halfEth,
+      chainId: 1,
     );
     expect(decoded.actionTitle, S.current.wc_action_send);
     expect(decoded.rows.first.value, "0.5 ETH");
@@ -38,6 +39,7 @@ void main() {
       fromAddress: sender,
       nativeSymbol: "ETH",
       valueWei: halfEth,
+      chainId: 1,
     );
     expect(decoded.actionTitle, S.current.wc_contract_call);
     expect(decoded.actionSubtitle, "0xdeadbeef");
@@ -53,6 +55,7 @@ void main() {
       fromAddress: sender,
       nativeSymbol: "ETH",
       valueWei: BigInt.zero,
+      chainId: 1,
     );
     expect(decoded.actionTitle, S.current.wc_action_transfer);
   });
@@ -67,6 +70,7 @@ void main() {
         fromAddress: sender,
         nativeSymbol: "ETH",
         valueWei: BigInt.zero,
+        chainId: 1,
       );
       expect(decoded.actionTitle, S.current.wc_action_transfer);
       expect(decoded.rows.last.label, S.current.wc_deadline);
@@ -85,6 +89,7 @@ void main() {
         fromAddress: sender,
         nativeSymbol: "ETH",
         valueWei: BigInt.zero,
+        chainId: 1,
       );
       expect(decoded.actionTitle, S.current.wc_action_transfer);
       expect(decoded.detailRows.first.label, S.current.wc_step_n("1"));
@@ -99,6 +104,7 @@ void main() {
         fromAddress: sender,
         nativeSymbol: "ETH",
         valueWei: BigInt.zero,
+        chainId: 1,
       );
       expect(decoded.rawFallback, isNull);
     });

@@ -130,7 +130,10 @@ class SolanaChainService {
         return;
       }
 
-      final decoded = await decoder.decodeTransaction(params);
+      final decoded = await decoder.decodeTransaction(
+        params,
+        walletAddress: privateKey.publicKey().toAddress().address,
+      );
 
       final isApproved = await MethodsUtils.requestApproval(
         decoded,
@@ -192,7 +195,10 @@ class SolanaChainService {
         return;
       }
 
-      final decoded = await decoder.decodeAllTransactions(params);
+      final decoded = await decoder.decodeAllTransactions(
+        params,
+        walletAddress: privateKey.publicKey().toAddress().address,
+      );
 
       final isApproved = await MethodsUtils.requestApproval(
         decoded,
