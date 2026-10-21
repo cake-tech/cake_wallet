@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -69,7 +70,7 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
 
     var readPath = "$path.keys";
     try {
-      if (!File(readPath).existsSync()) throw Exception("No .keys file found for $name $type");
+      if (!File(readPath).existsSync()) throw WalletOpenException("No .keys file found for $name $type");
 
       final jsonSource = await encryptionFileUtils.read(path: readPath, password: password);
       final data = json.decode(jsonSource) as Map<String, dynamic>;
@@ -79,7 +80,7 @@ mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends Transactio
 
       readPath = "$readPath.backup";
       if (!File(readPath).existsSync())
-        throw Exception("No .keys nor a .keys.backup file found for $name $type");
+        throw WalletOpenException("No .keys nor a .keys.backup file found for $name $type");
 
       final jsonSource = await encryptionFileUtils.read(path: readPath, password: password);
       final data = json.decode(jsonSource) as Map<String, dynamic>;

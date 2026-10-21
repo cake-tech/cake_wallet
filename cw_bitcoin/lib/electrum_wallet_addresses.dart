@@ -8,8 +8,10 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -22,13 +24,8 @@ import 'package:mobx/mobx.dart';
 
 part 'electrum_wallet_addresses.g.dart';
 
-class UnsupportedAddressTypeForAccountException implements Exception {
-  UnsupportedAddressTypeForAccountException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
+class UnsupportedAddressTypeForAccountException extends CakeException {
+  UnsupportedAddressTypeForAccountException(super.message);
 }
 
 abstract class ElectrumWalletAddresses = ElectrumWalletAddressesBase with _$ElectrumWalletAddresses;
@@ -171,7 +168,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final Bip32Slip10Secp256k1 legacyMainHd;
   final Bip32Slip10Secp256k1 legacySideHd;
   final bool isHardwareWallet;
-  final LightningWallet? lightningWallet;
+  LightningWallet? lightningWallet;
 
   @observable
   ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
@@ -522,7 +519,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
     if (addressPageType is LightningAddressType) {
-      throw Exception("Lightning addresses cannot be rotated");
+      throw ArgumentError("Lightning addresses cannot be rotated");
     }
 
     if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
@@ -598,75 +595,75 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }) async =>
       getAddress(index: index, hd: hd, addressType: addressType);
 
-  void addBitcoinAddressTypes() {
+  void addBitcoinAddressTypes(String activeAddress) {
     final lastP2wpkh = _addresses
         .where((addressRecord) =>
         _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
         .lastOrNull;
     if (lastP2wpkh != null) {
-      if (lastP2wpkh.address != address) {
+      if (lastP2wpkh.address != activeAddress) {
         addressesMap[lastP2wpkh.address] = 'P2WPKH';
       } else {
-        addressesMap[address] = 'Active - P2WPKH';
+        addressesMap[activeAddress] = 'Active - P2WPKH';
       }
     }
 
     final lastP2pkh = _addresses.firstWhereOrNull(
             (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
     if (lastP2pkh != null) {
-      if (lastP2pkh.address != address) {
+      if (lastP2pkh.address != activeAddress) {
         addressesMap[lastP2pkh.address] = 'P2PKH';
       } else {
-        addressesMap[address] = 'Active - P2PKH';
+        addressesMap[activeAddress] = 'Active - P2PKH';
       }
     }
 
     final lastP2sh = _addresses.firstWhereOrNull((addressRecord) =>
         _isUnusedReceiveAddressByType(addressRecord, P2shAddressType.p2wpkhInP2sh));
     if (lastP2sh != null) {
-      if (lastP2sh.address != address) {
+      if (lastP2sh.address != activeAddress) {
         addressesMap[lastP2sh.address] = 'P2SH';
       } else {
-        addressesMap[address] = 'Active - P2SH';
+        addressesMap[activeAddress] = 'Active - P2SH';
       }
     }
 
     final lastP2tr = _addresses.firstWhereOrNull(
             (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
     if (lastP2tr != null) {
-      if (lastP2tr.address != address) {
+      if (lastP2tr.address != activeAddress) {
         addressesMap[lastP2tr.address] = 'P2TR';
       } else {
-        addressesMap[address] = 'Active - P2TR';
+        addressesMap[activeAddress] = 'Active - P2TR';
       }
     }
 
     final lastP2wsh = _addresses.firstWhereOrNull(
             (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
     if (lastP2wsh != null) {
-      if (lastP2wsh.address != address) {
+      if (lastP2wsh.address != activeAddress) {
         addressesMap[lastP2wsh.address] = 'P2WSH';
       } else {
-        addressesMap[address] = 'Active - P2WSH';
+        addressesMap[activeAddress] = 'Active - P2WSH';
       }
     }
 
     final firstSilentAddressRecord = silentAddresses.firstOrNull;
     if (firstSilentAddressRecord != null) {
-      if (firstSilentAddressRecord.address != address) {
+      if (firstSilentAddressRecord.address != activeAddress) {
         addressesMap[firstSilentAddressRecord.address] = firstSilentAddressRecord.name.isEmpty
             ? "Silent Payments"
             : "Silent Payments - ${firstSilentAddressRecord.name}";
       } else {
-        addressesMap[address] = 'Active - Silent Payments';
+        addressesMap[activeAddress] = 'Active - Silent Payments';
       }
     }
 
     if (lightningAddress != null) {
-      if (lightningAddress != address) {
+      if (lightningAddress != activeAddress) {
         addressesMap[lightningAddress!] = 'LN';
       } else {
-        addressesMap[address] = 'Active - LN';
+        addressesMap[activeAddress] = 'Active - LN';
       }
     }
   }
@@ -706,7 +703,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   Future<void> updateAddressesInBox() async {
     try {
       addressesMap.clear();
-      addressesMap[address] = 'Active';
+      final activeAddress = addressPageType == LightningAddressType.p2l ||
+              addressPageType == SilentPaymentsAddresType.p2sp
+          ? addressForBuy
+          : address;
+      addressesMap[activeAddress] = 'Active';
 
       allAddressesMap.clear();
       _addresses.forEach((addressRecord) {
@@ -715,7 +716,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
       switch (walletInfo.type) {
         case WalletType.bitcoin:
-          addBitcoinAddressTypes();
+          addBitcoinAddressTypes(activeAddress);
           break;
         case WalletType.litecoin:
           addLitecoinAddressTypes();
