@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
@@ -60,7 +62,14 @@ class CakePayCardsPage extends BasePage {
           Navigator.pushNamed(context, Routes.cakePayAccountPage);
           return;
         }
+        final stagingBefore = CakePayApi.useStaging;
         final success = await Navigator.pushNamed<bool>(context, Routes.cakePayWelcomePage);
+
+        // The catalog belongs to the server it was fetched from, so reload it after a switch.
+        if (CakePayApi.useStaging != stagingBefore) {
+          _cardsListViewModel.resetLoadingNextPageState();
+          unawaited(_cardsListViewModel.getVendors());
+        }
 
         if (success == true) await _cardsListViewModel.checkAuth();
       }
@@ -168,10 +177,8 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
           child: Column(children: [
             Expanded(
               child: TabViewWrapper(
-                  labelStyle: TextStyle(
-                      color: titleColor,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600),
+                  labelStyle:
+                      TextStyle(color: titleColor, fontSize: 20, fontWeight: FontWeight.w600),
                   unselectedLabelStyle: TextStyle(
                       color: titleColor?.withAlpha(150) ?? Colors.white70,
                       fontSize: 20,
@@ -266,22 +273,6 @@ class _MyCardsTabState extends State<_MyCardsTab> with WidgetsBindingObserver {
 
   CakePayCardsListViewModel get _viewModel => widget.cardsListViewModel;
 
-  /// Cards currently being redeemed or shown, so a double tap can't open a second modal.
-  final Set<String> _busyCards = {};
-
-  Future<void> _onCardTap(CakePayUserCard card) async {
-    final key = '${card.orderId}:${card.unitIndex}';
-    if (!_busyCards.add(key)) {
-      return;
-    }
-
-    try {
-      await _redeemAndShowCard(context, _viewModel, card);
-    } finally {
-      _busyCards.remove(key);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
@@ -373,7 +364,8 @@ class _MyCardsTabState extends State<_MyCardsTab> with WidgetsBindingObserver {
                         logoUrl: card.imageUrl,
                         title: card.name,
                         subTitle: card.valueLabel,
-                        onTap: () => _onCardTap(card),
+                        isNew: viewModel.isNewCard(card),
+                        onTap: () => _showCardInfoBottomSheet(context, _viewModel, card),
                       );
                     },
                   ),
@@ -400,27 +392,6 @@ class _MyCardsTabState extends State<_MyCardsTab> with WidgetsBindingObserver {
   }
 }
 
-Future<void> _redeemAndShowCard(
-  BuildContext context,
-  CakePayCardsListViewModel viewModel,
-  CakePayUserCard card,
-) async {
-  final state = await viewModel.redeem(card);
-
-  if (!context.mounted) {
-    return;
-  }
-
-  switch (state) {
-    case CakePayRedemptionStateSuccess():
-      await _showCardInfoBottomSheet(context, card, state.voucher);
-    case CakePayRedemptionStateBlocked():
-      await _showRedemptionMessage(context, state.message);
-    case CakePayRedemptionStateFailure():
-      await _showRedemptionMessage(context, state.error);
-  }
-}
-
 Future<void> _showRedemptionMessage(BuildContext context, String message) => showPopUp<void>(
       context: context,
       builder: (context) => AlertWithOneAction(
@@ -433,33 +404,87 @@ Future<void> _showRedemptionMessage(BuildContext context, String message) => sho
 
 Future<void> _showCardInfoBottomSheet(
   BuildContext context,
+  CakePayCardsListViewModel viewModel,
   CakePayUserCard card,
-  CakePayVoucher voucher,
-) async {
-  await showModalBottomSheet<void>(
-    context: context,
-    isDismissible: true,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (bottomSheetContext) => CakePayCardInfoBottomSheet(
+) =>
+    showModalBottomSheet<void>(
+      context: context,
+      isDismissible: true,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _RedeemedCardSheet(viewModel: viewModel, card: card),
+    );
+
+/// Opens right away and redeems the card itself, showing spinners until the codes arrive.
+class _RedeemedCardSheet extends StatefulWidget {
+  const _RedeemedCardSheet({required this.viewModel, required this.card});
+
+  final CakePayCardsListViewModel viewModel;
+  final CakePayUserCard card;
+
+  @override
+  State<_RedeemedCardSheet> createState() => _RedeemedCardSheetState();
+}
+
+class _RedeemedCardSheetState extends State<_RedeemedCardSheet> {
+  CakePayVoucher? _voucher;
+
+  @override
+  void initState() {
+    super.initState();
+
+    unawaited(_redeem());
+  }
+
+  Future<void> _redeem() async {
+    final state = await widget.viewModel.redeem(widget.card);
+
+    if (!mounted) {
+      return;
+    }
+
+    switch (state) {
+      case CakePayRedemptionStateSuccess():
+        setState(() => _voucher = state.voucher);
+      case CakePayRedemptionStateBlocked():
+        await _closeWithMessage(state.message);
+      case CakePayRedemptionStateFailure():
+        await _closeWithMessage(state.error);
+    }
+  }
+
+  Future<void> _closeWithMessage(String message) async {
+    final navigator = Navigator.of(context);
+    final rootContext = navigator.context;
+    navigator.pop();
+    await _showRedemptionMessage(rootContext, message);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final card = widget.card;
+    final voucher = _voucher;
+
+    return CakePayCardInfoBottomSheet(
       titleText: card.name,
       balance: card.valueLabel,
-      cardNumber: voucher.primaryValue,
-      cardNumberLabel: switch (voucher.primaryValueKind) {
-        CakePayVoucherValueKind.cardNumber => S.of(bottomSheetContext).gift_card_number,
-        CakePayVoucherValueKind.code => S.of(bottomSheetContext).gift_card_code,
-        CakePayVoucherValueKind.redemptionLink => S.of(bottomSheetContext).redemption_link,
+      isLoading: voucher == null,
+      cardNumber: voucher?.primaryValue,
+      cardNumberLabel: switch (voucher?.primaryValueKind) {
+        CakePayVoucherValueKind.code => S.of(context).gift_card_code,
+        CakePayVoucherValueKind.redemptionLink => S.of(context).redemption_link,
+        CakePayVoucherValueKind.cardNumber || null => S.of(context).gift_card_number,
       },
-      pin: voucher.pin,
-      howToUse: voucher.redemptionInstructions,
+      pin: voucher?.pin,
+      howToUse: voucher?.redemptionInstructions,
       footerType: FooterType.singleActionButton,
       singleActionButtonKey: const Key('cake_pay_cards_page_card_info_bottom_sheet_close_key'),
-      singleActionButtonText: S.of(bottomSheetContext).close,
-      onSingleActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
+      singleActionButtonText: S.of(context).close,
+      onSingleActionButtonPressed: () => Navigator.of(context).pop(),
       applyBoxShadow: true,
       contentImage: card.imageUrl,
-    ),
-  );
+    );
+  }
 }
 
 class _ShopTab extends StatefulWidget {

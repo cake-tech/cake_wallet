@@ -31,6 +31,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
     this.contentImage,
     this.howToUse,
     this.applyBoxShadow = false,
+    this.isLoading = false,
     Key? key,
   }) : super(
             titleText: titleText,
@@ -55,6 +56,9 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
   final String cardNumberLabel;
   final String? pin;
   final bool applyBoxShadow;
+
+  /// The codes and instructions are still being fetched, so show spinners in their place.
+  final bool isLoading;
 
   final _cardKey = GlobalKey<FlipCardState>();
 
@@ -94,6 +98,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                         cardNumber: cardNumber,
                         cardNumberLabel: cardNumberLabel,
                         pin: pin,
+                        isLoading: isLoading,
                       ),
                     ),
                   ),
@@ -134,6 +139,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                 cardNumber: cardNumber,
                 cardNumberLabel: cardNumberLabel,
                 pin: pin,
+                isLoading: isLoading,
               ),
             ),
           )
@@ -153,7 +159,11 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                   itemSubTitleTextStyle: itemSubTitleTextStyle,
                   tileBackgroundColor: tileBackgroundColor),
               const SizedBox(height: 8),
-              _HowToUseTile(howToUse: howToUse ?? '', tileBackgroundColor: tileBackgroundColor),
+              _HowToUseTile(
+                howToUse: howToUse ?? '',
+                tileBackgroundColor: tileBackgroundColor,
+                isLoading: isLoading,
+              ),
               const SizedBox(height: 40),
             ],
           ),
@@ -164,15 +174,20 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
 }
 
 class _HowToUseTile extends StatelessWidget {
-  const _HowToUseTile({required this.howToUse, required this.tileBackgroundColor});
+  const _HowToUseTile({
+    required this.howToUse,
+    required this.tileBackgroundColor,
+    required this.isLoading,
+  });
 
   final String howToUse;
+  final bool isLoading;
   final Color tileBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => _showHowToUseCard(context: context, howToUse: howToUse),
+      onTap: isLoading ? null : () => _showHowToUseCard(context: context, howToUse: howToUse),
       child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration:
@@ -181,10 +196,17 @@ class _HowToUseTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(S.of(context).how_to_use_card, style: Theme.of(context).textTheme.bodyLarge),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: Theme.of(context).textTheme.titleLarge!.color!,
-              ),
+              if (isLoading)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Theme.of(context).textTheme.titleLarge!.color!,
+                ),
             ],
           )),
     );
@@ -289,6 +311,7 @@ Widget _buildBarcodeSide(
   String? cardNumber,
   required String cardNumberLabel,
   String? pin,
+  bool isLoading = false,
 }) =>
     SizedBox.expand(
       child: Container(
@@ -307,28 +330,37 @@ Widget _buildBarcodeSide(
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                if (cardNumber != null)
-                  Flexible(
-                    child: _CopyableField(
-                      key: const ValueKey('cake_pay_card_info_number_field_key'),
-                      label: cardNumberLabel,
-                      value: cardNumber,
+            if (isLoading)
+              const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (cardNumber != null)
+                    Flexible(
+                      child: _CopyableField(
+                        key: const ValueKey('cake_pay_card_info_number_field_key'),
+                        label: cardNumberLabel,
+                        value: cardNumber,
+                      ),
                     ),
-                  ),
-                if (pin != null) ...[
-                  const SizedBox(width: 12),
-                  _CopyableField(
-                    key: const ValueKey('cake_pay_card_info_pin_field_key'),
-                    label: S.of(context).pin_number,
-                    value: pin,
-                  ),
+                  if (pin != null) ...[
+                    const SizedBox(width: 12),
+                    _CopyableField(
+                      key: const ValueKey('cake_pay_card_info_pin_field_key'),
+                      label: S.of(context).pin_number,
+                      value: pin,
+                    ),
+                  ],
                 ],
-              ],
-            ),
+              ),
           ],
         ),
       ),

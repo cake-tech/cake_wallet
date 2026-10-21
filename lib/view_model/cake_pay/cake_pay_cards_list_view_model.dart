@@ -12,6 +12,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'cake_pay_cards_list_view_model.g.dart';
 
@@ -21,7 +22,11 @@ abstract class CakePayCardsListViewModelBase with Store {
   CakePayCardsListViewModelBase({
     required this.cakePayService,
     required this.settingsStore,
+    required this.sharedPreferences,
   })  : cakePayVendors = [],
+        _openedCards = ObservableSet.of(
+          sharedPreferences.getStringList(_openedCardsKey) ?? const <String>[],
+        ),
         userCards = [],
         availableCountries = ObservableList<Country>.of(Country.allForCakePay),
         page = 1,
@@ -53,6 +58,24 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   final CakePayService cakePayService;
   final SettingsStore settingsStore;
+  final SharedPreferences sharedPreferences;
+
+  static const _openedCardsKey = 'cake_pay_opened_cards';
+
+  /// Keys of the cards whose details were revealed at least once.
+  final ObservableSet<String> _openedCards;
+
+  static String _cardKey(CakePayUserCard card) => '${card.orderId}:${card.unitIndex}';
+
+  bool isNewCard(CakePayUserCard card) => !_openedCards.contains(_cardKey(card));
+
+  Future<void> _markOpened(CakePayUserCard card) async {
+    if (!_openedCards.add(_cardKey(card))) {
+      return;
+    }
+
+    await sharedPreferences.setStringList(_openedCardsKey, _openedCards.toList());
+  }
 
   Map<String, List<FilterItem>> get createFilterItems => {
         'Card Type': [
@@ -191,9 +214,8 @@ abstract class CakePayCardsListViewModelBase with Store {
     } catch (e) {
       printV(e);
 
-      // A silent refresh that happened in the background must not wipe out the cards the user can
-      // already see in the page, with an error out of nowhere. but if they visit this page again
-      // and it fails again then they'll see the failure message
+      // given this function also runs in the background, only fail if on initial load
+      // otherwise a page full of cards gets wiped due to a temporary error
       if (showLoading || userCards.isEmpty) {
         userCardState = UserCakePayCardsStateFailure(error: e.toString());
       }
@@ -281,6 +303,8 @@ abstract class CakePayCardsListViewModelBase with Store {
       if (voucher == null) {
         return CakePayRedemptionStateBlocked(message: S.current.cakepay_no_gift_code_returned);
       }
+
+      await _markOpened(card);
 
       return CakePayRedemptionStateSuccess(voucher: voucher);
     } on CakePayUnauthorizedException catch (e) {
