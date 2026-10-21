@@ -264,7 +264,7 @@ void main() {
       expect(created.data!.serverAddress, swapTradeServerAddress);
       expect(
         created.data!.amountReceive!.toMoney(CryptoCurrency.xmr),
-        Money.parse("500", CryptoCurrency.xmr),
+        Money.parse("495", CryptoCurrency.xmr),
       );
     });
 

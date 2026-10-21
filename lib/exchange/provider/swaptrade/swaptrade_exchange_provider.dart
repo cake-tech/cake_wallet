@@ -15,6 +15,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/print_verbose.dart";
 
 class SwapTradeExchangeProvider extends ExchangeProvider {
   SwapTradeExchangeProvider({super.proxyWrapper});
@@ -121,7 +122,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
     final responseData = responseBody.data;
 
-    return Trade(
+    final trade = Trade(
       id: responseData!.orderId,
       fundingAddress: responseData.serverAddress,
       provider: description,
@@ -132,6 +133,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       depositAmount: request.depositAmount,
       payoutAmount: Money.safeParse(responseData.amountReceive ?? 0, request.payoutCurrency),
     );
+
+    try {
+    // swaptrade only returns the correct amount in status check requests... for... some reason
+      return await updateTrade(trade);
+    } catch (e) {
+      printV("failed to refresh swaptrade trade ${trade.id}: $e");
+      return trade;
+    }
   }
 
   @override

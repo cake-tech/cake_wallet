@@ -37,15 +37,18 @@ ProviderScenario swapTradeScenario() => ProviderScenario(
   expectedRateQuote: Money.parse("250", CryptoCurrency.xmr),
   expectedRateLimitsMin: Money.parse("0.001", CryptoCurrency.btc),
   expectedRateLimitsMax: Money.parse("20", CryptoCurrency.btc),
+  // create-order answers 495, the trade is refreshed from /order, which answers 500
   expectedCreatedTrade: ExpectedTrade(
     id: swapTradeTradeId,
-    state: TradeState.created,
+    state: TradeState.exchanging,
     depositAmount: Money.parse("2", CryptoCurrency.btc),
     payoutAmount: Money.parse("500", CryptoCurrency.xmr),
     fundingAddress: swapTradeServerAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    createdAtIsNow: true,
+    memo: "st-memo",
+    isRefund: false,
+    createdAt: DateTime.parse(swapTradeCreatedAt),
   ),
   tradeId: swapTradeTradeId,
   expectedFoundTrade: ExpectedTrade(

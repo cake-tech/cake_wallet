@@ -177,7 +177,7 @@ const swapTradePrice = '{"success":true,"status":200,"msg":"Get price successful
 
 const swapTradeCreateOrder = '{"success":true,"status":200,'
     '"msg":"Create Order successfully !","data":{"order_id":"$swapTradeTradeId",'
-    '"server_address":"$swapTradeServerAddress","amount_receive":"500"}}';
+    '"server_address":"$swapTradeServerAddress","amount_receive":"495"}}';
 
 const swapTradeOrder = '{"success":true,"status":200,"msg":"Fetch Order successfully !",'
     '"data":{"id":47063,"order_id":"$swapTradeTradeId","coin_send":"BTC",'
