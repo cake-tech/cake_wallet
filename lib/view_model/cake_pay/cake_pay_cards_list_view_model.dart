@@ -65,7 +65,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   /// Keys of the cards whose details were revealed at least once.
   final ObservableSet<String> _openedCards;
 
-  static String _cardKey(CakePayUserCard card) => '${card.orderId}:${card.unitIndex}';
+  static String _cardKey(CakePayUserCard card) => '${card.orderId}:${card.cardId}:${card.unitIndex}';
 
   bool isNewCard(CakePayUserCard card) => !_openedCards.contains(_cardKey(card));
 

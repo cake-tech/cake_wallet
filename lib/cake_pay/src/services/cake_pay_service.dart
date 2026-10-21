@@ -17,7 +17,8 @@ class CakePayService {
 
   static String get testCakePayApiKey => secrets.testCakePayApiKey;
 
-  static String get cakePayApiKey => secrets.cakePayApiKey;
+  static String get cakePayApiKey =>
+      CakePayApi.useStaging ? secrets.testCakePayApiKey : secrets.cakePayApiKey;
 
   static String get CSRFToken => secrets.CSRFToken;
 
