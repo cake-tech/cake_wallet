@@ -544,6 +544,9 @@ abstract class DecredWalletBase
   bool get hasRescan => walletBirthdayBlockHeight() != -1;
 
   @override
+  bool get hasCoinControl => true;
+
+  @override
   Future<void> rescan({required int height}) async {
     // The required height is not used. A birthday time is recorded in the
     // mnemonic. As long as not private data is imported into the wallet, we
