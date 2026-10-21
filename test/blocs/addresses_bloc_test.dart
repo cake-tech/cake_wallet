@@ -213,6 +213,15 @@ void main() {
       await bloc.close();
     });
 
+    test("account header shows for native accounts even with multi-accounts unset", () async {
+      wireDefaults(hasNativeAccounts: true, accountLabel: "Monero account 2");
+      final bloc = buildBloc();
+      await waitForLoaded(bloc);
+      expect(bloc.showsAccountHeader, isTrue);
+      expect(bloc.accountLabel, "Monero account 2");
+      await bloc.close();
+    });
+
     test("account header stays hidden when multi-accounts is off or unset", () async {
       wireDefaults(isMultiAccountsEnabled: false, accountLabel: "Savings account");
       final off = buildBloc();

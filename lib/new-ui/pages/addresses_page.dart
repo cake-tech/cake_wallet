@@ -566,7 +566,7 @@ class _AddressRow extends StatelessWidget {
       duration: const Duration(milliseconds: 150),
       decoration: BoxDecoration(
         color: selected
-            ? Theme.of(context).colorScheme.surfaceContainerHigh
+            ? Theme.of(context).colorScheme.surfaceContainerHighest
             : Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(isFirst ? 16 : 0),

@@ -48,7 +48,8 @@ class AddressesBloc extends Bloc<AddressesEvent, AddressesState>
 
   bool get hasNativeAccounts => wallet.hasNativeAccounts;
 
-  bool get showsAccountHeader => wallet.walletInfo.isMultiAccountsEnabled == true;
+  bool get showsAccountHeader =>
+      hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
 
   String? _accountLabel;
 

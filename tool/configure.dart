@@ -276,7 +276,7 @@ abstract class Bitcoin {
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
   Future<Account> getCurrentAccount(Object wallet);
-  Balance balanceForAccount(Object wallet, int accountIndex);
+  Money balanceForAccount(Object wallet, int accountIndex);
   Map<int, Object> accountBalancesSnapshot(Object wallet);
   Future<void> setCurrentAccount(Object wallet, int accountIndex);
   List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet);
@@ -391,6 +391,8 @@ abstract class MoneroWalletDetails {
 
 abstract class Monero {
   MoneroAccountList getAccountList(Object wallet);
+
+  Money getAccountFullBalance(int accountIndex);
 
   MoneroSubaddressList getSubaddressList(Object wallet);
 
@@ -593,6 +595,8 @@ abstract class WowneroWalletDetails {
 abstract class Wownero {
   WowneroAccountList getAccountList(Object wallet);
 
+  Money getAccountFullBalance(int accountIndex);
+
   WowneroSubaddressList getSubaddressList(Object wallet);
 
   TransactionHistoryBase getTransactionHistory(Object wallet);
@@ -751,6 +755,7 @@ import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_history.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/nano_account_info_response.dart';
@@ -763,6 +768,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
   const nanoCWHeaders = """
 import 'package:cw_nano/nano_client.dart';
 import 'package:cw_nano/nano_mnemonic.dart';
+import "package:cw_nano/nano_exceptions.dart";
 import 'package:cw_nano/nano_wallet.dart';
 import 'package:cw_nano/nano_wallet_service.dart';
 import 'package:cw_nano/nano_transaction_info.dart';
@@ -888,6 +894,10 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
+import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -2041,9 +2051,9 @@ Future<void> generateWalletTypes({
     outputContent += '\tWalletType.nano,\n';
   }
 
-  // if (hasDecred) {
-  //   outputContent += '\tWalletType.decred,\n';
-  // }
+  if (hasDecred) {
+    outputContent += '\tWalletType.decred,\n';
+  }
 
   // if (hasZano) {
   //   outputContent += '\tWalletType.zano,\n';

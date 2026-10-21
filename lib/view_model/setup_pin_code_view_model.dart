@@ -53,7 +53,7 @@ class SetupPinCodeViewModel {
 
         if (pin == realPin) {
           reset();
-          throw Exception('Duress PIN cannot be the same as regular PIN');
+          throw ArgumentError('Duress PIN cannot be the same as regular PIN');
         }
       }
     }
@@ -83,6 +83,7 @@ class SetupPinCodeViewModel {
     }
 
     await _authService.setPassword(repeatedPinCode);
+    _authService.saveLastAuthTime();
     _settingsStore.pinCodeLength = pinCodeLength;
   }
 }

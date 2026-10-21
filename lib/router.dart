@@ -130,7 +130,6 @@ import "package:cake_wallet/view_model/dashboard/nft_send_view_model.dart";
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
@@ -139,7 +138,6 @@ import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
-import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/transaction_info.dart';
@@ -857,9 +855,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.walletAccountsPage:
       final dashboardViewModel = settings.arguments as DashboardViewModel;
-      return handleRouteWithPlatformAwareness(
-            (_) => getIt.get<WalletAccountsPage>(param1: dashboardViewModel),
-      );
+      final page = getIt.get<WalletAccountsPage>(param1: dashboardViewModel);
+      return handleRouteWithPlatformAwareness((_) => page);
 
     case Routes.managePowNodes:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<ManageNodesPage>(param1: true));

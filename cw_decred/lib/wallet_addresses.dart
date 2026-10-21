@@ -8,6 +8,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_decred/api/libdcrwallet.dart';
+import "package:cw_decred/api/util.dart";
 
 part 'wallet_addresses.g.dart';
 
@@ -116,7 +117,7 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     // many addresses are taken and not used.
     final addr = await _libwallet.newExternalAddress(walletInfo.name) ?? '';
     if (addr == "") {
-      throw Exception("libdcrwallet returned no new address");
+      throw DecredPayloadExecutionException("libdcrwallet returned no new address");
     }
 
     if (!addressesMap.containsKey(addr)) {
