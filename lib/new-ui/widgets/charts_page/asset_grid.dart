@@ -207,7 +207,8 @@ class ChartsAssetCard extends StatelessWidget {
                             Text(
                               displayPrice,
                               style: const TextStyle(
-                                fontFamily: "IBM Plex Mono",
+                                fontFamily: "IBM Plex Sans",
+                                fontFeatures: [FontFeature.tabularFigures()],
                                 fontWeight: FontWeight.w500,
                                 fontSize: 20,
                               ),

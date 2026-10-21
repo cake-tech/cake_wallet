@@ -367,6 +367,13 @@ flutter:
           weight: 700
           style: italic
 
+    - family: IBM Plex Sans
+      fonts:
+        - asset: assets/fonts/IBM_Plex_Sans/IBMPlexSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/IBM_Plex_Sans/IBMPlexSans-Medium.ttf
+          weight: 500
+
 msix_config:
   display_name: Cake Wallet
   publisher_display_name: Cake Labs
