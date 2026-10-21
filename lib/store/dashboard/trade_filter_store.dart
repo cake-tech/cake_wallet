@@ -192,10 +192,7 @@ abstract class TradeFilterStoreBase with Store {
 
   List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
     final _trades = trades.where((item) {
-      final isSameChain = item.trade.chainId != null
-          ? item.trade.chainId == wallet.chainId
-          : true; // returning default as true here so it falls back to the default checks if there's no chainId
-      return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet) && isSameChain;
+      return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet);
     }).toList();
     final needToFilter = !displayAllTrades;
 
