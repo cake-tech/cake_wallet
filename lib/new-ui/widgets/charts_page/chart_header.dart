@@ -109,14 +109,20 @@ class _ChartHeaderState extends State<ChartHeader> {
                                   }
 
                                   final spotIndex = response?.lineBarSpots?.firstOrNull?.spotIndex;
-                                  final newPrice = spotIndex == null
+                                  final quote = spotIndex == null
                                       ? null
-                                      : s.dataFor(widget.currency).elementAtOrNull(spotIndex)?.quote
-                                          .toStringWithPrecision(
-                                            fractionalDigits: 2,
-                                            trimZeros: false,
-                                            meaningfulDecimals: 2,
-                                          );
+                                      : s.dataFor(widget.currency).elementAtOrNull(spotIndex)?.quote;
+                                  final newPrice = quote == null
+                                      ? null
+                                      : quote.toStringWithPrecision(
+                                          fractionalDigits:
+                                              quote.amount % BigInt.from(10).pow(quote.decimals) ==
+                                                      BigInt.zero
+                                                  ? 0
+                                                  : 2,
+                                          trimZeros: false,
+                                          meaningfulDecimals: 2,
+                                        );
                                   final newTime = DateFormat("M/d/y HH:mm").format(
                                     DateTime.fromMillisecondsSinceEpoch(
                                       response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0,
