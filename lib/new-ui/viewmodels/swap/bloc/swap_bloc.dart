@@ -828,16 +828,28 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
     if (state case final SwapStateWithTransaction s) {
       emit(
-        SwapSending(
-          trade: s.trade,
-          transaction: s.transaction,
-          feeFiatAmount: s.feeFiatAmount,
-          source: s.source,
-          depositFiatAmount: s.depositFiatAmount,
-          payoutFiatAmount: s.payoutFiatAmount,
-          payoutAddress: s.payoutAddress,
-          isFixedRate: s.isFixedRate,
-        ),
+        wallet.isHardwareWallet
+            ? SwapAwaitingHardwareWallet(
+                type: wallet.hardwareWalletType!,
+                trade: s.trade,
+                transaction: s.transaction,
+                feeFiatAmount: s.feeFiatAmount,
+                source: s.source,
+                depositFiatAmount: s.depositFiatAmount,
+                payoutFiatAmount: s.payoutFiatAmount,
+                payoutAddress: s.payoutAddress,
+                isFixedRate: s.isFixedRate,
+              )
+            : SwapSending(
+                trade: s.trade,
+                transaction: s.transaction,
+                feeFiatAmount: s.feeFiatAmount,
+                source: s.source,
+                depositFiatAmount: s.depositFiatAmount,
+                payoutFiatAmount: s.payoutFiatAmount,
+                payoutAddress: s.payoutAddress,
+                isFixedRate: s.isFixedRate,
+              ),
       );
       try {
         await _transactionService.commitTransaction(s.transaction);
