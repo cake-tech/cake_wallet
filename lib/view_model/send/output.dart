@@ -247,7 +247,7 @@ abstract class OutputBase with Store {
 
   WalletType get walletType => _wallet.type;
 
-  final CryptoCurrency Function([CryptoCurrency?]) cryptoCurrencyHandler;
+  final CryptoCurrency Function() cryptoCurrencyHandler;
   final FiatConversionStore _fiatConversationStore;
   final AppStore _appStore;
 

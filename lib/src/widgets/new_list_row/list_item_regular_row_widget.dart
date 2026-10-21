@@ -150,10 +150,12 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                     Row(
                                       spacing: 4,
                                       children: [
-                                        Text(label,
-                                            style: foregroundColor == null
-                                                ? textStyle
-                                                : textStyle.copyWith(color: foregroundColor)),
+                                        Flexible(
+                                          child: Text(label,
+                                              style: foregroundColor == null
+                                                  ? textStyle
+                                                  : textStyle.copyWith(color: foregroundColor)),
+                                        ),
                                         if (secondaryLabel != null)
                                           Text(
                                             secondaryLabel!,

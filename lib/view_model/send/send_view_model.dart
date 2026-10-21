@@ -26,11 +26,10 @@ import 'package:cake_wallet/entities/wallet_contact.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
-import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -146,10 +145,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       updateSendingBalance();
     });
   }
-
-  // Store trade and provider references for post-commit updates (e.g., Jupiter trade ID update)
-  Trade? _currentTrade;
-  ExchangeProvider? _currentProvider;
 
   @observable
   ExecutionState state;
@@ -686,9 +681,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   Timer? _ledgerTxStateTimer;
 
   @action
-  Future<PendingTransaction?> createTransaction({ExchangeProvider? provider, Trade? trade}) async {
-    _currentTrade = trade;
-    _currentProvider = provider;
+  Future<PendingTransaction?> createTransaction() async {
     final preparationId = ++_sendPreparationId;
     _ledgerTxStateTimer?.cancel();
     _ledgerTxStateTimer = null;
@@ -724,230 +717,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      // Swaps.xyz (EVM) path
-      if (isEVMWallet && trade != null && provider is SwapsXyzExchangeProvider) {
-        final routerTo = trade.inputAddress;
-        final routerData = trade.routerData;
-
-        if (routerData != null && routerData != '0x') {
-          final tokenContract = (trade.sourceTokenAddress ?? '').toLowerCase();
-          final priority = _settingsStore.getPriority(walletType, chainId: selectedChainId);
-          final routerValueWei = BigInt.tryParse(trade.routerValue ?? '0') ?? BigInt.zero;
-
-          if (routerTo == null || routerTo.isEmpty) {
-            state = FailureState('Invalid router address');
-            return null;
-          }
-
-          try {
-            final selector = _decodeMethodSelector(routerData);
-            const transferSig = '0xa9059cbb';
-            const swapAndExecuteSig = '0x9be111d1';
-
-            // Direct Transfer (Simple routing, no approval needed)
-            if (selector == transferSig) {
-              final prepared = await evm!.createRawCallDataTransaction(
-                wallet,
-                routerTo,
-                routerData,
-                Money.zero(wallet.currency),
-                priority,
-                useBlinkProtection: canSupportBlinkProtection(selectedChainId)
-                    ? _settingsStore.useBlinkProtection
-                    : false,
-              );
-              if (replaced()) {
-                return null;
-              }
-              pendingTransaction = prepared;
-              state = ExecutedSuccessfullyState();
-              return pendingTransaction;
-            }
-
-            // Smart Swap (Requires Approval)
-            if (selector == swapAndExecuteSig) {
-              final requiredAmount =
-                  BigInt.tryParse((trade.sourceTokenAmountRaw ?? '0').replaceAll('n', '')) ??
-                      BigInt.zero;
-
-              final needsApproval = tokenContract.isNotEmpty && requiredAmount > BigInt.zero
-                  ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
-                  : false;
-
-              printV(
-                  '[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.from?.title} ${trade.from?.tag ?? ''} with amount $requiredAmount');
-
-              if (needsApproval) {
-                // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
-                final isUSDTMainnet = selectedChainId == 1 &&
-                    tokenContract.toLowerCase() == '0xdac17f958d2ee523a2206206994597c13d831ec7';
-
-                if (isUSDTMainnet) {
-                  final currentAllowance = await evm!.getAllowance(wallet, tokenContract, routerTo);
-
-                  if (currentAllowance != null && currentAllowance > BigInt.zero) {
-                    printV(
-                        '[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.');
-
-                    final resetTx = await buildApprovalNeeded(
-                        spender: routerTo,
-                        tokenContract: tokenContract,
-                        requiredAmount: BigInt.zero,
-                        // Approve 0
-                        sourceTokenDecimals: trade.sourceTokenDecimals,
-                        priority: priority);
-
-                    if (resetTx != null) {
-                      await resetTx.commit();
-
-                      final resetConfirmed = await _waitForApprovalUpdate(
-                        tokenContract: tokenContract,
-                        spender: routerTo,
-                        requiredAmount: BigInt.zero, // Wait until it equals 0
-                        waitForExactMatch: true,
-                      );
-                      if (replaced()) {
-                        return null;
-                      }
-
-                      if (!resetConfirmed) {
-                        state = FailureState('Failed to reset USDT allowance. Please try again.');
-                        return null;
-                      }
-                      printV(
-                          '[Swaps.xyz sending flow] USDT allowance reset to 0 confirmed on-chain.');
-                    }
-                  }
-                }
-
-                // Standard Approval Flow
-                final approvalTx = await buildApprovalNeeded(
-                    spender: routerTo,
-                    tokenContract: tokenContract,
-                    requiredAmount: requiredAmount,
-                    sourceTokenDecimals: trade.sourceTokenDecimals,
-                    priority: priority);
-
-                if (replaced()) {
-                  return null;
-                }
-                if (approvalTx == null) {
-                  state = FailureState('Failed to build approval transaction');
-                  return null;
-                }
-
-                pendingTransaction = null;
-
-                try {
-                  printV(
-                      '[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.from?.title} ${trade.from?.tag ?? ''} ');
-                  await approvalTx.commit();
-
-                  // Wait for the approval to be mined on-chain
-                  final isApproved = await _waitForApprovalUpdate(
-                    tokenContract: tokenContract,
-                    spender: routerTo,
-                    requiredAmount: requiredAmount,
-                  );
-                  if (replaced()) {
-                    return null;
-                  }
-
-                  if (!isApproved) {
-                    state = FailureState(
-                        'Approval transaction failed or timed out on-chain. Try again.');
-                    return null;
-                  }
-                  printV(
-                      '[Swaps.xyz sending flow] Approval transaction confirmed on-chain. Proceeding with swap execution.');
-                } catch (e, s) {
-                  printV('[Swaps.xyz sending flow] Approval transaction error: $e\n$s');
-                  if (replaced()) {
-                    return null;
-                  }
-                  state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
-                  return null;
-                }
-              }
-
-              // Construct Final Swap Transaction
-              printV('[Swaps.xyz sending flow] Building swap transaction');
-              final prepared = await evm!.createRawCallDataTransaction(
-                wallet,
-                routerTo,
-                routerData,
-                Money(routerValueWei, wallet.currency),
-                priority,
-                sourceTokenAddress: tokenContract,
-                sourceTokenAmount: requiredAmount,
-                useBlinkProtection: canSupportBlinkProtection(selectedChainId)
-                    ? _settingsStore.useBlinkProtection
-                    : false,
-              );
-              if (replaced()) {
-                return null;
-              }
-              pendingTransaction = prepared;
-
-              state = ExecutedSuccessfullyState();
-              return pendingTransaction;
-            }
-
-            state = FailureState('Unsupported Swaps.xyz transaction type');
-            return null;
-          } catch (e, s) {
-            printV('Swaps.xyz transaction error: $e\n$s');
-            if (replaced()) {
-              return null;
-            }
-            state = FailureState(
-                'Failed to create Swaps.xyz transaction - ${translateErrorMessage(e, wallet.type, wallet.currency)}');
-            return null;
-          }
-        }
-      }
-      // END Swaps.xyz path
-
-      // Jupiter (Solana) swap path
-      if (walletType == WalletType.solana && trade != null && provider is JupiterExchangeProvider) {
-        final swapTransactionBase64 = trade.routerData;
-        final requestId = trade.routerValue;
-        if (swapTransactionBase64?.isNotEmpty == true &&
-            requestId?.isNotEmpty == true &&
-            solana != null) {
-          try {
-            final actualFee = trade.fee ?? 0.0005;
-            // Fallback to estimate if not available
-            final fee = actualFee > 0 ? actualFee : 0.0005;
-
-            final fromCurrency = trade.from ?? CryptoCurrency.sol;
-            final amount = Money.tryParse(
-              trade.amount.sanitized(),
-              fromCurrency,
-              strictParsing: false,
-            ) ?? Money.zero(fromCurrency);
-
-            final prepared = await solana!.signAndPrepareJupiterSwapTransaction(
-              wallet,
-              swapTransactionBase64!,
-              requestId!,
-              trade.payoutAddress ?? '',
-              amount,
-              Money.tryParse(fee.toString(), CryptoCurrency.sol) ?? Money.zero(CryptoCurrency.sol),
-            );
-            if (replaced()) {
-              return null;
-            }
-            pendingTransaction = prepared;
-
-            state = ExecutedSuccessfullyState();
-            return pendingTransaction;
-          } catch (e, s) {
-            printV('Jupiter swap error: $e\n$s');
-            throw TransactionGenerationException('Failed to process Jupiter swap: $e');
-          }
-        }
-      }
 
       // Regular flow
 
@@ -961,46 +730,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         }
       }
 
-      final prepared = await wallet.createTransaction(_credentials(provider));
+      final prepared = await wallet.createTransaction(_credentials());
       if (replaced()) {
         return null;
       }
       pendingTransaction = prepared;
 
-      final txAmountDouble = double.tryParse(pendingTransaction?.amountFormatted ?? '0') ?? 0.0;
-      final bool isTradeTx = trade != null && provider != null;
 
-      if (isTradeTx) {
-        final tradeAmountMoney = Money.tryParse(
-          trade.amount.sanitized(),
-          trade.from ?? selectedCryptoCurrency,
-          strictParsing: false,
-        );
-        if (tradeAmountMoney == null || tradeAmountMoney.sign <= 0) {
-          throw TransactionGenerationException('Trade amount must be greater than 0');
-        }
-        final tradeAmountDouble = double.tryParse(tradeAmountMoney.toString()) ?? 0.0;
 
-        if (trade.isSendAll == true) {
-          if (provider is NearIntentsExchangeProvider) {
-            if (txAmountDouble != tradeAmountDouble) {
-              throw TransactionGenerationException(
-                  'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
-            }
-          }
-        }
-
-        if (provider is ThorChainExchangeProvider) {
-          final outputCount = pendingTransaction?.outputCount ?? 0;
-          if (outputCount > 10) {
-            throw TransactionGenerationException("THORChain does not support more than 10 outputs");
-          }
-
-          if (_hasTaprootInput(pendingTransaction)) {
-            throw TransactionGenerationException("THORChain does not support Taproot addresses");
-          }
-        }
-      }
 
       if (wallet.type == WalletType.bitcoin) {
         final updatedOutputs = bitcoin!.updateOutputs(pendingTransaction!, outputs);
@@ -1107,14 +844,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       state = TransactionCommitted();
 
-      if (_currentTrade != null) {
-        final provider = _currentTrade!.provider;
-        if (provider == ExchangeProviderDescription.swapsXyz) {
-          registerSwapsXyzTransaction(_currentTrade!);
-        }
-      }
 
-      await _updateSolanaTrade(signature: pendingTransaction!.id, isSuccess: true);
 
       if (walletType == WalletType.solana) {
         Future.delayed(Duration(seconds: 1), () async {
@@ -1130,58 +860,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           }
         });
 
-        // Update balances for currencies involved in swap
-        if (_currentTrade != null) {
-          Future.delayed(Duration(seconds: 2), () async {
-            try {
-              final tokenMints = <String>[];
-
-              // Extract from currency mint (skip native SOL)
-              if (_currentTrade!.from != null && _currentTrade!.from != CryptoCurrency.sol) {
-                try {
-                  final fromMint = solana!.getTokenAddress(_currentTrade!.from!);
-                  tokenMints.add(fromMint);
-                } catch (e) {
-                  printV('Error getting from currency mint: $e');
-                }
-              }
-
-              // Extract to currency mint (skip native SOL)
-              if (_currentTrade!.to != null && _currentTrade!.to != CryptoCurrency.sol) {
-                try {
-                  final toMint = solana!.getTokenAddress(_currentTrade!.to!);
-                  tokenMints.add(toMint);
-                } catch (e) {
-                  printV('Error getting to currency mint: $e');
-                }
-              }
-
-              if (tokenMints.isNotEmpty) {
-                solana!.updateTokenBalances(
-                  wallet,
-                  tokenMints: tokenMints,
-                );
-
-                // Retry after a bit more time to ensure balance is updated
-                Future.delayed(Duration(seconds: 2), () async {
-                  try {
-                    await solana!.updateTokenBalances(
-                      wallet,
-                      tokenMints: tokenMints,
-                    );
-                  } catch (e) {
-                    printV('Error retrying balance update: $e');
-                  }
-                });
-              }
-            } catch (e) {
-              printV('Failed to update balances after send: $e');
-            } finally {
-              _currentTrade = null;
-              _currentProvider = null;
-            }
-          });
-        }
       }
 
       // Immediate transaction update for EVM chains, Tron, and Nano
@@ -1256,23 +934,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
 
       final failedSignature = e is JupiterSwapFailedException ? e.signature : "";
-
-      await _updateSolanaTrade(signature: failedSignature, isSuccess: false);
     }
   }
 
-  /// Update Jupiter trade with relevant details after transaction is committed
-  Future<void> _updateSolanaTrade({required String signature, required bool isSuccess}) async {
-    if (_currentTrade == null ||
-        _currentProvider?.title != 'Jupiter' ||
-        walletType != WalletType.solana) return;
-
-    _currentTrade!.txId = signature;
-
-    _currentTrade!.stateRaw = isSuccess ? TradeState.completed.raw : TradeState.failed.raw;
-
-    await _currentTrade!.save();
-  }
 
   @action
   Future<void> updateWalletBalance() async => await wallet.updateBalance();
@@ -1316,7 +980,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           ));
   }
 
-  Object _credentials([ExchangeProvider? provider]) {
+  Object _credentials() {
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null &&
@@ -1349,7 +1013,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: feesViewModel.customBitcoinFeeRate,
           // if it's an exchange flow then disable sending from mweb coins
-          coinTypeToSpendFrom: provider != null ? UnspentCoinType.nonMweb : coinTypeToSpendFrom,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
 
       case WalletType.monero:
@@ -1458,82 +1122,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   // Helper functions for EVM transaction monitoring and approval flow
 
   // Polls the token contract directly to see if allowance is updated.
-  Future<bool> _waitForApprovalUpdate({
-    required String tokenContract,
-    required String spender,
-    required BigInt requiredAmount,
-    bool waitForExactMatch = false,
-  }) async {
-    if (!isEVMWallet || evm == null) return false;
-
-    int attempts = 0;
-    const int maxAttempts = 30; // ~60 seconds
-
-    printV(
-        '[Swaps.xyz sending flow] Starting allowance check. Target: $requiredAmount (Exact match: $waitForExactMatch)');
-
-    while (attempts < maxAttempts) {
-      try {
-        final currentAllowance = await evm!.getAllowance(wallet, tokenContract, spender);
-
-        if (currentAllowance != null) {
-          printV(
-              '[Swaps.xyz sending flow] Current Allowance: $currentAllowance / Target: $requiredAmount');
-
-          if (waitForExactMatch) {
-            // For Reset (Target 0): We need it to be exactly 0 (or less, though it can't be negative)
-            if (currentAllowance <= requiredAmount) {
-              printV('[Swaps.xyz sending flow] Allowance reset verified!');
-              return true;
-            }
-          } else {
-            // For Approval: We need it to be at least the required amount
-            if (currentAllowance >= requiredAmount) {
-              printV('[Swaps.xyz sending flow] Allowance verified!');
-              return true;
-            }
-          }
-        }
-      } catch (e) {
-        printV('[Swaps.xyz sending flow] Allowance check error: $e');
-      }
-
-      await Future.delayed(const Duration(seconds: 1));
-      attempts++;
-    }
-
-    printV('[Swaps.xyz sending flow] Allowance check timed out.');
-    return false;
-  }
-
   // Builds a token approval transaction
-  Future<PendingTransaction?> buildApprovalNeeded({
-    required String spender,
-    required String tokenContract,
-    required BigInt requiredAmount,
-    required TransactionPriority? priority,
-    int? sourceTokenDecimals,
-  }) async {
-    final erc20Token = wallet.balance.keys.whereType<Erc20Token>().firstWhere(
-          (t) => t.contractAddress.toLowerCase() == tokenContract.toLowerCase(),
-          orElse: () => Erc20Token(
-            name: '',
-            symbol: '',
-            contractAddress: tokenContract,
-            decimal: sourceTokenDecimals ?? 18,
-            enabled: true,
-          ),
-        );
 
-    return await evm!.createTokenApproval(
-      wallet,
-      Money(requiredAmount, erc20Token),
-      spender,
-      priority,
-      useBlinkProtection:
-          canSupportBlinkProtection(selectedChainId) ? _settingsStore.useBlinkProtection : false,
-    );
-  }
 
   // End EVM helper functions
 
@@ -1739,58 +1329,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return null;
   }
 
-  bool _hasTaprootInput(PendingTransaction? pendingTransaction) {
-    if (walletType == WalletType.bitcoin && pendingTransaction != null) {
-      return bitcoin!.hasTaprootInput(pendingTransaction);
-    }
 
-    return false;
-  }
-
-  Future<void> registerSwapsXyzTransaction(Trade trade) async {
-    try {
-      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
-      final needToRegister = trade.needToRegisterInSwapXyz ?? false;
-      if (!needToRegister) return;
-
-      final vmId = (trade.providerId ?? '').toLowerCase();
-      if (vmId.isEmpty) {
-        printV('SwapsXyz: transaction register: skipped (vmId empty)');
-        return;
-      }
-
-      final txHash = pendingTransaction?.evmTxHashFromRawHex ?? pendingTransaction?.id ?? '';
-
-      if (txHash.isEmpty) {
-        printV('SwapsXyz: transaction register: skipped (txHash empty)');
-        return;
-      }
-
-      final chainId = int.tryParse(trade.router ?? '') ?? 0;
-      if (chainId <= 0) {
-        printV('SwapsXyz: transaction register: skipped (invalid chainId)');
-        return;
-      }
-
-      printV(
-          'SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId');
-
-      final registered = await SwapsXyzExchangeProvider.registerAltVmTx(
-        txId: trade.id,
-        txHash: txHash,
-        chainId: chainId,
-        vmId: vmId,
-      );
-
-      if (!registered) {
-        printV('SwapsXyz: transaction register: failed');
-      } else {
-        printV('SwapsXyz: transaction register: success');
-      }
-    } catch (e) {
-      printV('registerSwapsXyzTransaction error: $e');
-    }
-  }
 
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
@@ -1815,7 +1354,4 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void applyAnyPayCurrency(CryptoCurrency currency) {
     selectedCryptoCurrency = currency;
   }
-
-  String _decodeMethodSelector(String s) =>
-      (s.startsWith('0x') && s.length >= 10) ? s.substring(0, 10) : '';
 }
