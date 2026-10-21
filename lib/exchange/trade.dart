@@ -8,7 +8,7 @@ import "package:cake_wallet/utils/currency_from_serialized.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
-import "package:cw_core/generate_name.dart";
+import "package:cw_core/erc20_token.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:sqflite/sqflite.dart";
@@ -33,7 +33,6 @@ class Trade {
     this.memo,
     this.txId,
     this.isRefund,
-    this.chainId
   });
 
   static const tableName = "Trade";
@@ -62,8 +61,6 @@ class Trade {
   final String refundAddress;
   final String payoutAddress;
   final String? providerName;
-
-  // holds the receive address memo or destination tag that was passed for this trade
   final String? toAddressExtraId;
   final String? password;
   final String? providerId;
@@ -78,26 +75,21 @@ class Trade {
       SwapUriHelper.getUri(
           fundingAddress, depositAmount.toString(), depositAmount.currency as CryptoCurrency);
 
-
-  final int? chainId;
-
-  String get chainName {
-    if (chainId == null) {
-      return "";
-    }
-
-    return evm!.getChainNameByChainId(chainId!).capitalized();
-  }
-
-  // ── SQLite CRUD ──────────────────────────────────────
-
   Future<void> save() async {
+    _fillMissingChainId(depositCurrency);
+    _fillMissingChainId(payoutCurrency);
     await db!.insert(
       tableName,
       toSqliteMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     onChanged.add(null);
+  }
+
+  // default evm tokens have no chainId, which would serialize as "evm^<address>^null"
+  static void _fillMissingChainId(CryptoCurrency currency) {
+    if (currency is! Erc20Token || currency.chainId != null || currency.tag == null) return;
+    currency.chainId = evm!.getChainIdByTag(currency.tag!);
   }
 
   static Future<List<Trade>> getAll({String? orderBy}) async {
@@ -160,7 +152,6 @@ class Trade {
       "memo": memo,
       "txId": txId,
       "isRefund": isRefund == true ? 1 : 0,
-      "chainId": chainId,
       "fundingAddress": fundingAddress,
       "refundAddress": refundAddress
     };
@@ -219,7 +210,6 @@ class Trade {
     String? memo,
     String? txId,
     bool? isRefund,
-    int? chainId,
   }) => Trade(
       state: state ?? this.state,
       depositAmount: depositAmount ?? this.depositAmount,
@@ -242,7 +232,6 @@ class Trade {
       memo: memo ?? this.memo,
       txId: txId ?? this.txId,
       isRefund: isRefund ?? this.isRefund,
-      chainId: chainId ?? this.chainId,
     );
 
 }
@@ -259,7 +248,6 @@ class RoutableTrade extends Trade {
     super.password,
     super.providerId,
     super.memo,
-    super.chainId,
     super.txId,
     super.isRefund, this.router,});
 
