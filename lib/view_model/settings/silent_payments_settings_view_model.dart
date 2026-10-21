@@ -34,6 +34,8 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
     bitcoin!.setScanningActive(_wallet, value);
   }
 
+  Future<bool> get nodeSupportsSilentPayments => bitcoin!.getNodeIsElectrsSPEnabled(_wallet);
+
   Future<String> getAbbreviatedLogs() async {
     final appSupportPath = (await getApplicationSupportDirectory()).path;
     final logsFile = File("$appSupportPath/logs/silent_payments.log");
