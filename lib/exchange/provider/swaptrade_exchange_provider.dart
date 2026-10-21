@@ -20,6 +20,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
   static final markup = secrets.swapTradeExchangeMarkup;
 
+  static Map<String, List<String>>? _coinNetworks;
+
   static const apiAuthority = 'api.swaptrade.io';
   static const getRate = '/api/swap/get-rate';
   static const getCoins = '/api/swap/get-coins';
@@ -55,32 +57,14 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    if (!_isPairSupported(from, to)) {
-      return null;
-    }
-
     try {
-      final uri = Uri.https(apiAuthority, getCoins);
-      final response = await ProxyWrapper().get(clearnetUri: uri);
-
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode != 200)
-        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
-
-      final coinsInfoRaw = responseJSON['data'];
-      final coinsInfo = coinsInfoRaw is List<dynamic> ? coinsInfoRaw : <dynamic>[];
-
-      final normalized = _normalizeCurrency(from);
-      final coin = coinsInfo.cast<Map<String, dynamic>>().firstWhere(
-            (c) => (c['id']?.toString().toUpperCase() ?? '') == normalized,
-            orElse: () => <String, dynamic>{},
-          );
-
-      if (coin.isEmpty) {
-        // Currency not supported by SwapTrade (e.g. USDC, DOGE).
+      final coins = await _fetchCoins();
+      if (!await _isPairSupported(from, to)) {
         return null;
       }
+
+      final normalized = _normalizeCurrency(from);
+      final coin = coins.firstWhere((c) => c['id'].toString().toUpperCase() == normalized);
 
       final min = double.tryParse(coin['min']?.toString() ?? '') ?? 0.0;
       final max = double.tryParse(coin['max']?.toString() ?? '') ?? 0.0;
@@ -101,7 +85,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
-      if (!_isPairSupported(from, to)) return 0.0;
+      if (!await _isPairSupported(from, to)) return 0.0;
       if (isFixedRateMode && !supportsFixedRate) {
         return 0.0;
       }
@@ -124,11 +108,11 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode != 200) {
+      if (responseBody['success'] != true) {
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'fetchRate',
-          error: ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode),
+          error: ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n${_errorMessage(responseBody)}', response.statusCode),
           stackTrace: StackTrace.current,
           requestData: {
             'from': from.title,
@@ -140,7 +124,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n${_errorMessage(responseBody)}', response.statusCode);
       }
 
       final data = responseBody['data'] as Map<String, dynamic>;
@@ -197,8 +181,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
-    final sendNetwork = _networkFor(request.fromCurrency);
-    final receiveNetwork = _networkFor(request.toCurrency);
+    final sendNetwork = await _networkFor(request.fromCurrency);
+    final receiveNetwork = await _networkFor(request.toCurrency);
     if (sendNetwork == null || receiveNetwork == null) {
       throw TradeNotCreatedException(
         description,
@@ -231,11 +215,8 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode == 400 || responseBody["success"] == false) {
-        final List<dynamic> errorsList = responseBody['errors'] as List? ?? [];
-        final error = errorsList.isNotEmpty
-            ? (errorsList[0]['msg'] as String?) ?? responseBody.toString()
-            : responseBody.toString();
+      if (responseBody['success'] != true) {
+        final error = _errorMessage(responseBody);
 
         ExchangeProviderLogger.logError(
           provider: description,
@@ -256,29 +237,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
           },
         );
 
-        throw TradeNotCreatedException(description, description: error);
-      }
-
-      if (response.statusCode != 200) {
-        ExchangeProviderLogger.logError(
-          provider: description,
-          function: 'createTrade',
-          error: Exception('Unexpected http status: ${response.statusCode}'),
-          stackTrace: StackTrace.current,
-          requestData: {
-            'from': request.fromCurrency.title,
-            'to': request.toCurrency.title,
-            'fromAmount': request.fromAmount,
-            'toAmount': request.toAmount,
-            'toAddress': request.toAddress,
-            'refundAddress': request.refundAddress,
-            'isFixedRateMode': isFixedRateMode,
-            'isSendAll': isSendAll,
-            'body': body,
-            'url': uri.toString(),
-          },
-        );
-        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n$description: $error', response.statusCode);
       }
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
@@ -360,28 +319,31 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
 
       final responseBody = json.decode(response.body) as Map<String, dynamic>;
 
-      if (response.statusCode == 400 || responseBody["success"] == false) {
-        final error = responseBody['errors'][0]['msg'] as String;
-        throw TradeNotCreatedException(description, description: error);
+      if (responseBody['success'] != true) {
+        final error = _errorMessage(responseBody);
+        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}\n$description: $error', response.statusCode);
       }
-
-      if (response.statusCode != 200)
-        throw ExchangeProviderResponseCodeException('Unexpected http status: ${response.statusCode}', response.statusCode);
 
       final responseData = responseBody['data'] as Map<String, dynamic>;
       final fromCurrency = responseData['coin_send'] as String;
-      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency);
+      final fromNetwork = responseData['coin_send_network_name'] as String?;
+      final from = CryptoCurrency.safeParseCurrencyFromString(fromCurrency,
+          tag: fromNetwork == fromCurrency ? null : fromNetwork);
       final toCurrency = responseData['coin_receive'] as String;
-      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency);
+      final toNetwork = responseData['coin_receive_network_name'] as String?;
+      final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency,
+          tag: toNetwork == toCurrency ? null : toNetwork);
       final inputAddress = responseData['server_address'] as String;
       final payoutAddress = responseData['recipient'] as String;
       final status = responseData['status'] as String;
-      final state = TradeState.deserialize(raw: status);
+      final state = _tradeState(status);
       final response_id = responseData['order_id'] as String;
       final expectedSendAmount = responseData['amount_send'] as String;
       final expectedReceiveAmount = responseData['amount_receive'] as String;
       final memo = responseData['memo'] as String?;
       final createdAt = responseData['created_at'] as String?;
+      final refundAddress = responseData['refund_address'] as String?;
+      final payoutTx = responseData['outgoing_tx'] as String?;
 
       return Trade(
         id: response_id,
@@ -395,6 +357,9 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
         receiveAmount: expectedReceiveAmount,
         memo: memo,
         createdAt: DateTime.tryParse(createdAt ?? ''),
+        refundAddress: refundAddress == '' ? null : refundAddress,
+        isRefund: status == '12',
+        outputTransaction: payoutTx == '' ? null : payoutTx,
       );
     } catch (e) {
       printV("error getting trade: ${e.toString()}");
@@ -413,29 +378,57 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     }
   }
 
-  bool _isPairSupported(CryptoCurrency from, CryptoCurrency to) =>
-      _networkFor(from) != null && _networkFor(to) != null;
+  Future<List<Map<String, dynamic>>> _fetchCoins() async {
+    final response = await ProxyWrapper().get(clearnetUri: Uri.https(apiAuthority, getCoins));
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    if (responseJSON['success'] != true) {
+      throw Exception(_errorMessage(responseJSON));
+    }
 
-  String? _networkFor(CryptoCurrency currency) {
-    final network = switch (currency) {
-      CryptoCurrency.eth => 'ETH',
-      CryptoCurrency.bnb => 'BNB_BSC',
-      CryptoCurrency.baseEth => 'BASE',
-      CryptoCurrency.robEth => 'ROB',
-      CryptoCurrency.arb => 'ARB',
-      CryptoCurrency.arbEth => 'ARB',
-      CryptoCurrency.usdterc20 => 'USDT_ERC20',
-      CryptoCurrency.usdttrc20 => 'TRX_USDT_S2UZ',
-      CryptoCurrency.usdtbsc => 'USDT_BSC',
-      CryptoCurrency.sol => 'SOL',
-      CryptoCurrency.btc => 'BTC',
-      CryptoCurrency.xmr => 'XMR',
-      CryptoCurrency.ltc => 'LTC',
-      CryptoCurrency.ada => 'ADA',
-      CryptoCurrency.bch => 'BCH',
-      CryptoCurrency.zec => 'ZEC',
-      _ => currency.tag?.toUpperCase(),
+    final coins = (responseJSON['data'] as List).cast<Map<String, dynamic>>();
+    _coinNetworks = {
+      for (final coin in coins)
+        coin['id'].toString().toUpperCase(): coin['network']
+            .toString()
+            .toUpperCase()
+            .split(',')
+            .map((network) => network.trim())
+            .toList(),
     };
-    return network;
+    return coins;
   }
+
+  Future<bool> _isPairSupported(CryptoCurrency from, CryptoCurrency to) async =>
+      await _networkFor(from) != null && await _networkFor(to) != null;
+
+  Future<String?> _networkFor(CryptoCurrency currency) async {
+    if (_coinNetworks == null) {
+      await _fetchCoins();
+    }
+    final network = currency.network.toUpperCase();
+    final supported = _coinNetworks![_normalizeCurrency(currency)] ?? const <String>[];
+    return supported.contains(network) ? network : null;
+  }
+
+  String _errorMessage(Map<String, dynamic> responseBody) {
+    final errors = responseBody['errors'];
+    if (errors is List && errors.isNotEmpty) {
+      return errors[0]['msg'].toString();
+    }
+    return (responseBody['msg'] ?? responseBody['message'] ?? responseBody).toString();
+  }
+
+  TradeState _tradeState(String status) => switch (status) {
+        '1' => TradeState.waitingPayment,
+        '2' => TradeState.confirming,
+        '3' || '13' => TradeState.processing,
+        '4' || '5' => TradeState.exchanging,
+        '6' || '7' => TradeState.sending,
+        '8' => TradeState.completed,
+        '9' => TradeState.expired,
+        '10' => TradeState.underpaid,
+        '11' => TradeState.pending,
+        '12' => TradeState.refunded,
+        _ => TradeState.deserialize(raw: status),
+      };
 }
