@@ -159,13 +159,21 @@ class MorphoVault {
     return _buildCall(_vault, "redeem", [_requireUint256(shares), user, user]);
   }
 
+  Future<void> dryRun(ContractCall call) => _ethCall(call.to, call.data);
+
   Future<Money> getUsdcBalance(String owner) async => Money(
         await _querySingle<BigInt>(_usdc, "balanceOf", [EthereumAddress.fromHex(owner)]),
         usdcToken,
       );
 
-  Future<BigInt> getUsdcAllowance(String owner) =>
-      _querySingle<BigInt>(_usdc, "allowance", [EthereumAddress.fromHex(owner), _vault.address]);
+  Future<Money> getUsdcAllowance(String owner) async => Money(
+        await _querySingle<BigInt>(
+          _usdc,
+          "allowance",
+          [EthereumAddress.fromHex(owner), _vault.address],
+        ),
+        usdcToken,
+      );
 
   Future<BigInt> getShareBalance(String owner) =>
       _querySingle<BigInt>(_vault, "balanceOf", [EthereumAddress.fromHex(owner)]);
