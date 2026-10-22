@@ -378,6 +378,21 @@ final class SwapAwaitingHardwareWallet extends SwapStateWithTransaction {
   final HardwareWalletType type;
 }
 
+final class SwapGeneratingHardwareWalletTransaction extends SwapGeneratingTransaction {
+  const SwapGeneratingHardwareWalletTransaction({
+    required this.type,
+    required super.trade,
+    required super.source,
+    required super.depositFiatAmount,
+    required super.payoutFiatAmount,
+    required super.payoutAddress,
+    required super.isFixedRate,
+  });
+
+  final HardwareWalletType type;
+}
+
+
 final class SwapSending extends SwapStateWithTransaction {
   const SwapSending({
     required super.trade,

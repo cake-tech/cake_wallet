@@ -767,7 +767,16 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           ),
         );
       } else if (s.source case final InternalSwapSource source) {
-        final generatingState = SwapGeneratingTransaction(
+        final generatingState = wallet.isHardwareWallet && wallet.type != WalletType.monero
+            ? SwapGeneratingHardwareWalletTransaction(
+          type: wallet.hardwareWalletType!,
+          trade: trade,
+          source: source,
+          depositFiatAmount: depositFiatAmount,
+          payoutFiatAmount: payoutFiatAmount,
+          payoutAddress: s.payoutAddress!,
+          isFixedRate: s.isFixedRate,
+        ) : SwapGeneratingTransaction(
           trade: trade,
           source: source,
           depositFiatAmount: depositFiatAmount,

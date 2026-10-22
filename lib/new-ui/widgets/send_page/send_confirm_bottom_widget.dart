@@ -94,6 +94,12 @@ class SwapConfirmBottomWidget extends StatelessWidget {
       SwapAwaitingHardwareWallet => HardwareWalletProceedOnDeviceMessage(
         hardwareWalletType: (state as SwapAwaitingHardwareWallet).type,
       ),
+      SwapGeneratingHardwareWalletTransaction => HardwareWalletProceedOnDeviceMessage(
+        hardwareWalletType: (state as SwapGeneratingHardwareWalletTransaction).type,
+        note: bloc.wallet.type == WalletType.bitcoin && state.type == HardwareWalletType.trezor
+            ? S.of(context).trezor_locktime_notice
+            : null,
+      ),
       SwapAwaitingExternalSend => NewPrimaryButton(
         onPressed: () => _showExternalSendModal(context, state as SwapAwaitingExternalSend),
         text: S.of(context).continue_text,
