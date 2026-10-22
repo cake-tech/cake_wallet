@@ -467,29 +467,17 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     if (wallet.type == WalletType.monero) {
       await monero!
           .getSubaddressList(wallet)
-          .update(wallet, accountIndex: monero!.getCurrentAccount(wallet).id);
+          .update(wallet, accountIndex: wallet.currentAccountIndex);
     } else if (wallet.type == WalletType.wownero) {
       wownero!
           .getSubaddressList(wallet)
-          .update(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id);
+          .update(wallet, accountIndex: wallet.currentAccountIndex);
     }
   }
 
   @observable
   bool hasAccounts;
 
-  @computed
-  String get accountLabel {
-    switch (wallet.type) {
-      case WalletType.monero:
-        return monero!.getCurrentAccount(wallet).label;
-      case WalletType.wownero:
-        wownero!.getCurrentAccount(wallet).label;
-      default:
-        return "";
-    }
-    return "";
-  }
 
   @computed
   bool get hasTokensList => hasTokens(type);
