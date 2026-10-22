@@ -77,6 +77,7 @@ abstract class MoneroAccountListBase with Store {
 
   void setLabelAccount({required int accountIndex, required String label}) {
     account_list.setLabelForAccount(accountIndex: accountIndex, label: label);
+    cachedAccounts.remove(account_list.currentWallet!.ffiAddress());
     update();
   }
 

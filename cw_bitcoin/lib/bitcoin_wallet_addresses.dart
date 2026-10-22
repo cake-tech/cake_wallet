@@ -46,6 +46,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @override
   int get currentAccountIndex => _currentAccountIndex;
 
+  @override
   @action
   void setCurrentAccountIndex(int index) => _currentAccountIndex = index;
 

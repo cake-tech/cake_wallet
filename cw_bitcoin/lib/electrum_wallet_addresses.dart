@@ -156,6 +156,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   int get currentAccountIndex => 0;
 
+  void setCurrentAccountIndex(int index) {}
+
   final Bip32Slip10Secp256k1 legacyMainHd;
   final Bip32Slip10Secp256k1 legacySideHd;
   final bool isHardwareWallet;

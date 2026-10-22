@@ -926,7 +926,8 @@ class CWBitcoin extends Bitcoin {
   @override
   Money balanceForAccount(Object wallet, int accountIndex) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    final balance = bitcoinWallet.balanceForAccount(accountIndex);
+    final balance = bitcoinWallet.accounts[accountIndex]?.balance ??
+        ElectrumBalance.zero(bitcoinWallet.currency);
     return balance.confirmed + balance.unconfirmed;
   }
 
@@ -951,10 +952,11 @@ class CWBitcoin extends Bitcoin {
   @override
   Future<Account> getCurrentAccount(Object wallet) async {
     final electrumWallet = wallet as ElectrumWallet;
-    final acc = await electrumWallet.loadCurrentAccount();
+    final account = electrumWallet.currentWalletAccount;
     return Account(
-        id: acc.accountIndex,
-        label: acc.label,
-        balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
+      id: account.index,
+      label: account.label,
+      balance: account.balance.confirmed.toString(),
+    );
   }
 }

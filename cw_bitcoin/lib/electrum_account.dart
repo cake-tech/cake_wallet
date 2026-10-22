@@ -7,6 +7,7 @@ import "package:cw_bitcoin/electrum_balance.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_account.dart";
 import "package:mobx/mobx.dart";
 
 class ElectrumAccounts {
@@ -33,19 +34,19 @@ class ElectrumAccounts {
   }) =>
       _byIndex[accountIndex]?.hd.branch(type, isChange: isChange, isLegacy: isLegacy);
 
-  ElectrumAccount getOrCreate(int index) {
+  ElectrumAccount getOrCreate(int index, {String? label}) {
     final existing = _byIndex[index];
     if (existing != null) return existing;
 
     final account = ElectrumAccount(
       index: index,
-      label: index == 0 ? "Primary account" : "Account $index",
+      label: label ?? (index == 0 ? "Primary account" : "Account $index"),
       supportedTypes: index == 0 ? _primaryTypes : EXTRA_ACCOUNT_ADDRESS_TYPES,
       initialBalance: ElectrumBalance.zero(currency),
     );
     _byIndex[index] = account;
     printV("[ELECTRUM ACCOUNTS] loaded account $index "
-        '(${account.supportedTypes.map((t) => t.value).join('/')}), now $indexes');
+        "(${account.supportedTypes.map((t) => t.value).join("/")}), now $indexes");
     return account;
   }
 
@@ -55,6 +56,15 @@ class ElectrumAccounts {
     if (_byIndex.remove(index) != null) {
       printV("[ELECTRUM ACCOUNTS] removed account $index, now $indexes");
     }
+  }
+
+  void setLabels(Map<int, String> byAccount) {
+    runInAction(() {
+      for (final entry in byAccount.entries) {
+        final account = _byIndex[entry.key];
+        if (account != null) account._label.value = entry.value;
+      }
+    });
   }
 
   void setBalances(Map<int, ElectrumBalance> byAccount) {
@@ -106,25 +116,32 @@ class ElectrumAccounts {
   }
 
   @override
-  String toString() => 'ElectrumAccounts(${all.join(',\n')})';
+  String toString() => "ElectrumAccounts(${all.join(",\n")})";
 }
 
-class ElectrumAccount {
+class ElectrumAccount implements WalletAccount<ElectrumBalance> {
   ElectrumAccount({
     required this.index,
-    required this.label,
+    required String label,
     required List<BitcoinAddressType> supportedTypes,
     required ElectrumBalance initialBalance,
   })  : supportedTypes = List.unmodifiable(supportedTypes),
+        _label = Observable(label),
         _balance = Observable(initialBalance);
 
+  @override
   final int index;
-  String label;
+
   final List<BitcoinAddressType> supportedTypes;
   final AccountHdKeys hd = AccountHdKeys();
 
+  final Observable<String> _label;
   final Observable<ElectrumBalance> _balance;
 
+  @override
+  String get label => _label.value;
+
+  @override
   ElectrumBalance get balance => _balance.value.copy();
 
   bool supports(BitcoinAddressType type) => supportedTypes.contains(type);
@@ -132,8 +149,8 @@ class ElectrumAccount {
   @override
   String toString() {
     final b = _balance.value;
-    return "ElectrumAccount(index: $index, label: $label, "
-        'types: ${supportedTypes.map((t) => t.value).join('/')}, '
+    return "ElectrumAccount(index: $index, label: ${_label.value}, "
+        "types: ${supportedTypes.map((t) => t.value).join("/")}, "
         "balance: c=${b.confirmed} u=${b.unconfirmed} f=${b.frozen}, "
         "hd: $hd)";
   }

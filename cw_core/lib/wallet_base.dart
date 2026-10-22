@@ -1,4 +1,5 @@
 import "package:cw_core/receive_page_option.dart";
+import "package:cw_core/wallet_account.dart";
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -146,6 +147,25 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool get hasAccountsSupport => false;
   bool get hasNativeAccounts => false;
   bool get canToggleMultiAccounts => hasAccountsSupport && !hasNativeAccounts;
+
+  int get currentAccountIndex => 0;
+
+  WalletAccount<BalanceType> get currentWalletAccount => SingleWalletAccount<BalanceType>(
+    label: "Primary account",
+    balance: () => balance[currency]!,
+  );
+
+  List<WalletAccount<BalanceType>> get walletAccounts => [currentWalletAccount];
+
+  Future<void> setCurrentAccount(int accountIndex) async {
+    if (accountIndex != 0) throw UnsupportedError("$type does not support accounts");
+  }
+
+  Future<void> addAccount({required String label}) =>
+      throw UnsupportedError("$type does not support accounts");
+
+  Future<void> renameAccount({required int index, required String label}) =>
+      throw UnsupportedError("$type does not support accounts");
 
   // hardware wallet - bitbox, ledger, trezor.
   // we also have airgap wallets but those can't sign messages
