@@ -924,39 +924,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Money balanceForAccount(Object wallet, int accountIndex) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    final balance = bitcoinWallet.accounts[accountIndex]?.balance ??
-        ElectrumBalance.zero(bitcoinWallet.currency);
-    return balance.confirmed + balance.unconfirmed;
-  }
-
-  @override
-  Map<int, Object> accountBalancesSnapshot(Object wallet) {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    return {
-      for (final account in bitcoinWallet.accounts.all) account.index: account.balance,
-    };
-  }
-
-  @override
   List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet) =>
       (wallet as ElectrumWallet).currentAccountBitcoinTransactions;
-
-  @override
-  Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    await bitcoinWallet.setCurrentAccount(accountIndex);
-  }
-
-  @override
-  Future<Account> getCurrentAccount(Object wallet) async {
-    final electrumWallet = wallet as ElectrumWallet;
-    final account = electrumWallet.currentWalletAccount;
-    return Account(
-      id: account.index,
-      label: account.label,
-      balance: account.balance.confirmed.toString(),
-    );
-  }
 }
