@@ -3,6 +3,7 @@ import 'dart:isolate';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
+import 'package:cw_bitcoin/input_ownership.dart';
 // import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -65,12 +66,25 @@ int? accountForTransaction(
   }
 
   for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
-    final inputTransaction = bundle.ins[i];
-    if (inputTransaction == null) continue;
+    final spentOutput = spentOutputAt(bundle.originalTransaction, bundle.ins, i);
 
-    final outTransaction = inputTransaction.outputs[bundle.originalTransaction.inputs[i].txIndex];
-    final account =
-        accountForAddress(addressFromOutputScript(outTransaction.scriptPubKey, network));
+    if (spentOutput == null) {
+      // Parent not fetched yet: ownership is still derivable from the input's
+      // own scriptSig/witness, so a send-all (no change output) still gets
+      // attributed to its account instead of vanishing from filtered history.
+      final input = bundle.originalTransaction.inputs[i];
+      final witness = witnessAt(bundle.originalTransaction, i);
+
+      for (final entry in addressesByAccount.entries) {
+        if (isInputOwnedByWitnessOrScriptSig(input, witness, entry.value, network) == true) {
+          return entry.key;
+        }
+      }
+
+      continue;
+    }
+
+    final account = accountForAddress(addressFromOutputScript(spentOutput.scriptPubKey, network));
     if (account != null) return account;
   }
 

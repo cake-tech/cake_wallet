@@ -165,10 +165,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     for (var i = 0; i < totalInputCount; i++) {
       final input = bundle.originalTransaction.inputs[i];
-      final inputsParentTransaction = i < bundle.ins.length ? bundle.ins[i] : null;
-      final witness = i < bundle.originalTransaction.witnesses.length
-          ? bundle.originalTransaction.witnesses[i]
-          : null;
+      final spentOutput = spentOutputAt(bundle.originalTransaction, bundle.ins, i);
+      final witness = witnessAt(bundle.originalTransaction, i);
 
       // Ownership is derivable directly from the input's own scriptSig/witness
       // data (no prevout needed), so it's known even when the parent tx is
@@ -182,11 +180,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       // Input tx not yet fetched to check the spent output against - fall back to
       // whatever the local scriptSig/witness check above could tell us.
 
-      final isParentTxMissing = inputsParentTransaction == null;
-      final isSpentOutputMissing = inputsParentTransaction != null &&
-          input.txIndex >= inputsParentTransaction.outputs.length;
-
-      if (isParentTxMissing || isSpentOutputMissing) {
+      if (spentOutput == null) {
         unresolvedInputTxids.add(input.txId);
 
         // Only still ambiguous while the prevout is missing; once fetched,
@@ -206,10 +200,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
       // to get its real amount/address.
       alreadyFetchedInputCount++;
 
-      final outTransaction = inputsParentTransaction.outputs[input.txIndex];
-      inputAmount += outTransaction.amount.toInt();
+      inputAmount += spentOutput.amount.toInt();
 
-      final outAddress = addressFromOutputScript(outTransaction.scriptPubKey, network);
+      final outAddress = addressFromOutputScript(spentOutput.scriptPubKey, network);
       final addressExistsInOurAddresses = addresses.contains(outAddress);
 
       if (addressExistsInOurAddresses || inputConfirmedOwnedByInputData) {
@@ -217,10 +210,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
         direction = TransactionDirection.outgoing;
         inputAddresses.add(outAddress);
-        ownedInputTotal += outTransaction.amount.toInt();
+        ownedInputTotal += spentOutput.amount.toInt();
 
         if (outAddress.isNotEmpty) {
-          ownedInputs.add({'address': outAddress, 'amount': outTransaction.amount.toInt()});
+          ownedInputs.add({'address': outAddress, 'amount': spentOutput.amount.toInt()});
         }
       }
     }
@@ -427,7 +420,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
-      inputsOwnershipFullyResolved: data['inputsOwnershipFullyResolved'] as bool? ?? false,
+      inputsOwnershipFullyResolved:
+          isLightning || (data['inputsOwnershipFullyResolved'] as bool? ?? false),
       additionalInfo: additionalInfo,
     );
   }

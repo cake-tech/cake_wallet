@@ -62,6 +62,9 @@ class ElectrumTransactionResolver {
   }
 
   bool _isResolvingTransactions = false;
+  // Set when resolvePending is called mid-run: that run's queue was built
+  // before the new txs landed in history, so another run must pick them up.
+  bool _isRerunRequested = false;
   // Callers waiting on a specific txid register in _resolutionWaiters and are notified once
   // the loop gets to it.
   final Map<String, Completer<ElectrumTransactionInfo?>> _resolutionWaiters = {};
@@ -177,10 +180,14 @@ class ElectrumTransactionResolver {
       _runResolutionLoop().whenComplete(() {
         _isResolvingTransactions = false;
 
+        final isRerunRequested = _isRerunRequested;
+        _isRerunRequested = false;
+
         if (_stopped) {
           _failAllWaiters();
-        } else if (_resolutionWaiters.isNotEmpty) {
-          // A watcher registered while the loop was winding down.
+        } else if (_resolutionWaiters.isNotEmpty || isRerunRequested) {
+          // A watcher registered, or new txs landed, while the loop was
+          // winding down.
           _ensureResolutionLoopRunning();
         }
       }),
@@ -528,8 +535,15 @@ class ElectrumTransactionResolver {
   }
 
   /// (Re)starts the shared resolution loop (see [_runResolutionLoop]) after
-  /// each completed sync cycle, without blocking it.
+  /// each completed sync cycle, or after deferred txs land in history,
+  /// without blocking it. If a run is already in progress, another one is
+  /// queued so txs added after its queue was built still get resolved.
   void resolvePending() {
+    if (_isResolvingTransactions) {
+      _isRerunRequested = true;
+      return;
+    }
+
     _ensureResolutionLoopRunning();
   }
 

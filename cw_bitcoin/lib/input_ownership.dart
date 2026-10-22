@@ -18,6 +18,29 @@ const List<BasedUtxoNetwork> SEGWIT_NOT_SUPPORTED_NETWORKS = [
   DogecoinNetwork.testnet,
 ];
 
+/// The witness for input [index] of [transaction], or null when it has none
+/// (e.g. a legacy input).
+TxWitnessInput? witnessAt(BtcTransaction transaction, int index) =>
+    index < transaction.witnesses.length ? transaction.witnesses[index] : null;
+
+/// The output spent by input [index] of [transaction], looked up in
+/// [parentTransactions] (parallel to the inputs). Null while the parent isn't
+/// fetched yet or doesn't have the referenced output.
+TxOutput? spentOutputAt(
+  BtcTransaction transaction,
+  List<BtcTransaction?> parentTransactions,
+  int index,
+) {
+  final parent = index < parentTransactions.length ? parentTransactions[index] : null;
+  final outputIndex = transaction.inputs[index].txIndex;
+
+  if (parent == null || outputIndex >= parent.outputs.length) {
+    return null;
+  }
+
+  return parent.outputs[outputIndex];
+}
+
 /// Determines whether a transaction has at least one input that can be
 /// identified as belonging to one of [addresses], using ONLY data revealed by
 /// the input itself (scriptSig pushes / witness stack) and no prevout fetch
@@ -47,9 +70,12 @@ bool? transactionHasOwnedInput(
   var anyUnknown = false;
 
   for (var i = 0; i < transaction.inputs.length; i++) {
-    final witness = i < transaction.witnesses.length ? transaction.witnesses[i] : null;
-    final result =
-        isInputOwnedByWitnessOrScriptSig(transaction.inputs[i], witness, addresses, network);
+    final result = isInputOwnedByWitnessOrScriptSig(
+      transaction.inputs[i],
+      witnessAt(transaction, i),
+      addresses,
+      network,
+    );
 
     if (result == true) {
       return true;

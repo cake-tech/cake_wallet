@@ -209,7 +209,9 @@ abstract class ElectrumWalletBase
         case CryptoCurrency.doge:
           return dogecoinHDWallet(seedBytes);
         default:
-          throw (currency == null ? ArgumentError("no currency") : BadCurrencyException("Unsupported currency",currency!));
+          throw (currency == null
+              ? ArgumentError("no currency")
+              : BadCurrencyException("Unsupported currency", currency!));
       }
     }
 
@@ -518,8 +520,6 @@ abstract class ElectrumWalletBase
                   accountIndex: accountIndex);
             }
           }
-
-          await resolveQueuedTransactionDetails();
         }
 
         await updateAllUnspents();
@@ -681,9 +681,6 @@ abstract class ElectrumWalletBase
   bool _isTransactionUpdating;
   Future<Isolate>? _isolate;
 
-  final Map<String, Map<String, dynamic>> _missingHistoryQueue = {};
-
-  Future<void>? _resolveMissingHistoryFuture;
   final Map<String, int> _unresolvedAccountRetryCount = {};
   static const int _maxUnresolvedAccountRetries = 3;
 
@@ -959,8 +956,6 @@ abstract class ElectrumWalletBase
 
       _updateFeeRateTimer ??=
           Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
-
-      unawaited(resolveQueuedTransactionDetails());
     } catch (e, stacktrace) {
       final syncEnd = DateTime.now();
       final totalMs = _syncBenchmarkStartTime != null
@@ -2070,7 +2065,6 @@ abstract class ElectrumWalletBase
   @override
   Future<void> close({bool shouldCleanup = false}) async {
     _transactionResolver.stop();
-    _missingHistoryQueue.clear();
     _unresolvedAccountRetryCount.clear();
     try {
       await _receiveStream?.cancel();
@@ -2928,12 +2922,9 @@ abstract class ElectrumWalletBase
             : fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
-      printV('[QUICK_SYNC] deferred ${_missingHistoryQueue.length} transactions to background');
-
       transactionHistory.transactions.values.forEach((tx) async {
-        final isPendingSilentPaymentUtxo = (tx.isPending || tx.confirmations == 0) &&
-            historiesWithDetails[tx.id] == null &&
-            !_missingHistoryQueue.containsKey(tx.id);
+        final isPendingSilentPaymentUtxo =
+            (tx.isPending || tx.confirmations == 0) && historiesWithDetails[tx.id] == null;
 
         if (isPendingSilentPaymentUtxo) {
           final info =
@@ -3024,46 +3015,13 @@ abstract class ElectrumWalletBase
 
     final split = await _markUsedAndSplitHistory(scan, addressRecords, currentHeight);
 
-    _enqueueMissingHistory(split.missingHistoryItems);
+    // Fetched inline rather than deferred: this first pass only fetches the
+    // raw txs (no parent inputs), so it's cheap; ownership, parent inputs and
+    // fee resolve afterwards in ElectrumTransactionResolver's background loop.
+    split.transactions
+        .addAll(await _resolveTransactions(split.missingHistoryItems, historyChunkSize));
 
     return split;
-  }
-
-  void _enqueueMissingHistory(List<Map<String, dynamic>> missingHistoryItems) {
-    for (final item in missingHistoryItems) {
-      final txid = item['tx_hash'] as String?;
-      if (txid == null || txid.isEmpty) continue;
-      _missingHistoryQueue.putIfAbsent(txid, () => item);
-    }
-  }
-
-  Future<void> resolveQueuedTransactionDetails() {
-    final inProgress = _resolveMissingHistoryFuture;
-    if (inProgress != null) return inProgress;
-
-    if (_missingHistoryQueue.isEmpty) return Future.value();
-
-    final future = _drainMissingHistoryQueue();
-    _resolveMissingHistoryFuture = future;
-    return future.whenComplete(() => _resolveMissingHistoryFuture = null);
-  }
-
-  Future<void> _drainMissingHistoryQueue() async {
-    final watch = Stopwatch()..start();
-    var resolvedCount = 0;
-    try {
-      printV('[QUICK_SYNC] resolving ${_missingHistoryQueue.length} deferred transactions');
-
-      while (_missingHistoryQueue.isNotEmpty) {
-        final queued = _missingHistoryQueue.values.toList(growable: false);
-        _missingHistoryQueue.clear();
-        final resolved = await _resolveTransactions(queued, addressHistoryChunkSize);
-        resolvedCount += resolved.length;
-      }
-    } finally {
-      printV(
-          '[QUICK_SYNC] resolved $resolvedCount deferred transactions in ${watch.elapsedMilliseconds} ms');
-    }
   }
 
   Future<AddressHistoryScan> _scanAddressHistories(
@@ -4030,7 +3988,6 @@ abstract class ElectrumWalletBase
           await updateBalance();
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
-          await resolveQueuedTransactionDetails();
         } catch (e, s) {
           printV("sub error: $e");
           _onError?.call(FlutterErrorDetails(
