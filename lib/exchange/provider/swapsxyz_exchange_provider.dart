@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cake_wallet/utils/token_utilities.dart";
 import 'package:cw_core/amount_converter.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
@@ -31,6 +32,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   static final _apiKey = secrets.swapsXyzApiKey;
   static const _baseUrl = 'api-v2.swaps.xyz';
   static const _getChainList = 'api/getChainList';
+  static const _getTokenList = "api/getTokenList";
   static const _getPaths = 'api/getPaths';
   static const _getQuotePaths = 'api/getQuote';
   static const _getAction = 'api/getAction';
@@ -595,10 +597,25 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     }
   }
 
-  // call getPaths and merge tokens into cache keyed by the chainId
   Future<void> _fetchAndCacheTokens({
     required int srcChainId,
   }) async {
+    // getPaths can answer "all" for EVM chains without token addresses
+    final tokenListUri = Uri.https(_baseUrl, _getTokenList, {"chainId": "$srcChainId"});
+    final tokenListResponse = await ProxyWrapper().get(clearnetUri: tokenListUri, headers: _headers);
+    if (tokenListResponse.statusCode == 200) {
+      final tokenList = json.decode(tokenListResponse.body) as Map<String, dynamic>;
+      final parsed = <TokenPathInfo>[];
+      for (final token in tokenList["tokens"] as List? ?? const []) {
+        try {
+          parsed.add(TokenPathInfo.fromJson(token as Map<String, dynamic>));
+        } catch (e) {
+          printV("Token parse error on chain $srcChainId: $e : $token");
+        }
+      }
+      _mergeCache(srcChainId, parsed);
+    }
+
     final params = <String, String>{
       'srcChainId': '$srcChainId',
       'srcToken': '0x0000000000000000000000000000000000000000',
@@ -678,22 +695,31 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     }
   }
 
-// Merge by symbol, prefer entries that have a non-empty address/decimals
+  // Keep distinct decimal representations of a token, such as native and ERC20 USDC on Arc.
   void _mergeCache(int chainId, List<TokenPathInfo> incoming) {
     final existing = _tokensCache[chainId] ?? const <TokenPathInfo>[];
-    final bySymbol = <String, TokenPathInfo>{for (final t in existing) t.symbol: t};
+    final bySymbol = <(String, int?), TokenPathInfo>{
+      for (final t in existing) (t.symbol, t.decimals): t,
+    };
 
     for (final t in incoming) {
-      final cur = bySymbol[t.symbol];
+      final key = (t.symbol, t.decimals);
+      final currentEntry = bySymbol.entries.where((entry) {
+        final cur = entry.value;
+        return cur.symbol == t.symbol &&
+            (cur.decimals == t.decimals || cur.decimals == null || t.decimals == null);
+      }).firstOrNull;
+      final cur = currentEntry?.value;
       if (cur == null) {
-        bySymbol[t.symbol] = t;
+        bySymbol[key] = t;
       } else {
         // If incoming has a real address/decimals, prefer it
         final hasBetterAddr = (t.address != null && t.address!.isNotEmpty) &&
             (cur.address == null || cur.address!.isEmpty);
         final hasBetterDec = (t.decimals != null) && (cur.decimals == null);
         if (hasBetterAddr || hasBetterDec) {
-          bySymbol[t.symbol] = t;
+          bySymbol.remove(currentEntry!.key);
+          bySymbol[key] = t;
         }
       }
     }
@@ -713,12 +739,22 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     required CryptoCurrency currency,
     required Chain chain,
   }) {
+    final knownContract = TokenUtilities.findErc20TokenForSwap(currency)?.contractAddress ??
+        TokenUtilities.findTronTokenContract(currency);
+    if (knownContract != null) {
+      return knownContract;
+    }
+
     final symbol = _normalizeCakeNativeTokenName(currency.title);
     final list = _tokensCache[chain.chainId];
 
     // Try cache hit
     if (list != null && list.isNotEmpty) {
-      for (final t in list) {
+      final decimalsFirst = [
+        ...list.where((t) => t.decimals == currency.decimals),
+        ...list.where((t) => t.decimals != currency.decimals),
+      ];
+      for (final t in decimalsFirst) {
         if (t.symbol == symbol && t.address != null && t.address!.isNotEmpty) {
           return t.address!;
         } else if (t.symbol == symbol && (t.address == null)) {
@@ -743,6 +779,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }
 
   Chain _findChainByCurrency(CryptoCurrency cur, List<Chain> chains) {
+    if (cur.tag == "OP" && cur.title.toUpperCase() == "USDT") {
+      throw BadCurrencyException("Swaps.xyz's USDT on Optimism is not USDT0", cur);
+    }
+
     final network = _normalizeCakeNetwork(cur.tag ?? cur.title);
     return chains.firstWhere(
       (c) {
@@ -763,7 +803,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
       'CRO' => 'CRONOS',
       'ADA' => 'CARDANO',
       'KAS' => 'KASPA',
-      'TON' => 'TONCOIN',
+      "OP" => "OPTIMISM",
       'BCH' => 'BITCOIN CASH',
       'ARB' => 'ARBITRUM',
       _ => network.toUpperCase(),

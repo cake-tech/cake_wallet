@@ -34,6 +34,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _memoRequiredCurrencies = <CryptoCurrency>[
     CryptoCurrency.xrp,
     CryptoCurrency.xlm,
+    CryptoCurrency.usdcXlm,
     CryptoCurrency.ton,
   ];
 
@@ -53,13 +54,21 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     'ARB': '0x1111111111111111111111111111111111111111',
     'BASE': '0x1111111111111111111111111111111111111111',
     "ROB": "0x1111111111111111111111111111111111111111",
+    "PLASMA": "0x1111111111111111111111111111111111111111",
+    "OP": "0x1111111111111111111111111111111111111111",
+    "MON": "0x1111111111111111111111111111111111111111",
+    "XLAYER": "0x1111111111111111111111111111111111111111",
 
     // Others
-    'SOL': '11111111111111111111111111111111',
+    "SOL": "1nc1nerator11111111111111111111111111111111",
     'XRP': 'rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe',
     'TRX': 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb',
-    'TON': 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
-    'XLM': 'GA3D5O2W7YQZJQ3H4Y5QW6N7V8X9Z0A1B2C3D4E5F6G7H8I9J0',
+    "TON": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKZ",
+    "APT": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "SUI": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "NEAR": "1111111111111111111111111111111111111111111111111111111111111111",
+    // Must hold a USDC trustline; NEAR checks it even for dry quotes
+    "XLM": "GDJ4JZXZELZD737NVFORH4PSSQDWFDZTKW3AIDKHYQG23ZXBPDGGQBJK",
     'ADA': 'addr1vyc33hdv5vag52f3d8h0qsngu52vm27x28zkzru333jma9gaxd38v',
     'ZEC': 't1VdfFUbyTT7ZSdeEaHuwB7veGD1NXoUhGS',
   };
@@ -273,8 +282,9 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       final to = CryptoCurrency.safeParseCurrencyFromString(toCurrency.$1, tag: toCurrency.$2);
 
       final trade = Trade(
-        id: depositAddress,
-        // Using deposit address as trade ID
+        id: depositMemo != null && depositMemo.isNotEmpty
+            ? '$depositAddress?${Uri(queryParameters: {'depositMemo': depositMemo}).query}'
+            : depositAddress,
         from: request.fromCurrency,
         to: request.toCurrency,
         provider: description,
@@ -287,6 +297,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         amount: depositAmount,
         receiveAmount: quoteObj['amountOutFormatted']?.toString(),
         memo: depositMemo,
+        extraId: depositMemo,
         isSendAll: isSendAll,
       );
 
@@ -337,7 +348,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({required String id}) async {
-    final param = {'depositAddress': id};
+    final idParts = id.split("?");
+    final param = {
+      "depositAddress": idParts.first,
+      if (idParts.length > 1)
+        "depositMemo": Uri.splitQueryString(idParts[1])["depositMemo"]!,
+    };
     final uri = Uri.https(_baseUrl, '$_versionPath$_statusPath', param);
 
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
@@ -519,7 +535,10 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return switch (tag) {
       'TRX' => 'tron',
       'AVAXC' => 'avax',
+      "XLM" => "stellar",
       "ROB" => "hood",
+      "APT" => "aptos",
+      "MON" => "monad",
       _ => tag?.toLowerCase(),
     };
   }
@@ -528,15 +547,27 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     return switch (blockchain) {
       'tron' => 'TRX',
       'avax' => 'AVAXC',
+      "stellar" => "XLM",
       "hood" => "ROB",
+      "aptos" => "APT",
+      "monad" => "MON",
       _ => blockchain?.toUpperCase(),
     };
   }
 
+  static const _usdt0Tags = {"PLASMA", "OP", "MON", "XLAYER"};
+
   Token? currencyToNearAssetId(CryptoCurrency currency, List<Token> supported) {
     if (supported.isEmpty) return null;
 
-    final symbol = currency.title.toUpperCase();
+    // Native NEAR isn't listed; "NEAR" would match bridged NEAR on BSC
+    if (currency.tag == null && currency.title == "NEAR") {
+      return null;
+    }
+
+    final cakeSymbol = currency.title.toUpperCase();
+    final symbol =
+        cakeSymbol == "USDT" && _usdt0Tags.contains(currency.tag) ? "USDT0" : cakeSymbol;
     final blockchain = _normalizeTagToNearBlockchain(currency.tag);
 
 // Use the native Bitcoin asset routed through Omni Bridge.

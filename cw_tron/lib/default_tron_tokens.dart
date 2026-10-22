@@ -18,6 +18,20 @@ class DefaultTronTokens {
       enabled: true,
     ),
     TronToken(
+      name: "World Liberty Financial USD",
+      symbol: "USD1",
+      contractAddress: "TPFqcBAaaUMCSVRCqPaQ9QnzKhmuoLR6Rc",
+      decimal: 18,
+      enabled: false,
+    ),
+    TronToken(
+      name: "USDD",
+      symbol: "USDD",
+      contractAddress: "TXDk8mbtRbXeYuMNS83CfKPaYYT8XWv9Hz",
+      decimal: 18,
+      enabled: false,
+    ),
+    TronToken(
       name: "Bitcoin",
       symbol: "BTC",
       contractAddress: "TN3W4H6rK2ce4vX9YnFQHwKENnHjoxb3m9",
