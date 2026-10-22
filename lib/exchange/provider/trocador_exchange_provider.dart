@@ -480,6 +480,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   String _networkFor(CryptoCurrency currency) {
+    if (currency.title.toUpperCase() == "USDD" && currency.tag == "ETH") {
+      throw BadCurrencyException("Trocador's USDD on Ethereum may be a different USDD", currency);
+    }
     switch (currency) {
       case CryptoCurrency.eth:
         return 'ERC20';

@@ -123,7 +123,7 @@ void main() {
           CryptoCurrency.usd1Bsc,
           CryptoCurrency.eurcBase,
           CryptoCurrency.usdtPlasma,
-          CryptoCurrency.usdcSonic,
+          CryptoCurrency.usddEth,
         ]) {
           final validator = AddressValidator(type: currency);
           expect(validator.isValid(address), isTrue, reason: currency.toString());

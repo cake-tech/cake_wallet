@@ -76,6 +76,13 @@ class EthereumTokens {
         enabled: false,
       ),
       Erc20Token(
+        name: "USDD",
+        symbol: "USDD",
+        contractAddress: "0x4f8e5de400de08b164e7421b3ee387f461becd1a",
+        decimal: 18,
+        enabled: false,
+      ),
+      Erc20Token(
         name: "EURC",
         symbol: "EURC",
         contractAddress: "0x1abaea1f7c830bd89acc67ec4af516284b1bc33c",

@@ -127,8 +127,8 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
   Future<String?> _getAssets(CryptoCurrency currency) async {
     if (currency.tag == null) return currency.title;
-    // XOSwap also lists the old USDD contract under this symbol
-    if (currency.tag == "TRX" && currency.title.toUpperCase() == "USDD") {
+    // XOSwap lists other USDD contracts under this symbol
+    if (currency.title.toUpperCase() == "USDD" && ["TRX", "ETH"].contains(currency.tag)) {
       return null;
     }
     try {

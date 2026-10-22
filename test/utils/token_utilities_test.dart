@@ -99,6 +99,7 @@ void main() {
           CryptoCurrency.usdgEth: "0xe343167631d89b6ffc58b88d6b7fb0228795491d",
           CryptoCurrency.pyusdEth: "0x6c3ea9036406852006290770bedfcaba0e23a0e8",
           CryptoCurrency.rlusdEth: "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+          CryptoCurrency.usddEth: "0x4f8e5de400de08b164e7421b3ee387f461becd1a",
           CryptoCurrency.eurcEth: "0x1abaea1f7c830bd89acc67ec4af516284b1bc33c",
           CryptoCurrency.usd1Bsc: "0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d",
           CryptoCurrency.eurcBase: "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42",

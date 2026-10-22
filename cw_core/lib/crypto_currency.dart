@@ -183,7 +183,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.usdeTon,
     CryptoCurrency.usd1Apt,
     CryptoCurrency.rlusdXrp,
-    CryptoCurrency.usdcSonic,
+    CryptoCurrency.usddEth,
     CryptoCurrency.usdcXlm,
   ];
 
@@ -1387,14 +1387,14 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     decimals: 15,
     groups: {CurrencyGroups.stablecoin},
   );
-  static const usdcSonic = CryptoCurrency(
-    title: "USDC",
-    tag: "SONIC",
-    fullName: "USDC",
+  static const usddEth = CryptoCurrency(
+    title: "USDD",
+    tag: "ETH",
+    fullName: "USDD",
     raw: 148,
-    name: "usdcsonic",
-    iconPath: "assets/new-ui/crypto_full_icons/usdc.svg",
-    decimals: 6,
+    name: "usddeth",
+    iconPath: "assets/new-ui/crypto_full_icons/usdd.svg",
+    decimals: 18,
     groups: {CurrencyGroups.stablecoin},
   );
   static const usdcXlm = CryptoCurrency(
