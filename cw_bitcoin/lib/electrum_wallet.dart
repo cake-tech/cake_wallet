@@ -1047,6 +1047,7 @@ abstract class ElectrumWalletBase
   }
 
   Node? node;
+  bool? _connectingViaTor;
 
   Future<bool> getNodeIsElectrs() async {
     if (node == null) {
@@ -1104,10 +1105,17 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
+    final viaTor = CakeTor.instance?.started ?? false;
+    final isSameConnection = node == this.node && viaTor == _connectingViaTor;
     this.node = node;
     _isBatchSupported = null;
 
-    if (syncStatus is ConnectingSyncStatus) return;
+    // Only a repeat of the attempt in flight is skipped; dropping a different node or a Tor
+    // toggle here would leave the wallet on the old attempt.
+    if (syncStatus is ConnectingSyncStatus && isSameConnection) {
+      return;
+    }
+    _connectingViaTor = viaTor;
 
     try {
       syncStatus = ConnectingSyncStatus();
@@ -4624,6 +4632,12 @@ abstract class ElectrumWalletBase
         electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
         await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
+
+        // On failure the client reports `failed` and the 5 s retry takes over. Syncing with no
+        // socket would clear the coin list and end in a false "Synced".
+        if (!electrumClient.isConnected) {
+          return;
+        }
 
         await startSync();
 
