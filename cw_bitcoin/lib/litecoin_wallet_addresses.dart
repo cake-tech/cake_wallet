@@ -229,6 +229,30 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     return super.getChangeAddress();
   }
 
+  // Not every sender can pay MWEB, so offer a regular address instead.
+  @override
+  String get addressForBuy {
+    if (addressPageType != SegwitAddresType.mweb) {
+      return super.addressForBuy;
+    }
+
+    try {
+      return super
+          .allAddresses
+          .firstWhere(
+            (e) =>
+                e.type == SegwitAddresType.p2wpkh &&
+                !e.isHidden &&
+                !e.isUsed &&
+                !e.isLegacyDerivation &&
+                !hiddenAddresses.contains(e.address),
+          )
+          .address;
+    } catch (_) {
+      return super.addressForBuy;
+    }
+  }
+
   @override
   String get addressForExchange {
     // don't use mweb addresses for exchange refund address:

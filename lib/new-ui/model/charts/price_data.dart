@@ -21,7 +21,7 @@ Currency currencyFromApiString(String key) {
     case "sol":
       throw UnimplementedError();
   }
-  throw Exception("unknown api string");
+  throw ArgumentError("unknown api string");
 }
 
 class PriceData implements Comparable<PriceData> {
