@@ -1422,6 +1422,7 @@
   "trade_state_unpaid": "Не оплачено",
   "trades": "Сделки",
   "transaction": "Сделка",
+  "transaction_amount_load_failed": "Не удалось загрузить сумму",
   "transaction_commited": "Транзакция подтверждена",
   "transaction_cost": "Стоимость транзакции",
   "transaction_details_amount": "Сумма",

@@ -1423,6 +1423,7 @@
   "trade_state_unpaid": "अवैतनिक",
   "trades": "ट्रेड्स",
   "transaction": "लेन-देन",
+  "transaction_amount_load_failed": "राशि लोड नहीं की जा सकी",
   "transaction_commited": "लेन-देन कमिट हो गया",
   "transaction_cost": "लेनदेन लागत",
   "transaction_details_amount": "राशि",

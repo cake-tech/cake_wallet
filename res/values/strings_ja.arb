@@ -1422,6 +1422,7 @@
   "trade_state_unpaid": "未払い",
   "trades": "取引",
   "transaction": "取引",
+  "transaction_amount_load_failed": "金額を読み込めませんでした",
   "transaction_commited": "トランザクションがコミットされました",
   "transaction_cost": "取引手数料",
   "transaction_details_amount": "金額",

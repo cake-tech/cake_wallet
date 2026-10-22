@@ -1,4 +1,5 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/address_from_output.dart';
 
 /// Networks supported by the app that have segwit addresses and can be used in the app
 /// types (P2WPKH, P2WPKH-in-P2SH, P2WSH, P2TR).
@@ -95,6 +96,47 @@ bool? isInputOwnedByWitnessOrScriptSig(
   TxWitnessInput? witness,
   Set<String> addresses,
   BasedUtxoNetwork network,
+) =>
+    inputOwnershipFromWitnessOrScriptSig(input, witness, addresses, network).isOwnedBy(addresses);
+
+/// What an input's own scriptSig/witness reveals about whether it spends from
+/// one of the wallet's addresses - see [inputOwnershipFromWitnessOrScriptSig].
+class InputOwnership {
+  const InputOwnership.owned(String this.address) : isDetermined = true;
+
+  const InputOwnership.notOwned()
+      : address = null,
+        isDetermined = true;
+
+  const InputOwnership.unknown()
+      : address = null,
+        isDetermined = false;
+
+  /// The wallet address this input spends from, when owned.
+  final String? address;
+
+  /// False when the input's shape reveals no pubkey (e.g. P2TR key-path).
+  final bool isDetermined;
+
+  /// true = spends from one of [addresses], false = confirmed not, null =
+  /// can't tell from input data alone. [addresses] may be a subset (e.g. one
+  /// account's) of the set this was derived against.
+  bool? isOwnedBy(Set<String> addresses) {
+    if (!isDetermined) {
+      return null;
+    }
+
+    return address != null && addresses.contains(address);
+  }
+}
+
+/// Like [isInputOwnedByWitnessOrScriptSig], but also returns which of
+/// [addresses] the input spends from.
+InputOwnership inputOwnershipFromWitnessOrScriptSig(
+  TxInput input,
+  TxWitnessInput? witness,
+  Set<String> addresses,
+  BasedUtxoNetwork network,
 ) {
   final scriptPushes = input.scriptSig.script.whereType<String>().toList();
   final witnessStack = witness?.stack ?? const <String>[];
@@ -104,18 +146,18 @@ bool? isInputOwnedByWitnessOrScriptSig(
   if (witnessStack.length == 2) {
     final pubkeyHex = witnessStack[1];
     if (_isValidPubkeyHex(pubkeyHex)) {
-      return _pubkeyMatchesAnyAddress(pubkeyHex, addresses, network);
+      return _ownershipFromPubkey(pubkeyHex, addresses, network);
     }
-    return null;
+    return const InputOwnership.unknown();
   }
 
   // P2PKH: scriptSig = [sig, pubkey] (as script pushes)
   if (witnessStack.isEmpty && scriptPushes.length == 2) {
     final pubkeyHex = scriptPushes[1];
     if (_isValidPubkeyHex(pubkeyHex)) {
-      return _pubkeyMatchesAnyAddress(pubkeyHex, addresses, network);
+      return _ownershipFromPubkey(pubkeyHex, addresses, network);
     }
-    return null;
+    return const InputOwnership.unknown();
   }
 
   // Bare P2WSH 1-of-1 "multisig" (this wallet's own P2WSH scheme, see
@@ -126,15 +168,15 @@ bool? isInputOwnedByWitnessOrScriptSig(
   if (witnessStack.length == 3 && witnessStack[0].isEmpty) {
     final pubkeyHex = _pubkeyFromBareMultisigScript(witnessStack[2]);
     if (pubkeyHex != null) {
-      return _pubkeyMatchesAnyAddress(pubkeyHex, addresses, network);
+      return _ownershipFromPubkey(pubkeyHex, addresses, network);
     }
-    return null;
+    return const InputOwnership.unknown();
   }
 
   // P2TR key-path (witness = [sig] only) reveals no pubkey; any other shape
   // (script-path spends, larger multisig, etc.) is also not conclusively
   // parseable.
-  return null;
+  return const InputOwnership.unknown();
 }
 
 /// Whether [hex] is a well-formed compressed (33-byte) or uncompressed
@@ -163,14 +205,18 @@ String? _pubkeyFromBareMultisigScript(String scriptHex) {
 
 /// Derives every address type [pubkeyHex] could correspond to on [network]
 /// (P2PKH, plus P2WPKH/P2SH-P2WPKH/P2WSH when [network] supports segwit) and
-/// checks whether any of them is in [addresses]. Returns false, rather than
-/// throwing, if [pubkeyHex] isn't a valid public key.
-bool _pubkeyMatchesAnyAddress(String pubkeyHex, Set<String> addresses, BasedUtxoNetwork network) {
+/// returns the one found in [addresses]. Not owned, rather than throwing, if
+/// [pubkeyHex] isn't a valid public key.
+InputOwnership _ownershipFromPubkey(
+  String pubkeyHex,
+  Set<String> addresses,
+  BasedUtxoNetwork network,
+) {
   final ECPublic pub;
   try {
     pub = ECPublic.fromHex(pubkeyHex);
   } catch (_) {
-    return false;
+    return const InputOwnership.notOwned();
   }
 
   final candidates = SEGWIT_SUPPORTED_NETWORKS.contains(network)
@@ -182,5 +228,47 @@ bool _pubkeyMatchesAnyAddress(String pubkeyHex, Set<String> addresses, BasedUtxo
         }
       : <String>{pub.toP2pkhAddress().toAddress(network)};
 
-  return candidates.any(addresses.contains);
+  for (final candidate in candidates) {
+    if (addresses.contains(candidate)) {
+      return InputOwnership.owned(candidate);
+    }
+  }
+
+  return const InputOwnership.notOwned();
+}
+
+/// The parts of a transaction's ownership that depend only on the tx itself
+/// and the wallet's address set - not on which parent txs are fetched - so
+/// they're derived once and reused across every rebuild of the tx's info
+/// while its parents resolve, instead of re-deriving every input's pubkey
+/// addresses each time.
+class DerivedTransactionAddresses {
+  DerivedTransactionAddresses({required this.inputOwnership, required this.outputAddresses});
+
+  factory DerivedTransactionAddresses.derive(
+    BtcTransaction transaction,
+    Set<String> addresses,
+    BasedUtxoNetwork network,
+  ) =>
+      DerivedTransactionAddresses(
+        inputOwnership: [
+          for (var i = 0; i < transaction.inputs.length; i++)
+            inputOwnershipFromWitnessOrScriptSig(
+              transaction.inputs[i],
+              witnessAt(transaction, i),
+              addresses,
+              network,
+            ),
+        ],
+        outputAddresses: [
+          for (final output in transaction.outputs)
+            addressFromOutputScript(output.scriptPubKey, network),
+        ],
+      );
+
+  /// Index-aligned with the tx's inputs.
+  final List<InputOwnership> inputOwnership;
+
+  /// Index-aligned with the tx's outputs; empty for non-address scripts.
+  final List<String> outputAddresses;
 }

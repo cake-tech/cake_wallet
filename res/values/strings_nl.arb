@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "Onbetaald",
   "trades": "Trades",
   "transaction": "Transactie",
+  "transaction_amount_load_failed": "Kan het bedrag niet laden",
   "transaction_commited": "Transactie vastgelegd",
   "transaction_cost": "Transactiekosten",
   "transaction_details_amount": "Bedrag",

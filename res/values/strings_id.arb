@@ -1424,6 +1424,7 @@
   "trade_state_unpaid": "Belum dibayar",
   "trades": "Perdagangan",
   "transaction": "Transaksi",
+  "transaction_amount_load_failed": "Tidak dapat memuat jumlahnya",
   "transaction_commited": "Transaksi dikomit",
   "transaction_cost": "Biaya Transaksi",
   "transaction_details_amount": "Jumlah",

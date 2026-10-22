@@ -1427,6 +1427,7 @@
   "trade_state_unpaid": "Noñeme’ẽi",
   "trades": "Ñemuha",
   "transaction": "Transacción rehegua",
+  "transaction_amount_load_failed": "Ndaikatúi okargá pe monto",
   "transaction_commited": "Transacción ojejapóma.",
   "transaction_cost": "Transacción Repykue",
   "transaction_details_amount": "Hetakue",

@@ -307,105 +307,69 @@ class TransactionDetailsViewModel = TransactionDetailsViewModelBase
 
 abstract class TransactionDetailsViewModelBase with Store {
   TransactionDetailsViewModelBase({
-    required this.transactionInfo,
+    required TransactionInfo transactionInfo,
     required this.transactionDescriptionBox,
     required this.wallet,
     required AppStore appStore,
     required this.sendViewModel,
     this.canReplaceByFee = false,
-  })  : items = [],
-        advancedItems = [],
+  })  : _openedTransactionInfo = transactionInfo,
         rbfListItems = [],
         newFee = 0,
         isRecipientAddressShown = false,
         _appStore = appStore,
         showRecipientAddress = appStore.settingsStore.shouldSaveRecipientAddress {
-    final tx = transactionInfo;
+    final tx = this.transactionInfo;
 
-    // Set before _rebuildStandardItems() so the fee row (with its spinner)
-    // is present from the first frame, instead of popping in once
-    // _watchFeeResolution resolves it later.
-    isFetchingFee = electrumWalletTypes.contains(wallet.type) && transactionInfo.fee == null;
-
-    _rebuildStandardItems();
     _checkForRBF(tx);
 
-    // Watches this tx's resolution so the view refreshes once cw_bitcoin's
-    // ElectrumTransactionResolver background loop reaches it.
-    // Skip this eagerly for a settled receive (receives don't need to wait for
-    // fee amounts to load, but will also start watching fee resolution upon
-    // opening the Advanced Info page see [ensureFeeResolutionWatched]). An
-    // incoming tx whose amount is still pending isn't settled - it may turn
-    // out to be a send - so it is watched right away.
-    if (transactionInfo.direction != TransactionDirection.incoming ||
-        transactionInfo.isAmountPending) {
-      _startWatchingFeeResolution();
+    if (!electrumWalletTypes.contains(wallet.type)) {
+      return;
     }
 
-    // A resolved tx can still have been classified before the wallet knew all
-    // its addresses; refresh it now rather than waiting for the sync-wide pass.
-    if (electrumWalletTypes.contains(wallet.type) && !isFetchingFee) {
+    // The background loop resolves every tx after each sync anyway; this only
+    // serves the one the user has open first. Progress and the resolved tx
+    // itself reach the view through observables (see [transactionInfo]).
+    if (tx.fee == null || tx.isAmountPending) {
+      bitcoin!.prioritizeTransactionResolution(wallet, tx);
+    } else {
+      // A resolved tx can still have been classified before the wallet knew
+      // all its addresses; refresh it now rather than waiting for the
+      // sync-wide pass.
       _refreshIfStale();
     }
   }
 
-  @action
   Future<void> _refreshIfStale() async {
     try {
-      final refreshed = await bitcoin!.refreshTransactionIfStale(wallet, transactionInfo);
-      if (refreshed != null) {
-        _applyResolvedFee(refreshed);
-      }
+      await bitcoin!.refreshTransactionIfStale(wallet, transactionInfo);
     } catch (e, stacktrace) {
       printV("refreshing the transaction failed: $e");
       printV(stacktrace);
     }
   }
 
-  bool _feeResolutionWatchStarted = false;
+  /// Asks the resolver to try this tx again after it gave up (see
+  /// [feeFetchFailed]).
+  void retryAmountResolution() => bitcoin!.prioritizeTransactionResolution(wallet, transactionInfo);
 
-  /// Starts watching this tx's resolution if it hasn't already - the
-  /// constructor skips this eagerly for a receive (see above); called once
-  /// Advanced Info is opened.
-  void _startWatchingFeeResolution() {
-    if (!isFetchingFee || _feeResolutionWatchStarted) {
-      return;
-    }
-    _feeResolutionWatchStarted = true;
-    _watchFeeResolution();
-  }
-
-  /// Starts watching this tx's resolution if it hasn't already.
-  /// Called once Advanced Info is opened.
-  void ensureFeeResolutionWatched() {
-    _startWatchingFeeResolution();
-  }
-
-  /// (Re)builds [items]/[advancedItems] from [TxDetailRowDefinition.defs].
-  /// Called at construction and again once resolution completes (see
-  /// _applyResolvedFee) so newly-applicable rows appear without a fresh
-  /// page navigation.
-  void _rebuildStandardItems() {
+  /// Rows from [TxDetailRowDefinition.defs] for the main view, or with
+  /// [advanced] the Advanced Info view. Rebuilt whenever the tx resolves
+  /// further, since the defs read [transactionInfo].
+  List<TransactionDetailsListItem> _buildItems({required bool advanced}) {
     final newItems = <TransactionDetailsListItem>[];
-    final newAdvancedItems = <TransactionDetailsListItem>[];
 
     for (final def in TxDetailRowDefinition.defs) {
-      if (def.applicable(this)) {
-        final listItem = def.listItemBuilder(
+      if (def.advanced == advanced && def.applicable(this)) {
+        newItems.add(def.listItemBuilder(
           title: def.title,
           value: def.valueGetter(this),
           key: ValueKey(def.keyString),
-        ) as TransactionDetailsListItem;
-
-        if (def.advanced) {
-          newAdvancedItems.add(listItem);
-        } else {
-          newItems.add(listItem);
-        }
+        ) as TransactionDetailsListItem);
       }
     }
 
-    if (showRecipientAddress && !isRecipientAddressShown) {
+    if (!advanced && showRecipientAddress && !isRecipientAddressShown) {
       final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
       final description = transactionDescriptionBox.values.firstWhere(
         (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
@@ -426,46 +390,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       }
     }
 
-    items = newItems;
-    advancedItems = newAdvancedItems;
-  }
-
-  @action
-  Future<void> _watchFeeResolution() async {
-    try {
-      final resolved = await bitcoin!.watchTransactionResolution(
-        wallet,
-        transactionInfo,
-        onProgress: (resolved, total) => runInAction(() => _setFeeFetchProgress(resolved, total)),
-      );
-      if (resolved != null) {
-        _applyResolvedFee(resolved);
-      }
-    } finally {
-      isFetchingFee = false;
-    }
-  }
-
-  @action
-  void _setFeeFetchProgress(int resolved, int total) {
-    feeFetchResolvedInputs = resolved;
-    feeFetchTotalInputs = total;
-  }
-
-  @action
-  void _applyResolvedFee(TransactionInfo resolved) {
-    // Update amount/direction too, not just fee/additionalInfo: for a
-    // partial-ownership send, the pre-resolution amount depends on the same
-    // input resolution this fetch just completed.
-    transactionInfo.amount = resolved.amount;
-    transactionInfo.direction = resolved.direction;
-    transactionInfo.fee = resolved.fee;
-    transactionInfo.additionalInfo = resolved.additionalInfo;
-
-    // An in-place refresh can add owned inputs/outputs without changing the
-    // history length the breakdown cache is keyed on.
-    _addressBreakdownCache = null;
-    _rebuildStandardItems();
+    return newItems;
   }
 
   void updateNote(String note) {
@@ -492,29 +417,63 @@ abstract class TransactionDetailsViewModelBase with Store {
     return description?.transactionNote ?? "";
   }
 
-  final TransactionInfo transactionInfo;
+  /// The wallet's current instance of this tx. The caller's object can be
+  /// older (background resolution and the stale recheck replace history
+  /// entries with new instances), and reading it through the observable
+  /// history map is what rebuilds the view as the tx resolves.
+  TransactionInfo get transactionInfo =>
+      wallet.transactionHistory.transactions[_openedTransactionInfo.id] ?? _openedTransactionInfo;
+
+  final TransactionInfo _openedTransactionInfo;
+
   final Box<TransactionDescription> transactionDescriptionBox;
   final WalletBase wallet;
   final SendViewModel sendViewModel;
   final AppStore _appStore;
 
-  // Not final: _rebuildStandardItems() reassigns these once a fee fetch
-  // resolves, so newly-applicable rows appear without a fresh navigation.
-  @observable
-  List<TransactionDetailsListItem> items;
-  @observable
-  List<TransactionDetailsListItem> advancedItems;
+  @computed
+  List<TransactionDetailsListItem> get items => _buildItems(advanced: false);
+
+  @computed
+  List<TransactionDetailsListItem> get advancedItems => _buildItems(advanced: true);
+
   final List<TransactionDetailsListItem> rbfListItems;
 
-  @observable
-  bool isFetchingFee = false;
+  ({int resolvedInputs, int totalInputs, bool hasFailed})? get _resolutionProgress =>
+      electrumWalletTypes.contains(wallet.type)
+          ? bitcoin!.transactionResolutionProgress(wallet, transactionInfo)
+          : null;
 
-  // Inputs resolved so far while isFetchingFee is true (e.g. "120/365").
-  // feeFetchTotalInputs is 0 until the target tx's input count is known.
-  @observable
-  int feeFetchResolvedInputs = 0;
-  @observable
-  int feeFetchTotalInputs = 0;
+  @computed
+  bool get isFetchingFee =>
+      electrumWalletTypes.contains(wallet.type) &&
+      transactionInfo.fee == null &&
+      !(_resolutionProgress?.hasFailed ?? false);
+
+  // Inputs resolved so far while isFetchingFee is true (e.g. "120/365"). Live
+  // progress once the resolver reaches this tx; until then, what its last
+  // pass recorded, so the count shows while it waits its turn.
+  @computed
+  int get feeFetchTotalInputs {
+    final progress = _resolutionProgress;
+    if (progress != null && progress.totalInputs > 0) {
+      return progress.totalInputs;
+    }
+
+    return transactionInfo.additionalInfo["totalInputCount"] as int? ?? 0;
+  }
+
+  @computed
+  int get feeFetchResolvedInputs {
+    final progress = _resolutionProgress;
+    if (progress != null && progress.totalInputs > 0) {
+      return progress.resolvedInputs;
+    }
+
+    final unresolvedInputCount =
+        (transactionInfo.additionalInfo["unresolvedInputTxids"] as List?)?.length ?? 0;
+    return feeFetchTotalInputs - unresolvedInputCount;
+  }
 
   bool get hasAdvancedInfo => advancedItems.isNotEmpty || hasAddressBreakdown;
   bool get hasAddressBreakdown => addressBreakdown.isNotEmpty;
@@ -605,8 +564,9 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   bool get isAmountPending => transactionInfo.isAmountPending;
 
+  /// The amount is still unknown and the resolver gave up on it.
   @computed
-  bool get feeFetchFailed => !isFetchingFee && isAmountPending;
+  bool get feeFetchFailed => isAmountPending && (_resolutionProgress?.hasFailed ?? false);
 
   String _formatCrypto(Money money) =>
       _appStore.amountParsingProxy.asDisplayStringWithSymbol(money);
@@ -629,10 +589,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       return null;
     }
 
-    return Money.fromInt(
-      transactionInfo.amount.amount.toInt() + fee.amount.toInt(),
-      transactionAsset,
-    );
+    return transactionInfo.amount + fee;
   }
 
   @computed
@@ -669,17 +626,24 @@ abstract class TransactionDetailsViewModelBase with Store {
   // reuses the cache, since it adds no new address association.
   List<TransactionAddressBreakdownItem>? _addressBreakdownCache;
   int? _addressBreakdownCacheHistoryLength;
+  TransactionInfo? _addressBreakdownCacheTransaction;
 
   List<TransactionAddressBreakdownItem> get addressBreakdown {
     final historyLength = wallet.transactionHistory.transactions.length;
+    final tx = transactionInfo;
 
-    if (_addressBreakdownCache != null && _addressBreakdownCacheHistoryLength == historyLength) {
+    // Also keyed on the tx instance: resolution replaces it with one that can
+    // add owned inputs/outputs without changing the history length.
+    if (_addressBreakdownCache != null &&
+        _addressBreakdownCacheHistoryLength == historyLength &&
+        identical(_addressBreakdownCacheTransaction, tx)) {
       return _addressBreakdownCache!;
     }
 
     final result = _computeAddressBreakdown();
     _addressBreakdownCache = result;
     _addressBreakdownCacheHistoryLength = historyLength;
+    _addressBreakdownCacheTransaction = tx;
     return result;
   }
 

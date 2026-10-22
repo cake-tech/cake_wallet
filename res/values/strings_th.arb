@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "ยังไม่ได้ชำระ",
   "trades": "การเทรด",
   "transaction": "ธุรกรรม",
+  "transaction_amount_load_failed": "ไม่สามารถโหลดจำนวนเงินได้",
   "transaction_commited": "ธุรกรรมถูกบันทึกแล้ว",
   "transaction_cost": "ค่าธรรมเนียมธุรกรรม",
   "transaction_details_amount": "จำนวน",

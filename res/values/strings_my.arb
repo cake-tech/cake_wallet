@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "မပေးချေရသေး",
   "trades": "အရောင်းအဝယ်များ",
   "transaction": "ငွေလွှဲခြင်း",
+  "transaction_amount_load_failed": "ပမာဏကို တင်၍မရပါ။",
   "transaction_commited": "ငွေလွှဲမှု အတည်ပြုပြီးပါပြီ",
   "transaction_cost": "ငွေလွှဲခ ကုန်ကျစရိတ်",
   "transaction_details_amount": "ပမာဏ",

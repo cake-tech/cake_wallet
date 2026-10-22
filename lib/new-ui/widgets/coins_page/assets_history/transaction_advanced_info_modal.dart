@@ -28,8 +28,8 @@ class TransactionAdvancedInfoModal extends StatelessWidget {
             children: [
               ModalTopBar(
                 title: S.of(context).advanced_info,
-                leadingIcon: const Icon(Icons.close),
-                leadingSemanticLabel: S.of(context).close,
+                leadingIcon: const Icon(Icons.arrow_back_ios_new),
+                leadingSemanticLabel: S.of(context).seed_alert_back,
                 onLeadingPressed: Navigator.of(context).pop,
               ),
               Expanded(

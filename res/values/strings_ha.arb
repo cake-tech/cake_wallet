@@ -1423,6 +1423,7 @@
   "trade_state_unpaid": "Ba a biya ba",
   "trades": "Kasuwanci",
   "transaction": "Ma'amala",
+  "transaction_amount_load_failed": "An kasa loda adadin",
   "transaction_commited": "An tabbatar da ma'amala",
   "transaction_cost": "Kudin ma'amala",
   "transaction_details_amount": "Adadi",

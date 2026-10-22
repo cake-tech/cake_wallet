@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "Nezaplaceno",
   "trades": "Obchody",
   "transaction": "Transakce",
+  "transaction_amount_load_failed": "Částku se nepodařilo načíst",
   "transaction_commited": "Transakce potvrzena",
   "transaction_cost": "Náklady transakce",
   "transaction_details_amount": "Částka",

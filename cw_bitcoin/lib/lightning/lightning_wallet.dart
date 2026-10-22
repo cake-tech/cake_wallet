@@ -477,7 +477,6 @@ class LightningWallet {
       fee: Money(payment.fees, currency),
       date: DateTime.fromMillisecondsSinceEpoch(payment.timestamp.toInt() * 1000),
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
-      inputsOwnershipFullyResolved: true,
       additionalInfo: {
         "isLightning": true,
         if (preimage != null) "preimage": preimage,
@@ -495,7 +494,6 @@ class LightningWallet {
         fee: Money.zero(currency),
         date: DateTime.now(),
         confirmations: 0,
-        inputsOwnershipFullyResolved: true,
         additionalInfo: {"isLightning": true, "isSparkDeposit": true},
       );
 }

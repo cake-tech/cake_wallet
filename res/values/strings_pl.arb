@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "Nieopłacone",
   "trades": "Transakcje",
   "transaction": "Transakcja",
+  "transaction_amount_load_failed": "Nie udało się wczytać kwoty",
   "transaction_commited": "Transakcja zatwierdzona",
   "transaction_cost": "Koszt transakcji",
   "transaction_details_amount": "Kwota",

@@ -13,6 +13,7 @@ import "package:cake_wallet/src/widgets/fee_fetch_progress_indicator.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
+import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -94,15 +95,7 @@ class _TransactionDetailsHeader extends StatelessWidget {
   final TransactionDetailsViewModel transactionDetailsViewModel;
 
   @override
-  Widget build(BuildContext context) => Observer(
-        builder: (context) {
-          // transactionInfo isn't observable; reading the resolution
-          // observables is what rebuilds the title/fiat amount once
-          // background resolution updates direction or amount.
-          final _ = transactionDetailsViewModel.isFetchingFee;
-          return _buildContent(context);
-        },
-      );
+  Widget build(BuildContext context) => Observer(builder: _buildContent);
 
   Widget _buildContent(BuildContext context) => Column(
         children: [
@@ -141,27 +134,31 @@ class _TransactionDetailsAmount extends StatelessWidget {
   Widget build(BuildContext context) => Observer(
         builder: (context) {
           final vm = transactionDetailsViewModel;
-          // isAmountPending is only true while ownership is unresolved
-          // (see fromElectrumBundle) - reading
-          // isFetchingFee/feeFetchFailed here (the same
-          // observables the fee row reacts to) is what makes
-          // this rebuild once resolution actually progresses,
-          // since transactionInfo.amount itself isn't observable.
+          // isAmountPending is only true while ownership is unresolved (see
+          // fromElectrumBundle); this rebuilds as the live tx resolves.
           if (vm.isAmountPending) {
-            if (vm.isFetchingFee) {
-              return FeeFetchProgressIndicator(
-                resolved: vm.feeFetchResolvedInputs,
-                total: vm.feeFetchTotalInputs,
-                diameter: 40,
+            if (vm.feeFetchFailed) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    S.of(context).transaction_amount_load_failed,
+                    style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.error),
+                  ),
+                  TextButton(
+                    key: const ValueKey("transaction_details_amount_retry_button_key"),
+                    onPressed: vm.retryAmountResolution,
+                    child: Text(S.of(context).try_again),
+                  ),
+                ],
               );
             }
 
-            if (vm.feeFetchFailed) {
-              return Text(
-                "…",
-                style: TextStyle(fontSize: 28, color: Theme.of(context).colorScheme.onSurface),
-              );
-            }
+            return FeeFetchProgressIndicator(
+              resolved: vm.feeFetchResolvedInputs,
+              total: vm.feeFetchTotalInputs,
+              diameter: 40,
+            );
           }
 
           return CopyWrapper(
@@ -515,21 +512,13 @@ class _TransactionDetailsActionsSection extends StatelessWidget {
       );
 
   void _showAdvancedInfo(BuildContext context) {
-    transactionDetailsViewModel.ensureFeeResolutionWatched();
-    showModalBottomSheet<void>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      // Matches the heightFactor cap this transaction
-      // details modal itself is shown with (see
-      // history_section.dart) - without it this sheet
-      // has nothing capping its height, so it grows all
-      // the way to the top of the screen.
-      builder: (_) => FractionallySizedBox(
-        heightFactor: 0.9,
-        child:
-            TransactionAdvancedInfoModal(transactionDetailsViewModel: transactionDetailsViewModel),
+    Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => Material(
+          child: TransactionAdvancedInfoModal(
+            transactionDetailsViewModel: transactionDetailsViewModel,
+          ),
+        ),
       ),
     );
   }

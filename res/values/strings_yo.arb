@@ -1422,6 +1422,7 @@
   "trade_state_unpaid": "A kò tíì san",
   "trades": "Àwọn ìṣòwò",
   "transaction": "Idunadura",
+  "transaction_amount_load_failed": "Ko le gbe iye naa",
   "transaction_commited": "Idunadura ti fọwọsi",
   "transaction_cost": "Iye Iṣowo",
   "transaction_details_amount": "Iye",

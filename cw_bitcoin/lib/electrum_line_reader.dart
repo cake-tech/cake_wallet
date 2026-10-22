@@ -10,6 +10,8 @@ import 'dart:convert';
 /// That's why we scan for `\n` (0x0A) in the raw bytes instead of decoding
 /// each chunk to text first.
 class ElectrumLineReader {
+  static const int _lineFeed = 0x0A;
+
   final List<int> _buffer = <int>[];
 
   /// Feeds newly received bytes and returns every complete line (decoded as
@@ -21,7 +23,7 @@ class ElectrumLineReader {
     final newlines = <String>[];
     var previousNewlineStart = 0;
     for (var i = 0; i < _buffer.length; i++) {
-      if (_buffer[i] == 0x0A) {
+      if (_buffer[i] == _lineFeed) {
         // Decode only the bytes between the previous newline and this one -
         // each is a self-contained message, so decoding line-by-line (rather
         // than the whole buffer at once) avoids re-decoding already-emitted

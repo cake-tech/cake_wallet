@@ -1423,6 +1423,7 @@
   "trade_state_unpaid": "Não pago",
   "trades": "Negociações",
   "transaction": "Transação",
+  "transaction_amount_load_failed": "Não foi possível carregar o valor",
   "transaction_commited": "Transação confirmada",
   "transaction_cost": "Custo da transação",
   "transaction_details_amount": "Valor",

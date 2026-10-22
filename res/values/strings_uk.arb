@@ -1422,6 +1422,7 @@
   "trade_state_unpaid": "Не оплачено",
   "trades": "Угоди",
   "transaction": "Транзакція",
+  "transaction_amount_load_failed": "Не вдалося завантажити суму",
   "transaction_commited": "Транзакцію підтверджено",
   "transaction_cost": "Вартість транзакції",
   "transaction_details_amount": "Сума",

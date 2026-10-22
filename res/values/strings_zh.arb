@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "未付款",
   "trades": "交易",
   "transaction": "交易",
+  "transaction_amount_load_failed": "无法加载金额",
   "transaction_commited": "交易已提交",
   "transaction_cost": "交易费用",
   "transaction_details_amount": "金额",

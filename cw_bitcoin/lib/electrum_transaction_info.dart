@@ -39,16 +39,31 @@ class ElectrumTransactionInfo extends TransactionInfo {
     return b.length == 34 && b[0] == 88 && b[1] == 32;
   }
 
+  /// Used instead of bitcoin_base's `getVSize`, which rebuilds its witness
+  /// byte list on every witness.
+  static int virtualSize(BtcTransaction tx) {
+    final strippedSize = tx.toBytes(segwit: false).length;
+    if (!tx.hasSegwit) {
+      return strippedSize;
+    }
+
+    final fullSize = tx.toBytes(segwit: true).length;
+    return (strippedSize * 3 + fullSize + 3) ~/ 4;
+  }
+
   int? accountIndex;
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
   bool isHogEx;
 
   /// Whether every input's ownership has been settled, so ownership,
-  /// direction and amount need no further resolution. History saved without
-  /// the flag defaults to `false`, so it gets re-resolved after an upgrade.
+  /// direction and amount need no further resolution.
   @override
-  bool inputsOwnershipFullyResolved;
+  bool get inputsOwnershipFullyResolved => isLightning || _inputsOwnershipFullyResolved;
+
+  final bool _inputsOwnershipFullyResolved;
+
+  bool get isLightning => additionalInfo["isLightning"] == true;
 
   ElectrumTransactionInfo(
     this.type, {
@@ -68,9 +83,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.unspents,
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
-    this.inputsOwnershipFullyResolved = false,
+    bool inputsOwnershipFullyResolved = true,
     Map<String, dynamic>? additionalInfo,
-  }) {
+  }) : _inputsOwnershipFullyResolved = inputsOwnershipFullyResolved {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -140,7 +155,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, int? height}) {
+      {required Set<String> addresses, int? height, DerivedTransactionAddresses? derived}) {
+    // Pass [derived] when rebuilding the same tx repeatedly (e.g. as its
+    // parents resolve) to skip re-deriving every input's pubkey addresses.
+    derived ??= DerivedTransactionAddresses.derive(bundle.originalTransaction, addresses, network);
+
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();
@@ -166,15 +185,14 @@ class ElectrumTransactionInfo extends TransactionInfo {
     for (var i = 0; i < totalInputCount; i++) {
       final input = bundle.originalTransaction.inputs[i];
       final spentOutput = spentOutputAt(bundle.originalTransaction, bundle.ins, i);
-      final witness = witnessAt(bundle.originalTransaction, i);
 
       // Ownership is derivable directly from the input's own scriptSig/witness
       // data (no prevout needed), so it's known even when the parent tx is
       // unresolved. `null` means genuinely unknown (e.g. P2TR key-path) - as
       // opposed to `false`, which means every input shape was parseable and
       // confirmed not ours.
-      final ownershipFromInputData =
-          isInputOwnedByWitnessOrScriptSig(input, witness, addresses, network);
+      final inputOwnership = derived.inputOwnership[i];
+      final ownershipFromInputData = inputOwnership.isOwnedBy(addresses);
       final inputConfirmedOwnedByInputData = ownershipFromInputData ?? false;
 
       // Input tx not yet fetched to check the spent output against - fall back to
@@ -192,6 +210,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
         if (inputConfirmedOwnedByInputData) {
           ownedInputCount++;
           direction = TransactionDirection.outgoing;
+          // The address is known from the input data; its amount isn't until
+          // the parent is fetched, so it isn't in ownedInputs yet.
+          inputAddresses.add(inputOwnership.address!);
         }
         continue;
       }
@@ -223,7 +244,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       final out = bundle.originalTransaction.outputs[voutIndex];
       totalOutAmount += out.amount.toInt();
 
-      final outputAddress = addressFromOutputScript(out.scriptPubKey, network);
+      final outputAddress = derived.outputAddresses[voutIndex];
       final addressExistsInOurAddresses = addresses.contains(outputAddress);
 
       if (outputAddress.isNotEmpty) {
@@ -358,7 +379,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     final walletCurrency = walletTypeToCryptoCurrency(type);
     final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;
-    final txSize = bundle.originalTransaction.getVSize();
+    final txSize = virtualSize(bundle.originalTransaction);
     return ElectrumTransactionInfo(
       type,
       id: bundle.originalTransaction.txId(),
@@ -420,8 +441,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
-      inputsOwnershipFullyResolved:
-          isLightning || (data['inputsOwnershipFullyResolved'] as bool? ?? false),
+      inputsOwnershipFullyResolved: data['inputsOwnershipFullyResolved'] as bool? ?? false,
       additionalInfo: additionalInfo,
     );
   }

@@ -1422,6 +1422,7 @@
   "trade_state_unpaid": "No pagado",
   "trades": "Operaciones",
   "transaction": "Transacción",
+  "transaction_amount_load_failed": "No se pudo cargar la cantidad",
   "transaction_commited": "Transacción confirmada",
   "transaction_cost": "Costo de transacción",
   "transaction_details_amount": "Cantidad",

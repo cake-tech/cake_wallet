@@ -1423,6 +1423,7 @@
   "trade_state_unpaid": "غیر ادا شدہ",
   "trades": "تبادلے",
   "transaction": "لین دین",
+  "transaction_amount_load_failed": "رقم لوڈ نہیں ہو سکی",
   "transaction_commited": "ٹرانزیکشن مکمل ہو گئی",
   "transaction_cost": "لین دین کی لاگت",
   "transaction_details_amount": "رقم",

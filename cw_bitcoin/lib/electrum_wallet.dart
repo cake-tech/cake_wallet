@@ -2415,7 +2415,8 @@ abstract class ElectrumWalletBase
     _updateCurrentAccountBalance();
   }
 
-  int transactionVSize(String transactionHex) => BtcTransaction.fromRaw(transactionHex).getVSize();
+  int transactionVSize(String transactionHex) =>
+      ElectrumTransactionInfo.virtualSize(BtcTransaction.fromRaw(transactionHex));
 
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
@@ -2856,9 +2857,13 @@ abstract class ElectrumWalletBase
       final net = network;
       final addresses = addressesSet;
       final addressesByAccount = addressesSetByAccount;
-      final infosByHash = await buildElectrumTransactionInfosInIsolate(
-        ({hash: bundle}, type, net, addresses, addressesByAccount, {hash: height}),
-      );
+
+      final args = ({hash: bundle}, type, net, addresses, addressesByAccount, {hash: height});
+      // An ordinary tx builds faster inline than an isolate spawn costs.
+      final infosByHash = bundle.originalTransaction.inputs.length > maxInputsToProcessInline
+          ? await buildElectrumTransactionInfosInIsolate(args)
+          : buildElectrumTransactionInfos(args, null);
+
       return infosByHash[hash];
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
@@ -2873,13 +2878,13 @@ abstract class ElectrumWalletBase
     }
   }
 
-  /// Watches a single transaction's resolution for the transaction details
-  /// page - see [ElectrumTransactionResolver.watchTransactionResolution].
-  Future<ElectrumTransactionInfo?> watchTransactionResolution(
-    String txId, {
-    void Function(int resolved, int total)? onProgress,
-  }) =>
-      _transactionResolver.watchTransactionResolution(txId, onProgress: onProgress);
+  /// Resolves [txId] ahead of the background queue.
+  void prioritizeTransactionResolution(String txId) => _transactionResolver.prioritize(txId);
+
+  /// Observable progress of a prioritized tx, or null when it isn't
+  /// prioritized.resolutionProgress].
+  TransactionResolutionProgress? transactionResolutionProgress(String txId) =>
+      _transactionResolver.resolutionProgress[txId];
 
   /// Brings one transaction up to date right now - ahead of the sync-wide
   /// recheck and resolution queue - for the transaction details page. Returns

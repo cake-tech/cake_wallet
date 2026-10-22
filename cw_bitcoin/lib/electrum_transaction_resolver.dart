@@ -1,11 +1,15 @@
 import "dart:async";
 
+import "package:bitcoin_base/bitcoin_base.dart";
+
 import "package:cw_bitcoin/electrum_transaction_info.dart";
 import "package:cw_bitcoin/electrum_transaction_isolate.dart";
 import "package:cw_bitcoin/electrum_wallet.dart";
+import "package:cw_bitcoin/input_ownership.dart";
 import "package:cw_core/get_height_by_date.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:flutter/foundation.dart";
+import "package:mobx/mobx.dart";
 
 /// Resolves fee/ownership/direction details for transactions that the
 /// initial sync (see [ElectrumWalletBase.getTransactionExpanded]) left
@@ -65,23 +69,26 @@ class ElectrumTransactionResolver {
   // Set when resolvePending is called mid-run: that run's queue was built
   // before the new txs landed in history, so another run must pick them up.
   bool _isRerunRequested = false;
-  // Callers waiting on a specific txid register in _resolutionWaiters and are notified once
-  // the loop gets to it.
-  final Map<String, Completer<ElectrumTransactionInfo?>> _resolutionWaiters = {};
-  final Map<String, List<void Function(int resolved, int total)>> _feeFetchProgressListeners = {};
+  // Txs the user has open, served ahead of the background queue.
+  final Set<String> _prioritizedTxIds = {};
 
-  /// Attempts spent so far per watched txid, and the earliest time its next
-  /// attempt may start. A waiter is only completed once its tx is actually
-  /// resolved or [_maxWatchAttempts] is exhausted - never after a single
-  /// failed/partial attempt.
-  final Map<String, int> _watchAttempts = {};
-  final Map<String, DateTime> _watchRetryNotBefore = {};
-  static const int _maxWatchAttempts = 5;
-  static const Duration _watchRetryBaseDelay = Duration(seconds: 1);
-  static const Duration _watchRetryMaxDelay = Duration(seconds: 4);
+  /// Progress of each prioritized tx.
+  final ObservableMap<String, TransactionResolutionProgress> resolutionProgress = ObservableMap();
 
-  // Completed by watchTransactionResolution to cut short the loop's idle wait
-  // between retries when a new watcher arrives.
+  /// Parents already parsed for a background tx that paused mid-resolution
+  final Map<String, Map<String, BtcTransaction>> _parsedParentsOfPausedTransaction = {};
+
+  /// Attempts spent so far per prioritized txid, and the earliest time its
+  /// next attempt may start. A tx stays prioritized until it's actually
+  /// resolved or [_maxPriorityAttempts].
+  final Map<String, int> _priorityAttempts = {};
+  final Map<String, DateTime> _priorityRetryNotBefore = {};
+  static const int _maxPriorityAttempts = 5;
+  static const Duration _priorityRetryBaseDelay = Duration(seconds: 1);
+  static const Duration _priorityRetryMaxDelay = Duration(seconds: 4);
+
+  // Completed by [prioritize] to cut short the loop's idle wait between
+  // retries when a newly prioritized tx arrives.
   Completer<void>? _wake;
 
   // Set by stop() (see ElectrumWalletBase.close) so a run in progress stops
@@ -93,33 +100,19 @@ class ElectrumTransactionResolver {
   }
 
   /// Input-resolution chunk size for [_resolveTransactionDetails].
-  /// Deliberately much smaller than [ElectrumWalletBase.transactionChunkSize]
-  /// (150, used elsewhere for whole-batch history fetches): a transaction
-  /// can have hundreds of inputs, and resolving it in small batches gives
-  /// [watchTransactionResolution]'s progress callback frequent, meaningful
-  /// updates instead of one long unbroken fetch+parse+persist step.
+  /// a transaction can have hundreds of inputs, allows for
+  /// [resolutionProgress] to move in steps.
   static const int _resolutionInputChunkSize = 25;
 
-  /// Base timeout for the network calls in [_resolveTransactionDetails] -
-  /// deliberately shorter than [ElectrumWalletBase.transactionBatchTimeoutMs]
-  /// (15s). This resolves one transaction's inputs at a time, often while a
-  /// UI progress indicator is watching it, so a slow/unfetchable chunk
-  /// should fail fast and move on rather than stalling visible progress.
+  /// Base timeout for the network calls in [_resolveTransactionDetails]
+  /// does not allow for a slow/unfetchable chunk of inputs to fail or
+  /// stall visible progress.
   static const int _resolutionBatchTimeoutMs = 6 * 1000;
 
-  /// Upper bound for the escalating per-txid timeout (see
-  /// [_timeoutMsFor]) - a transaction that's merely large (not actually
-  /// unfetchable) should eventually get a budget generous enough to
-  /// succeed, but this still bounds how long one attempt can take.
+  /// Max timeout for a whole transaction's resolution.
   static const int _maxResolutionBatchTimeoutMs = 48 * 1000;
 
-  /// Consecutive resolution failures per txid. A large transaction's own
-  /// verbose/hex fetch (see [_resolveTransactionDetails]'s initial fetch,
-  /// as opposed to the chunked input fetches) is a single request, not a
-  /// small batch - [_resolutionBatchTimeoutMs] can be too short for it,
-  /// and [ElectrumWalletBase._processChunksToMap] swallows that timeout
-  /// silently (no exception, no log), which previously meant the same
-  /// too-short timeout got retried forever with no visible signal at all.
+  /// Consecutive resolution failures per txid.
   final Map<String, int> _consecutiveFailures = {};
 
   /// Doubles the base timeout per consecutive failure for [txId], capped at
@@ -130,30 +123,27 @@ class ElectrumTransactionResolver {
     return scaled > _maxResolutionBatchTimeoutMs ? _maxResolutionBatchTimeoutMs : scaled;
   }
 
-  /// Register interest in [txId]'s resolution for the transaction details
-  /// page, resolved whenever the shared background loop naturally reaches
-  /// it. Returns the stored info as-is if it's already resolved.
+  /// Serves [txId] ahead of the background queue - for the transaction the
+  /// user has open - and reports its progress in [resolutionProgress]. Does
+  /// nothing if it's already resolved.
   ///
-  /// The future completes with the resolved info, or with null once
-  /// [_maxWatchAttempts] attempts (with escalating timeouts) have failed or
-  /// the resolver was stopped. Failed attempts are retried with backoff.
-  ///
-  /// [onProgress] fires after every input batch. Concurrent calls for the
-  /// same [txId] share one result instead of duplicating work.
-  Future<ElectrumTransactionInfo?> watchTransactionResolution(
-    String txId, {
-    void Function(int resolved, int total)? onProgress,
-  }) {
+  /// Failed attempts are retried with backoff; once [_maxPriorityAttempts]
+  /// have failed its progress is marked failed, and calling this again
+  /// starts over.
+  void prioritize(String txId) {
     final existingTxInfo = _wallet.transactionHistory.transactions[txId];
     if (existingTxInfo != null && !existingTxInfo.needsResolution) {
-      return Future.value(existingTxInfo);
+      return;
     }
 
-    if (onProgress != null) {
-      (_feeFetchProgressListeners[txId] ??= <void Function(int, int)>[]).add(onProgress);
+    if (_prioritizedTxIds.add(txId)) {
+      final previous = resolutionProgress[txId];
+      resolutionProgress[txId] = TransactionResolutionProgress(
+        resolvedInputs: previous?.resolvedInputs ?? 0,
+        totalInputs: previous?.totalInputs ?? 0,
+      );
     }
 
-    final waiter = _resolutionWaiters.putIfAbsent(txId, Completer<ElectrumTransactionInfo?>.new);
     final wake = _wake;
     if (wake != null && !wake.isCompleted) {
       wake.complete();
@@ -162,12 +152,14 @@ class ElectrumTransactionResolver {
     // Ensures the background loop is actually running (e.g. it may have
     // drained its last pending queue and gone idle since the last sync).
     _ensureResolutionLoopRunning();
-    return waiter.future;
   }
 
-  void _reportFeeFetchProgress(String txId, int resolved, int total) {
-    for (final listener in _feeFetchProgressListeners[txId] ?? const []) {
-      listener(resolved, total);
+  void _reportProgress(String txId, int resolvedInputs, int totalInputs) {
+    if (_prioritizedTxIds.contains(txId)) {
+      resolutionProgress[txId] = TransactionResolutionProgress(
+        resolvedInputs: resolvedInputs,
+        totalInputs: totalInputs,
+      );
     }
   }
 
@@ -175,7 +167,9 @@ class ElectrumTransactionResolver {
     if (_stopped || _isResolvingTransactions) {
       return;
     }
+
     _isResolvingTransactions = true;
+
     unawaited(
       _runResolutionLoop().whenComplete(() {
         _isResolvingTransactions = false;
@@ -184,9 +178,9 @@ class ElectrumTransactionResolver {
         _isRerunRequested = false;
 
         if (_stopped) {
-          _failAllWaiters();
-        } else if (_resolutionWaiters.isNotEmpty || isRerunRequested) {
-          // A watcher registered, or new txs landed, while the loop was
+          _clearPrioritized();
+        } else if (_prioritizedTxIds.isNotEmpty || isRerunRequested) {
+          // A tx was prioritized, or new txs landed, while the loop was
           // winding down.
           _ensureResolutionLoopRunning();
         }
@@ -194,11 +188,7 @@ class ElectrumTransactionResolver {
     );
   }
 
-  /// Processes the pending queue one transaction at a time (ownership-
-  /// incomplete before fee-only, newest-first within each). Backs both the
-  /// background pass and watchTransactionResolution, which just attaches a
-  /// waiter for a txid. A tx that fails to resolve simply stays pending and
-  /// is retried whenever this loop next runs.
+  /// Processes the pending queue one transaction at a time.
   Future<void> _runResolutionLoop() async {
     // Built once per run and reused, not rebuilt on every pick. Sorted
     // so the top-priority candidate is last.
@@ -213,13 +203,14 @@ class ElectrumTransactionResolver {
       // that never make a network call can't block the UI from staying responsive.
       await Future<void>.delayed(Duration.zero);
 
-      final txId = _nextWatchedTxId() ?? _nextBackgroundTxId(pendingQueue ??= _buildPendingQueue());
+      final txId =
+          _nextPrioritizedTxId() ?? _nextBackgroundTxId(pendingQueue ??= _buildPendingQueue());
       if (txId == null) {
-        if (_resolutionWaiters.isEmpty) {
+        if (_prioritizedTxIds.isEmpty) {
           break;
         }
 
-        // Only watched txs in retry backoff remain.
+        // Only prioritized txs in retry backoff remain.
         await _waitForRetryOrWake();
         continue;
       }
@@ -234,7 +225,6 @@ class ElectrumTransactionResolver {
       _finishAttempt(txId);
     }
 
-    // The last resolution(s) may still be throttled in memory, force a final save.
     try {
       await _maybePersistHistory(force: true);
     } catch (e, stacktrace) {
@@ -243,13 +233,17 @@ class ElectrumTransactionResolver {
     }
   }
 
-  /// A watched tx whose retry backoff has elapsed, if any - watched txs take
-  /// priority over the background queue.
-  String? _nextWatchedTxId() {
+  /// Whether background resolution of [txId] should pause so a prioritized
+  /// tx (one the user has open) doesn't wait behind a large tx's every chunk.
+  bool _shouldPauseForOpenedTransaction(String txId) =>
+      !_prioritizedTxIds.contains(txId) && _nextPrioritizedTxId() != null;
+
+  /// A prioritized tx whose retry backoff has elapsed, if any.
+  String? _nextPrioritizedTxId() {
     final now = DateTime.now();
 
-    for (final txId in _resolutionWaiters.keys) {
-      final notBefore = _watchRetryNotBefore[txId];
+    for (final txId in _prioritizedTxIds) {
+      final notBefore = _priorityRetryNotBefore[txId];
 
       if (notBefore == null || !notBefore.isAfter(now)) {
         return txId;
@@ -263,8 +257,8 @@ class ElectrumTransactionResolver {
     while (pendingQueue.isNotEmpty) {
       final candidate = pendingQueue.removeLast();
 
-      // Watched txs are driven by _nextWatchedTxId (including their backoff).
-      if (_resolutionWaiters.containsKey(candidate)) {
+      // Prioritized txs are driven by _nextPrioritizedTxId (including their backoff).
+      if (_prioritizedTxIds.contains(candidate)) {
         continue;
       }
 
@@ -280,13 +274,14 @@ class ElectrumTransactionResolver {
     return null;
   }
 
-  /// Sleeps until the earliest watched retry is due, or a new watcher arrives.
+  /// Sleeps until the earliest prioritized retry is due, or a new tx is
+  /// prioritized.
   Future<void> _waitForRetryOrWake() async {
     final now = DateTime.now();
-    var delay = _watchRetryMaxDelay;
+    var delay = _priorityRetryMaxDelay;
 
-    for (final txId in _resolutionWaiters.keys) {
-      final remaining = (_watchRetryNotBefore[txId] ?? now).difference(now);
+    for (final txId in _prioritizedTxIds) {
+      final remaining = (_priorityRetryNotBefore[txId] ?? now).difference(now);
 
       if (remaining < delay) {
         delay = remaining;
@@ -299,49 +294,58 @@ class ElectrumTransactionResolver {
     _wake = null;
   }
 
-  /// Settles the waiter for [txId] after an attempt: completes it only when
-  /// the tx is resolved or attempts are exhausted, otherwise schedules a retry.
+  /// After an attempt on a prioritized [txId]: stops prioritizing it once
+  /// it's resolved or attempts are exhausted, otherwise schedules a retry.
   void _finishAttempt(String txId) {
-    final waiter = _resolutionWaiters[txId];
-    if (waiter == null) {
+    if (!_prioritizedTxIds.contains(txId)) {
       return;
     }
 
     final stored = _wallet.transactionHistory.transactions[txId];
     if (stored != null && !stored.needsResolution) {
-      _completeWaiter(txId, stored);
+      _stopPrioritizing(txId, hasFailed: false);
       return;
     }
 
-    final attempts = (_watchAttempts[txId] ?? 0) + 1;
-    if (attempts >= _maxWatchAttempts) {
+    final attempts = (_priorityAttempts[txId] ?? 0) + 1;
+    if (attempts >= _maxPriorityAttempts) {
       printV("resolution loop: giving up on $txId after $attempts attempts");
-      _completeWaiter(txId, null);
+      _stopPrioritizing(txId, hasFailed: true);
       return;
     }
 
-    _watchAttempts[txId] = attempts;
-    final backoff = _watchRetryBaseDelay * (1 << (attempts - 1));
-    _watchRetryNotBefore[txId] =
-        DateTime.now().add(backoff > _watchRetryMaxDelay ? _watchRetryMaxDelay : backoff);
+    _priorityAttempts[txId] = attempts;
+    final backoff = _priorityRetryBaseDelay * (1 << (attempts - 1));
+    _priorityRetryNotBefore[txId] =
+        DateTime.now().add(backoff > _priorityRetryMaxDelay ? _priorityRetryMaxDelay : backoff);
   }
 
-  void _completeWaiter(String txId, ElectrumTransactionInfo? info) {
-    _resolutionWaiters.remove(txId)?.complete(info);
-    _feeFetchProgressListeners.remove(txId);
-    _watchAttempts.remove(txId);
-    _watchRetryNotBefore.remove(txId);
-  }
+  void _stopPrioritizing(String txId, {required bool hasFailed}) {
+    _prioritizedTxIds.remove(txId);
+    _priorityAttempts.remove(txId);
+    _priorityRetryNotBefore.remove(txId);
 
-  void _failAllWaiters() {
-    for (final txId in _resolutionWaiters.keys.toList()) {
-      _completeWaiter(txId, null);
+    final progress = resolutionProgress[txId];
+    if (!hasFailed || progress == null) {
+      resolutionProgress.remove(txId);
+      return;
     }
+
+    resolutionProgress[txId] = TransactionResolutionProgress(
+      resolvedInputs: progress.resolvedInputs,
+      totalInputs: progress.totalInputs,
+      hasFailed: true,
+    );
   }
 
-  /// Ownership-incomplete transactions before fee-only ones, newest-first
-  /// within each. Sorted in *ascending* priority (lowest-priority first) so
-  /// the intended pick order comes out via removeLast() - see [_runResolutionLoop].
+  void _clearPrioritized() {
+    _prioritizedTxIds.clear();
+    _priorityAttempts.clear();
+    _priorityRetryNotBefore.clear();
+    resolutionProgress.clear();
+  }
+
+  /// Ownership-incomplete transactions in *ascending* priority.
   List<String> _buildPendingQueue() =>
       buildPendingQueue(_wallet.transactionHistory.transactions.values);
 
@@ -371,12 +375,7 @@ class ElectrumTransactionResolver {
       return existingTxInfo;
     }
 
-    // A single whole-transaction fetch, not a small batch - unlike the
-    // chunked input fetches below, a large tx's own verbose/hex payload can
-    // genuinely need more than the base timeout, and a timeout here is
-    // swallowed silently (see _processChunksToMap), so without this escalation
-    // a merely-large (not actually unfetchable) transaction would retry at
-    // the same too-short timeout forever with zero visible progress.
+    // A single whole-transaction fetch
     final timeoutMs = _timeoutMsFor(txId);
     final targetVerbose = await _wallet.fetchTransactionVerboseBatch([txId], timeoutMs: timeoutMs);
     cacheVerboseHexes(targetVerbose);
@@ -387,7 +386,7 @@ class ElectrumTransactionResolver {
     }
 
     // Height/time/confirmations are properties of the target tx itself, not
-    // of how many inputs are resolved yet - compute once and reuse for every
+    // of how many inputs are resolved yet: compute once and reuse for every
     // partial and final build below.
     final height = existingTxInfo?.height;
     final verbose = targetVerbose[txId] ?? const <String, dynamic>{};
@@ -408,9 +407,14 @@ class ElectrumTransactionResolver {
     final totalInputs = targetOriginal.inputs.length;
     final allInputTxids = targetOriginal.inputs.map((v) => v.txId).toSet();
 
+    final alreadyParsed = _parsedParentsOfPausedTransaction.remove(txId) ?? {};
     final cachedVerbose = <String, Map<String, dynamic>>{};
     final uncachedInputTxids = <String>[];
     for (final t in allInputTxids) {
+      if (alreadyParsed.containsKey(t)) {
+        continue;
+      }
+
       final cachedHex = cachedRawTxHex(t);
       if (cachedHex != null) {
         cachedVerbose[t] = {"hex": cachedHex};
@@ -418,16 +422,22 @@ class ElectrumTransactionResolver {
         uncachedInputTxids.add(t);
       }
     }
-    final parsedInputTxById = await parseTransactions(cachedVerbose);
+    final parsedInputTxById = {...alreadyParsed, ...await parseTransactions(cachedVerbose)};
 
-    // Captured as locals so buildAndPersist's closure doesn't reference
-    // _wallet directly - it isn't Isolate-transferable.
     final walletType = _wallet.walletInfo.type;
     final walletNetwork = _wallet.network;
     final ownAddresses = _wallet.addressesSet;
     final ownAddressesByAccount = _wallet.addressesSetByAccount;
 
-    Future<ElectrumTransactionInfo> buildTransactionAndAddToHistory() async {
+    // Depends only on the tx and the address set, not on which parents are
+    // fetched, so it's derived once and reused by every rebuild below. Only
+    // a large tx is worth an isolate spawn (hundreds of pubkey address
+    // derivations); for an ordinary one the spawn costs more than the work.
+    final derived = totalInputs > maxInputsToProcessInline
+        ? await deriveTransactionAddressesInIsolate(targetOriginal, ownAddresses, walletNetwork)
+        : DerivedTransactionAddresses.derive(targetOriginal, ownAddresses, walletNetwork);
+
+    ElectrumTransactionInfo buildTransactionAndAddToHistory() {
       final ins = targetOriginal.inputs.map((v) => parsedInputTxById[v.txId]).toList();
       final bundle = ElectrumTransactionBundle(
         targetOriginal,
@@ -435,12 +445,8 @@ class ElectrumTransactionResolver {
         time: time,
         confirmations: confirmations ?? 0,
       );
-      // fromElectrumBundle re-derives ownership/addresses for every input
-      // and output of the whole transaction, not just the newly-resolved
-      // ones - run in a background Isolate so hundreds of address
-      // derivations for a large tx, redone on every batch, can never pin
-      // the UI isolate.
-      final infosByHash = await buildElectrumTransactionInfosInIsolate(
+
+      final infosByHash = buildElectrumTransactionInfos(
         (
           {txId: bundle},
           walletType,
@@ -449,6 +455,7 @@ class ElectrumTransactionResolver {
           ownAddressesByAccount,
           {txId: height}
         ),
+        {txId: derived},
       );
       final info = infosByHash[txId];
       if (info == null) {
@@ -464,7 +471,7 @@ class ElectrumTransactionResolver {
         info.from = existingTxInfo.from;
         info.unspents = existingTxInfo.unspents;
         info.isReceivedSilentPayment = existingTxInfo.isReceivedSilentPayment;
-        // Parents may not be resolved yet, so the isolate can fail to find the
+        // Parents may not be resolved yet, so the build can fail to find the
         // owning account; don't drop one found earlier.
         info.accountIndex ??= existingTxInfo.accountIndex;
       }
@@ -476,13 +483,13 @@ class ElectrumTransactionResolver {
     void reportProgress() {
       final resolved =
           targetOriginal.inputs.where((v) => parsedInputTxById.containsKey(v.txId)).length;
-      _reportFeeFetchProgress(txId, resolved, totalInputs);
+      _reportProgress(txId, resolved, totalInputs);
     }
 
     reportProgress();
 
     if (uncachedInputTxids.isEmpty) {
-      final result = await buildTransactionAndAddToHistory();
+      final result = buildTransactionAndAddToHistory();
       _consecutiveFailures.remove(txId);
       await _maybePersistHistory();
       return result;
@@ -490,12 +497,11 @@ class ElectrumTransactionResolver {
 
     ElectrumTransactionInfo? latestResolvedInfo;
     final chunks = _chunked(uncachedInputTxids, _resolutionInputChunkSize);
-    // Re-deriving the tx info (ownership/amount/direction from whatever
-    // inputs are resolved so far) and writing it into history isn't a
-    // UI-isolate concern, but its isolate spawn + disk save still aren't
-    // free, so only push an updated snapshot into history periodically
-    // (and always on the last chunk) - reportProgress stays cheap and runs
-    // every chunk regardless.
+    // Rebuilding the tx info (ownership/amount/direction from whatever
+    // inputs are resolved so far) and writing it into history isn't free
+    // (the rebuild, plus a disk save), so only push an updated snapshot into
+    // history periodically (and always on the last chunk) - reportProgress
+    // stays cheap and runs every chunk regardless.
     const updateHistoryEveryNChunks = 4;
     var anyChunkIncomplete = false;
 
@@ -516,11 +522,22 @@ class ElectrumTransactionResolver {
       final isLastChunk = chunkIndex == chunks.length - 1;
       final isHistoryUpdateDue = ((chunkIndex + 1) % updateHistoryEveryNChunks) == 0;
 
-      if (isHistoryUpdateDue || isLastChunk) {
-        latestResolvedInfo = await buildTransactionAndAddToHistory();
+      final shouldPauseForOpenedTransaction =
+          !isLastChunk && _shouldPauseForOpenedTransaction(txId);
+
+      if (isHistoryUpdateDue || isLastChunk || shouldPauseForOpenedTransaction) {
+        latestResolvedInfo = buildTransactionAndAddToHistory();
         // Always durable on the last chunk - a large single transaction's
         // final resolved state shouldn't be left waiting for the throttle.
         await _maybePersistHistory(force: isLastChunk);
+      }
+
+      if (shouldPauseForOpenedTransaction) {
+        // Hand the loop to the tx the user has open; this one stays pending
+        // and resumes from here (cached parents, kept parses) on a rerun.
+        _parsedParentsOfPausedTransaction[txId] = parsedInputTxById;
+        _isRerunRequested = true;
+        return latestResolvedInfo;
       }
     }
 
@@ -553,8 +570,7 @@ class ElectrumTransactionResolver {
   /// open, instead of waiting for its turn in the sync-wide recheck or
   /// resolution queue.
   ///
-  /// A tx still needing resolution is already served first by
-  /// [watchTransactionResolution]. This covers a resolved tx classified
+  /// A tx still needing resolution is just [prioritize]d. This covers a resolved tx classified
   /// against fewer addresses than the wallet knows now: it is re-derived on its
   /// own, from its own parents, with a single forced refetch.
   Future<ElectrumTransactionInfo?> refreshIfStale(String txId) async {
@@ -564,7 +580,8 @@ class ElectrumTransactionResolver {
     }
 
     if (tx.needsResolution) {
-      return watchTransactionResolution(txId);
+      prioritize(txId);
+      return tx;
     }
 
     final recordedSize = tx.additionalInfo["addressSetSizeKey"] as int?;
@@ -842,3 +859,21 @@ List<List<T>> _chunked<T>(List<T> items, int size) => [
       for (var i = 0; i < items.length; i += size)
         items.sublist(i, i + size > items.length ? items.length : i + size),
     ];
+
+/// How far [ElectrumTransactionResolver.prioritize] has got with one tx.
+class TransactionResolutionProgress {
+  const TransactionResolutionProgress({
+    required this.resolvedInputs,
+    required this.totalInputs,
+    this.hasFailed = false,
+  });
+
+  /// Inputs whose parent tx is fetched so far.
+  final int resolvedInputs;
+
+  /// 0 until the tx itself has been fetched.
+  final int totalInputs;
+
+  /// The resolver gave up after repeated failed attempts.
+  final bool hasFailed;
+}

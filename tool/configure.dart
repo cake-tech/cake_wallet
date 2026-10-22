@@ -267,8 +267,9 @@ abstract class Bitcoin {
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
   Future<String?> canReplaceByFee(Object wallet, Object tx);
-  Future<TransactionInfo?> watchTransactionResolution(Object wallet, TransactionInfo tx,
-      {void Function(int resolved, int total)? onProgress});
+  void prioritizeTransactionResolution(Object wallet, TransactionInfo tx);
+  ({int resolvedInputs, int totalInputs, bool hasFailed})? transactionResolutionProgress(
+      Object wallet, TransactionInfo tx);
   Future<TransactionInfo?> refreshTransactionIfStale(Object wallet, TransactionInfo tx);
   int getTransactionVSize(Object wallet, String txHex);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);

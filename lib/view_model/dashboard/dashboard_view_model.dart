@@ -7,6 +7,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/account.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import "package:cw_core/balance_card_layout.dart";
@@ -570,7 +571,7 @@ abstract class DashboardViewModelBase with Store {
         TransactionDirection direction,
         int confirmations,
         bool isPending,
-        Object? fee,
+        Money? fee,
       ) =>
           "${txHash}_${direction}_${confirmations}_${isPending}_$fee";
 
@@ -1738,8 +1739,7 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> refreshDashboard() async {
-    await reconnect();
-    await wallet.startSync();
+    reconnect();
   }
 
 

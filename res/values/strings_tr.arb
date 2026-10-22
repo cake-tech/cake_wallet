@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "Ödenmedi",
   "trades": "Alım satımlar",
   "transaction": "İşlem",
+  "transaction_amount_load_failed": "Tutar yüklenemedi",
   "transaction_commited": "İşlem onaylandı",
   "transaction_cost": "İşlem maliyeti",
   "transaction_details_amount": "Miktar",

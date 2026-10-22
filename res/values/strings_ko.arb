@@ -1421,6 +1421,7 @@
   "trade_state_unpaid": "미결제",
   "trades": "거래",
   "transaction": "거래",
+  "transaction_amount_load_failed": "금액을 로드할 수 없습니다.",
   "transaction_commited": "트랜잭션이 커밋되었습니다",
   "transaction_cost": "거래 수수료",
   "transaction_details_amount": "금액",

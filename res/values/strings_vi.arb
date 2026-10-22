@@ -1422,6 +1422,7 @@
   "trade_state_unpaid": "Chưa thanh toán",
   "trades": "Giao dịch",
   "transaction": "Giao dịch",
+  "transaction_amount_load_failed": "Không thể tải số tiền",
   "transaction_commited": "Giao dịch đã được xác nhận",
   "transaction_cost": "Chi phí giao dịch",
   "transaction_details_amount": "Số lượng",

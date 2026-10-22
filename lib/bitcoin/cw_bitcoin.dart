@@ -513,10 +513,27 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<TransactionInfo?> watchTransactionResolution(Object wallet, TransactionInfo tx,
-      {void Function(int resolved, int total)? onProgress}) async {
+  void prioritizeTransactionResolution(Object wallet, TransactionInfo tx) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.watchTransactionResolution(tx.id, onProgress: onProgress);
+    bitcoinWallet.prioritizeTransactionResolution(tx.id);
+  }
+
+  @override
+  ({int resolvedInputs, int totalInputs, bool hasFailed})? transactionResolutionProgress(
+    Object wallet,
+    TransactionInfo tx,
+  ) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final progress = bitcoinWallet.transactionResolutionProgress(tx.id);
+    if (progress == null) {
+      return null;
+    }
+
+    return (
+      resolvedInputs: progress.resolvedInputs,
+      totalInputs: progress.totalInputs,
+      hasFailed: progress.hasFailed,
+    );
   }
 
   @override
@@ -635,8 +652,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  bool isPayjoinAvailable(Object wallet) =>
-      (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
+  bool isPayjoinAvailable(Object wallet) => (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
 
   @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
