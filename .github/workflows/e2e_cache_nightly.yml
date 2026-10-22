@@ -1,0 +1,140 @@
+# Nightly replay-cache refresh (QA handoff §6 4-c).
+# Runs the no-funds slice against a dev-branch APK with cache READ-WRITE,
+# then pushes the refreshed .e2e/cache to a `nightly/*` branch in cake-qa;
+# cake-qa's own "Open cache-refresh PR" workflow (same-repo GITHUB_TOKEN)
+# opens the PR. CI PR lanes stay read-only — only this job records.
+name: E2E cache nightly
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      runs_on:
+        description: "runner label"
+        type: string
+        default: ubuntu-latest
+
+permissions:
+  contents: read
+
+concurrency:
+  group: e2e-cache-nightly
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
+    environment: qa
+    # Report-only family: a red night must not page anyone (handoff §9).
+    continue-on-error: true
+    timeout-minutes: 150
+    steps:
+      - name: Checkout the QA project (cake-qa, RW deploy key for the push)
+        uses: actions/checkout@v4
+        with:
+          repository: cake-tech/cake-qa
+          path: cake-qa
+          ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: cake-qa/package-lock.json
+
+      - name: Install the QA project
+        working-directory: cake-qa
+        run: npm ci
+
+      - name: Resolve the newest dev-branch artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          SHA=$(gh api "repos/${{ github.repository }}/commits/dev" --jq .sha)
+          RUN_ID=""
+          for id in $(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?branch=dev&per_page=10" --jq '.workflow_runs[].id'); do
+            if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[].name] | index("android apk") != null')" = "true" ]; then
+              RUN_ID=$id
+              break
+            fi
+          done
+          [ -n "$RUN_ID" ] || { echo "::error::no dev pr_test_build run owns an android-apk artifact"; exit 1; }
+          echo "BUILD_RUN=$RUN_ID" >> "$GITHUB_ENV"
+          gh run download "$RUN_ID" -n "android apk" -D apk -R "${{ github.repository }}"
+          test -f apk/app-x86_64-release.apk
+
+      # Hosted runners need the udev rule or the action falls back to
+      # -accel off (software emulation): 12-minute boots and the adb daemon
+      # wedging under CPU load (three CI failures: 'Daemon request timed out').
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          ls -la /dev/kvm
+
+      - name: Boot the emulator and record the cache (read-write)
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GLM_BASE_URL: ${{ secrets.DSPARK_BASE_URL }}
+          GLM_API_KEY: ${{ secrets.DSPARK_API_KEY }}
+          E2E_SECRET_SEED_BTC: ${{ secrets.E2E_SECRET_SEED_BTC }}
+          E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
+          E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
+          E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
+          # the one override this lane exists for:
+          QA_CACHE_MODE: read-write
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          # hosted runners booted in 764s once and blew the 600s default on
+          # the next run; 20min removes the flake, 4 cores shorten the boot.
+          emulator-boot-timeout: 1200
+          cores: 4
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -no-snapshot-save
+          disable-animations: false
+          # parseScript(): one sh -c (dash) per line — no bashisms, no loops
+          # spanning lines, no reliance on `set -eu` persisting.
+          script: |
+            i=0; until adb shell settings get global window_animation_scale >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 60 ]; then break; fi; sleep 10; done
+            adb shell settings put global window_animation_scale 0 || true
+            adb shell settings put global transition_animation_scale 0 || true
+            adb shell settings put global animator_duration_scale 0 || true
+            adb install -r apk/app-x86_64-release.apk
+            nohup node cake-qa/tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
+            sleep 2
+            adb kill-server; adb start-server; i=0; until adb shell true >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 30 ]; then break; fi; sleep 2; done
+            CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel --reporter list,junit,markdown
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-nightly-results
+          path: |
+            cake-qa/.e2e/junit.xml
+            cake-qa/.e2e/summary.md
+            cake-qa/.e2e/report.json
+          if-no-files-found: warn
+
+      - name: Push the refreshed cache to a nightly branch
+        working-directory: cake-qa
+        run: |
+          set -euo pipefail
+          BRANCH="nightly/cache-$(date -u +%Y%m%d)"
+          git config user.name "qa-nightly-bot"
+          git config user.email "qa-nightly-bot@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add -f .e2e/cache
+          if git diff --cached --quiet; then
+            echo "cache unchanged — no PR needed"
+            exit 0
+          fi
+          git commit -m "nightly: refresh replay cache from dev (build run ${{ env.BUILD_RUN }})"
+          git push origin "HEAD:refs/heads/$BRANCH"
+          echo "pushed $BRANCH — cake-qa's PR workflow will open the PR"
