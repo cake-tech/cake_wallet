@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import "package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart";
 import 'package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart';
@@ -70,155 +71,185 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
     if (!_itemsLoaded) return SizedBox.shrink();
     return Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ModalTopBar(
-                title: widget.isSelectingReceiver
-                    ? "${S.of(context).receive_to}..."
-                    : "${S.of(context).send_from}...",
-                leadingIcon: Icon(Icons.close),
-                leadingSemanticLabel: S.of(context).close,
-                onLeadingPressed: Navigator.of(context).pop,
+      decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ModalTopBar(
+              title: widget.isSelectingReceiver
+                  ? "${S.of(context).receive_to}..."
+                  : "${S.of(context).send_from}...",
+              leadingIcon: Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
+              onLeadingPressed: Navigator.of(context).pop,
+            ),
+            if (!widget.isSelectingReceiver && items.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 0, 18, 6),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    S.of(context).available_wallets,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          letterSpacing: -0.07,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ),
               ),
-              Flexible(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: items.isEmpty
-                      ? Center(
-                          child: Text(
-                          "${S.of(context).no_wallets_for} ${widget.isSelectingReceiver ? currency.fullName : currency.fullName}.",
-                          style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                        ))
-                      : ListView.builder(
-                          padding: EdgeInsets.only(bottom: 12),
-                          shrinkWrap: true,
-                          controller: ModalScrollController.of(context),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final item = items[index];
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: items.isEmpty
+                    ? Center(
+                        child: Text(
+                        "${S.of(context).no_wallets_for} ${currency.fullName}.",
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ))
+                    : ListView.builder(
+                        padding: EdgeInsets.only(bottom: 12),
+                        shrinkWrap: true,
+                        controller: ModalScrollController.of(context),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final item = items[index];
 
-                            late final bool selected;
-                            if (widget.isSelectingReceiver) {
-                              selected = widget.exchangeViewModel.receiveAddress == item.address;
-                            } else {
-                              selected = widget.exchangeViewModel.wallet.name == item.name &&
-                                  !widget.exchangeViewModel.isSendFromExternal;
-                            }
+                          final String currencyIconPath =
+                              getCryptoCurrencyIconForWalletListItem(item.type);
 
-                            final String currencyIconPath =
-                                getCryptoCurrencyIconForWalletListItem(item.type);
-
-                            final bool hasAccounts =
-                                item.type == WalletType.monero && widget.isSelectingReceiver;
-
-                            List<WalletInfoAddressInfo>? accounts =
-                                hasAccounts ? this.accounts[item.id] : null;
-
+                          if (!widget.isSelectingReceiver) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 6.0),
-                              child: SwapAddressSelectionModalRow(
-                                wallet: item,
-                                iconPath: currencyIconPath,
-                                isSelected: selected,
-                                accounts: accounts,
-                                onAddressChosen: (address, accountName) {
-                                  Navigator.of(context).pop(SwapAddressSelectionResult(
-                                      address: address,
+                              child: WalletRow(
+                                currencyIconPath: currencyIconPath,
+                                walletName: item.name,
+                                onTap: () {
+                                  Navigator.of(context).pop(
+                                    SwapAddressSelectionResult(
+                                      address: item.address,
                                       walletInfo: item,
-                                      accountName: accountName));
+                                      accountName: null,
+                                    ),
+                                  );
                                 },
                               ),
                             );
-                          },
-                        ),
-                ),
-              ),
-              Container(
-                height: 1,
-                color: Theme.of(context).colorScheme.surfaceContainerHigh,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18),
-                child: !widget.isSelectingReceiver
-                    ? GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          Navigator.of(context).pop(SwapAddressSelectionResult());
-                        },
-                        child: Container(
-                          height: 64,
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainer,
-                              borderRadius: BorderRadius.circular(16)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: 10,
-                            children: [
-                              CakeImageWidget(
-                                  imageUrl: "assets/new-ui/send_from_external.svg",
-                                  colorFilter: ColorFilter.mode(
-                                      Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
-                              Text(S.of(context).send_from_external,
-                                  style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w500,
-                                      color: Theme.of(context).colorScheme.primary))
-                            ],
-                          ),
-                        ),
-                      )
-                    : Row(
-                        children: [
-                          Flexible(
-                            child: NewSendAddressInput(
-                              addressController: addressController,
-                              selectedCurrency: widget.exchangeViewModel.receiveCurrency,
-                              onEditingComplete: () {},
-                              bottomPadding: true,
+                          }
+
+                          final bool hasAccounts = item.type == WalletType.monero;
+
+                          List<WalletInfoAddressInfo>? accounts =
+                              hasAccounts ? this.accounts[item.id] : null;
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: SwapAddressSelectionModalRow(
+                              wallet: item,
+                              iconPath: currencyIconPath,
+                              isSelected: widget.exchangeViewModel.receiveAddress == item.address,
+                              accounts: accounts,
+                              onAddressChosen: (address, accountName) {
+                                Navigator.of(context).pop(
+                                  SwapAddressSelectionResult(
+                                    address: address,
+                                    walletInfo: item,
+                                    accountName: accountName,
+                                  ),
+                                );
+                              },
                             ),
+                          );
+                        },
+                      ),
+              ),
+            ),
+            Container(
+              height: 1,
+              color: Theme.of(context).colorScheme.surfaceContainerHigh,
+            ),
+            Padding(
+              padding: !widget.isSelectingReceiver
+                  ? const EdgeInsets.fromLTRB(18, 24, 18, 32)
+                  : const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18),
+              child: !widget.isSelectingReceiver
+                  ? GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        Navigator.of(context).pop(SwapAddressSelectionResult());
+                      },
+                      child: Container(
+                        height: 55,
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            borderRadius: BorderRadius.circular(16)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 10,
+                          children: [
+                            CakeImageWidget(
+                                imageUrl: "assets/new-ui/send_from_external.svg",
+                                colorFilter: ColorFilter.mode(
+                                    Theme.of(context).colorScheme.primary, BlendMode.srcIn)),
+                            Text(S.of(context).send_from_external,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.primary))
+                          ],
+                        ),
+                      ),
+                    )
+                  : Row(
+                      children: [
+                        Flexible(
+                          child: NewSendAddressInput(
+                            addressController: addressController,
+                            selectedCurrency: widget.exchangeViewModel.receiveCurrency,
+                            onEditingComplete: () {},
+                            bottomPadding: true,
                           ),
-                          AnimatedScale(
-                            alignment: Alignment.centerLeft,
-                            scale: textEntered ? 1.0 : 0.0,
-                            duration: const Duration(milliseconds: 200),
-                            curve: Curves.easeOutCubic,
-                            child: Row(
-                              children: [
-                                SizedBox(width: textEntered ? 8 : 0),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pop(SwapAddressSelectionResult(
-                                        address: addressController.text));
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    curve: Curves.easeOutCubic,
-                                    width: textEntered ? 48 : 0,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.arrow_forward_ios,
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                    ),
+                        ),
+                        AnimatedScale(
+                          alignment: Alignment.centerLeft,
+                          scale: textEntered ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeOutCubic,
+                          child: Row(
+                            children: [
+                              SizedBox(width: textEntered ? 8 : 0),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).pop(
+                                      SwapAddressSelectionResult(address: addressController.text));
+                                },
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  curve: Curves.easeOutCubic,
+                                  width: textEntered ? 48 : 0,
+                                  height: 48,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Theme.of(context).colorScheme.onPrimary,
                                   ),
                                 ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-              )
-            ],
-          ),
-        ));
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 
