@@ -497,6 +497,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return "Optimism";
       case CryptoCurrency.usdtNear:
         throw BadCurrencyException("Trocador's USDT on NEAR may be bridged USDT.e", currency);
+      case CryptoCurrency.usdtOp:
+        throw BadCurrencyException("Trocador's USDT on Optimism may be legacy USDT", currency);
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -508,8 +510,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'zec';
       case CryptoCurrency.usdcEPoly:
         return 'usdce';
+      case CryptoCurrency.usdcApt:
+        return "usdcapt";
       default:
-        return currency.title.toLowerCase();
+        final ticker = currency.title.toLowerCase();
+        // Trocador's /coin lookup is case-sensitive
+        return ticker == "usds" || ticker == "eurc" ? ticker.toUpperCase() : ticker;
     }
   }
 
