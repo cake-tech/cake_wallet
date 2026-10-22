@@ -56,6 +56,19 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     'XLM': 'stellar',
     'BASE': 'basemainnet',
     'ARB': 'arbitrum',
+    "TON": "ton",
+    "AVAXC": "avalanchec",
+    "OP": "optimism",
+    "MON": "evm0x8f",
+    "ARC": "arc",
+    "SUI": "sui",
+    "ALGO": "algorand",
+  };
+
+  static const _assetSymbols = <CryptoCurrency, String>{
+    CryptoCurrency.usdtOp: "USD₮0",
+    CryptoCurrency.usdtMon: "USD₮0",
+    CryptoCurrency.usdcArc: "USDC.arc",
   };
 
   static const supportedTags = [
@@ -114,12 +127,20 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
   Future<String?> _getAssets(CryptoCurrency currency) async {
     if (currency.tag == null) return currency.title;
+    // XOSwap also lists the old USDD contract under this symbol
+    if (currency.tag == "TRX" && currency.title.toUpperCase() == "USDD") {
+      return null;
+    }
     try {
       final normalizedNetwork = _networks[currency.tag];
       if (normalizedNetwork == null) return null;
 
-      final uri = Uri.https(_apiAuthority, _apiPath + _assets,
-          {'networks': normalizedNetwork, 'query': currency.title});
+      final assetSymbol = _assetSymbols[currency];
+      final uri = Uri.https(
+        _apiAuthority,
+        _apiPath + _assets,
+        {"networks": normalizedNetwork, "query": assetSymbol ?? currency.title},
+      );
 
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 
@@ -132,7 +153,9 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       final assets = decoded.map((e) => Map<String, dynamic>.from(e as Map)).toList();
 
       final asset = assets.firstWhere(
-        (asset) => removeNonAlphanumeric((asset['symbol'] ?? '').toString()) == currency.title,
+        (asset) => assetSymbol != null
+            ? asset["symbol"] == assetSymbol
+            : removeNonAlphanumeric((asset["symbol"] ?? "").toString()) == currency.title,
         orElse: () => const {},
       );
 

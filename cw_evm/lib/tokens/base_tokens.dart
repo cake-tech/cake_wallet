@@ -34,6 +34,13 @@ class BaseTokens {
         enabled: true,
       ),
       Erc20Token(
+        name: "EURC",
+        symbol: "EURC",
+        contractAddress: "0x60a3e35cc302bfa44cb288bc5a4f316fdb1adb42",
+        decimal: 6,
+        enabled: false,
+      ),
+      Erc20Token(
         name: "Wrapped Ether",
         symbol: "WETH",
         contractAddress: "0x4200000000000000000000000000000000000006",
