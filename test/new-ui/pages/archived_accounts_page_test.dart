@@ -24,7 +24,7 @@ import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
-import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/balance_card_layout.dart";
@@ -53,7 +53,7 @@ class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
 
 class _MockAppStore extends Mock implements AppStore {}
 
-class _MockAccountListViewModel extends Mock implements MoneroAccountListViewModel {}
+class _MockAccountListViewModel extends Mock implements WalletAccountListViewModel {}
 
 class _MockWallet extends Mock
     implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
