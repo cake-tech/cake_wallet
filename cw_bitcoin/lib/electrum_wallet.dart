@@ -113,6 +113,7 @@ abstract class ElectrumWalletBase
         this.electrumClient = electrumClient ?? electrum.ElectrumClient(),
         _useLightning = useLightning,
         _initialAccountBalances = initialAccountBalances,
+        _currentAccountIndex = walletInfo.currentAccountIndex,
         super(walletInfo, derivationInfo) {
     transactionHistory = ElectrumTransactionHistory(
       walletInfo: walletInfo,
@@ -375,6 +376,7 @@ abstract class ElectrumWalletBase
     final persisted = await walletInfo.getAccounts();
 
     _updateAccountBalances(() {
+      _currentAccountIndex = walletInfo.currentAccountIndex;
       accounts.setLabels({for (final account in persisted) account.accountIndex: account.label});
       accounts.setBalances(savedBalances ?? _balancesFromAddressRecords());
     });
@@ -524,19 +526,24 @@ abstract class ElectrumWalletBase
 
   String get xpub => accountHD.publicKey.toExtended;
 
-  @override
-  int get currentAccountIndex => walletInfo.currentAccountIndex;
+  @observable
+  int _currentAccountIndex;
 
   @override
-  Future<void> addAccount({required String label}) async {
+  int get currentAccountIndex => _currentAccountIndex;
+
+  @override
+  Future<int> addAccount({required String label}) async {
     if (!hasAccountsSupport) return super.addAccount(label: label);
 
     final persisted = await walletInfo.getAccounts();
     final used = {...persisted.map((a) => a.accountIndex), ...accounts.indexes};
     final index = used.isEmpty ? 0 : used.reduce(max) + 1;
+    final accountLabel = label.isEmpty ? "Account $index" : label;
 
-    await walletInfo.addAccount(accountIndex: index, label: label);
-    await _prepareAccount(index, label: label);
+    await walletInfo.addAccount(accountIndex: index, label: accountLabel);
+    await _prepareAccount(index, label: accountLabel);
+    return index;
   }
 
   @override
@@ -555,6 +562,7 @@ abstract class ElectrumWalletBase
     await _prepareAccount(accountIndex);
 
     await walletInfo.setSelectedAccount(accountIndex);
+    _currentAccountIndex = accountIndex;
     walletAddresses.setCurrentAccountIndex(accountIndex);
 
     await walletAddresses.setAddressType(walletAddresses.addressPageType);

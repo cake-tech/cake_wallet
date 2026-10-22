@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import "dart:math" show max;
 
 import 'package:cw_core/account.dart';
 import 'package:cw_core/amount/money.dart';
@@ -18,6 +19,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import "package:cw_core/wallet_account.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wownero_amount_format.dart';
@@ -36,6 +38,7 @@ import 'package:cw_wownero/wownero_transaction_creation_credentials.dart';
 import 'package:cw_wownero/wownero_transaction_history.dart';
 import 'package:cw_wownero/wownero_transaction_info.dart';
 import 'package:cw_wownero/wownero_unspent.dart';
+import "package:cw_wownero/wownero_wallet_account.dart";
 import 'package:cw_wownero/wownero_wallet_addresses.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -142,6 +145,66 @@ abstract class WowneroWalletBase
 
   @override
   bool get hasAccountsSupport => true;
+
+  @override
+  int get currentAccountIndex => walletAddresses.account?.id ?? 0;
+
+  @override
+  List<WalletAccount<WowneroBalance>> get walletAccounts => [
+        for (final account in walletAddresses.accountList.accounts)
+          WowneroWalletAccount(
+            index: account.id,
+            label: account.label,
+            balance: () => _balanceForAccount(account.id),
+          ),
+      ];
+
+  @override
+  WalletAccount<WowneroBalance> get currentWalletAccount {
+    final accounts = walletAccounts;
+    return accounts.firstWhere(
+      (account) => account.index == currentAccountIndex,
+      orElse: () => accounts.first,
+    );
+  }
+
+  @override
+  Future<void> setCurrentAccount(int accountIndex) async {
+    final accounts = walletAddresses.accountList.accounts;
+    if (!accounts.any((account) => account.id == accountIndex)) {
+      throw ArgumentError("Unknown Wownero account $accountIndex");
+    }
+    walletAddresses.account = accounts.firstWhere((account) => account.id == accountIndex);
+  }
+
+  @override
+  Future<int> addAccount({required String label}) async {
+    await walletAddresses.accountList.addAccount(label: label);
+    return walletAddresses.accountList.accounts.map((account) => account.id).reduce(max);
+  }
+
+  @override
+  Future<void> renameAccount({required int index, required String label}) async {
+    await walletAddresses.accountList.setLabelAccount(accountIndex: index, label: label);
+
+    final current = walletAddresses.account;
+    if (current != null && current.id == index) {
+      walletAddresses.account = current.copyWith(label: label);
+    }
+  }
+
+  WowneroBalance _balanceForAccount(int index) => index == currentAccountIndex
+      ? balance[currency]!
+      : WowneroBalance(
+          fullBalance: Money.fromInt(
+            wownero_wallet.getFullBalance(accountIndex: index),
+            CryptoCurrency.wow,
+          ),
+          unlockedBalance: Money.fromInt(
+            wownero_wallet.getUnlockedBalance(accountIndex: index),
+            CryptoCurrency.wow,
+          ),
+        );
 
   @override
   MoneroWalletKeys get keys => MoneroWalletKeys(

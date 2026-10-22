@@ -17,4 +17,6 @@ abstract class Balance {
   final Money? secondUnavailable;
 
   final Money? frozen;
+
+  Money get total => available + unavailable;
 }

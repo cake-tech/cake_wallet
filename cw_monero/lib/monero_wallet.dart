@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import "dart:math" show max;
 
 import "package:collection/collection.dart";
 import 'package:cw_core/account.dart';
@@ -161,8 +162,9 @@ abstract class MoneroWalletBase
   }
 
   @override
-  Future<void> addAccount({required String label}) async {
+  Future<int> addAccount({required String label}) async {
     walletAddresses.accountList.addAccount(label: label);
+    return walletAddresses.accountList.accounts.map((account) => account.id).reduce(max);
   }
 
   @override

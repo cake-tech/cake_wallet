@@ -18,7 +18,7 @@ class ElectrumAccounts {
 
   final List<BitcoinAddressType> _primaryTypes;
   final CryptoCurrency currency;
-  final Map<int, ElectrumAccount> _byIndex = {};
+  final ObservableMap<int, ElectrumAccount> _byIndex = ObservableMap<int, ElectrumAccount>();
 
   List<int> get indexes => _byIndex.keys.toList()..sort();
 
@@ -44,7 +44,7 @@ class ElectrumAccounts {
       supportedTypes: index == 0 ? _primaryTypes : EXTRA_ACCOUNT_ADDRESS_TYPES,
       initialBalance: ElectrumBalance.zero(currency),
     );
-    _byIndex[index] = account;
+    runInAction(() => _byIndex[index] = account);
     printV("[ELECTRUM ACCOUNTS] loaded account $index "
         "(${account.supportedTypes.map((t) => t.value).join("/")}), now $indexes");
     return account;
@@ -53,7 +53,7 @@ class ElectrumAccounts {
   bool contains(int index) => _byIndex.containsKey(index);
 
   void remove(int index) {
-    if (_byIndex.remove(index) != null) {
+    if (runInAction(() => _byIndex.remove(index)) != null) {
       printV("[ELECTRUM ACCOUNTS] removed account $index, now $indexes");
     }
   }

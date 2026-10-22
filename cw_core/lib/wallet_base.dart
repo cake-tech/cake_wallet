@@ -161,7 +161,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
     if (accountIndex != 0) throw UnsupportedError("$type does not support accounts");
   }
 
-  Future<void> addAccount({required String label}) =>
+  Future<int> addAccount({required String label}) =>
       throw UnsupportedError("$type does not support accounts");
 
   Future<void> renameAccount({required int index, required String label}) =>
