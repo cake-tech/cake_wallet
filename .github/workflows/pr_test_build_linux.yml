@@ -331,10 +331,95 @@ jobs:
           path: ${{ github.workspace }}/build/linux/x64/release/cakewallet_linux.zip
           name: cakewallet_linux
 
-      - name: Test [cw_core]
-        timeout-minutes: 15
-        run: cd cw_core && flutter test
+  unit_tests:
+    needs: final
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 90
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
 
-      - name: Test [cw_monero]
-        timeout-minutes: 15
-        run: cd cw_monero && flutter test
+      - uses: actions/checkout@v4
+        if: ${{ env.ACT != 'true' }}
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: configure git
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
+          git config --global --unset-all credential.helper || true
+          git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Extract native dependencies
+        run: ./scripts/linux/docker/build.sh --extract
+
+      - name: Execute Build and Setup Commands
+        run: |
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: |
+          flutter pub get
+
+      # The tests must not depend on real API keys, so the placeholder generator is used
+      # instead of the repository secrets.
+      - name: Generate placeholder secrets
+        run: |
+          dart run tool/generate_new_secrets.dart
+
+      - name: Build generated code
+        run: |
+          ./model_generator.sh
+
+      - name: Generate localization
+        run: |
+          dart run tool/generate_localization.dart
+
+      - name: Compile graphics
+        run: |
+          ./compile_graphics.sh
+
+      # Every package with a test directory is run, and a failure in one package does not
+      # stop the others, so the summary names every package that is red.
+      - name: Run unit tests
+        run: |
+          failed=()
+          printf "| Package | Result |\n|---|---|\n" >> "$GITHUB_STEP_SUMMARY"
+          for pkg in . cw_*; do
+            if [[ ! -d "$pkg/test" ]]; then
+              continue
+            fi
+            name=$(basename "$(cd "$pkg" && pwd)")
+            echo "=== flutter test: $name ==="
+            if (cd "$pkg" && flutter test); then
+              echo "| $name | passed |" >> "$GITHUB_STEP_SUMMARY"
+            else
+              failed+=("$name")
+              echo "| $name | FAILED |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          if (( ${#failed[@]} > 0 )); then
+            echo "::error::Unit tests failed in: ${failed[*]}"
+            exit 1
+          fi
+          echo "All unit tests passed"
