@@ -47,7 +47,7 @@ void main() {
     expect(
       tester.getRect(find.text(walletName)).left -
           tester.getRect(find.byKey(const ValueKey("hardware_wallet_icon"))).right,
-      4,
+      8,
     );
 
     expect(

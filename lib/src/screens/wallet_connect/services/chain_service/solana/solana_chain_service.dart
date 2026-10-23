@@ -213,7 +213,8 @@ class SolanaChainService {
 
       if (isApproved) {
         if (params.containsKey('transactions')) {
-          final transactions = params['transactions'] as List<String>;
+          final transactions =
+              List<String>.from(params['transactions'] as List<dynamic>);
 
           List<String> signedTransactions = [];
           for (var transaction in transactions) {
