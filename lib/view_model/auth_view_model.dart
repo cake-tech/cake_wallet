@@ -8,6 +8,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import "package:cake_wallet/utils/exception_handler.dart";
 
 part 'auth_view_model.g.dart';
 
@@ -54,7 +55,15 @@ abstract class AuthViewModelBase with Store {
     }
 
     state = IsExecutingState();
-    final isSuccessfulAuthenticated = await _authService.authenticate(password);
+    final bool isSuccessfulAuthenticated;
+    try {
+      isSuccessfulAuthenticated = await _authService.authenticate(password);
+    } on PinCodeUnreadableException catch (e, s) {
+      final status = e.keychainStatus == null ? "" : " (OSStatus ${e.keychainStatus})";
+      state = FailureState("${S.current.auth_store_pin_unreadable}$status");
+      unawaited(ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s)));
+      return;
+    }
 
     if (isSuccessfulAuthenticated) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -101,6 +110,15 @@ abstract class AuthViewModelBase with Store {
     await _sharedPreferences.setInt(banTimeoutKey, unbanTimestamp);
 
     return Duration(milliseconds: timeout);
+  }
+
+  /// See [AuthService.isKeychainNotRestored].
+  Future<bool> isKeychainNotRestored() => _authService.isKeychainNotRestored();
+
+  /// An action so the wipe's store updates run inside a MobX batch.
+  @action
+  Future<void> resetAfterKeychainLoss() async {
+    await _authService.resetAfterKeychainLoss();
   }
 
   @action

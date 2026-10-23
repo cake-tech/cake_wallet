@@ -55,8 +55,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       accounts: accounts,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,

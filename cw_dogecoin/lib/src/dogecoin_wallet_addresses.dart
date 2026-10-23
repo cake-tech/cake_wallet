@@ -14,8 +14,6 @@ abstract class DogeCoinWalletAddressesBase extends ElectrumWalletAddresses with 
   DogeCoinWalletAddressesBase(
     WalletInfo walletInfo, {
     required super.accounts,
-    required super.legacyMainHd,
-    required super.legacySideHd,
     required super.network,
     required super.isHardwareWallet,
     super.initialAddresses,

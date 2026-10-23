@@ -118,8 +118,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
       accounts: accounts,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
