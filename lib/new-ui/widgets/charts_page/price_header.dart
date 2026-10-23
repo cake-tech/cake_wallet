@@ -23,6 +23,8 @@ class ChartViewPriceHeader extends StatelessWidget {
               price,
               style: TextStyle(
                 fontSize: 36,
+                fontFamily: "IBM Plex Sans",
+                fontFeatures: const [FontFeature.tabularFigures()],
                 color: highlight
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurface,
