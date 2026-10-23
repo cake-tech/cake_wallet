@@ -1287,7 +1287,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "Deslizamento é a diferença máxima de preço permitida durante a conversão. Uma tolerância maior torna a conversão menos propensa a falhar, mas pode resultar em uma taxa um pouco menos favorável.",
   "stable_balance_toggle_label": "Manter o saldo estável em USD",

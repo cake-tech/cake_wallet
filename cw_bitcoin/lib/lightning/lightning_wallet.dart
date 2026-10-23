@@ -51,29 +51,17 @@ class LightningWallet {
   final Network network;
   BreezSdk? _sdk;
 
-  /// Resolves a Spark token identifier to the wallet's own [Currency] for it (e.g. USDB) - used
-  /// by [_getElectrumTransactionInfoFromPayment] so every code path that turns a live SDK
-  /// `Payment` into an [ElectrumTransactionInfo] (not just the ones that already know the token,
-  /// like [getTokenTransactionHistory]) denominates a token payment's amount/fee correctly
-  /// instead of mislabeling it in [currency] (BTC/sats). [BitcoinWallet] wires this to its own
-  /// Spark token registry, which [LightningWallet] has no access to on its own.
+  /// Resolves a Spark token identifier to the wallet's own [Currency] for it (e.g. USDB).
   final Currency? Function(String tokenIdentifier)? tokenCurrencyResolver;
 
-  /// The wallet's current Stable Balance settings, read on every connect ([init] and
-  /// [reconnectWithStableBalanceSettings]). [BitcoinWallet] wires this to its own Spark tokens
-  /// and persisted threshold/slippage.
+  /// The wallet's current Stable Balance settings, read on every connect.
   final StableBalanceConnectSettings Function()? stableBalanceSettings;
 
   String? cachedAddress;
 
   static int MAX_RETRIES = 10;
 
-  /// Matches Spark Settings' default (`HomeSettingsViewModelBase.defaultMaxSlippageBps`); the
-  /// SDK's own default is 0.1%, which would silently differ from what Settings shows.
   static const int defaultMaxSlippageBps = 100;
-
-  /// Bumped whenever how a payment is tagged for history changes, so stored rows get re-read.
-  static const int historyTagVersion = 2;
 
   static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
@@ -88,15 +76,18 @@ class LightningWallet {
 
   bool get isInitialized => _eventStream != null;
 
-  /// Whether Stable Balance is on, as last read from or written to the SDK - observable, so every
-  /// screen reading it (balance card, settings toggle) agrees without its own copy.
   final Observable<bool> stableBalanceActive = Observable(false);
 
   void _setStableBalanceActive(bool value) => runInAction(() => stableBalanceActive.value = value);
 
-  /// The Stable Balance tokens registered at the last [init] - lets a conversion leg that only
-  /// knows its own side (e.g. the sats leg) name the token on the other side.
+  /// The Stable Balance tokens registered at the last [init] - the fallback for a sats leg whose
+  /// token leg hasn't been seen yet (see [_conversionTokenTickers]); it can only name the first one.
   List<StableBalanceToken> _stableBalanceTokens = const [];
+
+  /// conversionId -> ticker of the token leg's own asset, filled as token legs are read. Lets the
+  /// sats leg of the same conversion (which only knows its own side) name the right token when
+  /// several are registered. Bounded by the history window, so it's never pruned.
+  final Map<String, String> _conversionTokenTickers = {};
 
   /// Connect/disconnect run one at a time: two overlapping [init]s would each connect their own
   /// SDK on the same storage dir, and the orphaned one keeps running its own Stable Balance state
@@ -169,11 +160,6 @@ class LightningWallet {
       )
       .toList();
 
-  /// Builds the [StableBalanceConfig] passed to [init], or null when there's nothing to
-  /// register. Deliberately never sets `defaultActiveLabel`: Stable Balance must start inactive
-  /// for every wallet and only be turned on by an explicit user action via
-  /// [setStableBalanceActive]. [thresholdSats]/[maxSlippageBps] only take effect at connect time
-  /// (see [reconnectWithStableBalanceSettings]) - they're not part of [UpdateUserSettingsRequest].
   static StableBalanceConfig? buildStableBalanceConfig(
     List<StableBalanceToken> tokens, {
     BigInt? thresholdSats,
@@ -187,9 +173,6 @@ class LightningWallet {
               maxSlippageBps: maxSlippageBps,
             );
 
-  /// Connects with [stableBalanceSettings] as they are right now. They only take effect for THIS
-  /// connect - a token added or a threshold/slippage changed after connecting needs a reconnect
-  /// (see [reconnectWithStableBalanceSettings]), per the SDK's own design.
   Future<bool> init(String appPath) => _runExclusive(() => _init(appPath));
 
   Future<bool> _init(String appPath) async {
@@ -228,10 +211,6 @@ class LightningWallet {
       _sdk = await connect(request: connectRequest);
       _stableBalanceTokens = stableBalanceTokens;
 
-      // Reassigned unconditionally (not `??=`): a reconnect via
-      // [reconnectWithStableBalanceSettings] replaces `_sdk`, so the old event stream - bound to
-      // the now-disconnected session - must not linger. Callers re-subscribe after a successful
-      // reconnect (see that method's doc comment).
       _eventStream = sdk.addEventListener().asBroadcastStream();
       _attachEventListener?.call();
 
@@ -241,14 +220,6 @@ class LightningWallet {
         printV("LightningWallet: reading Stable Balance state failed: $e");
       }
 
-      // Best-effort only: [initLogging] wraps a native, process-wide singleton that stays
-      // initialized for the lifetime of the OS process, surviving a Dart-side hot restart even
-      // though the `_logStream ??=` guard above it does not (hot restart resets top-level Dart
-      // variables back to their initial values, but not native/FFI state). [_sdk]/[_eventStream]
-      // are already validly set above by this point, so a failure here must not fail the whole
-      // connect/reconnect - it would otherwise falsely report Stable Balance's
-      // reconnect-to-apply-new-settings flow as failed despite the reconnect having actually
-      // succeeded.
       try {
         _logStream ??= initLogging().asBroadcastStream();
       } catch (e) {
@@ -273,18 +244,8 @@ class LightningWallet {
     }
   }
 
-  /// Applies changed [stableBalanceSettings] (threshold/slippage/tokens) to an already-connected
-  /// wallet. Since they only exist on the connect-time [StableBalanceConfig] (not
-  /// [UpdateUserSettingsRequest]), the only way to change them is a full disconnect + reconnect.
-  /// The on/off toggle itself ([setStableBalanceActive]) needs none of this - it's a live
-  /// settings write.
-  ///
-  /// On success, [_eventStream] points at the new session; the caller MUST re-subscribe (e.g.
-  /// `BitcoinWalletBase.subscribeForUpdates()`) or Lightning/Spark events go unheard after this
-  /// call, since the reconnect cancels whatever was listening to the old stream.
   Future<bool> reconnectWithStableBalanceSettings(String appPath) async {
     await close();
-
     return init(appPath);
   }
 
@@ -366,11 +327,7 @@ class LightningWallet {
     return Money.zero(CryptoCurrency.btcln);
   }
 
-  /// Every Spark token balance currently held, keyed by tokenIdentifier. Rides the same
-  /// cache/sync lifecycle as [getBalance] (both come off the one `getInfo` call).
-  /// The Stable Balance label currently active (matches a [StableBalanceToken.label] passed to
-  /// [init]), or null if Stable Balance is off. Never active unless the user explicitly turned it
-  /// on via [setStableBalanceActive] - see [init]'s doc comment.
+  /// Every Spark token balance currently held, keyed by tokenIdentifier.
   Future<String?> getActiveStableBalanceLabel() async {
     final label = (await sdk.getUserSettings()).stableBalanceActiveLabel;
 
@@ -379,8 +336,7 @@ class LightningWallet {
     return label;
   }
 
-  /// Turns Stable Balance on for [label] (a [StableBalanceToken.label] registered at [init]
-  /// time), or off when [label] is null.
+  /// Turns Stable Balance on for [label], or off when [label] is null.
   Future<void> setStableBalanceActive(String? label) async {
     await sdk.updateUserSettings(
       request: UpdateUserSettingsRequest(
@@ -390,9 +346,6 @@ class LightningWallet {
       ),
     );
 
-    // Unlike `sendPayment`, `sdk.updateUserSettings` returns `Result<(), SdkError>` with no
-    // independent status to second-guess - not throwing above already is the SDK's confirmation
-    // the write applied, so just use label != null to identify true/false.
     _setStableBalanceActive(label != null);
   }
 
@@ -485,11 +438,7 @@ class LightningWallet {
     final isSparkDestination =
         inputType is InputType_SparkAddress || inputType is InputType_SparkInvoice;
 
-    // A Bolt11/LNURL/Bitcoin-address destination only ever settles in sats - it has no Spark
-    // token field to deliver [tokenIdentifier] to directly. Spending the token to fund a sats
-    // payment (rather than delivering it) is still possible, by asking the SDK to convert it -
-    // see the docs' "Sending payments with stable balance". amountSats is then denominated in
-    // the token's own base units (an [AmountIn] to convert), same as a direct Spark send below.
+    // A Bolt11/LNURL destination only ever settles in sats.
     final needsConversion = tokenIdentifier != null && !isSparkDestination;
     final conversionOptions = needsConversion
         ? ConversionOptions(
@@ -498,9 +447,6 @@ class LightningWallet {
           )
         : null;
 
-    // The SDK rejects any other policy for a token-funded LNURL send, and it's the right
-    // semantics either way for a conversion: the amount is the total spent, fee already included,
-    // not something to add on top of.
     final feePolicy =
         feesIncluded || conversionOptions != null ? FeePolicy.feesIncluded : FeePolicy.feesExcluded;
 
@@ -541,9 +487,8 @@ class LightningWallet {
         );
       }
     } else if (inputType is InputType_Bolt11Invoice) {
-      // A token-funded conversion can't be combined with a fixed invoice amount (the SDK
-      // rejects it as ambiguous - the converted sats may not match) - omit it and let the SDK
-      // derive the sats needed from the invoice itself.
+      // A token-funded conversion can't be combined with a fixed invoice amount
+      // (the converted sats may not match).
       final hasFixedAmount = inputType.field0.amountMsat != null;
 
       final request = PrepareSendPaymentRequest(
@@ -625,12 +570,10 @@ class LightningWallet {
           return res.payment.id;
         },
       );
-    } else if (inputType is InputType_BitcoinAddress) {
+    } else if (inputType is InputType_BitcoinAddress && tokenIdentifier == null) {
       final request = PrepareSendPaymentRequest(
         paymentRequest: PaymentRequest.input(input: inputType.field0.address),
         amount: amountSats,
-        tokenIdentifier: conversionOptions != null ? tokenIdentifier : null,
-        conversionOptions: conversionOptions,
         feePolicy: feePolicy,
       );
       final prepareResponse = await sdk.prepareSendPayment(request: request);
@@ -660,8 +603,6 @@ class LightningWallet {
           id: "", // ToDo: Find out where to get it
           amount: Money(prepareResponse.amount, currency),
           fee: Money(fee, currency),
-          conversion: _sendConversionFrom(prepareResponse.conversionEstimate),
-          isOnChain: true,
           commitOverride: () async {
             final options =
                 SendPaymentOptions.bitcoinAddress(confirmationSpeed: onchainConfirmationSpeed);
@@ -701,7 +642,6 @@ class LightningWallet {
       amount: tx.amount,
       fee: tx.fee,
       conversion: tx.conversion,
-      isOnChain: tx.isOnChain,
     );
   }
 
@@ -824,25 +764,10 @@ class LightningWallet {
     return response.txHex;
   }
 
-  /// Requests a refund for every conversion currently in a refundable state (i.e.
-  /// [ConversionStatus.refundNeeded]) - distinct from [refundDeposit], which refunds an
-  /// unclaimed on-chain deposit UTXO, not a failed Stable Balance conversion.
+  /// Requests a refund for every conversion currently in a refundable state.
   Future<RefundPendingConversionsResponse> refundPendingConversions() =>
       sdk.refundPendingConversions();
 
-  /// Converts Bitcoin into [tokenIdentifier] using the Breez SDK's Flashnet-based on-the-fly
-  /// conversion. There's no standalone "convert" API - the SDK only converts as a side-effect of
-  /// a payment - so this pays the wallet's own Spark address, which has the effect of a pure
-  /// self-conversion with no external recipient. See
-  /// https://sdk-doc-spark.breez.technology/guide/token_conversion.html.
-  ///
-  /// [tokenAmount] is denominated in [tokenIdentifier]'s own base units (e.g. USDB), NOT sats -
-  /// per the SDK's own example, `PrepareSendPaymentRequest.amount` always means "how much of the
-  /// target token to end up with" when a [tokenIdentifier] is set, even under
-  /// [ConversionType.fromBitcoin]. The BTC actually spent is computed by the SDK and reported
-  /// back as [ConversionEstimate.amountIn] - it can't be specified directly. Passing a sats
-  /// amount here instead (an earlier version of this method did) makes the SDK compare that raw
-  /// number against its token-amount minimum, failing confusingly for any real sats value.
   Future<SparkConversionQuote> prepareBitcoinToTokenConversion({
     required BigInt tokenAmount,
     required String tokenIdentifier,
@@ -879,10 +804,6 @@ class LightningWallet {
         final res =
             await sdk.sendPayment(request: SendPaymentRequest(prepareResponse: prepareResponse));
 
-        // `sendPayment` not throwing only means the SDK accepted the request, not that the
-        // payment/conversion actually completed - a failed status still comes back as a normal
-        // (non-throwing) response, which would otherwise show as a false "success" with nothing
-        // actually changing in the wallet.
         if (res.payment.status == PaymentStatus.failed) {
           throw StateError("Conversion payment failed (id=${res.payment.id})");
         }
@@ -892,9 +813,6 @@ class LightningWallet {
     );
   }
 
-  /// Minimum amounts the SDK will accept for a Bitcoin -> [tokenIdentifier] conversion - fetch
-  /// this before letting the user submit an amount, since [prepareBitcoinToTokenConversion] will
-  /// otherwise fail server-side for amounts below the protocol minimum.
   Future<SparkConversionLimits> fetchBitcoinToTokenConversionLimits({
     required String tokenIdentifier,
     required Currency tokenCurrency,
@@ -913,12 +831,6 @@ class LightningWallet {
     );
   }
 
-  /// The reverse of [prepareBitcoinToTokenConversion]: converts [tokenIdentifier] into Bitcoin,
-  /// via [ConversionType.toBitcoin]. Per the Breez SDK docs, this direction derives the amount to
-  /// convert from the PAYMENT REQUEST itself (`amount` is left null) rather than from a request
-  /// field - so [satsAmount] is realized by first creating a self-addressed BOLT11 invoice for
-  /// exactly that many sats (reusing [getBolt11Invoice]), then paying it via a conversion that
-  /// pulls the required token amount from the wallet's own Spark token balance.
   Future<SparkConversionQuote> prepareTokenToBitcoinConversion({
     required BigInt satsAmount,
     required String tokenIdentifier,
@@ -965,10 +877,6 @@ class LightningWallet {
     );
   }
 
-  /// Minimum amounts the SDK will accept for a [tokenIdentifier] -> Bitcoin conversion. Note the
-  /// SDK's `minFromAmount`/`minToAmount` follow the conversion's own from/to direction (from =
-  /// token, to = BTC) here, the opposite of [fetchBitcoinToTokenConversionLimits] - mapped back
-  /// onto [SparkConversionLimits]'s fixed BTC-in/token-out fields accordingly.
   Future<SparkConversionLimits> fetchTokenToBitcoinConversionLimits({
     required String tokenIdentifier,
     required Currency tokenCurrency,
@@ -1001,8 +909,6 @@ class LightningWallet {
     };
 
     _onSdkEvent = (sdkEvent) {
-      // The SDK suppresses payment events for Stable Balance auto-conversions; Synced is the only
-      // signal one finished.
       if (sdkEvent is SdkEvent_Synced) {
         onSyncedEvent();
       } else if (sdkEvent is SdkEvent_PaymentSucceeded) {
@@ -1010,9 +916,6 @@ class LightningWallet {
       } else if (sdkEvent is SdkEvent_PaymentPending) {
         onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
       } else if (sdkEvent is SdkEvent_PaymentFailed) {
-        // Otherwise a failed conversion (e.g. refund needed) never updates past "pending" in
-        // history - there's no dedicated conversion-status event, only whichever payment event
-        // happens to fire next for that payment.
         onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
       } else if (sdkEvent is SdkEvent_ClaimedDeposits) {
         onBalanceChangedEvent();
@@ -1061,9 +964,6 @@ class LightningWallet {
       tokenIdentifier = details.metadata.identifier;
     }
 
-    // Pairing key for the twin send+receive records the SDK creates when paying your own
-    // invoice (e.g. our own toBitcoin self-invoice conversion) - both twins share the same HTLC,
-    // so the same paymentHash, even though they're two separate `payment.id`s.
     String? paymentHash;
     ConversionInfo? conversionInfo;
     switch (details) {
@@ -1086,23 +986,14 @@ class LightningWallet {
         (tokenIdentifier != null ? tokenCurrencyResolver?.call(tokenIdentifier) : null) ??
         currency;
 
-    // The conversion's actual from/to assets, straight from the SDK - not inferred from ticker
-    // string comparisons, since a BTC-destination conversion's asset has no `identifier` while a
-    // token-destination one always does, regardless of what either ticker happens to read.
     final conversion = payment.conversionDetails?.conversions.firstOrNull;
 
-    // A send the SDK funded by converting from a token (Stable Balance, or an explicitly
-    // token-denominated send) is still just a send to its recipient - the conversion is how it
-    // was paid for, not what happened. Tagged separately so it isn't shown as a conversion.
     final fundedSendConversion = payment.paymentType == PaymentType.send &&
             conversion != null &&
             conversion.to.asset.identifier == null
         ? conversion
         : null;
 
-    // A conversion's own internal legs (e.g. the token send + sats receive of a Stable Balance
-    // conversion) carry this until the SDK links them under their parent - which only happens
-    // after the conversion finishes, and never for a failed one. Both legs share conversionId.
     final leg = conversionInfo is ConversionInfo_Amm && fundedSendConversion == null
         ? conversionInfo
         : null;
@@ -1112,8 +1003,6 @@ class LightningWallet {
     if (leg != null) {
       legTags["conversionId"] = leg.conversionId;
 
-      // "ongoingPayment" legs are plumbing of a send (see [fundedSendConversion]) rather than
-      // something the user did.
       legTags["conversionPurpose"] = switch (leg.purpose) {
         ConversionPurpose_OngoingPayment() => "ongoingPayment",
         ConversionPurpose_SelfTransfer() => "selfTransfer",
@@ -1124,7 +1013,16 @@ class LightningWallet {
       if (payment.conversionDetails == null) {
         final legIsToken = tokenIdentifier != null;
         final ownTicker = legIsToken ? txCurrency.symbol : "BTC";
-        final otherTicker = legIsToken ? "BTC" : (_stableBalanceTokens.firstOrNull?.label ?? "USD");
+
+        if (legIsToken) {
+          _conversionTokenTickers[leg.conversionId] = ownTicker;
+        }
+
+        final otherTicker = legIsToken
+            ? "BTC"
+            : (_conversionTokenTickers[leg.conversionId] ??
+                _stableBalanceTokens.firstOrNull?.label ??
+                "USD");
         final incoming = direction == TransactionDirection.incoming;
 
         legTags.addAll({
@@ -1149,7 +1047,6 @@ class LightningWallet {
       confirmations: payment.status == PaymentStatus.pending ? 0 : 10,
       additionalInfo: {
         "isLightning": true,
-        "lnTagVersion": historyTagVersion,
         if (preimage != null) "preimage": preimage,
         if (paymentHash != null) "paymentHash": paymentHash,
         if (isSelfTransfer) "isSelfTransfer": true,

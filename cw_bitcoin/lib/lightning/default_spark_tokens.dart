@@ -3,8 +3,6 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_groups.dart";
 
 class DefaultSparkTokens {
-  /// USDB's identifier. Matched by identifier, not symbol/name, so a scam token can't spoof its
-  /// way into the USD peg by copying the "USDB" symbol.
   static const usdbTokenIdentifier =
       "btkn1xgrvjwey5ngcagvap2dzzvsy4uk8ua9x69k82dwvt5e7ef9drm9qztux87";
 

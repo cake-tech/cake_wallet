@@ -1296,7 +1296,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "الانزلاق هو أقصى فرق السعر المسموح به أثناء التحويل. يؤدي التسامح الأعلى إلى تقليل احتمالية فشل التحويل، ولكنه قد يمنحك سعرًا أقل تفضيلاً قليلاً.",
   "stable_balance_toggle_label": "حافظ على استقرار الرصيد بالدولار الأمريكي",

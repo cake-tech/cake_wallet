@@ -1020,7 +1020,6 @@ class CWBitcoin extends Bitcoin {
     return LightningSendQuote(
       amount: quote.amount,
       fee: quote.fee,
-      isOnChain: quote.isOnChain,
       conversion: _sendConversionFrom(quote.conversion),
     );
   }
@@ -1054,10 +1053,6 @@ class CWBitcoin extends Bitcoin {
           fee: q.fee,
           commit: q.commit,
         );
-
-  @override
-  bool isOnChainLightningSend(PendingTransaction transaction) =>
-      transaction is PendingLightningTransaction && transaction.isOnChain;
 
   @override
   Future<void> setStableBalanceActive(Object wallet, String? label) async {

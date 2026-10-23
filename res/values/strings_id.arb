@@ -1299,7 +1299,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "Slippage adalah perbedaan harga maksimum yang diperbolehkan saat melakukan konversi. Toleransi yang lebih tinggi membuat konversi lebih kecil kemungkinannya untuk gagal, namun mungkin memberi Anda tingkat yang sedikit kurang menguntungkan.",
   "stable_balance_toggle_label": "Jaga saldo tetap stabil dalam USD",

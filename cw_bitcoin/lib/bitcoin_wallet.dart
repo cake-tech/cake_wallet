@@ -691,10 +691,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             tx.additionalInfo["isSparkDeposit"] != true &&
             (tx.isPending ||
                 ConversionStatusUtils.fromAdditionalInfo(tx.additionalInfo) ==
-                    ConversionStatus.pending ||
-                // Stored under older tagging; the SDK may no longer list it (e.g. a conversion
-                // leg it has since nested under its send), so only a by-id re-read updates it.
-                tx.additionalInfo["lnTagVersion"] != LightningWallet.historyTagVersion))
+                    ConversionStatus.pending))
         .toList();
 
     if (stale.isEmpty) {
@@ -709,8 +706,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           stored.isPending != tx.isPending ||
           stored.additionalInfo["conversionStatus"] != tx.additionalInfo["conversionStatus"] ||
           stored.additionalInfo["conversionFromAmount"] !=
-              tx.additionalInfo["conversionFromAmount"] ||
-          stored.additionalInfo["lnTagVersion"] != tx.additionalInfo["lnTagVersion"];
+              tx.additionalInfo["conversionFromAmount"];
     }).toList();
 
     if (fresh.isEmpty) {

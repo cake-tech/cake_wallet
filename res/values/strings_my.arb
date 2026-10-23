@@ -1296,7 +1296,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "Slippage သည် ပြောင်းလဲနေစဉ် ခွင့်ပြုထားသော အများဆုံးစျေးနှုန်းကွာခြားချက်ဖြစ်သည်။ မြင့်မားသောသည်းခံမှုသည် ပြောင်းလဲခြင်းအား ကျရှုံးနိုင်ခြေနည်းစေသည်၊ သို့သော် သင့်အား အနည်းငယ်သက်သာသောနှုန်းထားကို ပေးနိုင်ပါသည်။",
   "stable_balance_toggle_label": "USD တွင် လက်ကျန်ငွေကို တည်ငြိမ်အောင်ထားပါ။",

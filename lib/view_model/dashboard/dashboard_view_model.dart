@@ -789,8 +789,18 @@ abstract class DashboardViewModelBase with Store {
     // creates (see ConversionTwinCollapser) before anything downstream (filtering, date
     // sectioning, rounded-corner grouping) ever sees them, rather than filtering later once
     // neighboring items' rounding/separators already depend on the fuller list.
-    final dropIds =
-        ConversionTwinCollapser.transactionIdsToDrop(transactions.map((t) => t.transaction));
+    final allTransactions = transactions.map((t) => t.transaction).toList();
+    final tickerCorrections = ConversionTwinCollapser.tickerCorrections(allTransactions);
+
+    for (final tx in allTransactions) {
+      final correction = tickerCorrections[tx.id];
+
+      if (correction != null) {
+        tx.additionalInfo.addAll(correction);
+      }
+    }
+
+    final dropIds = ConversionTwinCollapser.transactionIdsToDrop(allTransactions);
     final dedupedTransactions = dropIds.isEmpty
         ? transactions
         : transactions.where((t) => !dropIds.contains(t.transaction.id));

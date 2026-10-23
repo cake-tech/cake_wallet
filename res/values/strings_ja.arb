@@ -1297,7 +1297,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "スリッページは、変換中に許容される最大価格差です。許容値が高くなると、変換が失敗する可能性は低くなりますが、レートが若干劣る可能性があります。",
   "stable_balance_toggle_label": "USDでの残高を安定に保つ",

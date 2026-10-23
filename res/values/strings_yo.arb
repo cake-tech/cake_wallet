@@ -1297,7 +1297,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "Slippage jẹ iyatọ idiyele ti o pọju laaye lakoko iyipada. Ifarada ti o ga julọ jẹ ki iyipada ko ṣeeṣe lati kuna, ṣugbọn o le fun ọ ni oṣuwọn ọjo diẹ diẹ.",
   "stable_balance_toggle_label": "Jeki iwontunwonsi duro ni USD",

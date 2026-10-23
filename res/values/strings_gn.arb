@@ -1298,7 +1298,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "Deslizamiento haꞌehína pe diferencia máxima precio rehegua ojehejáva oñekonverti jave. Peteĩ tolerancia yvatevéva ojapo pe conversión sa’ive ofalla, ha katu ikatu ome’ẽ ndéve peteĩ tasa sa’ive michĩmi favorable.",
   "stable_balance_toggle_label": "Omantene saldo estable USD-pe",

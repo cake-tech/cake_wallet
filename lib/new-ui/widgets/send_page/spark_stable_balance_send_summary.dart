@@ -16,7 +16,6 @@ class SparkStableBalanceSendSummary extends StatelessWidget {
     required this.tokenBalance,
     required this.maxSlippageBps,
     required this.formatAmount,
-    this.recipientLooksOnChain = false,
     super.key,
   });
 
@@ -26,9 +25,6 @@ class SparkStableBalanceSendSummary extends StatelessWidget {
   final int maxSlippageBps;
   final String Function(Money amount) formatAmount;
 
-  /// A guess from the address alone, used until a quote says for sure.
-  final bool recipientLooksOnChain;
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -37,7 +33,6 @@ class SparkStableBalanceSendSummary extends StatelessWidget {
     final conversion = quote?.conversion;
     // The SDK only converts when the sats balance can't cover the payment.
     final paysFromSats = quote != null && conversion == null;
-    final onChain = quote?.isOnChain ?? recipientLooksOnChain;
     final tokenBalance = this.tokenBalance;
     final smallStyle = TextStyle(fontSize: 12, color: colors.onSurfaceVariant);
 
@@ -73,7 +68,7 @@ class SparkStableBalanceSendSummary extends StatelessWidget {
             key: const ValueKey("stable_balance_send_recipient_gets"),
             leading: ExcludeSemantics(
               child: CakeImageWidget(
-                imageUrl: (onChain ? CryptoCurrency.btc : CryptoCurrency.btcln).iconPath ?? "",
+                imageUrl: CryptoCurrency.btcln.iconPath ?? "",
                 width: 24,
                 height: 24,
               ),
@@ -81,9 +76,7 @@ class SparkStableBalanceSendSummary extends StatelessWidget {
             label: S.of(context).stable_balance_send_recipient_gets,
             value: quote != null
                 ? formatAmount(quote.amount)
-                : onChain
-                    ? S.of(context).stable_balance_send_via_onchain
-                    : S.of(context).stable_balance_send_via_lightning,
+                : S.of(context).stable_balance_send_via_lightning,
             emphasized: quote != null,
           ),
           if (state is! SparkStableBalanceSendNotLoaded)

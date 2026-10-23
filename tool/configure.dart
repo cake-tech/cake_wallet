@@ -337,7 +337,6 @@ abstract class Bitcoin {
   Future<LightningSendQuote> quoteLightningSend(Object wallet, String address, Money amount,
       {bool sendAll});
   StableBalanceSendConversion? getLightningSendConversion(PendingTransaction transaction);
-  bool isOnChainLightningSend(PendingTransaction transaction);
   Future<void> setStableBalanceActive(Object wallet, String? label);
   BigInt? getStableBalanceThresholdSats(Object wallet);
   int? getStableBalanceMaxSlippageBps(Object wallet);

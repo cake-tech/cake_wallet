@@ -1296,7 +1296,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "滑点是转换时允许的最大价差。较高的容差可以降低转换失败的可能性，但可能会给您带来稍差的优惠率。",
   "stable_balance_toggle_label": "保持美元余额稳定",

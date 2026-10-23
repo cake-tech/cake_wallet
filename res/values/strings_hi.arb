@@ -1298,7 +1298,6 @@
   "stable_balance_send_recipient_gets": "Recipient gets",
   "stable_balance_send_slippage_note": "The conversion won't go through if the rate moves more than ${percent} before it's sent.",
   "stable_balance_send_via_lightning": "Bitcoin over Lightning",
-  "stable_balance_send_via_onchain": "Bitcoin on-chain",
   "stable_balance_send_you_pay": "You pay",
   "stable_balance_slippage_explainer": "स्लिपेज रूपांतरण करते समय अनुमत अधिकतम मूल्य अंतर है। अधिक सहनशीलता से रूपांतरण के विफल होने की संभावना कम हो जाती है, लेकिन आपको थोड़ी कम अनुकूल दर मिल सकती है।",
   "stable_balance_toggle_label": "USD में संतुलन स्थिर रखें",

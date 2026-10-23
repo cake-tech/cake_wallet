@@ -196,8 +196,6 @@ class SendTransactionDetails extends StatelessWidget {
       // The amount and fee are then sats, whatever currency the send page had selected.
       final conversion =
           transaction == null ? null : bitcoin?.getLightningSendConversion(transaction);
-      final isOnChainSend =
-          transaction != null && (bitcoin?.isOnChainLightningSend(transaction) ?? false);
 
       final currencySymbol = sendViewModel.amountParsingProxy.getCryptoSymbol(
           conversion != null ? CryptoCurrency.btcln : sendViewModel.selectedCryptoCurrency);
@@ -466,10 +464,9 @@ class SendTransactionDetails extends StatelessWidget {
                               Column(
                                 children: [
                                   Text(
-                                      !isOnChainSend &&
-                                              (sendViewModel.selectedCryptoCurrency ==
-                                                      CryptoCurrency.btcln ||
-                                                  conversion != null)
+                                      sendViewModel.selectedCryptoCurrency ==
+                                                  CryptoCurrency.btcln ||
+                                              conversion != null
                                           ? "Lightning"
                                           : bitcoin!.getNetworkName(sendViewModel.wallet),
                                       style: TextStyle(

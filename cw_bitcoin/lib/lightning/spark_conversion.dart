@@ -75,15 +75,10 @@ class LightningSendQuote {
     required this.amount,
     required this.fee,
     this.conversion,
-    this.isOnChain = false,
   });
 
   /// The sats the recipient gets.
   final Money amount;
-
-  /// The recipient is paid on-chain (a Bitcoin address) rather than over Lightning or as a Spark
-  /// transfer.
-  final bool isOnChain;
 
   /// The Lightning/Spark fee, in sats.
   final Money fee;

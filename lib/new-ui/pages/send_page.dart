@@ -1,6 +1,5 @@
 import "dart:async";
 
-import "package:bitcoin_base/bitcoin_base.dart";
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/anypay/anypay_models.dart";
@@ -358,14 +357,6 @@ class _NewSendPageState extends State<NewSendPage> {
             widget.sendViewModel.selectedCryptoCurrency == stableToken);
   }
 
-  /// Spark: Only a first guess for the summary's label - the SDK's own quote settles it.
-  static bool _looksLikeBitcoinAddress(String address) {
-    final value = address.trim();
-
-    return value.toLowerCase().startsWith("bitcoin:") ||
-        BitcoinAddressUtils.validateAddress(address: value, network: BitcoinNetwork.mainnet);
-  }
-
   /// Spark: While the Stable Balance summary is showing, blocks Continue until a quote has actually
   /// come back with something to send - otherwise tapping it would send a stale or wrong amount,
   /// or fail outright on the error the summary itself already shows.
@@ -671,11 +662,6 @@ class _NewSendPageState extends State<NewSendPage> {
                                                     widget.stableBalanceSendBloc!.maxSlippageBps,
                                                 formatAmount: widget.sendViewModel
                                                     .amountParsingProxy.asDisplayStringWithSymbol,
-                                                recipientLooksOnChain: _looksLikeBitcoinAddress(
-                                                  output.isParsedAddress
-                                                      ? output.extractedAddress
-                                                      : output.address,
-                                                ),
                                               ),
                                             ),
                                         ],

@@ -60,6 +60,54 @@ class ConversionTwinCollapser {
     return toDrop;
   }
 
+  static Map<String, Map<String, String>> tickerCorrections(
+    Iterable<TransactionInfo> transactions,
+  ) {
+    final byConversion = <String, List<TransactionInfo>>{};
+
+    for (final tx in transactions) {
+      final conversionId = tx.additionalInfo["conversionId"];
+
+      if (conversionId is String) {
+        byConversion.putIfAbsent(conversionId, () => []).add(tx);
+      }
+    }
+
+    final corrections = <String, Map<String, String>>{};
+
+    for (final group in byConversion.values) {
+      if (group.length != 2) {
+        continue;
+      }
+
+      final tokenLeg = group.where((t) => t.additionalInfo["tokenIdentifier"] != null).firstOrNull;
+      final satsLeg = group.where((t) => t.additionalInfo["tokenIdentifier"] == null).firstOrNull;
+
+      if (tokenLeg == null || satsLeg == null) {
+        continue;
+      }
+
+      final tokenLegTicker = tokenLeg.direction == TransactionDirection.incoming
+          ? tokenLeg.additionalInfo["conversionToTicker"]
+          : tokenLeg.additionalInfo["conversionFromTicker"];
+
+      if (tokenLegTicker is! String) {
+        continue;
+      }
+
+      // The sats leg's token sits opposite its own BTC: the source when it receives, else the target.
+      final key = satsLeg.direction == TransactionDirection.incoming
+          ? "conversionFromTicker"
+          : "conversionToTicker";
+
+      if (satsLeg.additionalInfo[key] != null && satsLeg.additionalInfo[key] != tokenLegTicker) {
+        corrections[satsLeg.id] = {key: tokenLegTicker};
+      }
+    }
+
+    return corrections;
+  }
+
   static bool _isCompletedSendFundingLeg(TransactionInfo tx) =>
       tx.additionalInfo["conversionPurpose"] == "ongoingPayment" &&
       ConversionStatusUtils.fromAdditionalInfo(tx.additionalInfo) == ConversionStatus.completed;
