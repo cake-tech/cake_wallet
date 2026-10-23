@@ -837,7 +837,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
     if (state case final SwapStateWithTransaction s) {
       emit(
-        wallet.isHardwareWallet
+        wallet.isHardwareWallet && wallet.type == WalletType.monero
             ? SwapAwaitingHardwareWallet(
                 type: wallet.hardwareWalletType!,
                 trade: s.trade,
