@@ -14,6 +14,7 @@ class ReceiveBottomButtons extends StatefulWidget {
     required this.showLabelButton,
     required this.showAccountsButton,
     required this.copyData,
+    this.hasTokensList = false,
     super.key,
   });
 
@@ -25,6 +26,10 @@ class ReceiveBottomButtons extends StatefulWidget {
   final VoidCallback onAccountsButtonPressed;
   final bool showLabelButton;
   final bool showAccountsButton;
+
+  /// True for wallet types with more than one receivable asset/tokens. The amount button also lets
+  /// the user pick which asset to receive, so its label should say so.
+  final bool hasTokensList;
 
   @override
   State<ReceiveBottomButtons> createState() => _ReceiveBottomButtonsState();
@@ -79,7 +84,9 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                   iconSize: 32,
                   svgPath: "assets/new-ui/set-amount.svg",
                   onPressed: widget.onAmountButtonPressed,
-                  label: S.of(context).set_amount,
+                  label: widget.hasTokensList
+                      ? S.of(context).set_amount_and_token
+                      : S.of(context).set_amount,
                 ),
                 if (widget.showLabelButton)
                   ModernButton.svg(

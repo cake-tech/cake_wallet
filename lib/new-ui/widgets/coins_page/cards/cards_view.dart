@@ -8,10 +8,12 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
+import 'package:cake_wallet/new-ui/pages/spark_deposit_to_stable.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
@@ -156,6 +158,9 @@ class _CardsViewState extends State<CardsView> {
               final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
                   .getMainBalanceRecord(widget.lightningMode);
 
+              final showCombinedBalance = widget.dashboardViewModel.balanceViewModel
+                  .showCombinedBalance(lightningMode: widget.lightningMode);
+
               late final String walletBalance;
               late final String walletFiatBalance;
               if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
@@ -167,7 +172,7 @@ class _CardsViewState extends State<CardsView> {
                   walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
                   walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
                 }
-              } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
+              } else if (showCombinedBalance) {
                 walletBalance = "";
                 walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
               } else {
@@ -189,36 +194,41 @@ class _CardsViewState extends State<CardsView> {
               final accountName = showAccount ? account.label : "";
               final accountBalance = showAccount ? account.balance : null;
 
-              final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
+              final assetName = showCombinedBalance
                   ? ""
                   : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
 
+              final bool showDepositToStableAction = isBitcoinEnabled &&
+                  widget.lightningMode &&
+                  FeatureFlag.isSparkTokensEnabled &&
+                  !widget.dashboardViewModel.balanceViewModel.stableBalanceActive;
+
               final List<BalanceCardAction> actions = widget.lightningMode
                   ? [
-                BalanceCardAction(
-                  label: S.current.bitcoin_lightning_deposit,
-                  icon: Icons.arrow_downward,
-                  onTap: depositToL2,
-                ),
-                BalanceCardAction(
-                  label: S.current.bitcoin_lightning_withdraw,
-                  icon: Icons.arrow_upward,
-                  onTap: withdrawFromL2,
-                )
-              ]
+                      BalanceCardAction(
+                        label: S.current.bitcoin_lightning_deposit,
+                        icon: Icons.arrow_downward,
+                        onTap: depositToL2,
+                      ),
+                      BalanceCardAction(
+                        label: S.current.bitcoin_lightning_withdraw,
+                        icon: Icons.arrow_upward,
+                        onTap: withdrawFromL2,
+                      ),
+                    ]
                   : widget.dashboardViewModel.isEnabledTradeAction
-                  ? [
-                BalanceCardAction(
-                  label: S.current.buy,
-                  icon: Icons.arrow_forward_ios_rounded,
-                  iconSize: 12,
-                  onTap: () {
-                    showModalBottomSheet(
-                        context: context, builder: (context) => BuySellSelectorModal());
-                  },
-                )
-              ]
-                  : [];
+                      ? [
+                          BalanceCardAction(
+                            label: S.current.buy,
+                            icon: Icons.arrow_forward_ios_rounded,
+                            iconSize: 12,
+                            onTap: () {
+                              showModalBottomSheet(
+                                  context: context, builder: (context) => BuySellSelectorModal());
+                            },
+                          )
+                        ]
+                      : [];
 
               return BalanceCard(
                 width: effectiveCardWidth,
@@ -226,16 +236,30 @@ class _CardsViewState extends State<CardsView> {
                 accountBalance: accountBalance,
                 designSwitchDuration: Duration(milliseconds: 150),
                 assetName: assetName,
-                capitalizeAssetName: _shouldCapitalizeAssetName(),
+                // In combined-balance mode the "asset name" shown is actually the fiat currency
+                // code (e.g. EUR), not a crypto symbol - _shouldCapitalizeAssetName's sats-vs-BTC
+                // logic doesn't apply to it, and a fiat code should never be lowercased.
+                capitalizeAssetName: showCombinedBalance || _shouldCapitalizeAssetName(),
                 balance: walletBalance,
                 fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                     widget.dashboardViewModel.settingsStore.fiatCurrency.title,
-                fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
+                fiatFirst: showCombinedBalance,
                 fiatBalance: walletFiatBalance,
                 selected: _selectedIndex == visualIndex,
                 onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
                 design: cardDesign,
                 actions: actions,
+                badgeText: widget.lightningMode &&
+                        widget.dashboardViewModel.balanceViewModel.stableBalanceActive
+                    ? S.current.stable_balance_card_badge
+                    : null,
+                topAction: showDepositToStableAction
+                    ? BalanceCardAction(
+                        label: S.current.stable_balance_card_action,
+                        icon: Icons.attach_money,
+                        onTap: depositToStable,
+                      )
+                    : null,
               );
             }),
           ),
@@ -375,6 +399,24 @@ class _CardsViewState extends State<CardsView> {
         },
       );
     }
+  }
+
+  /// Opens the one-off BTC -> stablecoin conversion flow (see `spark_deposit_to_stable.dart`) -
+  /// distinct from [depositToL2]/[withdrawFromL2], which move funds between the on-chain and
+  /// Lightning/Spark balances rather than converting currency.
+  Future<void> depositToStable() async {
+    final page = getIt.get<SparkDepositToStablePage>();
+    showCupertinoModalBottomSheet(
+        context: context,
+        barrierColor: Colors.black.withAlpha(128),
+        builder: (context) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
+          );
+        });
   }
 
   Future<void> withdrawFromL2() async {

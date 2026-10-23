@@ -3,6 +3,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
+import 'package:cake_wallet/new-ui/pages/spark_deposit_to_stable.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/pages/swap_page.dart';
@@ -12,8 +13,10 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
@@ -242,7 +245,9 @@ class AssetDetailsModal extends StatelessWidget {
                       AssetDetailsModalBottomButton(
                         iconPath: "assets/new-ui/exchange.svg",
                         title: S.of(context).swap,
-                        onPressed: () => openPage<NewSwapPage>(context, param2: asset),
+                        onPressed: () => isBitcoinEnabled && _canDepositToStable
+                            ? openPage<SparkDepositToStablePage>(context)
+                            : openPage<NewSwapPage>(context, param2: asset),
                       ),
                     if (showBridgeButton)
                       AssetDetailsModalBottomButton(
@@ -260,7 +265,11 @@ class AssetDetailsModal extends StatelessWidget {
                               bitcoin!
                                   .getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
                         }
-                        openPage<NewReceivePage>(context, param2: asset);
+                        // Without this, NewReceivePage defaults to the on-chain Bitcoin address
+                        // type (lightningMode: false) even for a Spark token like USDB, which is
+                        // only ever received as a Spark transfer on the wallet's Breez side
+                        // (lightningMode).
+                        openPage<NewReceivePage>(context, param1: _isSparkToken, param2: asset);
                       },
                     ),
                   ],
@@ -273,6 +282,19 @@ class AssetDetailsModal extends StatelessWidget {
       ),
     );
   }
+
+  /// Whether tapping "Swap" on this asset should open "Deposit to Stable" instead of the regular
+  /// swap flow - only for a stablecoin Spark token (e.g. USDB) on a Lightning-capable Bitcoin
+  /// wallet, since that's the only combination the Breez SDK's on-the-fly conversion applies to.
+  /// Every other asset keeps the existing [NewSwapPage] behavior unchanged.
+  bool get _canDepositToStable =>
+      asset?.groups.contains(CurrencyGroups.stablecoin) == true &&
+      wallet.type == WalletType.bitcoin &&
+      wallet.hasLightningSupport;
+
+  /// A Spark token (e.g. USDB) is only ever received as a Spark transfer (to the Spark address or
+  /// a token Spark invoice).
+  bool get _isSparkToken => bitcoin?.isSparkToken(asset) ?? false;
 
   UnspentCoinType get unspentCoinType {
     switch (mode) {
