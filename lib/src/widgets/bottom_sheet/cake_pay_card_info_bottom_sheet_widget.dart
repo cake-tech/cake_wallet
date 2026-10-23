@@ -30,6 +30,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
     this.pin,
     this.contentImage,
     this.howToUse,
+    this.orderId,
     this.applyBoxShadow = false,
     this.isLoading = false,
     Key? key,
@@ -51,6 +52,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
 
   final String? contentImage;
   final String? howToUse;
+  final String? orderId;
   final String balance;
   final String? cardNumber;
   final String cardNumberLabel;
@@ -164,6 +166,10 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                 tileBackgroundColor: tileBackgroundColor,
                 isLoading: isLoading,
               ),
+              if (orderId != null) ...[
+                const SizedBox(height: 8),
+                _OrderIdTile(orderId: orderId!, tileBackgroundColor: tileBackgroundColor),
+              ],
               const SizedBox(height: 40),
             ],
           ),
@@ -209,6 +215,60 @@ class _HowToUseTile extends StatelessWidget {
                 ),
             ],
           )),
+    );
+  }
+}
+
+class _OrderIdTile extends StatelessWidget {
+  const _OrderIdTile({required this.orderId, required this.tileBackgroundColor});
+
+  final String orderId;
+  final Color tileBackgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: '${S.of(context).copy} ${S.of(context).order_id}',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () async {
+          await Clipboard.setData(ClipboardData(text: orderId));
+
+          if (context.mounted) {
+            await showBar<void>(context, S.of(context).copied_to_clipboard);
+          }
+        },
+        child: Container(
+          key: const ValueKey('cake_pay_card_info_order_id_tile_key'),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration:
+              BoxDecoration(borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
+          child: Row(
+            children: [
+              Text(S.of(context).order_id, style: Theme.of(context).textTheme.bodyLarge),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  orderId,
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.copy_rounded,
+                size: 16,
+                color: Theme.of(context).textTheme.titleLarge!.color!,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

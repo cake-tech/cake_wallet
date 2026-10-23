@@ -477,6 +477,7 @@ class _RedeemedCardSheetState extends State<_RedeemedCardSheet> {
       },
       pin: voucher?.pin,
       howToUse: voucher?.redemptionInstructions,
+      orderId: card.orderId,
       footerType: FooterType.singleActionButton,
       singleActionButtonKey: const Key('cake_pay_cards_page_card_info_bottom_sheet_close_key'),
       singleActionButtonText: S.of(context).close,
