@@ -23,6 +23,7 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/csv_export_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import "package:cake_wallet/core/links/link_service.dart";
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
@@ -213,7 +214,6 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
 import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_edit_or_create_view_model.dart';
@@ -321,7 +321,6 @@ Future<void> setup({
   required Box<PayjoinSession> payjoinSessionSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
   required SecureStorage secureStorage,
-  required GlobalKey<NavigatorState> navigatorKey,
 }) async {
   _contactSource = contactSource;
   _templates = templates;
@@ -623,14 +622,7 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerLazySingleton<LinkViewModel>(() {
-    return LinkViewModel(
-      appStore: getIt.get<AppStore>(),
-      settingsStore: getIt.get<SettingsStore>(),
-      authenticationStore: getIt.get<AuthenticationStore>(),
-      navigatorKey: navigatorKey,
-    );
-  });
+  getIt.registerLazySingleton<LinkService>(LinkService.new);
 
   getIt.registerFactoryParam<LightningUsernamePage, bool?, void>(
       (isSetup, _) => LightningUsernamePage(
@@ -685,11 +677,6 @@ Future<void> setup({
         if (appStore.wallet != null || await requireHardwareWalletConnection()) {
           // goes to the dashboard:
           authStore.allowed();
-          // trigger any deep links:
-          final linkViewModel = getIt.get<LinkViewModel>();
-          if (linkViewModel.currentLink != null) {
-            linkViewModel.handleLink();
-          }
           return;
         }
 
@@ -706,10 +693,6 @@ Future<void> setup({
         _reaction = reaction((_) => appStore.wallet, (Object? _) {
           _reaction?.reaction.dispose();
           authStore.allowed();
-          final linkViewModel = getIt.get<LinkViewModel>();
-          if (linkViewModel.currentLink != null) {
-            linkViewModel.handleLink();
-          }
         });
 
         Timer.periodic(Duration(seconds: 1), (timer) {
@@ -747,6 +730,7 @@ Future<void> setup({
   getIt.registerFactory<NewDashboard>(() => NewDashboard(
         dashboardViewModel: getIt.get<DashboardViewModel>(),
         bottomSheetService: getIt.get<BottomSheetService>(),
+        linkService: getIt.get<LinkService>(),
       ));
 
   getIt.registerFactory<NewHomePage>(() => NewHomePage(
@@ -823,7 +807,6 @@ Future<void> setup({
       params: params,
       contactListViewModel: getIt.get<ContactListViewModel>(),
       anyPayService: getIt.get<AnyPayService>(),
-      linkViewModel: getIt.get<LinkViewModel>(),
       walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
     );
   });
