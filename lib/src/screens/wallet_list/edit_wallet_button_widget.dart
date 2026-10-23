@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 
 class EditWalletButtonWidget extends StatelessWidget {
@@ -28,6 +29,7 @@ class EditWalletButtonWidget extends StatelessWidget {
               Icons.edit,
               size: 14,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
+              semanticLabel: S.of(context).edit,
             ),
           ),
           if (isGroup) ...{

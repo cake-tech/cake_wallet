@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -92,6 +93,8 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                               return GroupedWalletExpansionTile(
                                 borderRadius: BorderRadius.all(Radius.circular(16)),
                                 title: wallet.name,
+                                titleSemanticsLabel:
+                                    '${wallet.name}, ${walletTypeToDisplayName(wallet.type)}',
                                 isSelected:
                                     walletGroupsDisplayViewModel.selectedSingleWallet == wallet,
                                 leadingWidget: CakeImageWidget(
