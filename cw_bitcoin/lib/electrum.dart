@@ -200,32 +200,17 @@ class ElectrumClient {
   }
 
   Future<void> ping() async {
-    // Without this guard, a ping stuck behind a large backlog (see below)
-    // doesn't stop keepAlive's 5s timer from firing another one right on
-    // top of it — piling on yet more traffic to a connection that's already
-    // struggling to keep up.
-    if (_pingInFlight) return;
+    if (_pingInFlight) {
+      return;
+    }
+
     _pingInFlight = true;
+
     try {
-      // A longer timeout than the default 5s: server.ping shares the same
-      // TCP connection as everything else, so its reply can legitimately
-      // queue up behind a large in-flight response (e.g. a big
-      // tweaks.subscribe payload, or a burst of individual per-address
-      // calls) without the connection actually being dead. A too-short ping
-      // timeout here causes a disconnect/reconnect loop that keeps
-      // aborting slow-but-alive requests before they finish.
-      await callWithTimeout(method: 'server.ping', timeout: 20000);
+      await callWithTimeout(method: 'server.ping');
       _setConnectionStatus(ConnectionStatus.connected);
     } catch (_) {
-      // Escalating to "disconnected" here fires onConnectionStatusChange
-      // unconditionally (before _setConnectionStatus's own isConnected
-      // check even runs) — the wallet layer reacts by wiping every
-      // scripthash subscription and re-subscribing the whole address list,
-      // which dumps a fresh burst of traffic onto this same connection. If
-      // the socket itself is still alive, a slow ping reply just means it's
-      // busy, not dead — treating it as a disconnect was a self-reinforcing
-      // loop: busy connection -> ping times out -> full resubscribe burst
-      // -> connection even busier -> next ping times out too. Only treat
+      // a slow ping reply just means it's busy, not dead. Only treat
       // this as a real disconnect once the socket itself is actually gone.
       if (!isConnected) {
         _setConnectionStatus(ConnectionStatus.disconnected);
@@ -236,15 +221,6 @@ class ElectrumClient {
   }
 
   Future<List<String>> version() async {
-    // `call()` has no timeout at all — its completer only resolves once a
-    // response actually arrives, so if a request gets written to a socket
-    // that *looks* connected (isConnected stays true — no error, no close
-    // event) but the reply silently never comes back (a "black hole"
-    // connection, plausible over this test node's unreliable network
-    // path), this hangs forever. Every caller of getNodeIsElectrs() ->
-    // getNodeSupportsSilentPayments() -> getNodeIsElectrsSPEnabled() then
-    // hangs transitively too, freezing the whole "start scanning" flow
-    // with no error, no timeout, nothing — exactly what was observed.
     try {
       final result =
           await callWithTimeout(method: 'server.version', params: ["", "1.4"], timeout: 20000);
@@ -280,8 +256,7 @@ class ElectrumClient {
 
   Future<List<Map<String, dynamic>>> getHistory(String scriptHash) async {
     try {
-      final result =
-          await call(method: 'blockchain.scripthash.get_history', params: [scriptHash]);
+      final result = await call(method: 'blockchain.scripthash.get_history', params: [scriptHash]);
       if (result is List) {
         return result.map((dynamic val) {
           if (val is Map<String, dynamic>) {
@@ -294,19 +269,13 @@ class ElectrumClient {
 
       return [];
     } catch (e) {
-      // Callers already treat an empty history the same as "couldn't fetch
-      // it this round" (see _fetchAddressHistory's failedCount handling) -
-      // a timed-out call() (or any other transport error) should degrade
-      // the same way, not propagate and abort the whole Future.wait chunk
-      // it's part of.
       return [];
     }
   }
 
   Future<List<Map<String, dynamic>>?> getListUnspent(String scriptHash) async {
     try {
-      final result =
-          await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
+      final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
 
       if (result is List) {
         return result.map((dynamic val) {
@@ -320,11 +289,6 @@ class ElectrumClient {
 
       return null;
     } catch (e) {
-      // Same reasoning as getHistory's catch above - null already means
-      // "failed to fetch" to every caller (see fetchUnspent's null check),
-      // so a timeout should fall into that existing path instead of
-      // throwing out of this Future and rejecting the whole chunk it's
-      // batched into via Future.wait.
       return null;
     }
   }
@@ -583,13 +547,7 @@ class ElectrumClient {
       call(
               method: 'blockchain.transaction.broadcast',
               params: [transactionRaw],
-              idCallback: idCallback,
-              // A broadcast is rare and high-stakes (unlike the constant
-              // routine balance/history polling call()'s default timeout is
-              // tuned for), so it deserves real patience under a congested
-              // connection rather than surfacing a false-negative timeout
-              // while the server may still be about to accept it.
-              timeout: 60000)
+              idCallback: idCallback)
           .then((dynamic result) {
         if (result is String) {
           return result;
@@ -716,12 +674,6 @@ class ElectrumClient {
         id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
   }
 
-  // Nullable: an address with no transaction history yet has a `null` status
-  // per the Electrum protocol spec — completely normal, especially for a
-  // wallet with many unused derived addresses. A non-nullable BehaviorSubject
-  // here used to throw a TypeError on .add(null) for every such address,
-  // which _parseResponse's TypeError handler silently swallowed, so the
-  // (harmless-in-content, but real) initial ack was lost every time.
   BehaviorSubject<Object?>? scripthashUpdate(String scripthash) {
     _id += 1;
     return subscribe<Object?>(
@@ -738,16 +690,6 @@ class ElectrumClient {
       }
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
-      // The subscribe request's own initial reply (the current status,
-      // returned as a plain {"id":..., "result":...} with no "method") comes
-      // back keyed by this numeric wire id, not by the descriptive `id`
-      // string registered above — _finish looks replies up by exactly what
-      // the server echoes. Without this second registration under the wire
-      // id, that first reply could never match anything in _tasks and was
-      // being silently dropped for every single subscription (confirmed via
-      // "_finish: no pending task" logging). Ongoing push updates after this
-      // point carry "method" and are still routed via _methodHandler using
-      // the descriptive `id` key, unaffected by this.
       _tasks[_id.toString()] = SocketTask(subject: subscription, isSubscription: true);
       socket!.write(jsonrpc(method: method, id: _id, params: params));
 
@@ -772,12 +714,6 @@ class ElectrumClient {
     _registryTask(id, completer);
     socket!.write(jsonrpc(method: method, id: id, params: params));
 
-    // Without this, a single reply that never arrives (server/proxy drops
-    // it, or a reconnect orphans this id) leaves the completer pending
-    // forever - and every caller of call() awaits it via Future.wait over a
-    // chunk of addresses, so one stuck request wedges the whole chunk, and
-    // everything downstream of it, permanently. callWithTimeout already
-    // guards against this for its own callers; call() needs the same guard.
     Timer(Duration(milliseconds: timeout), () {
       if (!completer.isCompleted) {
         completer.completeError(RequestFailedTimeoutException(method, id));
@@ -796,11 +732,6 @@ class ElectrumClient {
       _id += 1;
       final id = _id;
       _registryTask(id, completer);
-      // electrs-tweaks never echoes the request id for this method — it
-      // replies in push-notification shape (method+params, no id) even for
-      // a one-shot query (confirmed directly against the server). Track
-      // which pending task issued this specific call so _methodHandler can
-      // route the reply correctly instead of guessing via _tasks.keys.first.
       if (method == 'blockchain.tweaks.subscribe') {
         _lastTweaksSubscribeRequestId = id.toString();
       }
@@ -854,9 +785,6 @@ class ElectrumClient {
       return;
     }
 
-    // A subscription-type task has no completer (only a subject) — a bare
-    // `!.complete()` here would throw a null-check error on it now that
-    // subscribe() also registers its wire id through this same path.
     final completer = _tasks[id]?.completer;
     if (completer != null && !completer.isCompleted) {
       completer.complete(data);
@@ -890,16 +818,6 @@ class ElectrumClient {
         break;
       case 'blockchain.tweaks.subscribe':
         final params = request['params'] as List<dynamic>;
-        // Route to the one-shot probe's own tracked request id (see
-        // callWithTimeout) instead of guessing via _tasks.keys.first, which
-        // only pointed at the right task when it was coincidentally the
-        // sole entry in _tasks — never true once anything else (a ping, a
-        // subscription, a balance call) was also in flight, silently
-        // stranding the real caller to time out instead. _finish (not
-        // .subject — this task is a plain completer, not a subscription)
-        // completes it and removes it; a second push for the same request
-        // (electrs-tweaks can send a data payload then a separate "done"
-        // sentinel) finds nothing left and is a harmless no-op.
         final requestId = _lastTweaksSubscribeRequestId;
         if (requestId != null) {
           _finish(requestId, params.last);

@@ -195,11 +195,6 @@ class CoverageRange {
   String toString() => '[$startHeight, $endHeight]';
 }
 
-/// Sorts and merges overlapping/adjacent ranges. Pure, DB-free — the same
-/// mode-only merge rule `WalletInfoScanCoverage.markCovered` uses when
-/// persisting (ADR-0013: never merge across `historical` modes, only
-/// within one — callers must pre-filter to a single mode before calling
-/// this).
 List<CoverageRange> mergeCoverageRanges(List<CoverageRange> ranges) {
   if (ranges.isEmpty) return [];
 
@@ -246,11 +241,6 @@ int? lowestUncoveredHeight(List<CoverageRange> ranges, int fromHeight, int upToH
   return cursor <= upToHeight ? cursor : null;
 }
 
-/// The gaps in `[fromHeight, upToHeight]` not covered by (already-merged
-/// or not) [ranges] of a single mode — the complement of the merged
-/// ranges within that span. Used to partition remaining scan work across
-/// N workers each run (ADR-0009: resume repartitions whatever's left,
-/// independent of worker count — this is that repartitioning's input).
 List<CoverageRange> uncoveredRanges(List<CoverageRange> ranges, int fromHeight, int upToHeight) {
   if (fromHeight > upToHeight) return [];
 
@@ -270,13 +260,6 @@ List<CoverageRange> uncoveredRanges(List<CoverageRange> ranges, int fromHeight, 
   return gaps;
 }
 
-/// The largest N such that `[floorHeight, N]` is fully, contiguously
-/// covered by (already-merged or not) [ranges] of a single mode — or
-/// `floorHeight - 1` if `floorHeight` itself isn't covered yet (i.e.
-/// nothing usable from the floor). Used to recompute `WalletInfo.
-/// restoreHeight` from the coverage set once N>1 workers can complete
-/// out of order, so it still means "everything below this is scanned"
-/// even though no single worker's progress alone guarantees that anymore.
 int highestContiguouslyCoveredFrom(List<CoverageRange> ranges, int floorHeight) {
   var highest = floorHeight - 1;
   for (final range in mergeCoverageRanges(ranges)) {
@@ -286,22 +269,6 @@ int highestContiguouslyCoveredFrom(List<CoverageRange> ranges, int floorHeight) 
   return highest;
 }
 
-/// Splits [gaps] (as returned by [uncoveredRanges], already disjoint and
-/// height-ordered) into at most [workerCount] chunks, one per worker for
-/// this scan round.
-///
-/// - More gaps than workers: only the first [workerCount] (lowest-height)
-///   gaps get a chunk this round — the rest are picked up on a later round,
-///   since the partition is recomputed fresh from live coverage every round
-///   rather than cached (that's what makes it safe to leave gaps
-///   unassigned here instead of trying to cover everything in one shot).
-/// - Fewer gaps than workers: the largest gap(s) are repeatedly split in
-///   half so every worker gets a chunk, weighted by how many heights are
-///   actually in each gap.
-///
-/// Returned chunks are not necessarily in height order beyond what's
-/// implied by splitting; callers that care about a global "lowest first"
-/// order should sort the result themselves.
 List<CoverageRange> partitionForWorkers(List<CoverageRange> gaps, int workerCount) {
   if (gaps.isEmpty || workerCount <= 0) return [];
   if (gaps.length >= workerCount) return gaps.take(workerCount).toList();
@@ -355,11 +322,6 @@ class WalletInfoScanCoverage {
     await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
   }
 
-  /// Merges `[startHeight, endHeight]` into the persisted coverage set for
-  /// [walletInfoId] under [historical] mode (ADR-0009/ADR-0011/ADR-0013):
-  /// reads the existing rows of that mode, merges the new range in with
-  /// them (pure [mergeCoverageRanges]), replaces the superseded rows with
-  /// the merged result. Never touches rows of the other mode.
   static Future<void> markCovered({
     required int walletInfoId,
     required bool historical,
@@ -888,15 +850,6 @@ class WalletInfo {
   String? addressPageType;
   String? network;
 
-  /// Frozen chain tip a historical Silent Payments backfill job targets
-  /// (ADR-0013's "current job" concept). Null when no backfill is
-  /// currently in progress — either it hasn't started yet, or the coverage
-  /// set (`WalletInfoScanCoverage`) fully covers
-  /// `[<backfill start>, backfillTargetHeight]` under `historical` mode
-  /// and the wallet has moved on to plain non-historical tip-follow
-  /// scanning. Set once when a backfill job starts and left untouched for
-  /// its duration — NOT re-read as "current tip" on every restart, or
-  /// backfill would perpetually chase a moving target and never complete.
   int? backfillTargetHeight;
   int? accountDiscoveryLimit;
   bool? isMultiAccountsEnabled;

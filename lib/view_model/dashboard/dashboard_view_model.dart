@@ -337,21 +337,6 @@ abstract class DashboardViewModelBase with Store {
   bool _isTransactionDisposerCallbackRunning = false;
   bool _transactionDisposerCallbackQueued = false;
 
-  // Tracks each tx's content as of the last time _runTransactionDisposerCallback
-  // actually rendered it, keyed by identity (txHash_direction) - NOT read off
-  // the live TransactionInfo object, because that object is frequently the
-  // SAME shared reference already wrapped by an existing TransactionListItem
-  // (electrum_wallet.dart mutates a re-scanned tx's fields in place rather
-  // than replacing it). Comparing "existing wrapper's fields" against "the
-  // freshly fetched tx's fields" is therefore comparing a value against
-  // itself post-mutation and can never detect the change - confirmed via
-  // device log: a re-confirmed silent payment match with newUnspents=0
-  // updated confirmations/height/date on the shared object, the reaction
-  // correctly re-ran, but the diff saw 0 new/removed items because both
-  // sides of the comparison already reflected the post-mutation state, so
-  // the ObservableList was never touched and the tile stayed stale until an
-  // unrelated rebuild (a filter reset) forced everything to re-read fresh.
-  // This separate, VM-owned snapshot is what makes the comparison meaningful.
   final Map<String, String> _lastTxContentByIdentity = {};
 
   @action
@@ -366,7 +351,6 @@ abstract class DashboardViewModelBase with Store {
         ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet)
         : wallet.transactionHistory.transactions.values.toList();
     filteredTransactions.sort((a, b) => a.date.compareTo(b.date));
-
 
     transactions.addAll(
       filteredTransactions.map(
@@ -512,19 +496,6 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void _transactionDisposerCallback(String _) async {
-    // A reaction firing WHILE a previous run is still in flight used to be
-    // silently dropped here (a plain `if (running) return;`) - fine for a
-    // same-frame re-trigger, but if two distinct scan matches landed close
-    // enough together that the second trigger arrived mid-run, that second
-    // signature change was lost for good unless something else changed
-    // transactionHistory again later to re-trigger this reaction. Confirmed
-    // causing exactly that: multiple silent payment receives found in the
-    // same scan pass, only one of them ever made it into this view model's
-    // `transactions` list. Queuing one more run (like updateBalance()'s own
-    // _balanceUpdateInProgress/_balanceUpdateQueued pattern) instead of
-    // dropping it guarantees a fresh re-read of the current
-    // transactionHistory happens after the in-flight run finishes, so
-    // nothing queued up during that window is ever silently lost.
     if (_isTransactionDisposerCallbackRunning) {
       _transactionDisposerCallbackQueued = true;
       return;
@@ -572,33 +543,10 @@ abstract class DashboardViewModelBase with Store {
     // TODO(malik) update this in a saner way during the vm refactor
     String _txIdentityString(String txHash, TransactionDirection direction) =>
         "${txHash}_$direction";
-    // Deliberately NOT derived from item.transaction (see
-    // _lastTxContentByIdentity's doc comment above) - built fresh from the
-    // just-fetched tx and compared against our own last-seen snapshot
-    // instead of against the (possibly identical, possibly already-mutated)
-    // live wrapper. Includes direction/isReceivedSilentPayment - a re-scanned
-    // silent payment can flip both of these on an otherwise already-known tx
-    // (an SP receive initially misclassified by the regular tx-history fetch
-    // as an outgoing, non-SP tx before the SP scan resolves it) without
-    // confirmations/amount/etc necessarily changing, so omitting them here
-    // let a genuine, filter-relevant change go undetected.
     String _txContentSignature(TransactionInfo tx) =>
         "${tx.confirmations}_${tx.isPending}_${tx.amount}_${tx.height}_${tx.date}_${tx.fee}_"
         "${tx.direction}_${wallet.type == WalletType.bitcoin ? bitcoin?.txIsReceivedSilentPayment(tx) : null}";
 
-    // Everything below must run inside a single MobX action: each
-    // transactions[i]=... below opens/closes its own micro-batch via
-    // ObservableList's own operator[]=, and a reaction scheduled from
-    // mutations made outside of an action (this method resumes here after
-    // an `await`, i.e. in a microtask with no enclosing action) was
-    // confirmed via device log to not reliably reach Flutter's build phase -
-    // the underlying data was already correct (confirmed via a separate
-    // debug print inside the `items` getter itself) while the widget kept
-    // rendering the stale, pre-update list until an unrelated observable
-    // (a filter toggle) forced a rebuild. Wrapping the whole read-modify
-    // batch in one runInAction collapses it into a single notification and
-    // guarantees it's scheduled the same way any other MobX-driven UI
-    // update is.
     runInAction(() {
       final existingIndexByIdentity = <String, int>{};
       for (var i = 0; i < transactions.length; i++) {
@@ -620,21 +568,6 @@ abstract class DashboardViewModelBase with Store {
 
         final existingIndex = existingIndexByIdentity[identity];
         if (existingIndex == null || contentChanged) {
-          // A changed existing item is routed through the SAME
-          // remove-then-add path as a genuinely new one (matched below by
-          // identity, via newIdentities/removeWhere), rather than replaced
-          // in place via `transactions[existingIndex] = ...`. That index
-          // assignment - even wrapped in runInAction - was device-confirmed
-          // to not reliably reach the rendered UI: a re-scanned silent
-          // payment's isReceivedSilentPayment/direction flip landed
-          // correctly in the underlying data (verified via a separate debug
-          // print inside the `items` getter) but the on-screen list stayed
-          // stale until an unrelated observable write (a filter toggle)
-          // forced a rebuild. A brand-new addition via transactions.addAll()
-          // has reliably reached the screen every time in the same testing,
-          // so changed items now go through that same path instead. Order
-          // doesn't matter here since formattedItemsList() unconditionally
-          // re-sorts everything by date.
           newTransactions.add(TransactionListItem(
             transaction: tx,
             balanceViewModel: balanceViewModel,
@@ -919,11 +852,6 @@ abstract class DashboardViewModelBase with Store {
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
       if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
         "public view key is 0",
-      // if (wallet.seed == null) "wallet seed is null",
-      // if (wallet.seed == "") "wallet seed is empty",
-      // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
-      //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-      // "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }
@@ -1315,7 +1243,6 @@ abstract class DashboardViewModelBase with Store {
 
   SettingsStore settingsStore;
 
-
   TradesStore tradesStore;
 
   OrdersStore ordersStore;
@@ -1542,22 +1469,6 @@ abstract class DashboardViewModelBase with Store {
         delay: 300, fireImmediately: true);
   }
 
-  // A content signature for appStore.wallet!.transactionHistory.transactions
-  // that changes whenever ANY per-tx field the UI cares about changes -
-  // unlike the previous `length * confirmations` trigger this replaced,
-  // which only reliably caught brand new/removed txids. `confirmations` is
-  // a plain (non-@observable) field, so reading it inside a reaction never
-  // registers as a dependency at all - and even ignoring that, a same-key
-  // remove-then-readd (used elsewhere to force MobX to notice an in-place
-  // mutation on an ObservableMap) leaves `length` net unchanged, so that
-  // trigger could silently never fire for a tx whose fields were updated
-  // without the key count changing. Confirmed causing exactly this: a
-  // silent-payment receive already present in transactionHistory at wallet
-  // load never made it into this view model's own `transactions` list, and
-  // only appeared after toggling a filter forced an unrelated recompute -
-  // `fireImmediately: true` below additionally guarantees at least one
-  // correct sync happens right after setup, self-healing that regardless
-  // of whether anything changes again afterward.
   String _transactionsChangeSignature() {
     final txs = appStore.wallet?.transactionHistory.transactions;
     if (txs == null || txs.isEmpty) return '';
@@ -1817,7 +1728,6 @@ abstract class DashboardViewModelBase with Store {
   Future<void> refreshDashboard() async {
     reconnect();
   }
-
 
   static const walletTypesToBeRemoved = [
     WalletType.zano,

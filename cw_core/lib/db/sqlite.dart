@@ -12,11 +12,11 @@ import "package:sqflite_common_ffi/sqflite_ffi.dart";
 Database? db;
 
 Future<void> _addColumnIfNotExists(
-    Database db, {
-      required String table,
-      required String column,
-      required String definition,
-    }) async {
+  Database db, {
+  required String table,
+  required String column,
+  required String definition,
+}) async {
   final result = await db.rawQuery("PRAGMA table_info($table)");
   final columnExists = result.any((row) => row["name"] == column);
 
@@ -198,7 +198,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
         await _migrateBitcoinCardStylesForAccounts(db);
       }
-      if(oldVersion <= 14) {
+      if (oldVersion <= 14) {
         await _addColumnIfNotExists(
           db,
           table: "BalanceCardStyleSettings",
@@ -426,7 +426,6 @@ ON WalletInfoAccount(walletInfoId);
 """);
 }
 
-
 Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
   const bitcoinWallets = 'SELECT walletInfoId FROM WalletInfo WHERE "type" = ?';
   final btc = WalletType.bitcoin.index;
@@ -434,14 +433,14 @@ Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
   // Lightning: 0 -> -2 (first, so accountIndex 0 is free for the Bitcoin card)
   await db.rawUpdate(
     "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = -2 "
-        "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
+    "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
     [btc],
   );
 
   // Bitcoin: -1 -> 0 (primary account, first in order)
   await db.rawUpdate(
     "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = 0, cardOrder = 0 "
-        "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
+    "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
     [btc],
   );
 }
@@ -615,14 +614,6 @@ isDefault BOOLEAN DEFAULT FALSE
         """);
 }
 
-/// Mode-tagged scanned-height coverage set for the Silent Payments scan
-/// worker pool: a set of disjoint `[startHeight, endHeight]` ranges per
-/// wallet, each tagged `historical` or not. A range scanned
-/// non-historically is NOT equivalent to the same range scanned
-/// historically (spent outputs are only visible historically) — the two
-/// are deliberately never merged together, only within the same mode. See
-/// `cw_core/lib/wallet_info.dart`'s `WalletInfoScanCoverage` for the
-/// read/write API and the pure merge logic.
 Future<void> _createWalletInfoScanCoverageTable(Database db) async {
   await db.execute("""
 CREATE TABLE IF NOT EXISTS WalletInfoScanCoverage (

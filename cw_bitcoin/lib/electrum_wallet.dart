@@ -209,7 +209,9 @@ abstract class ElectrumWalletBase
         case CryptoCurrency.doge:
           return dogecoinHDWallet(seedBytes);
         default:
-          throw (currency == null ? ArgumentError("no currency") : BadCurrencyException("Unsupported currency",currency!));
+          throw (currency == null
+              ? ArgumentError("no currency")
+              : BadCurrencyException("Unsupported currency", currency!));
       }
     }
 
@@ -281,21 +283,8 @@ abstract class ElectrumWalletBase
   static const int addressHistoryChunkSize = 150;
   static const int transactionChunkSize = 150;
   static const int discoveryHistoryChunkSize = 20;
-  // The actual size of a single JSON-RPC batch *array* sent in one
-  // callBatchWithTimeout call, distinct from the chunk sizes above (which
-  // only pace how many separate, individual, non-batched calls get fired
-  // before pausing — those aren't arrays and aren't subject to this limit).
-  // electrs-tweaks (server.rs, MAX_ARRAY_BATCH) kills the entire TCP
-  // connection outright — no JSON-RPC error, no reply at all — if a batch
-  // array exceeds this many elements. discoveryHistoryChunkSize above
-  // already independently landed on the same value for the same reason in
-  // the address-discovery path; every other genuine batch-array call must
-  // respect it too.
+
   static const int batchArrayMaxSize = 20;
-  // Paces chunked bursts of individual (non-batched) per-address RPCs
-  // (subscribeForUpdates, fetchBalancesRegular, _fetchUnspentsRegular) so a
-  // wallet with many addresses doesn't dump thousands of requests on the
-  // wire in one instant with no wall-clock gap for the server to keep up.
   static const Duration regularFetchChunkDelay = Duration(milliseconds: 250);
 
   static const int transactionBatchTimeoutMs = 15000;
@@ -361,7 +350,7 @@ abstract class ElectrumWalletBase
   Future<WalletInfoAccount> loadCurrentAccount() async {
     final accounts = await walletInfo.getAccounts();
     final current = accounts.firstWhere(
-          (account) => account.accountIndex == currentAccountIndex,
+      (account) => account.accountIndex == currentAccountIndex,
       orElse: () => accounts.first,
     );
 
@@ -378,7 +367,7 @@ abstract class ElectrumWalletBase
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
     // For the first account, we support all address types. For extra accounts, we only support SegwitAddresType.p2wpkh.
     final supportedTypes =
-    accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
+        accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     final canDeriveFromSeed = _masterHD != null && currency != null;
 
@@ -463,9 +452,9 @@ abstract class ElectrumWalletBase
   }
 
   int? _accountForTransaction(
-      ElectrumTransactionBundle bundle,
-      Map<int, Set<String>> addressesByAccount,
-      ) {
+    ElectrumTransactionBundle bundle,
+    Map<int, Set<String>> addressesByAccount,
+  ) {
     if (type != WalletType.bitcoin) return null;
 
     int? accountForAddress(String address) {
@@ -479,10 +468,9 @@ abstract class ElectrumWalletBase
       final inputTransaction = bundle.ins[i];
       if (inputTransaction == null) continue;
 
-      final outTransaction =
-      inputTransaction.outputs[bundle.originalTransaction.inputs[i].txIndex];
+      final outTransaction = inputTransaction.outputs[bundle.originalTransaction.inputs[i].txIndex];
       final account =
-      accountForAddress(addressFromOutputScript(outTransaction.scriptPubKey, network));
+          accountForAddress(addressFromOutputScript(outTransaction.scriptPubKey, network));
       if (account != null) return account;
     }
 
@@ -516,7 +504,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
-
     final isNewAccount = !walletAddresses.accountIndexes.contains(accountIndex);
     if (isNewAccount) {
       walletAddresses.accountIndexes.add(accountIndex);
@@ -552,7 +539,8 @@ abstract class ElectrumWalletBase
         if (isNewAccount && !_isSyncing) {
           final histories = <String, ElectrumTransactionInfo>{};
 
-          final typesToFetch = accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
+          final typesToFetch =
+              accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
           // Explicit for clarity — fetchTransactionsForAddressTypeBatch already skips types
           // with no addresses for this account, so this doesn't change RPC calls, just intent.
 
@@ -580,8 +568,8 @@ abstract class ElectrumWalletBase
 
   bool get isInitialBitcoinAccountsSync =>
       hasAccountsSupport &&
-          walletInfo.isMultiAccountsEnabled == true &&
-          (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
+      walletInfo.isMultiAccountsEnabled == true &&
+      (walletInfo.accountDiscoveryLimit ?? 0) < maxProbAccounts;
 
   @override
   String? get seed => _mnemonic;
@@ -607,9 +595,9 @@ abstract class ElectrumWalletBase
   @override
   bool get hasAccountsSupport =>
       type == WalletType.bitcoin &&
-          isSoftwareWallet &&
-          _masterHD != null && // xpub / watch-only: can't derive other (hardened) accounts
-          derivationInfo.derivationType != DerivationType.electrum;
+      isSoftwareWallet &&
+      _masterHD != null && // xpub / watch-only: can't derive other (hardened) accounts
+      derivationInfo.derivationType != DerivationType.electrum;
 
   @observable
   bool nodeSupportsSilentPayments = true;
@@ -619,24 +607,10 @@ abstract class ElectrumWalletBase
   bool _isTryingToConnect = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
-  // Debounces the null-balance "connection lost" check: a single fetch where
-  // every address comes back null can happen against a live-but-flaky server
-  // (e.g. a proxy that mishandles get_balance), not just a genuinely dead
-  // connection — a real dead connection will keep failing every cycle, so
-  // requiring a few consecutive failures still catches that case without
-  // tearing down a connection that's actually still usable.
+
   int _consecutiveNullBalanceFetches = 0;
   static const int _nullBalanceFetchTolerance = 20;
 
-  // The SP-derived contribution to the balance is computed from local
-  // transaction history, not from this round's network round trip, so it's
-  // always fresh/correct - unlike the regular (non-SP) per-address totals
-  // below, which only get updated when the regular balance fetch actually
-  // returns usable data. When it doesn't (dead-connection guard below),
-  // these cached regular totals stand in instead of falling back to the
-  // *entire* previous balance snapshot, which would silently re-mask a
-  // freshly found SP output behind a stale combined total forever, on any
-  // cycle where the regular fetch fails.
   int _lastKnownRegularConfirmed = 0;
   int _lastKnownRegularUnconfirmed = 0;
   int _lastKnownRegularFrozen = 0;
@@ -659,11 +633,6 @@ abstract class ElectrumWalletBase
       syncStatus = AttemptingScanSyncStatus();
 
       final tip = await getUpdatedChainTip();
-
-      printV(
-        "[SP CHECKPOINT DEBUG] setSilentPaymentsScanning(true): tip=$tip "
-        "restoreHeight=${walletInfo.restoreHeight}",
-      );
 
       if (tip == walletInfo.restoreHeight) {
         syncStatus = SyncedTipSyncStatus(tip);
@@ -698,29 +667,18 @@ abstract class ElectrumWalletBase
   }
 
   Future<int> getUpdatedChainTip() async {
-    // A freshly-connecting client (e.g. right after switching nodes, or
-    // right on wallet open) can have electrumClient.isConnected still false
-    // for a brief window here - getCurrentBlockChainTip() (via
-    // callWithTimeout) returns null instantly in that case, not after an
-    // actual timeout, which used to make this fall back to
-    // `currentChainTip ?? 0` on the very first attempt. That placeholder 0
-    // is indistinguishable from a genuine "already at height 0" to every
-    // caller - confirmed causing _setListeners's `chainTip == height` early
-    // return to treat a rescan-from-genesis request (height=0) as "nothing
-    // to scan, already Synced" without ever actually scanning anything.
-    // Retry a few times with a short wait while specifically still
-    // connecting, instead of accepting the placeholder on the first try -
-    // bounded, and skipped entirely once actually connected (whether that
-    // call succeeds or not), so a genuine RPC failure or an actually-offline
-    // connection doesn't wait around uselessly.
     for (var attempt = 0; attempt < 5; attempt++) {
       final newTip = await electrumClient.getCurrentBlockChainTip();
+
       if (newTip != null && newTip > (currentChainTip ?? 0)) {
         currentChainTip = newTip;
       }
+
       if (newTip != null || electrumClient.isConnected) break;
+
       await Future<void>.delayed(const Duration(milliseconds: 300));
     }
+
     return currentChainTip ?? 0;
   }
 
@@ -740,8 +698,7 @@ abstract class ElectrumWalletBase
     String? publicKey;
 
     // `keys` is wallet-level metadata
-    final hd =
-        mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? mainHd;
+    final hd = mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? mainHd;
 
     try {
       wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
@@ -773,10 +730,6 @@ abstract class ElectrumWalletBase
   BehaviorSubject<Object?>? _chainTipUpdateSubject;
   bool _isTransactionUpdating;
 
-  // Silent Payments scan-worker orchestration (spawning/stopping the worker
-  // pool, progress aggregation, checkpoint flushing, node capability
-  // probing) lives on this dedicated object instead of directly on the
-  // wallet - see silent_payments_scanner.dart's doc comment for why.
   late final SilentPaymentsScanner _spScanner = SilentPaymentsScanner(this);
 
   final Map<String, Map<String, dynamic>> _missingHistoryQueue = {};
@@ -984,28 +937,8 @@ abstract class ElectrumWalletBase
 
   Node? node;
 
-  // Still called independently by the UI's own "does your node support SP"
-  // prompt (see lib/bitcoin/cw_bitcoin.dart's getNodeIsElectrsSPEnabled) -
-  // unrelated to scanning ability itself (see _setListeners' own doc
-  // comment), just informational about `node`. Kept as a thin public
-  // passthrough since that external caller reaches this method directly on
-  // the wallet.
   Future<bool> getNodeSupportsSilentPayments() => _spScanner.getNodeSupportsSilentPayments();
 
-  /// Negotiates the `blockchain.tweaks.subscribe` wire-protocol version to
-  /// request against [node]: `min(what the node advertised,
-  /// sp_scanner.maxWireVersion())` — never the node's advertised version
-  /// alone, so this build never requests a version its own decoder can't
-  /// read (ADR-0020, sp-scan-bench/docs/adr).
-  ///
-  /// Optimistic by default: a node that hasn't been probed yet, or whose
-  /// probe couldn't complete (`getNodeSupportsSilentPayments` throwing —
-  /// `node.supportsSilentPayments` staying `null`/`false`), is assumed to
-  /// support the client's own max version rather than downgraded to legacy.
-  /// Only a *completed* probe that got a real reply with no version field
-  /// (`supportsSilentPayments == true` and `spMaxProtocolVersion == null`)
-  /// is a genuine negative signal — that's the one case this forces down to
-  /// version 1.
   int negotiatedTweaksProtocolVersion() {
     final clientMax = maxWireVersion();
     final probedNegative =
@@ -1122,8 +1055,7 @@ abstract class ElectrumWalletBase
         // counters, locktime); the outputs' own vbytes come pre-computed per type.
         target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
         inputCosts: [
-          for (final u in availableInputs)
-            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
+          for (final u in availableInputs) estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
         ],
         window: networkDustAmount.toInt(),
       );
@@ -1422,7 +1354,8 @@ abstract class ElectrumWalletBase
     final changeDerivationPath = "${_hardenedDerivationPath(changeBaseDerivationPath)}"
         "/${changeAddress.isHidden ? "1" : "0"}"
         "/${changeAddress.index}";
-    final changeHd = _hdForAddressRecord(record: changeAddress).childKey(Bip32KeyIndex(changeAddress.index));
+    final changeHd =
+        _hdForAddressRecord(record: changeAddress).childKey(Bip32KeyIndex(changeAddress.index));
     final changePubKeyHex = changeHd.publicKey.toHex();
 
     utxoDetails.publicKeys[address.pubKeyHash()] =
@@ -2015,14 +1948,6 @@ abstract class ElectrumWalletBase
     }
 
     silentPaymentsScanningActive = true;
-    // rescan() serves two different callers with different intents (the
-    // Rescan page's "scan from height/date" flow, which wants "from height
-    // H" to mean literally that regardless of what's already covered - the
-    // default here - and "Resume scanning", which wants the opposite: skip
-    // whatever's already covered and only fill the real gaps, exactly like
-    // passive tip-follow does) - see ignoreExistingCoverage's own doc
-    // comment at its setListeners branch. Not awaited - see
-    // SilentPaymentsScanner.rescan's own doc comment.
     _spScanner.rescan(
       height: height,
       doSingleScan: doSingleScan,
@@ -2047,7 +1972,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> updateAllUnspents() async {
-
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
@@ -2101,26 +2025,14 @@ abstract class ElectrumWalletBase
       }
     }
 
-    // addCoinInfo already checks per-coin whether an UnspentCoinsInfo entry
-    // exists before creating one (see its own doc), so calling it for every
-    // coin is always correct. The previous gate here — only calling it when
-    // the *aggregate* count of tracked coins differed from the freshly
-    // fetched count — was a broken proxy for "are there new coins": any
-    // unrelated count change elsewhere (e.g. an old UTXO being spent in the
-    // same cycle) could make the totals coincidentally match, silently
-    // skipping addCoinInfo for genuinely new coins. Since coin-control's own
-    // view model filters out any coin with no matching UnspentCoinsInfo
-    // entry, that meant a newly-scanned silent payment output could be
-    // correctly present in `unspentCoins` yet never actually shown - build
-    // the set of already-tracked (hash, vout) pairs once (O(n)) and only
-    // call addCoinInfo for coins missing from it, instead of an O(n^2)
-    // unconditional per-coin call or the previous broken aggregate check.
     final alreadyTracked = unspentCoinsInfo.values
         .where((element) => element.walletId == id)
         .map((element) => '${element.hash}:${element.vout}')
         .toSet();
+
     final newCoins =
         unspentCoins.where((coin) => !alreadyTracked.contains('${coin.hash}:${coin.vout}'));
+
     for (final coin in newCoins) {
       await addCoinInfo(coin);
     }
@@ -2133,22 +2045,20 @@ abstract class ElectrumWalletBase
   Future<List<List<BitcoinUnspent>?>> _fetchUnspentsRegular(
     List<BitcoinAddressRecord> addresses,
   ) async {
-    // Same unthrottled-burst issue as subscribeForUpdates used to have: firing
-    // one individual (non-batched) listunspent call per address all at once
-    // via a single Future.wait floods the connection for a wallet with many
-    // addresses. Chunked with an inter-chunk delay for the same reason —
-    // fetchUnspent's underlying call doesn't gate the pace on its own.
     final results = <List<BitcoinUnspent>?>[];
+
     for (var i = 0; i < addresses.length; i += addressHistoryChunkSize) {
       final end = (i + addressHistoryChunkSize < addresses.length)
           ? i + addressHistoryChunkSize
           : addresses.length;
+
       final chunk = addresses.sublist(i, end);
 
       if (i > 0) await Future.delayed(regularFetchChunkDelay);
 
       results.addAll(await Future.wait(chunk.map((address) => fetchUnspent(address))));
     }
+
     return results;
   }
 
@@ -2383,19 +2293,6 @@ abstract class ElectrumWalletBase
     if (duplicateKeys.isNotEmpty) await unspentCoinsInfo.deleteAll(duplicateKeys);
   }
 
-  // One-time, idempotent self-heal for wallets that already picked up a
-  // duplicate silent payment unspent from the (now fixed) double-append bug
-  // in the scan-match handler above: a tx re-scanned at the same height
-  // twice could end up with the same real output listed twice in its own
-  // `unspents` list. Both updateAllUnspents() (the spendable coin list) and
-  // fetchBalances() (the reported balance) derive their totals by directly
-  // summing every tx's `unspents` with no dedup of their own, so a
-  // duplicate here silently doubles both - and a transaction built from the
-  // resulting coin list references the same real outpoint twice as separate
-  // inputs, which is invalid and fails with a duplicate-input error at
-  // spend time. Runs on every init() (cheap no-op scan over already-loaded
-  // tx history when nothing is actually wrong) so an already-affected
-  // wallet repairs itself without any manual/user action.
   Future<void> _repairDuplicateSilentPaymentUnspents() async {
     if (!hasSilentPaymentsScanning) return;
 
@@ -2411,23 +2308,11 @@ abstract class ElectrumWalletBase
       }
       if (deduped.length == unspents.length) continue;
 
-
-      // tx.amount is deliberately left untouched here - it no longer means
-      // "sum of unspents" (processTweaksV2Block now counts a match's amount
-      // toward it regardless of spent status, so it can legitimately exceed
-      // that sum for a tx with a spent output - see its own doc comment).
-      // Deduplication doesn't change what was actually received either way
-      // - the duplicate was never a second real payment - so rewriting
-      // amount from the deduped unspents list would wrongly shrink it for
-      // any tx unlucky enough to have both a duplicate *and* a spent
-      // output, undercounting a real historical receive.
       tx.unspents = deduped.values.toList();
 
-      // Same MobX same-reference-reassignment caveat as the scan-match
-      // handler above: force a real key removal+add so this repair is
-      // actually observed rather than silently skipped by ObservableMap.
       transactionHistory.transactions.remove(tx.id);
       transactionHistory.addOne(tx);
+
       anyTxChanged = true;
     }
 
@@ -2460,8 +2345,8 @@ abstract class ElectrumWalletBase
     final persisted = balance[currency];
     final seeded = newBalances[currentAccountIndex];
     if (persisted != null && seeded != null) {
-      final seededIsZero = seeded.confirmed == Money.zero(currency) &&
-          seeded.unconfirmed == Money.zero(currency);
+      final seededIsZero =
+          seeded.confirmed == Money.zero(currency) && seeded.unconfirmed == Money.zero(currency);
       final persistedIsNonZero = persisted.confirmed != Money.zero(currency) ||
           persisted.unconfirmed != Money.zero(currency);
       if (seededIsZero && persistedIsNonZero) {
@@ -2757,17 +2642,17 @@ abstract class ElectrumWalletBase
         feeRate: newFee.toString(),
         isViewOnly: keys.privateKey.isEmpty,
       )..addListener((transaction) async {
-        transactionHistory.transactions.values.forEach((tx) {
-          if (tx.id == hash) {
-            tx.isReplaced = true;
-            tx.isPending = false;
-            transactionHistory.addOne(tx);
-          }
+          transactionHistory.transactions.values.forEach((tx) {
+            if (tx.id == hash) {
+              tx.isReplaced = true;
+              tx.isPending = false;
+              transactionHistory.addOne(tx);
+            }
+          });
+          transactionHistory.addOne(transaction);
+          await updateAllUnspents();
+          await updateBalance();
         });
-        transactionHistory.addOne(transaction);
-        await updateAllUnspents();
-        await updateBalance();
-      });
     } catch (e) {
       throw e;
     }
@@ -2949,19 +2834,17 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchTransactionsForAddressType(
-      Map<String, ElectrumTransactionInfo> historiesWithDetails,
-      BitcoinAddressType type, {
-        int? accountIndex,
-      }) async {
+    Map<String, ElectrumTransactionInfo> historiesWithDetails,
+    BitcoinAddressType type, {
+    int? accountIndex,
+  }) async {
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
         .toList();
 
-
     final branchCache = <String, List<BitcoinAddressRecord>>{};
-    List<BitcoinAddressRecord> branchFor(BitcoinAddressRecord record) =>
-        branchCache.putIfAbsent(
+    List<BitcoinAddressRecord> branchFor(BitcoinAddressRecord record) => branchCache.putIfAbsent(
           '${record.accountIndex}:${record.isHidden}:${record.isLegacyDerivation}',
           () => getAddressBranchByType(
             type: type,
@@ -2975,48 +2858,46 @@ abstract class ElectrumWalletBase
         .addAll(addressesByType.where((addr) => addr.isHidden).map((e) => e.address));
     await walletAddresses.saveAddressesInBox();
 
-    await Future.wait(addressesByType.map((addressRecord) async {
-      final result = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
+    await Future.wait(
+      addressesByType.map((addressRecord) async {
+        final result = await _fetchAddressHistory(addressRecord, await getCurrentChainTip());
 
-      if (result.hasHistory) {
-        historiesWithDetails.addAll(result.transactions);
+        if (result.hasHistory) {
+          historiesWithDetails.addAll(result.transactions);
 
-        final matchedAddresses = branchFor(addressRecord);
-        final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
-            matchedAddresses.length -
-                (addressRecord.isHidden
-                    ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
-                    : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
+          final matchedAddresses = branchFor(addressRecord);
+          final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
+              matchedAddresses.length -
+                  (addressRecord.isHidden
+                      ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
+                      : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
 
-        if (isUsedAddressAboveGap) {
-
-          // Discover new addresses for the same address type until the gap limit is respected
-          await walletAddresses.discoverAddresses(
-            matchedAddresses,
-            addressRecord.isHidden,
-                (address) async {
-              await subscribeForUpdates();
-              return _fetchAddressHistory(address, await getCurrentChainTip())
-                  .then((result) => result.hasHistory ? address.address : null);
-            },
-            type: type,
-            isLegacyDerivation: addressRecord.isLegacyDerivation,
-            accountIndex: addressRecord.accountIndex,
-          );
-
+          if (isUsedAddressAboveGap) {
+            // Discover new addresses for the same address type until the gap limit is respected
+            await walletAddresses.discoverAddresses(
+              matchedAddresses,
+              addressRecord.isHidden,
+              (address) async {
+                await subscribeForUpdates();
+                return _fetchAddressHistory(address, await getCurrentChainTip())
+                    .then((result) => result.hasHistory ? address.address : null);
+              },
+              type: type,
+              isLegacyDerivation: addressRecord.isLegacyDerivation,
+              accountIndex: addressRecord.accountIndex,
+            );
+          }
         }
-      }
-    }),);
+      }),
+    );
   }
 
   Future<AddressHistoryResult> _fetchAddressHistory(
-      BitcoinAddressRecord addressRecord, int? currentHeight) =>
+          BitcoinAddressRecord addressRecord, int? currentHeight) =>
       _fetchAddressHistories([addressRecord], currentHeight, addressHistoryChunkSize);
 
   Future<AddressHistoryResult> _fetchAddressHistories(
-      List<BitcoinAddressRecord> addressRecords,
-      int? currentHeight,
-      int historyChunkSize) async {
+      List<BitcoinAddressRecord> addressRecords, int? currentHeight, int historyChunkSize) async {
     final scan = await _scanAddressHistories(addressRecords, historyChunkSize);
 
     final split = await _markUsedAndSplitHistory(scan, addressRecords, currentHeight);
@@ -3108,7 +2989,6 @@ abstract class ElectrumWalletBase
 
   Future<AddressHistoryResult> _markUsedAndSplitHistory(AddressHistoryScan scan,
       List<BitcoinAddressRecord> addressRecords, int? currentHeight) async {
-
     String lastTxId = '';
     bool didUpdateHistory = false;
 
@@ -3338,8 +3218,8 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchBitcoinTransactionsForInitialRestore(
-      Map<String, ElectrumTransactionInfo> historiesWithDetails,
-      ) async {
+    Map<String, ElectrumTransactionInfo> historiesWithDetails,
+  ) async {
     int accountIndex = 0;
 
     while (accountIndex < maxProbAccounts) {
@@ -3382,7 +3262,7 @@ abstract class ElectrumWalletBase
       if (!accountHasHistory) {
         final persistedAccounts = await walletInfo.getAccounts();
         final isUserAccount =
-        persistedAccounts.any((account) => account.accountIndex == accountIndex);
+            persistedAccounts.any((account) => account.accountIndex == accountIndex);
 
         if (isAccountProbe && !isUserAccount) {
           walletAddresses.accountIndexes.remove(accountIndex);
@@ -3407,10 +3287,10 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> fetchTransactionsForAddressTypeBatch(
-      Map<String, ElectrumTransactionInfo> historiesWithDetails,
-      BitcoinAddressType type, {
-        int? accountIndex,
-      }) async {
+    Map<String, ElectrumTransactionInfo> historiesWithDetails,
+    BitcoinAddressType type, {
+    int? accountIndex,
+  }) async {
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
@@ -3443,7 +3323,6 @@ abstract class ElectrumWalletBase
     }
   }
 
-
   Future<void> fetchTransactionsForAddressesBranchBatch(
     Map<String, ElectrumTransactionInfo> historiesWithDetails,
     BitcoinAddressType type,
@@ -3462,7 +3341,7 @@ abstract class ElectrumWalletBase
       items: currentBranch,
       chunkSize: addressHistoryChunkSize,
       processChunk: (chunk) async =>
-      (await _fetchAddressHistories(chunk, tip, batchArrayMaxSize)).transactions,
+          (await _fetchAddressHistories(chunk, tip, batchArrayMaxSize)).transactions,
     );
 
     if (initialHistory.isNotEmpty) {
@@ -3482,9 +3361,9 @@ abstract class ElectrumWalletBase
     final newAddresses = await walletAddresses.discoverAddressesBatch(
       currentBranch,
       isHidden,
-          (newAddresses) async {
+      (newAddresses) async {
         final newHistory =
-        await _fetchAddressHistories(newAddresses, tip, discoveryHistoryChunkSize);
+            await _fetchAddressHistories(newAddresses, tip, discoveryHistoryChunkSize);
 
         if (newHistory.transactions.isNotEmpty) {
           historiesWithDetails.addAll(newHistory.transactions);
@@ -3518,10 +3397,10 @@ abstract class ElectrumWalletBase
   }) =>
       walletAddresses.allAddresses
           .where((addr) =>
-      addr.type == type &&
-          (accountIndex == null || addr.accountIndex == accountIndex) &&
-          addr.isHidden == hidden &&
-          addr.isLegacyDerivation == legacy)
+              addr.type == type &&
+              (accountIndex == null || addr.accountIndex == accountIndex) &&
+              addr.isHidden == hidden &&
+              addr.isLegacyDerivation == legacy)
           .toList()
         ..sort((a, b) => a.index.compareTo(b.index));
 
@@ -3610,7 +3489,7 @@ abstract class ElectrumWalletBase
 
     for (var i = 0; i < txIds.length; i += transactionChunkSize) {
       final end =
-      (i + transactionChunkSize < txIds.length) ? i + transactionChunkSize : txIds.length;
+          (i + transactionChunkSize < txIds.length) ? i + transactionChunkSize : txIds.length;
       final chunk = txIds.sublist(i, end);
 
       final bundlesByHash = await getTransactionExpandedBatch(
@@ -3946,27 +3825,6 @@ abstract class ElectrumWalletBase
         )
         .toList();
 
-    // Every unsubscribed address used to be fired at once via a single
-    // Future.wait, each as its own individual (non-batched) subscribe RPC.
-    // scripthashUpdate/subscribe write to the socket synchronously and don't
-    // wait for a reply, so for a wallet with thousands of addresses (common
-    // after a heavy silent-payments scan) this dumped thousands of pending
-    // subscribe requests on the wire in one burst. The server can only reply
-    // to them at some finite rate, and every other request queued behind
-    // that backlog on the same persistent connection (server.version,
-    // server.ping, tweaks probes) starved waiting its turn — and since
-    // _scripthashesUpdateSubject is wiped on every disconnect (to force
-    // re-subscribing after a fresh socket), every reconnect added another
-    // full burst on top of whatever the server hadn't finished answering
-    // yet, so the backlog only ever grew. Chunking bounds how many subscribe
-    // requests are outstanding at once, the same way every other bulk RPC in
-    // this file already does via _processChunksToMap. Unlike those, though,
-    // scripthashUpdate writes to the socket synchronously and doesn't await a
-    // server round-trip, so an inter-chunk delay is what actually paces the
-    // requests hitting the wire — without it, chunking would still fire every
-    // chunk back-to-back with no wall-clock gap for the server to catch up.
-    printV(
-        "subscribeForUpdates: subscribing ${unsubscribedScriptHashes.length} scripthashes in chunks of $addressHistoryChunkSize");
     for (var i = 0; i < unsubscribedScriptHashes.length; i += addressHistoryChunkSize) {
       final end = (i + addressHistoryChunkSize < unsubscribedScriptHashes.length)
           ? i + addressHistoryChunkSize
@@ -3990,16 +3848,8 @@ abstract class ElectrumWalletBase
           printV("failed scripthashUpdate: $e");
         }
         _scripthashesUpdateSubject[sh]?.listen((event) async {
-          // A null status means this address has no transaction history at
-          // all (per the Electrum protocol spec) — nothing changed, nothing
-          // to fetch. Without this check, every address's very first event
-          // (the subscribe ack itself, now correctly delivered) triggered a
-          // full unspent/balance/history refresh unconditionally, so a
-          // wallet with many unused derived addresses fired that entire
-          // refresh chain for all of them at once on every (re)subscribe —
-          // on top of, and unthrottled unlike, subscribeForUpdates' own
-          // chunked subscribe requests.
           if (event == null) return;
+
           try {
             await updateUnspentsForAddress(address);
 
@@ -4058,10 +3908,6 @@ abstract class ElectrumWalletBase
   Future<List<Map<String, dynamic>>> fetchBalancesRegular(
     List<BitcoinAddressRecord> addresses,
   ) async {
-    // Same unthrottled-burst issue as subscribeForUpdates used to have: one
-    // individual (non-batched) get_balance call per address fired all at
-    // once via a single Future.wait floods the connection for a wallet with
-    // many addresses. Chunked with an inter-chunk delay for the same reason.
     final results = <Map<String, dynamic>>[];
     for (var i = 0; i < addresses.length; i += addressHistoryChunkSize) {
       final end = (i + addressHistoryChunkSize < addresses.length)
@@ -4079,13 +3925,6 @@ abstract class ElectrumWalletBase
 
   Future<ElectrumBalance> fetchBalances() async {
     if (!electrumClient.isConnected) {
-      // The socket is down (mid-reconnect, or briefly torn down). Every
-      // pending call() would resolve to null instantly rather than actually
-      // asking the server, which used to masquerade as "the server returned
-      // no balance for any address" and drive the dead-connection debounce
-      // toward LostConnectionSyncStatus even though nothing was ever asked.
-      // Skip the cycle entirely and keep the last known balance instead.
-      printV('fetchBalances: skipped, socket not connected');
       return balance[currency] ??
           ElectrumBalance(
             confirmed: Money.zero(currency),
@@ -4118,13 +3957,6 @@ abstract class ElectrumWalletBase
     printV(
         'Fetched balances for ${addresses.length} addresses. Batch fetching: $shouldUseBatchFetching');
 
-    // Split into SP-derived (sourced from local transaction history, always
-    // valid regardless of whether this round's network fetch succeeds) and
-    // regular/non-SP (only trustworthy once the per-address fetch below
-    // actually returns usable data) so a dead/overloaded connection can fall
-    // back to the last known regular totals without also masking a freshly
-    // found SP output behind a stale *combined* snapshot - see the dead
-    // connection guard below and the _lastKnownRegular* fields' doc comment.
     var spConfirmed = 0;
     var spFrozen = 0;
 
@@ -4182,23 +4014,17 @@ abstract class ElectrumWalletBase
     });
 
     if (balances.isNotEmpty && balances.every((b) => b['confirmed'] == null)) {
-      // Only treat this as a dead connection when EVERY address's balance
-      // came back null — checking just the first address was a false-positive
-      // trap: one address (e.g. a freshly generated, never-subscribed one)
-      // getting a malformed/empty response from a quirky server doesn't mean
-      // the whole connection is down.
       _consecutiveNullBalanceFetches++;
-      printV(
-          "got null balance responses from the server ($_consecutiveNullBalanceFetches consecutive)");
+
       if (_consecutiveNullBalanceFetches >= _nullBalanceFetchTolerance) {
-        printV("setting connection status to lost");
         syncStatus = LostConnectionSyncStatus();
       }
+
       return ElectrumBalance(
         confirmed: Money.fromInt(_lastKnownRegularConfirmed + spConfirmed, currency),
         unconfirmed: Money.fromInt(_lastKnownRegularUnconfirmed, currency),
-        frozen: Money.fromInt(_lastKnownRegularFrozen + regularFrozenFromUnspentInfo + spFrozen,
-            currency),
+        frozen: Money.fromInt(
+            _lastKnownRegularFrozen + regularFrozenFromUnspentInfo + spFrozen, currency),
       );
     }
     _consecutiveNullBalanceFetches = 0;
@@ -4269,7 +4095,6 @@ abstract class ElectrumWalletBase
         .toSet();
 
     return all.where((tx) {
-
       if (tx.additionalInfo["isLightning"] == true) return accountIndex == 0;
       if (tx.isReceivedSilentPayment) return accountIndex == 0;
 
@@ -4282,18 +4107,6 @@ abstract class ElectrumWalletBase
     }).toList();
   }
 
-  // Reassigns balance[currency] to a brand-new ElectrumBalance instance
-  // rather than mutating the existing one's `confirmed` field in place
-  // (`balance[currency]!.confirmed += ...`) - ElectrumBalance is a plain
-  // class, not a MobX-observable one, so mutating a field on the object an
-  // ObservableMap already holds is invisible to MobX: it only reacts to a
-  // key being assigned/removed on the map itself, never to something
-  // changing inside a value it already holds. The old in-place-mutation
-  // pattern used to compute and even persist (via save()) a fully correct
-  // balance that the UI never rebuilt to reflect, since nothing ever
-  // actually looked like a change to the map. This is the SP scan-match
-  // handler's own equivalent of what fetchBalances()/updateBalance() already
-  // gets right by fully reassigning `balance[currency]` themselves.
   void _bumpConfirmedBalance(Money amount) {
     final previous = balance[currency]!;
     balance[currency] = ElectrumBalance(
@@ -4308,16 +4121,6 @@ abstract class ElectrumWalletBase
   bool _balanceUpdateInProgress = false;
   bool _balanceUpdateQueued = false;
 
-  // fetchBalances() always refetches every address in the wallet — there's
-  // no way to scope it to just the one address that changed. It's called
-  // from subscribeForUpdates()'s per-subscription listener, so without this
-  // coalescing, every address with real history that reports a change
-  // within the same short window each independently triggered their own
-  // full wallet-wide balance refetch, stacking N full passes on top of each
-  // other instead of one. Any call that arrives while a fetch is already
-  // running just marks another pass as needed instead of starting a new,
-  // fully redundant one; at most one extra pass runs after the current one
-  // finishes, picking up whatever changed meanwhile.
   Future<void> updateBalance() async {
     if (_balanceUpdateInProgress) {
       _balanceUpdateQueued = true;
@@ -4613,21 +4416,6 @@ abstract class ElectrumWalletBase
     }
   }
 
-  /// Keeps retrying the connection with capped exponential backoff for as
-  /// long as the socket is actually down, instead of the previous single
-  /// 5-second-later attempt. That one-shot retry only ever fired once per
-  /// genuinely *new* NotConnected/LostConnection value, because
-  /// `_onConnectionStatusChange` only reassigns `syncStatus` when it isn't
-  /// already that type (`if (syncStatus is! NotConnectedSyncStatus) ...`) —
-  /// so once the connection got stuck disconnected across several
-  /// disconnect signals in a row (exactly what this test node's flaky link
-  /// produces), `syncStatus` itself never changed again, the MobX reaction
-  /// that drives this method never refired, and the wallet stayed
-  /// permanently "Not Connected" after the very first failed retry.
-  /// Checks `electrumClient.isConnected` (actual transport state) rather
-  /// than `syncStatus` to decide whether to keep going, since a failed
-  /// `connect()` attempt can itself leave `syncStatus` stuck on
-  /// `ConnectingSyncStatus` without ever reporting failure.
   Future<void> _reconnectWithBackoffUntilConnected() async {
     var backoff = const Duration(seconds: 5);
     const maxBackoff = Duration(seconds: 30);
