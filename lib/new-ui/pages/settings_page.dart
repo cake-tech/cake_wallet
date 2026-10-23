@@ -308,6 +308,7 @@ class SettingsMainPage extends StatelessWidget {
             "wallet_type_settings": [
               ListItemRegularRow(
                 keyValue: "wallet_type_settings",
+                truncateLabel: true,
                 label: _walletSettingsResolver.titleFor(
                   dashboardViewModel.wallet.type,
                   S.of(context),
@@ -346,6 +347,7 @@ class SettingsMainPage extends StatelessWidget {
 
   ListItemRegularRow _buildRow(BuildContext context, SettingsListItem item) => ListItemRegularRow(
         keyValue: item.route,
+        truncateLabel: true,
         label: item.title,
         iconPath: item.iconPath,
         onTap: () => _openItem(context, item),
@@ -412,6 +414,7 @@ class WalletSettingsPage extends StatelessWidget {
                           .map(
                             (item) => ListItemRegularRow(
                               keyValue: item.route,
+                              truncateLabel: true,
                               label: item.title,
                               iconPath: item.iconPath,
                               onTap: () => _openItem(context, item),
