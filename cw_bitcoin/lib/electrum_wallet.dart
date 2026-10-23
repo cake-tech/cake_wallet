@@ -1123,6 +1123,8 @@ abstract class ElectrumWalletBase
       await _receiveStream?.cancel();
       await electrumClient.close();
       _isBatchSupported = null;
+      // The new server session has no subscriptions yet.
+      _scripthashesUpdateSubject = {};
 
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
@@ -4627,6 +4629,8 @@ abstract class ElectrumWalletBase
       await _receiveStream?.cancel();
 
       await electrumClient.close();
+      // The new server session has no subscriptions yet.
+      _scripthashesUpdateSubject = {};
 
       if (node != null) {
         electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
@@ -4634,7 +4638,7 @@ abstract class ElectrumWalletBase
         await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
 
         // On failure the client reports `failed` and the 5 s retry takes over. Syncing with no
-        // socket would clear the coin list and end in a false "Synced".
+        // socket would end in a false "Synced".
         if (!electrumClient.isConnected) {
           return;
         }

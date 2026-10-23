@@ -99,7 +99,7 @@ class ElectrumClient {
       }
 
       // Always report it: "connecting" is not retried by the wallet, so a failure left
-      // unreported keeps it on the spinner and ignoring node changes until the app restarts.
+      // unreported keeps it on the spinner until the app is resumed or restarted.
       _setConnectionStatus(ConnectionStatus.failed);
       return;
     }
