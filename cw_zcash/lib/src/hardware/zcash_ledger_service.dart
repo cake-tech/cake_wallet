@@ -2,6 +2,7 @@ import 'dart:async';
 import "dart:convert";
 import 'dart:typed_data';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_zcash/src/hardware/zcash_hardware_wallet_service.dart";
@@ -13,13 +14,8 @@ import 'package:zkool/src/rust/api/coin.dart' as zkool_coin;
 import 'package:zkool/src/rust/api/ledger.dart' as zkool_ledger;
 import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
 
-class ZcashLedgerException implements Exception {
-  ZcashLedgerException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => message;
+class ZcashLedgerException extends CakeException {
+  const ZcashLedgerException(super.message);
 }
 
 const _notConnected =
