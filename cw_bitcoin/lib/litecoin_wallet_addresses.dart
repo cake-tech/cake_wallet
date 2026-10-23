@@ -25,12 +25,7 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHdByTypeAndAccount,
-    required super.sideHdByTypeAndAccount,
-    required super.accountIndexes,
-    required super.currentAccountIndex,
-    required super.legacyMainHd,
-    required super.legacySideHd,
+    required super.accounts,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
@@ -68,9 +63,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
               List.filled(32, 0);
 
   @override
-  Future<void> init({List<int> accountIndexes = const []}) async {
+  Future<void> init() async {
     if (!isHardwareWallet) await initMwebAddresses();
-    await super.init(accountIndexes: accountIndexes);
+    await super.init();
   }
 
   @computed
@@ -150,10 +145,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) {
     if (addressType == SegwitAddresType.mweb) {
-      if (mwebAddrs.length == 0) {
-        return "";
-      }
-      return hd == legacySideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      if (mwebAddrs.isEmpty) return "";
+      final isChange = accounts[0]?.hd.isChangeBranch(hd) ?? false;
+      return isChange ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }

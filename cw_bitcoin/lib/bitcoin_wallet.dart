@@ -79,6 +79,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     bool? useLightning,
     String? cachedLightningAddress,
+    List<int>? accountIndexes,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -100,6 +101,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
+          accountIndexes: accountIndexes
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -130,12 +132,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
-      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
-      accountIndexes: [currentAccountIndex],
+      accounts: accounts,
       currentAccountIndex: currentAccountIndex,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
       network: networkParam ?? network,
       masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -316,6 +314,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
+    final accountIndexes =
+    (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
+
     return BitcoinWallet(
       mnemonic: mnemonic,
       xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
@@ -339,6 +340,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
       payjoinBox: payjoinBox,
+      accountIndexes: accountIndexes,
     );
   }
 
