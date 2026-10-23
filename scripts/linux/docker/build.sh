@@ -217,11 +217,10 @@ merge_slices() {
 base_ver="latest"
 torch_ver="$(tinysha $SCRIPT_DIR/Dockerfile.torch $REPO_ROOT/scripts/prepare_torch.sh $REPO_ROOT/scripts/linux/build_torch.sh)"
 reown_ver=$(tinysha $SCRIPT_DIR/Dockerfile.reown $REPO_ROOT/scripts/prepare_reown.sh $REPO_ROOT/scripts/android/build_reown_deps.sh)
-bitbox_ver=$(tinysha $SCRIPT_DIR/Dockerfile.bitbox $REPO_ROOT/scripts/build_bitbox_flutter.sh)
 monero_ver=$(tinysha $SCRIPT_DIR/Dockerfile.monero $REPO_ROOT/scripts/prepare_moneroc.sh $REPO_ROOT/scripts/linux/build_monero_all.sh)
 mwebd_ver=$(tinysha $SCRIPT_DIR/Dockerfile.mwebd $REPO_ROOT/pubspec_overrides.yaml $(find $REPO_ROOT/cw_mweb/go -type f | sort))
 zcash_ver=$(tinysha $SCRIPT_DIR/Dockerfile.zcash $REPO_ROOT/scripts/prepare_zcash.sh $REPO_ROOT/scripts/linux/build_zcash.sh)
-echo $base_ver $torch_ver $reown_ver $bitbox_ver $monero_ver $mwebd_ver $zcash_ver "$(monero_assembled_extra)" > /tmp/docker_build_versions
+echo $base_ver $torch_ver $reown_ver $monero_ver $mwebd_ver $zcash_ver "$(monero_assembled_extra)" > /tmp/docker_build_versions
 final_ver=$(tinysha /tmp/docker_build_versions)
 
 extract_final() {
@@ -253,10 +252,6 @@ extract_final() {
 
 build_base() {
   build base "$base_ver"
-}
-
-build_bitbox() {
-  build bitbox "$bitbox_ver" --build-arg BASE_IMAGE="$(img base "$base_ver")"
 }
 
 build_mwebd() {
@@ -300,7 +295,6 @@ build_final() {
     --build-arg BASE_IMAGE="$(img base "$base_ver")" \
     --build-arg TORCH_IMAGE="$(img torch "$torch_ver")" \
     --build-arg REOWN_IMAGE="$(img reown "$reown_ver")" \
-    --build-arg BITBOX_IMAGE="$(img bitbox "$bitbox_ver")" \
     --build-arg MONERO_IMAGE="$(img monero "$monero_ver" "$(monero_assembled_extra)")" \
     --build-arg MWEBD_IMAGE="$(img mwebd "$mwebd_ver")" \
     --build-arg ZCASH_IMAGE="$(img zcash "$zcash_ver")"
@@ -311,7 +305,6 @@ build_final() {
 run_one() {
   case "$1" in
     base) build_base ;;
-    bitbox) build_bitbox ;;
     mwebd) build_mwebd ;;
     reown) build_reown ;;
     zcash) build_zcash ;;
@@ -337,7 +330,6 @@ if [[ -z "$ONLY" ]]; then
   COIN=""
   MERGE=false
   build_base
-  build_bitbox
   build_mwebd
   build_reown
   build_monero
