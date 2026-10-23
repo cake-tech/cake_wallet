@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class PrimaryButton extends StatelessWidget {
     this.borderColor = Colors.black,
     this.onDisabledPressed,
     this.borderRadius,
+    this.testId,
     super.key,
   });
 
@@ -27,10 +29,11 @@ class PrimaryButton extends StatelessWidget {
   final bool isDisabled;
   final bool isDottedBorder;
   final BorderRadius? borderRadius;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
-    final content = ConstrainedBox(
+    final content = TestId.merge(testId ?? TestId.fromKey(key), child: ConstrainedBox(
       constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
       child: SizedBox(
         width: double.infinity,
@@ -59,6 +62,7 @@ class PrimaryButton extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
 
     return isDottedBorder
@@ -81,6 +85,7 @@ class LoadingPrimaryButton extends StatelessWidget {
     required this.textColor,
     this.isDisabled = false,
     this.isLoading = false,
+    this.testId,
     super.key,
   });
 
@@ -90,6 +95,7 @@ class LoadingPrimaryButton extends StatelessWidget {
   final bool isLoading;
   final bool isDisabled;
   final String text;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +104,7 @@ class LoadingPrimaryButton extends StatelessWidget {
     // The spinner replaces the label while loading, so the name is kept on a single
     // semantics node that also reports the loading and disabled states.
     return Semantics(
+      identifier: testId ?? TestId.fromKey(key),
       button: true,
       enabled: isEnabled,
       label: text,
@@ -230,6 +237,7 @@ class PrimaryImageButton extends StatelessWidget {
       required this.color,
       required this.textColor,
       this.borderColor = Colors.transparent,
+      this.testId,
       super.key});
 
   final VoidCallback onPressed;
@@ -238,10 +246,11 @@ class PrimaryImageButton extends StatelessWidget {
   final Color textColor;
   final Color borderColor;
   final String text;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
+    return TestId.merge(testId ?? TestId.fromKey(key), child: ConstrainedBox(
       constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
       child: SizedBox(
         width: double.infinity,
@@ -274,6 +283,7 @@ class PrimaryImageButton extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
