@@ -2,9 +2,12 @@ import "dart:async";
 import "dart:io";
 
 import "package:bitbox_flutter/bitbox_flutter.dart" as sdk;
+import "package:bitbox_flutter/ffi/bitbox_ffi.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
 import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/main.dart";
+import "package:cake_wallet/new-ui/widgets/hardware_wallet/bitbox_paring_sheet.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
@@ -15,6 +18,7 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
 import "package:mobx/mobx.dart";
 
 part "bitbox_view_model.g.dart";
@@ -87,14 +91,47 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
     }
     isConnecting = true;
 
+    StreamSubscription<BitboxEvent>? events;
     try {
       final appDocDir = await getAppDir();
 
       _connection = await usbManager.connect(device.device);
       printV("Got Connection", file: "${appDocDir.path}/error.txt");
 
+      final channelHashVerified = Completer<bool>();
+      events = usbManager.events.listen((event) async {
+        printV(event.event);
+        if (event.event == "channelHashChanged" &&
+            event.channelHash.isNotEmpty &&
+            !event.channelHashVerified) {
+          final verifiedChannelHash = await showModalBottomSheet<bool?>(
+            context: navigatorKey.currentContext!,
+            isScrollControlled: true,
+            isDismissible: false,
+            enableDrag: false,
+            useSafeArea: true,
+            builder: (_) => HardwareWalletBitboxParingSheet(paringCode: event.channelHash),
+          );
+
+          if (!channelHashVerified.isCompleted) {
+            channelHashVerified.complete(verifiedChannelHash ?? false);
+          }
+        }
+      });
+
       await _connection!.initBitBox();
-      await _connection!.channelHashVerify();
+
+      final isChannelHashVerified = await channelHashVerified.future;
+
+      if (isChannelHashVerified) {
+        await _connection!.channelHashVerify();
+      } else {
+        isConnecting = false;
+        _connectedDevice = null;
+        _isConnectedTimer?.cancel();
+        _isConnectedTimer = null;
+        return false;
+      }
 
       _connectedDevice = device;
       _isConnectedTimer = Timer.periodic(const Duration(seconds: 1), (_) => _isStillConnected());
@@ -102,6 +139,9 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       return true;
     } catch (e) {
       printV(e);
+    } finally {
+      unawaited(events?.cancel());
+      printV("DONE!");
     }
     isConnecting = false;
     _connectedDevice = null;

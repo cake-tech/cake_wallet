@@ -801,6 +801,7 @@
   "overshot": "เกิน",
   "overwrite_amount": "เขียนทับจำนวนเงิน",
   "pairing_code": "รหัสจับคู่",
+  "pairing_code_bitbox_confirm": "ยืนยันว่ารหัสด้านล่างตรงกับรหัสที่แสดงบน BitBox ของคุณ",
   "pairing_code_desc_1": "อุปกรณ์ของคุณจะแสดงรหัสจับคู่",
   "pairing_code_desc_2": "ป้อนที่นี่เพื่อดำเนินการต่อ",
   "pairing_error": "เกิดข้อผิดพลาดในการจับคู่",

@@ -802,6 +802,7 @@
   "overshot": "Vượt quá",
   "overwrite_amount": "Ghi đè số lượng",
   "pairing_code": "Mã ghép nối",
+  "pairing_code_bitbox_confirm": "Xác nhận rằng mã bên dưới khớp với mã hiển thị trên BitBox của bạn",
   "pairing_code_desc_1": "Thiết bị của bạn sẽ hiển thị một mã ghép nối.",
   "pairing_code_desc_2": "Nhập vào đây để tiếp tục",
   "pairing_error": "Lỗi ghép nối",

@@ -801,6 +801,7 @@
   "overshot": "Overschreden",
   "overwrite_amount": "Bedrag overschrijven",
   "pairing_code": "Koppelingscode",
+  "pairing_code_bitbox_confirm": "Bevestig dat de onderstaande code overeenkomt met de code op je BitBox",
   "pairing_code_desc_1": "Je apparaat toont een koppelingscode.",
   "pairing_code_desc_2": "Voer deze hier in om door te gaan",
   "pairing_error": "Koppelingsfout",

@@ -802,6 +802,7 @@
   "overshot": "Ti kọja iye",
   "overwrite_amount": "Rọ́pò iye",
   "pairing_code": "Kóòdù Ìsopọ̀",
+  "pairing_code_bitbox_confirm": "Jẹ́rìí pé kóòdù tó wà nísàlẹ̀ bá èyí tí ó hàn lórí BitBox rẹ mu",
   "pairing_code_desc_1": "Ẹrọ rẹ yóò ṣàfihàn kóòdù ìsopọ̀ kan.",
   "pairing_code_desc_2": "Tẹ̀ ẹ́ sílẹ̀ níbí láti tẹ̀síwájú",
   "pairing_error": "Àṣìṣe Ìsopọ̀",

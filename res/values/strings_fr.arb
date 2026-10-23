@@ -801,6 +801,7 @@
   "overshot": "Dépassement",
   "overwrite_amount": "Écraser le montant",
   "pairing_code": "Code de jumelage",
+  "pairing_code_bitbox_confirm": "Confirmez que le code ci-dessous correspond à celui affiché sur votre BitBox",
   "pairing_code_desc_1": "Votre appareil affichera un code de jumelage.",
   "pairing_code_desc_2": "Saisissez-le ici pour continuer",
   "pairing_error": "Erreur de jumelage",

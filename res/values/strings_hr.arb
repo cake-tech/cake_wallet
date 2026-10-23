@@ -801,6 +801,7 @@
   "overshot": "Prekoračeno",
   "overwrite_amount": "Prepiši iznos",
   "pairing_code": "Kod za uparivanje",
+  "pairing_code_bitbox_confirm": "Potvrdite da se kôd ispod podudara s onim prikazanim na vašem BitBoxu",
   "pairing_code_desc_1": "Vaš će uređaj prikazati kod za uparivanje.",
   "pairing_code_desc_2": "Unesite ga ovdje za nastavak",
   "pairing_error": "Pogreška pri uparivanju",

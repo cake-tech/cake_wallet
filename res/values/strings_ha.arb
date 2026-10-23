@@ -803,6 +803,7 @@
   "overshot": "Overshot",
   "overwrite_amount": "Maye gurbin adadi",
   "pairing_code": "Lambar haɗawa (pairing)",
+  "pairing_code_bitbox_confirm": "Tabbatar cewa lambar da ke ƙasa ta yi daidai da wadda aka nuna a kan BitBox ɗinka",
   "pairing_code_desc_1": "Na'urarka za ta nuna lambar haɗawa (pairing).",
   "pairing_code_desc_2": "Shigar da ita a nan don ci gaba",
   "pairing_error": "Kuskuren haɗawa (pairing)",

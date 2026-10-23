@@ -801,6 +801,7 @@
   "overshot": "Lumampas",
   "overwrite_amount": "Patungan ang halaga",
   "pairing_code": "Pairing Code",
+  "pairing_code_bitbox_confirm": "Kumpirmahin na tugma ang code sa ibaba sa ipinapakita sa iyong BitBox",
   "pairing_code_desc_1": "Magpapakita ang iyong device ng isang pairing code.",
   "pairing_code_desc_2": "Ilagay dito upang magpatuloy",
   "pairing_error": "Error sa Pagpa-pair",

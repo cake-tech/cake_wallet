@@ -847,6 +847,7 @@
   "overshot": "Überschuss",
   "overwrite_amount": "Betrag überschreiben",
   "pairing_code": "Kopplungscode",
+  "pairing_code_bitbox_confirm": "Bestätigen Sie, dass der untenstehende Code mit dem auf Ihrer BitBox angezeigten übereinstimmt",
   "pairing_code_desc_1": "Ihr Gerät zeigt einen Kopplungscode an.",
   "pairing_code_desc_2": "Geben Sie ihn hier ein, um fortzufahren",
   "pairing_error": "Kopplungsfehler",

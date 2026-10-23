@@ -847,6 +847,7 @@
   "overshot": "Overshot",
   "overwrite_amount": "Overwrite amount",
   "pairing_code": "Pairing Code",
+  "pairing_code_bitbox_confirm": "Confirm that the code below matches the one shown on your BitBox",
   "pairing_code_desc_1": "Your device will show a pairing code.",
   "pairing_code_desc_2": "Input here to continue",
   "pairing_error": "Pairing Error",

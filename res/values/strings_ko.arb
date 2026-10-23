@@ -801,6 +801,7 @@
   "overshot": "초과",
   "overwrite_amount": "금액 덮어쓰기",
   "pairing_code": "페어링 코드",
+  "pairing_code_bitbox_confirm": "아래 코드가 BitBox에 표시된 코드와 일치하는지 확인하세요",
   "pairing_code_desc_1": "기기에 페어링 코드가 표시됩니다.",
   "pairing_code_desc_2": "계속하려면 여기에 입력하세요",
   "pairing_error": "페어링 오류",

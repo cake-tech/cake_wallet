@@ -803,6 +803,7 @@
   "overshot": "Melebihi",
   "overwrite_amount": "Timpa jumlah",
   "pairing_code": "Kode Pairing",
+  "pairing_code_bitbox_confirm": "Pastikan kode di bawah ini cocok dengan kode yang ditampilkan di BitBox Anda",
   "pairing_code_desc_1": "Perangkat Anda akan menampilkan kode pairing.",
   "pairing_code_desc_2": "Masukkan di sini untuk melanjutkan",
   "pairing_error": "Kesalahan Pairing",
