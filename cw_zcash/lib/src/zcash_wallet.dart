@@ -996,7 +996,7 @@ abstract class ZcashWalletBase
       }
       seed = s.mnemonic.trim();
     } catch (e) {
-      seed = e.toString();
+      seed = null;
     }
   }
 
