@@ -94,7 +94,7 @@ class WalletListPage extends BasePage {
                 );
               },
               child: Semantics(
-                label: 'Transaction Filter',
+                label: S.of(context).order_by,
                 button: true,
                 enabled: true,
                 child: Container(
@@ -107,6 +107,7 @@ class WalletListPage extends BasePage {
                   child: Image.asset(
                     'assets/images/filter_icon.png',
                     color: Theme.of(context).colorScheme.primary,
+                    excludeFromSemantics: true,
                   ),
                 ),
               ),
@@ -308,10 +309,12 @@ class WalletListBodyState extends State<WalletListBody> {
                                   ),
                                 ),
                                 title: wallet.name,
+                                titleSemanticsLabel:
+                                    '${wallet.name}, ${walletTypeToDisplayName(wallet.type)}',
                                 isSelected: false,
                                 borderRadius: BorderRadius.all(Radius.circular(18)),
                                 margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
-                                onTitleTapped: () => wallet.isCurrent ? null : _loadWallet(wallet),
+                                onTitleTapped: wallet.isCurrent ? null : () => _loadWallet(wallet),
                                 trailingWidget: wallet.isCurrent
                                     ? null
                                     : EditWalletButtonWidget(
