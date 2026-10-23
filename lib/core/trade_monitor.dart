@@ -12,12 +12,12 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/whynot_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -54,8 +54,8 @@ class TradeMonitor {
         return ThorChainExchangeProvider();
       case ExchangeProviderDescription.swapTrade:
         return SwapTradeExchangeProvider();
-      case ExchangeProviderDescription.letsExchange:
-        return LetsExchangeExchangeProvider();
+      case ExchangeProviderDescription.whyNot:
+        return WhyNotExchangeProvider();
       case ExchangeProviderDescription.stealthEx:
         return StealthExExchangeProvider();
       case ExchangeProviderDescription.chainflip:
