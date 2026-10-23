@@ -151,8 +151,9 @@ void main() {
     timeout: const Timeout(Duration(seconds: 90)),
   );
 
-  test("Tor refusing CONNECT is reported as failed", () async {
-    final tor = await _fakeTor(connectReply: 0x04);
+  test("Tor refusing CONNECT is reported as failed and the Tor session is closed", () async {
+    final closed = <Future<void>>[];
+    final tor = await _fakeTor(connectReply: 0x04, closed: closed);
     CakeTor.instance = CakeTorSocks(tor.port);
     final log = <ConnectionStatus>[];
     final client = _client(log);
@@ -160,6 +161,7 @@ void main() {
     await client.connectToUri(Uri.parse("tcp://example.onion:50001"), useSSL: false);
 
     expect(log, [ConnectionStatus.connecting, ConnectionStatus.failed]);
+    await closed.single.timeout(const Duration(seconds: 3));
     await tor.close();
   });
 

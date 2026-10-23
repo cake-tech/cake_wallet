@@ -31,8 +31,14 @@ abstract class ProxySocket {
           proxyPort: CakeTor.instance!.port,
           sslEnabled: sslEnabled,
         );
-        await socket.connect();
-        await socket.connectTo(address.host, address.port);
+        try {
+          await socket.connect();
+          await socket.connectTo(address.host, address.port);
+        } catch (_) {
+          // On a failure reply the library leaves its connection to Tor open.
+          unawaited(socket.close().catchError((_) {}));
+          rethrow;
+        }
         return ProxySocketSocks(socket);
       }
 

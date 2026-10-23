@@ -74,7 +74,9 @@ class _Addresses extends BitcoinWalletAddresses {
   Future<void> saveAddressesInBox() async {}
 }
 
-/// Electrum server stand-in: answers every request with a null result and counts what it gets.
+/// Electrum server stand-in: answers requests with a null result (a block height for
+/// blockchain.headers.subscribe, so a sync gets past its first step), leaves batch requests
+/// unanswered, and counts address subscriptions.
 class _FakeNode {
   _FakeNode._(this._server);
 
@@ -86,11 +88,16 @@ class _FakeNode {
     node._server.listen((c) {
       c.cast<List<int>>().transform(utf8.decoder).transform(const LineSplitter()).listen(
         (line) {
-          final request = json.decode(line) as Map;
+          final request = json.decode(line);
+          if (request is! Map) {
+            return;
+          }
           if (request["method"] == "blockchain.scripthash.subscribe") {
             node.subscribes++;
           }
-          c.write('{"jsonrpc":"2.0","result":null,"id":${json.encode(request['id'])}}\n');
+          final result =
+              request["method"] == "blockchain.headers.subscribe" ? '{"height":800000}' : "null";
+          c.write('{"jsonrpc":"2.0","result":$result,"id":${json.encode(request['id'])}}\n');
         },
         onDone: () => c.destroy(),
         onError: (_) {},
@@ -318,6 +325,47 @@ void main() {
     expect(wallet.syncStatus, isA<LostConnectionSyncStatus>());
     await wallet.close();
   });
+
+  test(
+    "app resume on an unresponsive session re-subscribes the addresses",
+    () async {
+      final node = await _FakeNode.start();
+      final wallet = _wallet();
+      await wallet.connectToNode(node: _node(node.port));
+      await _waitFor(() => _connectedTo(wallet, node.port), const Duration(seconds: 8));
+      await wallet.subscribeForUpdates();
+      await Future.delayed(const Duration(milliseconds: 300));
+      final firstSession = node.subscribes;
+      expect(firstSession, greaterThanOrEqualTo(_addressCount));
+
+      // The fake answers server.version with null, which the health check treats as a dead
+      // session: it reconnects and starts a sync.
+      unawaited(wallet.checkSocketHealth());
+      await _waitFor(() => node.subscribes == 2 * firstSession, const Duration(seconds: 8));
+
+      expect(node.subscribes, 2 * firstSession);
+      await wallet.close();
+      await node.close();
+    },
+    timeout: const Timeout(Duration(seconds: 30)),
+  );
+
+  test(
+    "a closed wallet does not reconnect on its own",
+    () async {
+      final port = await _refusedPort();
+      final wallet = _wallet();
+      await wallet.connectToNode(node: _node(port)); // fails, so a retry is scheduled
+      await wallet.close();
+
+      final node = await _FakeNode.start(port: port);
+      await Future.delayed(const Duration(seconds: 7)); // past the 5 s retry
+
+      expect(wallet.electrumClient.isConnected, isFalse);
+      await node.close();
+    },
+    timeout: const Timeout(Duration(seconds: 30)),
+  );
 
   test(
     "switching between two working nodes subscribes the addresses on the new node",

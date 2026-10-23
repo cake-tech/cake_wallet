@@ -597,6 +597,7 @@ abstract class ElectrumWalletBase
   bool silentPaymentsScanningActive = false;
 
   bool _isTryingToConnect = false;
+  Timer? _reconnectTimer;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
   DateTime? _syncStartedAt;
@@ -2109,6 +2110,9 @@ abstract class ElectrumWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _missingHistoryQueue.clear();
     _unresolvedAccountRetryCount.clear();
+    // A pending reconnect would reopen the client of a closed wallet.
+    _reconnectTimer?.cancel();
+    _isTryingToConnect = false;
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
@@ -4445,7 +4449,7 @@ abstract class ElectrumWalletBase
 
       _isTryingToConnect = true;
 
-      Timer(Duration(seconds: 5), () {
+      _reconnectTimer = Timer(Duration(seconds: 5), () {
         if (this.syncStatus is NotConnectedSyncStatus ||
             this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
