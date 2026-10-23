@@ -70,7 +70,7 @@ abstract class ZcashWalletBase
 
   bool get canRotateTransparentAddress => isSoftwareWallet;
 
-  bool get canUseLegacyShielded => hardwareWalletType == null;
+  bool get canUseLegacyShielded => isSoftwareWallet;
 
   @override
   bool receiveOptionAvailable(ReceivePageOption option) {
