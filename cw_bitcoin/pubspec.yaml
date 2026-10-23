@@ -61,7 +61,9 @@ dependencies:
       ref: 591d4b8c821b9c10561f848b866324a9a8dcb489
       path: trezor-flutter
   bitbox_flutter:
-    path: ../scripts/bitbox_flutter
+    git:
+      url: https://github.com/konstantinullrich/bitbox_flutter.git
+      ref: cdf312d45ca9414741533ed5fb36c391b89d5fc7
   socks_socket:
     git:
       url: https://github.com/sneurlax/socks_socket

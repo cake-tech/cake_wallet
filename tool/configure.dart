@@ -282,7 +282,7 @@ abstract class Bitcoin {
   int getMaxCustomFeeRate(Object wallet);
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
-  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxConnection manager, bool isBitcoin);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
@@ -1580,7 +1580,7 @@ abstract class EVM {
   // Hardware wallet methods
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
-  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxConnection manager);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   
   // Utility methods

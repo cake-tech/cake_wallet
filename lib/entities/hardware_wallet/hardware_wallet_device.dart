@@ -1,6 +1,6 @@
-import 'package:bitbox_flutter/usb/bitbox_device.dart' as bitbox;
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
-import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
+import "package:bitbox_flutter/bitbox_flutter.dart" as bitbox;
+import "package:ledger_flutter_plus/ledger_flutter_plus.dart" as ledger;
+import "package:trezor_flutter/trezor_flutter.dart" as trezor;
 
 abstract class HardwareWalletDevice {
   String get name;
@@ -26,9 +26,9 @@ class LedgerHardwareWalletDevice extends HardwareWalletDevice {
 }
 
 class BitboxHardwareWalletDevice extends HardwareWalletDevice {
-  final bitbox.BitboxDevice device;
-
   BitboxHardwareWalletDevice(this.device);
+
+  final bitbox.BitboxDevice device;
 
   @override
   String get name => device.productName;
