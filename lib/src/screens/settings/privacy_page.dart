@@ -71,6 +71,13 @@ class PrivacyPage extends BasePage {
                           onChanged: (val) {
                             _privacySettingsViewModel.setUseLightning(val);
                           }),
+                    ListItemToggle(
+                        keyValue: "disable_token_image_refresh",
+                        label: S.of(context).disable_token_image_refresh,
+                        value: _privacySettingsViewModel.disableTokenImageRefresh,
+                        onChanged: (val) {
+                          _privacySettingsViewModel.setDisableTokenImageRefresh(val);
+                        }),
                   ],
                 }),
               ],

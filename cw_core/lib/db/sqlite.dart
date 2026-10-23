@@ -71,7 +71,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -204,6 +204,27 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           table: "BalanceCardStyleSettings",
           column: "hidden",
           definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
+
+      if (oldVersion <= 15) {
+        await _addColumnIfNotExists(
+          db,
+          table: "Erc20Token",
+          column: "networkIconUrl",
+          definition: "TEXT",
+        );
+        await _addColumnIfNotExists(
+          db,
+          table: "SPLToken",
+          column: "networkIconUrl",
+          definition: "TEXT",
+        );
+        await _addColumnIfNotExists(
+          db,
+          table: "TronToken",
+          column: "networkIconUrl",
+          definition: "TEXT",
         );
       }
     },
@@ -509,6 +530,7 @@ CREATE TABLE IF NOT EXISTS Erc20Token (
   decimal INTEGER NOT NULL DEFAULT 0,
   enabled INTEGER NOT NULL DEFAULT 1,
   iconPath TEXT,
+  networkIconUrl TEXT,
   tag TEXT,
   isPotentialScam INTEGER NOT NULL DEFAULT 0
 );
@@ -531,6 +553,7 @@ CREATE TABLE IF NOT EXISTS SPLToken (
   mint TEXT NOT NULL DEFAULT '',
   enabled INTEGER NOT NULL DEFAULT 1,
   iconPath TEXT,
+  networkIconUrl TEXT,
   tag TEXT,
   isPotentialScam INTEGER NOT NULL DEFAULT 0
 );
@@ -572,6 +595,7 @@ CREATE TABLE IF NOT EXISTS TronToken (
   decimal INTEGER NOT NULL DEFAULT 0,
   enabled INTEGER NOT NULL DEFAULT 1,
   iconPath TEXT,
+  networkIconUrl TEXT,
   tag TEXT,
   isPotentialScam INTEGER NOT NULL DEFAULT 0
 );
