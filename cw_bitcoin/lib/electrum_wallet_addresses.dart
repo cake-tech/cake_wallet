@@ -63,8 +63,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(
     WalletInfo walletInfo, {
     required this.accounts,
-    required this.legacyMainHd,
-    required this.legacySideHd,
     required this.network,
     required this.isHardwareWallet,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -158,8 +156,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   void setCurrentAccountIndex(int index) {}
 
-  final Bip32Slip10Secp256k1 legacyMainHd;
-  final Bip32Slip10Secp256k1 legacySideHd;
   final bool isHardwareWallet;
   LightningWallet? lightningWallet;
 

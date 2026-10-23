@@ -566,6 +566,7 @@ abstract class ElectrumWalletBase
     walletAddresses.setCurrentAccountIndex(accountIndex);
 
     await walletAddresses.setAddressType(walletAddresses.addressPageType);
+
     walletAddresses.updateReceiveAddresses();
     walletAddresses.updateChangeAddresses();
 
@@ -710,16 +711,24 @@ abstract class ElectrumWalletBase
     String? publicKey;
 
     // `keys` is wallet-level metadata
-    final hd = accounts[0]?.hd.receive(SegwitAddresType.p2wpkh) ?? mainHd;
+    if (_masterHD == null) {
+      return BitcoinWalletKeys(
+        wif: '',
+        privateKey: '',
+        publicKey: '',
+        xpub: xpub,
+        masterFingerprint: '',
+      );
+    }
 
     try {
-      wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
+      wif = WifEncoder.encode(_masterHD!.privateKey.raw, netVer: network.wifNetVer);
     } catch (_) {}
     try {
-      privateKey = hd.privateKey.toHex();
+      privateKey = _masterHD!.privateKey.toExtended;
     } catch (_) {}
     try {
-      publicKey = hd.publicKey.toHex();
+      publicKey = _masterHD!.publicKey.toHex();
     } catch (_) {}
 
     return BitcoinWalletKeys(
@@ -727,7 +736,7 @@ abstract class ElectrumWalletBase
       privateKey: privateKey ?? '',
       publicKey: publicKey ?? '',
       xpub: xpub,
-      masterFingerprint: _masterHD?.fingerPrint.toHex() ?? '',
+      masterFingerprint: _masterHD!.fingerPrint.toHex() ?? '',
     );
   }
 
