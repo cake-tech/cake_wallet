@@ -93,6 +93,9 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       _connection = await usbManager.connect(device.device);
       printV("Got Connection", file: "${appDocDir.path}/error.txt");
 
+      await _connection!.initBitBox();
+      await _connection!.channelHashVerify();
+
       _connectedDevice = device;
       _isConnectedTimer = Timer.periodic(const Duration(seconds: 1), (_) => _isStillConnected());
       isConnecting = false;
