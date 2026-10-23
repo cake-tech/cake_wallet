@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import "package:cw_bitcoin/electrum_account.dart";
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -32,6 +33,7 @@ class ElectrumWalletSnapshot {
     this.derivationType,
     this.derivationPath,
     this.lightningBalance,
+    this.accountBalances,
   });
 
   final String name;
@@ -57,6 +59,7 @@ class ElectrumWalletSnapshot {
 
   ElectrumBalance balance;
   ElectrumBalance? lightningBalance;
+  Map<int, ElectrumBalance>? accountBalances;
   Map<String, int> regularAddressIndex;
   Map<String, int> changeAddressIndex;
   int silentAddressIndex;
@@ -103,6 +106,7 @@ class ElectrumWalletSnapshot {
         );
     final lightningBalance =
         ElectrumBalance.fromJSON(data['lightningBalance'] as String?, currency);
+    final accountBalances = ElectrumAccounts.balancesFromJson(data["accountBalances"], currency);
 
     var regularAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
     var changeAddressIndexByType = {SegwitAddresType.p2wpkh.toString(): 0};
@@ -138,6 +142,7 @@ class ElectrumWalletSnapshot {
       addresses: addresses,
       balance: balance,
       lightningBalance: lightningBalance,
+      accountBalances: accountBalances,
       regularAddressIndex: regularAddressIndexByType,
       changeAddressIndex: changeAddressIndexByType,
       addressPageType: data['address_page_type'] as String?,

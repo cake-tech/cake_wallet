@@ -85,6 +85,8 @@ class ElectrumBalance extends Balance {
         secondConfirmed,
         secondUnconfirmed,
       );
+
+  bool get isZero => confirmed.isZero && unconfirmed.isZero;
 }
 
 
