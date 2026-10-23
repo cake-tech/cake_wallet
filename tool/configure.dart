@@ -226,6 +226,7 @@ abstract class Bitcoin {
   Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
+  List<ElectrumSubAddress> getAddressRecords(Object wallet, Set<String> addresses);
 
   String formatterBitcoinAmountToString({required int amount});
   int formatterStringDoubleToBitcoinAmount(String amount);
@@ -266,6 +267,10 @@ abstract class Bitcoin {
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
   Future<String?> canReplaceByFee(Object wallet, Object tx);
+  void prioritizeTransactionResolution(Object wallet, TransactionInfo tx);
+  ({int resolvedInputs, int totalInputs, bool hasFailed})? transactionResolutionProgress(
+      Object wallet, TransactionInfo tx);
+  Future<TransactionInfo?> refreshTransactionIfStale(Object wallet, TransactionInfo tx);
   int getTransactionVSize(Object wallet, String txHex);
   Future<bool> isChangeSufficientForFee(Object wallet, String txId, String newFee);
   int getFeeAmountForPriority(Object wallet, TransactionPriority priority, int inputsCount, int outputsCount, {int? size});

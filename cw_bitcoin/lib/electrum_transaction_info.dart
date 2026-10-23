@@ -5,6 +5,7 @@ import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
+import 'package:cw_bitcoin/input_ownership.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -24,10 +25,45 @@ class ElectrumTransactionBundle {
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {
+  /// Cheap, parent-free MWEB HogEx shape check: first input spends output 0
+  /// and the first output is a 34-byte witness-v8 program (OP_8 PUSH32).
+  /// A real HogEx has this shape and so does its first parent, so the first
+  /// pass only needs to fetch that one parent when this holds.
+  static bool isHogExCandidate(BtcTransaction tx) {
+    if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty) {
+      return false;
+    }
+
+    final b = tx.outputs.first.scriptPubKey.toBytes();
+
+    return b.length == 34 && b[0] == 88 && b[1] == 32;
+  }
+
+  /// Used instead of bitcoin_base's `getVSize`, which rebuilds its witness
+  /// byte list on every witness.
+  static int virtualSize(BtcTransaction tx) {
+    final strippedSize = tx.toBytes(segwit: false).length;
+    if (!tx.hasSegwit) {
+      return strippedSize;
+    }
+
+    final fullSize = tx.toBytes(segwit: true).length;
+    return (strippedSize * 3 + fullSize + 3) ~/ 4;
+  }
+
   int? accountIndex;
   List<BitcoinSilentPaymentsUnspent>? unspents;
   bool isReceivedSilentPayment;
   bool isHogEx;
+
+  /// Whether every input's ownership has been settled, so ownership,
+  /// direction and amount need no further resolution.
+  @override
+  bool get inputsOwnershipFullyResolved => isLightning || _inputsOwnershipFullyResolved;
+
+  final bool _inputsOwnershipFullyResolved;
+
+  bool get isLightning => additionalInfo["isLightning"] == true;
 
   ElectrumTransactionInfo(
     this.type, {
@@ -47,8 +83,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.unspents,
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
+    bool inputsOwnershipFullyResolved = true,
     Map<String, dynamic>? additionalInfo,
-  }) {
+  }) : _inputsOwnershipFullyResolved = inputsOwnershipFullyResolved {
     this.id = id;
     this.height = height;
     this.amount = amount;
@@ -118,40 +155,101 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type, BasedUtxoNetwork network,
-      {required Set<String> addresses, int? height}) {
+      {required Set<String> addresses, int? height, DerivedTransactionAddresses? derived}) {
+    // Pass [derived] when rebuilding the same tx repeatedly (e.g. as its
+    // parents resolve) to skip re-deriving every input's pubkey addresses.
+    derived ??= DerivedTransactionAddresses.derive(bundle.originalTransaction, addresses, network);
+
     final date = bundle.time != null
         ? DateTime.fromMillisecondsSinceEpoch(bundle.time! * 1000)
         : DateTime.now();
     var direction = TransactionDirection.incoming;
-    var amount = 0;
+    // How much is displayed as the amount of the transaction, either as
+    // X sent or Y received. For sends, fees and change are deducted from
+    // the display amount
+    var walletDisplayAmount = 0;
     var inputAmount = 0;
     var totalOutAmount = 0;
-    List<String> inputAddresses = [];
-    List<String> outputAddresses = [];
+    final inputAddresses = <String>[];
+    final outputAddresses = <String>[];
 
-    var hasMissingInputTx = false;
-    for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
+    var ownedInputCount = 0;
+    var ownedInputTotal = 0;
+    var alreadyFetchedInputCount = 0;
+    var txHasAnyUnknownInput = false;
+    final totalInputCount = bundle.originalTransaction.inputs.length;
+    final unresolvedInputTxids = <String>[];
+    final ownedInputs = <Map<String, dynamic>>[];
+    final ownedOutputs = <Map<String, dynamic>>[];
+
+    for (var i = 0; i < totalInputCount; i++) {
       final input = bundle.originalTransaction.inputs[i];
-      final inputTransaction = i < bundle.ins.length ? bundle.ins[i] : null;
-      if (inputTransaction == null || input.txIndex >= inputTransaction.outputs.length) {
-        hasMissingInputTx = true;
+      final spentOutput = spentOutputAt(bundle.originalTransaction, bundle.ins, i);
+
+      // Ownership is derivable directly from the input's own scriptSig/witness
+      // data (no prevout needed), so it's known even when the parent tx is
+      // unresolved. `null` means genuinely unknown (e.g. P2TR key-path) - as
+      // opposed to `false`, which means every input shape was parseable and
+      // confirmed not ours.
+      final inputOwnership = derived.inputOwnership[i];
+      final ownershipFromInputData = inputOwnership.isOwnedBy(addresses);
+      final inputConfirmedOwnedByInputData = ownershipFromInputData ?? false;
+
+      // Input tx not yet fetched to check the spent output against - fall back to
+      // whatever the local scriptSig/witness check above could tell us.
+
+      if (spentOutput == null) {
+        unresolvedInputTxids.add(input.txId);
+
+        // Only still ambiguous while the prevout is missing; once fetched,
+        // the spent output's address settles ownership.
+        if (ownershipFromInputData == null) {
+          txHasAnyUnknownInput = true;
+        }
+
+        if (inputConfirmedOwnedByInputData) {
+          ownedInputCount++;
+          direction = TransactionDirection.outgoing;
+          // The address is known from the input data; its amount isn't until
+          // the parent is fetched, so it isn't in ownedInputs yet.
+          inputAddresses.add(inputOwnership.address!);
+        }
         continue;
       }
-      final outTransaction = inputTransaction.outputs[input.txIndex];
-      inputAmount += outTransaction.amount.toInt();
-      if (addresses.contains(addressFromOutputScript(outTransaction.scriptPubKey, network))) {
+
+      // Input tx was fetched: look up the actual output this input spends
+      // to get its real amount/address.
+      alreadyFetchedInputCount++;
+
+      inputAmount += spentOutput.amount.toInt();
+
+      final outAddress = addressFromOutputScript(spentOutput.scriptPubKey, network);
+      final addressExistsInOurAddresses = addresses.contains(outAddress);
+
+      if (addressExistsInOurAddresses || inputConfirmedOwnedByInputData) {
+        ownedInputCount++;
+
         direction = TransactionDirection.outgoing;
-        inputAddresses.add(addressFromOutputScript(outTransaction.scriptPubKey, network));
+        inputAddresses.add(outAddress);
+        ownedInputTotal += spentOutput.amount.toInt();
+
+        if (outAddress.isNotEmpty) {
+          ownedInputs.add({'address': outAddress, 'amount': spentOutput.amount.toInt()});
+        }
       }
     }
 
     final receivedAmounts = <int>[];
-    for (final out in bundle.originalTransaction.outputs) {
+    for (var voutIndex = 0; voutIndex < bundle.originalTransaction.outputs.length; voutIndex++) {
+      final out = bundle.originalTransaction.outputs[voutIndex];
       totalOutAmount += out.amount.toInt();
-      final addressExists = addresses.contains(addressFromOutputScript(out.scriptPubKey, network));
-      final address = addressFromOutputScript(out.scriptPubKey, network);
 
-      if (address.isNotEmpty) outputAddresses.add(address);
+      final outputAddress = derived.outputAddresses[voutIndex];
+      final addressExistsInOurAddresses = addresses.contains(outputAddress);
+
+      if (outputAddress.isNotEmpty) {
+        outputAddresses.add(outputAddress);
+      }
 
       // Check if the script contains OP_RETURN
       final script = out.scriptPubKey.script;
@@ -168,49 +266,148 @@ class ElectrumTransactionInfo extends TransactionInfo {
         }
       }
 
-      if (addressExists) {
+      if (addressExistsInOurAddresses) {
         receivedAmounts.add(out.amount.toInt());
+        ownedOutputs
+            .add({'address': outputAddress, 'amount': out.amount.toInt(), 'vout': voutIndex});
       }
 
-      if ((direction == TransactionDirection.incoming && addressExists) ||
-          (direction == TransactionDirection.outgoing && !addressExists)) {
-        amount += out.amount.toInt();
+      // TransactionDirection.incoming (default) means the above inputs loop
+      // did not swap direction to outgoing yet, no sends so we only receive from this tx
+      // and this cannot be a change
+      final isOnlyReceive =
+          direction == TransactionDirection.incoming && addressExistsInOurAddresses;
+
+      // The above inputs loop found an input that we did send, and we did not receive from
+      // this output, so it cannot be change and this can only have been sent externally to
+      // someone else.
+      final isExternalSend =
+          direction == TransactionDirection.outgoing && !addressExistsInOurAddresses;
+
+      // Only count outputs that represent real wallet-facing movement:
+      // received funds on a receive, or funds sent away (not change) on a send.
+      //
+      // Not counted: on a receive, outputs that aren't ours (other recipients,
+      // irrelevant to us); on a send, an output that is ours (change coming
+      // back - not money we sent away).
+      if (isOnlyReceive || isExternalSend) {
+        walletDisplayAmount += out.amount.toInt();
       }
     }
 
-    if (receivedAmounts.length == bundle.originalTransaction.outputs.length) {
-      // Self-send
+    final receivedAllOutputs = receivedAmounts.length == bundle.originalTransaction.outputs.length;
+    final sentPartOfInputs = direction == TransactionDirection.outgoing &&
+        ownedInputCount > 0 &&
+        ownedInputCount < totalInputCount;
+
+    if (receivedAllOutputs) {
       direction = TransactionDirection.incoming;
-      amount = receivedAmounts.reduce((a, b) => a + b);
+      walletDisplayAmount = receivedAmounts.reduce((a, b) => a + b);
+    } else if (sentPartOfInputs) {
+      // Reliable pre-fetch since ownership comes from scriptSig/witness alone.
+      // Uses ownedInputTotal (sums only resolved inputs so far) rather than
+      // waiting for full resolution, so it can transiently undercount but
+      // never overcount.
+      final ownedOutputsTotal = ownedOutputs.fold<int>(0, (sum, o) => sum + (o['amount'] as int));
+      final rawDisplayAmount = ownedInputTotal - ownedOutputsTotal;
+      // Every owned input's value is known (not just its ownership), so
+      // ownedInputTotal can no longer be an undercount.
+      final ownedInputsFullyResolved = ownedInputs.length == ownedInputCount;
+      if (rawDisplayAmount < 0 && ownedInputsFullyResolved) {
+        // We contributed input(s) but were credited with more value than we
+        // put in - e.g. the receiver side of a payjoin, where the receiver
+        // co-spends one of their own UTXOs and the resulting payment output
+        // is larger than that UTXO by design. Net effect is a receive.
+        direction = TransactionDirection.incoming;
+        walletDisplayAmount = -rawDisplayAmount;
+      } else {
+        // Otherwise this is a genuine send; clamp at 0 only while
+        // ownedInputTotal may still be an undercount (see above).
+        walletDisplayAmount = rawDisplayAmount < 0 ? 0 : rawDisplayAmount;
+      }
     }
 
-    // MWEB HogEx
-    final isHogExTx = (BtcTransaction tx) {
-      if (tx.inputs.isEmpty || tx.inputs.first.txIndex > 0 || tx.outputs.isEmpty) return false;
-      final b = tx.outputs.first.scriptPubKey.toBytes();
-      return b.length == 34 && b[0] == 88 && b[1] == 32;
-    };
+    // MWEB HogEx. Needs only the first parent, which the first-pass sync
+    // fetches for HogEx candidates (see ElectrumTransactionInfo.isHogExCandidate).
     final firstInput = bundle.ins.isNotEmpty ? bundle.ins.first : null;
-    final isHogEx =
-        firstInput != null && isHogExTx(bundle.originalTransaction) && isHogExTx(firstInput);
+    final isHogEx = firstInput != null &&
+        isHogExCandidate(bundle.originalTransaction) &&
+        isHogExCandidate(firstInput);
 
-    final fee = hasMissingInputTx ? null : inputAmount - totalOutAmount;
+    // The network fee is a property of the whole transaction (sum of inputs
+    // minus sum of outputs) regardless of which inputs are ours, so it's
+    // computable once every input is resolved.
+    final isFeeExact = totalInputCount > 0 && alreadyFetchedInputCount == totalInputCount;
+    final fee = isFeeExact ? inputAmount - totalOutAmount : null;
+
+    // Ownership/direction/amount need no further resolution once either
+    // every input is locally confirmed not ours, or every input has actually
+    // been resolved. This is independent of the fee: a settled
+    // receive can still be missing its fee (see isFeeExact above), which is
+    // what ElectrumTransactionResolver's shared resolution loop
+    // (_buildPendingQueue/_runResolutionLoop in electrum_transaction_resolver.dart)
+    // fills in afterward, at lower priority than resolving owned inputs.
+    final needsResolution = ownedInputCount > 0 || txHasAnyUnknownInput;
+    final inputsOwnershipFullyResolved =
+        !needsResolution || alreadyFetchedInputCount == totalInputCount;
+
+    // Pure receive, confirmed purely from local input data with nothing
+    // ambiguous - no input amounts are needed for the display amount here.
+    final allInputsConfirmedNotOurs = ownedInputCount == 0 && !txHasAnyUnknownInput;
+    // Full self-ownership send (no foreign inputs at all) - the co-spend
+    // formula's dependency on "this wallet's own inputs" covers every input.
+    final allInputsOwned = ownedInputCount == totalInputCount;
+
+    // Partial-ownership send, but every owned input has already been
+    // resolved - the formula's dependency on this wallet's own inputs is
+    // fully satisfied regardless of any still-unresolved foreign inputs.
+    // Inputs whose ownership can't be derived locally (e.g. P2TR key-path)
+    // may still turn out to be ours, so they must be resolved too.
+    final hasOwnedInputs = ownedInputCount > 0;
+    final everyOwnedInputResolved = ownedInputs.length == ownedInputCount;
+    final noUnknownInputsPending = !txHasAnyUnknownInput;
+    final allOwnedInputsResolved =
+        hasOwnedInputs && everyOwnedInputResolved && noUnknownInputsPending;
+
+    // Unlike inputsOwnershipFullyResolved, the display amount can be exact
+    // without every foreign input resolving - each case above depends only
+    // on this wallet's own inputs. Lets isAmountPending
+    // (transaction_details_view_model.dart, transaction_list_item.dart) show
+    // the final amount without waiting on unrelated foreign inputs.
+    final isWalletDisplayAmountExact =
+        receivedAllOutputs || allInputsConfirmedNotOurs || allInputsOwned || allOwnedInputsResolved;
+
     final walletCurrency = walletTypeToCryptoCurrency(type);
     final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;
-    return ElectrumTransactionInfo(type,
-        id: bundle.originalTransaction.txId(),
-        height: height,
-        isPending: bundle.confirmations == 0,
-        isReplaced: false,
-        inputAddresses: inputAddresses,
-        outputAddresses: outputAddresses,
-        fee: feeMoney,
-        direction: direction,
-        amount: Money.fromInt(amount, walletCurrency),
-        date: date,
-        isHogEx: isHogEx,
-        additionalInfo: {'hasMissingInputTx': hasMissingInputTx},
-        confirmations: bundle.confirmations);
+    final txSize = virtualSize(bundle.originalTransaction);
+    return ElectrumTransactionInfo(
+      type,
+      id: bundle.originalTransaction.txId(),
+      height: height,
+      isPending: bundle.confirmations == 0,
+      isReplaced: false,
+      inputAddresses: inputAddresses,
+      outputAddresses: outputAddresses,
+      fee: feeMoney,
+      direction: direction,
+      amount: Money.fromInt(walletDisplayAmount, walletCurrency),
+      date: date,
+      isHogEx: isHogEx,
+      inputsOwnershipFullyResolved: inputsOwnershipFullyResolved,
+      additionalInfo: {
+        'unresolvedInputTxids': unresolvedInputTxids,
+        'txSize': txSize,
+        'ownedInputs': ownedInputs,
+        'ownedOutputs': ownedOutputs,
+        'isWalletDisplayAmountExact': isWalletDisplayAmountExact,
+        'totalInputCount': totalInputCount,
+        // Size of the wallet address set this was classified against; see
+        // ElectrumTransactionResolver.needsAddressRecheck. Overwritten by the
+        // caller when [addresses] is only a per-account subset.
+        'addressSetSizeKey': addresses.length,
+      },
+      confirmations: bundle.confirmations,
+    );
   }
 
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
@@ -244,11 +441,17 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
+      inputsOwnershipFullyResolved: data['inputsOwnershipFullyResolved'] as bool? ?? false,
       additionalInfo: additionalInfo,
     );
   }
 
   final WalletType type;
+
+  /// Whether this transaction still needs any resolution work - either
+  /// input resolution (ownership/direction/amount, see [inputsOwnershipFullyResolved])
+  /// or fee resolution (fee for an already-settled receive).
+  bool get needsResolution => !inputsOwnershipFullyResolved || fee == null;
 
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
     return ElectrumTransactionInfo(info.type,
@@ -260,6 +463,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         date: date,
         isPending: isPending,
         isReplaced: isReplaced ?? false,
+        inputsOwnershipFullyResolved: inputsOwnershipFullyResolved,
         inputAddresses: inputAddresses,
         outputAddresses: outputAddresses,
         confirmations: info.confirmations,
@@ -284,6 +488,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
+    m['inputsOwnershipFullyResolved'] = inputsOwnershipFullyResolved;
     m['additionalInfo'] = additionalInfo;
     return m;
   }
