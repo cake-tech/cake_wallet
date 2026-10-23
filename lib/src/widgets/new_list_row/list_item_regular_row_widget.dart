@@ -15,6 +15,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.iconPath,
       this.badgeIconPath,
       this.onTap,
+      this.onLongPress,
       this.isFirstInSection = false,
       this.isLastInSection = false,
       this.showArrow = true,
@@ -41,6 +42,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final String? iconPath;
   final String? badgeIconPath;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final bool isFirstInSection;
   final bool isLastInSection;
   final Color? subtitleColor;
@@ -74,6 +76,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
             key: ValueKey(copied),
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
             onTap: onTap,
+            onLongPress: onLongPress,
             iconPath: iconPath,
             isFirstInSection: isFirstInSection,
             isLastInSection: isLastInSection,

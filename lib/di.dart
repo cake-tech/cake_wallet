@@ -1,4 +1,12 @@
+import 'package:cake_wallet/core/backup/app_backup_contents.dart';
+import 'package:cake_wallet/core/backup/app_backup_preferences.dart';
+import 'package:cake_wallet/core/backup/app_backup_restorer.dart';
+import 'package:cake_wallet/core/backup/app_backup_storage.dart';
+import 'package:cake_wallet/new-ui/pages/app_backup/app_backup_page.dart';
+import 'package:cake_wallet/new-ui/viewmodels/app_backup/app_backup_bloc.dart';
+import 'package:cake_wallet/new-ui/viewmodels/app_backup_restore/app_backup_restore_bloc.dart';
 import 'dart:async' show Timer;
+import 'dart:io' show File;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/anonpay/anonpay_api.dart';
@@ -84,8 +92,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/backup/backup_page.dart';
-import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
@@ -111,7 +117,6 @@ import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dar
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
-import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
@@ -181,7 +186,6 @@ import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart
 import 'package:cake_wallet/view_model/animated_ur_model.dart';
 import 'package:cake_wallet/view_model/anonpay_details_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
-import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_details_view_model.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
@@ -205,7 +209,6 @@ import 'package:cake_wallet/view_model/dev/monero_background_sync.dart';
 import 'package:cake_wallet/view_model/dev/secure_preferences.dart';
 import 'package:cake_wallet/view_model/dev/shared_preferences.dart';
 import 'package:cake_wallet/view_model/dev/socket_health_logs_view_model.dart';
-import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
@@ -229,7 +232,6 @@ import 'package:cake_wallet/view_model/payjoin_details_view_model.dart';
 import 'package:cake_wallet/view_model/payment/payment_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
@@ -1387,25 +1389,32 @@ Future<void> setup({
       dashboardViewModel: getIt.get<DashboardViewModel>(),));
 
   getIt.registerFactory(() => BackupServiceV3(getIt.get<SecureStorage>(),
-      _transactionDescriptionBox, getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
+      _transactionDescriptionBox, getIt.get<KeyService>(), getIt.get<SharedPreferences>(),
+      unspentCoinsInfoBox: _unspentCoinsInfoSource, payjoinSessionBox: _payjoinSessionSource));
 
-  getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
+  getIt.registerLazySingleton(() => AppBackupPreferences(getIt.get<SharedPreferences>()));
 
-  getIt.registerLazySingleton<EditBackupPasswordViewModel>(
-    () => EditBackupPasswordViewModel(getIt.get<SecureStorage>()),
-  );
+  getIt.registerLazySingleton(() => AppBackupStorageService());
 
-  getIt.registerFactory(() => BackupViewModel(getIt.get<SecureStorage>(),
-      getIt.get<BackupServiceV3>(), getIt.get<EditBackupPasswordViewModel>()));
+  getIt.registerFactory(() => AppBackupContents(getIt.get<AppBackupPreferences>()));
 
-  getIt.registerFactory(() => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
+  getIt.registerFactory(() => AppBackupBloc(
+      getIt.get<BackupServiceV3>(),
+      getIt.get<AppBackupPreferences>(),
+      getIt.get<AppBackupStorageService>(),
+      getIt.get<AppBackupContents>(),
+      getIt.get<SecureStorage>()));
+
+  getIt.registerFactory(() => AppBackupPage(preferences: getIt.get<AppBackupPreferences>()));
+
+  getIt.registerFactory(
+      () => AppBackupRestorer(getIt.get<BackupServiceV3>(), getIt.get<SecureStorage>()));
+
+  getIt.registerFactoryParam<AppBackupRestoreBloc, File, void>((file, _) => AppBackupRestoreBloc(
+      getIt.get<AppBackupRestorer>(), getIt.get<AppBackupStorageService>(), file));
 
   getIt.registerFactoryParam<RestoreOptionsPage, bool, void>(
       (bool isNewInstall, _) => RestoreOptionsPage(isNewInstall: isNewInstall));
-
-  getIt.registerFactory(() => RestoreFromBackupViewModel(getIt.get<BackupServiceV3>()));
-
-  getIt.registerFactory(() => RestoreFromBackupPage(getIt.get<RestoreFromBackupViewModel>()));
 
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>(
       (Trade trade, _) => TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cake_wallet/new-ui/pages/app_backup/backup_restore_page.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:flutter/gestures.dart';
@@ -232,6 +233,16 @@ class CreatePinWelcomePage extends BasePage {
                       isWalletPasswordDirectInput ? S.current.set_up_a_wallet : S.current.set_a_pin,
                   color: Theme.of(context).colorScheme.primary,
                   textColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: PrimaryButton(
+                  key: ValueKey('create_pin_welcome_page_restore_app_backup_button_key'),
+                  onPressed: () => BackupRestorePage.start(context),
+                  text: S.current.app_backup_restore,
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  textColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
               SizedBox(height: 16),

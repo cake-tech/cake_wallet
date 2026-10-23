@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/pages/app_backup/backup_restore_page.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -111,7 +112,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   padding: EdgeInsets.only(top: 12),
                   child: OptionTile(
                     key: ValueKey('restore_options_from_backup_button_key'),
-                    onPressed: () => Navigator.pushNamed(context, Routes.restoreFromBackup),
+                    onPressed: () => BackupRestorePage.start(context),
                     image: imageRestoreBackup,
                     title: S.of(context).restore_title_from_backup,
                     description: S.of(context).restore_description_from_backup,

@@ -227,6 +227,8 @@ class $BackupService {
       if (!isCorrectCurrentWallet) {
         currentWalletName = correctWallets.first.name;
         currentWalletType = serializeToInt(correctWallets.first.type);
+        await sharedPreferences.setString(PreferencesKey.currentWalletName, currentWalletName);
+        await sharedPreferences.setInt(PreferencesKey.currentWalletType, currentWalletType);
       }
     } catch (e) {}
 
@@ -312,9 +314,15 @@ class $BackupService {
   }
 
   Future<Uint8List> exportKeychainDumpV2(String password,
-      {String keychainSalt = secrets.backupKeychainSalt}) async {
-    final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
-    final wallets = await Future.wait((await WalletInfo.getAll()).map((walletInfo) async {
+      {String keychainSalt = secrets.backupKeychainSalt,
+      List<WalletInfo>? includedWallets}) async {
+    final allWallets = await WalletInfo.getAll();
+    final walletInfos = includedWallets ?? allWallets;
+    String passwordKey(WalletInfo info) =>
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: info.name);
+    final excludedPasswordKeys =
+        allWallets.map(passwordKey).toSet().difference(walletInfos.map(passwordKey).toSet());
+    final wallets = await Future.wait(walletInfos.map((walletInfo) async {
       try {
         return {
           'name': walletInfo.name,
@@ -336,7 +344,8 @@ class $BackupService {
     final data = utf8.encode(json.encode({
       'wallets': wallets,
       backupPasswordKey: backupPassword,
-      '_all': await _secureStorage.readAll()
+      '_all': (await _secureStorage.readAll())
+        ..removeWhere((key, _) => excludedPasswordKeys.contains(key))
     }));
     final encrypted = await _encryptV2(Uint8List.fromList(data), '$keychainSalt$password');
 
@@ -350,11 +359,35 @@ class $BackupService {
     PreferencesKey.failedTotpTokenTrials,
   ];
 
-  Future<String> exportPreferencesJSON() async {
+  Future<String> exportPreferencesJSON(
+      {List<WalletInfo>? includedWallets, List<String> excludedKeys = const []}) async {
     final preferences = <String, dynamic>{};
     sharedPreferences.getKeys().forEach((key) => preferences[key] = sharedPreferences.get(key));
 
     _excludedPrefsKeys.forEach((key) => preferences.remove(key));
+    excludedKeys.forEach((key) => preferences.remove(key));
+
+    if (includedWallets != null) {
+      final includedIds = includedWallets.map((info) => info.id).toSet();
+      final includedNames = includedWallets.map((info) => info.name).toSet();
+      for (final info in await WalletInfo.getAll()) {
+        if (includedIds.contains(info.id)) continue;
+        preferences.remove(PreferencesKey.backgroundSyncLastTrigger(info.id));
+        if (!includedNames.contains(info.name)) {
+          preferences.remove(PreferencesKey.moneroWalletUpdateV1Key(info.name));
+        }
+      }
+    }
+
+    if (includedWallets != null && includedWallets.isNotEmpty) {
+      final isCurrentWalletIncluded = includedWallets.any((info) =>
+          info.name == preferences[PreferencesKey.currentWalletName] &&
+          serializeToInt(info.type) == preferences[PreferencesKey.currentWalletType]);
+      if (!isCurrentWalletIncluded) {
+        preferences[PreferencesKey.currentWalletName] = includedWallets.first.name;
+        preferences[PreferencesKey.currentWalletType] = serializeToInt(includedWallets.first.type);
+      }
+    }
 
     return json.encode(preferences);
   }

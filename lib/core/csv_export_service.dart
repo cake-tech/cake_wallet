@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/backup/backup_page.dart';
+import 'package:cake_wallet/src/widgets/persistent_action_overlay.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';

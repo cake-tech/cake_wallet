@@ -111,6 +111,27 @@ import Flutter
                     result(FlutterMethodNotImplemented)
                 }
             })
+
+            let appBackupChannel = FlutterMethodChannel(
+                name: "com.cake_wallet/app_backup",
+                binaryMessenger: messenger)
+            appBackupChannel.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+                switch call.method {
+                case "icloud_documents_path":
+                    DispatchQueue.global(qos: .userInitiated).async {
+                        guard let container = FileManager.default.url(forUbiquityContainerIdentifier: nil) else {
+                            DispatchQueue.main.async { result(nil) }
+                            return
+                        }
+                        // note: this HAS TO be "Documents", only that folder shows under icloud drive
+                        let documents = container.appendingPathComponent("Documents", isDirectory: true)
+                        try? FileManager.default.createDirectory(at: documents, withIntermediateDirectories: true)
+                        DispatchQueue.main.async { result(documents.path) }
+                    }
+                default:
+                    result(FlutterMethodNotImplemented)
+                }
+            })
   }
     
     private var textField = UITextField()

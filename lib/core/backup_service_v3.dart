@@ -3,23 +3,39 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
+import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/haven_seed_store.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
+import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/db/backup_db.dart';
 import 'package:cw_core/db/sqlite.dart';
+import 'package:cw_core/mweb_utxo.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
+import 'package:path/path.dart' as p;
 
 enum BackupVersion {
   unknown, // index 0
   v1,
   v2,
   v3,
+  v4,
 }
 
 class ChunkChecksum {
@@ -122,8 +138,11 @@ class BackupMetadata {
   final List<ChunkDetails> chunks;
   String cakeVersion;
   factory BackupMetadata.fromJson(Map<String, dynamic> json) {
+    final versionIndex = json['version'];
     return BackupMetadata(
-      version: BackupVersion.values[json['version'] as int],
+      version: versionIndex is int && versionIndex >= 0 && versionIndex < BackupVersion.values.length
+          ? BackupVersion.values[versionIndex]
+          : BackupVersion.unknown,
       sha512sum: json['sha512sum'] as String,
       chunks: (json['chunks'] as List<dynamic>)
           .map((chunk) => ChunkDetails.fromJson(chunk as Map<String, dynamic>))
@@ -159,13 +178,20 @@ class IncompatibleBackupAppException extends InvalidBackupException {
 
 class BackupServiceV3 extends $BackupService {
   BackupServiceV3(super.secureStorage, super.transactionDescriptionBox, super.keyService,
-      super.sharedPreferences);
+      super.sharedPreferences,
+      {this.unspentCoinsInfoBox, this.payjoinSessionBox});
 
-  static BackupVersion get currentVersion => BackupVersion.v3;
+  final Box<UnspentCoinsInfo>? unspentCoinsInfoBox;
+  final Box<PayjoinSession>? payjoinSessionBox;
 
-  Future<File> exportBackupFile(String password, {String nonce = secrets.backupSalt}) {
-    return exportBackupFileV3(password, nonce: nonce);
-  }
+  static BackupVersion get currentVersion => BackupVersion.v4;
+
+  Future<File> exportBackupFile(
+    String password, {
+    required Set<String> excludedWalletIds,
+    required String outputPath,
+  }) =>
+      exportBackupFileV4(password, excludedWalletIds: excludedWalletIds, outputPath: outputPath);
 
   BackupVersion getVersionFile(File data) {
     final raf = data.openSync(mode: FileMode.read);
@@ -200,8 +226,8 @@ class BackupServiceV3 extends $BackupService {
         final metadataString = utf8.decode(metadataBytes);
         final metadataJsonRaw = json.decode(metadataString) as Map<String, dynamic>;
         final metadata = BackupMetadata.fromJson(metadataJsonRaw);
-        if (metadata.version == BackupVersion.v3) {
-          return BackupVersion.v3;
+        if (metadata.version == BackupVersion.v3 || metadata.version == BackupVersion.v4) {
+          return metadata.version;
         }
       }
 
@@ -225,6 +251,7 @@ class BackupServiceV3 extends $BackupService {
       case BackupVersion.v2:
         return super.importBackupV2(file.readAsBytesSync(), password);
       case BackupVersion.v3:
+      case BackupVersion.v4:
         return importBackupFileV3(file, password, nonce: nonce, checkBackupApp: checkBackupApp);
     }
   }
@@ -370,69 +397,251 @@ class BackupServiceV3 extends $BackupService {
     }
   }
 
-  Future<File> exportBackupFileV3(String password, {String nonce = secrets.backupSalt}) async {
-    final metadata = BackupMetadata(
-      version: BackupVersion.v3,
-      sha512sum: 'tbd',
-      chunks: [],
-      cakeVersion: 'tbd',
-    );
-    final zipEncoder = ZipFileEncoder();
+  static const _sharedHiveBoxes = [
+    Contact.boxName,
+    TransactionDescription.boxName,
+    Order.boxName,
+    Template.boxName,
+    ExchangeTemplate.boxName,
+    AnonpayInvoiceInfo.boxName,
+    HavenSeedStore.boxName,
+  ];
+
+  static const _zcashDatabases = {
+    'mainnet': 'zec.v2.db',
+    'testnet': 'zec.testnet.v2.db',
+    'regtest': 'zec.regtest.v2.db',
+  };
+
+  static const _legacyZcashDatabase = 'zec.db';
+
+  static const deviceOnlyPreferenceKeys = [
+    PreferencesKey.appBackupLastTimestamp,
+    PreferencesKey.appBackupLastSize,
+    PreferencesKey.appBackupLastSha256,
+  ];
+
+  Future<File> exportBackupFileV4(String password,
+      {required Set<String> excludedWalletIds, required String outputPath}) async {
     final appDir = await getAppDir();
-    final now = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final tmpDir = Directory('${appDir.path}/~_BACKUP_TMP');
-    final archivePath = '${tmpDir.path}/backup_${now}.tmp.zip';
-    final archivePathExport = '${tmpDir.path}/backup_${now}.zip';
-    final fileEntities = appDir.listSync(recursive: false);
-    final keychainDump = await super.exportKeychainDumpV2(password);
-    final preferencesDump = await super.exportPreferencesJSON();
-    final preferencesDumpFile = File('${tmpDir.path}/~_preferences_dump_TMP');
-    final keychainDumpFile = File('${tmpDir.path}/~_keychain_dump_TMP');
-    final transactionDescriptionDumpFile =
-        File('${tmpDir.path}/~_transaction_descriptions_dump_TMP');
-
-    final transactionDescriptionData = super
-        .transactionDescriptionBox
-        .toMap()
-        .map((key, value) => MapEntry(key.toString(), value.toJson()));
-    final transactionDescriptionDump = jsonEncode(transactionDescriptionData);
-
+    final tmpDir = Directory(p.join(appDir.path, '~_BACKUP_TMP'));
     if (tmpDir.existsSync()) {
       tmpDir.deleteSync(recursive: true);
     }
+    tmpDir.createSync(recursive: true);
 
-    tmpDir.createSync();
-    zipEncoder.create(archivePath);
-    outer:
-    for (var entity in fileEntities) {
-      if (entity.path == archivePath || entity.path == tmpDir.path) {
-        continue;
+    try {
+      final wallets = (await WalletInfo.getAll())
+          .where((info) => !excludedWalletIds.contains(info.id))
+          .toList();
+
+      if (wallets.isEmpty) {
+        throw const BackupServiceException('Select at least one wallet to back up');
       }
-      for (var ignore in $BackupService.ignoreFiles) {
-        final filename = entity.absolute.path;
-        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
-          printV("ignoring backup file: $filename");
-          continue outer;
+
+      final archivePath = p.join(tmpDir.path, 'data.zip');
+      final zip = ZipFileEncoder()..create(archivePath);
+
+      await _addTrimmedDatabase(zip, appDir, tmpDir, wallets);
+      for (final info in wallets) {
+        final dir = Directory(p.join(appDir.path, walletDirArchivePath(info)));
+        if (dir.existsSync()) {
+          await _addDirectoryAs(zip, dir, walletDirArchivePath(info));
         }
       }
+      await _addZcashDatabases(zip, appDir, tmpDir, wallets);
+      await _addHiveBoxes(zip, appDir, tmpDir, wallets);
 
-      if (entity.statSync().type == FileSystemEntityType.directory) {
-        await zipEncoder.addDirectory(Directory(entity.path));
-      } else {
-        await zipEncoder.addFile(File(entity.path));
+      final keychainDumpFile = File(p.join(tmpDir.path, '~_keychain_dump_TMP'))
+        ..writeAsBytesSync(await exportKeychainDumpV2(password, includedWallets: wallets));
+      final preferencesDumpFile = File(p.join(tmpDir.path, '~_preferences_dump_TMP'))
+        ..writeAsStringSync(await exportPreferencesJSON(
+            includedWallets: wallets, excludedKeys: deviceOnlyPreferenceKeys));
+      final transactionDescriptionDumpFile =
+          File(p.join(tmpDir.path, '~_transaction_descriptions_dump_TMP'))
+            ..writeAsStringSync(jsonEncode(transactionDescriptionBox
+                .toMap()
+                .map((key, value) => MapEntry(key.toString(), value.toJson()))));
+
+      await zip.addFile(preferencesDumpFile, '~_preferences_dump');
+      await zip.addFile(keychainDumpFile, '~_keychain_dump');
+      await zip.addFile(transactionDescriptionDumpFile, '~_transaction_descriptions_dump');
+      await zip.close();
+
+      final output = File(outputPath);
+      if (output.existsSync()) {
+        output.deleteSync();
+      }
+      output.parent.createSync(recursive: true);
+
+      return await _encryptAndPackage(
+        metadata: BackupMetadata(
+          version: BackupVersion.v4,
+          sha512sum: 'tbd',
+          chunks: [],
+          cakeVersion: 'tbd',
+        ),
+        dataBinUnencrypted: File(archivePath),
+        workDir: tmpDir,
+        outputPath: outputPath,
+        password: password,
+        level: ZipFileEncoder.store,
+      );
+    } finally {
+      if (tmpDir.existsSync()) {
+        tmpDir.deleteSync(recursive: true);
       }
     }
-    await keychainDumpFile.writeAsBytes(keychainDump.toList());
-    await preferencesDumpFile.writeAsString(preferencesDump);
-    await transactionDescriptionDumpFile.writeAsString(transactionDescriptionDump);
-    await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
-    await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
-    await zipEncoder.addFile(transactionDescriptionDumpFile, '~_transaction_descriptions_dump');
-    await zipEncoder.close();
+  }
 
-    final dataBinUnencrypted = File(archivePath);
+  static String walletDirArchivePath(WalletInfo info) =>
+      'wallets/${walletTypeToString(info.type).toLowerCase()}/${info.name}';
 
-    final dataBin = File('${tmpDir.path}/data.bin');
+  Future<void> _addDirectoryAs(ZipFileEncoder zip, Directory dir, String archivePrefix) async {
+    await for (final entity in dir.list(recursive: true, followLinks: false)) {
+      if (entity is! File) continue;
+      final relative = p.split(p.relative(entity.path, from: dir.path)).join('/');
+      await zip.addFile(entity, '$archivePrefix/$relative');
+    }
+  }
+
+  Future<void> _addTrimmedDatabase(
+      ZipFileEncoder zip, Directory appDir, Directory tmpDir, List<WalletInfo> wallets) async {
+    try {
+      await db?.rawQuery('PRAGMA wal_checkpoint(TRUNCATE)');
+    } catch (e) {
+      printV('wal checkpoint before backup failed: $e');
+    }
+    final copy = await File(p.join(appDir.path, 'cake.db')).copy(p.join(tmpDir.path, 'cake.db'));
+    await trimDatabaseCopyForBackup(copy.path,
+        keepWalletIds: wallets.map((info) => info.id).toSet());
+    await zip.addFile(copy, 'cake.db');
+  }
+
+  int? _readAccountId(String path) {
+    final file = File(path);
+    return file.existsSync() ? int.tryParse(file.readAsStringSync().trim()) : null;
+  }
+
+  Future<void> _addZcashDatabases(
+      ZipFileEncoder zip, Directory appDir, Directory tmpDir, List<WalletInfo> wallets) async {
+    final zcashWallets = wallets.where((info) => info.type == WalletType.zcash).toList();
+    if (zcashWallets.isEmpty) return;
+
+    final typeDirName = walletTypeToString(WalletType.zcash).toLowerCase();
+    final typeDir = p.join(appDir.path, 'wallets', typeDirName);
+    String accountFile(WalletInfo info, String suffix) =>
+        p.join(typeDir, info.name, '${info.name}$suffix');
+
+    for (final MapEntry(key: network, value: fileName) in _zcashDatabases.entries) {
+      final source = File(p.join(typeDir, fileName));
+      if (!source.existsSync()) continue;
+
+      final copy = await source.copy(p.join(tmpDir.path, fileName));
+      final idsByName = await accountIdsByName(copy.path).catchError((_) => <String, int>{});
+      final keep = zcashWallets
+          .where((info) => (_zcashDatabases.containsKey(info.network) ? info.network : 'mainnet') == network)
+          .map((info) => _readAccountId(accountFile(info, '.v2')) ?? idsByName[info.name])
+          .whereType<int>()
+          .toSet();
+      await pruneAccountDatabaseCopy(copy.path, keepAccountIds: keep);
+      await zip.addFile(copy, 'wallets/$typeDirName/$fileName');
+    }
+
+    final legacy = File(p.join(typeDir, _legacyZcashDatabase));
+    final legacyIds = zcashWallets
+        .where((info) => !File(accountFile(info, '.v2')).existsSync())
+        .map((info) => _readAccountId(accountFile(info, '')))
+        .whereType<int>()
+        .toSet();
+    if (legacy.existsSync() && legacyIds.isNotEmpty) {
+      final copy = await legacy.copy(p.join(tmpDir.path, _legacyZcashDatabase));
+      await pruneAccountDatabaseCopy(copy.path, keepAccountIds: legacyIds);
+      await zip.addFile(copy, 'wallets/$typeDirName/$_legacyZcashDatabase');
+    }
+  }
+
+  Future<void> _addHiveBoxes(
+      ZipFileEncoder zip, Directory appDir, Directory tmpDir, List<WalletInfo> wallets) async {
+    final boxNames = {
+      ..._sharedHiveBoxes,
+      for (final info in wallets.where((info) => info.type == WalletType.litecoin))
+        '${info.name.replaceAll(' ', '_')}_${MwebUtxo.boxName}',
+      for (final info in wallets.where((info) => info.type == WalletType.nano)) info.address,
+    };
+    for (final name in boxNames.map((name) => '${name.toLowerCase()}.hive')) {
+      final file = File(p.join(appDir.path, name));
+      if (file.existsSync()) {
+        await zip.addFile(file, name);
+      }
+    }
+
+    final walletIds = wallets.map((info) => info.id).toSet();
+    await _addFilteredBox<UnspentCoinsInfo>(
+      zip,
+      tmpDir,
+      unspentCoinsInfoBox,
+      (coin) => walletIds.contains(coin.walletId),
+      (coin) => UnspentCoinsInfo(
+        walletId: coin.walletId,
+        hash: coin.hash,
+        isFrozen: coin.isFrozen,
+        isSending: coin.isSending,
+        noteRaw: coin.noteRaw,
+        address: coin.address,
+        vout: coin.vout,
+        value: coin.value,
+        keyImage: coin.keyImage,
+        isChange: coin.isChange,
+        accountIndex: coin.accountIndex,
+        isSilentPayment: coin.isSilentPayment,
+      ),
+    );
+    await _addFilteredBox<PayjoinSession>(
+      zip,
+      tmpDir,
+      payjoinSessionBox,
+      (session) => walletIds.contains(session.walletId),
+      (session) => PayjoinSession(
+        walletId: session.walletId,
+        receiver: session.receiver,
+        sender: session.sender,
+        pjUri: session.pjUri,
+        status: session.status,
+        inProgressSince: session.inProgressSince,
+        rawAmount: session.rawAmount,
+      )
+        ..txId = session.txId
+        ..error = session.error,
+    );
+  }
+
+  Future<void> _addFilteredBox<T>(ZipFileEncoder zip, Directory tmpDir, Box<T>? source,
+      bool Function(T) keep, T Function(T) copy) async {
+    if (source == null || !source.isOpen) return;
+
+    final tmpName = 'backup_tmp_${source.name}';
+    final box = await CakeHive.openBox<T>(tmpName, path: tmpDir.path);
+    try {
+      await box.putAll({
+        for (final entry in source.toMap().entries)
+          if (keep(entry.value)) entry.key: copy(entry.value),
+      });
+    } finally {
+      await box.close();
+    }
+    await zip.addFile(File(p.join(tmpDir.path, '$tmpName.hive')), '${source.name}.hive');
+  }
+
+  Future<File> _encryptAndPackage({
+    required BackupMetadata metadata,
+    required File dataBinUnencrypted,
+    required Directory workDir,
+    required String outputPath,
+    required String password,
+    int level = 9,
+  }) async {
+    final dataBin = File('${workDir.path}/data.bin');
     dataBin.writeAsBytesSync(Uint8List(0), mode: FileMode.write, flush: true);
     final dataBinWriter = dataBin.openWrite();
 
@@ -488,15 +697,16 @@ class BackupServiceV3 extends $BackupService {
       printV("Writing completed in ${stopwatch.elapsed}");
     }
     await raf.close();
+    await dataBinWriter.close();
 
     // Give the file to the user
 
-    final metadataFile = File('${tmpDir.path}/metadata.json');
+    final metadataFile = File('${workDir.path}/metadata.json');
     final packageInfo = await PackageInfo.fromPlatform();
     metadata.cakeVersion = packageInfo.version;
 
     metadataFile.writeAsStringSync(JsonEncoder.withIndent('    ').convert(metadata.toJson()));
-    final readmeFile = File('${tmpDir.path}/README.txt');
+    final readmeFile = File('${workDir.path}/README.txt');
     readmeFile
         .writeAsStringSync('''This is a ${packageInfo.appName} backup. Do not modify this archive.
 
@@ -506,14 +716,12 @@ If you have any issues with this backup, please contact our in-app support.
 This backup was created on ${DateTime.now().toIso8601String()}
 ''');
     final zip = ZipFileEncoder();
-    zip.create(archivePathExport, level: 9);
+    zip.create(outputPath, level: level);
     await zip.addFile(dataBin, 'data.bin');
     await zip.addFile(metadataFile, 'metadata.json');
     await zip.addFile(readmeFile, 'README.txt');
     await zip.close();
-    // tmpDir.deleteSync(recursive: true);
-    final file = File(archivePathExport);
-    return file;
+    return File(outputPath);
   }
 
   Future<void> _throwIfBackupWasCreatedInAnotherApp(Archive archive) async {

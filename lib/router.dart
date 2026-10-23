@@ -1,3 +1,4 @@
+import 'package:cake_wallet/new-ui/pages/app_backup/app_backup_page.dart';
 import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
@@ -31,8 +32,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/backup/backup_page.dart';
-import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import "package:cake_wallet/src/screens/connect_device/monero_hardware_wallet_options_page.dart";
@@ -75,7 +74,6 @@ import 'package:cake_wallet/src/screens/payjoin_details/payjoin_details_page.dar
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
-import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_choose_derivation.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
@@ -679,15 +677,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.backup:
       return handleRouteWithPlatformAwareness(
-        (context) => getIt.get<BackupPage>(),
+        (context) => getIt.get<AppBackupPage>(),
       );
-
-    case Routes.editBackupPassword:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<EditBackupPasswordPage>());
-
-    case Routes.restoreFromBackup:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
       return handleRouteWithPlatformAwareness(
