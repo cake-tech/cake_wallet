@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
-import 'dart:math' show Random;
+import 'dart:math' show Random, max;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
@@ -20,6 +20,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/coin_selection.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
+import "package:cw_core/wallet_account.dart";
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
@@ -112,6 +113,7 @@ abstract class ElectrumWalletBase
         this.electrumClient = electrumClient ?? electrum.ElectrumClient(),
         _useLightning = useLightning,
         _initialAccountBalances = initialAccountBalances,
+        _currentAccountIndex = walletInfo.currentAccountIndex,
         super(walletInfo, derivationInfo) {
     transactionHistory = ElectrumTransactionHistory(
       walletInfo: walletInfo,
@@ -343,6 +345,14 @@ abstract class ElectrumWalletBase
   late ObservableMap<CryptoCurrency, ElectrumBalance> balance;
 
   @override
+  List<WalletAccount<ElectrumBalance>> get walletAccounts =>
+      hasAccountsSupport ? accounts.all : super.walletAccounts;
+
+  @override
+  WalletAccount<ElectrumBalance> get currentWalletAccount =>
+      hasAccountsSupport ? (currentAccount ?? super.currentWalletAccount) : super.currentWalletAccount;
+
+  @override
   @observable
   SyncStatus syncStatus;
 
@@ -350,27 +360,26 @@ abstract class ElectrumWalletBase
   bool _isSyncing = false;
   Map<int, ElectrumBalance>? _initialAccountBalances;
 
-  Future<WalletInfoAccount> loadCurrentAccount() async {
-    final accountInfos = await walletInfo.getAccounts();
-    final current = accountInfos.firstWhere(
-          (account) => account.accountIndex == currentAccountIndex,
-      orElse: () => accountInfos.first,
-    );
-
-    return current;
-  }
-
-  void _loadInitialAccountBalances() {
+  Future<void> _loadAccountState() async {
     if (type != WalletType.bitcoin) return;
 
-    final saved = _initialAccountBalances;
+    final savedBalances = _initialAccountBalances;
     _initialAccountBalances = null;
 
-    final balances = !hasAccountsSupport
-        ? {0: balance[currency] ?? ElectrumBalance.zero(currency)}
-        : saved ?? _balancesFromAddressRecords();
+    if (!hasAccountsSupport) {
+      _updateAccountBalances(
+            () => accounts.setBalances({0: balance[currency] ?? ElectrumBalance.zero(currency)}),
+      );
+      return;
+    }
 
-    _updateAccountBalances(() => accounts.setBalances(balances));
+    final persisted = await walletInfo.getAccounts();
+
+    _updateAccountBalances(() {
+      _currentAccountIndex = walletInfo.currentAccountIndex;
+      accounts.setLabels({for (final account in persisted) account.accountIndex: account.label});
+      accounts.setBalances(savedBalances ?? _balancesFromAddressRecords());
+    });
   }
 
   Map<int, ElectrumBalance> _balancesFromAddressRecords() {
@@ -387,8 +396,19 @@ abstract class ElectrumWalletBase
     return balances;
   }
 
-  void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
-    final account = accounts.getOrCreate(accountIndex);
+  Future<bool> _prepareAccount(int index, {String? label}) async {
+    if (accounts.contains(index)) return false;
+
+    final account = _prepareHdForAccount(index, currency, label: label);
+    await walletAddresses.prepareAccountAddresses(index, types: account.supportedTypes);
+    await walletAddresses.updateAddressesInBox();
+    unawaited(_fetchNewAccountHistory(account));
+    return true;
+  }
+
+  ElectrumAccount _prepareHdForAccount(int accountIndex, CryptoCurrency? currency,
+      {String? label}) {
+    final account = accounts.getOrCreate(accountIndex, label: label);
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     final canDeriveFromSeed = _masterHD != null && currency != null;
 
@@ -415,10 +435,32 @@ abstract class ElectrumWalletBase
     if (accountIndex == 0) {
       account.hd.setLegacy(receive: mainHd, change: sideHd);
     }
+
+    return account;
   }
 
-  ElectrumBalance balanceForAccount(int accountIndex) =>
-      accounts[accountIndex]?.balance ?? ElectrumBalance.zero(currency);
+  Future<void> _fetchNewAccountHistory(ElectrumAccount account) async {
+    if (_isSyncing) return;
+
+    try {
+      final histories = <String, ElectrumTransactionInfo>{};
+
+      for (final addressType in account.supportedTypes) {
+        if (shouldUseBatchFetching) {
+          await fetchTransactionsForAddressTypeBatch(histories, addressType,
+              accountIndex: account.index);
+        } else {
+          await fetchTransactionsForAddressType(histories, addressType,
+              accountIndex: account.index);
+        }
+      }
+
+      await resolveQueuedTransactionDetails();
+      if (histories.isNotEmpty) await updateAllUnspents();
+    } catch (e) {
+      printV('new account history fetch failed: $e');
+    }
+  }
 
   void _updateAccountBalancesFromUnspents() {
     if (!_hasCompleteUnspentSet) return;
@@ -484,31 +526,46 @@ abstract class ElectrumWalletBase
 
   String get xpub => accountHD.publicKey.toExtended;
 
-  int get currentAccountIndex => walletInfo.currentAccountIndex;
+  @observable
+  int _currentAccountIndex;
 
+  @override
+  int get currentAccountIndex => _currentAccountIndex;
+
+  @override
+  Future<int> addAccount({required String label}) async {
+    if (!hasAccountsSupport) return super.addAccount(label: label);
+
+    final persisted = await walletInfo.getAccounts();
+    final used = {...persisted.map((a) => a.accountIndex), ...accounts.indexes};
+    final index = used.isEmpty ? 0 : used.reduce(max) + 1;
+    final accountLabel = label.isEmpty ? "Account $index" : label;
+
+    await walletInfo.addAccount(accountIndex: index, label: accountLabel);
+    await _prepareAccount(index, label: accountLabel);
+    return index;
+  }
+
+  @override
+  Future<void> renameAccount({required int index, required String label}) async {
+    if (!hasAccountsSupport) return super.renameAccount(index: index, label: label);
+
+    await walletInfo.renameAccount(accountIndex: index, label: label);
+    accounts.setLabels({index: label});
+  }
+
+  @override
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
+    if (!hasAccountsSupport) return;
 
-    final isNewAccount = !accounts.contains(accountIndex);
+    await _prepareAccount(accountIndex);
 
     await walletInfo.setSelectedAccount(accountIndex);
-
-    _prepareHdForAccount(accountIndex, currency);
-    final account = accounts[accountIndex]!;
-
+    _currentAccountIndex = accountIndex;
     walletAddresses.setCurrentAccountIndex(accountIndex);
 
-    final currentPageType = walletAddresses.addressPageType;
-    await walletAddresses.setAddressType(currentPageType);
-
-    // For extra accounts, we only prepare SegwitAddresType.p2wpkh type.
-    if (isNewAccount) {
-      await walletAddresses.prepareAccountAddresses(
-        accountIndex,
-        types: account.supportedTypes,
-      );
-      await walletAddresses.updateAddressesInBox();
-    }
+    await walletAddresses.setAddressType(walletAddresses.addressPageType);
 
     walletAddresses.updateReceiveAddresses();
     walletAddresses.updateChangeAddresses();
@@ -517,25 +574,9 @@ abstract class ElectrumWalletBase
 
     unawaited(() async {
       try {
-        if (isNewAccount && !_isSyncing) {
-          final histories = <String, ElectrumTransactionInfo>{};
-
-          for (final addressType in account.supportedTypes) {
-            if (shouldUseBatchFetching) {
-              await fetchTransactionsForAddressTypeBatch(histories, addressType,
-                  accountIndex: accountIndex);
-            } else {
-              await fetchTransactionsForAddressType(histories, addressType,
-                  accountIndex: accountIndex);
-            }
-          }
-
-          await resolveQueuedTransactionDetails();
-        }
-
         await updateAllUnspents();
       } catch (e) {
-        printV('setCurrentAccount balance update failed: $e');
+        printV("setCurrentAccount balance update failed: $e");
       }
     }());
   }
@@ -728,7 +769,7 @@ abstract class ElectrumWalletBase
     await walletAddresses.init();
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
-    _loadInitialAccountBalances();
+    await _loadAccountState();
     await save();
 
     _autoSaveTimer =

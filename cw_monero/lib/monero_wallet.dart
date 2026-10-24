@@ -2,23 +2,26 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
+import "dart:math" show max;
 
-import 'package:cw_core/amount/money.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/transaction_priority.dart';
+import "package:collection/collection.dart";
 import 'package:cw_core/account.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_core/monero_wallet_keys.dart';
 import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
+import "package:cw_core/wallet_account.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/account_list.dart';
@@ -36,6 +39,7 @@ import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
+import "package:cw_monero/monero_wallet_account.dart";
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
@@ -130,6 +134,64 @@ abstract class MoneroWalletBase
 
   @override
   bool get hasNativeAccounts => true;
+
+  @override
+  int get currentAccountIndex => walletAddresses.account?.id ?? 0;
+
+  @override
+  List<WalletAccount<MoneroBalance>> get walletAccounts {
+    final accounts = walletAddresses.accountList.accounts;
+    if (accounts.isEmpty) return [currentWalletAccount];
+    return [
+      for (final account in accounts)
+        MoneroWalletAccount(
+          index: account.id,
+          label: account.label,
+          balance: () => _balanceForAccount(account.id),
+        ),
+    ];
+  }
+
+  @override
+  WalletAccount<MoneroBalance> get currentWalletAccount {
+    final index = currentAccountIndex;
+    return MoneroWalletAccount(
+      index: index,
+      label: walletAddresses.account?.label ?? "",
+      balance: () => _balanceForAccount(index),
+    );
+  }
+
+  @override
+  Future<void> setCurrentAccount(int accountIndex) async {
+    final account =
+    walletAddresses.accountList.accounts.firstWhereOrNull((account) => account.id == accountIndex);
+    if (account == null) throw ArgumentError("Unknown Monero account $accountIndex");
+    walletAddresses.account = account;
+  }
+
+  @override
+  Future<int> addAccount({required String label}) async {
+    walletAddresses.accountList.addAccount(label: label);
+    return walletAddresses.accountList.accounts.map((account) => account.id).reduce(max);
+  }
+
+  @override
+  Future<void> renameAccount({required int index, required String label}) async {
+    walletAddresses.accountList.setLabelAccount(accountIndex: index, label: label);
+
+    final current = walletAddresses.account;
+    if (current != null && current.id == index) {
+      walletAddresses.account = current.copyWith(label: label);
+    }
+  }
+
+  MoneroBalance _balanceForAccount(int index) => index == currentAccountIndex
+      ? balance[currency]!
+      : MoneroBalance(
+    fullBalance: monero_wallet.getFullBalance(accountIndex: index),
+    unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: index),
+  );
 
   @override
   String get seed => monero_wallet.getSeed();

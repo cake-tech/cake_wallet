@@ -1,60 +1,5 @@
 part of 'monero.dart';
 
-class CWMoneroAccountList extends MoneroAccountList {
-  CWMoneroAccountList(this._wallet);
-
-  final Object _wallet;
-
-  @override
-  @computed
-  ObservableList<Account> get accounts {
-    final moneroWallet = _wallet as MoneroWallet;
-    final accounts = moneroWallet.walletAddresses.accountList.accounts
-        .map((acc) => Account(id: acc.id, label: acc.label, balance: acc.balance))
-        .toList();
-    return ObservableList<Account>.of(accounts);
-  }
-
-  @override
-  void update(Object wallet) {
-    final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.walletAddresses.accountList.update();
-  }
-
-  @override
-  void refresh(Object wallet) {
-    final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.walletAddresses.accountList.refresh();
-  }
-
-  @override
-  List<Account> getAll(Object wallet) {
-    final moneroWallet = wallet as MoneroWallet;
-    return moneroWallet.walletAddresses.accountList
-        .getAll()
-        .map((acc) => Account(id: acc.id, label: acc.label, balance: acc.balance))
-        .toList();
-  }
-
-  @override
-  Future<void> addAccount(Object wallet, {required String label}) async {
-    final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.walletAddresses.accountList.addAccount(label: label);
-  }
-
-  @override
-  Future<void> setLabelAccount(Object wallet,
-      {required int accountIndex, required String label}) async {
-    final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.walletAddresses.accountList
-        .setLabelAccount(accountIndex: accountIndex, label: label);
-    if (accountIndex == moneroWallet.walletAddresses.account?.id) {
-      moneroWallet.walletAddresses.account = monero_account.Account(
-          id: accountIndex, label: label, balance: moneroWallet.walletAddresses.account!.balance);
-    }
-  }
-}
-
 class CWMoneroSubaddressList extends MoneroSubaddressList {
   CWMoneroSubaddressList(this._wallet);
 
@@ -143,13 +88,6 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
 }
 
 class CWMonero extends Monero {
-  @override
-  MoneroAccountList getAccountList(Object wallet) => CWMoneroAccountList(wallet);
-
-  @override
-  Money getAccountFullBalance(int accountIndex) =>
-      monero_wallet_api.getFullBalance(accountIndex: accountIndex);
-
   @override
   MoneroSubaddressList getSubaddressList(Object wallet) => CWMoneroSubaddressList(wallet);
 
@@ -354,20 +292,6 @@ class CWMonero extends Monero {
 
   @override
   int formatterMoneroParseAmount({required String amount}) => moneroParseAmount(amount: amount);
-
-  @override
-  Account getCurrentAccount(Object wallet) {
-    final moneroWallet = wallet as MoneroWallet;
-    final acc = moneroWallet.walletAddresses.account;
-    return Account(id: acc!.id, label: acc.label, balance: acc.balance);
-  }
-
-  @override
-  void setCurrentAccount(Object wallet, int id, String label, String? balance) {
-    final moneroWallet = wallet as MoneroWallet;
-    moneroWallet.walletAddresses.account =
-        monero_account.Account(id: id, label: label, balance: balance);
-  }
 
   @override
   void onStartup() => monero_wallet_api.onStartup();

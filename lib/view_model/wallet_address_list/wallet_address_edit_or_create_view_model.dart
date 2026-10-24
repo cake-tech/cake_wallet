@@ -86,7 +86,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     if (wallet.type == WalletType.monero) {
       await monero!
           .getSubaddressList(wallet)
-          .addSubaddress(wallet, accountIndex: monero!.getCurrentAccount(wallet).id, label: label);
+          .addSubaddress(wallet, accountIndex: wallet.currentAccountIndex, label: label);
       final addr = await monero!
           .getSubaddressList(wallet)
           .subaddresses
@@ -99,7 +99,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     if (wallet.type == WalletType.wownero) {
       await wownero!
           .getSubaddressList(wallet)
-          .addSubaddress(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id, label: label);
+          .addSubaddress(wallet, accountIndex: wallet.currentAccountIndex, label: label);
       final addr = await wownero!
           .getSubaddressList(wallet)
           .subaddresses
@@ -125,12 +125,12 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     if (index != null) {
       if (wallet.type == WalletType.monero) {
         await monero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
-            accountIndex: monero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
+            accountIndex: wallet.currentAccountIndex, addressIndex: index, label: label);
         await wallet.save();
       }
       if (wallet.type == WalletType.wownero) {
         await wownero!.getSubaddressList(wallet).setLabelSubaddress(wallet,
-            accountIndex: wownero!.getCurrentAccount(wallet).id, addressIndex: index, label: label);
+            accountIndex: wallet.currentAccountIndex, addressIndex: index, label: label);
         await wallet.save();
       }
     }

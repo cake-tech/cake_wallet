@@ -106,7 +106,6 @@ import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
-import "package:cw_core/account.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
@@ -164,7 +163,6 @@ import 'package:cw_bitcoin/hardware/litecoin_ledger_service.dart';
 import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/litecoin_trezor_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:mobx/mobx.dart';
 import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
@@ -307,10 +305,6 @@ abstract class Bitcoin {
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
-  Future<Account> getCurrentAccount(Object wallet);
-  Money balanceForAccount(Object wallet, int accountIndex);
-  Map<int, Object> accountBalancesSnapshot(Object wallet);
-  Future<void> setCurrentAccount(Object wallet, int accountIndex);
   List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet);
 }
   """;
@@ -356,7 +350,6 @@ import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
 import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
-import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
@@ -422,10 +415,6 @@ abstract class MoneroWalletDetails {
 }
 
 abstract class Monero {
-  MoneroAccountList getAccountList(Object wallet);
-
-  Money getAccountFullBalance(int accountIndex);
-
   MoneroSubaddressList getSubaddressList(Object wallet);
 
   TransactionHistoryBase getTransactionHistory(Object wallet);
@@ -478,10 +467,8 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   String formatterMoneroAmountToString({required int amount});
   double formatterMoneroAmountToDouble({required int amount});
   int formatterMoneroParseAmount({required String amount});
-  Account getCurrentAccount(Object wallet);
   void monerocCheck();
   bool isViewOnly();
-  void setCurrentAccount(Object wallet, int id, String label, String? balance);
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource);
@@ -512,15 +499,6 @@ abstract class MoneroSubaddressList {
   Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
   Future<void> setLabelSubaddress(Object wallet,
       {required int accountIndex, required int addressIndex, required String label});
-}
-
-abstract class MoneroAccountList {
-  ObservableList<Account> get accounts;
-  void update(Object wallet);
-  void refresh(Object wallet);
-  List<Account> getAll(Object wallet);
-  Future<void> addAccount(Object wallet, {required String label});
-  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
 }
   """;
 

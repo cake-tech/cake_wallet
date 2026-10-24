@@ -24,7 +24,7 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
   if (wallet.type == WalletType.monero) {
     await monero!
         .getSubaddressList(wallet)
-        .addSubaddress(wallet, accountIndex: monero!.getCurrentAccount(wallet).id, label: label);
+        .addSubaddress(wallet, accountIndex: wallet.currentAccountIndex, label: label);
     final subaddressList = await monero!.getSubaddressList(wallet).subaddresses;
     if (subaddressList.isEmpty) {
       // this shouldn't happen, we just added an addr.
@@ -40,7 +40,7 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
   if (wallet.type == WalletType.wownero) {
     await wownero!
         .getSubaddressList(wallet)
-        .addSubaddress(wallet, accountIndex: wownero!.getCurrentAccount(wallet).id, label: label);
+        .addSubaddress(wallet, accountIndex: wallet.currentAccountIndex, label: label);
     final addr = await wownero!
         .getSubaddressList(wallet)
         .subaddresses

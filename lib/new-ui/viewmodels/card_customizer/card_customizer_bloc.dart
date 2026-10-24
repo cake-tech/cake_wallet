@@ -1,8 +1,5 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
-import "package:cake_wallet/bitcoin/bitcoin.dart";
-import "package:cake_wallet/monero/monero.dart";
-import "package:cake_wallet/wownero/wownero.dart" as wow;
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -46,7 +43,11 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   bool get _accountNameEnabled => !lightningMode &&
       (_wallet.hasNativeAccounts || _wallet.walletInfo.isMultiAccountsEnabled == true);
 
+
+  bool get _hasAccountCards => _wallet.hasAccountsSupport || _wallet.type == WalletType.bitcoin;
+
   CryptoCurrency get _currency => lightningMode ? CryptoCurrency.btcln : _wallet.currency;
+
 
   List<Gradient> _updateAvailableColors(CardDesign currentDesign) {
     final list = List<Gradient>.from(CardDesign.allGradients, growable: true);
@@ -150,7 +151,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       return (accountName: "", accountIndex: -2);
     }
 
-    final account = await _resolveCurrentAccount();
+    final account = _resolveCurrentAccount();
 
     if (!_accountNameEnabled) {
       return (accountName: "", accountIndex: account.accountIndex);
@@ -159,23 +160,13 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     return account;
   }
 
-  Future<({String accountName, int accountIndex})> _resolveCurrentAccount() async {
-    if (_wallet.type == WalletType.monero) {
-      final account = monero!.getCurrentAccount(_wallet);
-      return (accountName: account.label, accountIndex: account.id);
+  ({String accountName, int accountIndex}) _resolveCurrentAccount() {
+    if (!_hasAccountCards) {
+      return (accountName: "", accountIndex: -1);
     }
 
-    if (_wallet.type == WalletType.wownero) {
-      final account = wow.wownero!.getCurrentAccount(_wallet);
-      return (accountName: account.label, accountIndex: account.id);
-    }
-
-    if (_wallet.type == WalletType.bitcoin) {
-      final account = await bitcoin!.getCurrentAccount(_wallet);
-      return (accountName: account.label, accountIndex: account.id);
-    }
-
-    return (accountName: "", accountIndex: -1);
+    final account = _wallet.currentWalletAccount;
+    return (accountName: account.label, accountIndex: account.index);
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {
@@ -262,39 +253,9 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   Future<void> saveAccountName() async {
-    if (!_accountNameEnabled) return;
+    if (!_accountNameEnabled || !_wallet.hasAccountsSupport) return;
 
-    if (_wallet.type == WalletType.monero) {
-      await saveMoneroAccountName();
-    } else if (_wallet.type == WalletType.wownero) {
-      await saveWowneroAccountName();
-    } else if (_wallet.type == WalletType.bitcoin) {
-      await saveBitcoinAccountName();
-    }
-  }
-
-  Future<void> saveMoneroAccountName() async {
-    final MoneroAccountList moneroAccountList = monero!.getAccountList(_wallet);
-    await moneroAccountList.setLabelAccount(_wallet,
-        accountIndex: state.accountIndex, label: state.accountName,);
-
+    await _wallet.renameAccount(index: state.accountIndex, label: state.accountName);
     await _wallet.save();
-  }
-
-  Future<void> saveWowneroAccountName() async {
-    final accountList = wow.wownero!.getAccountList(_wallet);
-    await accountList.setLabelAccount(
-      _wallet,
-      accountIndex: state.accountIndex,
-      label: state.accountName,
-    );
-
-    await _wallet.save();
-  }
-  Future<void> saveBitcoinAccountName() async {
-    await _wallet.walletInfo.renameAccount(
-      accountIndex: state.accountIndex,
-      label: state.accountName,
-    );
   }
 }

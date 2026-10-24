@@ -216,10 +216,6 @@ import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import "package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/bitcoin_account_list/bitcoin_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_edit_or_create_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/nano_account_list/nano_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/nano_account_list/nano_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -890,71 +886,12 @@ Future<void> setup({
         'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel',wallet.type);
   });
 
-  getIt.registerFactory<MoneroAccountListViewModel>(() {
-    final wallet = getIt.get<AppStore>().wallet!;
-    if (wallet.type == WalletType.monero ||
-        wallet.type == WalletType.wownero ||
-        wallet.type == WalletType.haven) {
-      return MoneroAccountListViewModel(wallet);
-    }
-    throw BadWalletTypeException(
-        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel',wallet.type);
-  });
+  getIt.registerFactory<WalletAccountListViewModel>(
+      () => WalletAccountListViewModel(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<BitcoinAccountListViewModel>(() {
-    final wallet = getIt.get<AppStore>().wallet!;
-    if (wallet.type == WalletType.bitcoin) {
-      return BitcoinAccountListViewModel(wallet);
-    }
-    throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate Bitcoin AccountListViewModel');
-  });
-
-  getIt.registerFactory<WalletAccountListViewModel>(() {
-    final wallet = getIt.get<AppStore>().wallet!;
-
-    switch (wallet.type) {
-      case WalletType.bitcoin:
-        return getIt.get<BitcoinAccountListViewModel>();
-      case WalletType.monero:
-      case WalletType.wownero:
-      case WalletType.haven:
-        return getIt.get<MoneroAccountListViewModel>();
-      default:
-        throw Exception('Unsupported wallet type for WalletAccountListViewModel: ${wallet.type}');
-    }
-  });
-
-  getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel, AccountListItem?, void>(
-      (AccountListItem? account, _) {
-    final wallet = getIt.get<AppStore>().wallet!;
-
-    if (wallet.type == WalletType.monero) {
-      return MoneroAccountEditOrCreateViewModel(
-        monero!.getAccountList(wallet),
-        null,
-        wallet: wallet,
-        accountListItem: account,
-      );
-    }
-
-    if (wallet.type == WalletType.wownero) {
-      return MoneroAccountEditOrCreateViewModel(
-        null,
-        wownero!.getAccountList(wallet),
-        wallet: wallet,
-        accountListItem: account,
-      );
-    }
-
-    throw StateError("Account creation is unavailable for ${wallet.type}");
-  });
-
-  getIt.registerFactory<BitcoinAccountEditOrCreateViewModel>(
-        () => BitcoinAccountEditOrCreateViewModel(
-      wallet: getIt.get<AppStore>().wallet!,
-    ),
-  );
+  getIt.registerFactoryParam<WalletAccountEditOrCreateViewModel, AccountListItem?, void>(
+      (AccountListItem? account, _) =>
+          WalletAccountEditOrCreateViewModel(getIt.get<AppStore>().wallet!, account: account));
 
   getIt.registerFactoryParam<NanoAccountEditOrCreateViewModel, NanoAccount?, void>(
       (NanoAccount? account, _) =>
@@ -1054,20 +991,6 @@ Future<void> setup({
       getIt.get<AuthService>(), getIt.get<AppStore>().wallet!.isHardwareWallet));
 
 
-  getIt.registerFactory<WalletAccountEditOrCreateViewModel>(() {
-    final wallet = getIt.get<AppStore>().wallet!;
-    switch (wallet.type) {
-      case WalletType.bitcoin:
-        return getIt.get<BitcoinAccountEditOrCreateViewModel>();
-      case WalletType.monero:
-      case WalletType.wownero:
-      case WalletType.haven:
-        return getIt.get<MoneroAccountEditOrCreateViewModel>();
-      default:
-        throw Exception(
-            'Unsupported wallet type for WalletAccountEditOrCreateViewModel: ${wallet.type}');
-    }
-  });
 
   getIt.registerFactoryParam<WalletAccountsPage, DashboardViewModel, void>(
         (dashboardViewModel, _) => WalletAccountsPage(
