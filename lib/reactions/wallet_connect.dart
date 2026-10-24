@@ -2,6 +2,8 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/et
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_supported_methods.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_supported_methods.dart';
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_id.dart";
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_supported_methods.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/evm/evm.dart';
 
@@ -13,6 +15,7 @@ const List<WalletType> walletConnectCompatibleChains = [
   WalletType.bsc,
   WalletType.robinhood,
   WalletType.solana,
+  WalletType.tron,
 ];
 
 String walletConnectCompatibleChainsLabel() {
@@ -99,6 +102,8 @@ String getChainNameSpaceAndIdBasedOnWalletType(WalletType walletType, {int? chai
       return EVMChainId.robinhood.chain();
     case WalletType.solana:
       return SolanaChainId.mainnet.chain();
+    case WalletType.tron:
+      return TronChainId.mainnet.chain();
     default:
       return '';
   }
@@ -115,6 +120,8 @@ List<String> getChainSupportedMethodsOnWalletType(WalletType walletType) {
       return EVMSupportedMethods.values.map((e) => e.name).toList();
     case WalletType.solana:
       return SolanaSupportedMethods.values.map((e) => e.name).toList();
+    case WalletType.tron:
+      return TronSupportedMethods.values.map((e) => e.name).toList();
     default:
       return [];
   }
