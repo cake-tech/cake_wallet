@@ -368,6 +368,31 @@ void main() {
   );
 
   test(
+    "closing a wallet while it syncs does not reconnect it",
+    () async {
+      final node = await _FakeNode.start();
+      final wallet = _wallet();
+      await wallet.connectToNode(node: _node(node.port));
+      await _waitFor(() => _connectedTo(wallet, node.port), const Duration(seconds: 8));
+
+      unawaited(wallet.startSync());
+      await Future.delayed(const Duration(milliseconds: 200));
+      await wallet.close();
+      // The sync still running against the closed client fails on its own.
+      await _waitFor(
+        () => wallet.syncStatus is NotConnectedSyncStatus,
+        const Duration(seconds: 20),
+      );
+      expect(wallet.syncStatus, isA<NotConnectedSyncStatus>());
+      await Future.delayed(const Duration(seconds: 7)); // past the 5 s retry
+
+      expect(wallet.electrumClient.isConnected, isFalse);
+      await node.close();
+    },
+    timeout: const Timeout(Duration(seconds: 60)),
+  );
+
+  test(
     "switching between two working nodes subscribes the addresses on the new node",
     () async {
       final a = await _FakeNode.start();

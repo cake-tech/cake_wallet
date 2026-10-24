@@ -598,6 +598,7 @@ abstract class ElectrumWalletBase
 
   bool _isTryingToConnect = false;
   Timer? _reconnectTimer;
+  bool _isClosed = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
   DateTime? _syncStartedAt;
@@ -2110,7 +2111,9 @@ abstract class ElectrumWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _missingHistoryQueue.clear();
     _unresolvedAccountRetryCount.clear();
-    // A pending reconnect would reopen the client of a closed wallet.
+    // A pending or later reconnect (e.g. from a sync still running) would reopen the client of a
+    // closed wallet.
+    _isClosed = true;
     _reconnectTimer?.cancel();
     _isTryingToConnect = false;
     try {
@@ -4445,7 +4448,7 @@ abstract class ElectrumWalletBase
       // Needs to re-subscribe to all scripthashes when reconnected
       _scripthashesUpdateSubject = {};
 
-      if (_isTryingToConnect) return;
+      if (_isTryingToConnect || _isClosed) return;
 
       _isTryingToConnect = true;
 
@@ -4642,7 +4645,7 @@ abstract class ElectrumWalletBase
         await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
 
         // On failure the client reports `failed` and the 5 s retry takes over. Syncing with no
-        // socket would end in a false "Synced".
+        // socket would only fail.
         if (!electrumClient.isConnected) {
           return;
         }
