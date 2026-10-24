@@ -2770,7 +2770,7 @@ abstract class ElectrumWalletBase
 
       if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
         try {
-          final blockHash = await fetchMempoolApi("/api/v1/block-height/$height");
+          final blockHash = await fetchMempoolApi("/api/block-height/$height");
 
           if (blockHash.statusCode == 200 &&
               blockHash.body.isNotEmpty &&
@@ -3801,7 +3801,7 @@ abstract class ElectrumWalletBase
     // Best-effort: if any call fails, we just skip that height.
     await Future.wait(heights.map((h) async {
       try {
-        final blockHashResp = await fetchMempoolApi('/api/v1/block-height/$h');
+        final blockHashResp = await fetchMempoolApi('/api/block-height/$h');
 
         if (blockHashResp.statusCode != 200 || blockHashResp.body.isEmpty) return;
 
