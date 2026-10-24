@@ -20,10 +20,13 @@ dependencies:
   zkool:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
-
+      ref: fda19fa279765713b6822b1db13263e54e8e73a3
   path_provider: any
   sqflite_common_ffi: any
+  ur:
+    git:
+      url: https://github.com/bukata-sa/bc-ur-dart
+      ref: 5738f70d0ec3d50977ac3dd01fed62939600238b
 dependency_overrides:
   decimal: ^2.3.3
 

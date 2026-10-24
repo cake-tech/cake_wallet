@@ -163,6 +163,8 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     return latestAddress;
   }
 
+  bool get canRotateTransparentAddress => walletInfo.hardwareWalletType == null;
+
   Future<void> _init() async {
     await _initAddresses();
 
@@ -175,21 +177,23 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     saplingAddress = addr.saddr ?? 'unknown addr.saddr';
     orchardAddress = addr.oaddr ?? 'unknown addr.oaddr';
     unifiedAddress = addr.ua ?? 'unknown addr.ua';
-    _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
-    final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
-    addressInfos = {
-      0: [
-        for (int i = 0; i < rotationAddrs.length; i++)
-          WalletInfoAddressInfo(
-            walletInfoId: walletInfo.internalId,
-            mapKey: i + 1,
-            accountIndex: 0,
-            address: rotationAddrs[i],
-            label: "",
-          ),
-      ],
-    };
-    await _syncRotationHiddenAddresses();
+    if (canRotateTransparentAddress) {
+      _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
+      final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
+      addressInfos = {
+        0: [
+          for (int i = 0; i < rotationAddrs.length; i++)
+            WalletInfoAddressInfo(
+              walletInfoId: walletInfo.internalId,
+              mapKey: i + 1,
+              accountIndex: 0,
+              address: rotationAddrs[i],
+              label: "",
+            ),
+        ],
+      };
+      await _syncRotationHiddenAddresses();
+    }
     await _applyAddressForCurrentType();
 
     if (isPlaceholderAddress(walletInfo.address)) {
@@ -204,6 +208,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<void> refreshRotationAddresses() async {
+    if (!canRotateTransparentAddress) return;
     _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
     final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
     addressInfos = {
@@ -230,7 +235,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<void> _applyAddressForCurrentType() async {
-    if (_addressPageType == ZcashAddressType.transparentRotated) {
+    if (_addressPageType == ZcashAddressType.transparentRotated && canRotateTransparentAddress) {
       final addr = await ZcashTaddressRotation.addressForAccount(accountId);
       if (addr != null) {
         address = addr;
@@ -267,7 +272,9 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
       await walletInfo.setManualAddresses(manualAddresses.toList());
       await walletInfo.save();
       await _initAddresses();
-      await _syncRotationHiddenAddresses();
+      if (canRotateTransparentAddress) {
+        await _syncRotationHiddenAddresses();
+      }
     } catch (e) {
       printV("Error saving addresses: $e");
     }

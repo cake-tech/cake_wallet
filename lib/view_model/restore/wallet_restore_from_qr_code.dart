@@ -13,6 +13,7 @@ import "package:cake_wallet/wallet_types.g.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_zcash/cw_zcash.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -121,6 +122,27 @@ class WalletRestoreFromQRCode {
     String? code = await presentQRScanner(context);
     if (code == null) throw ScanValueException("QR scan is cancelled");
     if (code.isEmpty) throw ScanValueException('Unexpected scan QR code value: value is empty');
+
+    final accountsQr = _zcashAccountsFromUr(code);
+    if (accountsQr != null) {
+      if (accountsQr.accounts.isEmpty) {
+        throw Exception('No Zcash accounts found');
+      }
+      final account = accountsQr.accounts.firstWhere(
+        (item) => item.index == 0,
+        orElse: () => accountsQr.accounts.first,
+      );
+      final name = account.name;
+      return RestoredWallet(
+        restoreMode: WalletRestoreMode.keys,
+        type: WalletType.zcash,
+        address: null,
+        name: name == null || name.isEmpty ? null : name,
+        privateKey: account.ufvk,
+        accountIndex: account.index,
+        height: 0,
+      );
+    }
 
     if (code.startsWith("[")) code = code.substring(code.indexOf("]") + 1);
 
@@ -261,6 +283,14 @@ class WalletRestoreFromQRCode {
       return WalletRestoreMode.keys;
     }
 
+    if (type == WalletType.zcash && credentials.containsKey('private_key')) {
+      final privateKey = credentials['private_key'] as String;
+      if (privateKey.isEmpty) {
+        throw Exception('Unexpected restore mode: private_key');
+      }
+      return WalletRestoreMode.keys;
+    }
+
     if (type == WalletType.monero) {
       final codeParsed = json.decode(credentials['raw_qr'].toString());
       if (codeParsed["version"] != 0)
@@ -275,6 +305,12 @@ class WalletRestoreFromQRCode {
 
     throw ScanValueException('Unexpected restore mode: restore params are invalid');
   }
+}
+
+ZcashUrAccounts? _zcashAccountsFromUr(String code) {
+  if (!code.contains('ur:$zcashAccountsType')) return null;
+  final parts = code.split(RegExp(r'\s+')).where((part) => part.startsWith('ur:')).toList();
+  return decodeZcashAccountsUr(parts);
 }
 
 Future<void> _specifyWalletAssets(BuildContext context, String error) async {
