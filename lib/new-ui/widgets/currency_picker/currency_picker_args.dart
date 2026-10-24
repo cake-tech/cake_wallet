@@ -15,6 +15,11 @@ String chainNameForCurrency(CryptoCurrency c) {
   return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
 }
 
+String? networkIconPathForCurrency(CryptoCurrency c) {
+  final wt = cryptoCurrencyOrTokenToWalletType(c);
+  return wt != null ? getCryptoCurrencyIconForWalletListItem(wt) : c.iconPath;
+}
+
 final Set<String> _stablecoinSymbols = {
   for (final c in CryptoCurrency.all)
     if (c.groups.contains(CurrencyGroups.stablecoin)) c.title.toUpperCase(),

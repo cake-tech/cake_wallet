@@ -42,4 +42,10 @@ class DateFormatter {
 
     return title;
   }
+
+  static String formatDuration(Duration duration) => [
+        duration.inHours,
+        duration.inMinutes.remainder(60),
+        duration.inSeconds.remainder(60),
+      ].map((value) => value.toString().padLeft(2, "0")).join(":");
 }

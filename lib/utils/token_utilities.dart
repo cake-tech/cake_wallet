@@ -171,18 +171,18 @@ class TokenUtilities {
     final lower = address.toLowerCase();
     final tokens = await getAvailableTokensForNetwork(walletType);
     for (final t in tokens) {
-      if (t is Erc20Token && t.contractAddress.toLowerCase() == lower) {
-        return t;
-      }
-      if (t is SPLToken && t.mintAddress.toLowerCase() == lower) {
-        return t;
-      }
-      if (t is TronToken && t.contractAddress.toLowerCase() == lower) {
+      if (tokenAddress(t)?.toLowerCase() == lower) {
         return t;
       }
     }
     return null;
   }
+
+  static String? tokenAddress(CryptoCurrency currency) => switch (currency) {
+        Erc20Token(:final contractAddress) || TronToken(:final contractAddress) => contractAddress,
+        SPLToken(:final mintAddress) => mintAddress,
+        _ => null,
+      };
 
   static int _getDefaultChainId(WalletType walletType) => switch (walletType) {
       WalletType.ethereum => 1,

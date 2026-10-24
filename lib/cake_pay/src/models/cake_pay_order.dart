@@ -1,4 +1,10 @@
-enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB, ZEC }
+import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/order/order.dart";
+import "package:cake_wallet/order/order_provider_description.dart";
+import "package:cake_wallet/order/order_source_description.dart";
+import "package:cw_core/crypto_currency.dart";
+
+enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB, ZEC, STABLECOIN }
 
 extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
   String get label => switch (this) {
@@ -8,6 +14,7 @@ extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
         CakePayPaymentMethod.LTC => 'Litecoin',
         CakePayPaymentMethod.LTC_MWEB => 'MWEB',
         CakePayPaymentMethod.ZEC => 'Zcash',
+        CakePayPaymentMethod.STABLECOIN => "USDC/USDT",
       };
 }
 
@@ -63,6 +70,7 @@ class CakePayOrder {
       CakePayPaymentMethod.LTC_MWEB => order.paymentData.ltc_mweb,
       CakePayPaymentMethod.ZEC => order.paymentData.zec,
       CakePayPaymentMethod.BTC_LN => order.paymentData.btc_ln,
+      CakePayPaymentMethod.STABLECOIN => null,
     };
 
     if (data == null) return null;
@@ -88,8 +96,31 @@ class CakePayOrder {
       CakePayPaymentMethod.LTC => 'LTC',
       CakePayPaymentMethod.LTC_MWEB => 'LTC',
       CakePayPaymentMethod.ZEC => 'ZEC',
+      CakePayPaymentMethod.STABLECOIN => CakePayPaymentMethod.STABLECOIN.label,
     };
   }
+
+  Order toOrder({
+    required String from,
+    required String amount,
+    required String receiveAddress,
+    required String walletId,
+  }) =>
+      Order(
+        id: orderId,
+        state: TradeState.deserialize(raw: status),
+        transferId: externalId ?? "",
+        from: from,
+        to: fiatCurrencyCode,
+        createdAt: DateTime.now(),
+        amount: amount,
+        receiveAmount: totalReceiveAmount,
+        quantity: quantity.toString(),
+        receiveAddress: receiveAddress,
+        source: OrderSourceDescription.order,
+        giftCardProvider: OrderProviderDescription.cakePay,
+        walletId: walletId,
+      );
 }
 
 class OrderCard {
@@ -131,6 +162,7 @@ class PaymentData {
   final CryptoPaymentData? ltc;
   final CryptoPaymentData? ltc_mweb;
   final CryptoPaymentData? zec;
+  final List<StablecoinPaymentData> stablecoins;
   final DateTime invoiceTime;
   final DateTime expirationTime;
   final int? commission;
@@ -142,6 +174,7 @@ class PaymentData {
     required this.ltc,
     required this.ltc_mweb,
     required this.zec,
+    required this.stablecoins,
     required this.invoiceTime,
     required this.expirationTime,
     required this.commission,
@@ -164,11 +197,59 @@ class PaymentData {
       zec: map['ZEC_CHAIN'] != null
           ? CryptoPaymentData.fromMap(map['ZEC_CHAIN'] as Map<String, dynamic>)
           : null,
+      stablecoins: StablecoinPaymentData.listFromMap(map),
       invoiceTime: DateTime.fromMillisecondsSinceEpoch(map['invoice_time'] as int),
       expirationTime: DateTime.fromMillisecondsSinceEpoch(map['expiration_time'] as int),
       commission: map['commission'] as int?,
     );
   }
+}
+
+class StablecoinPaymentData {
+  const StablecoinPaymentData({required this.paymentMethod, required this.networks});
+
+  final String paymentMethod;
+  final List<StablecoinNetwork> networks;
+
+  static const _currencies = {"USDC": CryptoCurrency.usdc, "USDT": CryptoCurrency.usdt};
+
+  CryptoCurrency get currency => _currencies[paymentMethod]!;
+
+  static List<StablecoinPaymentData> listFromMap(Map<String, dynamic> paymentData) => [
+        for (final paymentMethod in _currencies.keys)
+          if (paymentData[paymentMethod]
+              case {"requires_quote": true, "networks": final List<dynamic> networks}
+              when networks.isNotEmpty)
+            StablecoinPaymentData(
+              paymentMethod: paymentMethod,
+              networks: networks
+                  .map((network) => StablecoinNetwork.fromMap(network as Map<String, dynamic>))
+                  .toList(),
+            ),
+      ];
+}
+
+class StablecoinNetwork {
+  const StablecoinNetwork({required this.chain, required this.name});
+
+  factory StablecoinNetwork.fromMap(Map<String, dynamic> map) =>
+      StablecoinNetwork(chain: map["chain"] as String, name: map["name"] as String);
+
+  final String chain;
+  final String name;
+
+  static const _currencies = {
+    "ethereum": CryptoCurrency.eth,
+    "base": CryptoCurrency.baseEth,
+    "arbitrum": CryptoCurrency.arbEth,
+    "polygon": CryptoCurrency.maticpoly,
+    "bsc": CryptoCurrency.bnb,
+    "avalanche": CryptoCurrency.avaxc,
+    "tron": CryptoCurrency.trx,
+    "solana": CryptoCurrency.sol,
+  };
+
+  CryptoCurrency? get currency => _currencies[chain];
 }
 
 class CryptoPaymentData {

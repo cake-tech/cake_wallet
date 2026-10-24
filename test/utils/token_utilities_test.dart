@@ -80,5 +80,38 @@ void main() {
         expect(TokenUtilities.findErc20TokenForSwap(CryptoCurrency.eth), null);
       });
     });
+
+    group("tokenAddress", () {
+      test("returns the contract or mint of each token type", () {
+        final erc20 = Erc20Token(
+          name: "USD Coin",
+          symbol: "USDC",
+          contractAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          decimal: 6,
+        );
+        final tron = TronToken(
+          name: "Tether USD",
+          symbol: "USDT",
+          contractAddress: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+          decimal: 6,
+        );
+        final spl = SPLToken(
+          name: "USD Coin",
+          symbol: "USDC",
+          mintAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          decimal: 6,
+          mint: "usdc",
+        );
+
+        expect(TokenUtilities.tokenAddress(erc20), "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913");
+        expect(TokenUtilities.tokenAddress(tron), "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t");
+        expect(TokenUtilities.tokenAddress(spl), "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
+      });
+
+      test("returns null for native coins", () {
+        expect(TokenUtilities.tokenAddress(CryptoCurrency.eth), null);
+        expect(TokenUtilities.tokenAddress(CryptoCurrency.trx), null);
+      });
+    });
   });
 }
