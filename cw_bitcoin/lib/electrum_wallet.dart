@@ -10,7 +10,7 @@ import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/root_dir.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
@@ -596,6 +596,11 @@ abstract class ElectrumWalletBase
   @observable
   bool silentPaymentsScanningActive = false;
 
+  /// Set by the wallet service for a new wallet, or a seed restore with no restoreHeight
+  /// so if restoreHeight is defaulted to 0 the wallet birthday is pending, if it was
+  /// already 0, the wallet info snapshot defaults it to not pending birthday (pre-existing)
+  bool birthdayPending = false;
+
   bool _isTryingToConnect = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
@@ -721,6 +726,10 @@ abstract class ElectrumWalletBase
   Timer? _updateFeeRateTimer;
   static const int _autoSaveInterval = 1;
 
+  // Serializes restoreHeight persistence so overlapping SyncResponse messages
+  // can't have their SQLite saves complete out of order.
+  Future<void> _restoreHeightSaveChain = Future.value();
+
   Future<void> init() async {
     final accountIndexes = await loadAccountIndexes();
 
@@ -760,8 +769,8 @@ abstract class ElectrumWalletBase
       runningIsolate.kill(priority: Isolate.immediate);
     }
 
-    final appDir = await getAppDir();
-    String debugLogPath = "${appDir.path}/logs/debug.log";
+    final appDir = await getApplicationSupportDirectory();
+    String debugLogPath = "${appDir.path}/logs/silent_payments.log";
 
     final receivePort = ReceivePort();
     _isolate = Isolate.spawn(
@@ -868,7 +877,17 @@ abstract class ElectrumWalletBase
           if (shouldUpdateSyncStatus) syncStatus = message.syncStatus;
         }
 
-        await walletInfo.updateRestoreHeight(message.height);
+        // receivePort.listen's callback isn't awaited by the stream, so without
+        // chaining, a fast SyncResponse could start its SQLite save before a
+        // slower earlier one finishes and overwrite it with an older height.
+        // Chaining onto the previous save forces writes to land in arrival
+        // order; catchError keeps one failed save from poisoning the chain
+        // (an unhandled `then` error would silently skip every save after it).
+        _restoreHeightSaveChain = _restoreHeightSaveChain
+            .then((_) => walletInfo.updateRestoreHeight(message.height))
+            .catchError((e, s) => printV(e));
+
+        await _restoreHeightSaveChain;
       }
     });
   }
@@ -935,6 +954,12 @@ abstract class ElectrumWalletBase
         silentPaymentsScanningActive = alwaysScan ?? false;
         await _setInitialHeight();
 
+        // The birthday could not be recorded (no valid tip yet): scanning now would start
+        // from genesis. The chain-tip subscription applies it and triggers the scan later.
+        if (birthdayPending) {
+          silentPaymentsScanningActive = false;
+        }
+
         final now = DateTime.now();
         final shouldForceRescan = _lastSilentPaymentsScan == null ||
             now.difference(_lastSilentPaymentsScan!) >= _silentPaymentsScanDelay;
@@ -967,7 +992,7 @@ abstract class ElectrumWalletBase
       await updateAllUnspents();
       await updateBalance();
 
-      if (alwaysScan == true) {
+      if (alwaysScan == true && !birthdayPending) {
         setSilentPaymentsScanning(true);
       } else if (syncStatus is LostConnectionSyncStatus) {
         _syncBenchmarkStartTime = null;
@@ -1997,6 +2022,7 @@ abstract class ElectrumWalletBase
         'silent_address_index': walletAddresses.currentSilentAddressIndex.toString(),
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
+        'birthdayPending': birthdayPending,
         'useLightning': useLightning,
         'cachedLightningAddress': walletAddresses.lightningAddress
       });
@@ -4365,13 +4391,17 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> _setInitialHeight() async {
-    if (_chainTipUpdateSubject != null) return;
+    if (_chainTipUpdateSubject != null) {
+      // The first tip fetch may have failed; keep retrying until the birthday is recorded.
+      if (birthdayPending) {
+        await _applyNewWalletBirthday(await getUpdatedChainTip());
+      }
+
+      return;
+    }
 
     currentChainTip = await getUpdatedChainTip();
-
-    if ((currentChainTip == null || currentChainTip! == 0) && walletInfo.restoreHeight == 0) {
-      await walletInfo.updateRestoreHeight(currentChainTip!);
-    }
+    await _applyNewWalletBirthday(currentChainTip);
 
     _chainTipUpdateSubject = electrumClient.chainTipSubscribe();
     _chainTipUpdateSubject?.listen((e) async {
@@ -4381,11 +4411,34 @@ abstract class ElectrumWalletBase
       if (height != null) {
         currentChainTip = height;
 
-        if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
+        final wasPending = birthdayPending;
+        await _applyNewWalletBirthday(height);
+
+        if (wasPending && !birthdayPending && alwaysScan == true) {
+          silentPaymentsScanningActive = true;
+          _setListeners(walletInfo.restoreHeight, chainTipParam: height);
+        } else if (alwaysScan == true && syncStatus is SyncedSyncStatus) {
           _setListeners(walletInfo.restoreHeight);
         }
       }
     });
+  }
+
+  /// Only a wallet whose birthday is "now" gets the tip. Opened wallets and user-requested
+  /// rescans from 0 must keep their height. The flag is cleared only once a valid tip is known.
+  Future<void> _applyNewWalletBirthday(int? tip) async {
+    if (!birthdayPending || (tip ?? 0) <= 0) {
+      return;
+    }
+
+    birthdayPending = false;
+    currentChainTip = tip;
+
+    if (walletInfo.restoreHeight == 0) {
+      await walletInfo.updateRestoreHeight(tip!);
+    }
+
+    await save();
   }
 
   static String _hardenedDerivationPath(String derivationPath) =>
@@ -4886,12 +4939,9 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
         final tweakHeight = response.block;
 
-        // Continuous status UI update, send how many blocks left to scan
         final syncingStatus = isSingleScan
             ? SyncingSyncStatus(1, 0)
             : SyncingSyncStatus.fromHeightValues(scanData.chainTip, initialSyncHeight, tweakHeight);
-
-        if (shouldUpdateSyncStatus) scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
 
         try {
           final blockTweaks = response.blockTweaks;
@@ -5058,6 +5108,13 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         }
 
         syncHeight = tweakHeight;
+
+        // Continuous status UI update, send how many blocks left to scan. Sent
+        // only once this height's tweaks have been fully scanned, so a restart
+        // resumes from the last height that was actually processed.
+        if (shouldUpdateSyncStatus) {
+          scanData.sendPort.send(SyncResponse(syncHeight, syncingStatus));
+        }
 
         if ((tweakHeight >= scanData.chainTip) || isSingleScan) {
           endScanningSuccesfully();
