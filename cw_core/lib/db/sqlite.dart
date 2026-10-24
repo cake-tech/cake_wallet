@@ -12,11 +12,11 @@ import "package:sqflite_common_ffi/sqflite_ffi.dart";
 Database? db;
 
 Future<void> _addColumnIfNotExists(
-    Database db, {
-      required String table,
-      required String column,
-      required String definition,
-    }) async {
+  Database db, {
+  required String table,
+  required String column,
+  required String definition,
+}) async {
   final result = await db.rawQuery("PRAGMA table_info($table)");
   final columnExists = result.any((row) => row["name"] == column);
 
@@ -71,7 +71,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -198,12 +198,21 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
 
         await _migrateBitcoinCardStylesForAccounts(db);
       }
-      if(oldVersion <= 14) {
+      if (oldVersion <= 14) {
         await _addColumnIfNotExists(
           db,
           table: "BalanceCardStyleSettings",
           column: "hidden",
           definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
+      if (oldVersion <= 15) {
+        await _createWalletInfoScanCoverageTable(db);
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "backfillTargetHeight",
+          definition: "INTEGER DEFAULT NULL",
         );
       }
     },
@@ -235,6 +244,7 @@ CREATE TABLE WalletInfo (
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
   favoriteTokenAddress TEXT DEFAULT NULL,
+  backfillTargetHeight INTEGER DEFAULT NULL,
   accountDiscoveryLimit INTEGER DEFAULT NULL,
   isMultiAccountsEnabled INTEGER DEFAULT NULL,
   showSeedBackupReminder BOOLEAN DEFAULT FALSE
@@ -313,6 +323,7 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createWalletInfoScanCoverageTable(db);
     },
   );
 }
@@ -415,7 +426,6 @@ ON WalletInfoAccount(walletInfoId);
 """);
 }
 
-
 Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
   const bitcoinWallets = 'SELECT walletInfoId FROM WalletInfo WHERE "type" = ?';
   final btc = WalletType.bitcoin.index;
@@ -423,14 +433,14 @@ Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
   // Lightning: 0 -> -2 (first, so accountIndex 0 is free for the Bitcoin card)
   await db.rawUpdate(
     "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = -2 "
-        "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
+    "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
     [btc],
   );
 
   // Bitcoin: -1 -> 0 (primary account, first in order)
   await db.rawUpdate(
     "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = 0, cardOrder = 0 "
-        "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
+    "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
     [btc],
   );
 }
@@ -602,4 +612,21 @@ isBuiltin BOOLEAN DEFAULT FALSE,
 isDefault BOOLEAN DEFAULT FALSE
 );
         """);
+}
+
+Future<void> _createWalletInfoScanCoverageTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS WalletInfoScanCoverage (
+	walletInfoScanCoverageId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	walletInfoId INTEGER NOT NULL,
+	startHeight INTEGER NOT NULL,
+	endHeight INTEGER NOT NULL,
+	historical INTEGER NOT NULL,
+	CONSTRAINT WalletInfoScanCoverage_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
+""");
+  await db.execute("""
+CREATE INDEX IF NOT EXISTS idx_walletinfoscancoverage_walletinfoid
+ON WalletInfoScanCoverage (walletInfoId);
+""");
 }

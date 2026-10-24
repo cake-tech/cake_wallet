@@ -88,7 +88,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: 4e41f96f4838139895c65c3f49109d05af5d46aa
+      ref: e2d26adbe54df60159323c111ed0f6b3b8cde730
   bloc:
     git:
       url: https://github.com/felangel/bloc
@@ -1367,7 +1367,7 @@ dependency_overrides:
   sp_scanner:
     git:
       url: https://github.com/cake-tech/sp_scanner
-      ref: 40ed3ce8319744907bef3b25bc6e0af8428c8724
+      ref: e33a3b87cb0eba7d87b702f920cac27c70565697
   sqflite:
     git:
       url: https://github.com/tekartik/sqflite

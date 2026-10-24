@@ -53,6 +53,10 @@ class ElectrumClient {
   ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   Timer? _aliveTimer;
   String unterminatedString;
+  // See callWithTimeout's comment on this method: electrs-tweaks's reply
+  // never carries a matching id, so this is how _methodHandler finds the
+  // right pending task for a one-shot blockchain.tweaks.subscribe call.
+  String? _lastTweaksSubscribeRequestId;
 
   Uri? uri;
   bool? useSSL;
@@ -105,17 +109,22 @@ class ElectrumClient {
     // _setConnectionStatus(ConnectionStatus.connected);
     socket!.listen(
       (Uint8List event) {
-        try {
-          final msg = utf8.decode(event.toList());
-          final messagesList = msg.split("\n");
-          for (var message in messagesList) {
-            if (message.isEmpty) {
-              continue;
-            }
-            _parseResponse(message);
+        final msg = utf8.decode(event.toList());
+        final messagesList = msg.split("\n");
+        // Each message is parsed independently so a cast bug or malformed
+        // shape in one reply (e.g. a batch/tweaks response) can't throw an
+        // exception that aborts this loop and silently drops every other
+        // reply queued in the same TCP chunk (which can include the reply
+        // to an entirely unrelated request, like server.version).
+        for (var message in messagesList) {
+          if (message.isEmpty) {
+            continue;
           }
-        } catch (e) {
-          printV("socket.listen: $e");
+          try {
+            _parseResponse(message);
+          } catch (e) {
+            printV("socket.listen: $e");
+          }
         }
       },
       onError: (Object error) {
@@ -165,23 +174,25 @@ class ElectrumClient {
         unterminatedString = '';
       }
     } on TypeError catch (e) {
-      if (!e.toString().contains('Map<String, Object>') &&
-          !e.toString().contains('Map<String, dynamic>')) {
-        return;
-      }
-
-      unterminatedString += message;
-
-      if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString);
-        _handleResponse(response);
-        // unterminatedString = null;
-        unterminatedString = '';
-      }
+      // json.decode above only throws FormatException for a syntactically
+      // incomplete/invalid string — it never throws TypeError. So reaching
+      // here means json.decode on `message` already succeeded and this
+      // TypeError came from _handleResponse's own casts (e.g. a batch
+      // response whose first item isn't a Map, or an unexpected params
+      // shape) while processing a message that was already complete and
+      // valid. Treating that as a partial fragment (the old behavior: append
+      // it to unterminatedString and retry) was always wrong for this case —
+      // it can permanently poison unterminatedString with a complete message
+      // that will never combine with anything else into valid JSON again,
+      // silently breaking all future fragment reassembly on this connection.
+      // Just log and drop this one malformed-content message.
+      printV("_parseResponse: TypeError handling '$message': $e");
     } catch (e) {
       printV("parse $e");
     }
   }
+
+  bool _pingInFlight = false;
 
   void keepAlive() {
     _aliveTimer?.cancel();
@@ -189,22 +200,39 @@ class ElectrumClient {
   }
 
   Future<void> ping() async {
+    if (_pingInFlight) {
+      return;
+    }
+
+    _pingInFlight = true;
+
     try {
       await callWithTimeout(method: 'server.ping');
       _setConnectionStatus(ConnectionStatus.connected);
     } catch (_) {
-      _setConnectionStatus(ConnectionStatus.disconnected);
+      // a slow ping reply just means it's busy, not dead. Only treat
+      // this as a real disconnect once the socket itself is actually gone.
+      if (!isConnected) {
+        _setConnectionStatus(ConnectionStatus.disconnected);
+      }
+    } finally {
+      _pingInFlight = false;
     }
   }
 
-  Future<List<String>> version() =>
-      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) => val.toString()).toList();
-        }
+  Future<List<String>> version() async {
+    try {
+      final result =
+          await callWithTimeout(method: 'server.version', params: ["", "1.4"], timeout: 20000);
+      if (result is List) {
+        return result.map((dynamic val) => val.toString()).toList();
+      }
+    } catch (e) {
+      printV("version: timed out or failed: $e");
+    }
 
-        return [];
-      });
+    return [];
+  }
 
   Future<Map<String, dynamic>> getBalance(String scriptHash, {bool throwOnError = false}) async {
     try {
@@ -226,36 +254,43 @@ class ElectrumClient {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getHistory(String scriptHash) =>
-      call(method: 'blockchain.scripthash.get_history', params: [scriptHash])
-          .then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) {
-            if (val is Map<String, dynamic>) {
-              return val;
-            }
+  Future<List<Map<String, dynamic>>> getHistory(String scriptHash) async {
+    try {
+      final result = await call(method: 'blockchain.scripthash.get_history', params: [scriptHash]);
+      if (result is List) {
+        return result.map((dynamic val) {
+          if (val is Map<String, dynamic>) {
+            return val;
+          }
 
-            return <String, dynamic>{};
-          }).toList();
-        }
+          return <String, dynamic>{};
+        }).toList();
+      }
 
-        return [];
-      });
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 
   Future<List<Map<String, dynamic>>?> getListUnspent(String scriptHash) async {
-    final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
+    try {
+      final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
 
-    if (result is List) {
-      return result.map((dynamic val) {
-        if (val is Map<String, dynamic>) {
-          return val;
-        }
+      if (result is List) {
+        return result.map((dynamic val) {
+          if (val is Map<String, dynamic>) {
+            return val;
+          }
 
-        return <String, dynamic>{};
-      }).toList();
+          return <String, dynamic>{};
+        }).toList();
+      }
+
+      return null;
+    } catch (e) {
+      return null;
     }
-
-    return null;
   }
 
   Future<List<Map<String, dynamic>>> getMempool(String scriptHash) =>
@@ -536,8 +571,9 @@ class ElectrumClient {
     );
   }
 
-  Future<dynamic> getTweaks({required int height}) async =>
-      await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
+  Future<dynamic> getTweaks({required int height, int timeout = 5000}) async =>
+      await callWithTimeout(
+          method: 'blockchain.tweaks.subscribe', params: [height, 1, false], timeout: timeout);
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
@@ -632,15 +668,15 @@ class ElectrumClient {
     }
   }
 
-  BehaviorSubject<Object>? chainTipSubscribe() {
+  BehaviorSubject<Object?>? chainTipSubscribe() {
     _id += 1;
-    return subscribe<Object>(
+    return subscribe<Object?>(
         id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
   }
 
-  BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
+  BehaviorSubject<Object?>? scripthashUpdate(String scripthash) {
     _id += 1;
-    return subscribe<Object>(
+    return subscribe<Object?>(
         id: 'blockchain.scripthash.subscribe:$scripthash',
         method: 'blockchain.scripthash.subscribe',
         params: [scripthash]);
@@ -654,6 +690,7 @@ class ElectrumClient {
       }
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
+      _tasks[_id.toString()] = SocketTask(subject: subscription, isSubscription: true);
       socket!.write(jsonrpc(method: method, id: _id, params: params));
 
       return subscription;
@@ -664,7 +701,10 @@ class ElectrumClient {
   }
 
   Future<dynamic> call(
-      {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
+      {required String method,
+      List<Object> params = const [],
+      Function(int)? idCallback,
+      int timeout = 20000}) async {
     if (!isConnected) return null;
 
     final completer = Completer<dynamic>();
@@ -673,6 +713,12 @@ class ElectrumClient {
     idCallback?.call(id);
     _registryTask(id, completer);
     socket!.write(jsonrpc(method: method, id: id, params: params));
+
+    Timer(Duration(milliseconds: timeout), () {
+      if (!completer.isCompleted) {
+        completer.completeError(RequestFailedTimeoutException(method, id));
+      }
+    });
 
     return completer.future;
   }
@@ -686,6 +732,9 @@ class ElectrumClient {
       _id += 1;
       final id = _id;
       _registryTask(id, completer);
+      if (method == 'blockchain.tweaks.subscribe') {
+        _lastTweaksSubscribeRequestId = id.toString();
+      }
       socket!.write(jsonrpc(method: method, id: id, params: params));
       Timer(Duration(milliseconds: timeout), () {
         if (!completer.isCompleted) {
@@ -736,8 +785,9 @@ class ElectrumClient {
       return;
     }
 
-    if (!(_tasks[id]?.completer?.isCompleted ?? false)) {
-      _tasks[id]?.completer!.complete(data);
+    final completer = _tasks[id]?.completer;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(data);
     }
 
     if (!(_tasks[id]?.isSubscription ?? false)) {
@@ -768,7 +818,10 @@ class ElectrumClient {
         break;
       case 'blockchain.tweaks.subscribe':
         final params = request['params'] as List<dynamic>;
-        _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        final requestId = _lastTweaksSubscribeRequestId;
+        if (requestId != null) {
+          _finish(requestId, params.last);
+        }
         break;
       default:
         break;
@@ -802,7 +855,11 @@ class ElectrumClient {
         }
       });
 
-      final firstItem = response.first as Map<String, dynamic>;
+      final firstRaw = response.first;
+      if (firstRaw is! Map) {
+        return;
+      }
+      final firstItem = firstRaw;
       final String firstIdAttr = firstItem['id'].toString();
 
       final String batchKey = firstIdAttr.contains('-')

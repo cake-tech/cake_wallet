@@ -175,6 +175,205 @@ class WalletInfoAddressMap {
   }
 }
 
+/// A single closed height range, inclusive on both ends.
+class CoverageRange {
+  const CoverageRange(this.startHeight, this.endHeight);
+
+  final int startHeight;
+  final int endHeight;
+
+  @override
+  bool operator ==(Object other) =>
+      other is CoverageRange &&
+      other.startHeight == startHeight &&
+      other.endHeight == endHeight;
+
+  @override
+  int get hashCode => Object.hash(startHeight, endHeight);
+
+  @override
+  String toString() => '[$startHeight, $endHeight]';
+}
+
+List<CoverageRange> mergeCoverageRanges(List<CoverageRange> ranges) {
+  if (ranges.isEmpty) return [];
+
+  final sorted = [...ranges]..sort((a, b) => a.startHeight.compareTo(b.startHeight));
+  final merged = <CoverageRange>[sorted.first];
+
+  for (final range in sorted.skip(1)) {
+    final last = merged.last;
+    if (range.startHeight <= last.endHeight + 1) {
+      if (range.endHeight > last.endHeight) {
+        merged[merged.length - 1] = CoverageRange(last.startHeight, range.endHeight);
+      }
+    } else {
+      merged.add(range);
+    }
+  }
+
+  return merged;
+}
+
+/// Whether `[startHeight, endHeight]` is fully covered by (already-merged
+/// or not — this merges internally) [ranges] of a single mode.
+bool isRangeFullyCovered(List<CoverageRange> ranges, int startHeight, int endHeight) {
+  if (startHeight > endHeight) return true;
+
+  return mergeCoverageRanges(ranges)
+      .any((r) => r.startHeight <= startHeight && r.endHeight >= endHeight);
+}
+
+/// The lowest height in `[fromHeight, upToHeight]` not covered by
+/// (already-merged or not) [ranges] of a single mode, or null if the
+/// entire span is covered.
+int? lowestUncoveredHeight(List<CoverageRange> ranges, int fromHeight, int upToHeight) {
+  if (fromHeight > upToHeight) return null;
+
+  var cursor = fromHeight;
+  for (final range in mergeCoverageRanges(ranges)) {
+    if (range.endHeight < cursor) continue;
+    if (range.startHeight > cursor) break;
+    cursor = range.endHeight + 1;
+    if (cursor > upToHeight) return null;
+  }
+
+  return cursor <= upToHeight ? cursor : null;
+}
+
+List<CoverageRange> uncoveredRanges(List<CoverageRange> ranges, int fromHeight, int upToHeight) {
+  if (fromHeight > upToHeight) return [];
+
+  final gaps = <CoverageRange>[];
+  var cursor = fromHeight;
+  for (final range in mergeCoverageRanges(ranges)) {
+    if (range.endHeight < cursor) continue;
+    if (range.startHeight > upToHeight) break;
+    if (range.startHeight > cursor) {
+      gaps.add(CoverageRange(cursor, range.startHeight - 1));
+    }
+    cursor = range.endHeight + 1;
+    if (cursor > upToHeight) return gaps;
+  }
+
+  if (cursor <= upToHeight) gaps.add(CoverageRange(cursor, upToHeight));
+  return gaps;
+}
+
+int highestContiguouslyCoveredFrom(List<CoverageRange> ranges, int floorHeight) {
+  var highest = floorHeight - 1;
+  for (final range in mergeCoverageRanges(ranges)) {
+    if (range.startHeight > highest + 1) break;
+    if (range.endHeight > highest) highest = range.endHeight;
+  }
+  return highest;
+}
+
+List<CoverageRange> partitionForWorkers(List<CoverageRange> gaps, int workerCount) {
+  if (gaps.isEmpty || workerCount <= 0) return [];
+  if (gaps.length >= workerCount) return gaps.take(workerCount).toList();
+
+  final remaining = List<CoverageRange>.from(gaps);
+  while (remaining.length < workerCount) {
+    remaining.sort((a, b) => (b.endHeight - b.startHeight).compareTo(a.endHeight - a.startHeight));
+    final biggest = remaining.first;
+    final span = biggest.endHeight - biggest.startHeight + 1;
+    if (span <= 1) break; // nothing left worth splitting further
+
+    remaining.removeAt(0);
+    final mid = biggest.startHeight + span ~/ 2;
+    remaining.add(CoverageRange(biggest.startHeight, mid - 1));
+    remaining.add(CoverageRange(mid, biggest.endHeight));
+  }
+
+  remaining.sort((a, b) => a.startHeight.compareTo(b.startHeight));
+  return remaining;
+}
+
+class WalletInfoScanCoverage {
+  WalletInfoScanCoverage({
+    this.id = 0,
+    required this.walletInfoId,
+    required this.startHeight,
+    required this.endHeight,
+    required this.historical,
+  });
+
+  int id;
+  int walletInfoId;
+  int startHeight;
+  int endHeight;
+  bool historical;
+
+  static String get tableName => 'WalletInfoScanCoverage';
+
+  static String get selfIdColumn => 'walletInfoScanCoverageId';
+
+  static Future<List<WalletInfoScanCoverage>> selectList(int walletInfoId, {bool? historical}) async {
+    final where =
+        historical == null ? 'walletInfoId = ?' : 'walletInfoId = ? AND historical = ?';
+    final whereArgs =
+        historical == null ? [walletInfoId] : [walletInfoId, historical ? 1 : 0];
+    final query = await db!.query(tableName, where: where, whereArgs: whereArgs);
+    return List.generate(query.length, (index) => WalletInfoScanCoverage.fromJson(query[index]));
+  }
+
+  static Future<void> deleteByWalletInfoId(int walletInfoId) async {
+    await db!.delete(tableName, where: 'walletInfoId = ?', whereArgs: [walletInfoId]);
+  }
+
+  static Future<void> markCovered({
+    required int walletInfoId,
+    required bool historical,
+    required int startHeight,
+    required int endHeight,
+  }) async {
+    final existing = await selectList(walletInfoId, historical: historical);
+    final merged = mergeCoverageRanges([
+      ...existing.map((e) => CoverageRange(e.startHeight, e.endHeight)),
+      CoverageRange(startHeight, endHeight),
+    ]);
+
+    if (existing.isNotEmpty) {
+      final ids = existing.map((e) => e.id).toList();
+      await db!.delete(
+        tableName,
+        where: 'walletInfoId = ? AND historical = ? AND $selfIdColumn IN (${List.filled(ids.length, '?').join(',')})',
+        whereArgs: [walletInfoId, historical ? 1 : 0, ...ids],
+      );
+    }
+
+    for (final range in merged) {
+      await db!.insert(tableName, {
+        "walletInfoId": walletInfoId,
+        "startHeight": range.startHeight,
+        "endHeight": range.endHeight,
+        "historical": historical ? 1 : 0,
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      selfIdColumn: id,
+      "walletInfoId": walletInfoId,
+      "startHeight": startHeight,
+      "endHeight": endHeight,
+      "historical": historical ? 1 : 0,
+    };
+  }
+
+  factory WalletInfoScanCoverage.fromJson(Map<String, dynamic> json) {
+    return WalletInfoScanCoverage(
+      id: json[selfIdColumn] as int,
+      walletInfoId: json['walletInfoId'] as int,
+      startHeight: json['startHeight'] as int,
+      endHeight: json['endHeight'] as int,
+      historical: (json['historical'] as int) == 1,
+    );
+  }
+}
+
 class WalletInfoAddress {
   WalletInfoAddress({
     this.id = 0,
@@ -650,6 +849,8 @@ class WalletInfo {
 
   String? addressPageType;
   String? network;
+
+  int? backfillTargetHeight;
   int? accountDiscoveryLimit;
   bool? isMultiAccountsEnabled;
 
@@ -738,6 +939,7 @@ class WalletInfo {
         "favoriteTokenAddress": favoriteTokenAddress,
         "showSeedBackupReminder": showSeedBackupReminder ? 1 : 0,
         "network": network,
+        "backfillTargetHeight": backfillTargetHeight,
         "accountDiscoveryLimit": accountDiscoveryLimit,
         "isMultiAccountsEnabled":
             isMultiAccountsEnabled == null ? null : (isMultiAccountsEnabled! ? 1 : 0),
@@ -773,6 +975,7 @@ class WalletInfo {
         json["favoriteTokenAddress"] as String? ?? null,
         json["showSeedBackupReminder"] == 1);
     info.network = json['network'] as String?;
+    info.backfillTargetHeight = json['backfillTargetHeight'] as int?;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
     final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];
     info.isMultiAccountsEnabled =

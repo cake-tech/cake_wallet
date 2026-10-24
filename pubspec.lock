@@ -217,8 +217,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
-      resolved-ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
+      ref: e2d26adbe54df60159323c111ed0f6b3b8cde730
+      resolved-ref: e2d26adbe54df60159323c111ed0f6b3b8cde730
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"
@@ -2875,8 +2875,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "40ed3ce8319744907bef3b25bc6e0af8428c8724"
-      resolved-ref: "40ed3ce8319744907bef3b25bc6e0af8428c8724"
+      ref: e33a3b87cb0eba7d87b702f920cac27c70565697
+      resolved-ref: e33a3b87cb0eba7d87b702f920cac27c70565697
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
