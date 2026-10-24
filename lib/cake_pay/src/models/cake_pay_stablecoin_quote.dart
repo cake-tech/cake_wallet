@@ -1,3 +1,5 @@
+import "package:cw_core/amount/utils.dart";
+
 class CakePayStablecoinQuote {
   const CakePayStablecoinQuote({
     required this.paymentMethod,
@@ -20,7 +22,7 @@ class CakePayStablecoinQuote {
       chainName: map["chain_name"] as String,
       address: map["address"] as String,
       amount: map["amount"] as String,
-      fee: map["fee"] as String,
+      fee: trimTrailingFractionZeros(map["fee"] as String),
       paymentRequest: map["payment_request"] as String,
       contract: map["contract"] as String?,
       offeredUntil: offeredUntil > 0 ? DateTime.fromMillisecondsSinceEpoch(offeredUntil) : null,

@@ -151,6 +151,8 @@ class CakePayApi {
         final decoded = json.decode(response.body);
         if (decoded is List && decoded.isNotEmpty) {
           message = decoded.first.toString();
+        } else if (decoded is Map && decoded["error"] != null) {
+          message = decoded["error"].toString();
         } else if (decoded is Map && decoded['detail'] != null) {
           message = decoded['detail'].toString();
         } else {

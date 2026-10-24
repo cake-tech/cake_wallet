@@ -110,7 +110,7 @@ void main() {
         "chain_name": "Base",
         "address": "0x6490e244136af11ca7c7ff8997916e01e4a39b1c",
         "amount": "25.061219",
-        "fee": "0.061219",
+        "fee": "0.061219000000000000",
         "contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
         "payment_request":
             "ethereum:0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913@8453/transfer?address=0x6490e244136af11ca7c7ff8997916e01e4a39b1c&uint256=25061219",
