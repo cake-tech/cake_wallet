@@ -14,7 +14,4 @@ class WowneroBalance extends Balance {
         );
 
   final Money fullBalance;
-
-  @override
-  Money get total => fullBalance;
 }

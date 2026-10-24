@@ -350,7 +350,7 @@ abstract class ElectrumWalletBase
 
   @override
   WalletAccount<ElectrumBalance> get currentWalletAccount =>
-      hasAccountsSupport ? (currentAccount ?? accounts.all.first) : super.currentWalletAccount;
+      hasAccountsSupport ? (currentAccount ?? super.currentWalletAccount) : super.currentWalletAccount;
 
   @override
   @observable

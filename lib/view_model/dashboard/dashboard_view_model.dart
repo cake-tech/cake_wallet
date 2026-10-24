@@ -425,7 +425,7 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
-  bool get _hasLightningCard => wallet.type == WalletType.bitcoin;
+  bool get _hasLightningCard => wallet.hasLightningSupport;
 
   bool get _hasAccountCards => wallet.hasAccountsSupport || _hasLightningCard;
 

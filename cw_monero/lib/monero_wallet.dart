@@ -139,19 +139,28 @@ abstract class MoneroWalletBase
   int get currentAccountIndex => walletAddresses.account?.id ?? 0;
 
   @override
-  List<WalletAccount<MoneroBalance>> get walletAccounts => [
-    for (final account in walletAddresses.accountList.accounts)
-      MoneroWalletAccount(
-        index: account.id,
-        label: account.label,
-        balance: () => _balanceForAccount(account.id),
-      ),
-  ];
+  List<WalletAccount<MoneroBalance>> get walletAccounts {
+    final accounts = walletAddresses.accountList.accounts;
+    if (accounts.isEmpty) return [currentWalletAccount];
+    return [
+      for (final account in accounts)
+        MoneroWalletAccount(
+          index: account.id,
+          label: account.label,
+          balance: () => _balanceForAccount(account.id),
+        ),
+    ];
+  }
 
   @override
-  WalletAccount<MoneroBalance> get currentWalletAccount =>
-      walletAccounts.firstWhereOrNull((account) => account.index == currentAccountIndex) ??
-          walletAccounts.first;
+  WalletAccount<MoneroBalance> get currentWalletAccount {
+    final index = currentAccountIndex;
+    return MoneroWalletAccount(
+      index: index,
+      label: walletAddresses.account?.label ?? "",
+      balance: () => _balanceForAccount(index),
+    );
+  }
 
   @override
   Future<void> setCurrentAccount(int accountIndex) async {
