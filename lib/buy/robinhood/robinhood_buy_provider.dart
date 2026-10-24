@@ -128,6 +128,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.zano:
       case WalletType.zcash:
       case WalletType.decred:
+      case WalletType.pivx:
         throw BadWalletTypeException("Wallet Type ${wallet.type.name} is not available for Robinhood",wallet.type);
     }
   }
