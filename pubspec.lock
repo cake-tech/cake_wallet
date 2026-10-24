@@ -1853,8 +1853,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
-      resolved-ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
+      resolved-ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
       url: "https://github.com/cake-tech/ledger-flutter-plus"
     source: git
     version: "1.6.0+1"
@@ -2626,11 +2626,9 @@ packages:
   rlz:
     dependency: "direct overridden"
     description:
-      path: rust_builder
-      ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      resolved-ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      url: "https://github.com/cake-tech/zkool2.git"
-    source: git
+      path: "../zkool2/rust_builder"
+      relative: true
+    source: path
     version: "0.0.1"
   rxdart:
     dependency: "direct main"
@@ -2935,7 +2933,7 @@ packages:
     source: git
     version: "2.4.0"
   sqlite3:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: sqlite3
       ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
@@ -3484,12 +3482,10 @@ packages:
   zkool:
     dependency: "direct overridden"
     description:
-      path: "."
-      ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      resolved-ref: "36e72b530c274c4a54a6127aadb94886e84d67bf"
-      url: "https://github.com/cake-tech/zkool2.git"
-    source: git
-    version: "6.24.0"
+      path: "../zkool2"
+      relative: true
+    source: path
+    version: "6.31.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
   flutter: ">=3.19.0"
