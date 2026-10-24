@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/address_generation_wallet.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
@@ -28,6 +30,7 @@ import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/pending_transaction.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -39,7 +42,7 @@ class DecredWallet = DecredWalletBase with _$DecredWallet;
 
 abstract class DecredWalletBase
     extends WalletBase<DecredBalance, DecredTransactionHistory, DecredTransactionInfo>
-    with Store, WalletKeysFile {
+    with Store, WalletKeysFile, AddressGenerationWallet {
   DecredWalletBase(WalletInfo walletInfo, DerivationInfo derivationInfo, String password,
       Box<UnspentCoinsInfo> unspentCoinsInfo, Libwallet libwallet, Function() closeLibwallet,
       {this.passphrase, required this.encryptionFileUtils})
@@ -531,6 +534,23 @@ abstract class DecredWalletBase
 
   // uniqueTxID combines the tx id and vout to create a unique id.
   String uniqueTxID(String id, int vout) => "$id:$vout";
+
+  @override
+  Future<String> generateNewAddress(
+    ReceivePageOption type, {
+    String label = "",
+    bool setAsActive = false,
+  }) async {
+    final address = await walletAddresses.generateNewAddress(label, setAsActive: setAsActive);
+    await save();
+    return address;
+  }
+
+  @override
+  Future<void> setAddressLabel(AddressEntry entry, String label) async {
+    await walletAddresses.updateAddress(entry.address, label);
+    await save();
+  }
 
   @override
   Future<void> save() async {

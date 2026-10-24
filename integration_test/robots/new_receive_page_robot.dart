@@ -9,7 +9,7 @@ class NewReceivePageRobot extends BaseRobot {
 
   @override
   Future<void> isDisplayed() async {
-    await pumpUntilFound(find.byType(NewReceivePage));
+    await pumpUntilFound(find.byType(ReceivePage));
   }
 
   Future<void> confirmAddressMatches(String expected) async {

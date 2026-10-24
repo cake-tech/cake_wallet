@@ -12,6 +12,7 @@ class ReceivePageOption implements Enumerate {
   final String? description;
   final bool isCommon;
   final bool addAddressWord;
+  bool get canRotateAddress => true;
 
   String toString() {
     return value;

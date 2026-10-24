@@ -37,6 +37,8 @@ class ZcashReceivePageOption implements ReceivePageOption {
   final String? description;
   final bool isCommon;
   final bool addAddressWord = false;
+  @override
+  bool get canRotateAddress => type == ZcashAddressType.transparentRotated;
 
   static const transparent = ZcashReceivePageOption._(
     ZcashAddressType.transparent,
@@ -60,15 +62,23 @@ class ZcashReceivePageOption implements ReceivePageOption {
   static const _shieldedOrchardIcon =
       "assets/new-ui/address-type-picker-icons/zec/shielded.svg";
 
-  static ZcashReceivePageOption shieldedOrchard({final bool ironwood = false}) {
-    return ZcashReceivePageOption._(
-      ZcashAddressType.shieldedOrchard,
-      "Shielded",
-      description: ironwood ? "Default (Ironwood)" : "Default (Orchard)",
-      iconPath: _shieldedOrchardIcon,
-      isCommon: true,
-    );
-  }
+  static const _orchard = ZcashReceivePageOption._(
+    ZcashAddressType.shieldedOrchard,
+    "Shielded",
+    description: "Default (Orchard)",
+    iconPath: _shieldedOrchardIcon,
+    isCommon: true,
+  );
+  static const _ironwood = ZcashReceivePageOption._(
+    ZcashAddressType.shieldedOrchard,
+    "Shielded",
+    description: "Default (Ironwood)",
+    iconPath: _shieldedOrchardIcon,
+    isCommon: true,
+  );
+
+  static ZcashReceivePageOption shieldedOrchard({final bool ironwood = false}) =>
+      ironwood ? _ironwood : _orchard;
   static const unified = ZcashReceivePageOption._(
     ZcashAddressType.unifiedType,
     "Unified",

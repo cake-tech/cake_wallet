@@ -8,6 +8,7 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/payment_uris.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import "package:cw_core/wallet_type.dart";
@@ -31,15 +32,17 @@ class _L2SendExternalModalState extends State<L2SendExternalModal> {
   void initState() {
     super.initState();
     () async {
+      final walletAddresses = widget.sendViewModel.wallet.walletAddresses;
+      ReceivePageOption l2Option = walletAddresses.defaultAddressType;
       if (widget.sendViewModel.wallet.type == WalletType.bitcoin) {
-        await bitcoin!.setAddressType(widget.sendViewModel.wallet,
-            bitcoin!.getOptionToType(bitcoin!.getBitcoinLightningReceivePageOption()));
+        l2Option = bitcoin!.getBitcoinLightningReceivePageOption();
       } else if (widget.sendViewModel.wallet.type == WalletType.litecoin) {
-        await bitcoin!.setAddressType(widget.sendViewModel.wallet,
-            bitcoin!.getOptionToType(bitcoin!.getLitecoinMwebReceivePageOption()));
+        l2Option = bitcoin!.getLitecoinMwebReceivePageOption();
       }
-      final newUri = await widget.sendViewModel.wallet.walletAddresses
-          .getPaymentRequestUri(widget.sendViewModel.outputs.first.cryptoAmount);
+      final newUri = await walletAddresses.paymentRequestUriFor(
+        l2Option,
+        widget.sendViewModel.outputs.first.cryptoAmount,
+      );
       setState(() {
         uri = newUri;
       });

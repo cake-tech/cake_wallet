@@ -1,3 +1,5 @@
+import "package:cw_core/address_entry.dart";
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -57,8 +59,59 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @override
-  String get latestAddress {
-    switch (addressPageType) {
+  String get latestAddress => _addressOfType(addressPageType);
+
+  @override
+  ReceivePageOption get defaultAddressType => addressPageType == ZcashAddressType.shieldedOrchard
+      ? ZcashReceivePageOption.shieldedOrchard(ironwood: ironwoodActive)
+      : ZcashReceivePageOption.fromType(addressPageType);
+
+  @override
+  String addressFor(ReceivePageOption type) {
+    if (type is! ZcashReceivePageOption) {
+      return address;
+    }
+
+    if (type.toType() == ZcashAddressType.transparentRotated && _pickedRotatedAddress != null) {
+      return _pickedRotatedAddress!;
+    }
+
+    return _addressOfType(type.toType());
+  }
+
+  @override
+  List<AddressGroup> addressListFor(ReceivePageOption type) {
+    if (type is! ZcashReceivePageOption || type.toType() != ZcashAddressType.transparentRotated) {
+      return const [];
+    }
+
+    return [
+      AddressGroup(
+        entries: (addressInfos[0] ?? [])
+            .map(
+              (info) => AddressEntry(
+                id: info.mapKey,
+                address: info.address,
+                label: info.label,
+                isHidden: hiddenAddresses.contains(info.address),
+              ),
+            )
+            .toList(),
+      ),
+    ];
+  }
+
+  @override
+  bool get canHideAddresses => false;
+
+  @override
+  PaymentURI paymentUriFor(ReceivePageOption type, String amount, {CryptoCurrency? token}) =>
+      ZcashURI(amount: amount, address: addressFor(type));
+
+  String? _pickedRotatedAddress;
+
+  String _addressOfType(ZcashAddressType type) {
+    switch (type) {
       case ZcashAddressType.transparent:
         return transparentAddress ?? "unknown transparentAddress";
       case ZcashAddressType.transparentRotated:
@@ -129,7 +182,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     usedAddresses = await walletInfo.getUsedAddresses();
     manualAddresses = await walletInfo.getManualAddresses();
     hiddenAddresses = await walletInfo.getHiddenAddresses();
-    address = latestAddress;
+    _address = latestAddress;
   }
 
   Future<void> _syncRotationHiddenAddresses() async {
@@ -204,6 +257,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<void> refreshRotationAddresses() async {
+    _pickedRotatedAddress = null;
     _transparentObservableAddress = await ZcashTaddressRotation.addressForAccount(accountId);
     final rotationAddrs = await ZcashTaddressRotation.allAddressesForAccount(accountId);
     addressInfos = {
@@ -233,11 +287,11 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     if (_addressPageType == ZcashAddressType.transparentRotated) {
       final addr = await ZcashTaddressRotation.addressForAccount(accountId);
       if (addr != null) {
-        address = addr;
+        _address = addr;
       }
       return;
     }
-    address = latestAddress;
+    _address = latestAddress;
   }
 
   @observable
@@ -248,7 +302,15 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
     return _address;
   }
 
-  void set address(final String _$address) => _address = _$address;
+  void set address(final String _$address) {
+    if (addressInfos[0]?.any((info) => info.address == _$address) ?? false) {
+      _pickedRotatedAddress = _$address;
+      if (addressPageType != ZcashAddressType.transparentRotated) {
+        return;
+      }
+    }
+    _address = _$address;
+  }
 
   @override
   String get primaryAddress => address;
