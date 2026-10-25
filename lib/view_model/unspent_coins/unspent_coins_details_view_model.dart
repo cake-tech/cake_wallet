@@ -81,7 +81,7 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return '${S.current.view_transaction_on}Ordinals.com';
       case WalletType.litecoin:
-        return '${S.current.view_transaction_on}Earlyordies.com';
+        return '${S.current.view_transaction_on}Blockchair.com';
       case WalletType.bitcoinCash:
         return '${S.current.view_transaction_on}Blockchair.com';
       case WalletType.dogecoin:

@@ -82,6 +82,8 @@ class TronTransactionModel {
 
   String? get contractAddress => contracts?.first.parameter?.value?.contractAddress;
 
+  bool get isTrc20TransferCall => contracts?.first.parameter?.value?.isTrc20TransferCall ?? false;
+
   TronTransactionModel({
     this.ret,
     this.txID,
@@ -147,29 +149,58 @@ class Value {
   String? ownerAddress;
   String? contractAddress;
   int? amount;
+  int? callValue;
   String? toAddress;
   String? assetName;
 
+  /// Function selector of TRC20 `transfer(address,uint256)`.
+  static const _transferSelector = "a9059cbb";
+
+  /// Hex length of `transfer` calldata: the selector plus two 32-byte arguments.
+  static const _transferCallDataLength = 8 + 64 + 64;
+
+  String? get _callData {
+    final callData = data?.toLowerCase();
+    if (callData != null && callData.startsWith("0x")) {
+      return callData.substring(2);
+    }
+
+    return callData;
+  }
+
+  /// Only a TRC20 `transfer` carries a receiver and a token amount in its calldata.
+  /// Any other contract call (approve, swaps, deposit(), claim(), ...) has a different layout.
+  bool get isTrc20TransferCall {
+    final callData = _callData;
+
+    return contractAddress != null &&
+        callData != null &&
+        callData.length >= _transferCallDataLength &&
+        callData.startsWith(_transferSelector);
+  }
+
   //Getters to extract address for tron transactions
   /// If the contract address is null, it returns the toAddress
-  /// If it's not null, it decodes the data field and gets the receiver address.
+  /// For a TRC20 transfer, it decodes the data field and gets the receiver address.
+  /// For any other contract call, it returns the called contract.
   String? get receiverAddress {
     if (contractAddress == null) return toAddress;
 
-    if (data == null) return null;
+    if (!isTrc20TransferCall) return contractAddress;
 
-    return _decodeAddressFromEncodedDataField(data!);
+    return _decodeAddressFromEncodedDataField(_callData!);
   }
 
   //Getters to extract amount for tron transactions
   /// If the contract address is null, it returns the amount
-  /// If it's not null, it decodes the data field and gets the tx amount.
+  /// For a TRC20 transfer, it decodes the data field and gets the token amount.
+  /// For any other contract call, it returns the TRX sent along with the call.
   BigInt? get txAmount {
     if (contractAddress == null) return BigInt.from(amount ?? 0);
 
-    if (data == null) return null;
+    if (!isTrc20TransferCall) return BigInt.from(callValue ?? 0);
 
-    return _decodeAmountInvolvedFromEncodedDataField(data!);
+    return _decodeAmountInvolvedFromEncodedDataField(_callData!);
   }
 
   Value(
@@ -177,6 +208,7 @@ class Value {
       this.ownerAddress,
       this.contractAddress,
       this.amount,
+      this.callValue,
       this.toAddress,
       this.assetName});
 
@@ -185,6 +217,7 @@ class Value {
     ownerAddress = json['owner_address'];
     contractAddress = json['contract_address'];
     amount = json['amount'];
+    callValue = int.tryParse(json['call_value']?.toString() ?? "");
     toAddress = json['to_address'];
     assetName = json['asset_name'];
   }
@@ -192,7 +225,7 @@ class Value {
   /// To get the address from the encoded data field
   String _decodeAddressFromEncodedDataField(String output) {
     // To get the receiver address from the encoded params
-    output = output.replaceFirst('0x', '').substring(8);
+    output = output.substring(8);
     final abiCoder = ABICoder.fromType('address');
     final decoded = abiCoder.decode(AbiParameter.bytes, hex.decode(output));
     final tronAddress = TronAddress.fromEthAddress((decoded.result as ETHAddress).toBytes());
@@ -200,13 +233,8 @@ class Value {
     return tronAddress.toString();
   }
 
-  /// To get the amount from the encoded data field
-  BigInt _decodeAmountInvolvedFromEncodedDataField(String output) {
-    output = output.replaceFirst('0x', '').substring(72);
-    final amountAbiCoder = ABICoder.fromType('uint256');
-    final decodedA = amountAbiCoder.decode(AbiParameter.uint256, hex.decode(output));
-    final amount = decodedA.result as BigInt;
-
-    return amount;
-  }
+  /// To get the amount from the encoded data field.
+  /// Parsed directly, as on_chain's uint256 decoder rejects any value of 2^255 or more.
+  BigInt _decodeAmountInvolvedFromEncodedDataField(String output) =>
+      BigInt.parse(output.substring(72, _transferCallDataLength), radix: 16);
 }

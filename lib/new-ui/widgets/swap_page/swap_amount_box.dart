@@ -11,6 +11,7 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_moda
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
+import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
 import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
@@ -494,7 +495,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => widget.onPushPasteButton?.call(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).paste,
                           ),
                           ModernButton.svg(
@@ -502,7 +503,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => _presentQRScanner(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).scan,
                           ),
                         ],
@@ -634,7 +635,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
     try {
       final uri = Uri.parse(code);
-      widget.exchangeViewModel.receiveAddress = uri.path;
+      widget.exchangeViewModel.receiveAddress = PaymentRequest.fromUri(uri).address;
     } catch (_) {}
   }
 

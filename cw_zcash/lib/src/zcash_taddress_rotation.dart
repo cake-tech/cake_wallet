@@ -18,6 +18,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_zcash/src/util/crc32.dart';
+import "package:cw_zcash/src/util/exceptions.dart";
 import 'package:cw_zcash/src/zcash_wallet.dart';
 import 'package:cw_zcash/src/zcash_wallet_service.dart';
 import 'package:cw_zcash/src/zkool_compat.dart';
@@ -400,7 +401,7 @@ class ZcashTaddressRotation {
         final addrs = await zkool_account.getAddresses(c: coin, uaPools: 7);
         final orchard = addrs.oaddr;
         if (orchard == null || orchard.isEmpty) {
-          throw Exception('Orchard address unavailable for rotation sweep');
+          throw AddressRotationException('Orchard address unavailable for rotation sweep');
         }
         return orchard;
       },
@@ -424,7 +425,7 @@ class ZcashTaddressRotation {
           amount += note.value;
         }
         if (amount < BigInt.from(_sweepThreshold)) {
-          throw Exception('rotation sweep: insufficient spendable transparent notes');
+          throw AddressRotationException('rotation sweep: insufficient spendable transparent notes');
         }
         final ironwood = await zkool_network.isIronwoodActive(c: coin);
         final tx = await zkool_pay.prepare(
@@ -451,7 +452,7 @@ class ZcashTaddressRotation {
     );
     printV("rotation sweep broadcast: $result");
     if (result.isEmpty) {
-      throw Exception("rotation sweep broadcast failed");
+      throw AddressRotationException("rotation sweep broadcast failed");
     }
 
     await ZcashWalletService.addShieldedTx(result);

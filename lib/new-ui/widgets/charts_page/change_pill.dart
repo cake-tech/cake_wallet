@@ -10,12 +10,12 @@ class ChangePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
-          color: direction.color.withAlpha(52), borderRadius: BorderRadius.circular(999999)),
+          color: direction.colorOf(context).withAlpha(52), borderRadius: BorderRadius.circular(999999)),
       child: Padding(
         padding: const EdgeInsets.only(top: 2.5, bottom: 2.5, left: 4, right: 8),
         child: Text(
           "${direction.symbol} $changePercentage%",
-          style: TextStyle(color: direction.color),
+          style: TextStyle(color: direction.colorOf(context)),
         ),
       ));
 }

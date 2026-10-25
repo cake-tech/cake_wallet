@@ -109,7 +109,7 @@ class _ChangelogModalState extends State<ChangelogModal> {
                   NewPrimaryButton(
                       onPressed: () {
                         try {
-                          launchUrl(Uri.https("docs.cakewallet.com", "/release-notes"));
+                          launchUrl(Uri.https("docs.cakewallet.com", "/release-notes"), mode: LaunchMode.externalApplication);
                         } catch (_) {}
                       },
                       text: S.of(context).view_more_info,

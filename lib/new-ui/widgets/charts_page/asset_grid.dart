@@ -41,7 +41,7 @@ class ChartsAssetGrid extends StatelessWidget {
                 return ChartsAssetCard(
                   bloc: bloc,
                   currency: curr,
-                  price: state.priceFor(curr)?.toStringWithPrecision(fractionalDigits: 2) ?? "...",
+                  price: state.priceFor(curr)?.toStringWithPrecision(fractionalDigits: 2, trimZeros: false, meaningfulDecimals: 2) ?? "...",
                   ticker: state.fiatTicker,
                   changeData: state is ChartsLoaded ? state.changeDataFor(curr) : null,
                   favorite: curr == state.pinnedCurrency,
@@ -78,6 +78,8 @@ class ChartsAssetCard extends StatelessWidget {
       final priceDouble = double.parse(price);
       if (priceDouble > 10000) {
         return priceDouble.toStringAsFixed(0);
+      } else if (priceDouble < 1) {
+        return price;
       } else {
         return priceDouble.toStringAsFixed(2);
       }
@@ -159,7 +161,7 @@ class ChartsAssetCard extends StatelessWidget {
                                     width: 8,
                                     height: 8,
                                     colorFilter: ColorFilter.mode(
-                                        changeData!.direction.color, BlendMode.srcIn,),
+                                        changeData!.direction.colorOf(context), BlendMode.srcIn,),
                                   ),
                                 ),
                               Text(

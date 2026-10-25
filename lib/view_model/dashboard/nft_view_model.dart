@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_ser
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/utils/debounce.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/utils/ipfs_url.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
@@ -22,6 +23,17 @@ import 'package:cake_wallet/entities/wallet_nft_response.dart';
 import 'package:cake_wallet/store/app_store.dart';
 
 part 'nft_view_model.g.dart';
+
+class NFTResponseException extends ServerResponseException with ResponseCodeException {
+  const NFTResponseException(super.message, this.code);
+
+  @override
+  final int code;
+}
+
+class NFTMetadataException extends CakeException {
+  NFTMetadataException(super.message);
+}
 
 class NFTViewModel = NFTViewModelBase with _$NFTViewModel;
 
@@ -268,7 +280,7 @@ abstract class NFTViewModelBase with Store {
         .timeout(_requestTimeout);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception("Failed to fetch wallet NFTs (${response.statusCode})");
+      throw NFTResponseException("Failed to fetch wallet NFTs (${response.statusCode})", response.statusCode);
     }
 
     return (jsonDecode(response.body) as List<dynamic>)
@@ -380,7 +392,7 @@ abstract class NFTViewModelBase with Store {
     }
 
     if (onChainData == null) {
-      throw Exception("Could not load NFT metadata for $address");
+      throw NFTMetadataException("Could not load NFT metadata for $address");
     }
 
     return SolanaNFTAssetModel(
@@ -406,7 +418,7 @@ abstract class NFTViewModelBase with Store {
         .timeout(_requestTimeout);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception("Failed to fetch NFT metadata (${response.statusCode})");
+      throw NFTResponseException("Failed to fetch NFT metadata (${response.statusCode})", response.statusCode);
     }
 
     return SolanaNFTAssetModel.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
