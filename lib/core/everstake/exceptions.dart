@@ -1,8 +1,5 @@
-class EverstakeException implements Exception {
-  EverstakeException([this.message = ""]);
+import "package:cw_core/exceptions/cake_exception.dart";
 
-  final String message;
-
-  @override
-  String toString() => message.isNotEmpty ? message : "EverstakeException";
+class EverstakeException extends CakeException {
+  EverstakeException(super.message);
 }
