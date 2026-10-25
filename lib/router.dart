@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import "package:cake_wallet/core/auth_service.dart";
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
+import "package:cake_wallet/core/wallet_creation_service.dart";
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_history_page.dart';
@@ -17,7 +18,8 @@ import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
-import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
+import "package:cake_wallet/new-ui/viewmodels/restore_wallet/seed_settings_cubit.dart";
+import "package:cake_wallet/new-ui/viewmodels/restore_wallet/wallet_restore_cubit.dart";
 import 'package:cake_wallet/new-ui/widgets/hardware_wallet/sync_key_images_sheet.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -131,6 +133,7 @@ import 'package:cake_wallet/view_model/dashboard/sign_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import "package:cake_wallet/view_model/restore/restore_wallet.dart";
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
@@ -147,6 +150,7 @@ import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import "package:flutter_bloc/flutter_bloc.dart";
 import 'src/screens/dashboard/pages/nft_import_page.dart';
 
 late RouteSettings currentRouteSettings;
@@ -303,7 +307,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletFromSeedKeys:
       if (isSingleCoin) {
         return handleRouteWithPlatformAwareness(
-          (context) => getIt.get<WalletRestorePage>(param1: availableWalletTypes.first),
+          (context) => _buildWalletRestorePage(availableWalletTypes.first, null),
         );
       }
       return handleRouteWithPlatformAwareness(
@@ -409,8 +413,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWallet:
       final args = settings.arguments as Map<String, dynamic>?;
       final walletType = args?['walletType'] as WalletType;
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletRestorePage>(param1: walletType, param2: args));
+      return MaterialPageRoute<void>(builder: (_) => _buildWalletRestorePage(walletType, args));
 
     case Routes.restoreWalletChooseDerivation:
       return MaterialPageRoute<void>(
@@ -763,17 +766,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final viewModelParam = {'type': type, 'isPow': false};
 
       return handleRouteWithPlatformAwareness(
-        (context) => AdvancedPrivacySettingsPage(
-          isFromRestore: isFromRestore,
-          isChildWallet: isChildWallet,
-          useTestnet: useTestnet,
-          toggleUseTestnet: toggleTestnet,
-          zcashNetwork: zcashNetwork,
-          setZcashNetwork: setZcashNetwork,
-          advancedPrivacySettingsViewModel:
-              getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
-          nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
-          seedSettingsViewModel: getIt.get<SeedSettingsViewModel>(),
+        (context) => BlocProvider<SeedSettingsCubit>(
+          create: (_) => getIt.get<SeedSettingsCubit>(),
+          child: AdvancedPrivacySettingsPage(
+            isFromRestore: isFromRestore,
+            isChildWallet: isChildWallet,
+            useTestnet: useTestnet,
+            toggleUseTestnet: toggleTestnet,
+            zcashNetwork: zcashNetwork,
+            setZcashNetwork: setZcashNetwork,
+            advancedPrivacySettingsViewModel:
+                getIt.get<AdvancedPrivacySettingsViewModel>(param1: type),
+            nodeViewModel: getIt.get<NodeCreateOrEditViewModel>(param1: viewModelParam),
+          ),
         ),
       );
 
@@ -996,3 +1001,22 @@ Route<dynamic> createRoute(RouteSettings settings) {
               body: Center(child: Text(S.current.router_no_route(settings.name ?? 'No route')))));
   }
 }
+
+Widget _buildWalletRestorePage(WalletType type, Map<String, dynamic>? arguments) =>
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<SeedSettingsCubit>(create: (_) => getIt.get<SeedSettingsCubit>()),
+        BlocProvider<WalletRestoreCubit>(
+          create: (context) => WalletRestoreCubit(
+            getIt.get<AppStore>(),
+            getIt.get<WalletCreationService>(param1: type),
+            context.read<SeedSettingsCubit>(),
+            type: type,
+            restoredWallet: arguments?["restoredWallet"] as RestoredWallet?,
+            hardwareWalletType: arguments?["hardwareWalletType"] as HardwareWalletType?,
+          ),
+        ),
+      ],
+      child: WalletRestorePage(),
+    );
+
