@@ -112,7 +112,7 @@ class MwebLogsPage extends BasePage {
     if (outputFile == null) return;
 
     try {
-      final filePath = (await getApplicationSupportDirectory()).path + "/debug.log";
+      final filePath = (await getApplicationSupportDirectory()).path + "/logs/debug.log";
       File debugLogFile = File(filePath);
       await debugLogFile.copy(outputFile);
     } catch (exception, stackTrace) {
