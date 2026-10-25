@@ -6,6 +6,7 @@ import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
 import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/e2e_mode.dart';
 import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/reset_service.dart';
@@ -88,6 +89,7 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
 
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    E2EMode.applyLaunchSettings();
 
     final Completer<String?> initialShortcutCompleter = Completer<String?>();
 
@@ -199,6 +201,14 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
               quickActionsStream: quickActionsStream.stream),
         ),
       );
+    }
+
+    // E2E_MODE fixture wallet: after the first frame so the authentication
+    // reaction can load it and navigate to the dashboard.
+    if (E2EMode.enabled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await E2EMode.bootstrapFixtureWallet();
+      });
     }
 
     isAppRunning = true;
@@ -357,6 +367,12 @@ Future<void> initialSetup({
     secureStorage: secureStorage,
   );
   final settingsStore = getIt<SettingsStore>();
+  if (E2EMode.enabled) {
+    // Start in English so drivers get deterministic labels. The setting stays
+    // writable — the language suite exercises switching, so do not pin
+    // MaterialApp.locale instead.
+    settingsStore.languageCode = 'en';
+  }
   await checkCurrentNodes(sharedPreferences, settingsStore);
 
   await getIt.get<ResetService>().resetAuthDataOnNewInstall(sharedPreferences);
