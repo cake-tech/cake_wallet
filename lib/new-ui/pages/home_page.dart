@@ -231,7 +231,6 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                 CoinActionRow(
                                   lightningMode: _lightningMode,
                                   showSwap: widget.dashboardViewModel.isEnabledSwapAction,
-                                  walletType: widget.dashboardViewModel.wallet.type,
                                 ),
                                 MwebAd(
                                   dashboardViewModel: widget.dashboardViewModel,

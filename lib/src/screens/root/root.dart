@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import "package:cake_wallet/core/links/link_service.dart";
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
@@ -14,13 +15,10 @@ import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
-import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
 import 'package:trezor_connect/trezor_connect.dart';
 import 'package:uni_links/uni_links.dart';
 
@@ -32,7 +30,7 @@ class Root extends StatefulWidget {
     required this.child,
     required this.navigatorKey,
     required this.authService,
-    required this.linkViewModel,
+    required this.linkService,
     required this.tradeMonitor,
     required this.nodeSwitchingService,
     required this.trezorConnect,
@@ -45,7 +43,7 @@ class Root extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final AuthService authService;
   final Widget child;
-  final LinkViewModel linkViewModel;
+  final LinkService linkService;
   final TradeMonitor tradeMonitor;
   final NodeSwitchingService nodeSwitchingService;
   final TrezorConnect trezorConnect;
@@ -70,8 +68,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   bool _requestAuth;
 
   StreamSubscription<Uri?>? stream;
-  ReactionDisposer? _walletReactionDisposer;
-  ReactionDisposer? _deepLinksReactionDisposer;
 
   @override
   void initState() {
@@ -94,8 +90,6 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   @override
   void dispose() {
     stream?.cancel();
-    _walletReactionDisposer?.call();
-    _deepLinksReactionDisposer?.call();
     super.dispose();
   }
 
@@ -115,7 +109,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       handleDeepLinking(await getInitialUri());
 
       if (widget.initialQuickAction != null) {
-        final uri = Uri.parse('cakewallet://quickaction/${widget.initialQuickAction}');
+        final uri = Uri.parse("quickaction://${widget.initialQuickAction}");
         handleDeepLinking(uri);
       }
     } catch (e) {
@@ -123,39 +117,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     }
   }
 
-  void handleDeepLinking(Uri? uri) async {
+  void handleDeepLinking(Uri? uri) {
     if (uri == null || !mounted) return;
-
-    widget.linkViewModel.currentLink = uri;
 
     if (uri.toString().startsWith(widget.trezorConnect.callbackBackUri)) {
       widget.trezorConnect.handleCallback(uri);
       return;
     }
 
-    bool requireAuth = await widget.authService.requireAuth();
-
-    if (!requireAuth &&
-        (widget.authenticationStore.state == AuthenticationState.allowed ||
-            widget.authenticationStore.state == AuthenticationState.allowedCreate)) {
-      _navigateToDeepLinkScreen();
-      return;
-    }
-
-    _deepLinksReactionDisposer = reaction(
-      (_) => widget.authenticationStore.state,
-      (AuthenticationState state) {
-        if (state == AuthenticationState.allowed || state == AuthenticationState.allowedCreate) {
-          if (widget.appStore.wallet == null) {
-            waitForWalletInstance(context);
-          } else {
-            _navigateToDeepLinkScreen();
-          }
-          _deepLinksReactionDisposer?.call();
-          _deepLinksReactionDisposer = null;
-        }
-      },
-    );
+    widget.linkService.handle(uri);
   }
 
   @override
@@ -257,9 +227,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     if (_isInactive && !_postFrameCallback && _requestAuth) {
       _postFrameCallback = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.linkService.pause();
         widget.navigatorKey.currentState?.pushNamed(
           Routes.unlock,
-          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+          arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
             if (!isAuthenticatedSuccessfully) {
               return;
             }
@@ -272,16 +243,13 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                 route: Routes.totpAuthCodePage,
                 arguments: TotpAuthArgumentsModel(
                   onTotpAuthenticationFinished:
-                      (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) {
+                      (bool isAuthenticatedSuccessfully, TotpAuthCodePageState totpAuth) async {
                     if (!isAuthenticatedSuccessfully) {
                       return;
                     }
                     _reset();
-                    totpAuth.close(
-                      route: widget.linkViewModel.getRouteToGo(),
-                      arguments: widget.linkViewModel.getRouteArgs(),
-                    );
-                    widget.linkViewModel.currentLink = null;
+                    await totpAuth.close();
+                    await widget.linkService.resume();
                   },
                   isForSetup: false,
                   isClosable: false,
@@ -289,11 +257,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
               );
             } else {
               _reset();
-              auth.close(
-                route: widget.linkViewModel.getRouteToGo(),
-                arguments: widget.linkViewModel.getRouteArgs(),
-              );
-              widget.linkViewModel.currentLink = null;
+              await auth.close();
+              await widget.linkService.resume();
             }
           },
         );
@@ -326,26 +291,5 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void _setInactive(bool value) {
     _isInactive = value;
     _isInactiveController.add(value);
-  }
-
-  void waitForWalletInstance(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _walletReactionDisposer = reaction(
-          (_) => widget.appStore.wallet,
-          (WalletBase? wallet) {
-            if (wallet != null) {
-              _navigateToDeepLinkScreen();
-              _walletReactionDisposer?.call();
-              _walletReactionDisposer = null;
-            }
-          },
-        );
-      }
-    });
-  }
-
-  void _navigateToDeepLinkScreen() {
-    widget.linkViewModel.handleLink();
   }
 }
