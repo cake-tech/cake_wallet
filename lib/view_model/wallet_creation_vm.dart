@@ -12,6 +12,7 @@ import "package:cake_wallet/view_model/restore/restore_wallet.dart";
 import "package:cake_wallet/view_model/seed_settings_view_model.dart";
 import "package:cake_wallet/zcash/zcash_network_type.dart";
 import "package:cw_core/exceptions.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
@@ -112,11 +113,11 @@ abstract class WalletCreationVMBase with Store {
       state = IsExecutingState();
 
       if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
-        throw Exception(S.current.wallet_password_is_empty);
+        throw WalletCreationException(S.current.wallet_password_is_empty);
       }
 
       if (hasWalletPassword && walletPassword != repeatedWalletPassword) {
-        throw Exception(S.current.repeated_password_is_incorrect);
+        throw WalletCreationException(S.current.repeated_password_is_incorrect);
       }
 
       WalletInfo? placeholder;

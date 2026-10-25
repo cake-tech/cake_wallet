@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -136,11 +137,11 @@ class ZcashWalletService
     final bool? isTestnet,
   }) async {
     if (credentials.seed == null || credentials.seed!.isEmpty) {
-      throw Exception("Seed is missing");
+      throw BadMnemonicException("Seed is missing");
     }
 
     if (!bip39.validateMnemonic(credentials.seed!)) {
-      throw Exception("Seed is not valid bip39");
+      throw BadMnemonicException("Seed is not valid bip39");
     }
 
     return ZcashWalletBase.restore(credentials);

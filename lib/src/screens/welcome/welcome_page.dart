@@ -37,7 +37,7 @@ class WelcomePage extends BasePage {
         size: 26,
       ),
       onPressed: () async {
-        await launchUrl(_url);
+        await launchUrl(_url, mode: LaunchMode.externalApplication);
       },
     );
   }

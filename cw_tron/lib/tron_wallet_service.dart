@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/tron_token.dart';
@@ -88,9 +85,9 @@ class TronWalletService extends WalletService<
 
   @override
   Future<TronWallet> restoreFromKeys(
-    TronRestoreWalletFromPrivateKey credentials, {
-    bool? isTestnet,
-  }) async {
+      TronRestoreWalletFromPrivateKey credentials, {
+        bool? isTestnet,
+      }) async {
     final wallet = TronWallet(
       password: credentials.password!,
       privateKey: credentials.privateKey,
@@ -108,9 +105,9 @@ class TronWalletService extends WalletService<
 
   @override
   Future<TronWallet> restoreFromSeed(
-    TronRestoreWalletFromSeedCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+      TronRestoreWalletFromSeedCredentials credentials, {
+        bool? isTestnet,
+      }) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw TronMnemonicIsIncorrectException();
     }
@@ -144,7 +141,7 @@ class TronWalletService extends WalletService<
 
   @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
+  restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

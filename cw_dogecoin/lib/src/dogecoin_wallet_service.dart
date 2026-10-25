@@ -1,9 +1,7 @@
-import 'dart:io';
-
 import 'package:bip39/bip39.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -101,7 +99,7 @@ class DogeCoinWalletService extends WalletService<
   Future<DogeCoinWallet> restoreFromSeed(DogeCoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
-      throw Exception('Invalid mnemonic: ${credentials.mnemonic}');
+      throw BadMnemonicException('Invalid mnemonic: ${credentials.mnemonic}');
     }
 
     final wallet = await DogeCoinWalletBase.create(

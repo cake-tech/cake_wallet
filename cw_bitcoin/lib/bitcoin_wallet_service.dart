@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
@@ -10,7 +9,6 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';

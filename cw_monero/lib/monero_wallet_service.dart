@@ -29,11 +29,11 @@ enum MoneroSeedType { polyseed, legacy, bip39 }
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials(
       {required String name,
-      required this.language,
-      required this.seedType,
-      String? password,
-      this.passphrase,
-      this.mnemonic})
+        required this.language,
+        required this.seedType,
+        String? password,
+        this.passphrase,
+        this.mnemonic})
       : super(name: name, password: password);
 
   final String language;
@@ -57,10 +57,10 @@ class MoneroRestoreWalletFromHardwareCredentials extends WalletCredentials {
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
   MoneroRestoreWalletFromSeedCredentials(
       {required String name,
-      required this.mnemonic,
-      required this.passphrase,
-      int height = 0,
-      String? password})
+        required this.mnemonic,
+        required this.passphrase,
+        int height = 0,
+        String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
@@ -75,13 +75,13 @@ class MoneroWalletLoadingException implements Exception {
 class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   MoneroRestoreWalletFromKeysCredentials(
       {required String name,
-      required String password,
-      required this.language,
-      required this.address,
-      required this.viewKey,
-      required this.spendKey,
-      super.hardwareWalletType,
-      int height = 0})
+        required String password,
+        required this.language,
+        required this.address,
+        required this.viewKey,
+        required this.spendKey,
+        super.hardwareWalletType,
+        int height = 0})
       : super(name: name, password: password, height: height);
 
   final String language;
@@ -133,7 +133,7 @@ class MoneroWalletService extends WalletService<
         if (credentials.passphrase != null) polyseed.crypt(credentials.passphrase!);
 
         final heightOverride =
-            getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
+        getMoneroHeigthByDate(date: DateTime.now().subtract(Duration(days: 2)));
 
         return _restoreFromPolyseed(
             path, credentials.password!, polyseed, credentials.walletInfo!, lang,
@@ -181,7 +181,6 @@ class MoneroWalletService extends WalletService<
       if (walletFilesExist(path)) await repairOldAndroidWallet(walletInfo);
 
       await monero_wallet_manager.openWallet(path: path, password: password);
-
       final wallet = MoneroWallet(
           walletInfo: walletInfo,
           derivationInfo: await walletInfo.getDerivationInfo(),
@@ -428,8 +427,8 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> _restoreFromPolyseed(
       String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
       {PolyseedCoin coin = PolyseedCoin.POLYSEED_MONERO,
-      int? overrideHeight,
-      String? passphrase}) async {
+        int? overrideHeight,
+        String? passphrase}) async {
     if (polyseed.isEncrypted == false && (passphrase ?? '') != "") {
       // Fallback to the different passphrase offset method, when a passphrase
       // was provided but the polyseed is not encrypted.

@@ -9,7 +9,6 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/litecoin_wallet.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -62,7 +61,6 @@ class LitecoinWalletService extends WalletService<
   @override
   Future<LitecoinWallet> openWallet(WalletInfo walletInfo, String password) async {
     final name = walletInfo.name;
-
     try {
       final wallet = await LitecoinWalletBase.open(
         password: password,

@@ -1,19 +1,16 @@
 import "dart:convert";
 import "dart:io";
-
 import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/imported_nft.dart";
 import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
-import "package:cw_core/utils/file.dart";
-import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_keys_file.dart";
 import "package:cw_core/wallet_type.dart";
-import "package:path/path.dart" as p;
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
     RFK extends WalletCredentials, RFH extends WalletCredentials> {
@@ -48,7 +45,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     }
 
     if (!currentWalletInfo.isReady) {
-      throw Exception("Wallet not found");
+      throw WalletNotFoundException(name: currentWalletInfo.name, type: getType());
     }
 
     await _renameTokenRows(currentWalletInfo.name, newName);

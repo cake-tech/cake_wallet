@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/store/app_store.dart' show AppStore;
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cw_core/db/sqlite.dart';
+import "package:cw_core/keychain_read_status_native.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/wallet_group_db_entry.dart";
@@ -21,7 +22,6 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-
 import '../src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
 class AuthService with Store {
@@ -91,7 +91,11 @@ class AuthService with Store {
   Future<bool> authenticate(String pin) async {
     final regularKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
     final encodedRegularPin = await secureStorage.read(key: regularKey);
-    final decodedRegularPin = decodedPinCode(pin: encodedRegularPin!);
+    if (encodedRegularPin == null) {
+      throw PinCodeUnreadableException(await keychainReadStatusNative(regularKey));
+    }
+
+    final decodedRegularPin = decodedPinCode(pin: encodedRegularPin);
 
     if (decodedRegularPin == pin) {
       return true;
@@ -124,18 +128,69 @@ class AuthService with Store {
     return false;
   }
 
+  /// iOS only: true when this device has neither the stored PIN nor any wallet password, e.g. an
+  /// iCloud Backup restored onto a new device brings the app's data but never its Keychain. Then no
+  /// PIN can be checked and no wallet decrypted here. Never throws.
+  Future<bool> isKeychainNotRestored() async {
+    try {
+      return await keychainSecretsMissing(
+        readStatus: keychainReadStatusNative,
+        walletNames: () async {
+          final currentWalletName = sharedPreferences.getString(PreferencesKey.currentWalletName);
+          return {
+            for (final walletInfo in await WalletInfo.getAll()) walletInfo.name,
+            if (currentWalletName != null && currentWalletName.isNotEmpty) currentWalletName,
+          };
+        },
+      );
+    } catch (e) {
+      printV("Keychain restore check failed: $e");
+      return false;
+    }
+  }
+
+  /// Starts over when [isKeychainNotRestored]: removes the wallets this device can't open, with the
+  /// same wipe as the duress PIN, then opens the welcome screen so they can be restored.
+  Future<void> resetAfterKeychainLoss() async {
+    if (!await isKeychainNotRestored()) {
+      return;
+    }
+
+    await _handleDuressLogin(
+      secureStorage,
+      sharedPreferences,
+      authenticationStore,
+      appStore,
+      resetService,
+      walletList,
+    );
+
+    unawaited(
+      navigatorKey.currentState?.pushNamedAndRemoveUntil(
+        Routes.welcome,
+        (route) => false,
+      ),
+    );
+  }
+
   void saveLastAuthTime() {
     int timestamp = DateTime.now().millisecondsSinceEpoch;
     secureStorage.write(key: SecureKey.lastAuthTimeMilliseconds, value: timestamp.toString());
   }
 
   Future<bool> requireAuth() async {
-    final timestamp =
-        int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
-    final duration = _durationToRequireAuth(timestamp ?? 0);
-    final requiredPinInterval = settingsStore.pinTimeOutDuration;
+    try {
+      final timestamp =
+          int.tryParse(await secureStorage.read(key: SecureKey.lastAuthTimeMilliseconds) ?? '0');
+      final duration = _durationToRequireAuth(timestamp ?? 0);
+      final requiredPinInterval = settingsStore.pinTimeOutDuration;
 
-    return duration >= requiredPinInterval.value;
+      return duration >= requiredPinInterval.value;
+    } catch (e) {
+      // Without the last auth time we can't tell if the timeout passed, so ask for the PIN.
+      printV(e);
+      return true;
+    }
   }
 
   int _durationToRequireAuth(int timestamp) {
@@ -280,4 +335,50 @@ Future<void> _handleDuressLogin(
   printV('[DURESS] Authentication state set to "uninitialized"');
 
   printV('[DURESS] FULL WIPE COMPLETED');
+}
+
+/// Thrown by [AuthService.authenticate] when secure storage returns no stored PIN.
+class PinCodeUnreadableException implements Exception {
+  PinCodeUnreadableException(this.keychainStatus);
+
+  /// iOS Keychain OSStatus of the same read (e.g. -25300 not found, -25308 locked); null on
+  /// other platforms or when it couldn't be fetched.
+  final int? keychainStatus;
+
+  @override
+  String toString() {
+    final status = keychainStatus == null ? "" : " (Keychain OSStatus: $keychainStatus)";
+    return "PinCodeUnreadableException: secure storage returned no PIN$status";
+  }
+}
+
+/// errSecItemNotFound: the Keychain has no item for the key (not merely locked).
+const _errSecItemNotFound = -25300;
+
+/// True only when [readStatus] reports the stored PIN and the password of every wallet in
+/// [walletNames] as missing (errSecItemNotFound). A null status (no Keychain status on this
+/// platform) never counts as missing, and wallet names are only loaded once the PIN is missing.
+Future<bool> keychainSecretsMissing({
+  required Future<int?> Function(String key) readStatus,
+  required Future<Iterable<String>> Function() walletNames,
+}) async {
+  final pinKey = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);
+  if (await readStatus(pinKey) != _errSecItemNotFound) {
+    return false;
+  }
+
+  final names = await walletNames();
+  if (names.isEmpty) {
+    return false;
+  }
+
+  for (final name in names) {
+    final passwordKey =
+        generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: name);
+    if (await readStatus(passwordKey) != _errSecItemNotFound) {
+      return false;
+    }
+  }
+
+  return true;
 }

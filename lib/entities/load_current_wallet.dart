@@ -3,9 +3,11 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/entities/wallet_group_service.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:shared_preferences/shared_preferences.dart";
+
 
 Future<void> loadCurrentWallet({String? password}) async {
   final appStore = getIt.get<AppStore>();
@@ -14,7 +16,7 @@ Future<void> loadCurrentWallet({String? password}) async {
   final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
 
   if (name == null) {
-    throw Exception("Incorrect current wallet name: $name");
+    throw WalletOpenException("Incorrect current wallet name: $name");
   }
 
   final type = deserializeFromInt(typeRaw);

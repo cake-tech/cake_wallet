@@ -126,7 +126,6 @@ class DecredWalletService extends WalletService<
 
   @override
   Future<DecredWallet> openWallet(WalletInfo walletInfo, String password) async {
-
     final di = await walletInfo.getDerivationInfo();
     if (walletInfo.network == null || walletInfo.network == "") {
       walletInfo.network = di.derivationPath == seedRestorePathTestnet ||

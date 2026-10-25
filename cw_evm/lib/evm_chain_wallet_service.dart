@@ -1,10 +1,8 @@
-import "dart:io";
-
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/imported_nft.dart";
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -51,21 +49,21 @@ class EVMChainWalletService extends WalletService<
   WalletType getType() {
     throw UnsupportedError(
       "EVMChainWalletService is unified and does not have a single type. "
-      "Use walletInfo.type instead.",
+          "Use walletInfo.type instead.",
     );
   }
 
   @override
   Future<EVMChainWallet> create(
-    EVMChainNewWalletCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+      EVMChainNewWalletCredentials credentials, {
+        bool? isTestnet,
+      }) async {
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -153,9 +151,9 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<EVMChainWallet> restoreFromSeed(
-    EVMChainRestoreWalletFromSeedCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+      EVMChainRestoreWalletFromSeedCredentials credentials, {
+        bool? isTestnet,
+      }) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw EVMChainMnemonicIsIncorrectException();
     }
@@ -165,7 +163,7 @@ class EVMChainWalletService extends WalletService<
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -198,15 +196,15 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<EVMChainWallet> restoreFromKeys(
-    EVMChainRestoreWalletFromPrivateKey credentials, {
-    bool? isTestnet,
-  }) async {
+      EVMChainRestoreWalletFromPrivateKey credentials, {
+        bool? isTestnet,
+      }) async {
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -238,14 +236,14 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<EVMChainWallet> restoreFromHardwareWallet(
-    EVMChainRestoreWalletFromHardware credentials,
-  ) async {
+      EVMChainRestoreWalletFromHardware credentials,
+      ) async {
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
     final chainConfig = _registry.getChainConfigByWalletType(walletInfo.type);
     if (chainConfig == null) {
-      throw Exception("Chain config not found for wallet type: ${walletInfo.type}");
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
     final initialChainId = chainConfig.chainId;
 
@@ -299,7 +297,7 @@ class EVMChainWalletService extends WalletService<
     final chainConfig = _registry.getChainConfigByWalletType(walletType);
 
     if (chainConfig == null) {
-      throw Exception("Chain config not found for wallet type: $walletType");
+      throw BadWalletTypeException('Chain config not found for wallet type: $walletType', walletInfo.type);
     }
 
     return EVMChainWallet(

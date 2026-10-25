@@ -23,10 +23,10 @@ import 'package:monero/wownero.dart' as wownero;
 class WowneroNewWalletCredentials extends WalletCredentials {
   WowneroNewWalletCredentials(
       {required String name,
-      required this.language,
-      required this.isPolyseed,
-      this.passphrase,
-      String? password})
+        required this.language,
+        required this.isPolyseed,
+        this.passphrase,
+        String? password})
       : super(name: name, password: password);
 
   final String language;
@@ -37,10 +37,10 @@ class WowneroNewWalletCredentials extends WalletCredentials {
 class WowneroRestoreWalletFromSeedCredentials extends WalletCredentials {
   WowneroRestoreWalletFromSeedCredentials(
       {required String name,
-      required this.mnemonic,
-      required this.passphrase,
-      int height = 0,
-      String? password})
+        required this.mnemonic,
+        required this.passphrase,
+        int height = 0,
+        String? password})
       : super(name: name, password: password, height: height);
 
   final String mnemonic;
@@ -55,12 +55,12 @@ class WowneroWalletLoadingException implements Exception {
 class WowneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   WowneroRestoreWalletFromKeysCredentials(
       {required String name,
-      required String password,
-      required this.language,
-      required this.address,
-      required this.viewKey,
-      required this.spendKey,
-      int height = 0})
+        required String password,
+        required this.language,
+        required this.address,
+        required this.viewKey,
+        required this.spendKey,
+        int height = 0})
       : super(name: name, password: password, height: height);
 
   final String language;
@@ -96,7 +96,7 @@ class WowneroWalletService extends WalletService<
         if (credentials.passphrase != null) polyseed.crypt(credentials.passphrase!);
 
         final heightOverride =
-            getWowneroHeightByDate(date: DateTime.now().subtract(Duration(days: 2)));
+        getWowneroHeightByDate(date: DateTime.now().subtract(Duration(days: 2)));
 
         return _restoreFromPolyseed(
             path, credentials.password!, polyseed, credentials.walletInfo!, lang,
@@ -304,8 +304,8 @@ class WowneroWalletService extends WalletService<
   Future<WowneroWallet> _restoreFromPolyseed(
       String path, String password, Polyseed polyseed, WalletInfo walletInfo, PolyseedLang lang,
       {PolyseedCoin coin = PolyseedCoin.POLYSEED_WOWNERO,
-      int? overrideHeight,
-      String? passphrase}) async {
+        int? overrideHeight,
+        String? passphrase}) async {
     if (polyseed.isEncrypted == false && (passphrase ?? '') != "") {
       // Fallback to the different passphrase offset method, when a passphrase
       // was provided but the polyseed is not encrypted.

@@ -163,7 +163,7 @@ class _ThreeCheckboxAlertContentState extends State<ThreeCheckboxAlertContent> {
           GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () => launchUrl(
-              Uri.parse("https://cakepay.com/cakepay-web-terms.txt"),
+              Uri.parse("https://cakepay.com/terms/"),
               mode: LaunchMode.externalApplication,
             ),
             child: Padding(

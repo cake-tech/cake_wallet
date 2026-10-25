@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/balance.dart';
 import "package:cw_core/imported_nft.dart";
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -147,7 +144,7 @@ class SolanaWalletService extends WalletService<
 
   @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
+  restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

@@ -274,6 +274,7 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -393,9 +394,7 @@ Future<void> setup({
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
       case HardwareWalletType.keystone:
-        throw Exception(
-          "This should not have happened, because airgapped Wallets don't need View Models",
-        );
+        throw ArgumentError("This should not have happened, because airgapped Wallets don't need View Models");
     }
   });
 
@@ -653,7 +652,7 @@ Future<void> setup({
           ));
 
   getIt.registerFactory<AuthPage>(instanceName: 'login', () {
-    return AuthPage(getIt.get<AuthViewModel>(), closable: false,
+    return AuthPage(getIt.get<AuthViewModel>(), closable: false, checkKeychainRestored: true,
         onAuthenticationFinished: (isAuthenticated, AuthPageState authPageState) async {
       if (!isAuthenticated) {
         return;
@@ -877,8 +876,8 @@ Future<void> setup({
     if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
       return NanoAccountListViewModel(wallet);
     }
-    throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel');
+    throw BadWalletTypeException(
+        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel',wallet.type);
   });
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
@@ -888,8 +887,8 @@ Future<void> setup({
         wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }
-    throw Exception(
-        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel');
+    throw BadWalletTypeException(
+        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel',wallet.type);
   });
 
   getIt.registerFactory<BitcoinAccountListViewModel>(() {
@@ -1269,7 +1268,7 @@ Future<void> setup({
       case WalletType.zcash:
         return zcash!.createZcashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
-        throw Exception('Unexpected token: ${param1.toString()} for generating of WalletService');
+        throw BadWalletTypeException('Unexpected token: ${param1.toString()} for generating of WalletService',param1);
     }
   });
 
