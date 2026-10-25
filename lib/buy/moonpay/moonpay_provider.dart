@@ -398,6 +398,10 @@ class MoonPayProvider extends BuyProvider {
       return '${currency.title.toLowerCase()}_trx';
     }
 
+    if (currency.tag == 'ARB') {
+      return '${currency.title.toLowerCase()}_arbitrum';
+    }
+
     return currency.toString().toLowerCase();
   }
 }
