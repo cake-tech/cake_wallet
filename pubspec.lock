@@ -950,6 +950,30 @@ packages:
       url: "https://github.com/cake-tech/flutter_file_picker.git"
     source: git
     version: "8.1.6"
+  file_selector:
+    dependency: transitive
+    description:
+      name: file_selector
+      sha256: bd15e43e9268db636b53eeaca9f56324d1622af30e5c34d6e267649758c84d9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0"
+  file_selector_android:
+    dependency: transitive
+    description:
+      name: file_selector_android
+      sha256: "89243030ea4b3463fb402b44d5eeacc4ccb1c46a88870cb2a5080d693200c1ed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.2+6"
+  file_selector_ios:
+    dependency: transitive
+    description:
+      name: file_selector_ios
+      sha256: "97269e5307a0ab813b1fa2430bada0a96e0afb74848417f8676f64ba5de0051c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.3+6"
   file_selector_linux:
     dependency: "direct overridden"
     description:
@@ -977,6 +1001,14 @@ packages:
       url: "https://github.com/flutter/packages"
     source: git
     version: "2.7.0"
+  file_selector_web:
+    dependency: transitive
+    description:
+      name: file_selector_web
+      sha256: "73181fbc5257776d8ecaa6a94ab3c8e920ad143b9132a6d984a9271dfc6928d3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.5"
   file_selector_windows:
     dependency: "direct overridden"
     description:
@@ -2050,8 +2082,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "impls/monero.dart"
-      ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
-      resolved-ref: cd4fe366cc8d3c188c91de279f43b29c0e044b15
+      ref: "33671871de3d51696b66ffb3bd94f744e26974f6"
+      resolved-ref: "33671871de3d51696b66ffb3bd94f744e26974f6"
       url: "https://github.com/mrcyjanek/monero_c.git"
     source: git
     version: "0.0.0"
@@ -2626,9 +2658,11 @@ packages:
   rlz:
     dependency: "direct overridden"
     description:
-      path: "../zkool2/rust_builder"
-      relative: true
-    source: path
+      path: rust_builder
+      ref: "76c92473f6f3a84d854600b4a23befca825eada3"
+      resolved-ref: "76c92473f6f3a84d854600b4a23befca825eada3"
+      url: "https://github.com/cake-tech/zkool2.git"
+    source: git
     version: "0.0.1"
   rxdart:
     dependency: "direct main"
@@ -2995,6 +3029,14 @@ packages:
       url: "https://github.com/dart-lang/tools"
     source: git
     version: "1.4.1"
+  swm_chart:
+    dependency: transitive
+    description:
+      name: swm_chart
+      sha256: "9c11363172adb74d046b6bc43ff82b05f7ee8a9e3d71277c6014a1bb38afaa27"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.1"
   sync_http:
     dependency: "direct overridden"
     description:
@@ -3482,10 +3524,12 @@ packages:
   zkool:
     dependency: "direct overridden"
     description:
-      path: "../zkool2"
-      relative: true
-    source: path
-    version: "6.31.0"
+      path: "."
+      ref: "76c92473f6f3a84d854600b4a23befca825eada3"
+      resolved-ref: "76c92473f6f3a84d854600b4a23befca825eada3"
+      url: "https://github.com/cake-tech/zkool2.git"
+    source: git
+    version: "6.35.0"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.19.0"
+  dart: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.0"

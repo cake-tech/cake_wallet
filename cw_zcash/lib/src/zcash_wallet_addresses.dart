@@ -168,7 +168,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
     final addr = await ZcashWalletBase.runWithCoin(
       accountId: accountId,
-      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7),
+      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7, account: accountId),
     );
 
     transparentAddress = addr.taddr ?? 'unknown addr.taddr';
