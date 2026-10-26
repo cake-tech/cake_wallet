@@ -29,13 +29,13 @@ jobs:
       CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
       CW_DOCKER_USE_CLOUD: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Docker sock permissions
         run: sudo chmod 666 /var/run/docker.sock || true
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -54,13 +54,13 @@ jobs:
       CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
       CW_DOCKER_USE_CLOUD: "true"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       - name: Docker sock permissions
         run: sudo chmod 666 /var/run/docker.sock || true
       - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -85,7 +85,7 @@ jobs:
       GO_VERSION: "1.24.1"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -117,12 +117,12 @@ jobs:
           fi
           echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
         with:
           go-version: ${{ env.GO_VERSION }}
 
@@ -305,7 +305,7 @@ jobs:
         run: tar -cf "$RUNNER_TEMP/Runner.xcarchive.tar" -C build/ios/archive Runner.xcarchive
 
       - name: Upload unsigned archive
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ios-xcarchive
           path: ${{ runner.temp }}/Runner.xcarchive.tar
@@ -319,7 +319,7 @@ jobs:
 
     steps:
       - name: Download unsigned archive
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: ios-xcarchive
 
@@ -432,7 +432,7 @@ jobs:
 
       - name: Upload IPA artifact to GitHub
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ios-ipa
           path: ipa/*.ipa
@@ -452,11 +452,11 @@ jobs:
     environment: testflight
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
 
       - name: Set TestFlight changelog
         env:
