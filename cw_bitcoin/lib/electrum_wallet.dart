@@ -1107,6 +1107,10 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
+    // A closed wallet is discarded; reconnecting it would leak a socket and its keep-alive.
+    if (_isClosed) {
+      return;
+    }
     final viaTor = CakeTor.instance?.started ?? false;
     final isSameConnection = node == this.node && viaTor == _connectingViaTor;
     this.node = node;
@@ -1124,6 +1128,9 @@ abstract class ElectrumWalletBase
 
       await _receiveStream?.cancel();
       await electrumClient.close();
+      if (_isClosed) {
+        return;
+      }
       _isBatchSupported = null;
       // The new server session has no subscriptions yet.
       _scripthashesUpdateSubject = {};
@@ -4624,6 +4631,9 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> _performFullReconnection() async {
+    if (_isClosed) {
+      return;
+    }
     try {
       SocketHealthLogger().logHealthCheck(
         walletType: type,
@@ -4636,6 +4646,9 @@ abstract class ElectrumWalletBase
       await _receiveStream?.cancel();
 
       await electrumClient.close();
+      if (_isClosed) {
+        return;
+      }
       // The new server session has no subscriptions yet.
       _scripthashesUpdateSubject = {};
 

@@ -115,6 +115,10 @@ class ElectrumClient {
     // _setConnectionStatus(ConnectionStatus.connected);
     newSocket.listen(
       (Uint8List event) {
+        // A replaced socket's late reply must not complete a same-id request of the new session.
+        if (!identical(socket, newSocket)) {
+          return;
+        }
         try {
           final msg = utf8.decode(event.toList());
           final messagesList = msg.split("\n");
