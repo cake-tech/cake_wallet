@@ -235,8 +235,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
         return "assets/new-ui/hardware_wallets/device_ledger_stax.svg";
       case HardwareWalletDeviceType.ledgerFlex:
         return "assets/new-ui/hardware_wallets/device_ledger_flex.svg";
-      case HardwareWalletDeviceType.BitBox02:
-      case HardwareWalletDeviceType.BitBox02Nova:
+      case HardwareWalletDeviceType.bitBox02:
+      case HardwareWalletDeviceType.bitBox02Nova:
         return "assets/new-ui/hardware_wallets/device_bitbox.svg";
       case HardwareWalletDeviceType.trezorModelOne:
         return "assets/new-ui/hardware_wallets/device_trezor_model_one.svg";

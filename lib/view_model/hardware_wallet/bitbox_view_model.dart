@@ -19,6 +19,7 @@ import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:ledger_flutter_plus/ledger_flutter_plus.dart" show UniversalBle, AvailabilityState;
 import "package:mobx/mobx.dart";
 
 part "bitbox_view_model.g.dart";
@@ -28,12 +29,12 @@ class BitboxViewModel = BitboxViewModelBase with _$BitboxViewModel;
 abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   BitboxViewModelBase(AppStore appStore) {
     if (!isMoneroOnly) {
-      // reaction((_) => isBleEnabled, (_) {
-      //   if (isBleEnabled) {
-      //     _initBLE();
-      //   }
-      // });
-      //
+      reaction((_) => isBleEnabled, (_) {
+        if (isBleEnabled) {
+          _initBLE();
+        }
+      });
+
       // reaction((_) => appStore.wallet, (wallet) async {
       //   if (wallet != null && wallet.type != _connectingWalletType) {
       //     await close();
@@ -67,18 +68,43 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   @override
   bool get hasBluetooth => false;
 
-  @override
-  Future<void> updateBleState() async {}
+  bool _bleIsInitialized = false;
+
+  Future<void> _initBLE() async {
+    if (isBleEnabled && !_bleIsInitialized) {
+      bleManager = sdk.BitboxBleConnectionManager();
+      _bleIsInitialized = true;
+    }
+  }
 
   @override
-  Stream<HardwareWalletDevice> scanForBleDevices() => throw UnimplementedError();
+  Future<void> updateBleState() async {
+    final bleState = await UniversalBle.getBluetoothAvailabilityState();
+
+    final newState = bleState == AvailabilityState.poweredOn;
+
+    if (newState != isBleEnabled) {
+      isBleEnabled = newState;
+    }
+  }
+
+  @override
+  Stream<HardwareWalletDevice> scanForBleDevices() =>
+      bleManager.scan().map(BitboxHardwareWalletDevice.new);
 
   @override
   Future<List<HardwareWalletDevice>> getAllUsbDevices() => usbManager.currentDevices
       .then((devices) => devices.map(BitboxHardwareWalletDevice.new).toList());
 
   @override
-  Future<void> stopScanning() async {}
+  Future<void> stopScanning() async {
+    if (_bleIsInitialized) {
+      await bleManager.stopScan();
+    }
+    if (!Platform.isIOS) {
+      await usbManager.stopScan();
+    }
+  }
 
   @override
   @action
@@ -95,11 +121,14 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
     try {
       final appDocDir = await getAppDir();
 
-      _connection = await usbManager.connect(device.device);
+      final bitBoxManager =
+          device.connectionType == HardwareWalletConnectionType.ble ? bleManager : usbManager;
+
+      _connection = await bitBoxManager.connect(device.device);
       printV("Got Connection", file: "${appDocDir.path}/error.txt");
 
       final channelHashVerified = Completer<bool>();
-      events = usbManager.events.listen((event) async {
+      events = bitBoxManager.events.listen((event) async {
         printV(event.event);
         if (event.event == "channelHashChanged" &&
             event.channelHash.isNotEmpty &&
@@ -134,7 +163,9 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       }
 
       _connectedDevice = device;
-      _isConnectedTimer = Timer.periodic(const Duration(seconds: 1), (_) => _isStillConnected());
+      if (device.connectionType == HardwareWalletConnectionType.usb) {
+        _isConnectedTimer = Timer.periodic(const Duration(seconds: 1), (_) => _isStillConnected());
+      }
       isConnecting = false;
       return true;
     } catch (e) {

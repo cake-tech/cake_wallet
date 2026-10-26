@@ -11,9 +11,9 @@ abstract class HardwareWalletDevice {
 }
 
 class LedgerHardwareWalletDevice extends HardwareWalletDevice {
-  final ledger.LedgerDevice device;
-
   LedgerHardwareWalletDevice(this.device);
+
+  final ledger.LedgerDevice device;
 
   @override
   String get name => device.name;
@@ -35,17 +35,18 @@ class BitboxHardwareWalletDevice extends HardwareWalletDevice {
 
   @override
   HardwareWalletDeviceType get type => name.contains("BitBox02 Nova")
-      ? HardwareWalletDeviceType.BitBox02Nova
-      : HardwareWalletDeviceType.BitBox02;
+      ? HardwareWalletDeviceType.bitBox02Nova
+      : HardwareWalletDeviceType.bitBox02;
 
   @override
-  HardwareWalletConnectionType get connectionType => HardwareWalletConnectionType.usb;
+  HardwareWalletConnectionType get connectionType =>
+      device.isUsb ? HardwareWalletConnectionType.usb : HardwareWalletConnectionType.ble;
 }
 
 class TrezorHardwareWalletDevice extends HardwareWalletDevice {
-  final trezor.TrezorDevice device;
-
   TrezorHardwareWalletDevice(this.device);
+
+  final trezor.TrezorDevice device;
 
   @override
   String get name => device.name;
@@ -65,8 +66,8 @@ enum HardwareWalletDeviceType {
   ledgerNanoGen5,
   ledgerStax,
   ledgerFlex,
-  BitBox02,
-  BitBox02Nova,
+  bitBox02,
+  bitBox02Nova,
   trezorModelOne,
   trezorModelT,
   trezorSafe3,

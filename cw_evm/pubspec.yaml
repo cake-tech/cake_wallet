@@ -35,7 +35,7 @@ dependencies:
   bitbox_flutter:
     git:
       url: https://github.com/konstantinullrich/bitbox_flutter.git
-      ref: cdf312d45ca9414741533ed5fb36c391b89d5fc7
+      ref: e5eca2eea1065346c04db164b874c9fe622c7c5f
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
