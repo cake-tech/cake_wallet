@@ -74,6 +74,7 @@ jobs:
     needs: [torch, monero]
     if: github.event.pull_request.head.repo.fork == false
     runs-on: macos-26
+    environment: testflight
 
     outputs:
       build_number: ${{ steps.config.outputs.build_number }}
@@ -430,6 +431,7 @@ jobs:
   changelog:
     needs: testflight
     runs-on: ubuntu-24.04
+    environment: testflight
 
     steps:
       - uses: actions/checkout@v4
