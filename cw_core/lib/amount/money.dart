@@ -295,19 +295,40 @@ class Money implements Comparable<Money> {
     return withSymbolPrefix ? "$symbol $amount" : "$amount $symbol";
   }
 
+  /// [meaningfulDecimals]: for non-zero values below 1, show that many digits
+  /// after the leading fraction zeros (e.g. 0.00001234 -> 0.000012 for 2),
+  /// up to 12 fraction digits, when that is more than would be shown otherwise.
+  /// Can't be combined with [useBaseUnit]; with [fractionalDigits] it only ever
+  /// shows more digits than [fractionalDigits] would, never fewer.
   String toStringWithPrecision({
     int? fractionalDigits,
     bool trimZeros = true,
     bool useBaseUnit = false,
-  }) =>
-      formatFixed(
-        decimals != currency.decimals
-            ? _transformAmount(amount, decimals, currency.decimals)
-            : amount,
-        useBaseUnit ? 0 : currency.decimals,
-        fractionalDigits: fractionalDigits,
-        trimZeros: trimZeros,
-      );
+    int? meaningfulDecimals,
+  }) {
+    if (meaningfulDecimals != null && useBaseUnit) {
+      throw ArgumentError("meaningfulDecimals can't be used together with useBaseUnit");
+    }
+    if (meaningfulDecimals != null && !isZero) {
+      final digits = amount.abs().toString().length;
+      if (digits <= decimals) {
+        final meaningfulDigits = min(decimals - digits + meaningfulDecimals, 12);
+        if (meaningfulDigits > min(fractionalDigits ?? currency.decimals, currency.decimals)) {
+          return formatFixed(amount, decimals,
+              fractionalDigits: meaningfulDigits, trimZeros: trimZeros);
+        }
+      }
+    }
+
+    return formatFixed(
+      decimals != currency.decimals
+          ? _transformAmount(amount, decimals, currency.decimals)
+          : amount,
+      useBaseUnit ? 0 : currency.decimals,
+      fractionalDigits: fractionalDigits,
+      trimZeros: trimZeros,
+    );
+  }
 
   // To Override the symbol with the ticker of the base unit
   String getSymbol({required bool useBaseUnit}) {

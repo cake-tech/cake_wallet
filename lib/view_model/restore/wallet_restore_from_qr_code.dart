@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
+import "package:cake_wallet/wallet_types.g.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
@@ -151,6 +152,10 @@ class WalletRestoreFromQRCode {
 
     final uri = Uri.parse(formattedUri);
     Map<String, dynamic> queryParameters = {...uri.queryParameters};
+
+    if(!availableWalletTypes.contains(walletType)) {
+      throw BadWalletTypeException("This wallet cannot be used in this app.", walletType);
+    }
 
     if (queryParameters['seed'] == null) {
       queryParameters['seed'] = _extractSeedPhraseFromUrl(code, walletType);
