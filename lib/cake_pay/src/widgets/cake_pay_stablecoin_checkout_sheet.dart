@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:cake_wallet/cake_pay/src/models/cake_pay_order.dart";
+import "package:cake_wallet/cake_pay/src/services/cake_pay_api.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -17,6 +18,7 @@ import "package:cake_wallet/src/widgets/warning_box_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/utils/date_formatter.dart";
+import "package:cake_wallet/utils/feature_flag.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -190,6 +192,16 @@ class CakePayStablecoinCheckoutSheet extends StatelessWidget {
         label: S.of(context).cake_pay_stablecoin_fee("${quote.fee} ${coin.paymentMethod}"),
         deadline: state.deadline,
       ),
+      if (FeatureFlag.hasDevOptions &&
+          FeatureFlag.isCakePayPurchaseSimulationEnabled &&
+          CakePayApi.testBaseUri)
+        NewPrimaryButton(
+          onPressed: () =>
+              context.read<StablecoinCheckoutBloc>().add(const PaymentSimulationRequested()),
+          text: "(Dev) Simulate Payment",
+          color: colors.primary,
+          textColor: colors.onPrimary,
+        ),
       if (state.canPayInCakeWallet)
         NewPrimaryButton(
           onPressed: () => Navigator.of(context).pushNamed(

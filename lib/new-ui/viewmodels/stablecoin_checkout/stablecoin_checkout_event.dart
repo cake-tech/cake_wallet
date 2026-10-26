@@ -21,6 +21,10 @@ final class NewQuoteRequested extends StablecoinCheckoutEvent {
   const NewQuoteRequested();
 }
 
+final class PaymentSimulationRequested extends StablecoinCheckoutEvent {
+  const PaymentSimulationRequested();
+}
+
 final class ExpiryTicked extends StablecoinCheckoutEvent {
   const ExpiryTicked(this.now);
 

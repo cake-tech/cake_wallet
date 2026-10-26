@@ -35,6 +35,7 @@ class StablecoinCheckoutBloc extends Bloc<StablecoinCheckoutEvent, StablecoinChe
     on<CoinSelected>(_onCoinSelected);
     on<NetworkSelected>(_onNetworkSelected, transformer: droppable());
     on<NewQuoteRequested>(_onNewQuoteRequested, transformer: droppable());
+    on<PaymentSimulationRequested>(_onPaymentSimulationRequested, transformer: droppable());
     on<ExpiryTicked>(_onExpiryTicked);
     on<OrderPollTicked>(_onOrderPollTicked, transformer: droppable());
     on<BalanceChanged>(_onBalanceChanged);
@@ -91,6 +92,30 @@ class StablecoinCheckoutBloc extends Bloc<StablecoinCheckoutEvent, StablecoinChe
     final network = state.network;
     if (network != null) {
       await _requestQuote(network, emit);
+    }
+  }
+
+  Future<void> _onPaymentSimulationRequested(
+    PaymentSimulationRequested event,
+    Emitter<StablecoinCheckoutState> emit,
+  ) async {
+    final current = state;
+    if (current is! StablecoinCheckoutQuoted) {
+      return;
+    }
+
+    emit(StablecoinCheckoutLoading(current.coin, current.network));
+    try {
+      await _cakePayService.simulatePayment(orderId: order.orderId);
+    } catch (e) {
+      if (state is StablecoinCheckoutLoading) {
+        emit(StablecoinCheckoutFailure(current.coin, current.network, _errorMessage(e)));
+      }
+      return;
+    }
+
+    if (!isClosed && state is StablecoinCheckoutLoading) {
+      add(const OrderPollTicked());
     }
   }
 
@@ -181,13 +206,20 @@ class StablecoinCheckoutBloc extends Bloc<StablecoinCheckoutEvent, StablecoinChe
         deadline: _deadline(quote),
         canPayInCakeWallet: _canPayInCakeWallet(network, quote),
       );
-    } on CakePayUnauthorizedException {
-      return StablecoinCheckoutFailure(coin, network, S.current.cake_pay_session_expired);
-    } on CakePayResponseException catch (e) {
-      return StablecoinCheckoutFailure(coin, network, e.message);
     } catch (e) {
-      printV(e);
-      return StablecoinCheckoutFailure(coin, network, S.current.please_try_again_later);
+      return StablecoinCheckoutFailure(coin, network, _errorMessage(e));
+    }
+  }
+
+  String _errorMessage(Object error) {
+    switch (error) {
+      case CakePayUnauthorizedException():
+        return S.current.cake_pay_session_expired;
+      case CakePayResponseException(:final message):
+        return message;
+      default:
+        printV(error);
+        return S.current.please_try_again_later;
     }
   }
 
