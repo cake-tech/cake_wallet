@@ -8,12 +8,12 @@ enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB, ZEC, STABLECOIN }
 
 extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
   String get label => switch (this) {
-        CakePayPaymentMethod.BTC => 'Bitcoin',
-        CakePayPaymentMethod.BTC_LN => 'Lightning',
-        CakePayPaymentMethod.XMR => 'Monero',
-        CakePayPaymentMethod.LTC => 'Litecoin',
-        CakePayPaymentMethod.LTC_MWEB => 'MWEB',
-        CakePayPaymentMethod.ZEC => 'Zcash',
+        CakePayPaymentMethod.BTC => "Bitcoin",
+        CakePayPaymentMethod.BTC_LN => "Lightning",
+        CakePayPaymentMethod.XMR => "Monero",
+        CakePayPaymentMethod.LTC => "Litecoin",
+        CakePayPaymentMethod.LTC_MWEB => "MWEB",
+        CakePayPaymentMethod.ZEC => "Zcash",
         CakePayPaymentMethod.STABLECOIN => "USDC/USDT",
       };
 }

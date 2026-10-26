@@ -1,21 +1,21 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
-import 'package:cake_wallet/order/order.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
-import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
-import 'package:cake_wallet/core/execution_state.dart';
+import "package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_card.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_order.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart";
+import "package:cake_wallet/cake_pay/src/services/cake_pay_service.dart";
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/order/order.dart";
 import "package:cake_wallet/utils/date_formatter.dart";
-import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/utils/feature_flag.dart";
+import "package:cake_wallet/view_model/send/send_view_model.dart";
+import "package:cake_wallet/view_model/send/send_view_model_state.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:hive/hive.dart";
+import "package:mobx/mobx.dart";
 
-part 'cake_pay_buy_card_view_model.g.dart';
+part "cake_pay_buy_card_view_model.g.dart";
 
 class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCardViewModel;
 

@@ -1,7 +1,7 @@
-import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
 
 class ChainChipStrip extends StatelessWidget {
   const ChainChipStrip({

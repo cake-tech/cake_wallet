@@ -1,14 +1,14 @@
-import 'dart:convert';
+import "dart:convert";
 
 import "package:cake_wallet/buy/buy_sell_exceptions.dart";
-import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import "package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_order.dart";
 import "package:cake_wallet/cake_pay/src/models/cake_pay_stablecoin_quote.dart";
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
+import "package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart";
+import "package:cake_wallet/utils/feature_flag.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
 
 class CakePayApi {
   static const testBaseUri = false; //FeatureFlag.hasDevOptions;
