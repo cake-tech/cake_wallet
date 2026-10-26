@@ -70,11 +70,10 @@ jobs:
           ./scripts/ios/docker/build.sh --only monero
           ./scripts/ios/docker/build.sh --only monero --merge
 
-  testflight:
+  build:
     needs: [torch, monero]
     if: github.event.pull_request.head.repo.fork == false
     runs-on: macos-26
-    environment: testflight
 
     outputs:
       build_number: ${{ steps.config.outputs.build_number }}
@@ -293,6 +292,42 @@ jobs:
             rm -f "$file.bak"
           done
 
+      - name: Build unsigned archive
+        run: |
+          flutter build ipa \
+            --release \
+            --no-codesign \
+            --dart-define=CI_COMMIT="$(git rev-parse HEAD)" \
+            --dart-define=CI_BRANCH="$BRANCH_NAME" \
+            --dart-define=hasDevOptions=true
+
+      - name: Pack archive
+        run: tar -cf "$RUNNER_TEMP/Runner.xcarchive.tar" -C build/ios/archive Runner.xcarchive
+
+      - name: Upload unsigned archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcarchive
+          path: ${{ runner.temp }}/Runner.xcarchive.tar
+          retention-days: 1
+          if-no-files-found: error
+
+  testflight:
+    needs: build
+    runs-on: macos-26
+    environment: testflight
+
+    steps:
+      - name: Download unsigned archive
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-xcarchive
+
+      - name: Unpack archive
+        run: |
+          tar -xf Runner.xcarchive.tar
+          rm Runner.xcarchive.tar
+
       - name: Install signing certificate and provisioning profile
         env:
           DIST_CERT_P12: ${{ secrets.IOS_DIST_CERT_P12 }}
@@ -333,24 +368,9 @@ jobs:
           rm -f "$RUNNER_TEMP/dist.p12"
           security find-identity -v -p codesigning "$KEYCHAIN_PATH"
 
-      - name: Switch project to manual signing
-        run: |
-          set -euo pipefail
-          PBX=ios/Runner.xcodeproj/project.pbxproj
-
-          sed -i '' \
-            -e 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' \
-            -e 's/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "Apple Distribution";/g' \
-            -e 's/"CODE_SIGN_IDENTITY\[sdk=iphoneos\*\]" = "iPhone Developer";/"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";/g' \
-            -e "s/DEVELOPMENT_TEAM = .*;/DEVELOPMENT_TEAM = ${{ vars.APPLE_TEAM_ID }};/g" \
-            -e "s|PROVISIONING_PROFILE_SPECIFIER = \"\";|PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_NAME\";|g" \
-            "$PBX"
-
-          grep -nE 'CODE_SIGN_STYLE|CODE_SIGN_IDENTITY|DEVELOPMENT_TEAM|PROVISIONING_PROFILE_SPECIFIER|PRODUCT_BUNDLE_IDENTIFIER' "$PBX"
-
       - name: Write ExportOptions.plist
         run: |
-          cat > ios/ExportOptions.plist <<PLIST
+          cat > ExportOptions.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -375,20 +395,18 @@ jobs:
           </dict>
           </plist>
           PLIST
-          cat ios/ExportOptions.plist
+          cat ExportOptions.plist
 
-      - name: Build IPA
+      - name: Sign IPA
         run: |
-          flutter build ipa \
-            --release \
-            --dart-define=CI_COMMIT="$(git rev-parse HEAD)" \
-            --dart-define=CI_BRANCH="$BRANCH_NAME" \
-            --dart-define=hasDevOptions=true \
-            --export-options-plist=ios/ExportOptions.plist
+          xcodebuild -exportArchive \
+            -archivePath Runner.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath ipa
 
       - name: Locate IPA
         run: |
-          IPA_PATH="$(ls build/ios/ipa/*.ipa 2>/dev/null | head -1 || true)"
+          IPA_PATH="$(ls ipa/*.ipa 2>/dev/null | head -1 || true)"
           echo "IPA_PATH=$IPA_PATH" >> $GITHUB_ENV
           ls -lh "$IPA_PATH"
 
@@ -417,7 +435,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: build/ios/ipa/*.ipa
+          path: ipa/*.ipa
 
       - name: Clean up keychain and profiles
         if: always()
@@ -429,7 +447,7 @@ jobs:
   # posts the changelog to testflight
   # this is a separate runner as the script waits for ocasionally 20+ minutes for the build to appear
   changelog:
-    needs: testflight
+    needs: [build, testflight]
     runs-on: ubuntu-24.04
     environment: testflight
 
@@ -446,8 +464,8 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
           IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
-          BUILD_NUMBER: ${{ needs.testflight.outputs.build_number }}
-          APP_VERSION: ${{ needs.testflight.outputs.app_version }}
+          BUILD_NUMBER: ${{ needs.build.outputs.build_number }}
+          APP_VERSION: ${{ needs.build.outputs.app_version }}
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
           set -euo pipefail
