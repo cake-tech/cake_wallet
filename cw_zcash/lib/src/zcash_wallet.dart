@@ -1225,6 +1225,10 @@ abstract class ZcashWalletBase
   static final autoShieldMutex = Mutex();
   static DateTime? _lastAutoShieldAt;
 
+  void noteShieldBroadcast() {
+    _lastAutoShieldAt = DateTime.now();
+  }
+
   static final ironwoodMigrateMutex = Mutex();
   static DateTime? _lastIronwoodMigrateAt;
 
@@ -1343,7 +1347,6 @@ abstract class ZcashWalletBase
       func: (final coin) => _sweepableTotal(coin, accountId),
     );
     final sweepable = Money(sweepableBigInt, currency);
-    _lastAutoShieldAt = DateTime.now();
 
     return PendingZcashTransaction(
       zcashWallet: this as ZcashWallet,

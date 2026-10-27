@@ -43,13 +43,14 @@ class PendingZcashTransaction with PendingTransaction {
     await ZcashWalletBase.runWithCoin(
       accountId: zcashWallet.accountId,
       func: (coin) async {
-        final signTx = await zkool_pay.signTransaction(
-          pczt: txPlan,
-          account: zcashWallet.accountId,
-          c: coin,
-        );
+        final signed = signedTxPackage ??
+            await zkool_pay.signTransaction(
+              pczt: txPlan,
+              account: zcashWallet.accountId,
+              c: coin,
+            );
         final result = await zkool_pay.broadcast(
-          package: signTx,
+          package: signed,
           account: zcashWallet.accountId,
           c: coin,
         );
@@ -60,6 +61,7 @@ class PendingZcashTransaction with PendingTransaction {
         }
         _txId = txId;
         if (isShieldingTx) {
+          zcashWallet.noteShieldBroadcast();
           await ZcashWalletService.addShieldedTx(txId);
         } else {
           zcashWallet.rememberPendingOutgoingAmount(txId, amount);

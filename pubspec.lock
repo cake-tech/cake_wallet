@@ -2659,8 +2659,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: rust_builder
-      ref: "76c92473f6f3a84d854600b4a23befca825eada3"
-      resolved-ref: "76c92473f6f3a84d854600b4a23befca825eada3"
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
+      resolved-ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
       url: "https://github.com/cake-tech/zkool2.git"
     source: git
     version: "0.0.1"
@@ -3525,8 +3525,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "76c92473f6f3a84d854600b4a23befca825eada3"
-      resolved-ref: "76c92473f6f3a84d854600b4a23befca825eada3"
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
+      resolved-ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
       url: "https://github.com/cake-tech/zkool2.git"
     source: git
     version: "6.35.0"
