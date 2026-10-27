@@ -1,0 +1,3 @@
+these are api responses used for unit testing the provider code.
+they will likely need re-fetching if you add a provider or one of the providers changes api.
+to fetch these you can use my beautiful totally not slopped script: dart run tool/fetch_exchange_fixtures.dart.

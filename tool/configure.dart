@@ -357,6 +357,7 @@ import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/account.dart' as monero_account;
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
@@ -502,6 +503,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   bool isBackgroundSyncRunning(Object wallet);
   Future<void> startBackgroundSync(Object wallet);
   Future<void> stopBackgroundSync(Object wallet, String password);
+  Future<Money> getSendingBalance(WalletBase wallet);
 }
 
 abstract class MoneroSubaddressList {
@@ -924,7 +926,8 @@ Future<void> generateSolana(bool hasImplementation) async {
   final outputFile = File(solanaOutputPath);
   const solanaCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart';
+import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
@@ -952,6 +955,8 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
+import 'package:cw_solana/solana_client.dart' show SolanaWalletClient;
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -1026,6 +1031,8 @@ abstract class Solana {
     Duration initialDelay = const Duration(seconds: 1),
     int maxRetries = 5,
   });
+
+  Future<bool?> getTransactionResult(String signature);
 
   // Updates balances for specific tokens by mint addresses
   // Also updates native SOL balance

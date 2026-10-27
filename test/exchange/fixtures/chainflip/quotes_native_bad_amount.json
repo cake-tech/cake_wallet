@@ -1,0 +1,15 @@
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "detail": "Amount below minimum. Min: 40000",
+  "errors": {
+    "minimalAmount": [
+      "0.0004"
+    ],
+    "minimalAmountNative": [
+      "40000"
+    ]
+  },
+  "traceId": "00-53c9e2b111eb8d454a6feb588ffc05b9-8f3ab1667e9b1ecd-00"
+}

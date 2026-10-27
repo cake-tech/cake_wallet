@@ -23,6 +23,7 @@ import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/hardware_wallet/connect_hardware_wallet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_future_primary_button.dart";
@@ -40,7 +41,6 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
-import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
@@ -48,7 +48,6 @@ import "package:cake_wallet/src/widgets/standard_checkbox.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
-import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
 import "package:cake_wallet/view_model/link_view_model.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
@@ -866,48 +865,13 @@ class _NewSendPageState extends State<NewSendPage> {
       return;
     }
 
-    if (widget.sendViewModel.wallet.isHardwareWallet) {
-      final trezorVM = widget.sendViewModel.hardwareWalletViewModel;
-      if (trezorVM is TrezorConnectViewModel &&
-          widget.sendViewModel.walletType == WalletType.bitcoin &&
-          trezorVM.isConnected(WalletType.bitcoin) &&
-          !trezorVM.isSessionFor(widget.sendViewModel.wallet)) {
-        // The live session belongs to another wallet (passphrase); open one for this wallet
-        await trezorVM.dropSession();
-      }
-
-      if (!widget.sendViewModel.hardwareWalletViewModel!
-          .isConnected(widget.sendViewModel.walletType)) {
-        final hardwareWalletVM = widget.sendViewModel.hardwareWalletViewModel;
-        if (hardwareWalletVM is TrezorConnectViewModel &&
-            widget.sendViewModel.walletType == WalletType.bitcoin) {
-          hardwareWalletVM.prepareReconnect(widget.sendViewModel.wallet);
-        }
-
-        await Navigator.of(context).pushNamed(
-          Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-            walletType: widget.sendViewModel.walletType,
-            hardwareWalletType: widget.sendViewModel.wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (_, __) {
-              widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
-              Navigator.of(context).pop();
-            },
-            isReconnect: false,
-          ),
-        );
-        if (hardwareWalletVM is TrezorConnectViewModel) {
-          hardwareWalletVM.cancelReconnect();
-        }
-
-        // Recheck to handle tap-backs
-        if (!widget.sendViewModel.hardwareWalletViewModel!
-            .isConnected(widget.sendViewModel.walletType)) {
-          return;
-        }
-      } else {
-        await widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
-      }
+    if (widget.sendViewModel.wallet.isHardwareWallet &&
+        !await connectHardwareWallet(
+          context,
+          widget.sendViewModel.wallet,
+          widget.sendViewModel.hardwareWalletViewModel!,
+        )) {
+      return;
     }
 
     if (widget.sendViewModel.wallet.type == WalletType.monero) {
