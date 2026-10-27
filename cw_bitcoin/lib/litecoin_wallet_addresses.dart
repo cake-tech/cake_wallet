@@ -146,7 +146,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }) {
     if (addressType == SegwitAddresType.mweb) {
       if (mwebAddrs.isEmpty) return "";
-      final isChange = accounts[0]?.hd.isChangeBranch(hd) ?? false;
+      final isChange = accounts[0]?.hd.isLegacyChange(hd) ?? false;
       return isChange ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
