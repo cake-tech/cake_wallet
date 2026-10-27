@@ -1,3 +1,4 @@
+import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
@@ -27,6 +28,9 @@ bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
 bool _hasAccounts(DashboardViewModel vm) => vm.wallet.hasAccountsSupport;
 
 bool _hasCoinControl(DashboardViewModel vm) => vm.wallet.hasCoinControl;
+
+bool _canRecoverFundsFromOtherPaths(DashboardViewModel vm) =>
+    bitcoin?.canRecoverFundsFromOtherDerivations(vm.wallet) ?? false;
 
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
@@ -139,6 +143,12 @@ class WalletSettingsResolver {
         Routes.syncKeyImagesDevices,
         routeArgs: const {"export-outputs": "export-outputs"},
         condition: _requiresKeyImageSync,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/sync-balance.svg",
+        S.current.recover_funds_other_paths,
+        Routes.derivationRecovery,
+        condition: _canRecoverFundsFromOtherPaths,
       ),
     ].where((item) => item.condition(viewModel)).toList();
 

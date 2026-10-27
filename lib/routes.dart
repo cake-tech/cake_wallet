@@ -85,6 +85,7 @@ class Routes {
   static const mwebSettings = '/mweb_settings';
   static const mwebLogs = '/mweb_logs';
   static const mwebNode = '/mweb_node';
+  static const derivationRecovery = '/derivation_recovery';
   static const connectionSync = '/connection_sync_page';
   static const securityBackupPage = '/security_and_backup_page';
   static const securityBackupDuressPin = '/security_and_backup_duress_pin';
