@@ -426,7 +426,8 @@ jobs:
             --type ios \
             --file "$IPA_PATH" \
             --apiKey "$ASC_KEY_ID" \
-            --apiIssuer "$ASC_ISSUER_ID"
+            --apiIssuer "$ASC_ISSUER_ID" \
+            --api-key-subject user
 
           rm -f "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
 
@@ -461,7 +462,6 @@ jobs:
       - name: Set TestFlight changelog
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
           IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
           BUILD_NUMBER: ${{ needs.build.outputs.build_number }}

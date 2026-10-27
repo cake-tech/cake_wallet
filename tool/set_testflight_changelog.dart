@@ -99,7 +99,7 @@ Future<String> _token() async {
   final expiry = now.add(_tokenLifetime);
   final header = {"alg": "ES256", "kid": _env("ASC_KEY_ID"), "typ": "JWT"};
   final claims = {
-    "iss": _env("ASC_ISSUER_ID"),
+    "sub": "user", // individual key, those take no iss
     "iat": now.millisecondsSinceEpoch ~/ 1000,
     "exp": expiry.millisecondsSinceEpoch ~/ 1000,
     "aud": "appstoreconnect-v1",
