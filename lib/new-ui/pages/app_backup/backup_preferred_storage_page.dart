@@ -20,14 +20,14 @@ class BackupPreferredStoragePage extends StatelessWidget {
               NewListSections(
                 sections: {
                   "": [
-                    for (final storage in state.storages)
+                    for (final storage in state.config.storages)
                       ListItemRegularRow(
                         keyValue: "app_backup_preferred_${storage.name}",
                         label: storage.title(context),
                         subtitle: storage.subtitle(context),
                         iconPath: storage.iconPath,
                         showArrow: false,
-                        trailingWidget: storage == state.preferredStorage
+                        trailingWidget: storage == state.config.preferredStorage
                             ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
                             : null,
                         onTap: () =>

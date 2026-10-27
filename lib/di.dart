@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/backup/app_backup_preferences.dart';
 import 'package:cake_wallet/core/backup/app_backup_restorer.dart';
 import 'package:cake_wallet/core/backup/app_backup_storage.dart';
 import 'package:cake_wallet/new-ui/pages/app_backup/app_backup_page.dart';
+import 'package:cake_wallet/new-ui/pages/app_backup/backup_restore_page.dart';
 import 'package:cake_wallet/new-ui/viewmodels/app_backup/app_backup_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/app_backup_restore/app_backup_restore_bloc.dart';
 import 'dart:async' show Timer;
@@ -1413,8 +1414,17 @@ Future<void> setup({
   getIt.registerFactoryParam<AppBackupRestoreBloc, File, void>((file, _) => AppBackupRestoreBloc(
       getIt.get<AppBackupRestorer>(), getIt.get<AppBackupStorageService>(), file));
 
-  getIt.registerFactoryParam<RestoreOptionsPage, bool, void>(
-      (bool isNewInstall, _) => RestoreOptionsPage(isNewInstall: isNewInstall));
+  getIt.registerFactoryParam<BackupRestorePage, File, void>(
+      (file, _) => BackupRestorePage(bloc: getIt.get<AppBackupRestoreBloc>(param1: file)));
+
+  getIt.registerFactory(() => BackupRestoreFlow(
+      getIt.get<AppBackupStorageService>(),
+      getIt.get<AppBackupRestorer>(),
+      (file) => getIt.get<BackupRestorePage>(param1: file)));
+
+  getIt.registerFactoryParam<RestoreOptionsPage, bool, void>((bool isNewInstall, _) =>
+      RestoreOptionsPage(
+          isNewInstall: isNewInstall, backupRestoreFlow: getIt.get<BackupRestoreFlow>()));
 
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>(
       (Trade trade, _) => TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));

@@ -87,6 +87,7 @@ void main() {
       File("${dir.path}/$name").writeAsStringSync("wallet file $name");
     }
     File("${appDir.path}/contacts.hive").writeAsBytesSync([1, 2, 3]);
+    File("${appDir.path}/transactiondescriptions.hive").writeAsBytesSync([4, 5, 6]);
     File("${appDir.path}/unrelated_leftover.zip").writeAsBytesSync([9, 9, 9]);
 
     CakeHive.init(appDir.path);
@@ -182,6 +183,8 @@ void main() {
     expect(names, contains("wallets/bitcoin/Kept/Kept"));
     expect(names.where((name) => name.contains("Dropped")), isEmpty);
     expect(names, contains("contacts.hive"));
+    expect(names, isNot(contains("transactiondescriptions.hive")));
+    expect(names, contains("~_transaction_descriptions_dump"));
     expect(names, isNot(contains("unrelated_leftover.zip")));
 
     final dbCopy = File("${root.path}/restored.db")
@@ -219,6 +222,44 @@ void main() {
     await restoredUnspent.close();
 
     expect(Directory("${appDir.path}/~_BACKUP_TMP").existsSync(), isFalse);
+  });
+
+  test("v4 export copies the Zcash databases whole only when a Zcash wallet is included",
+      () async {
+    await WalletInfo.external(
+      id: "WalletType.zcash_Zec",
+      name: "Zec",
+      type: WalletType.zcash,
+      isRecovery: false,
+      restoreHeight: 0,
+      date: DateTime(2026),
+      dirPath: "",
+      path: "",
+      address: "address-Zec",
+    ).save();
+    final zcashDir = Directory("${appDir.path}/wallets/zcash")..createSync(recursive: true);
+    final databases = {
+      "zec.db": [1],
+      "zec.v2.db": [2, 3],
+      "zec.v2.db-wal": [4],
+    };
+    databases.forEach((name, bytes) => File("${zcashDir.path}/$name").writeAsBytesSync(bytes));
+
+    final withZcash = await decryptInnerArchive(await service.exportBackupFileV4(
+      password,
+      excludedWalletIds: {},
+      outputPath: "${root.path}/out/with_zcash.zip",
+    ));
+    for (final MapEntry(key: name, value: bytes) in databases.entries) {
+      expect(withZcash.findFile("wallets/zcash/$name")?.content, bytes);
+    }
+
+    final withoutZcash = await decryptInnerArchive(await service.exportBackupFileV4(
+      password,
+      excludedWalletIds: {"WalletType.zcash_Zec"},
+      outputPath: "${root.path}/out/without_zcash.zip",
+    ));
+    expect(withoutZcash.files.where((file) => file.name.startsWith("wallets/zcash/")), isEmpty);
   });
 
   test("v4 export refuses an empty selection", () async {

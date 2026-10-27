@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:bloc/bloc.dart";
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/backup/app_backup_restorer.dart";
 import "package:cake_wallet/core/backup/app_backup_storage.dart";
 import "package:cake_wallet/core/backup_service_v3.dart";
@@ -9,9 +10,12 @@ import "package:meta/meta.dart";
 
 part "app_backup_restore_event.dart";
 
+part "app_backup_restore_presentation.dart";
+
 part "app_backup_restore_state.dart";
 
-class AppBackupRestoreBloc extends Bloc<AppBackupRestoreEvent, AppBackupRestoreState> {
+class AppBackupRestoreBloc extends Bloc<AppBackupRestoreEvent, AppBackupRestoreState>
+    with BlocPresentationMixin<AppBackupRestoreState, AppBackupRestorePresentation> {
   AppBackupRestoreBloc(this._restorer, this._storageService, this._file)
       : super(const AppBackupRestoreState()) {
     on<RestorePasswordChanged>(
@@ -19,10 +23,6 @@ class AppBackupRestoreBloc extends Bloc<AppBackupRestoreEvent, AppBackupRestoreS
     );
     on<RestoreSubmitted>((event, emit) => _restore(emit, checkBackupApp: true));
     on<AppMismatchConfirmed>((event, emit) => _restore(emit, checkBackupApp: false));
-    on<AppMismatchDismissed>(
-      (event, emit) =>
-          emit(state.copyWith(status: AppBackupRestoreStatus.idle, appMismatch: null)),
-    );
   }
 
   final AppBackupRestorer _restorer;
@@ -33,22 +33,20 @@ class AppBackupRestoreBloc extends Bloc<AppBackupRestoreEvent, AppBackupRestoreS
     Emitter<AppBackupRestoreState> emit, {
     required bool checkBackupApp,
   }) async {
-    if (checkBackupApp
-        ? !state.canSubmit
-        : state.status != AppBackupRestoreStatus.appMismatch) return;
+    if (!state.canSubmit) return;
 
-    emit(state.copyWith(status: AppBackupRestoreStatus.restoring, appMismatch: null, error: null));
+    emit(state.copyWith(isRestoring: true));
     try {
       await _restorer.restore(_file, state.password, checkBackupApp: checkBackupApp);
-      emit(state.copyWith(status: AppBackupRestoreStatus.restored));
     } on IncompatibleBackupAppException catch (e) {
-      emit(state.copyWith(status: AppBackupRestoreStatus.appMismatch, appMismatch: e));
+      emit(state.copyWith(isRestoring: false));
+      emitPresentation(AppMismatchDetected(e));
     } on AppBackupWrongPasswordException {
-      emit(state.copyWith(status: AppBackupRestoreStatus.idle, showWrongPassword: true));
+      emit(state.copyWith(isRestoring: false, showWrongPassword: true));
     } catch (e, stackTrace) {
       printV("App backup restore failed: $e\n$stackTrace");
-      emit(state.copyWith(status: AppBackupRestoreStatus.failed, error: e.toString()));
-      emit(state.copyWith(status: AppBackupRestoreStatus.idle));
+      emit(state.copyWith(isRestoring: false));
+      emitPresentation(RestoreFailed(e.toString()));
     }
   }
 

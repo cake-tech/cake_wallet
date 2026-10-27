@@ -13,6 +13,10 @@ class _MockStorageService extends Mock implements AppBackupStorageService {}
 
 void main() {
   final file = File("backup.zip");
+  const mismatch = IncompatibleBackupAppException(
+    sourceAppName: "Monero.com",
+    currentAppName: "Cake Wallet",
+  );
   late _MockRestorer restorer;
   late _MockStorageService storageService;
 
@@ -30,24 +34,15 @@ void main() {
         () => restorer.restore(file, "Cat1-Dog2", checkBackupApp: checkBackupApp),
       ).thenAnswer(answer);
 
-  Future<List<AppBackupRestoreState>> statesUntil(
-    AppBackupRestoreBloc bloc,
-    AppBackupRestoreStatus status,
-  ) async {
-    final states = <AppBackupRestoreState>[];
-    await for (final state in bloc.stream) {
-      states.add(state);
-      if (state.status == status) break;
-    }
-    return states;
-  }
-
   Future<AppBackupRestoreBloc> blocWithPassword() async {
     final bloc = createBloc();
     bloc.add(RestorePasswordChanged("Cat1-Dog2"));
     await bloc.stream.first;
     return bloc;
   }
+
+  Future<AppBackupRestoreState> restoreFinished(AppBackupRestoreBloc bloc) =>
+      bloc.stream.firstWhere((state) => !state.isRestoring);
 
   test("does nothing until a password is entered", () async {
     final bloc = createBloc();
@@ -66,9 +61,12 @@ void main() {
     final bloc = await blocWithPassword();
 
     bloc.add(RestoreSubmitted());
-    final states = await statesUntil(bloc, AppBackupRestoreStatus.restored);
-    expect(states.map((state) => state.status),
-        [AppBackupRestoreStatus.restoring, AppBackupRestoreStatus.restored]);
+    final restoring = await bloc.stream.first;
+    expect(restoring.isRestoring, isTrue);
+    expect(restoring.canSubmit, isFalse);
+    await Future<void>.delayed(Duration.zero);
+    verify(() => restorer.restore(file, "Cat1-Dog2", checkBackupApp: true)).called(1);
+    expect(bloc.state.isRestoring, isTrue);
 
     await bloc.close();
     verify(() => storageService.clearPickedFiles()).called(1);
@@ -79,7 +77,7 @@ void main() {
     final bloc = await blocWithPassword();
 
     bloc.add(RestoreSubmitted());
-    final failed = (await statesUntil(bloc, AppBackupRestoreStatus.idle)).last;
+    final failed = await restoreFinished(bloc);
     expect(failed.showWrongPassword, isTrue);
     expect(failed.canSubmit, isFalse);
 
@@ -90,61 +88,37 @@ void main() {
     await bloc.close();
   });
 
-  test("a backup from another app restores only after it's confirmed", () async {
-    stubRestore(
-      (_) async => throw const IncompatibleBackupAppException(
-        sourceAppName: "Monero.com",
-        currentAppName: "Cake Wallet",
-      ),
-    );
+  test("a backup from another app is presented and restored only once confirmed", () async {
+    stubRestore((_) async => throw mismatch);
     stubRestore((_) async {}, checkBackupApp: false);
     final bloc = await blocWithPassword();
+    final presented = bloc.presentation.first;
 
     bloc.add(RestoreSubmitted());
-    final mismatch = (await statesUntil(bloc, AppBackupRestoreStatus.appMismatch)).last;
-    expect(mismatch.appMismatch?.sourceAppName, "Monero.com");
+    final event = await presented;
+    expect(event, isA<AppMismatchDetected>());
+    expect((event as AppMismatchDetected).mismatch.sourceAppName, "Monero.com");
+    expect(bloc.state.canSubmit, isTrue);
+    verifyNever(() => restorer.restore(file, "Cat1-Dog2", checkBackupApp: false));
 
     bloc.add(AppMismatchConfirmed());
-    await statesUntil(bloc, AppBackupRestoreStatus.restored);
+    expect((await bloc.stream.first).isRestoring, isTrue);
+    await Future<void>.delayed(Duration.zero);
     verify(() => restorer.restore(file, "Cat1-Dog2", checkBackupApp: false)).called(1);
     await bloc.close();
   });
 
-  test("dismissing the app mismatch goes back to idle without restoring", () async {
-    stubRestore(
-      (_) async => throw const IncompatibleBackupAppException(
-        sourceAppName: "Monero.com",
-        currentAppName: "Cake Wallet",
-      ),
-    );
-    final bloc = await blocWithPassword();
-
-    bloc.add(RestoreSubmitted());
-    await statesUntil(bloc, AppBackupRestoreStatus.appMismatch);
-    bloc.add(AppMismatchDismissed());
-    final dismissed = await bloc.stream.first;
-    expect(dismissed.status, AppBackupRestoreStatus.idle);
-    expect(dismissed.appMismatch, isNull);
-
-    bloc.add(AppMismatchConfirmed());
-    await Future<void>.delayed(Duration.zero);
-    verifyNever(() => restorer.restore(file, "Cat1-Dog2", checkBackupApp: false));
-    await bloc.close();
-  });
-
-  test("a failed restore reports the error and goes back to idle", () async {
+  test("a failed restore is presented and goes back to the input", () async {
     stubRestore((_) async => throw StateError("disk full"));
     final bloc = await blocWithPassword();
+    final presented = bloc.presentation.first;
 
     bloc.add(RestoreSubmitted());
-    final states = await statesUntil(bloc, AppBackupRestoreStatus.idle);
-    expect(states.map((state) => state.status), [
-      AppBackupRestoreStatus.restoring,
-      AppBackupRestoreStatus.failed,
-      AppBackupRestoreStatus.idle,
-    ]);
-    expect(states[1].error, contains("disk full"));
-    expect(states.last.canSubmit, isTrue);
+    final event = await presented;
+    expect(event, isA<RestoreFailed>());
+    expect((event as RestoreFailed).error, contains("disk full"));
+    expect(bloc.state.isRestoring, isFalse);
+    expect(bloc.state.canSubmit, isTrue);
     await bloc.close();
   });
 }

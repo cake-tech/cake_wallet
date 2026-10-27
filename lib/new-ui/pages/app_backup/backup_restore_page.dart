@@ -1,9 +1,9 @@
 import "dart:io";
 
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/backup/app_backup_restorer.dart";
 import "package:cake_wallet/core/backup/app_backup_storage.dart";
 import "package:cake_wallet/core/backup_service_v3.dart";
-import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/pages/app_backup/app_backup_scaffold.dart";
 import "package:cake_wallet/new-ui/pages/app_backup/backup_creating_page.dart";
@@ -21,50 +21,57 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
-class BackupRestorePage extends StatefulWidget {
-  const BackupRestorePage({required this.file, super.key});
+class BackupRestoreFlow {
+  BackupRestoreFlow(this._storageService, this._restorer, this._pageForFile);
 
-  final File file;
+  final AppBackupStorageService _storageService;
+  final AppBackupRestorer _restorer;
+  final BackupRestorePage Function(File file) _pageForFile;
 
-  static Future<void> start(BuildContext context) async {
+  Future<void> start(BuildContext context) async {
     if (!await _ensurePin(context) || !context.mounted) return;
 
-    final file = await getIt.get<AppBackupStorageService>().pickBackupFile();
+    final file = await _storageService.pickBackupFile();
     if (file == null || !context.mounted) return;
 
-    if (!getIt.get<AppBackupRestorer>().isBackupFile(file)) {
-      await getIt.get<AppBackupStorageService>().clearPickedFiles();
+    if (!_restorer.isBackupFile(file)) {
+      await _storageService.clearPickedFiles();
       if (context.mounted) {
-        await _showError(context, S.of(context).app_backup_restore_invalid_file);
+        await _showRestoreError(context, S.of(context).app_backup_restore_invalid_file);
       }
       return;
     }
 
     await Navigator.of(context)
-        .push(CupertinoPageRoute<void>(builder: (_) => BackupRestorePage(file: file)));
+        .push(CupertinoPageRoute<void>(builder: (_) => _pageForFile(file)));
   }
 
-  static Future<bool> _ensurePin(BuildContext context) async {
-    final restorer = getIt.get<AppBackupRestorer>();
-    if (SettingsStoreBase.walletPasswordDirectInput || await restorer.hasPin()) return true;
+  Future<bool> _ensurePin(BuildContext context) async {
+    if (SettingsStoreBase.walletPasswordDirectInput || await _restorer.hasPin()) return true;
     if (!context.mounted) return false;
 
     await Navigator.of(context).pushNamed(
       Routes.setupPin,
       arguments: (PinCodeState<PinCodeWidget> pinCode, String _) => pinCode.close(),
     );
-    return restorer.hasPin();
+    return _restorer.hasPin();
   }
+}
 
-  static Future<void> _showError(BuildContext context, String error) => showPopUp<void>(
-        context: context,
-        builder: (dialogContext) => AlertWithOneAction(
-          alertTitle: S.of(dialogContext).app_backup_restore_failed,
-          alertContent: error,
-          buttonText: S.of(dialogContext).ok,
-          buttonAction: Navigator.of(dialogContext).pop,
-        ),
-      );
+Future<void> _showRestoreError(BuildContext context, String error) => showPopUp<void>(
+      context: context,
+      builder: (dialogContext) => AlertWithOneAction(
+        alertTitle: S.of(dialogContext).app_backup_restore_failed,
+        alertContent: error,
+        buttonText: S.of(dialogContext).ok,
+        buttonAction: Navigator.of(dialogContext).pop,
+      ),
+    );
+
+class BackupRestorePage extends StatefulWidget {
+  const BackupRestorePage({required this.bloc, super.key});
+
+  final AppBackupRestoreBloc bloc;
 
   @override
   State<BackupRestorePage> createState() => _BackupRestorePageState();
@@ -114,10 +121,8 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
         actionRightButton: () => Navigator.of(dialogContext).pop(true),
       ),
     );
-    if (context.mounted) {
-      context
-          .read<AppBackupRestoreBloc>()
-          .add(confirmed == true ? AppMismatchConfirmed() : AppMismatchDismissed());
+    if (confirmed == true && context.mounted) {
+      context.read<AppBackupRestoreBloc>().add(AppMismatchConfirmed());
     }
   }
 
@@ -131,31 +136,19 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
 
   @override
   Widget build(BuildContext context) => BlocProvider(
-        create: (_) => getIt.get<AppBackupRestoreBloc>(param1: widget.file),
+        create: (_) => widget.bloc,
         child: MultiBlocListener(
           listeners: [
             BlocListener<AppBackupRestoreBloc, AppBackupRestoreState>(
-              listenWhen: (previous, current) =>
-                  current.status == AppBackupRestoreStatus.restoring &&
-                  previous.status != AppBackupRestoreStatus.restoring,
-              listener: (context, _) => _showProgress(context),
-            ),
-            BlocListener<AppBackupRestoreBloc, AppBackupRestoreState>(
-              listenWhen: (previous, current) =>
-                  previous.status == AppBackupRestoreStatus.restoring &&
-                  current.status != AppBackupRestoreStatus.restoring &&
-                  current.status != AppBackupRestoreStatus.restored,
-              listener: (context, _) => _hideProgress(context),
-            ),
-            BlocListener<AppBackupRestoreBloc, AppBackupRestoreState>(
-              listenWhen: (_, current) =>
-                  current.status == AppBackupRestoreStatus.appMismatch && current.appMismatch != null,
-              listener: (context, state) => _confirmAppMismatch(context, state.appMismatch!),
-            ),
-            BlocListener<AppBackupRestoreBloc, AppBackupRestoreState>(
-              listenWhen: (_, current) => current.status == AppBackupRestoreStatus.failed,
+              listenWhen: (previous, current) => previous.isRestoring != current.isRestoring,
               listener: (context, state) =>
-                  BackupRestorePage._showError(context, state.error ?? ""),
+                  state.isRestoring ? _showProgress(context) : _hideProgress(context),
+            ),
+            BlocPresentationListener<AppBackupRestoreBloc, AppBackupRestorePresentation>(
+              listener: (context, event) => switch (event) {
+                AppMismatchDetected(:final mismatch) => _confirmAppMismatch(context, mismatch),
+                RestoreFailed(:final error) => _showRestoreError(context, error),
+              },
             ),
           ],
           child: BlocBuilder<AppBackupRestoreBloc, AppBackupRestoreState>(

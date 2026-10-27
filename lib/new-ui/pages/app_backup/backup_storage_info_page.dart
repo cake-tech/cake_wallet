@@ -74,7 +74,7 @@ class BackupStorageInfoPage extends StatelessWidget {
             text: S.of(context).continue_text,
             color: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.onPrimary,
-            isLoading: state.status == AppBackupStatus.saving,
+            isLoading: state is AppBackupSaving,
           ),
         ),
       );

@@ -5,8 +5,6 @@ sealed class AppBackupEvent {}
 
 final class _Init extends AppBackupEvent {}
 
-final class AppBackupRefreshed extends AppBackupEvent {}
-
 final class _WalletSizeCalculated extends AppBackupEvent {
   _WalletSizeCalculated(this.walletId, this.sizeInBytes);
 

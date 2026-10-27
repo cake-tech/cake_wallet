@@ -68,86 +68,86 @@ class BackupManagementPage extends StatelessWidget {
   Widget build(BuildContext context) => BlocBuilder<AppBackupBloc, AppBackupState>(
         builder: (context, state) => AppBackupScaffold(
           title: "",
-          body: state.status != AppBackupStatus.loading
-              ? ListView(
+          body: state is! AppBackupLoading
+              ? SingleChildScrollView(
                   padding: const EdgeInsets.only(bottom: 24),
-                  children: [
-                    _ManagementHeader(),
-                    const SizedBox(height: 16),
-                    NewListSections(
-                      sections: {
-                        "": [
-                          ListItemRegularRow(
-                            keyValue: "app_backup_show_password",
-                            label: S.of(context).app_backup_show_password,
-                            onTap: () => AppBackupPage.push(
-                              context,
-                              const BackupPasswordPage(forSetup: false),
-                            ),
-                          ),
-                          ListItemRegularRow(
-                            keyValue: "app_backup_change_password",
-                            label: S.of(context).app_backup_change_password,
-                            onTap: () => _confirmPasswordRegeneration(context),
-                          ),
-                          ListItemRegularRow(
-                            keyValue: "app_backup_preferred_storage",
-                            label: S.of(context).app_backup_preferred_storage,
-                            trailingText: state.preferredStorage.shortLabel(context),
-                            onTap: () =>
-                                AppBackupPage.push(context, const BackupPreferredStoragePage()),
-                          ),
-                          ListItemRegularRow(
-                            keyValue: "app_backup_customize",
-                            label: S.of(context).app_backup_customize,
-                            subtitle:
-                                state.totalSize == null ? "…" : formatBackupSize(state.totalSize!),
-                            trailingText: S
-                                .of(context)
-                                .app_backup_wallets_count(state.selectedCount.toString()),
-                            onTap: () => AppBackupPage.push(
-                              context,
-                              const BackupContentsPage(forSetup: false),
-                            ),
-                          ),
-                        ],
-                      },
-                    ),
-                    if (state.lastBackup != null) ...[
-                      const SizedBox(height: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: 16,
+                    children: [
+                      _ManagementHeader(),
                       NewListSections(
                         sections: {
                           "": [
                             ListItemRegularRow(
-                              keyValue: "app_backup_last_backup",
-                              label: S.of(context).app_backup_last_backup,
-                              subtitle: DateFormat("d MMM yyyy, HH:mm")
-                                  .format(state.lastBackup!.createdAt),
-                              trailingText: formatBackupSize(state.lastBackup!.sizeInBytes),
-                              iconPath: "assets/new-ui/app_backup/backup_file_small.svg",
-                              showArrow: false,
-                              onLongPress: state.lastBackup!.sha256Hash == null
-                                  ? null
-                                  : () => _showBackupHash(context, state.lastBackup!.sha256Hash!),
+                              keyValue: "app_backup_show_password",
+                              label: S.of(context).app_backup_show_password,
+                              onTap: () => AppBackupPage.push(
+                                context,
+                                const BackupPasswordPage(forSetup: false),
+                              ),
+                            ),
+                            ListItemRegularRow(
+                              keyValue: "app_backup_change_password",
+                              label: S.of(context).app_backup_change_password,
+                              onTap: () => _confirmPasswordRegeneration(context),
+                            ),
+                            ListItemRegularRow(
+                              keyValue: "app_backup_preferred_storage",
+                              label: S.of(context).app_backup_preferred_storage,
+                              trailingText: state.config.preferredStorage.shortLabel(context),
+                              onTap: () =>
+                                  AppBackupPage.push(context, const BackupPreferredStoragePage()),
+                            ),
+                            ListItemRegularRow(
+                              keyValue: "app_backup_customize",
+                              label: S.of(context).app_backup_customize,
+                              subtitle: state.config.totalSize == null
+                                  ? "…"
+                                  : formatBackupSize(state.config.totalSize!),
+                              trailingText: S
+                                  .of(context)
+                                  .app_backup_wallets_count(state.config.selectedCount.toString()),
+                              onTap: () => AppBackupPage.push(
+                                context,
+                                const BackupContentsPage(forSetup: false),
+                              ),
                             ),
                           ],
                         },
                       ),
-                    ],
-                    const SizedBox(height: 16),
-                    _BackupNowButton(isBackingUp: state.isBusy),
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        S.of(context).app_backup_tracking_notice,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              letterSpacing: -0.06,
-                            ),
+                      if (state.config.lastBackup != null)
+                        NewListSections(
+                          sections: {
+                            "": [
+                              ListItemRegularRow(
+                                keyValue: "app_backup_last_backup",
+                                label: S.of(context).app_backup_last_backup,
+                                subtitle: DateFormat("d MMM yyyy, HH:mm")
+                                    .format(state.config.lastBackup!.createdAt),
+                                trailingText: formatBackupSize(state.config.lastBackup!.sizeInBytes),
+                                iconPath: "assets/new-ui/app_backup/backup_file_small.svg",
+                                showArrow: false,
+                                onLongPress: state.config.lastBackup!.sha256Hash == null
+                                    ? null
+                                    : () => _showBackupHash(context, state.config.lastBackup!.sha256Hash!),
+                              ),
+                            ],
+                          },
+                        ),
+                      _BackupNowButton(isBackingUp: state.isBusy),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text(
+                          S.of(context).app_backup_tracking_notice,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                letterSpacing: -0.06,
+                              ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 )
               : const Center(child: CupertinoActivityIndicator()),
         ),

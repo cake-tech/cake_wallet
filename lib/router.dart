@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/pages/app_backup/app_backup_page.dart';
+import 'package:cake_wallet/new-ui/pages/app_backup/backup_restore_page.dart';
 import 'dart:io';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
@@ -173,6 +174,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
         builder: (_) => CreatePinWelcomePage(
           SettingsStoreBase.walletPasswordDirectInput,
+          backupRestoreFlow: getIt.get<BackupRestoreFlow>(),
         ),
       );
 

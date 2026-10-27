@@ -25,18 +25,18 @@ class BackupContentsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocBuilder<AppBackupBloc, AppBackupState>(
         builder: (context, state) => PopScope(
-          canPop: state.canContinue || state.wallets.isEmpty,
+          canPop: state.config.canContinue || state.config.wallets.isEmpty,
           child: AppBackupScaffold(
-            body: state.status == AppBackupStatus.loading
+            body: state is AppBackupLoading
                 ? const Center(child: CupertinoActivityIndicator())
                 : _BackupContentsList(state: state),
-            footer: state.status == AppBackupStatus.loading
+            footer: state is AppBackupLoading
                 ? null
                 : Column(
                     mainAxisSize: MainAxisSize.min,
                     spacing: 12,
                     children: [
-                      if (!state.canContinue)
+                      if (!state.config.canContinue)
                         Text(
                           S.of(context).app_backup_select_wallet_error,
                           textAlign: TextAlign.center,
@@ -50,7 +50,7 @@ class BackupContentsPage extends StatelessWidget {
                         text: S.of(context).continue_text,
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
-                        disabled: !state.canContinue,
+                        disabled: !state.config.canContinue,
                       ),
                     ],
                   ),
@@ -88,7 +88,7 @@ class _BackupContentsList extends StatelessWidget {
                   iconPath: "assets/new-ui/app_backup/backup_file_small.svg",
                   showArrow: false,
                   trailingWidget: Text(
-                    state.totalSize == null ? "..." : formatBackupSize(state.totalSize!),
+                    state.config.totalSize == null ? "..." : formatBackupSize(state.config.totalSize!),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           letterSpacing: -0.07,
@@ -134,15 +134,15 @@ class _BackupContentsList extends StatelessWidget {
           NewListSections(
             sections: {
               "": [
-                for (final info in state.wallets)
+                for (final info in state.config.wallets)
                   ListItemCheckbox(
                     keyValue: info.id,
                     label: info.name,
-                    subtitle: state.walletSizes[info.id] == null
+                    subtitle: state.config.walletSizes[info.id] == null
                         ? "…"
-                        : formatBackupSize(state.walletSizes[info.id]!),
+                        : formatBackupSize(state.config.walletSizes[info.id]!),
                     iconPath: walletTypeToCryptoCurrency(info.type).iconPath,
-                    value: state.isSelected(info),
+                    value: state.config.isSelected(info),
                     onChanged: (_) => context.read<AppBackupBloc>().add(WalletToggled(info.id)),
                   ),
               ],

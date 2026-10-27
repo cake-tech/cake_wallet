@@ -12,5 +12,3 @@ final class RestorePasswordChanged extends AppBackupRestoreEvent {
 final class RestoreSubmitted extends AppBackupRestoreEvent {}
 
 final class AppMismatchConfirmed extends AppBackupRestoreEvent {}
-
-final class AppMismatchDismissed extends AppBackupRestoreEvent {}

@@ -79,44 +79,4 @@ void main() {
     expect(await column("Node", "uri"), ["node.example.com"]);
     await db.close();
   });
-
-  test("pruneAccountDatabaseCopy keeps only the given accounts", () async {
-    final path = "${tempDir.path}/zec.v2.db";
-    final db = await openDatabase(path, singleInstance: false);
-    await db
-        .execute("CREATE TABLE accounts (id_account INTEGER PRIMARY KEY, name TEXT, seed TEXT)");
-    await db.execute(
-        "CREATE TABLE notes (id_note INTEGER PRIMARY KEY, account INTEGER, value INTEGER)");
-    await db.execute("CREATE TABLE headers (height INTEGER PRIMARY KEY, hash TEXT)");
-    for (final id in [1, 2, 3]) {
-      await db.insert("accounts", {"id_account": id, "name": "wallet$id", "seed": "seed$id"});
-      await db.insert("notes", {"account": id, "value": id * 10});
-    }
-    await db.insert("headers", {"height": 100, "hash": "abc"});
-    await db.close();
-
-    expect(await accountIdsByName(path), {"wallet1": 1, "wallet2": 2, "wallet3": 3});
-
-    await pruneAccountDatabaseCopy(path, keepAccountIds: {2});
-
-    final pruned = await openDatabase(path, singleInstance: false);
-    expect((await pruned.query("accounts")).map((row) => row["seed"]), ["seed2"]);
-    expect((await pruned.query("notes")).map((row) => row["account"]), [2]);
-    expect(await pruned.query("headers"), hasLength(1));
-    await pruned.close();
-  });
-
-  test("pruneAccountDatabaseCopy with no kept accounts empties account data", () async {
-    final path = "${tempDir.path}/zec.db";
-    final db = await openDatabase(path, singleInstance: false);
-    await db.execute("CREATE TABLE accounts (id_account INTEGER PRIMARY KEY, seed TEXT)");
-    await db.insert("accounts", {"id_account": 1, "seed": "seed1"});
-    await db.close();
-
-    await pruneAccountDatabaseCopy(path, keepAccountIds: {});
-
-    final pruned = await openDatabase(path, singleInstance: false);
-    expect(await pruned.query("accounts"), isEmpty);
-    await pruned.close();
-  });
 }

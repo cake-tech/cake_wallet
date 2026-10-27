@@ -2454,6 +2454,7 @@ abstract class ElectrumWalletBase
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash);
+      if (bundle.originalTransaction.txId() != tx.txHash) return null;
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2505,6 +2506,9 @@ abstract class ElectrumWalletBase
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
       final bundle = await getTransactionExpanded(hash: hash);
+      if (bundle.originalTransaction.txId() != hash) {
+        throw RbfException("Transaction does not match $hash");
+      }
 
       final utxos = <UtxoWithAddress>[];
       final outputs = <BitcoinOutput>[];
@@ -2517,7 +2521,7 @@ abstract class ElectrumWalletBase
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
-        if (inputTransaction == null) {
+        if (inputTransaction == null || inputTransaction.txId() != input.txId) {
           throw RbfException("Missing input transaction for replace-by-fee");
         }
         final vout = input.txIndex;

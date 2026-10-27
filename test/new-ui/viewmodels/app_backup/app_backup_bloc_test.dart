@@ -98,7 +98,8 @@ void main() {
     when(() => contents.excludedWalletIds()).thenAnswer((_) async => {"b"});
     when(() => contents.sharedSize()).thenAnswer((_) async => 100);
     when(() => contents.walletSize(any())).thenAnswer(
-      (invocation) async => (invocation.positionalArguments.single as WalletInfo).id == "a" ? 10 : 20,
+      (invocation) async =>
+          (invocation.positionalArguments.single as WalletInfo).id == "a" ? 10 : 20,
     );
     when(() => preferences.preferredStorage).thenReturn(null);
     when(() => preferences.lastBackup).thenReturn(null);
@@ -132,49 +133,62 @@ void main() {
 
   Future<AppBackupBloc> loadedBloc() async {
     final bloc = createBloc();
-    await bloc.stream.firstWhere((state) => state.totalSize != null);
+    await bloc.stream.firstWhere((state) => state.config.totalSize != null);
     return bloc;
   }
 
   Future<AppBackupState> next(AppBackupBloc bloc) => bloc.stream.first;
 
-  Future<List<AppBackupState>> statesUntil(AppBackupBloc bloc, AppBackupStatus status) async {
+  Future<List<AppBackupState>> statesUntil(
+    AppBackupBloc bloc,
+    bool Function(AppBackupState state) done,
+  ) async {
     final states = <AppBackupState>[];
     await for (final state in bloc.stream) {
       states.add(state);
-      if (state.status == status) break;
+      if (done(state)) break;
     }
     return states;
   }
 
+  Future<T> presented<T extends AppBackupPresentation>(AppBackupBloc bloc) async =>
+      await bloc.presentation.firstWhere((event) => event is T) as T;
+
   void stubSave(AppBackupStorage storage, bool saved) =>
       when(() => storageService.save(backupFile, storage)).thenAnswer((_) async => saved);
+
+  Future<AppBackupBloc> verifiedBloc() async {
+    final bloc = await loadedBloc();
+    bloc.add(VerificationChanged("Cat1-Dog2"));
+    await next(bloc);
+    return bloc;
+  }
 
   test("loads wallets, saved exclusions, password and sizes", () async {
     final bloc = await loadedBloc();
 
-    expect(bloc.state.status, AppBackupStatus.idle);
-    expect(bloc.state.password, "Cat1-Dog2");
-    expect(bloc.state.isSelected(walletA), isTrue);
-    expect(bloc.state.isSelected(walletB), isFalse);
-    expect(bloc.state.totalSize, 110);
-    expect(bloc.state.preferredStorage, AppBackupStorage.cloud);
+    expect(bloc.state, isA<AppBackupIdle>());
+    expect(bloc.state.config.password, "Cat1-Dog2");
+    expect(bloc.state.config.isSelected(walletA), isTrue);
+    expect(bloc.state.config.isSelected(walletB), isFalse);
+    expect(bloc.state.config.totalSize, 110);
+    expect(bloc.state.config.preferredStorage, AppBackupStorage.cloud);
     await bloc.close();
   });
 
-  test("selection changes update the state directly and are saved", () async {
+  test("selection changes update the config and are saved", () async {
     final bloc = await loadedBloc();
 
     bloc.add(WalletToggled("b"));
     final toggled = await next(bloc);
-    expect(toggled.excludedWalletIds, isEmpty);
-    expect(toggled.totalSize, 130);
+    expect(toggled.config.excludedWalletIds, isEmpty);
+    expect(toggled.config.totalSize, 130);
     verify(() => preferences.setExcludedWalletIds(<String>{})).called(1);
 
     bloc.add(AllWalletsDeselected());
     final deselected = await next(bloc);
-    expect(deselected.canContinue, isFalse);
-    expect(deselected.selectedCount, 0);
+    expect(deselected.config.canContinue, isFalse);
+    expect(deselected.config.selectedCount, 0);
     verifyNever(() => preferences.setExcludedWalletIds({"a", "b"}));
 
     bloc.add(WalletToggled("b"));
@@ -195,38 +209,38 @@ void main() {
     );
 
     bloc.add(AllWalletsSelected());
-    expect((await next(bloc)).canContinue, isTrue);
+    expect((await next(bloc)).config.canContinue, isTrue);
     await bloc.close();
   });
 
-  test("shows the password mismatch only after submitting and clears it on edit", () async {
+  test("typing starts verification and the mismatch only shows after submitting", () async {
     final bloc = await loadedBloc();
 
     bloc.add(VerificationChanged("Cat1-Dog3"));
-    expect((await next(bloc)).showMismatch, isFalse);
+    final typed = await next(bloc) as AppBackupVerifying;
+    expect(typed.showMismatch, isFalse);
 
     bloc.add(VerificationSubmitted());
-    final submitted = await next(bloc);
+    final submitted = await next(bloc) as AppBackupVerifying;
     expect(submitted.showMismatch, isTrue);
-    expect(submitted.canSubmitVerification, isFalse);
+    expect(submitted.canSubmit, isFalse);
 
     bloc.add(VerificationChanged("Cat1-Dog2"));
-    final corrected = await next(bloc);
+    final corrected = await next(bloc) as AppBackupVerifying;
     expect(corrected.showMismatch, isFalse);
     expect(corrected.passwordMatches, isTrue);
     await bloc.close();
   });
 
   test("setup creates the backup, waits for a storage and completes once saved", () async {
-    final bloc = await loadedBloc();
-    bloc.add(VerificationChanged("Cat1-Dog2"));
-    await next(bloc);
+    final bloc = await verifiedBloc();
 
+    final created = presented<BackupCreated>(bloc);
     bloc.add(VerificationSubmitted());
-    final created = await statesUntil(bloc, AppBackupStatus.readyToSave);
-    expect(created.map((state) => state.status),
-        [AppBackupStatus.creating, AppBackupStatus.readyToSave]);
-    expect(created.last.backupFile, backupFile);
+    final creating = await statesUntil(bloc, (state) => state is AppBackupReadyToSave);
+    await created;
+    expect(creating.map((state) => state.runtimeType), [AppBackupCreating, AppBackupReadyToSave]);
+    expect((bloc.state as AppBackupReadyToSave).file, backupFile);
     verify(
       () => backupService.exportBackupFile(
         "Cat1-Dog2",
@@ -237,18 +251,20 @@ void main() {
 
     stubSave(AppBackupStorage.custom, false);
     bloc.add(SaveRequested(AppBackupStorage.custom));
-    final cancelled = await statesUntil(bloc, AppBackupStatus.readyToSave);
-    expect(cancelled.first.status, AppBackupStatus.saving);
+    final cancelled = await statesUntil(bloc, (state) => state is AppBackupReadyToSave);
+    expect(cancelled.first, isA<AppBackupSaving>());
+    expect((bloc.state as AppBackupReadyToSave).file, backupFile);
     expect(backupFile.existsSync(), isTrue);
     verifyNever(() => preferences.completeSetup());
 
     stubSave(AppBackupStorage.custom, true);
+    final savedEvent = presented<BackupSaved>(bloc);
     bloc.add(SaveRequested(AppBackupStorage.custom));
-    final saved = (await statesUntil(bloc, AppBackupStatus.saved)).last;
-    expect(saved.isSetupCompleted, isTrue);
-    expect(saved.preferredStorage, AppBackupStorage.custom);
-    expect(saved.lastBackup, isNotNull);
-    expect(saved.backupFile, isNull);
+    expect((await savedEvent).isFirstBackup, isTrue);
+    expect(bloc.state, isA<AppBackupIdle>());
+    expect(bloc.state.config.isSetupCompleted, isTrue);
+    expect(bloc.state.config.preferredStorage, AppBackupStorage.custom);
+    expect(bloc.state.config.lastBackup, isNotNull);
     expect(backupFile.existsSync(), isFalse);
     verify(() => preferences.setPreferredStorage(AppBackupStorage.custom)).called(1);
     verify(() => preferences.completeSetup()).called(1);
@@ -266,27 +282,30 @@ void main() {
     bloc.add(VerificationChanged("leftover"));
     await next(bloc);
 
+    final regeneratedEvent = presented<PasswordRegenerated>(bloc);
     bloc.add(PasswordRegenerationRequested());
-    final regenerated = await next(bloc);
-    final newPassword = regenerated.pendingPassword!;
+    final regenerated = await next(bloc) as AppBackupVerifying;
+    await regeneratedEvent;
+    final newPassword = regenerated.newPassword!;
     expect(newPassword, matches(RegExp(r"^([A-Z][a-z]+[0-9]-){7}[A-Z][a-z]+[0-9]$")));
-    expect(regenerated.password, "Cat1-Dog2");
+    expect(regenerated.config.password, "Cat1-Dog2");
     expect(regenerated.passwordToVerify, newPassword);
-    expect(regenerated.verificationInput, isEmpty);
+    expect(regenerated.input, isEmpty);
 
     bloc.add(VerificationChanged("Cat1-Dog2"));
     await next(bloc);
     bloc.add(VerificationSubmitted());
-    expect((await next(bloc)).showMismatch, isTrue);
+    expect((await next(bloc) as AppBackupVerifying).showMismatch, isTrue);
     verifyNever(() => secureStorage.write(key: key, value: any(named: "value")));
 
     bloc.add(VerificationChanged(newPassword));
     await next(bloc);
+    final savedEvent = presented<PasswordSaved>(bloc);
     bloc.add(VerificationSubmitted());
     final saved = await next(bloc);
-    expect(saved.password, newPassword);
-    expect(saved.pendingPassword, isNull);
-    expect(saved.status, AppBackupStatus.idle);
+    await savedEvent;
+    expect(saved, isA<AppBackupIdle>());
+    expect(saved.config.password, newPassword);
     verify(() => secureStorage.write(key: key, value: newPassword)).called(1);
     verifyNever(
       () => backupService.exportBackupFile(
@@ -298,7 +317,7 @@ void main() {
     await bloc.close();
   });
 
-  test("a failed export reports the error and goes back to idle", () async {
+  test("a failed export is presented and goes back to verification", () async {
     when(
       () => backupService.exportBackupFile(
         any(),
@@ -306,15 +325,14 @@ void main() {
         outputPath: any(named: "outputPath"),
       ),
     ).thenThrow(StateError("disk full"));
-    final bloc = await loadedBloc();
-    bloc.add(VerificationChanged("Cat1-Dog2"));
-    await next(bloc);
+    final bloc = await verifiedBloc();
 
+    final failed = presented<BackupFailed>(bloc);
     bloc.add(VerificationSubmitted());
-    final states = await statesUntil(bloc, AppBackupStatus.idle);
-    expect(states.map((state) => state.status),
-        [AppBackupStatus.creating, AppBackupStatus.failed, AppBackupStatus.idle]);
-    expect(states[1].error, contains("disk full"));
+    expect((await failed).error, contains("disk full"));
+    final verifying = bloc.state as AppBackupVerifying;
+    expect(verifying.input, "Cat1-Dog2");
+    expect(verifying.canSubmit, isTrue);
     await bloc.close();
   });
 
@@ -324,14 +342,19 @@ void main() {
     stubSave(AppBackupStorage.custom, true);
     final bloc = await loadedBloc();
 
+    final states = <AppBackupState>[];
+    final subscription = bloc.stream.listen(states.add);
+    final saved = presented<BackupSaved>(bloc);
+    final created = bloc.presentation.where((event) => event is BackupCreated).toList();
     bloc.add(BackupNowRequested());
-    final states = await statesUntil(bloc, AppBackupStatus.saved);
-    expect(states.map((state) => state.status).toSet(),
-        {AppBackupStatus.creating, AppBackupStatus.saving, AppBackupStatus.saved});
-    expect(states.any((state) => state.status == AppBackupStatus.readyToSave), isFalse);
+    expect((await saved).isFirstBackup, isFalse);
+    await subscription.cancel();
+    expect(states.map((state) => state.runtimeType),
+        [AppBackupCreating, AppBackupSaving, AppBackupIdle]);
+    await bloc.close();
+    expect(await created, isEmpty);
     verify(() => storageService.save(backupFile, AppBackupStorage.custom)).called(1);
     expect(backupFile.existsSync(), isFalse);
-    await bloc.close();
   });
 
   test("a backup handed to another app keeps its file after saving", () async {
@@ -341,8 +364,9 @@ void main() {
     stubSave(AppBackupStorage.cloud, true);
     final bloc = await loadedBloc();
 
+    final saved = presented<BackupSaved>(bloc);
     bloc.add(BackupNowRequested());
-    await statesUntil(bloc, AppBackupStatus.saved);
+    await saved;
     expect(backupFile.existsSync(), isTrue);
     await bloc.close();
     expect(backupFile.existsSync(), isTrue);
@@ -354,10 +378,9 @@ void main() {
     final bloc = await loadedBloc();
 
     bloc.add(BackupNowRequested());
-    await statesUntil(bloc, AppBackupStatus.idle);
-    await Future<void>.delayed(Duration.zero);
-
-    expect(bloc.state.backupFile, isNull);
+    final states = await statesUntil(bloc, (state) => state is AppBackupIdle);
+    expect(states.map((state) => state.runtimeType),
+        [AppBackupCreating, AppBackupSaving, AppBackupIdle]);
     expect(backupFile.existsSync(), isFalse);
     verifyNever(() => preferences.recordBackup(any()));
     await bloc.close();

@@ -22,7 +22,7 @@ class BackupStoragePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<AppBackupBloc, AppBackupState>(
-        buildWhen: (previous, current) => previous.storages != current.storages,
+        buildWhen: (previous, current) => previous.config.storages != current.config.storages,
         builder: (context, state) => AppBackupScaffold(
           body: Center(
             child: SingleChildScrollView(
@@ -39,7 +39,7 @@ class BackupStoragePage extends StatelessWidget {
                   NewListSections(
                     sections: {
                       "": [
-                        for (final storage in state.storages)
+                        for (final storage in state.config.storages)
                           ListItemRegularRow(
                             keyValue: "app_backup_storage_${storage.name}",
                             label: storage.title(context),

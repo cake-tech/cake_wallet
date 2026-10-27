@@ -14,9 +14,10 @@ import '../../widgets/gradient_background.dart';
 import '../../widgets/animated_typing_text.dart';
 
 class CreatePinWelcomePage extends BasePage {
-  CreatePinWelcomePage(this.isWalletPasswordDirectInput);
+  CreatePinWelcomePage(this.isWalletPasswordDirectInput, {required this.backupRestoreFlow});
 
   final bool isWalletPasswordDirectInput;
+  final BackupRestoreFlow backupRestoreFlow;
 
   static const imageAspectRatio = 1.25;
   static const imageMaxWidth = 600.0;
@@ -239,7 +240,7 @@ class CreatePinWelcomePage extends BasePage {
                 padding: EdgeInsets.only(top: 12),
                 child: PrimaryButton(
                   key: ValueKey('create_pin_welcome_page_restore_app_backup_button_key'),
-                  onPressed: () => BackupRestorePage.start(context),
+                  onPressed: () => backupRestoreFlow.start(context),
                   text: S.current.app_backup_restore,
                   color: Theme.of(context).colorScheme.surfaceContainer,
                   textColor: Theme.of(context).colorScheme.primary,

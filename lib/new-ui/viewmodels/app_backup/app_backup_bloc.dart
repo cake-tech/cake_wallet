@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:bloc/bloc.dart";
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/backup/app_backup_contents.dart";
 import "package:cake_wallet/core/backup/app_backup_preferences.dart";
 import "package:cake_wallet/core/backup/app_backup_storage.dart";
@@ -16,39 +17,45 @@ import "package:meta/meta.dart";
 
 part "app_backup_event.dart";
 
+part "app_backup_presentation.dart";
+
 part "app_backup_state.dart";
 
-class AppBackupBloc extends Bloc<AppBackupEvent, AppBackupState> {
+class AppBackupBloc extends Bloc<AppBackupEvent, AppBackupState>
+    with BlocPresentationMixin<AppBackupState, AppBackupPresentation> {
   AppBackupBloc(
     this._backupService,
     this._preferences,
     this._storageService,
     this._contents,
     this._secureStorage,
-  ) : super(const AppBackupState()) {
-    on<_Init>(_onLoad);
-    on<AppBackupRefreshed>(_onLoad);
+  ) : super(const AppBackupLoading()) {
+    on<_Init>(_onInit);
     on<_WalletSizeCalculated>(
-      (event, emit) => emit(
-        state.copyWith(walletSizes: {...state.walletSizes, event.walletId: event.sizeInBytes}),
+      (event, emit) => _updateConfig(
+        emit,
+        (config) => config.copyWith(
+          walletSizes: {...config.walletSizes, event.walletId: event.sizeInBytes},
+        ),
       ),
     );
-    on<_SharedSizeCalculated>((event, emit) => emit(state.copyWith(sharedSize: event.sizeInBytes)));
+    on<_SharedSizeCalculated>(
+      (event, emit) =>
+          _updateConfig(emit, (config) => config.copyWith(sharedSize: event.sizeInBytes)),
+    );
     on<WalletToggled>(
       (event, emit) => _updateExclusions(
         emit,
-        state.excludedWalletIds.contains(event.walletId)
-            ? ({...state.excludedWalletIds}..remove(event.walletId))
-            : {...state.excludedWalletIds, event.walletId},
+        state.config.excludedWalletIds.contains(event.walletId)
+            ? ({...state.config.excludedWalletIds}..remove(event.walletId))
+            : {...state.config.excludedWalletIds, event.walletId},
       ),
     );
     on<AllWalletsSelected>((event, emit) => _updateExclusions(emit, {}));
     on<AllWalletsDeselected>(
-      (event, emit) => _updateExclusions(emit, state.wallets.map((info) => info.id).toSet()),
+      (event, emit) => _updateExclusions(emit, state.config.wallets.map((info) => info.id).toSet()),
     );
-    on<VerificationChanged>(
-      (event, emit) => emit(state.copyWith(verificationInput: event.input, showMismatch: false)),
-    );
+    on<VerificationChanged>(_onVerificationChanged);
     on<VerificationSubmitted>(_onVerificationSubmitted);
     on<PasswordRegenerationRequested>(_onPasswordRegenerationRequested);
     on<SaveRequested>(_onSaveRequested);
@@ -73,42 +80,62 @@ class AppBackupBloc extends Bloc<AppBackupEvent, AppBackupState> {
     return await _secureStorage.read(key: key) ?? "";
   }
 
-  Future<void> _onLoad(AppBackupEvent event, Emitter<AppBackupState> emit) async {
-    if (state.isBusy) return;
-
+  Future<void> _onInit(_Init event, Emitter<AppBackupState> emit) async {
     final wallets = await WalletInfo.getAll();
     final storages = await _storageService.availableStorages();
     final preferred = _preferences.preferredStorage;
     emit(
-      state.copyWith(
-        status: state.status == AppBackupStatus.loading ? AppBackupStatus.idle : null,
-        wallets: wallets,
-        excludedWalletIds: await _contents.excludedWalletIds(),
-        password: await _readPassword(),
-        storages: storages,
-        preferredStorage:
-            preferred != null && storages.contains(preferred) ? preferred : storages.first,
-        lastBackup: _preferences.lastBackup,
-        isSetupCompleted: _preferences.isSetupCompleted,
+      AppBackupIdle(
+        AppBackupConfig(
+          wallets: wallets,
+          excludedWalletIds: await _contents.excludedWalletIds(),
+          password: await _readPassword(),
+          storages: storages,
+          preferredStorage:
+              preferred != null && storages.contains(preferred) ? preferred : storages.first,
+          lastBackup: _preferences.lastBackup,
+          isSetupCompleted: _preferences.isSetupCompleted,
+        ),
       ),
     );
 
     _contents.sharedSize().then((size) {
       if (!isClosed) add(_SharedSizeCalculated(size));
     });
-    for (final info in wallets.where((info) => !state.walletSizes.containsKey(info.id))) {
+    for (final info in wallets) {
       _contents.walletSize(info).then((size) {
         if (!isClosed) add(_WalletSizeCalculated(info.id, size));
       });
     }
   }
 
-  Future<void> _updateExclusions(Emitter<AppBackupState> emit, Set<String> walletIds) async {
-    if (state.isBusy) return;
+  void _updateConfig(
+    Emitter<AppBackupState> emit,
+    AppBackupConfig Function(AppBackupConfig config) update,
+  ) {
+    final current = state;
+    if (current is AppBackupLoaded) {
+      emit(current.withConfig(update(current.config)));
+    }
+  }
 
-    emit(state.copyWith(excludedWalletIds: walletIds));
-    if (state.canContinue) {
+  Future<void> _updateExclusions(Emitter<AppBackupState> emit, Set<String> walletIds) async {
+    if (state is! AppBackupLoaded || state.isBusy) return;
+
+    _updateConfig(emit, (config) => config.copyWith(excludedWalletIds: walletIds));
+    if (state.config.canContinue) {
       await _preferences.setExcludedWalletIds(walletIds);
+    }
+  }
+
+  void _onVerificationChanged(VerificationChanged event, Emitter<AppBackupState> emit) {
+    switch (state) {
+      case final AppBackupVerifying verifying:
+        emit(verifying.copyWith(input: event.input, showMismatch: false));
+      case AppBackupIdle(:final config):
+        emit(AppBackupVerifying(config, input: event.input));
+      default:
+        break;
     }
   }
 
@@ -116,23 +143,26 @@ class AppBackupBloc extends Bloc<AppBackupEvent, AppBackupState> {
     VerificationSubmitted event,
     Emitter<AppBackupState> emit,
   ) async {
-    if (state.isBusy || !state.canSubmitVerification) return;
+    final verifying = state;
+    if (verifying is! AppBackupVerifying || !verifying.canSubmit) return;
 
-    if (!state.passwordMatches) {
-      emit(state.copyWith(showMismatch: true));
+    if (!verifying.passwordMatches) {
+      emit(verifying.copyWith(showMismatch: true));
       return;
     }
 
-    final pendingPassword = state.pendingPassword;
-    if (pendingPassword != null) {
-      await saveBackupPassword(_secureStorage, pendingPassword);
-      emit(state.copyWith(password: pendingPassword, pendingPassword: null));
+    final newPassword = verifying.newPassword;
+    if (newPassword != null) {
+      await saveBackupPassword(_secureStorage, newPassword);
+      emit(AppBackupIdle(verifying.config.copyWith(password: newPassword)));
+      emitPresentation(PasswordSaved());
       return;
     }
 
-    final file = await _create(emit);
+    final file = await _create(emit, returnTo: verifying);
     if (file != null) {
-      emit(state.copyWith(status: AppBackupStatus.readyToSave, backupFile: file));
+      emit(AppBackupReadyToSave(state.config, file: file));
+      emitPresentation(BackupCreated());
     }
   }
 
@@ -140,81 +170,75 @@ class AppBackupBloc extends Bloc<AppBackupEvent, AppBackupState> {
     PasswordRegenerationRequested event,
     Emitter<AppBackupState> emit,
   ) async {
-    if (state.isBusy) return;
+    if (state is! AppBackupLoaded || state.isBusy) return;
 
-    emit(
-      state.copyWith(
-        pendingPassword: await generateWordPassword(),
-        verificationInput: "",
-        showMismatch: false,
-      ),
-    );
+    emit(AppBackupVerifying(state.config, newPassword: await generateWordPassword()));
+    emitPresentation(PasswordRegenerated());
   }
 
   Future<void> _onSaveRequested(SaveRequested event, Emitter<AppBackupState> emit) async {
-    final file = state.backupFile;
-    if (file == null || state.status != AppBackupStatus.readyToSave) return;
+    final ready = state;
+    if (ready is! AppBackupReadyToSave) return;
 
-    await _save(emit, file, event.storage, onCancel: AppBackupStatus.readyToSave);
+    await _save(emit, ready.file, event.storage, returnTo: ready);
   }
 
   Future<void> _onPreferredStorageChanged(
     PreferredStorageChanged event,
     Emitter<AppBackupState> emit,
   ) async {
-    if (state.isBusy) return;
+    if (state is! AppBackupLoaded || state.isBusy) return;
 
     await _preferences.setPreferredStorage(event.storage);
-    emit(state.copyWith(preferredStorage: event.storage));
+    _updateConfig(emit, (config) => config.copyWith(preferredStorage: event.storage));
   }
 
   Future<void> _onBackupNowRequested(
     BackupNowRequested event,
     Emitter<AppBackupState> emit,
   ) async {
-    if (state.isBusy || !state.canContinue) return;
+    final current = state;
+    if (current is! AppBackupLoaded || current.isBusy || !current.config.canContinue) return;
 
-    final file = await _create(emit);
+    final file = await _create(emit, returnTo: current);
     if (file == null) return;
 
-    emit(state.copyWith(backupFile: file));
-    await _save(emit, file, state.preferredStorage, onCancel: AppBackupStatus.idle);
-    if (state.status != AppBackupStatus.saved) {
+    if (!await _save(emit, file, state.config.preferredStorage, returnTo: current)) {
       _delete(file);
-      emit(state.copyWith(backupFile: null));
     }
   }
 
-  Future<File?> _create(Emitter<AppBackupState> emit) async {
-    emit(state.copyWith(status: AppBackupStatus.creating, error: null));
+  Future<File?> _create(Emitter<AppBackupState> emit, {required AppBackupLoaded returnTo}) async {
+    emit(AppBackupCreating(returnTo.config, returnTo: returnTo));
     try {
       await _storageService.clearOutputs();
       return await _backupService.exportBackupFile(
-        state.password,
-        excludedWalletIds: state.excludedWalletIds,
+        state.config.password,
+        excludedWalletIds: state.config.excludedWalletIds,
         outputPath: await _storageService.newBackupPath(),
       );
     } catch (e, stackTrace) {
       printV("App backup creation failed: $e\n$stackTrace");
-      emit(state.copyWith(status: AppBackupStatus.failed, error: e.toString()));
-      emit(state.copyWith(status: AppBackupStatus.idle));
+      emit(returnTo.withConfig(state.config));
+      emitPresentation(BackupFailed(e.toString()));
       return null;
     }
   }
 
-  Future<void> _save(
+  Future<bool> _save(
     Emitter<AppBackupState> emit,
     File file,
     AppBackupStorage storage, {
-    required AppBackupStatus onCancel,
+    required AppBackupLoaded returnTo,
   }) async {
-    emit(state.copyWith(status: AppBackupStatus.saving, error: null));
+    emit(AppBackupSaving(state.config, file: file, returnTo: returnTo));
     try {
       if (!await _storageService.save(file, storage)) {
-        emit(state.copyWith(status: onCancel));
-        return;
+        emit(returnTo.withConfig(state.config));
+        return false;
       }
 
+      final isFirstBackup = !state.config.isSetupCompleted;
       final record = await AppBackupRecord.forFile(file);
       await _preferences.recordBackup(record);
       await _preferences.setPreferredStorage(storage);
@@ -223,18 +247,21 @@ class AppBackupBloc extends Bloc<AppBackupEvent, AppBackupState> {
         _delete(file);
       }
       emit(
-        state.copyWith(
-          status: AppBackupStatus.saved,
-          lastBackup: record,
-          preferredStorage: storage,
-          isSetupCompleted: true,
-          backupFile: null,
+        AppBackupIdle(
+          state.config.copyWith(
+            lastBackup: record,
+            preferredStorage: storage,
+            isSetupCompleted: true,
+          ),
         ),
       );
+      emitPresentation(BackupSaved(isFirstBackup: isFirstBackup));
+      return true;
     } catch (e, stackTrace) {
       printV("App backup save failed: $e\n$stackTrace");
-      emit(state.copyWith(status: AppBackupStatus.failed, error: e.toString()));
-      emit(state.copyWith(status: onCancel));
+      emit(returnTo.withConfig(state.config));
+      emitPresentation(BackupFailed(e.toString()));
+      return false;
     }
   }
 
@@ -246,7 +273,10 @@ class AppBackupBloc extends Bloc<AppBackupEvent, AppBackupState> {
 
   @override
   Future<void> close() async {
-    final file = state.backupFile;
+    final file = switch (state) {
+      AppBackupReadyToSave(:final file) || AppBackupSaving(:final file) => file,
+      _ => null,
+    };
     if (file != null) {
       _delete(file);
     }

@@ -15,7 +15,10 @@ class BackupVerifyPage extends StatefulWidget {
 
 class _BackupVerifyPageState extends State<BackupVerifyPage> {
   late final TextEditingController _controller =
-      TextEditingController(text: context.read<AppBackupBloc>().state.verificationInput);
+      TextEditingController(text: _verification(context.read<AppBackupBloc>().state).input);
+
+  static AppBackupVerifying _verification(AppBackupState state) =>
+      state is AppBackupVerifying ? state : AppBackupVerifying(state.config);
 
   @override
   void dispose() {
@@ -24,8 +27,10 @@ class _BackupVerifyPageState extends State<BackupVerifyPage> {
   }
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<AppBackupBloc, AppBackupState>(
-        builder: (context, state) => AppBackupScaffold(
+  Widget build(BuildContext context) =>
+      BlocSelector<AppBackupBloc, AppBackupState, AppBackupVerifying>(
+        selector: _verification,
+        builder: (context, verification) => AppBackupScaffold(
           body: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
@@ -45,10 +50,10 @@ class _BackupVerifyPageState extends State<BackupVerifyPage> {
                     controller: _controller,
                     onChanged: (input) =>
                         context.read<AppBackupBloc>().add(VerificationChanged(input)),
-                    isError: state.showMismatch,
-                    isValid: state.passwordMatches,
+                    isError: verification.showMismatch,
+                    isValid: verification.passwordMatches,
                   ),
-                  if (state.passwordMatches)
+                  if (verification.passwordMatches)
                     Text(
                       S.of(context).app_backup_password_matches,
                       textAlign: TextAlign.center,
@@ -57,7 +62,7 @@ class _BackupVerifyPageState extends State<BackupVerifyPage> {
                             letterSpacing: -0.07,
                           ),
                     ),
-                  if (state.showMismatch) ...[
+                  if (verification.showMismatch) ...[
                     Text(
                       S.of(context).app_backup_password_mismatch,
                       textAlign: TextAlign.center,
@@ -87,7 +92,7 @@ class _BackupVerifyPageState extends State<BackupVerifyPage> {
             text: S.of(context).continue_text,
             color: Theme.of(context).colorScheme.primary,
             textColor: Theme.of(context).colorScheme.onPrimary,
-            disabled: !state.canSubmitVerification,
+            disabled: !verification.canSubmit,
           ),
         ),
       );

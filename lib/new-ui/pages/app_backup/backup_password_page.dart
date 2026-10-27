@@ -16,7 +16,8 @@ class BackupPasswordPage extends StatelessWidget {
 
   final bool forSetup;
 
-  String _password(AppBackupState state) => forSetup ? state.passwordToVerify : state.password;
+  String _password(AppBackupState state) =>
+      forSetup && state is AppBackupVerifying ? state.passwordToVerify : state.config.password;
 
   @override
   Widget build(BuildContext context) => BlocBuilder<AppBackupBloc, AppBackupState>(
@@ -129,8 +130,6 @@ class BackupPasswordText extends StatelessWidget {
   final String password;
   final Color? color;
 
-  static const _digitColor = Color(0xFF91B0FF);
-  static const _separatorColor = Color(0xFFF7BC1A);
 
   @override
   Widget build(BuildContext context) => Text.rich(
@@ -142,9 +141,9 @@ class BackupPasswordText extends StatelessWidget {
                 style: color != null
                     ? null
                     : match.group(0) == "-"
-                        ? const TextStyle(color: _separatorColor)
+                        ? TextStyle(color: context.customColors.warningOutlineColor)
                         : RegExp(r"^\d+$").hasMatch(match.group(0)!)
-                            ? const TextStyle(color: _digitColor)
+                            ? TextStyle(color: Theme.of(context).colorScheme.primary)
                             : null,
               ),
           ],

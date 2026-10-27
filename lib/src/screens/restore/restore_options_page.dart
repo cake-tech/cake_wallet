@@ -16,24 +16,31 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class RestoreOptionsPage extends BasePage {
-  RestoreOptionsPage({required this.isNewInstall});
+  RestoreOptionsPage({required this.isNewInstall, required this.backupRestoreFlow});
 
   @override
   String get title => S.current.restore_restore_wallet;
   final bool isNewInstall;
+  final BackupRestoreFlow backupRestoreFlow;
 
   @override
   Widget body(BuildContext context) => _RestoreOptionsBody(
         isNewInstall: isNewInstall,
         themeType: currentTheme.type,
+        backupRestoreFlow: backupRestoreFlow,
       );
 }
 
 class _RestoreOptionsBody extends StatefulWidget {
-  const _RestoreOptionsBody({required this.isNewInstall, required this.themeType});
+  const _RestoreOptionsBody({
+    required this.isNewInstall,
+    required this.themeType,
+    required this.backupRestoreFlow,
+  });
 
   final bool isNewInstall;
   final ThemeType themeType;
+  final BackupRestoreFlow backupRestoreFlow;
 
   @override
   _RestoreOptionsBodyState createState() => _RestoreOptionsBodyState();
@@ -112,7 +119,7 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                   padding: EdgeInsets.only(top: 12),
                   child: OptionTile(
                     key: ValueKey('restore_options_from_backup_button_key'),
-                    onPressed: () => BackupRestorePage.start(context),
+                    onPressed: () => widget.backupRestoreFlow.start(context),
                     image: imageRestoreBackup,
                     title: S.of(context).restore_title_from_backup,
                     description: S.of(context).restore_description_from_backup,

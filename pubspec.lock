@@ -240,6 +240,14 @@ packages:
       url: "https://github.com/felangel/bloc"
     source: git
     version: "0.3.0"
+  bloc_presentation:
+    dependency: "direct main"
+    description:
+      name: bloc_presentation
+      sha256: b8f5c72e0c6a356767719cd7f56b37f6aec9747598c77cbc986d85244674061a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2+3"
   blockchain_utils:
     dependency: "direct main"
     description:

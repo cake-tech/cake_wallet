@@ -1,3 +1,4 @@
+import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/backup/app_backup_preferences.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -39,9 +40,42 @@ class AppBackupPage extends StatefulWidget {
 
 class _AppBackupPageState extends State<AppBackupPage> {
   final _navigatorKey = GlobalKey<NavigatorState>();
+  Route<void>? _creatingRoute;
 
   void _replaceStack(Widget page) => _navigatorKey.currentState
       ?.pushAndRemoveUntil(CupertinoPageRoute(builder: (_) => page), (_) => false);
+
+  void _showCreating() {
+    final route = CupertinoPageRoute<void>(builder: (_) => const BackupCreatingPage());
+    _creatingRoute = route;
+    _navigatorKey.currentState?.push(route);
+  }
+
+  void _hideCreating() {
+    final route = _creatingRoute;
+    _creatingRoute = null;
+    if (route == null || !route.isActive) return;
+    route.isCurrent
+        ? _navigatorKey.currentState?.pop()
+        : _navigatorKey.currentState?.removeRoute(route);
+  }
+
+  void _onPresentation(AppBackupPresentation event) {
+    switch (event) {
+      case BackupCreated():
+        _replaceStack(const BackupStoragePage());
+      case BackupSaved(:final isFirstBackup):
+        if (isFirstBackup) _replaceStack(const BackupCompletePage());
+      case BackupFailed(:final error):
+        _hideCreating();
+        _showError(error);
+      case PasswordRegenerated():
+        _navigatorKey.currentState
+            ?.push(CupertinoPageRoute(builder: (_) => const BackupPasswordPage()));
+      case PasswordSaved():
+        _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+    }
+  }
 
   Future<void> _showError(String error) => showDialog<void>(
         context: _navigatorKey.currentContext!,
@@ -60,45 +94,13 @@ class _AppBackupPageState extends State<AppBackupPage> {
           listeners: [
             BlocListener<AppBackupBloc, AppBackupState>(
               listenWhen: (previous, current) =>
-                  current.status == AppBackupStatus.creating &&
-                  previous.status != AppBackupStatus.creating &&
-                  !current.isSetupCompleted,
-              listener: (_, __) => _navigatorKey.currentState
-                  ?.push(CupertinoPageRoute(builder: (_) => const BackupCreatingPage())),
+                  previous is! AppBackupCreating &&
+                  current is AppBackupCreating &&
+                  !current.config.isSetupCompleted,
+              listener: (_, __) => _showCreating(),
             ),
-            BlocListener<AppBackupBloc, AppBackupState>(
-              listenWhen: (previous, current) =>
-                  current.status == AppBackupStatus.readyToSave &&
-                  previous.status == AppBackupStatus.creating,
-              listener: (_, __) => _replaceStack(const BackupStoragePage()),
-            ),
-            BlocListener<AppBackupBloc, AppBackupState>(
-              listenWhen: (previous, current) =>
-                  current.status == AppBackupStatus.saved && !previous.isSetupCompleted,
-              listener: (_, __) => _replaceStack(const BackupCompletePage()),
-            ),
-            BlocListener<AppBackupBloc, AppBackupState>(
-              listenWhen: (previous, current) =>
-                  current.status == AppBackupStatus.failed &&
-                  previous.status == AppBackupStatus.creating &&
-                  !current.isSetupCompleted,
-              listener: (_, __) => _navigatorKey.currentState?.pop(),
-            ),
-            BlocListener<AppBackupBloc, AppBackupState>(
-              listenWhen: (_, current) => current.status == AppBackupStatus.failed,
-              listener: (_, state) => _showError(state.error ?? ""),
-            ),
-            BlocListener<AppBackupBloc, AppBackupState>(
-              listenWhen: (previous, current) =>
-                  current.pendingPassword != null &&
-                  current.pendingPassword != previous.pendingPassword,
-              listener: (_, __) => _navigatorKey.currentState
-                  ?.push(CupertinoPageRoute(builder: (_) => const BackupPasswordPage())),
-            ),
-            BlocListener<AppBackupBloc, AppBackupState>(
-              listenWhen: (previous, current) =>
-                  previous.pendingPassword != null && current.pendingPassword == null,
-              listener: (_, __) => _navigatorKey.currentState?.popUntil((route) => route.isFirst),
+            BlocPresentationListener<AppBackupBloc, AppBackupPresentation>(
+              listener: (_, event) => _onPresentation(event),
             ),
           ],
           child: NavigatorPopHandler(
