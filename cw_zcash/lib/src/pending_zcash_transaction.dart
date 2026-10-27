@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -43,13 +45,14 @@ class PendingZcashTransaction with PendingTransaction {
     await ZcashWalletBase.runWithCoin(
       accountId: zcashWallet.accountId,
       func: (coin) async {
-        final signTx = await zkool_pay.signTransaction(
-          pczt: txPlan,
-          account: zcashWallet.accountId,
-          c: coin,
-        );
+        final signed = signedTxPackage ??
+            await zkool_pay.signTransaction(
+              pczt: txPlan,
+              account: zcashWallet.accountId,
+              c: coin,
+            );
         final result = await zkool_pay.broadcast(
-          package: signTx,
+          package: signed,
           account: zcashWallet.accountId,
           c: coin,
         );
@@ -60,6 +63,7 @@ class PendingZcashTransaction with PendingTransaction {
         }
         _txId = txId;
         if (isShieldingTx) {
+          zcashWallet.noteShieldBroadcast();
           await ZcashWalletService.addShieldedTx(txId);
         } else {
           zcashWallet.rememberPendingOutgoingAmount(txId, amount);
@@ -67,9 +71,12 @@ class PendingZcashTransaction with PendingTransaction {
       },
     );
 
-    await zcashWallet.updateTransactions();
-    await zcashWallet.updateBalance(
-        runAutoShield: !isShieldingTx, runIronwoodMigrate: !isShieldingTx);
+
+    unawaited(zcashWallet.updateTransactions());
+    unawaited(zcashWallet.updateBalance(
+      runAutoShield: !isShieldingTx,
+      runIronwoodMigrate: !isShieldingTx,
+    ));
   }
 
   @override

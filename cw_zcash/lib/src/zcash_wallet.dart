@@ -111,9 +111,6 @@ abstract class ZcashWalletBase
   // zkool's migrate::MIN_SD.
   static const int _ironwoodMigrateMinNote = 500000;
 
-  static int _minSweepThreshold({required final bool ironwood}) =>
-      ironwood ? _ironwoodMigrateMinNote : _autoShieldMinSweep;
-
   Money _feeFromTxPlan(
     final zkool_pay.PcztPackage txPlan,
     final TransactionPriority priority,
@@ -518,14 +515,9 @@ abstract class ZcashWalletBase
 
       if (isHardwareWallet) {
         final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
-
-        final signedTxBytes = await runWithCoin(
-            accountId: accountId,
-            func: (coin) =>
-                hardwareWalletService!.withCoin(coin, account: accountId).signTransaction(
-                  transaction: base64Encode(unsignedTx),
-                )
-        );
+        final signedTxBytes = await hardwareWalletService!
+            .withCoin(c, account: accountId)
+            .signTransaction(transaction: base64Encode(unsignedTx));
         final signedTx = await zkool_pay.unpackTransaction(bytes: signedTxBytes);
 
         return PendingZcashTransaction(
@@ -1225,6 +1217,10 @@ abstract class ZcashWalletBase
   static final autoShieldMutex = Mutex();
   static DateTime? _lastAutoShieldAt;
 
+  void noteShieldBroadcast() {
+    _lastAutoShieldAt = DateTime.now();
+  }
+
   static final ironwoodMigrateMutex = Mutex();
   static DateTime? _lastIronwoodMigrateAt;
 
@@ -1294,7 +1290,7 @@ abstract class ZcashWalletBase
         final sweepable = await _sweepableTotal(coin, accountId);
         final ironwood = await zkool_network.isIronwoodActive(c: coin);
 
-        if (sweepable <= BigInt.from(_minSweepThreshold(ironwood: ironwood))) {
+        if (sweepable <= BigInt.from(_autoShieldMinSweep)) {
           return null;
         }
         return zkool_pay.prepare(
@@ -1324,15 +1320,9 @@ abstract class ZcashWalletBase
     zkool_pay.PcztPackage? signedTxPackage;
     if (isHardwareWallet) {
       final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
-
-      final signedTxBytes = await runWithCoin(
-          accountId: accountId,
-          func: (coin) =>
-              hardwareWalletService!.withCoin(coin, account: accountId).signTransaction(
-                transaction: base64Encode(unsignedTx),
-              )
-      );
-
+      final signedTxBytes = await hardwareWalletService!
+          .withCoin(c, account: accountId)
+          .signTransaction(transaction: base64Encode(unsignedTx));
       signedTxPackage = await zkool_pay.unpackTransaction(bytes: signedTxBytes);
     }
 
@@ -1343,7 +1333,6 @@ abstract class ZcashWalletBase
       func: (final coin) => _sweepableTotal(coin, accountId),
     );
     final sweepable = Money(sweepableBigInt, currency);
-    _lastAutoShieldAt = DateTime.now();
 
     return PendingZcashTransaction(
       zcashWallet: this as ZcashWallet,
@@ -1481,16 +1470,14 @@ abstract class ZcashWalletBase
       // Unavailable uses the same per-note totals and thresholds as auto-shield/migration guards.
       final BigInt availableAmount;
       final BigInt unavailableAmount;
+      final sweepableUnavailable =
+          sweepable <= BigInt.from(_autoShieldMinSweep) ? BigInt.zero : sweepable;
       if (ironwoodActive == true && orchard > BigInt.zero) {
-        final sweepableUnavailable = sweepable <= BigInt.from(_ironwoodMigrateMinNote)
-            ? BigInt.zero
-            : sweepable;
         availableAmount = ironwood;
         unavailableAmount = migratableOrchard + sweepableUnavailable;
       } else {
-        final minSweep = _minSweepThreshold(ironwood: ironwoodActive);
         availableAmount = orchard + ironwood;
-        unavailableAmount = sweepable <= BigInt.from(minSweep) ? BigInt.zero : sweepable;
+        unavailableAmount = sweepableUnavailable;
       }
 
       final notShowSweepable = _lastAutoShieldAt?.isAfter(
