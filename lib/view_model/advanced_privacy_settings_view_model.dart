@@ -26,6 +26,9 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   bool get disableBulletin => _settingsStore.disableBulletin;
 
   @computed
+  bool get disableTokenImageRefresh => _settingsStore.disableTokenImageRefresh;
+
+  @computed
   bool get useBlinkProtection => _settingsStore.useBlinkProtection;
 
   bool get canUseBlinkProtection {
@@ -129,6 +132,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   @action
   void setDisableBulletin(bool value) => _settingsStore.disableBulletin = value;
+
+  @action
+  void setDisableTokenImageRefresh(bool value) =>
+      _settingsStore.disableTokenImageRefresh = value;
 
   @action
   void setUseBlinkProtection(bool value) => _settingsStore.useBlinkProtection = value;

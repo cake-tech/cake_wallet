@@ -99,6 +99,7 @@ class _IconWithBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = TokenImageWidget(
       imageUrl: currency.iconPath ?? '',
+      networkImageUrl: currency.networkIconUrl,
       size: 32,
       errorWidget: Container(
         width: 32,
