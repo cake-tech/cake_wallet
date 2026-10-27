@@ -8,9 +8,14 @@ import "package:cake_wallet/core/everstake/models.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/exceptions.dart";
 import "package:cw_core/pending_transaction.dart";
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:meta/meta.dart";
+import "package:mobx/mobx.dart" show ReactionDisposer, reaction;
 
 part "ethereum_staking_event.dart";
 part "ethereum_staking_state.dart";
@@ -34,17 +39,23 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     // one handler so droppable() ignores events while another is in flight
     on<EthereumStakingEvent>(
       (event, emit) => switch (event) {
-        LoadStakingData() => _onLoadStakingData(emit),
-        PrepareTransaction() => _onPrepareTransaction(event, emit),
-        SubmitTransaction() => _onSubmitTransaction(event, emit),
+        StakingDataRequested() => _onStakingDataRequested(emit),
+        TransactionRequested() => _onTransactionRequested(event, emit),
+        TransactionConfirmed() => _onTransactionConfirmed(event, emit),
       },
       transformer: droppable(),
     );
 
-    add(const LoadStakingData());
+    add(const StakingDataRequested());
+
+    _walletBalanceReaction = reaction((_) => _walletBalance, (_) {
+      if (state is! EthereumStakingPrepared) {
+        add(const StakingDataRequested());
+      }
+    });
   }
 
-  static const _allowedInterchangeNum = 0;
+  static const _allowedInterchangeNum = 5;
   static const _mainnetChainId = 1;
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
@@ -53,8 +64,25 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
   final EverstakeEthereumTransactionValidator _validator;
   final String _source;
   final String _address;
+  late final ReactionDisposer _walletBalanceReaction;
 
-  Future<void> _onLoadStakingData(Emitter<EthereumStakingState> emit) async {
+  String get walletName => _wallet.name;
+
+  String get address => _address;
+
+  Money get _walletBalance =>
+      _wallet.balance[CryptoCurrency.eth]?.available ?? Money.zero(CryptoCurrency.eth);
+
+  TransactionPriority? get _priority =>
+      _settingsStore.getPriority(_wallet.type, chainId: _mainnetChainId);
+
+  @override
+  Future<void> close() {
+    _walletBalanceReaction();
+    return super.close();
+  }
+
+  Future<void> _onStakingDataRequested(Emitter<EthereumStakingState> emit) async {
     emit(EthereumStakingLoading(state.data));
     try {
       final data = await _loadData();
@@ -64,8 +92,8 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     }
   }
 
-  Future<void> _onPrepareTransaction(
-    PrepareTransaction event,
+  Future<void> _onTransactionRequested(
+    TransactionRequested event,
     Emitter<EthereumStakingState> emit,
   ) async {
     final data = state.data;
@@ -80,11 +108,12 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     }
   }
 
-  Future<void> _onSubmitTransaction(
-    SubmitTransaction event,
+  Future<void> _onTransactionConfirmed(
+    TransactionConfirmed event,
     Emitter<EthereumStakingState> emit,
   ) async {
-    if (state case final EthereumStakingPrepared prepared) {
+    if (state case final EthereumStakingPrepared prepared
+        when identical(prepared.operation, event.operation)) {
       emit(EthereumStakingSubmitting(prepared.data, prepared.operation));
       try {
         await prepared.operation.transaction.commit();
@@ -97,12 +126,15 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
   }
 
   Future<EthereumStakingData> _loadData() async {
-    final (minimum, fee, balances, rewards, withdrawal) = await (
+    final (minimum, fee, balances, rewards, withdrawal, apr, activationTime, totalRewards) = await (
       _service.getEthereumMinStakeAmount(),
       _service.getEthereumFee(),
       _service.getEthereumUserBalances(_address),
       _service.getEthereumRestakedRewards(_address),
       _service.getEthereumWithdrawRequest(_address),
+      _optional(_service.getEthereumApr()),
+      _optional(_service.getEthereumActivationTime()),
+      _optional(_service.getEthereumTotalRewards(_address)),
     ).wait;
     return EthereumStakingData(
       minStakeAmount: minimum,
@@ -110,21 +142,35 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
       balances: balances,
       restakedRewards: rewards,
       withdrawRequest: withdrawal,
+      walletBalance: _walletBalance,
+      apr: apr,
+      activationTime: activationTime,
+      totalRewards: totalRewards,
     );
   }
 
+  Future<T?> _optional<T>(Future<T> request) async {
+    try {
+      return await request;
+    } catch (error) {
+      printV("Optional Everstake request failed: $error");
+      return null;
+    }
+  }
+
   Future<void> _prepare(
-    PrepareTransaction event,
+    TransactionRequested event,
     EthereumStakingData data,
     Emitter<EthereumStakingState> emit,
   ) async {
     emit(EthereumStakingPreparing(data));
 
     final (action, amount) = switch (event) {
-      PrepareStake(:final amount) => (EthereumStakingAction.stake, amount),
-      PrepareUnstake(:final amount) => (EthereumStakingAction.unstake, amount),
-      PreparePendingUnstake(:final amount) => (EthereumStakingAction.unstakePending, amount),
-      PrepareWithdrawalClaim() => (
+      StakeRequested(:final amount) => (EthereumStakingAction.stake, amount),
+      MaxStakeRequested() => (EthereumStakingAction.stake, await _maxStakeAmount(data)),
+      UnstakeRequested(:final amount) => (EthereumStakingAction.unstake, amount),
+      PendingUnstakeRequested(:final amount) => (EthereumStakingAction.unstakePending, amount),
+      WithdrawalClaimRequested() => (
           EthereumStakingAction.claimWithdrawal,
           data.withdrawRequest.requested
         ),
@@ -136,14 +182,15 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     final EverstakeEthereumTransaction transaction;
     Money? instantUnstakeAmount;
     switch (event) {
-      case PrepareStake():
+      case StakeRequested() || MaxStakeRequested():
         if (amount < data.minStakeAmount) {
           throw EthereumStakingError.belowMinimum;
         }
-        transaction =
-            await _service.prepareEthereumStake(address: _address, amount: amount, source: _source);
-        _validator.validateStake(transaction, address: _address, amount: amount, source: _source);
-      case PrepareUnstake():
+        if (amount > _walletBalance) {
+          throw EthereumStakingError.exceedsBalance;
+        }
+        transaction = await _prepareStake(amount);
+      case UnstakeRequested():
         if (amount > data.balances.autocompoundBalance) {
           throw EthereumStakingError.exceedsBalance;
         }
@@ -166,7 +213,7 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
           allowedInterchangeNum: _allowedInterchangeNum,
           source: _source,
         );
-      case PreparePendingUnstake():
+      case PendingUnstakeRequested():
         final remainder = data.balances.pendingBalance - amount;
         if (remainder.isNegative) {
           throw EthereumStakingError.exceedsBalance;
@@ -177,7 +224,7 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
         transaction =
             await _service.prepareEthereumUnstakePending(address: _address, amount: amount);
         _validator.validateUnstakePending(transaction, address: _address, amount: amount);
-      case PrepareWithdrawalClaim():
+      case WithdrawalClaimRequested():
         if (!data.canClaimWithdrawal) {
           throw EthereumStakingError.withdrawalNotReady;
         }
@@ -200,19 +247,56 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     );
   }
 
-  // Everstake txs are mainnet-only; createRawCallDataTransaction signs on the selected chain.
-  Future<PendingTransaction> _signOnMainnet(EverstakeEthereumTransaction transaction) {
-    if (_wallet.chainId != _mainnetChainId) {
-      throw EthereumStakingError.notMainnet;
-    }
+  Future<EverstakeEthereumTransaction> _prepareStake(Money amount) async {
+    final transaction =
+        await _service.prepareEthereumStake(address: _address, amount: amount, source: _source);
+    _validator.validateStake(transaction, address: _address, amount: amount, source: _source);
+    return transaction;
+  }
 
-    return _evm.createRawCallDataTransaction(
+  Future<Money> _maxStakeAmount(EthereumStakingData data) async {
+    final balance = _walletBalance;
+    if (balance < data.minStakeAmount) {
+      throw EthereumStakingError.belowMinimum;
+    }
+    _checkMainnet();
+    final stake = await _prepareStake(data.minStakeAmount);
+    final fee = _checkFee(
+      await _evm.estimateRawCallDataTransactionFee(
+        _wallet,
+        stake.to,
+        stake.data,
+        balance,
+        _priority,
+      ),
+    );
+    return balance - fee * BigInt.two; // add some buffer
+  }
+
+  Future<PendingTransaction> _signOnMainnet(EverstakeEthereumTransaction transaction) async {
+    _checkMainnet();
+    final pending = await _evm.createRawCallDataTransaction(
       _wallet,
       transaction.to,
       transaction.data,
       transaction.value,
-      _settingsStore.getPriority(_wallet.type, chainId: _mainnetChainId),
+      _priority,
       useBlinkProtection: _settingsStore.useBlinkProtection,
     );
+    _checkFee(pending.fee);
+    return pending;
+  }
+
+  void _checkMainnet() {
+    if (_wallet.chainId != _mainnetChainId) {
+      throw EthereumStakingError.notMainnet;
+    }
+  }
+
+  Money _checkFee(Money fee) {
+    if (fee.isZero) {
+      throw TransactionNoFeeException();
+    }
+    return fee;
   }
 }

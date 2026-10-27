@@ -33,9 +33,7 @@ class EverstakeEthereumTransactionValidator {
         "name": "unstakePending",
         "inputs": [{"name": "amount", "type": "uint256"}]
       },
-      {"type": "function", "name": "claimWithdrawRequest", "inputs": []},
-      {"type": "function", "name": "activateStake", "inputs": []},
-      {"type": "function", "name": "autocompound", "inputs": []}
+      {"type": "function", "name": "claimWithdrawRequest", "inputs": []}
     ]
   ''',
     "Everstake",
@@ -96,24 +94,6 @@ class EverstakeEthereumTransactionValidator {
         contract: _accountingAddress,
         value: Money.zero(CryptoCurrency.eth),
         method: "claimWithdrawRequest",
-      );
-
-  void validateActivateStake(EverstakeEthereumTransaction transaction, {required String address}) =>
-      _validate(
-        transaction,
-        address: address,
-        contract: _poolAddress,
-        value: Money.zero(CryptoCurrency.eth),
-        method: "activateStake",
-      );
-
-  void validateAutocompound(EverstakeEthereumTransaction transaction, {required String address}) =>
-      _validate(
-        transaction,
-        address: address,
-        contract: _accountingAddress,
-        value: Money.zero(CryptoCurrency.eth),
-        method: "autocompound",
       );
 
   void _validate(

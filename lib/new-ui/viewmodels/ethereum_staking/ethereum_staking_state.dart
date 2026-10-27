@@ -19,17 +19,40 @@ class EthereumStakingData {
     required this.balances,
     required this.restakedRewards,
     required this.withdrawRequest,
+    required this.walletBalance,
+    this.apr,
+    this.activationTime,
+    this.totalRewards,
   });
 
   final Money minStakeAmount;
-  final String poolFee;
+
+  final double poolFee; // fraction, e.g. 0.1 for 10%
   final EverstakeEthereumUserBalances balances;
   final Money restakedRewards;
   final EverstakeEthereumWithdrawRequest withdrawRequest;
+  final Money walletBalance;
+
+  final double? apr; // fraction, e.g. 0.026 for 2.6%
+  final Duration? activationTime;
+  final Money? totalRewards;
 
   bool get canClaimWithdrawal =>
       withdrawRequest.requested.amount > BigInt.zero &&
       withdrawRequest.readyForClaim == withdrawRequest.requested;
+
+  Money get pendingActivation => balances.pendingBalance + balances.pendingDepositedBalance;
+
+  Money get stakedBalance => balances.autocompoundBalance + pendingActivation;
+
+  Money get earned => totalRewards ?? restakedRewards;
+
+  bool get hasPosition => !stakedBalance.isZero || !withdrawRequest.requested.isZero;
+
+  bool get withdrawsPendingStake => !balances.pendingBalance.isZero;
+
+  Money get withdrawableBalance =>
+      withdrawsPendingStake ? balances.pendingBalance : balances.autocompoundBalance;
 }
 
 @immutable
@@ -45,8 +68,6 @@ class EthereumStakingOperation {
   final Money amount;
   final PendingTransaction transaction;
   final Money? instantUnstakeAmount;
-
-  String get transactionHash => transaction.evmTxHashFromRawHex!;
 }
 
 @immutable
@@ -102,6 +123,5 @@ final class EthereumStakingFailure extends EthereumStakingState {
   @override
   final EthereumStakingData? data;
 
-  /// An [EthereumStakingError], or whatever loading, signing or broadcasting threw.
   final Object error;
 }

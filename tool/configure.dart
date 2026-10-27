@@ -1577,6 +1577,14 @@ abstract class EVM {
     BigInt? sourceTokenAmount}
   );
   
+  Future<Money> estimateRawCallDataTransactionFee(
+    WalletBase wallet,
+    String to,
+    String dataHex,
+    Money valueWei,
+    TransactionPriority? priority,
+  );
+
   // Hardware wallet methods
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);

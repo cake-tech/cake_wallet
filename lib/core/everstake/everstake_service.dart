@@ -9,40 +9,71 @@ import "package:http/http.dart" as very_insecure_http_do_not_use;
 
 class EverstakeService {
   static const _apiHost = "wallet-sdk-api.everstake.com";
+  static const _b2cApiHost = "eth-api-b2c.everstake.com";
+  static const _requestTimeout = Duration(seconds: 20);
 
   Future<Money> getEthereumMinStakeAmount() async {
-    final response = await _get("min_stake_amount");
+    final uri = Uri.https(_apiHost, "/ethereum/pool/min_stake_amount", {"network": "mainnet"});
+    final response = await _get<Map<String, dynamic>>(uri);
     return Money.parse(response["result"] as String, CryptoCurrency.eth);
   }
 
-  Future<String> getEthereumFee() async {
-    final response = await _get("fee");
-    return response["result"] as String;
+  Future<double> getEthereumFee() async {
+    final uri = Uri.https(_apiHost, "/ethereum/pool/fee", {"network": "mainnet"});
+    final response = await _get<Map<String, dynamic>>(uri);
+    return double.parse(response["result"] as String);
   }
 
-  Future<EverstakeEthereumUserBalances> getEthereumUserBalances(String address) async =>
-      EverstakeEthereumUserBalances.fromJson(await _get("balances/$address"));
+  Future<double> getEthereumApr() async {
+    final uri = Uri.https(_apiHost, "/assets/ethereum");
+    final response = await _get<Map<String, dynamic>>(uri);
+    final blockchain = response["blockchain"] as Map<String, dynamic>;
+    return (blockchain["apr"] as num) / 100;
+  }
 
-  Future<EverstakeEthereumPoolBalances> getEthereumPoolBalances() async =>
-      EverstakeEthereumPoolBalances.fromJson(await _get("balances"));
+  Future<Duration> getEthereumActivationTime() async {
+    final uri = Uri.https(_b2cApiHost, "/api/v1/validators/queue");
+    final response = await _get<Map<String, dynamic>>(uri);
+    return Duration(
+      seconds: (response["validator_activation_time"] as int) +
+          (response["validator_adding_delay"] as int),
+    );
+  }
+
+  Future<Money> getEthereumTotalRewards(String address) async {
+    final uri = Uri.https(_b2cApiHost, "/api/v1/staker/$address/rewards/total");
+    final response = await _get<String>(uri);
+    // swagger incorrectly documents ETH amount
+    return Money.parse(response, CryptoCurrency.eth, isBaseUnit: true);
+  }
+
+  Future<EverstakeEthereumUserBalances> getEthereumUserBalances(String address) async {
+    final uri = Uri.https(_apiHost, "/ethereum/pool/balances/$address", {"network": "mainnet"});
+    final response = await _get<Map<String, dynamic>>(uri);
+    return EverstakeEthereumUserBalances.fromJson(response);
+  }
 
   Future<Money> getEthereumRestakedRewards(String address) async {
-    final response = await _get("restaked_reward_of/$address");
+    final uri =
+        Uri.https(_apiHost, "/ethereum/pool/restaked_reward_of/$address", {"network": "mainnet"});
+    final response = await _get<Map<String, dynamic>>(uri);
     return Money.parse(response["result"] as String, CryptoCurrency.eth);
   }
 
-  Future<EverstakeEthereumWithdrawRequest> getEthereumWithdrawRequest(String address) async =>
-      EverstakeEthereumWithdrawRequest.fromJson(await _get("withdraw_request/$address"));
-
-  Future<EverstakeEthereumWithdrawQueue> getEthereumWithdrawQueue() async =>
-      EverstakeEthereumWithdrawQueue.fromJson(await _get("withdraw_request_queue_params"));
+  Future<EverstakeEthereumWithdrawRequest> getEthereumWithdrawRequest(String address) async {
+    final uri =
+        Uri.https(_apiHost, "/ethereum/pool/withdraw_request/$address", {"network": "mainnet"});
+    final response = await _get<Map<String, dynamic>>(uri);
+    return EverstakeEthereumWithdrawRequest.fromJson(response);
+  }
 
   Future<EverstakeEthereumTransaction> prepareEthereumStake({
     required String address,
     required Money amount,
     required String source,
   }) async {
-    final response = await _post("stake", {
+    final uri = Uri.https(_apiHost, "/ethereum/pool/stake", {"network": "mainnet"});
+    final response = await _post(uri, {
       "address": address,
       "amount": _ethereumAmount(amount),
       "source": source,
@@ -56,16 +87,14 @@ class EverstakeService {
     required int allowedInterchangeNum,
     required String source,
   }) async {
-    final response = await _post("simulate_unstake", {
+    final uri = Uri.https(_apiHost, "/ethereum/pool/simulate_unstake", {"network": "mainnet"});
+    final response = await _post(uri, {
       "address": address,
       "amount": _ethereumAmount(amount),
       "allowedInterchangeNum": allowedInterchangeNum,
       "source": source,
     });
-    // Unlike the other endpoints, this returns a JSON number already rounded to double precision.
-    final result = response["result"] as num;
-    final text = result.toString();
-    return Money.parse(text.contains("e") ? result.toStringAsFixed(18) : text, CryptoCurrency.eth);
+    return Money.parse((response["result"] as num).toStringAsFixed(18), CryptoCurrency.eth);
   }
 
   Future<EverstakeEthereumTransaction> prepareEthereumUnstake({
@@ -74,7 +103,8 @@ class EverstakeService {
     required int allowedInterchangeNum,
     required String source,
   }) async {
-    final response = await _post("unstake", {
+    final uri = Uri.https(_apiHost, "/ethereum/pool/unstake", {"network": "mainnet"});
+    final response = await _post(uri, {
       "address": address,
       "amount": _ethereumAmount(amount),
       "allowedInterchangeNum": allowedInterchangeNum,
@@ -87,7 +117,8 @@ class EverstakeService {
     required String address,
     required Money amount,
   }) async {
-    final response = await _post("unstake_pending", {
+    final uri = Uri.https(_apiHost, "/ethereum/pool/unstake_pending", {"network": "mainnet"});
+    final response = await _post(uri, {
       "address": address,
       "amount": _ethereumAmount(amount),
     });
@@ -95,41 +126,33 @@ class EverstakeService {
   }
 
   Future<EverstakeEthereumTransaction> prepareEthereumClaimWithdrawRequest(String address) async {
-    final response = await _post("claim_withdraw_request", {"address": address});
+    final uri =
+        Uri.https(_apiHost, "/ethereum/pool/claim_withdraw_request", {"network": "mainnet"});
+    final response = await _post(uri, {"address": address});
     return EverstakeEthereumTransaction.fromJson(response, value: Money.zero(CryptoCurrency.eth));
   }
 
-  Future<EverstakeEthereumTransaction> prepareEthereumActivateStake(String address) async {
-    final response = await _post("activate_stake", {"address": address});
-    return EverstakeEthereumTransaction.fromJson(response, value: Money.zero(CryptoCurrency.eth));
+  Future<T> _get<T>(Uri uri) async {
+    final response = await ProxyWrapper().get(clearnetUri: uri).timeout(_requestTimeout);
+    return _decodeJson(response) as T;
   }
 
-  Future<EverstakeEthereumTransaction> prepareEthereumAutocompound(String address) async {
-    final response = await _post("autocompound", {"address": address});
-    return EverstakeEthereumTransaction.fromJson(response, value: Money.zero(CryptoCurrency.eth));
+  Future<Map<String, dynamic>> _post(Uri uri, Map<String, dynamic> body) async {
+    final response = await ProxyWrapper()
+        .post(
+          clearnetUri: uri,
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(body),
+        )
+        .timeout(_requestTimeout);
+    return _decodeJson(response) as Map<String, dynamic>;
   }
 
-  Future<Map<String, dynamic>> _get(String path) async {
-    final uri = Uri.https(_apiHost, "/ethereum/pool/$path", {"network": "mainnet"});
-    final response = await ProxyWrapper().get(clearnetUri: uri);
-    return _decodeResponse(response);
-  }
-
-  Future<Map<String, dynamic>> _post(String path, Map<String, dynamic> body) async {
-    final uri = Uri.https(_apiHost, "/ethereum/pool/$path", {"network": "mainnet"});
-    final response = await ProxyWrapper().post(
-      clearnetUri: uri,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(body),
-    );
-    return _decodeResponse(response);
-  }
-
-  Map<String, dynamic> _decodeResponse(very_insecure_http_do_not_use.Response response) {
+  dynamic _decodeJson(very_insecure_http_do_not_use.Response response) {
     if (response.statusCode != 200) {
       throw EverstakeException("${response.statusCode}: ${response.body}");
     }
-    return jsonDecode(response.body) as Map<String, dynamic>;
+    return jsonDecode(response.body);
   }
 
   String _ethereumAmount(Money amount) {

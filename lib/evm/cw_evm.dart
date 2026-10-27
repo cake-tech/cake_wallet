@@ -318,6 +318,25 @@ class CWEVM extends EVM {
       );
 
   @override
+  Future<Money> estimateRawCallDataTransactionFee(
+    WalletBase wallet,
+    String to,
+    String dataHex,
+    Money valueWei,
+    TransactionPriority? priority,
+  ) async {
+    final evmWallet = wallet as EVMChainWallet;
+    final gas = await evmWallet.calculateActualEstimatedFeeForCreateTransaction(
+      amount: valueWei,
+      receivingAddressHex: to,
+      priority: priority as EVMChainTransactionPriority?,
+      contractAddress: null,
+      data: hexToBytes(dataHex),
+    );
+    return Money.fromInt(gas.estimatedGasFee, evmWallet.currency);
+  }
+
+  @override
   Future<void> setHardwareWalletService(
     WalletBase wallet,
     HardwareWalletService service,
