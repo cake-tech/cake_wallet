@@ -70,8 +70,16 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
               List.filled(32, 0);
 
   @override
+  bool get isMwebActive => mwebEnabled && super.isMwebActive;
+
+  @override
   Future<void> init({List<int> accountIndexes = const []}) async {
-    if (!isHardwareWallet) await initMwebAddresses();
+    if (isMwebActive) {
+      await initMwebAddresses();
+    } else if (addressPageType == SegwitAddresType.mweb) {
+      // the receive page doesn't offer MWEB while it's off (see receivePageOptions)
+      await setAddressType(SegwitAddresType.p2wpkh);
+    }
     await super.init(accountIndexes: accountIndexes);
   }
 
@@ -143,6 +151,19 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       await ensureMwebAddressUpToIndexExists(20);
       return;
     }
+  }
+
+  /// Turning MWEB on derives the MWEB addresses [init] skipped while it was off. Turning it off
+  /// moves the receive page back to a regular address.
+  Future<void> setMwebEnabled(bool enabled) async {
+    mwebEnabled = enabled;
+    if (isMwebActive) {
+      await initMwebAddresses();
+      await generateInitialMwebAddresses();
+    } else if (addressPageType == SegwitAddresType.mweb) {
+      await setAddressType(SegwitAddresType.p2wpkh);
+    }
+    await updateAddressesInBox();
   }
 
   @override
@@ -281,7 +302,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   List<ReceivePageOption> get receivePageOptions {
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows || isHardwareWallet) {
+    if (!isMwebActive) {
       return [
         ...BitcoinReceivePageOption.allLitecoin
             .where((element) => element != BitcoinReceivePageOption.mweb),

@@ -396,6 +396,18 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         return acc;
       });
 
+  /// Whether MWEB addresses are derived and offered: Litecoin software wallets on Android and iOS.
+  /// [LitecoinWalletAddresses] also requires MWEB to be turned on.
+  bool get isMwebActive =>
+      walletInfo.type == WalletType.litecoin &&
+      (Platform.isAndroid || Platform.isIOS) &&
+      !isHardwareWallet;
+
+  /// Adds the first MWEB receive addresses. [init] skips them while MWEB is off, so Litecoin calls
+  /// this again when it is turned on.
+  Future<void> generateInitialMwebAddresses() =>
+      _generateInitialAddresses(type: SegwitAddresType.mweb);
+
   @override
   Future<void> init({List<int> accountIndexes = const []}) async {
     final effectiveAccountIndexes =
@@ -406,8 +418,8 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.litecoin) {
       await _generateInitialAddresses(type: SegwitAddresType.p2wpkh);
-      if ((Platform.isAndroid || Platform.isIOS) && !isHardwareWallet) {
-        await _generateInitialAddresses(type: SegwitAddresType.mweb);
+      if (isMwebActive) {
+        await generateInitialMwebAddresses();
       }
     } else if (walletInfo.type == WalletType.dogecoin) {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
@@ -682,8 +694,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       addressesMap[address] = 'Active - P2WPKH';
     }
 
-    final lastMweb = _addresses.firstWhere(
+    // there are none until MWEB is turned on, and never on desktop or hardware wallets
+    final lastMweb = _addresses.firstWhereOrNull(
         (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.mweb));
+    if (lastMweb == null) {
+      return;
+    }
     if (lastMweb.address != address) {
       addressesMap[lastMweb.address] = 'MWEB';
     } else {
