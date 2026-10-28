@@ -16,6 +16,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -185,6 +186,8 @@ abstract class ZcashWalletBase
       }
       printV("Setting LWD URL to: $lwdUrl");
       c = c.setLwd(url: lwdUrl, serverType: 0);
+      c = c.setProxy(
+          proxy: CakeTor.instance!.started ? 'socks5h://127.0.0.1:${CakeTor.instance!.port}' : '');
       syncStatus = ConnectedSyncStatus();
       unawaited(ZcashMempoolService.instance.ensureRunning(c));
       unawaited(_updateIronwoodActive());

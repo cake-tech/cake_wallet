@@ -1589,5 +1589,6 @@
   "do_you_want_to_proceed": "Você quer prosseguir?",
   "shield_funds": "Blindar fundos",
   "unshielded_funds_detected": "Fundos não blindados detectados",
-  "shield_them_to_use_device": "Blinde-os para usar este dispositivo"
+  "shield_them_to_use_device": "Blinde-os para usar este dispositivo",
+  "tor_switch_to_onion_nodes": "Mudar para nós onion enquanto o Tor estiver ativado"
 }
