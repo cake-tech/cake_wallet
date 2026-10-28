@@ -2,8 +2,11 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/new_future_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:flutter/material.dart";
 
 class ZcashManualShieldModal extends StatelessWidget {
@@ -13,7 +16,23 @@ class ZcashManualShieldModal extends StatelessWidget {
   final Future<void> Function() onShield;
 
   Future<void> _onShield(BuildContext context) async {
-    await onShield.call();
+    try {
+      await onShield.call();
+    } on CakeException catch (e) {
+      if (!context.mounted) {
+        return;
+      }
+      await showPopUp<void>(
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).error,
+          alertContent: e.message,
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+      );
+      return;
+    }
 
     if (context.mounted) {
       Navigator.of(context).pop();

@@ -96,6 +96,7 @@ class ZcashTaddressRotation {
           c: coin,
           aggregate: false,
           poolFilter: 1,
+          account: rotationAccountId,
         );
         final external = all.where((final e) => e.scope == 0).toList();
         if (external.isEmpty) {
@@ -106,7 +107,12 @@ class ZcashTaddressRotation {
         final height = await zkool_network.getCurrentHeight(c: coin);
         final completer = Completer<void>();
         final sub = scanner
-            .run(endHeight: height, gapLimit: maxD + _lookahead + 1, c: coin)
+            .run(
+              endHeight: height,
+              gapLimit: maxD + _lookahead + 1,
+              account: rotationAccountId,
+              c: coin,
+            )
             .listen(
               (_) {},
               onError: (final e) {
@@ -137,7 +143,7 @@ class ZcashTaddressRotation {
     await ZcashWalletBase.runWithCoin(
       accountId: rotationAccountId,
       func: (final coin) async {
-        await zkool_sync.cancelSync();
+        await zkool_sync.cancelSync(c: coin);
         await zkool_account.resetSync(id: rotationAccountId, c: coin);
         final height = await zkool_network.getCurrentHeight(c: coin);
         final sync = zkool_sync.synchronize(
@@ -264,7 +270,12 @@ class ZcashTaddressRotation {
     final all = await ZcashWalletBase.runWithCoin(
       accountId: rotationAccountId,
       func: (final coin) =>
-          zkool_account.fetchAddressTxCount(c: coin, aggregate: false, poolFilter: 1),
+          zkool_account.fetchAddressTxCount(
+            c: coin,
+            aggregate: false,
+            poolFilter: 1,
+            account: rotationAccountId,
+          ),
     );
     return all.where((final e) => e.scope == 0).toList()
       ..sort((final a, final b) => a.dindex.compareTo(b.dindex));
@@ -280,7 +291,7 @@ class ZcashTaddressRotation {
     for (var i = 0; i < toGenerate; i++) {
       await ZcashWalletBase.runWithCoin(
         accountId: rotationAccountId,
-        func: (final coin) => zkool_account.generateNextDindex(c: coin),
+        func: (final coin) => zkool_account.generateNextDindex(account: rotationAccountId, c: coin),
       );
     }
     if (toGenerate > 0) {
@@ -297,7 +308,7 @@ class ZcashTaddressRotation {
     return ZcashWalletBase.runWithCoin(
       accountId: rotationAccount,
       func: (final coin) async {
-        final b = await zkool_sync.balance(c: coin);
+        final b = await zkool_sync.balance(account: rotationAccount, c: coin);
         return b.field0.elementAt(0);
       },
     );
@@ -307,12 +318,12 @@ class ZcashTaddressRotation {
     return ZcashWalletBase.runWithCoin(
       accountId: accountId,
       func: (final coin) async {
-        final txsI = await zkool_account.listTxHistory(c: coin);
+        final txsI = await zkool_account.listTxHistory(account: accountId, c: coin);
         final txs = <ZkoolTx>[];
         for (int i = 0; i < txsI.length; i++) {
           final tx = txsI[i];
           try {
-            final details = await zkool_account.getTxDetails(idTx: tx.id, c: coin);
+            final details = await zkool_account.getTxDetails(idTx: tx.id, account: accountId, c: coin);
             txs.add(ZkoolTx(tx, details));
           } catch (e) {
             printV("getTxDetails skipped for tx ${tx.id}: $e");
@@ -339,7 +350,6 @@ class ZcashTaddressRotation {
     try {
       final mainAccountIds = ZcashWalletBase.walletsByAccountId.keys.toList();
       if (mainAccountIds.isEmpty) {
-        await createAndSweepTAddressesForAccount(c.account);
         return;
       }
       for (final mainAccountId in mainAccountIds) {
@@ -356,6 +366,10 @@ class ZcashTaddressRotation {
   }
 
   static Future<void> createAndSweepTAddressesForAccount(final int cId) async {
+    final wallet = ZcashWalletBase.walletsByAccountId[cId];
+    if (wallet != null && !wallet.canRotateTransparentAddress) {
+      return;
+    }
     if (!_isWalletSynced(cId)) {
       printV("rotation sweep waiting for wallet sync (account $cId)");
       return;
@@ -398,7 +412,7 @@ class ZcashTaddressRotation {
     final toAddress = await ZcashWalletBase.runWithCoin(
       accountId: cId,
       func: (final coin) async {
-        final addrs = await zkool_account.getAddresses(c: coin, uaPools: 7);
+        final addrs = await zkool_account.getAddresses(c: coin, uaPools: 7, account: cId);
         final orchard = addrs.oaddr;
         if (orchard == null || orchard.isEmpty) {
           throw AddressRotationException('Orchard address unavailable for rotation sweep');
@@ -410,7 +424,7 @@ class ZcashTaddressRotation {
       accountId: rotationAccount,
       func: (final coin) async {
         final height = await zkool_network.getCurrentHeight(c: coin);
-        final notes = await zkool_account.listNotes(c: coin);
+        final notes = await zkool_account.listNotes(account: rotationAccount, c: coin);
         var amount = BigInt.zero;
         for (final note in notes) {
           if (note.pool != NotePool.transparent.index || note.locked) {
@@ -442,11 +456,15 @@ class ZcashTaddressRotation {
             recipientPaysFee: true,
             smartTransparent: false,
           ),
+          account: rotationAccount,
           c: coin,
         );
-        final signTx = await zkool_pay.signTransaction(pczt: tx, c: coin);
-        final txBytes = await zkool_pay.extractTransaction(package: signTx);
-        return zkool_pay.broadcastTransaction(height: height, txBytes: txBytes, c: coin);
+        final signTx = await zkool_pay.signTransaction(
+          pczt: tx,
+          account: rotationAccount,
+          c: coin,
+        );
+        return zkool_pay.broadcast(package: signTx, account: rotationAccount, c: coin);
       },
     );
     printV("rotation sweep broadcast: $result");
