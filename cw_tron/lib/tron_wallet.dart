@@ -185,6 +185,7 @@ abstract class TronWalletBase
   Future<void> addInitialTokens() async {
     final initialTronTokens = DefaultTronTokens().initialTronTokens;
 
+    final changedTokens = <TronToken>[];
     for (var token in initialTronTokens) {
       final existingToken = _findCachedToken(token.contractAddress);
 
@@ -196,9 +197,11 @@ abstract class TronWalletBase
 
       if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
 
-      await newToken.save();
+      changedTokens.add(newToken);
       _upsertCachedToken(newToken);
     }
+
+    await TronToken.saveAll(changedTokens);
   }
 
   // Whether saving [token] would write the row [stored] already has (ignoring the row id).

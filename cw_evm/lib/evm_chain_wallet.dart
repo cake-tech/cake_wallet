@@ -224,6 +224,7 @@ abstract class EVMChainWalletBase
   Future<void> addInitialTokens() async {
     final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokensByChainId(selectedChainId);
 
+    final changedTokens = <Erc20Token>[];
     for (final token in initialErc20Tokens) {
       final existingToken = _findCachedToken(token.contractAddress);
 
@@ -236,9 +237,11 @@ abstract class EVMChainWalletBase
 
       if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
 
-      await newToken.save();
+      changedTokens.add(newToken);
       _upsertCachedToken(newToken);
     }
+
+    await Erc20Token.saveAll(changedTokens);
   }
 
   // Whether saving [token] would write the row [stored] already has (ignoring the row id).

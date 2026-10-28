@@ -793,6 +793,7 @@ abstract class SolanaWalletBase
   Future<void> addInitialTokens() async {
     final initialSPLTokens = DefaultSPLTokens().initialSPLTokens;
 
+    final changedTokens = <SPLToken>[];
     for (var token in initialSPLTokens) {
       final existingToken = _findCachedToken(token.mintAddress);
 
@@ -804,9 +805,11 @@ abstract class SolanaWalletBase
 
       if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
 
-      await newToken.save();
+      changedTokens.add(newToken);
       _upsertCachedToken(newToken);
     }
+
+    await SPLToken.saveAll(changedTokens);
   }
 
   // Whether saving [token] would write the row [stored] already has (ignoring the row id).

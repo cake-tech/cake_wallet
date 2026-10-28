@@ -127,16 +127,32 @@ class Erc20Token extends CryptoCurrency {
   static String get selfIdColumn => "${tableName}Id";
 
   Future<int> save() async {
+    id = await db!.insert(tableName, _row(), conflictAlgorithm: ConflictAlgorithm.replace);
+    return id;
+  }
+
+  /// [save] for several tokens in one database round trip.
+  static Future<void> saveAll(List<Erc20Token> tokens) async {
+    if (tokens.isEmpty) return;
+    final batch = db!.batch();
+    for (final token in tokens) {
+      batch.insert(tableName, token._row(), conflictAlgorithm: ConflictAlgorithm.replace);
+    }
+    final ids = await batch.commit();
+    for (var i = 0; i < tokens.length; i++) {
+      tokens[i].id = ids[i] as int;
+    }
+  }
+
+  Map<String, dynamic> _row() {
     if (walletName == null || chainId == null) {
       throw StateError("Erc20Token.save() requires walletName and chainId to be set");
     }
-
     final json = toMap();
     if (json[selfIdColumn] == 0) {
       json[selfIdColumn] = null;
     }
-    id = await db!.insert(tableName, json, conflictAlgorithm: ConflictAlgorithm.replace);
-    return id;
+    return json;
   }
 
   static Future<List<Erc20Token>> selectList(
