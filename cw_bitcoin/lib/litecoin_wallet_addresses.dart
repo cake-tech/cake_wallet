@@ -110,8 +110,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       while (mwebAddrs.length <= (index + 1)) {
         final addresses = CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
         printV("generated up to index ${mwebAddrs.length}");
-        // sleep for a bit to avoid making the main thread unresponsive:
-        await Future.delayed(Duration(milliseconds: 200));
+        // yield between batches so the main thread stays responsive (frames can run):
+        await Future.delayed(Duration.zero);
         mwebAddrs.addAll(addresses!);
       }
     } catch (_) {}
