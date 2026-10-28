@@ -60,7 +60,10 @@ class LightningWallet {
         if (!logFile.existsSync()) {
           logFile.createSync(recursive: true);
         }
-        logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+        logFile.writeAsStringSync(
+          "${DateTime.now().toUtc().toIso8601String()} [${logEntry.level}] ${logEntry.line}\n",
+          mode: FileMode.append,
+        );
       } catch (e) {
         // Silently fail or use printV(e) so it doesn't crash the app
         printV("Failed to write to log: $e");
@@ -70,7 +73,10 @@ class LightningWallet {
         if (!logFile.existsSync()) {
           logFile.createSync(recursive: true);
         }
-        logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
+        logFile.writeAsStringSync(
+          "${DateTime.now().toUtc().toIso8601String()} [ERROR] $e\n",
+          mode: FileMode.append,
+        );
       } catch (err) {
         printV("Failed to write error to log: $err");
       }
