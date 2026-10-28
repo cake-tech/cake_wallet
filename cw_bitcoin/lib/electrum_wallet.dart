@@ -111,7 +111,6 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
-    // Probably not needed as init will be called right after creating the wallet.
     _prepareHdForAccount(currentAccountIndex, currency);
   }
 
@@ -356,6 +355,8 @@ abstract class ElectrumWalletBase
   }
 
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
+    if (mainHdByTypeAndAccount.containsKey(accountIndex)) return;
+
     // For the first account, we support all address types. For extra accounts, we only support SegwitAddresType.p2wpkh.
     final supportedTypes =
     accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
@@ -367,13 +368,15 @@ abstract class ElectrumWalletBase
 
     if (canDeriveFromSeed && !isElectrumDerivation) {
       final coinType = _coinTypeFor(currency);
+      final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
 
       for (final type in supportedTypes) {
-        final purpose = _purposeForType(type);
-        final accountPath = "m/$purpose'/$coinType'/$accountIndex'";
+        final accountPath = "m/${_purposeForType(type)}'/$coinType'/$accountIndex'";
+        final accountHd = accountHdByPath[accountPath] ??=
+            _masterHD!.derivePath(accountPath) as Bip32Slip10Secp256k1;
 
-        mainMap[type] = _masterHD!.derivePath("$accountPath/0") as Bip32Slip10Secp256k1;
-        sideMap[type] = _masterHD!.derivePath("$accountPath/1") as Bip32Slip10Secp256k1;
+        mainMap[type] = accountHd.childKey(Bip32KeyIndex(0));
+        sideMap[type] = accountHd.childKey(Bip32KeyIndex(1));
       }
     } else {
       // case for Electrum derivation or when we don't have seed but only xpub (view only wallet)
@@ -727,6 +730,7 @@ abstract class ElectrumWalletBase
     for (final accountIndex in accountIndexes) {
       _prepareHdForAccount(accountIndex, currency);
     }
+
 
     await walletAddresses.init(accountIndexes: accountIndexes);
     await transactionHistory.init();
@@ -2454,6 +2458,7 @@ abstract class ElectrumWalletBase
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash);
+      if (bundle.originalTransaction.txId() != tx.txHash) return null;
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2505,6 +2510,9 @@ abstract class ElectrumWalletBase
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
       final bundle = await getTransactionExpanded(hash: hash);
+      if (bundle.originalTransaction.txId() != hash) {
+        throw RbfException("Transaction does not match $hash");
+      }
 
       final utxos = <UtxoWithAddress>[];
       final outputs = <BitcoinOutput>[];
@@ -2517,7 +2525,7 @@ abstract class ElectrumWalletBase
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
-        if (inputTransaction == null) {
+        if (inputTransaction == null || inputTransaction.txId() != input.txId) {
           throw RbfException("Missing input transaction for replace-by-fee");
         }
         final vout = input.txIndex;
