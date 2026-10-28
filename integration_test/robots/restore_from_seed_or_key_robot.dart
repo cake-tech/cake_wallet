@@ -1,8 +1,10 @@
 import "package:cake_wallet/entities/seed_type.dart";
+import "package:cake_wallet/new-ui/viewmodels/restore_wallet/wallet_restore_cubit.dart";
 import "package:cake_wallet/src/screens/restore/wallet_restore_page.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/src/widgets/validable_annotated_editable_text.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
@@ -77,10 +79,13 @@ class RestoreFromSeedOrKeysPageRobot extends BaseRobot {
     await tapByKey("wallet_restore_has_passphrase_checkbox_key");
     await settle();
 
-    final page = tester.widget<WalletRestorePage>(find.byType(WalletRestorePage));
+    final cubit = BlocProvider.of<WalletRestoreCubit>(
+      tester.element(find.byType(WalletRestorePage)),
+      listen: false,
+    );
 
     expect(
-      page.walletRestoreViewModel.hasPassphrase,
+      cubit.state.hasPassphrase,
       true,
       reason: "The passphrase box did not tick, the wallet would restore without it",
     );

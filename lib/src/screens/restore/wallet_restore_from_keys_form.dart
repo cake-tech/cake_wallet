@@ -1,31 +1,31 @@
-import 'package:cake_wallet/src/widgets/address_text_field.dart';
-import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
-import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/core/wallet_name_validator.dart';
-import 'package:cw_core/generate_name.dart';
-import 'package:flutter/services.dart';
+import "package:cake_wallet/core/wallet_name_validator.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/restore_wallet/wallet_restore_cubit.dart";
+import "package:cake_wallet/src/widgets/address_text_field.dart";
+import "package:cake_wallet/src/widgets/base_text_form_field.dart";
+import "package:cake_wallet/src/widgets/blockchain_height_widget.dart";
+import "package:cake_wallet/view_model/restore/restore_wallet.dart";
+import "package:cw_core/generate_name.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class WalletRestoreFromKeysForm extends StatefulWidget {
-  WalletRestoreFromKeysForm({
-    required this.walletRestoreViewModel,
+  const WalletRestoreFromKeysForm({
+    required this.walletRestoreCubit,
     required this.onPrivateKeyChange,
     required this.onViewKeyEntered,
     required this.displayPrivateKeyField,
     required this.onHeightOrDateEntered,
     required this.displayWalletPassword,
     required this.onRepeatedPasswordChange,
+    super.key,
     this.restoredWallet,
     this.onPasswordChange,
-    Key? key,
-  }) : super(key: key);
+  });
 
-  final Function(bool) onHeightOrDateEntered;
-  final WalletRestoreViewModel walletRestoreViewModel;
+  final void Function(bool) onHeightOrDateEntered;
+  final WalletRestoreCubit walletRestoreCubit;
   final void Function(String)? onPrivateKeyChange;
   final void Function(bool)? onViewKeyEntered;
   final bool displayPrivateKeyField;
@@ -35,184 +35,151 @@ class WalletRestoreFromKeysForm extends StatefulWidget {
   final void Function(String)? onRepeatedPasswordChange;
 
   @override
-  WalletRestoreFromKeysFormState createState() => WalletRestoreFromKeysFormState(
-      displayWalletPassword: displayWalletPassword, restoredWallet: restoredWallet);
+  WalletRestoreFromKeysFormState createState() => WalletRestoreFromKeysFormState();
 }
 
 class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
-  WalletRestoreFromKeysFormState(
-      {required bool displayWalletPassword, RestoredWallet? restoredWallet})
-      : formKey = GlobalKey<FormState>(),
-        blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
-        nameController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.name)
-            : TextEditingController(),
-        addressController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.address)
-            : TextEditingController(),
-        viewKeyController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.viewKey)
-            : TextEditingController(),
-        spendKeyController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.spendKey)
-            : TextEditingController(),
-        scanSecretController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.scanSecret)
-            : TextEditingController(),
-        spendPubkeyController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.spendPubkey)
-            : TextEditingController(),
-        privateKeyController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.privateKey)
-            : TextEditingController(),
-        nameTextEditingController = restoredWallet != null
-            ? TextEditingController(text: restoredWallet.name)
-            : TextEditingController(),
-        passwordTextEditingController = displayWalletPassword ? TextEditingController() : null,
-        repeatedPasswordTextEditingController =
-            displayWalletPassword ? TextEditingController() : null;
+  final formKey = GlobalKey<FormState>();
+  final blockchainHeightKey = GlobalKey<BlockchainHeightState>();
 
-  final GlobalKey<FormState> formKey;
-  final GlobalKey<BlockchainHeightState> blockchainHeightKey;
-  final TextEditingController nameController;
-  final TextEditingController addressController;
-  final TextEditingController viewKeyController;
-  final TextEditingController spendKeyController;
-  final TextEditingController scanSecretController;
-  final TextEditingController spendPubkeyController;
-  final TextEditingController nameTextEditingController;
-  final TextEditingController privateKeyController;
-  final TextEditingController? passwordTextEditingController;
-  final TextEditingController? repeatedPasswordTextEditingController;
-  void Function()? passwordListener;
-  void Function()? repeatedPasswordListener;
+  late final TextEditingController nameTextEditingController;
+  late final TextEditingController addressController;
+  late final TextEditingController viewKeyController;
+  late final TextEditingController spendKeyController;
+  late final TextEditingController scanSecretController;
+  late final TextEditingController spendPubkeyController;
+  late final TextEditingController privateKeyController;
+  TextEditingController? _passwordController;
+  TextEditingController? _repeatedPasswordController;
 
   @override
   void initState() {
-    if (passwordTextEditingController != null) {
-      passwordListener = () => widget.onPasswordChange?.call(passwordTextEditingController!.text);
-      passwordTextEditingController?.addListener(passwordListener!);
-    }
-
-    if (repeatedPasswordTextEditingController != null) {
-      repeatedPasswordListener =
-          () => widget.onRepeatedPasswordChange?.call(repeatedPasswordTextEditingController!.text);
-      repeatedPasswordTextEditingController?.addListener(repeatedPasswordListener!);
-    }
     super.initState();
+    final restoredWallet = widget.restoredWallet;
+    nameTextEditingController = TextEditingController(text: restoredWallet?.name);
+    addressController = TextEditingController(text: restoredWallet?.address);
+    viewKeyController = TextEditingController(text: restoredWallet?.viewKey)
+      ..addListener(_onViewKeyChanged);
+    spendKeyController = TextEditingController(text: restoredWallet?.spendKey);
+    scanSecretController = TextEditingController(text: restoredWallet?.scanSecret);
+    spendPubkeyController = TextEditingController(text: restoredWallet?.spendPubkey);
+    privateKeyController = TextEditingController(text: restoredWallet?.privateKey)
+      ..addListener(_onPrivateKeyChanged);
 
-    privateKeyController.addListener(() {
-      if (privateKeyController.text.isNotEmpty) {
-        widget.onHeightOrDateEntered(true);
-      }
-      widget.onPrivateKeyChange?.call(privateKeyController.text);
-    });
+    if (widget.displayWalletPassword) {
+      _passwordController = TextEditingController()..addListener(_onPasswordChanged);
+      _repeatedPasswordController = TextEditingController()
+        ..addListener(_onRepeatedPasswordChanged);
+    }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.restoredWallet?.height != null) {
-        blockchainHeightKey.currentState?.restoreHeightController.text =
-            widget.restoredWallet!.height.toString();
-      }
-    });
-
-    viewKeyController.addListener(() {
-      widget.onViewKeyEntered?.call(viewKeyController.text.isNotEmpty);
-    });
+    final restoreHeight = restoredWallet?.height;
+    if (restoreHeight != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          blockchainHeightKey.currentState?.restoreHeightController.text = restoreHeight.toString();
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
-    nameController.dispose();
+    viewKeyController
+      ..removeListener(_onViewKeyChanged)
+      ..dispose();
+    privateKeyController
+      ..removeListener(_onPrivateKeyChanged)
+      ..dispose();
+    _passwordController
+      ?..removeListener(_onPasswordChanged)
+      ..dispose();
+    _repeatedPasswordController
+      ?..removeListener(_onRepeatedPasswordChanged)
+      ..dispose();
+    nameTextEditingController.dispose();
     addressController.dispose();
-    viewKeyController.dispose();
-    privateKeyController.dispose();
     spendKeyController.dispose();
     scanSecretController.dispose();
     spendPubkeyController.dispose();
-    passwordTextEditingController?.dispose();
-    if (passwordListener != null) {
-      passwordTextEditingController?.removeListener(passwordListener!);
-    }
-
-    if (repeatedPasswordListener != null) {
-      repeatedPasswordTextEditingController?.removeListener(repeatedPasswordListener!);
-    }
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Form(
-        key: formKey,
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 8),
-            BaseTextFormField(
-              key: ValueKey('wallet_restore_from_keys_wallet_name_textfield_key'),
-              controller: nameTextEditingController,
-              hintText: S.of(context).wallet_name,
-              validator: WalletNameValidator(),
-              suffixIcon: IconButton(
-                key: ValueKey('wallet_restore_from_keys_wallet_name_refresh_button_key'),
-                onPressed: () async {
-                  final rName = await generateName();
-                  FocusManager.instance.primaryFocus?.unfocus();
+  void _onViewKeyChanged() => widget.onViewKeyEntered?.call(viewKeyController.text.isNotEmpty);
 
-                  setState(() {
-                    nameTextEditingController.text = rName;
-                    nameTextEditingController.selection = TextSelection.fromPosition(
-                        TextPosition(offset: nameTextEditingController.text.length));
-                  });
-                },
-                icon: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6.0),
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                  width: 34,
-                  height: 34,
-                  child: Image.asset(
-                    'assets/images/refresh_icon.png',
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ),
-            if (widget.displayWalletPassword) ...[
-              Container(
-                key: ValueKey('password'),
-                padding: EdgeInsets.only(top: 20.0),
-                child: BaseTextFormField(
-                  controller: passwordTextEditingController,
-                  hintText: S.of(context).password,
-                  obscureText: true,
-                ),
-              ),
-              Container(
-                key: ValueKey('repeat_wallet_password'),
-                padding: EdgeInsets.only(top: 20.0),
-                child: BaseTextFormField(
-                  controller: repeatedPasswordTextEditingController,
-                  hintText: S.of(context).repeat_wallet_password,
-                  obscureText: true,
-                ),
-              )
-            ],
-            Container(height: 20),
-            _restoreFromKeysFormFields(),
-          ],
-        ),
-      ),
-    );
+  void _onPrivateKeyChanged() {
+    if (privateKeyController.text.isNotEmpty) {
+      widget.onHeightOrDateEntered(true);
+    }
+    widget.onPrivateKeyChange?.call(privateKeyController.text);
   }
 
-  Widget _restoreFromKeysFormFields() {
-    // Decred can only restore a view only wallet with an account pubkey. Other
-    // fields are not used.
-    if (widget.walletRestoreViewModel.onlyViewKeyRestore) {
+  void _onPasswordChanged() => widget.onPasswordChange?.call(_passwordController!.text);
+
+  void _onRepeatedPasswordChanged() =>
+      widget.onRepeatedPasswordChange?.call(_repeatedPasswordController!.text);
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: <Widget>[
+              const SizedBox(height: 8),
+              BaseTextFormField(
+                key: const ValueKey("wallet_restore_from_keys_wallet_name_textfield_key"),
+                controller: nameTextEditingController,
+                hintText: S.of(context).wallet_name,
+                validator: WalletNameValidator(),
+                suffixIcon: IconButton(
+                  key: const ValueKey("wallet_restore_from_keys_wallet_name_refresh_button_key"),
+                  onPressed: _generateWalletName,
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.0),
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                    width: 34,
+                    height: 34,
+                    child: Image.asset(
+                      "assets/images/refresh_icon.png",
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+              if (widget.displayWalletPassword) ...[
+                Container(
+                  key: const ValueKey("password"),
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: BaseTextFormField(
+                    controller: _passwordController,
+                    hintText: S.of(context).password,
+                    obscureText: true,
+                  ),
+                ),
+                Container(
+                  key: const ValueKey("repeat_wallet_password"),
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: BaseTextFormField(
+                    controller: _repeatedPasswordController,
+                    hintText: S.of(context).repeat_wallet_password,
+                    obscureText: true,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 20),
+              _buildKeyFields(),
+            ],
+          ),
+        ),
+      );
+
+  Widget _buildKeyFields() {
+    final cubit = widget.walletRestoreCubit;
+
+    if (cubit.onlyViewKeyRestore) {
       return Column(
         children: [
           BaseTextFormField(
@@ -225,32 +192,19 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
     }
 
     if (widget.displayPrivateKeyField) {
-      // the term "private key" isn't actually what we're accepting here, and it's confusing to
-      // users of the nano community, what this form actually accepts (when importing for nano) is a nano seed in it's hex form, referred to in code as a "seed key"
-      // so we should change the placeholder text to reflect this
-      // supporting actual nano private keys is possible, but it's super niche in the nano community / they're not really used
-
-      bool nanoBased = widget.walletRestoreViewModel.type == WalletType.nano ||
-          widget.walletRestoreViewModel.type == WalletType.banano;
-      return Column(children: [
-        AddressTextField(
-          addressKey: ValueKey('wallet_restore_from_key_private_key_textfield_key'),
-          controller: privateKeyController,
-          placeholder: nanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
-          options: [AddressTextFieldOption.paste],
-          onPushPasteButton: (_) {
-            _pasteText();
-          },
-        ),
-        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
-          BlockchainHeightWidget(
-            key: blockchainHeightKey,
-            hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
-            onHeightChange: (_) => null,
-            onHeightOrDateEntered: widget.onHeightOrDateEntered,
-            walletType: widget.walletRestoreViewModel.type,
+      final isNanoBased = cubit.type == WalletType.nano || cubit.type == WalletType.banano;
+      return Column(
+        children: [
+          AddressTextField(
+            addressKey: const ValueKey("wallet_restore_from_key_private_key_textfield_key"),
+            controller: privateKeyController,
+            placeholder: isNanoBased ? S.of(context).seed_hex_form : S.of(context).private_key,
+            options: const [AddressTextFieldOption.paste],
+            onPushPasteButton: (_) => _pastePrivateKey(),
           ),
-      ]);
+          if (cubit.hasBlockchainHeightSelector) _buildBlockchainHeightWidget(cubit.type),
+        ],
+      );
     }
 
     return Column(
@@ -262,7 +216,7 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
           hintText: S.of(context).restore_address,
         ),
         Container(
-          padding: EdgeInsets.only(top: 20.0),
+          padding: const EdgeInsets.only(top: 20.0),
           child: BaseTextFormField(
             controller: viewKeyController,
             hintText: S.of(context).restore_view_key_private,
@@ -270,16 +224,16 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
           ),
         ),
         Container(
-          padding: EdgeInsets.only(top: 20.0),
+          padding: const EdgeInsets.only(top: 20.0),
           child: BaseTextFormField(
             controller: spendKeyController,
             hintText: S.of(context).restore_spend_key_private,
             maxLines: null,
           ),
         ),
-        if (widget.walletRestoreViewModel.type == WalletType.litecoin)
+        if (cubit.type == WalletType.litecoin)
           Container(
-            padding: EdgeInsets.only(top: 20.0),
+            padding: const EdgeInsets.only(top: 20.0),
             child: BaseTextFormField(
               controller: scanSecretController,
               hintText: "Scan secret",
@@ -287,30 +241,43 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             ),
           ),
         Container(
-          padding: EdgeInsets.only(top: 20.0),
+          padding: const EdgeInsets.only(top: 20.0),
           child: BaseTextFormField(
             controller: spendPubkeyController,
             hintText: "Spend public key",
             maxLines: null,
           ),
         ),
-        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
-          BlockchainHeightWidget(
-            key: blockchainHeightKey,
-            hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
-            onHeightChange: (_) => null,
-            onHeightOrDateEntered: widget.onHeightOrDateEntered,
-            walletType: widget.walletRestoreViewModel.type,
-          ),
+        if (cubit.hasBlockchainHeightSelector) _buildBlockchainHeightWidget(cubit.type),
       ],
     );
   }
 
-  Future<void> _pasteText() async {
-    final value = await Clipboard.getData('text/plain');
+  Widget _buildBlockchainHeightWidget(WalletType type) => BlockchainHeightWidget(
+        key: blockchainHeightKey,
+        hasDatePicker: type != WalletType.haven,
+        onHeightChange: (_) {},
+        onHeightOrDateEntered: widget.onHeightOrDateEntered,
+        walletType: type,
+      );
 
-    if (value?.text?.isNotEmpty ?? false) {
-      privateKeyController.text = value!.text!;
+  Future<void> _generateWalletName() async {
+    final generatedName = await generateName();
+    if (!mounted) {
+      return;
     }
+    FocusManager.instance.primaryFocus?.unfocus();
+    nameTextEditingController
+      ..text = generatedName
+      ..selection = TextSelection.collapsed(offset: generatedName.length);
+  }
+
+  Future<void> _pastePrivateKey() async {
+    final value = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = value?.text;
+    if (!mounted || text == null || text.isEmpty) {
+      return;
+    }
+    privateKeyController.text = text;
   }
 }
