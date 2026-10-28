@@ -2634,9 +2634,11 @@ packages:
   rlz:
     dependency: "direct overridden"
     description:
-      path: "../zkool2/rust_builder"
-      relative: true
-    source: path
+      path: rust_builder
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      resolved-ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      url: "https://github.com/cake-tech/zkool2.git"
+    source: git
     version: "0.0.1"
   rxdart:
     dependency: "direct main"
@@ -3490,9 +3492,11 @@ packages:
   zkool:
     dependency: "direct overridden"
     description:
-      path: "../zkool2"
-      relative: true
-    source: path
+      path: "."
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      resolved-ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      url: "https://github.com/cake-tech/zkool2.git"
+    source: git
     version: "6.31.0"
 sdks:
   dart: ">=3.9.0 <4.0.0"
