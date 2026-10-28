@@ -227,10 +227,8 @@ abstract class WalletKeysViewModelBase with Store {
           if ((electrumKeys['wif'] ?? '').isNotEmpty)
             StandartListItem(title: "WIF", value: electrumKeys['wif']!),
           if ((electrumKeys['privateKey'] ?? '').isNotEmpty)
-            StandartListItem(title: S.current.private_key, value: electrumKeys['privateKey']!),
-          if (electrumKeys['publicKey'] != null)
-            StandartListItem(title: S.current.public_key, value: electrumKeys['publicKey']!),
-          if (electrumKeys['xpub'] != null)
+            StandartListItem(title: "xPrv", value: electrumKeys['privateKey']!),
+          if ((electrumKeys['xpub'] ?? '').isNotEmpty)
             StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
         ]);
         break;

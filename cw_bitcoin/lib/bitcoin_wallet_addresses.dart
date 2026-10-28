@@ -10,7 +10,6 @@ import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:payjoin_flutter/receive.dart' as payjoin;
 
@@ -22,13 +21,9 @@ class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAd
 
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
-    WalletInfo walletInfo, {
-    required super.mainHdByTypeAndAccount,
-    required super.sideHdByTypeAndAccount,
-    required super.accountIndexes,
-    required super.currentAccountIndex,
-    required super.legacySideHd,
-    required super.legacyMainHd,
+    super.walletInfo, {
+    required super.accounts,
+    required int currentAccountIndex,
     required super.network,
     required super.isHardwareWallet,
     required this.payjoinManager,
@@ -39,9 +34,19 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialSilentAddressIndex = 0,
     super.masterHd,
     super.lightningWallet,
-  }) : super(walletInfo);
+      }) : _currentAccountIndex = currentAccountIndex;
 
   final PayjoinManager payjoinManager;
+
+  @observable
+  int _currentAccountIndex;
+
+  @override
+  int get currentAccountIndex => _currentAccountIndex;
+
+  @override
+  @action
+  void setCurrentAccountIndex(int index) => _currentAccountIndex = index;
 
   payjoin.Receiver? currentPayjoinReceiver;
 
