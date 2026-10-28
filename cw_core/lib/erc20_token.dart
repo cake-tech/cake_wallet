@@ -131,7 +131,6 @@ class Erc20Token extends CryptoCurrency {
     return id;
   }
 
-  /// [save] for several tokens in one database round trip.
   static Future<void> saveAll(List<Erc20Token> tokens) async {
     if (tokens.isEmpty) return;
     final batch = db!.batch();

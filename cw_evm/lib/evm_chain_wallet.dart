@@ -244,7 +244,6 @@ abstract class EVMChainWalletBase
     await Erc20Token.saveAll(changedTokens);
   }
 
-  // Whether saving [token] would write the row [stored] already has (ignoring the row id).
   bool _isStoredAs(Erc20Token stored, Erc20Token token) => mapEquals(
         stored.toMap()..remove(Erc20Token.selfIdColumn),
         token.toMap()..remove(Erc20Token.selfIdColumn),

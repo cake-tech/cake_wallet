@@ -204,7 +204,6 @@ abstract class TronWalletBase
     await TronToken.saveAll(changedTokens);
   }
 
-  // Whether saving [token] would write the row [stored] already has (ignoring the row id).
   bool _isStoredAs(TronToken stored, TronToken token) => mapEquals(
         stored.toMap()..remove(TronToken.selfIdColumn),
         token.toMap()..remove(TronToken.selfIdColumn),

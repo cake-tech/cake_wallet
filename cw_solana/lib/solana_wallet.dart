@@ -812,7 +812,6 @@ abstract class SolanaWalletBase
     await SPLToken.saveAll(changedTokens);
   }
 
-  // Whether saving [token] would write the row [stored] already has (ignoring the row id).
   bool _isStoredAs(SPLToken stored, SPLToken token) => mapEquals(
         stored.toMap()..remove(SPLToken.selfIdColumn),
         token.toMap()..remove(SPLToken.selfIdColumn),

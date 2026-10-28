@@ -121,7 +121,6 @@ class TronToken extends CryptoCurrency {
     return id;
   }
 
-  /// [save] for several tokens in one database round trip.
   static Future<void> saveAll(List<TronToken> tokens) async {
     if (tokens.isEmpty) return;
     final batch = db!.batch();
