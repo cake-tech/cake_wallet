@@ -2990,8 +2990,8 @@ abstract class ElectrumWalletBase
         historiesWithDetails.addAll(result.transactions);
 
         final matchedAddresses = branchFor(addressRecord);
-        final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
-            matchedAddresses.length -
+        final isUsedAddressAboveGap = addressRecord.index >=
+            nextIndexOf(matchedAddresses) -
                 (addressRecord.isHidden
                     ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
                     : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
@@ -3483,7 +3483,7 @@ abstract class ElectrumWalletBase
 
     final highestUsedIndex = _highestUsedIndex(currentBranch);
     final shouldDiscover =
-        highestUsedIndex >= 0 && highestUsedIndex >= currentBranch.length - gapLimit;
+        highestUsedIndex >= 0 && highestUsedIndex >= nextIndexOf(currentBranch) - gapLimit;
 
     if (!shouldDiscover) return;
 
@@ -3533,9 +3533,11 @@ abstract class ElectrumWalletBase
           .toList()
         ..sort((a, b) => a.index.compareTo(b.index));
 
+  /// The derivation index of the highest used address, -1 when none is used.
+  /// [addresses] must be sorted by index, as [getAddressBranchByType] returns them.
   int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
     for (int i = addresses.length - 1; i >= 0; i--) {
-      if (addresses[i].isUsed) return i;
+      if (addresses[i].isUsed) return addresses[i].index;
     }
     return -1;
   }
