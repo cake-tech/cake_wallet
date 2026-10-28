@@ -89,11 +89,11 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
   Widget build(BuildContext context) {
     final vm = widget.payjoinDetailsViewModel;
     final session = vm.payjoinSession;
-    final isOutgoing = session.isSenderSession;
+    final isOutgoing = session?.isSenderSession ?? false;
     final amountDisplay = getIt
         .get<AppStore>()
         .amountParsingProxy
-        .asDisplayStringWithSymbol(Money(session.amount, CryptoCurrency.btc));
+        .asDisplayStringWithSymbol(Money(session?.amount ?? BigInt.zero, CryptoCurrency.btc));
 
     return SafeArea(
         bottom: false,

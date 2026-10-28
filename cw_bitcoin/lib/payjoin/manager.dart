@@ -15,6 +15,7 @@ import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_send_worker.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/psbt/utils.dart';
+import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/payjoin_session.dart';
@@ -61,6 +62,24 @@ class PayjoinManager {
 
   Future<void> initPayjoin() async {
     await Future.wait([initLogging(), _eventStore.ensureOpen()]);
+    await _deleteLegacyHiveBoxes();
+  }
+
+  /// One-time cleanup: payjoin sessions and their event logs lived in Hive
+  /// boxes (`PayjoinSessions`, `PayjoinSessionEvents`) before the SQLite
+  /// migration. The old dep kept protocol state in memory only, so nothing
+  /// in those boxes is salvageable across an app restart — delete them from
+  /// disk instead of migrating. Best-effort: missing boxes or a Hive failure
+  /// must never block payjoin startup.
+  Future<void> _deleteLegacyHiveBoxes() async {
+    for (final boxName in ['PayjoinSessions', 'PayjoinSessionEvents']) {
+      try {
+        await CakeHive.deleteBoxFromDisk(boxName);
+        writePayjoinLog("Deleted legacy Hive box $boxName");
+      } catch (_) {
+        // Box absent or Hive not initialized — nothing to clean up.
+      }
+    }
   }
 
   Future<void> initLogging() async {
@@ -92,7 +111,7 @@ class PayjoinManager {
   }
 
   Future<void> resumeSessions() async {
-    final allSessions = _payjoinStorage.readAllOpenSessions(_wallet.id);
+    final allSessions = await _payjoinStorage.readAllOpenSessions(_wallet.id);
 
     for (final session in allSessions) {
       if (session.isSenderSession) {
@@ -117,13 +136,13 @@ class PayjoinManager {
         return;
       }
 
-      final persister = PayjoinReceiverPersister(_eventStore.box, sessionId);
+      final persister = PayjoinReceiverPersister(_eventStore, sessionId);
       final replayResult = pj.replayReceiverEventLog(persister: persister);
       final state = replayResult.state();
       replayResult.dispose();
 
       if (state is pj.ClosedReceiveSession) {
-        final stored = _payjoinStorage.getReceiverSession(sessionId);
+        final stored = await _payjoinStorage.getReceiverSession(sessionId);
         final alreadySuccess = stored?.status == PayjoinSessionStatus.success.name;
         if (!alreadySuccess) {
           await _payjoinStorage.markReceiverSessionUnrecoverable(
@@ -226,7 +245,7 @@ class PayjoinManager {
         return;
       }
 
-      final persister = PayjoinSenderPersister(_eventStore.box, pjUri);
+      final persister = PayjoinSenderPersister(_eventStore, pjUri);
       final replayResult = pj.replaySenderEventLog(persister: persister);
       final state = replayResult.state();
       replayResult.dispose();
@@ -245,7 +264,7 @@ class PayjoinManager {
         // in storage, nothing to do. Otherwise the prior run got the
         // proposal PSBT but couldn't broadcast (wallet was closed) — try
         // broadcast now with the fresh electrum client.
-        final stored = _payjoinStorage.getSenderSession(pjUri);
+        final stored = await _payjoinStorage.getSenderSession(pjUri);
         if (stored?.status == PayjoinSessionStatus.success.name) {
           return;
         }
@@ -352,7 +371,7 @@ class PayjoinManager {
 
     final senderWorker = PayjoinSenderWorker(
       mailroomManager: _mailroomManager,
-      persister: PayjoinSenderPersister(_eventStore.box, pjUri),
+      persister: PayjoinSenderPersister(_eventStore, pjUri),
     );
     final minFeeRateSatPerKwu = networkFeesSatPerVb * 250;
 
@@ -420,7 +439,7 @@ class PayjoinManager {
   /// (the receiver would reject such a proposal at BIP78's
   /// `checkInputsNotOwned` anyway). Returns false for malformed URIs or
   /// endpoints that don't match any local receiver session.
-  bool isSelfSendPayjoinUri(String? pjUriString) {
+  Future<bool> isSelfSendPayjoinUri(String? pjUriString) async {
     if (pjUriString == null || pjUriString.isEmpty) return false;
     String endpoint;
     try {
@@ -429,7 +448,7 @@ class PayjoinManager {
     } catch (_) {
       return false;
     }
-    final ownReceiver = _payjoinStorage.getReceiverSession(endpoint);
+    final ownReceiver = await _payjoinStorage.getReceiverSession(endpoint);
     return ownReceiver != null && ownReceiver.walletId == _wallet.id;
   }
 
@@ -478,7 +497,7 @@ class PayjoinManager {
         final pjEndpoint = pjUri.pjEndpoint();
 
         final durablePersister = PayjoinReceiverPersister(
-          _eventStore.box,
+          _eventStore,
           pjEndpoint,
         );
         for (final event in ephemeral.load()) {
@@ -515,10 +534,10 @@ class PayjoinManager {
       // always takes the replay path — no new directory/OHTTP keys are
       // needed. Fetching them here would only add a failure point that
       // leaves the persisted session without a polling worker.
-      _payjoinStorage.markReceiverSessionWaiting(pjEndpoint);
+      _payjoinStorage.markReceiverSessionWaiting(pjEndpoint).ignore();
 
       final persister = PayjoinReceiverPersister(
-        _eventStore.box,
+        _eventStore,
         pjEndpoint,
       );
 
@@ -541,7 +560,7 @@ class PayjoinManager {
             _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
         persister: persister,
         onProposalReceived: () {
-          _payjoinStorage.markReceiverSessionInProgress(pjEndpoint);
+          unawaited(_payjoinStorage.markReceiverSessionInProgress(pjEndpoint));
           // Sender's original PSBT is now in the event log.  Extract the
           // receiver's output amount so the dashboard displays a real value
           // instead of 0 during the processing window, and store the sender's
@@ -578,15 +597,15 @@ class PayjoinManager {
         // synchronously from the event log instead of racing with the
         // unawaited onProposalReceived handler.
         final senderOriginal = _senderOriginalPsbtFromEvents(pjEndpoint);
-        final session = _payjoinStorage.getReceiverSession(pjEndpoint);
-        if (session != null &&
-            (session.originalPsbt ?? '').isEmpty &&
-            senderOriginal != null) {
-          session.originalPsbt = senderOriginal;
-          await session.save();
+        if (senderOriginal != null) {
+          await _payjoinStorage.mutateReceiver(pjEndpoint, (session) {
+            if ((session.originalPsbt ?? '').isEmpty) {
+              session.originalPsbt = senderOriginal;
+            }
+          });
         }
 
-        _payjoinStorage.markReceiverSessionComplete(
+        await _payjoinStorage.markReceiverSessionComplete(
           pjEndpoint,
           txId,
           netAmount,
@@ -627,11 +646,11 @@ class PayjoinManager {
   Future<void> _maybeResumeReceiverWorker(String endpoint) async {
     if (_runningReceivers.containsKey(endpoint)) return;
 
-    final session = _payjoinStorage.getReceiverSession(endpoint);
+    final session = await _payjoinStorage.getReceiverSession(endpoint);
     if (session == null) return;
 
     await _eventStore.ensureOpen();
-    final persister = PayjoinReceiverPersister(_eventStore.box, endpoint);
+    final persister = PayjoinReceiverPersister(_eventStore, endpoint);
     if (persister.load().isEmpty) return;
 
     // Same UTXO policy as spawnReceiver: confirmed-only (with a rescan
@@ -690,14 +709,14 @@ class PayjoinManager {
       // synchronously from the event log instead of racing with the
       // unawaited onProposalReceived handler.
       final senderOriginal = _senderOriginalPsbtFromEvents(endpoint);
-      final session = _payjoinStorage.getReceiverSession(endpoint);
-      if (session != null &&
-          (session.originalPsbt ?? '').isEmpty &&
-          senderOriginal != null) {
-        session.originalPsbt = senderOriginal;
-        await session.save();
+      if (senderOriginal != null) {
+        await _payjoinStorage.mutateReceiver(endpoint, (session) {
+          if ((session.originalPsbt ?? '').isEmpty) {
+            session.originalPsbt = senderOriginal;
+          }
+        });
       }
-      _payjoinStorage.markReceiverSessionComplete(endpoint, txId, netAmount);
+      await _payjoinStorage.markReceiverSessionComplete(endpoint, txId, netAmount);
     } on pj.ReceiverReplayException catch (e) {
       if (e.isExpired()) {
         await _payjoinStorage.markReceiverSessionUnrecoverable(
@@ -725,13 +744,13 @@ class PayjoinManager {
   Future<void> _maybeResumeSenderWorker(String endpoint) async {
     if (_runningSenders.containsKey(endpoint)) return;
 
-    final session = _payjoinStorage.getSenderSession(endpoint);
+    final session = await _payjoinStorage.getSenderSession(endpoint);
     if (session == null) return;
     final originalPsbt = session.originalPsbt;
     if (originalPsbt == null || originalPsbt.isEmpty) return;
 
     await _eventStore.ensureOpen();
-    final persister = PayjoinSenderPersister(_eventStore.box, endpoint);
+    final persister = PayjoinSenderPersister(_eventStore, endpoint);
     if (persister.load().isEmpty) return;
 
     final worker = PayjoinSenderWorker(
@@ -844,14 +863,10 @@ class PayjoinManager {
           if (sum > 0) total = sum;
         }
 
-        final session = _payjoinStorage.getReceiverSession(sessionId);
-        if (session != null) {
-          var changed = false;
-
+        await _payjoinStorage.mutateReceiver(sessionId, (session) {
           if (total != null &&
               (session.rawAmount == null || session.rawAmount == '0')) {
             session.rawAmount = total.toString();
-            changed = true;
             writePayjoinLog(
               "Receiver($sessionId) amount=$total sats "
               '(from RetrievedOriginalPayload)',
@@ -864,15 +879,12 @@ class PayjoinManager {
           // offer fallback broadcast while the session is still in progress.
           if ((session.originalPsbt ?? '').isEmpty) {
             session.originalPsbt = psbtBase64;
-            changed = true;
             writePayjoinLog(
               "Receiver($sessionId) fallback PSBT stored "
-              '(len=${psbtBase64.length}, from RetrievedOriginalPayload)',
+              '(len=${psbtBase64?.length ?? 0}, from RetrievedOriginalPayload)',
             );
           }
-
-          if (changed) await session.save();
-        }
+        });
         return; // Only process the first (earliest) match.
       }
     } catch (e) {
@@ -913,7 +925,7 @@ class PayjoinManager {
       final events = _eventStore.loadReceiver(sessionId);
       if (events.isEmpty) return;
 
-      final persister = PayjoinReceiverPersister(_eventStore.box, sessionId);
+      final persister = PayjoinReceiverPersister(_eventStore, sessionId);
       final replayResult = pj.replayReceiverEventLog(persister: persister);
       final state = replayResult.state();
       replayResult.dispose();
@@ -1015,7 +1027,7 @@ class PayjoinManager {
 
   Future<void> fallbackBroadcast(String endpoint) async {
     await _eventStore.ensureOpen();
-    final session = _payjoinStorage.getSessionByEndpoint(endpoint);
+    final session = await _payjoinStorage.getSessionByEndpoint(endpoint);
     final data = session?.originalPsbt;
     if (data == null || data.isEmpty) {
       writePayjoinLog("Fallback($endpoint) no stored PSBT");
@@ -1119,10 +1131,10 @@ class PayjoinManager {
     }
   }
 
-  bool hasActiveReceiverSession(String walletId) =>
+  Future<bool> hasActiveReceiverSession(String walletId) =>
       _payjoinStorage.hasActiveReceiverSession(walletId);
 
-  PayjoinSession? sessionForTxId(String txId) =>
+  Future<PayjoinSession?> sessionForTxId(String txId) =>
       _payjoinStorage.getSessionByTxId(txId, walletId: _wallet.id);
 
   /// Looks up a payjoin session for [txId] in this wallet's storage. If no
@@ -1132,15 +1144,15 @@ class PayjoinManager {
   /// receiver sessions' [PayjoinSession.recipientAddress]. A match
   /// retroactively associates the broadcast tx with the receiver session so
   /// the dashboard can render the correct (incoming) direction.
-  PayjoinSession? sessionForTxIdWithBackfill(
+  Future<PayjoinSession?> sessionForTxIdWithBackfill(
     String txId,
     List<String> outputAddresses,
-  ) {
-    final direct = _payjoinStorage.getSessionByTxId(txId, walletId: _wallet.id);
+  ) async {
+    final direct = await _payjoinStorage.getSessionByTxId(txId, walletId: _wallet.id);
     if (direct != null) return direct;
     if (outputAddresses.isEmpty) return null;
 
-    final matched = _payjoinStorage.findReceiverSessionByRecipientAddress(
+    final matched = await _payjoinStorage.findReceiverSessionByRecipientAddress(
       _wallet.id,
       outputAddresses.toSet(),
     );
@@ -1156,22 +1168,23 @@ class PayjoinManager {
     }
 
     // Backfill: this broadcast IS the receiver's payjoin outcome.
-    matched.status = PayjoinSessionStatus.success.name;
-    matched.txId = txId;
-    unawaited(matched.save());
+    unawaited(_payjoinStorage.mutateReceiver(matched.receiver!, (session) {
+      session.status = PayjoinSessionStatus.success.name;
+      session.txId = txId;
+    }));
     writePayjoinLog(
       "Receiver(${matched.receiver}) backfilled txId=$txId via output-address match",
     );
     return matched;
   }
 
-  String generateExportData() {
+  Future<String> generateExportData() async {
     final buf = StringBuffer();
     buf.writeln('=== Payjoin Session Data ===');
     buf.writeln('Generated: ${DateTime.now().toIso8601String()}');
     buf.writeln('');
 
-    final allSessions = _payjoinStorage.readAllSessions(_wallet.id);
+    final allSessions = await _payjoinStorage.readAllSessions(_wallet.id);
     final eventsReady = _eventStore.isReady;
     for (final session in allSessions) {
       buf.writeln('--- Session ---');

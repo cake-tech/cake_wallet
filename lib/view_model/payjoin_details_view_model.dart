@@ -13,11 +13,10 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
+import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:flutter/widgets.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -29,32 +28,15 @@ abstract class PayjoinDetailsViewModelBase with Store {
   PayjoinDetailsViewModelBase(
     this.payjoinSessionId,
     this.transactionInfo, {
-    required this.payjoinSessionSource,
+    required PayjoinStorage payjoinStorage,
     required this.themeStore,
   })  : items = ObservableList<TransactionDetailsListItem>(),
-        payjoinSession = payjoinSessionSource.get(payjoinSessionId)! {
-    if (transactionInfo != null) {
-      _transactionDetailsViewModel =
-          getIt.get<TransactionDetailsViewModel>(param1: [transactionInfo, false]);
-      final hasRecipient = _transactionDetailsViewModel!.items.any((i) => i is AddressListItem);
-      if (!hasRecipient && payjoinSession.recipientAddress != null) {
-        _transactionDetailsViewModel!.items.insert(
-          _recipientInsertIndex(_transactionDetailsViewModel!.items),
-          AddressListItem(
-            title: S.current.transaction_details_recipient_address,
-            value: payjoinSession.recipientAddress!,
-            key: const ValueKey('standard_list_item_transaction_details_recipient_address_key'),
-          ),
-        );
-      }
-    }
-    listener = payjoinSessionSource.watch().listen((e) {
-      if (e.key == payjoinSessionId) _updateItems();
-    });
-    _updateItems();
+        _payjoinStorage = payjoinStorage {
+    _loadSession();
+    listener = PayjoinStorage.changes.listen((_) => _loadSession());
   }
 
-  final Box<PayjoinSession> payjoinSessionSource;
+  final PayjoinStorage _payjoinStorage;
   final ThemeStore themeStore;
   final String payjoinSessionId;
   final TransactionInfo? transactionInfo;
@@ -63,35 +45,64 @@ abstract class PayjoinDetailsViewModelBase with Store {
   TransactionDetailsViewModel? get transactionDetailsViewModel => _transactionDetailsViewModel;
 
   @observable
-  late PayjoinSession payjoinSession;
+  PayjoinSession? payjoinSession;
 
   final ObservableList<TransactionDetailsListItem> items;
 
-  late final StreamSubscription<BoxEvent> listener;
+  late final StreamSubscription<void> listener;
 
   Timer? timer;
 
+  /// Loads (or reloads, on storage changes) the session and rebuilds the
+  /// detail items. No-ops once the session row disappears.
+  @action
+  Future<void> _loadSession() async {
+    final session = await _payjoinStorage.getSessionByKey(payjoinSessionId);
+    if (session == null) return;
+    payjoinSession = session;
+
+    if (transactionInfo != null && _transactionDetailsViewModel == null) {
+      _transactionDetailsViewModel =
+          getIt.get<TransactionDetailsViewModel>(param1: [transactionInfo, false]);
+      final hasRecipient = _transactionDetailsViewModel!.items.any((i) => i is AddressListItem);
+      if (!hasRecipient && session.recipientAddress != null) {
+        _transactionDetailsViewModel!.items.insert(
+          _recipientInsertIndex(_transactionDetailsViewModel!.items),
+          AddressListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: session.recipientAddress!,
+            key: const ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+          ),
+        );
+      }
+    }
+
+    _updateItems();
+  }
+
   @action
   void _updateItems() {
+    final session = payjoinSession;
+    if (session == null) return;
     final dateFormat = DateFormatter.withCurrentLocal();
     items.clear();
     items.addAll([
       DetailsListStatusItem(
         title: S.current.status,
         value: _getStatusString(),
-        status: payjoinSession.status,
+        status: session.status,
       ),
       TradeDetailsListCardItem(
-        id: payjoinSession.isSenderSession ? S.current.sending : S.current.receiving,
-        createdAt: dateFormat.format(payjoinSession.inProgressSince!).toString(),
+        id: session.isSenderSession ? S.current.sending : S.current.receiving,
+        createdAt: dateFormat.format(session.inProgressSince!).toString(),
         pair:
-            "${bitcoin!.formatterBitcoinAmountToString(amount: payjoinSession.amount.toInt())} BTC",
+            "${bitcoin!.formatterBitcoinAmountToString(amount: session.amount.toInt())} BTC",
         onTap: (_) {},
       ),
-      if (payjoinSession.error?.isNotEmpty == true)
+      if (session.error?.isNotEmpty == true)
         StandartListItem(
           title: S.current.error,
-          value: payjoinSession.error!,
+          value: session.error!,
         ),
     ]);
 
@@ -99,13 +110,13 @@ abstract class PayjoinDetailsViewModelBase with Store {
       items.addAll(_transactionDetailsViewModel!.items);
     }
 
-    if (payjoinSession.txId?.isNotEmpty == true) {
+    if (session.txId?.isNotEmpty == true) {
       items.add(BlockExplorerListItem(
         title: '${S.current.view_transaction_on}mempool.cakewallet.com',
         value: '${S.current.view_transaction_on}mempool.space',
         onTap: () async {
           try {
-            final uri = Uri.parse('https://mempool.cakewallet.com/tx/${payjoinSession.txId!}');
+            final uri = Uri.parse('https://mempool.cakewallet.com/tx/${session.txId!}');
             if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         },
@@ -123,29 +134,29 @@ abstract class PayjoinDetailsViewModelBase with Store {
 
   @action
   Future<void> fallbackBroadcast() async {
-    if (payjoinSession.originalPsbt == null) return;
+    if (payjoinSession?.originalPsbt == null) return;
     final wallet = getIt.get<AppStore>().wallet;
     if (wallet == null) return;
     await bitcoin!.fallbackBroadcastPayjoin(wallet, payjoinSessionId);
   }
 
   bool get canCancel =>
-      payjoinSession.status == PayjoinSessionStatus.inProgress.name ||
-      payjoinSession.status == PayjoinSessionStatus.waiting.name ||
-      payjoinSession.status == PayjoinSessionStatus.created.name;
+      payjoinSession?.status == PayjoinSessionStatus.inProgress.name ||
+      payjoinSession?.status == PayjoinSessionStatus.waiting.name ||
+      payjoinSession?.status == PayjoinSessionStatus.created.name;
 
   bool get canFallback =>
-      payjoinSession.originalPsbt?.isNotEmpty == true &&
-      !payjoinSession.usedFallback &&
+      payjoinSession?.originalPsbt?.isNotEmpty == true &&
+      payjoinSession!.usedFallback == false &&
       !isTxBroadcastSeen &&
-      (payjoinSession.status == PayjoinSessionStatus.inProgress.name ||
-          payjoinSession.status == PayjoinSessionStatus.unrecoverable.name ||
-          payjoinSession.status == PayjoinSessionStatus.cancelled.name ||
+      (payjoinSession!.status == PayjoinSessionStatus.inProgress.name ||
+          payjoinSession!.status == PayjoinSessionStatus.unrecoverable.name ||
+          payjoinSession!.status == PayjoinSessionStatus.cancelled.name ||
           // Receiver-only: `success` means the proposal was posted, not that
           // a transaction was broadcast. The sender broadcasts, so sender
           // `success` is final — no fallback.
-          (payjoinSession.status == PayjoinSessionStatus.success.name &&
-              !payjoinSession.isSenderSession));
+          (payjoinSession!.status == PayjoinSessionStatus.success.name &&
+              !payjoinSession!.isSenderSession));
 
   /// True once the wallet has observed the payjoin transaction — in the
   /// mempool (sender broadcast / receiver found it) or already confirmed.
@@ -154,7 +165,8 @@ abstract class PayjoinDetailsViewModelBase with Store {
   bool get isTxBroadcastSeen => transactionInfo != null;
 
   int _recipientInsertIndex(List<TransactionDetailsListItem> items) {
-    if (payjoinSession.isSenderSession) {
+    final session = payjoinSession;
+    if (session == null || session.isSenderSession) {
       return items.length;
     }
     const txIdKey = 'standard_list_item_transaction_details_id_key';
@@ -165,7 +177,9 @@ abstract class PayjoinDetailsViewModelBase with Store {
   }
 
   String _getStatusString() {
-    switch (payjoinSession.status) {
+    final session = payjoinSession;
+    if (session == null) return '';
+    switch (session.status) {
       case 'success':
         if (transactionInfo?.isPending == false) return S.current.successful;
         return S.current.payjoin_request_awaiting_tx;
@@ -178,10 +192,10 @@ abstract class PayjoinDetailsViewModelBase with Store {
       case 'unrecoverable':
         // Legacy sessions persisted before the explicit `cancelled` status
         // stored the cancel as unrecoverable + error 'Cancelled'.
-        if (payjoinSession.error == 'Cancelled') return S.current.cancelled;
+        if (session.error == 'Cancelled') return S.current.cancelled;
         return S.current.error;
       default:
-        return payjoinSession.status;
+        return session.status;
     }
   }
 }

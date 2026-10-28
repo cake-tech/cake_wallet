@@ -1,57 +1,35 @@
-import 'dart:convert';
-
-import 'package:hive/hive.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
 import 'package:payjoin/payjoin.dart' as pj;
 
 class PayjoinSenderPersister extends pj.JsonSenderSessionPersister {
-  final Box<String> _box;
+  final PayjoinEventStore _store;
   final String _key;
 
-  PayjoinSenderPersister(Box<String> box, String sessionId)
-      : _box = box,
-        _key = 'send_$sessionId';
+  PayjoinSenderPersister(this._store, String sessionId)
+      : _key = PayjoinEventStore.senderKey(sessionId);
 
   @override
-  void save(String event) {
-    final raw = _box.get(_key, defaultValue: '[]') as String;
-    final events = (jsonDecode(raw) as List).cast<String>();
-    events.add(event);
-    _box.put(_key, jsonEncode(events));
-  }
+  void save(String event) => _store.append(_key, event);
 
   @override
-  List<String> load() {
-    final raw = _box.get(_key);
-    if (raw == null) return [];
-    return List<String>.from(jsonDecode(raw) as List);
-  }
+  List<String> load() => _store.load(_key);
 
   @override
   void close() {}
 }
 
 class PayjoinReceiverPersister extends pj.JsonReceiverSessionPersister {
-  final Box<String> _box;
+  final PayjoinEventStore _store;
   final String _key;
 
-  PayjoinReceiverPersister(Box<String> box, String sessionId)
-      : _box = box,
-        _key = 'recv_$sessionId';
+  PayjoinReceiverPersister(this._store, String sessionId)
+      : _key = PayjoinEventStore.receiverKey(sessionId);
 
   @override
-  void save(String event) {
-    final raw = _box.get(_key, defaultValue: '[]') as String;
-    final events = (jsonDecode(raw) as List).cast<String>();
-    events.add(event);
-    _box.put(_key, jsonEncode(events));
-  }
+  void save(String event) => _store.append(_key, event);
 
   @override
-  List<String> load() {
-    final raw = _box.get(_key);
-    if (raw == null) return [];
-    return List<String>.from(jsonDecode(raw) as List);
-  }
+  List<String> load() => _store.load(_key);
 
   @override
   void close() {}
