@@ -105,17 +105,19 @@ class EverstakeEthereumTransactionValidator {
     List<BigInt> arguments = const [],
   }) {
     if (transaction.from.toLowerCase() != address.toLowerCase()) {
-      throw EverstakeException("Unexpected Everstake transaction sender");
+      throw const EverstakeTransactionMismatchException("Unexpected Everstake transaction sender");
     }
     if (transaction.to.toLowerCase() != contract.toLowerCase()) {
-      throw EverstakeException("Unexpected Everstake transaction contract");
+      throw const EverstakeTransactionMismatchException(
+        "Unexpected Everstake transaction contract",
+      );
     }
     final expectedValue = _wei(value);
     if (expectedValue.isNegative || expectedValue.bitLength > 256) {
       throw ArgumentError.value(value, "value", "Expected a uint256 ETH amount");
     }
     if (_wei(transaction.value) != expectedValue) {
-      throw EverstakeException("Unexpected Everstake transaction value");
+      throw const EverstakeTransactionMismatchException("Unexpected Everstake transaction value");
     }
 
     final function = _abi.functions.firstWhere((function) => function.name == method);
@@ -129,7 +131,7 @@ class EverstakeEthereumTransactionValidator {
 
     final data = bytesToHex(function.encodeCall(arguments), include0x: true);
     if (!transaction.data.startsWith("0x") || transaction.data.toLowerCase() != data) {
-      throw EverstakeException("Unexpected Everstake transaction data");
+      throw const EverstakeTransactionMismatchException("Unexpected Everstake transaction data");
     }
   }
 

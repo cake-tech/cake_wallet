@@ -8,6 +8,9 @@ import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:http/http.dart" as very_insecure_http_do_not_use;
 
 class EverstakeService {
+  // TODO: add Cake Wallet's Everstake source once it is available
+  static const source = "0";
+
   static const _apiHost = "wallet-sdk-api.everstake.com";
   static const _b2cApiHost = "eth-api-b2c.everstake.com";
   static const _requestTimeout = Duration(seconds: 20);
@@ -70,7 +73,6 @@ class EverstakeService {
   Future<EverstakeEthereumTransaction> prepareEthereumStake({
     required String address,
     required Money amount,
-    required String source,
   }) async {
     final uri = Uri.https(_apiHost, "/ethereum/pool/stake", {"network": "mainnet"});
     final response = await _post(uri, {
@@ -85,7 +87,6 @@ class EverstakeService {
     required String address,
     required Money amount,
     required int allowedInterchangeNum,
-    required String source,
   }) async {
     final uri = Uri.https(_apiHost, "/ethereum/pool/simulate_unstake", {"network": "mainnet"});
     final response = await _post(uri, {
@@ -101,7 +102,6 @@ class EverstakeService {
     required String address,
     required Money amount,
     required int allowedInterchangeNum,
-    required String source,
   }) async {
     final uri = Uri.https(_apiHost, "/ethereum/pool/unstake", {"network": "mainnet"});
     final response = await _post(uri, {
@@ -150,7 +150,7 @@ class EverstakeService {
 
   dynamic _decodeJson(very_insecure_http_do_not_use.Response response) {
     if (response.statusCode != 200) {
-      throw EverstakeException("${response.statusCode}: ${response.body}");
+      throw EverstakeResponseException(response.body, response.statusCode);
     }
     return jsonDecode(response.body);
   }

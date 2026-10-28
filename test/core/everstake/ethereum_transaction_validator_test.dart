@@ -52,7 +52,8 @@ void main() {
       EverstakeEthereumTransaction.fromJson(json, value: value ?? Money.zero(CryptoCurrency.eth));
 
   Matcher rejectsFor(String reason) => throwsA(
-        isA<EverstakeException>().having((e) => e.message, "message", contains(reason)),
+        isA<EverstakeTransactionMismatchException>()
+            .having((e) => e.message, "message", contains(reason)),
       );
 
   group("accepts the transactions Everstake builds", () {

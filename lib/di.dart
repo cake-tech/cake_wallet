@@ -75,6 +75,7 @@ import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
@@ -585,14 +586,21 @@ Future<void> setup({
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactoryParam<EthereumStakingBloc, String, void>(
-    (source, _) => EthereumStakingBloc(
+  getIt.registerFactory<EthereumStakingBloc>(
+    () => EthereumStakingBloc(
       wallet: getIt.get<AppStore>().wallet!,
       settingsStore: getIt.get<SettingsStore>(),
       evm: evm!,
       service: EverstakeService(),
       validator: EverstakeEthereumTransactionValidator(),
-      source: source,
+    ),
+  );
+
+  getIt.registerFactoryParam<FiatRateCubit, CryptoCurrency, void>(
+    (currency, _) => FiatRateCubit(
+      currency: currency,
+      settingsStore: getIt.get<SettingsStore>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
     ),
   );
 

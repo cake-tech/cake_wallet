@@ -2,15 +2,6 @@ part of "ethereum_staking_bloc.dart";
 
 enum EthereumStakingAction { stake, unstake, unstakePending, claimWithdrawal }
 
-enum EthereumStakingError implements Exception {
-  nonPositiveAmount,
-  belowMinimum,
-  exceedsBalance,
-  remainderBelowMinimum,
-  withdrawalNotReady,
-  notMainnet,
-}
-
 @immutable
 class EthereumStakingData {
   const EthereumStakingData({
@@ -123,5 +114,5 @@ final class EthereumStakingFailure extends EthereumStakingState {
   @override
   final EthereumStakingData? data;
 
-  final Object error;
+  final String error;
 }
