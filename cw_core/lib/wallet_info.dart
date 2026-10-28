@@ -529,7 +529,6 @@ class WalletInfo {
   Future<void> setAddresses(Map<String, String> addresses) =>
       _commitBatch((batch) => _batchAddresses(batch, addresses));
 
-  // One sqflite batch is one transaction and one round trip, instead of one of each per row.
   Future<void> _commitBatch(void Function(Batch batch) fill) async {
     final batch = db!.batch();
     fill(batch);
@@ -564,8 +563,6 @@ class WalletInfo {
     }
   }
 
-  // WalletInfoAddress.insert skips addresses that already exist; after the delete that only means
-  // repeats within [addresses], so the batch dedupes them up front.
   void _batchAddressesOfType(Batch batch, WalletInfoAddressType type, List<String> addresses) {
     batch.delete(WalletInfoAddress.tableName,
         where: 'walletInfoId = ? AND type = ?', whereArgs: [internalId, type.index]);
@@ -574,9 +571,7 @@ class WalletInfo {
     }
   }
 
-  /// [setAddresses], [setAddressInfos], [setUsedAddresses], [setHiddenAddresses] and
-  /// [setManualAddresses] in one batch.
-  Future<void> setAddressBook({
+  Future<void> setAddressesInBatch({
     required Map<String, String> addresses,
     required Map<int, List<WalletInfoAddressInfo>> addressInfos,
     required List<String> usedAddresses,

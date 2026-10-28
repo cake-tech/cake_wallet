@@ -71,8 +71,7 @@ abstract class WalletAddresses {
   Future<void> saveAddressesInBox() async {
     try {
       walletInfo.address = address;
-      // TODO: check if it will affect the performance of each wallet
-      await walletInfo.setAddressBook(
+      await walletInfo.setAddressesInBatch(
         addresses: addressesMap,
         addressInfos: addressInfos,
         usedAddresses: usedAddresses.toList(),
