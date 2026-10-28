@@ -1167,16 +1167,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       tx.isMweb = mwebEnabled;
 
       if (!mwebEnabled) {
-        if (tx.shouldCommitUR()) {
-          // a view-only wallet's PSBT is built by mwebd, which only runs while MWEB is on
-          throw const TransactionGenerationException(
-            "Turn on MWEB in MWEB settings to send from a view-only Litecoin wallet.",
-          );
-        }
-
         tx.changeAddressOverride = (await (walletAddresses as LitecoinWalletAddresses)
                 .getChangeAddress(coinTypeToSpendFrom: UnspentCoinType.nonMweb))
             .address;
+
+        if (tx.shouldCommitUR()) {
+          tx.unsignedPsbt = await buildPsbt(tx, false);
+        }
         return tx;
       }
       await waitForMwebAddresses();
@@ -1325,12 +1322,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       return str.startsWith("ur:psbt/");
     });
     if (!isUr) return;
-    // reading and extracting the signed PSBT also goes through mwebd
-    if (!mwebEnabled) {
-      throw const TransactionSendingException(
-        "Turn on MWEB in MWEB settings to send from a view-only Litecoin wallet.",
-      );
-    }
 
     final ur = URDecoder();
     for (final inp in urCodes) {
