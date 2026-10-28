@@ -37,6 +37,7 @@ import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_trezor_credentials.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -233,10 +234,18 @@ abstract class EVMChainWalletBase
         chainId: selectedChainId,
       );
 
+      if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
+
       await newToken.save();
       _upsertCachedToken(newToken);
     }
   }
+
+  // Whether saving [token] would write the row [stored] already has (ignoring the row id).
+  bool _isStoredAs(Erc20Token stored, Erc20Token token) => mapEquals(
+        stored.toMap()..remove(Erc20Token.selfIdColumn),
+        token.toMap()..remove(Erc20Token.selfIdColumn),
+      );
 
   List<String> get getDefaultTokenContractAddresses =>
       EVMChainDefaultTokens.getDefaultTokenAddresses(selectedChainId);

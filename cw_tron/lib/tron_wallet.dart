@@ -30,6 +30,7 @@ import 'package:cw_tron/tron_transaction_credentials.dart';
 import 'package:cw_tron/tron_transaction_history.dart';
 import 'package:cw_tron/tron_transaction_info.dart';
 import 'package:cw_tron/tron_wallet_addresses.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:on_chain/on_chain.dart';
 import "package:shared_preferences/shared_preferences.dart";
@@ -193,10 +194,18 @@ abstract class TronWalletBase
         walletName: walletInfo.name,
       );
 
+      if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
+
       await newToken.save();
       _upsertCachedToken(newToken);
     }
   }
+
+  // Whether saving [token] would write the row [stored] already has (ignoring the row id).
+  bool _isStoredAs(TronToken stored, TronToken token) => mapEquals(
+        stored.toMap()..remove(TronToken.selfIdColumn),
+        token.toMap()..remove(TronToken.selfIdColumn),
+      );
 
   Future<void> initTronTokens() async {
     _tronTokens = await TronToken.getAllForWallet(walletInfo.name);

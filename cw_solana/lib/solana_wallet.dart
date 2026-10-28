@@ -27,6 +27,7 @@ import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_solana/solana_wallet_addresses.dart';
 import 'package:cw_core/spl_token.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -801,10 +802,18 @@ abstract class SolanaWalletBase
         walletName: walletInfo.name,
       );
 
+      if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
+
       await newToken.save();
       _upsertCachedToken(newToken);
     }
   }
+
+  // Whether saving [token] would write the row [stored] already has (ignoring the row id).
+  bool _isStoredAs(SPLToken stored, SPLToken token) => mapEquals(
+        stored.toMap()..remove(SPLToken.selfIdColumn),
+        token.toMap()..remove(SPLToken.selfIdColumn),
+      );
 
   Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {
     try {
