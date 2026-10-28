@@ -63,7 +63,7 @@ dependencies:
   bitbox_flutter:
     git:
       url: https://github.com/konstantinullrich/bitbox_flutter.git
-      ref: e5eca2eea1065346c04db164b874c9fe622c7c5f
+      ref: 1552486757c4fd83f1038a9cb618879756050484
   socks_socket:
     git:
       url: https://github.com/sneurlax/socks_socket

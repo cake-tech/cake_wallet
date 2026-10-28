@@ -51,8 +51,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   late final sdk.BitboxUsbConnectionManager usbManager;
 
   sdk.BitboxConnection? _connection;
-  BitboxHardwareWalletDevice? _connectedDevice;
-  Timer? _isConnectedTimer;
+  StreamSubscription<sdk.BitboxConnectionStatus>? _statusChanges;
 
   @override
   HardwareWalletType get hardwareWalletType => HardwareWalletType.bitbox;
@@ -156,43 +155,37 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
         await _connection!.channelHashVerify();
       } else {
         isConnecting = false;
-        _connectedDevice = null;
-        _isConnectedTimer?.cancel();
-        _isConnectedTimer = null;
+        unawaited(disconnect());
         return false;
       }
 
-      _connectedDevice = device;
-      if (device.connectionType == HardwareWalletConnectionType.usb) {
-        _isConnectedTimer = Timer.periodic(const Duration(seconds: 1), (_) => _isStillConnected());
-      }
+      _statusChanges = _connection?.statusChanges.listen((e) {
+        if (e == sdk.BitboxConnectionStatus.disconnected) {
+          unawaited(disconnect());
+        }
+      });
       isConnecting = false;
       return true;
     } catch (e) {
+      unawaited(disconnect());
       printV(e);
     } finally {
       unawaited(events?.cancel());
       printV("DONE!");
+      isConnecting = false;
     }
-    isConnecting = false;
-    _connectedDevice = null;
-    _isConnectedTimer?.cancel();
-    _isConnectedTimer = null;
     return false;
   }
 
-  @override
-  bool isConnected(WalletType type) => _connectedDevice != null;
-
-  Future<void> _isStillConnected() async {
-    final devices = await getAllUsbDevices();
-
-    if (!devices.any((d) => d.name == _connectedDevice?.name)) {
-      _connectedDevice = null;
-      _isConnectedTimer?.cancel();
-      _isConnectedTimer = null;
-    }
+  Future<void> disconnect() async {
+    await _connection?.disconnect();
+    _connection = null;
+    await _statusChanges?.cancel();
+    _statusChanges = null;
   }
+
+  @override
+  bool isConnected(WalletType type) => _connection != null;
 
   @override
   HardwareWalletService getHardwareWalletService(WalletType type) {
@@ -214,13 +207,15 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
     switch (wallet.type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
-        return bitcoin!
-            .setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+        return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
-        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for bitbox', wallet.type);
+        throw BadWalletTypeException(
+          "Unexpected wallet type: ${wallet.type} for bitbox",
+          wallet.type,
+        );
     }
   }
 }
