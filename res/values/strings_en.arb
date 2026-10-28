@@ -1276,6 +1276,7 @@
   "spend_key_private": "Spend key (private)",
   "spend_key_public": "Spend key (public)",
   "standard": "Standard",
+  "start": "Start",
   "starting_tor_proxy": "Starting Tor proxy",
   "status": "Status: ",
   "step": "Step",
