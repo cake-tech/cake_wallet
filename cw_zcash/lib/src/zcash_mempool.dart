@@ -42,17 +42,17 @@ class ZcashMempoolService {
       )
       .toList();
 
-  Future<void> ensureRunning(final zkool_coin.Coin c) async {
-    if (c.url.isEmpty) {
+  Future<void> ensureRunning(final zkool_coin.Coin c, {required final String url}) async {
+    if (url.isEmpty) {
       return;
     }
-    if (_loopRunning && _nodeUrl == c.url) {
+    if (_loopRunning && _nodeUrl == url) {
       return;
     }
     await stop();
-    _nodeUrl = c.url;
+    _nodeUrl = url;
     _loopRunning = true;
-    unawaited(_runLoop(c));
+    unawaited(_runLoop(c, url));
   }
 
   Future<void> stop() async {
@@ -69,8 +69,8 @@ class ZcashMempoolService {
     _mempool = null;
   }
 
-  Future<void> _runLoop(final zkool_coin.Coin c) async {
-    while (_loopRunning && _nodeUrl == c.url) {
+  Future<void> _runLoop(final zkool_coin.Coin c, final String url) async {
+    while (_loopRunning && _nodeUrl == url) {
       try {
         final completer = Completer<void>();
         _subscription = _mempoolInstance

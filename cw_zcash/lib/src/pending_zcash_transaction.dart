@@ -4,7 +4,6 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_zcash/cw_zcash.dart';
 import 'package:zkool/src/rust/api/pay.dart' as zkool_pay;
-import 'package:zkool/src/rust/api/network.dart' as zkool_network;
 
 class PendingZcashTransaction with PendingTransaction {
   PendingZcashTransaction({
@@ -44,12 +43,15 @@ class PendingZcashTransaction with PendingTransaction {
     await ZcashWalletBase.runWithCoin(
       accountId: zcashWallet.accountId,
       func: (coin) async {
-        final signTx = signedTxPackage ?? await zkool_pay.signTransaction(pczt: txPlan, c: coin);
-        final txBytes = await zkool_pay.extractTransaction(package: signTx);
-        final currentHeight = await zkool_network.getCurrentHeight(c: coin);
-        final result = await zkool_pay.broadcastTransaction(
-          height: currentHeight,
-          txBytes: txBytes,
+        final signed = signedTxPackage ??
+            await zkool_pay.signTransaction(
+              pczt: txPlan,
+              account: zcashWallet.accountId,
+              c: coin,
+            );
+        final result = await zkool_pay.broadcast(
+          package: signed,
+          account: zcashWallet.accountId,
           c: coin,
         );
         printV("result: $result");
@@ -59,6 +61,7 @@ class PendingZcashTransaction with PendingTransaction {
         }
         _txId = txId;
         if (isShieldingTx) {
+          zcashWallet.noteShieldBroadcast();
           await ZcashWalletService.addShieldedTx(txId);
         } else {
           zcashWallet.rememberPendingOutgoingAmount(txId, amount);

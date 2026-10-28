@@ -1,6 +1,10 @@
 ARG BASE_IMAGE
 FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 
+COPY scripts/docker/git-credential-github.sh /usr/local/bin/git-credential-github
+RUN chmod 755 /usr/local/bin/git-credential-github \
+    && git config --system credential.helper /usr/local/bin/git-credential-github
+
 RUN mkdir -p /w/scripts/android
 COPY pubspec_base.yaml /w/pubspec.yaml
 COPY pubspec_overrides.yaml /w/pubspec_overrides.yaml
@@ -9,7 +13,8 @@ COPY cw_mweb/pubspec.yaml /w/cw_mweb/pubspec.yaml
 COPY cw_mweb/ffigen_config.yaml /w/cw_mweb/ffigen_config.yaml
 COPY cw_mweb/go /w/cw_mweb/go
 COPY scripts/android/build_mwebd.sh /w/scripts/android/build_mwebd.sh
-RUN /w/scripts/android/build_mwebd.sh
+RUN --mount=type=secret,id=github_token,required=false,mode=0444 \
+    /w/scripts/android/build_mwebd.sh
 
 FROM --platform=linux/amd64 alpine
 COPY --from=build /w /w
