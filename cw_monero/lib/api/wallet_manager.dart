@@ -427,6 +427,10 @@ void setupBackgroundSync(String password, Wallet2Wallet wallet) {
   if (isViewOnlyBySpendKey(wallet)) {
     return;
   }
+  // Already set up with these settings; setting it up again only rewrites the keys file
+  if (monero.Wallet_getBackgroundSyncType(Pointer.fromAddress(wallet.ffiAddress())) == 2) {
+    return;
+  }
   wallet.setupBackgroundSync(
       backgroundSyncType: 2, walletPassword: password, backgroundCachePassword: '');
   if (wallet.status() != 0) {
