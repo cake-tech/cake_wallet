@@ -1838,12 +1838,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   /// self-send up-front — the send form's label and the eventual commit
   /// path then both treat it as a normal tx.
   @action
-  void setPayjoinUri(String? uri) {
+  Future<void> setPayjoinUri(String? uri) async {
     isPayjoinEnabled = true;
     if (uri != null &&
         uri.isNotEmpty &&
         wallet.type == WalletType.bitcoin &&
-        bitcoin!.isSelfSendPayjoinUri(wallet, uri)) {
+        await bitcoin!.isSelfSendPayjoinUri(wallet, uri)) {
       printV('Stripping self-addressed payjoin URI: $uri');
       payjoinUri = null;
       return;

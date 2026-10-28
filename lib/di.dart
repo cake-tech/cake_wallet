@@ -279,7 +279,7 @@ import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/payjoin_session.dart';
+import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -314,7 +314,6 @@ late Box<ExchangeTemplate> _exchangeTemplates;
 late Box<TransactionDescription> _transactionDescriptionBox;
 late Box<Order> _ordersSource;
 late Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
-late Box<PayjoinSession> _payjoinSessionSource;
 late Box<AnonpayInvoiceInfo> _anonpayInvoiceInfoSource;
 Future<void> setup({
   required Box<Contact> contactSource,
@@ -323,7 +322,6 @@ Future<void> setup({
   required Box<TransactionDescription> transactionDescriptionBox,
   required Box<Order> ordersSource,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-  required Box<PayjoinSession> payjoinSessionSource,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfoSource,
   required SecureStorage secureStorage,
   required GlobalKey<NavigatorState> navigatorKey,
@@ -334,7 +332,6 @@ Future<void> setup({
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
-  _payjoinSessionSource = payjoinSessionSource;
   _anonpayInvoiceInfoSource = anonpayInvoiceInfoSource;
 
   if (!_isSetupFinished) {
@@ -373,8 +370,7 @@ Future<void> setup({
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
-  getIt
-      .registerFactory(() => PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
+  getIt.registerFactory(() => PayjoinTransactionsStore(storage: PayjoinStorage()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
@@ -1250,7 +1246,6 @@ Future<void> setup({
       case WalletType.bitcoin:
         return bitcoin!.createBitcoinWalletService(
           _unspentCoinsInfoSource,
-          _payjoinSessionSource,
           SettingsStoreBase.walletPasswordDirectInput,
         );
       case WalletType.litecoin:
@@ -1554,7 +1549,7 @@ Future<void> setup({
       (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsViewModel(
             sessionId,
             transactionInfo,
-            payjoinSessionSource: _payjoinSessionSource,
+            payjoinStorage: PayjoinStorage(),
             themeStore: getIt.get<ThemeStore>(),
           ));
 

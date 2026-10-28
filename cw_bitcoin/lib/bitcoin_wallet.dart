@@ -34,7 +34,6 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/output_info.dart';
-import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import "package:cw_core/receive_page_option.dart";
@@ -63,7 +62,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
     Uint8List? seedBytes,
     String? mnemonic,
@@ -124,7 +122,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);
+    payjoinManager = PayjoinManager(PayjoinStorage(), this);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -187,7 +185,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
     String? addressPageType,
@@ -230,7 +227,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
       networkParam: network,
-      payjoinBox: payjoinBox,
       useLightning: true,
     );
   }
@@ -239,7 +235,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String name,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Box<PayjoinSession> payjoinBox,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
@@ -335,7 +330,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       alwaysScan: snp?.alwaysScan,
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
-      payjoinBox: payjoinBox,
     );
   }
 
@@ -603,7 +597,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // Defensive: the send view model should have already stripped self-send
     // payjoin URIs at scan time via SendViewModel.setPayjoinUri. Keep this
     // check as a backstop in case a self-send URI reaches here directly.
-    if (payjoinUri != null && payjoinManager.isSelfSendPayjoinUri(payjoinUri)) {
+    if (payjoinUri != null && await payjoinManager.isSelfSendPayjoinUri(payjoinUri)) {
       printV('Stripping self-addressed payjoin at createTransaction ($payjoinUri)');
       if (!tx.shouldCommitUR()) return tx;
     }

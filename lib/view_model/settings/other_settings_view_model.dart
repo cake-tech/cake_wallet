@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -9,10 +8,10 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/cake_hive.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
+import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -210,13 +209,16 @@ abstract class OtherSettingsViewModelBase with Store {
     buf.writeln('');
 
     try {
-      final box = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
-      final allSessions = box.values.toList();
+      final storage = PayjoinStorage();
+      final allEntries = await storage.readAllWithKeys();
+      final allSessions = allEntries.map((e) => e.value).toList();
       final sessions = allSessions.where((s) => s.walletId == _wallet.id).toList();
-      buf.writeln('Total sessions in Hive box: ${allSessions.length}');
+      buf.writeln('Total sessions in storage: ${allSessions.length}');
       buf.writeln('Sessions for this wallet: ${sessions.length}');
       buf.writeln('Sessions for other wallets: ${allSessions.length - sessions.length}');
       if (sessions.isNotEmpty) {
+        final eventStore = PayjoinEventStore();
+        await eventStore.ensureOpen();
         buf.writeln('');
         buf.writeln('--- Session Data ---');
         for (final session in sessions) {
@@ -233,18 +235,13 @@ abstract class OtherSettingsViewModelBase with Store {
           buf.writeln('Error: ${session.error ?? "-"}');
 
           try {
-            final eventsBox = await CakeHive.openBox<String>('PayjoinSessionEvents');
-            final eventKey = session.isSenderSession
-                ? 'send_${session.pjUri}'
-                : 'recv_${session.receiver}';
-            final raw = eventsBox.get(eventKey);
-            if (raw != null) {
-              final events = List<String>.from(jsonDecode(raw) as List);
-              if (events.isNotEmpty) {
-                buf.writeln('Protocol Events:');
-                for (final event in events) {
-                  buf.writeln('  $event');
-                }
+            final events = session.isSenderSession
+                ? eventStore.loadSender(session.pjUri ?? '')
+                : eventStore.loadReceiver(session.receiver ?? '');
+            if (events.isNotEmpty) {
+              buf.writeln('Protocol Events:');
+              for (final event in events) {
+                buf.writeln('  $event');
               }
             }
           } catch (_) {}

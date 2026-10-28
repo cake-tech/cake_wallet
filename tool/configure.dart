@@ -111,7 +111,6 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
@@ -234,7 +233,7 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
@@ -301,7 +300,7 @@ abstract class Bitcoin {
   Future<void> fallbackBroadcastPayjoin(Object wallet, String sessionId);
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
-  bool isSelfSendPayjoinUri(Object wallet, String? pjUriString);
+  Future<bool> isSelfSendPayjoinUri(Object wallet, String? pjUriString);
   void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);

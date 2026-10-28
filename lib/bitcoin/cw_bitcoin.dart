@@ -279,9 +279,9 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource,
-      Box<PayjoinSession> payjoinSessionSource, bool isDirect) {
-    return BitcoinWalletService(unspentCoinSource, payjoinSessionSource, isDirect);
+  WalletService createBitcoinWalletService(
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return BitcoinWalletService(unspentCoinSource, isDirect);
   }
 
   WalletService createLitecoinWalletService(
@@ -850,7 +850,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  bool isSelfSendPayjoinUri(Object wallet, String? pjUriString) {
+  Future<bool> isSelfSendPayjoinUri(Object wallet, String? pjUriString) async {
     final _wallet = wallet as ElectrumWallet;
     if (_wallet is! BitcoinWallet) return false;
     return _wallet.payjoinManager.isSelfSendPayjoinUri(pjUriString);
