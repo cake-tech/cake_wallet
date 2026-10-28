@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
@@ -203,10 +203,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(
-          mnemonic,
-          passphrase: passphrase ?? "",
-        );
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? "");
         break;
       case DerivationType.electrum:
       default:
@@ -308,10 +305,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           break;
         case DerivationType.bip39:
         default:
-          seedBytes = await bip39.mnemonicToSeed(
-            mnemonic,
-            passphrase: passphrase ?? '',
-          );
+          seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
           break;
       }
     }

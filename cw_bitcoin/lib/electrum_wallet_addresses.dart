@@ -104,11 +104,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         lightningAddress = lightningWallet?.cachedAddress,
         super(walletInfo) {
     if (masterHd != null) {
+      final silentPaymentsHd = masterHd.derivePath(SILENT_PAYMENTS_ACCOUNT_PATH);
+
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
-        b_scan:
-            ECPrivate.fromHex(masterHd.derivePath(SILENT_PAYMENTS_SCAN_PATH).privateKey.toHex()),
-        b_spend:
-            ECPrivate.fromHex(masterHd.derivePath(SILENT_PAYMENTS_SPEND_PATH).privateKey.toHex()),
+        b_scan: ECPrivate.fromHex(
+            silentPaymentsHd.derivePath(SILENT_PAYMENTS_SCAN_SUBPATH).privateKey.toHex()),
+        b_spend: ECPrivate.fromHex(
+            silentPaymentsHd.derivePath(SILENT_PAYMENTS_SPEND_SUBPATH).privateKey.toHex()),
         network: network,
       );
 

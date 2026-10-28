@@ -9,17 +9,20 @@ import 'package:zkool/src/rust/api/network.dart' as zkool_network;
 class PendingZcashTransaction with PendingTransaction {
   PendingZcashTransaction({
     required this.zcashWallet,
-    required this.credentials,
+    required this.amount,
     required this.txPlan,
     required this.fee,
     required this.availableBalance,
+    this.signedTxPackage,
+    this.isShieldingTx = false,
   });
 
   final ZcashWallet zcashWallet;
-  final ZcashTransactionCredentials credentials;
   final zkool_pay.PcztPackage txPlan;
+  final zkool_pay.PcztPackage? signedTxPackage;
   String? _txId;
   final Money availableBalance;
+  final bool isShieldingTx;
 
   @override
   String get id => _txId ?? '';
@@ -28,15 +31,7 @@ class PendingZcashTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  Money get amount {
-    final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
-    if (isAll) {
-      return availableBalance - fee;
-    }
-    return credentials.outputs
-        .map((final output) => output.cryptoAmount)
-        .reduce((final a, final b) => a + b);
-  }
+  final Money amount;
 
   @override
   String get amountFormatted => amount.toString();
@@ -49,7 +44,7 @@ class PendingZcashTransaction with PendingTransaction {
     await ZcashWalletBase.runWithCoin(
       accountId: zcashWallet.accountId,
       func: (coin) async {
-        final signTx = await zkool_pay.signTransaction(pczt: txPlan, c: coin);
+        final signTx = signedTxPackage ?? await zkool_pay.signTransaction(pczt: txPlan, c: coin);
         final txBytes = await zkool_pay.extractTransaction(package: signTx);
         final currentHeight = await zkool_network.getCurrentHeight(c: coin);
         final result = await zkool_pay.broadcastTransaction(
@@ -63,11 +58,17 @@ class PendingZcashTransaction with PendingTransaction {
           throw TransactionCommitFailed(errorMessage: result);
         }
         _txId = txId;
-        zcashWallet.rememberPendingOutgoingAmount(txId, amount);
+        if (isShieldingTx) {
+          await ZcashWalletService.addShieldedTx(txId);
+        } else {
+          zcashWallet.rememberPendingOutgoingAmount(txId, amount);
+        }
       },
     );
+
     await zcashWallet.updateTransactions();
-    await zcashWallet.updateBalance();
+    await zcashWallet.updateBalance(
+        runAutoShield: !isShieldingTx, runIronwoodMigrate: !isShieldingTx);
   }
 
   @override
