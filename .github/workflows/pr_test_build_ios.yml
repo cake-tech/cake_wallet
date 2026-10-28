@@ -220,12 +220,6 @@ jobs:
             -e '/ZanoWallet\.xcframework/d' \
             ios/Runner.xcodeproj/project.pbxproj
 
-      - name: Prepare bitbox_flutter
-        run: |
-          pushd scripts
-            ./build_bitbox_flutter.sh clone-only
-          popd
-
       - name: Prepare reown_flutter
         run: ./scripts/prepare_reown.sh
 
