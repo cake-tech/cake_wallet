@@ -8,7 +8,6 @@ import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/widgets/hardware_wallet/bitbox_paring_sheet.dart";
-import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -27,19 +26,13 @@ part "bitbox_view_model.g.dart";
 class BitboxViewModel = BitboxViewModelBase with _$BitboxViewModel;
 
 abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
-  BitboxViewModelBase(AppStore appStore) {
+  BitboxViewModelBase() {
     if (!isMoneroOnly) {
       reaction((_) => isBleEnabled, (_) {
         if (isBleEnabled) {
           _initBLE();
         }
       });
-
-      // reaction((_) => appStore.wallet, (wallet) async {
-      //   if (wallet != null && wallet.type != _connectingWalletType) {
-      //     await close();
-      //   }
-      // });
 
       if (!Platform.isIOS) {
         usbManager = sdk.BitboxUsbConnectionManager();
