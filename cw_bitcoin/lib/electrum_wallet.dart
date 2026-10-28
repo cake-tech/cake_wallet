@@ -9,6 +9,8 @@ import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_bitcoin/locktime.dart';
+import 'package:cw_core/custom_block_explorers.dart';
+import 'package:http/http.dart' show Response;
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -613,6 +615,15 @@ abstract class ElectrumWalletBase
     return isMempoolAPIEnabled;
   }
 
+  /// GETs a mempool API [path] from the user's own mempool.space instance
+  /// when one is configured, otherwise from the default server.
+  Future<Response> fetchMempoolApi(String path, {bool withDefaultOnion = false}) async {
+    final customBase =
+        (await sharedPrefs.future).getString(CustomBlockExplorers.mempoolApiPrefsKey);
+    return CustomBlockExplorers.fetchMempoolApi(customBase, path,
+        withDefaultOnion: withDefaultOnion);
+  }
+
   @action
   Future<void> setSilentPaymentsScanning(bool active) async {
     silentPaymentsScanningActive = active;
@@ -790,6 +801,8 @@ abstract class ElectrumWalletBase
         isSingleScan: doSingleScan ?? false,
         debugLogPath: debugLogPath,
         rescanHeights: rescanHeights,
+        mempoolApiBase:
+            (await sharedPrefs.future).getString(CustomBlockExplorers.mempoolApiPrefsKey),
       ),
     );
 
@@ -1017,13 +1030,8 @@ abstract class ElectrumWalletBase
   Future<void> updateFeeRates() async {
     if (await checkIfMempoolAPIIsEnabled() && type == WalletType.bitcoin) {
       try {
-        final response = await ProxyWrapper()
-            .get(
-              clearnetUri: Uri.parse("https://mempool.cakewallet.com/api/v1/fees/recommended"),
-              onionUri: Uri.parse(
-                  "http://cakememcninjdqbaub3tp2iswuigxqtdoevnpgzkolmy4gvhrrsub3yd.onion/api/v1/fees/recommended"),
-            )
-            .timeout(Duration(seconds: 15));
+        final response =
+            await fetchMempoolApi("/api/v1/fees/recommended", withDefaultOnion: true);
 
         final result = json.decode(response.body) as Map<String, dynamic>;
         final slowFee = (result['economyFee'] as num?)?.toInt() ?? 0;
@@ -2770,24 +2778,12 @@ abstract class ElectrumWalletBase
 
       if (height != null && height > 0 && await checkIfMempoolAPIIsEnabled()) {
         try {
-          final blockHash = await ProxyWrapper()
-              .get(
-                clearnetUri: Uri.parse(
-                  "https://mempool.cakewallet.com/api/v1/block-height/$height",
-                ),
-              )
-              .timeout(Duration(seconds: 15));
+          final blockHash = await fetchMempoolApi("/api/block-height/$height");
 
           if (blockHash.statusCode == 200 &&
               blockHash.body.isNotEmpty &&
               jsonDecode(blockHash.body) != null) {
-            final blockResponse = await ProxyWrapper()
-                .get(
-                  clearnetUri: Uri.parse(
-                    "https://mempool.cakewallet.com/api/v1/block/${blockHash.body}",
-                  ),
-                )
-                .timeout(Duration(seconds: 15));
+            final blockResponse = await fetchMempoolApi("/api/v1/block/${blockHash.body}");
             if (blockResponse.statusCode == 200 &&
                 blockResponse.body.isNotEmpty &&
                 jsonDecode(blockResponse.body)['timestamp'] != null) {
@@ -3813,26 +3809,14 @@ abstract class ElectrumWalletBase
     // Best-effort: if any call fails, we just skip that height.
     await Future.wait(heights.map((h) async {
       try {
-        final blockHashResp = await ProxyWrapper()
-            .get(
-              clearnetUri: Uri.parse(
-                'https://mempool.cakewallet.com/api/v1/block-height/$h',
-              ),
-            )
-            .timeout(const Duration(seconds: 15));
+        final blockHashResp = await fetchMempoolApi('/api/block-height/$h');
 
         if (blockHashResp.statusCode != 200 || blockHashResp.body.isEmpty) return;
 
         final blockHash = blockHashResp.body.trim();
         if (blockHash.isEmpty) return;
 
-        final blockResp = await ProxyWrapper()
-            .get(
-              clearnetUri: Uri.parse(
-                'https://mempool.cakewallet.com/api/v1/block/$blockHash',
-              ),
-            )
-            .timeout(const Duration(seconds: 15));
+        final blockResp = await fetchMempoolApi('/api/v1/block/$blockHash');
 
         if (blockResp.statusCode != 200 || blockResp.body.isEmpty) return;
 
@@ -4698,6 +4682,7 @@ class ScanData {
   final bool isSingleScan;
   final String debugLogPath;
   final List<int>? rescanHeights;
+  final String? mempoolApiBase;
 
   ScanData({
     required this.sendPort,
@@ -4714,6 +4699,7 @@ class ScanData {
     required this.isSingleScan,
     required this.debugLogPath,
     required this.rescanHeights,
+    this.mempoolApiBase,
   });
 
   factory ScanData.fromHeight(ScanData scanData, int newHeight) {
@@ -4732,6 +4718,7 @@ class ScanData {
       isSingleScan: scanData.isSingleScan,
       debugLogPath: scanData.debugLogPath,
       rescanHeights: scanData.rescanHeights,
+      mempoolApiBase: scanData.mempoolApiBase,
     );
   }
 }
@@ -4943,13 +4930,18 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
               // So, if blockDate exists, reuse
               if (isDateNow) {
                 try {
-                  final rootURL = "https://cake.mempool.space";
-                  final tweakBlockHash = await ProxyWrapper()
-                      .get(clearnetUri: Uri.parse("$rootURL/api/block-height/$tweakHeight"))
-                      .timeout(Duration(seconds: 15));
-                  final blockResponse = await ProxyWrapper()
-                      .get(clearnetUri: Uri.parse("$rootURL/api/block/${tweakBlockHash.body}"))
-                      .timeout(Duration(seconds: 15));
+                  // The user's own mempool instance when configured, otherwise Cake's.
+                  final hasCustomMempool = scanData.mempoolApiBase != null &&
+                      CustomBlockExplorers.isValidBaseUrl(scanData.mempoolApiBase!);
+                  Future<Response> getFromMempool(String path) => hasCustomMempool
+                      ? CustomBlockExplorers.fetchMempoolApi(scanData.mempoolApiBase, path)
+                      : ProxyWrapper()
+                          .get(clearnetUri: Uri.parse("https://cake.mempool.space$path"))
+                          .timeout(Duration(seconds: 15));
+
+                  final tweakBlockHash = await getFromMempool("/api/block-height/$tweakHeight");
+                  final blockResponse =
+                      await getFromMempool("/api/block/${tweakBlockHash.body}");
 
                   if (blockResponse.statusCode == 200 &&
                       blockResponse.body.isNotEmpty &&

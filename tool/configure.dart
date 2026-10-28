@@ -273,7 +273,8 @@ abstract class Bitcoin {
       {int? outputsCount, int? size});
   int feeAmountWithFeeRate(Object wallet, int feeRate, int inputsCount, int outputsCount, {int? size});
   Future<bool> checkIfMempoolAPIIsEnabled(Object wallet);
-  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled});
+  Future<int> getHeightByDate(
+      {required DateTime date, bool? bitcoinMempoolAPIEnabled, String? mempoolApiBase});
   int getLitecoinHeightByDate({required DateTime date});
   Future<void> rescan(Object wallet, {required int height, bool? doSingleScan});
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet);
