@@ -355,27 +355,30 @@ abstract class ElectrumWalletBase
   }
 
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
+    if (accounts.contains(accountIndex)) return;
+
     final account = accounts.getOrCreate(accountIndex);
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     final canDeriveFromSeed = _masterHD != null && currency != null;
 
     if (canDeriveFromSeed && !isElectrumDerivation) {
       final coinType = _coinTypeFor(currency);
+      final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
 
       for (final type in account.supportedTypes) {
-        final purpose = _purposeForType(type);
-        final accountPath = "m/$purpose'/$coinType'/$accountIndex'";
+        final accountPath = "m/${_purposeForType(type)}'/$coinType'/$accountIndex'";
+        final accountHd = accountHdByPath[accountPath] ??=
+        _masterHD!.derivePath(accountPath) as Bip32Slip10Secp256k1;
 
         account.hd.set(
           type,
-          receive: _masterHD!.derivePath("$accountPath/0") as Bip32Slip10Secp256k1,
-          change: _masterHD!.derivePath("$accountPath/1") as Bip32Slip10Secp256k1,
+          receive: accountHd.childKey(Bip32KeyIndex(0)),
+          change: accountHd.childKey(Bip32KeyIndex(1)),
         );
       }
     } else {
-      // Electrum derivation, or xpub only (view only wallet)
       for (final type in account.supportedTypes) {
-        account.hd.set(type, receive: mainHd, change: sideHd); // accountHD.child(0) / child(1)
+        account.hd.set(type, receive: mainHd, change: sideHd);
       }
     }
 

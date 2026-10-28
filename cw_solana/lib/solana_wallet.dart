@@ -31,7 +31,7 @@ import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:on_chain/solana/solana.dart' hide Store;
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 part 'solana_wallet.g.dart';
@@ -183,7 +183,7 @@ abstract class SolanaWalletBase
     assert(mnemonic != null || privateKey != null);
 
     if (mnemonic != null) {
-      final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+      final seed = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
 
       // Derive a Solana private key from the seed
       final bip44 = Bip44.fromSeed(seed, Bip44Coins.solana);
