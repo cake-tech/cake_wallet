@@ -49,7 +49,6 @@ class ElectrumClient {
   final Map<String, SocketTask> _tasks;
   Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
-  ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   Timer? _aliveTimer;
   // Bytes of a reply whose terminating newline hasn't arrived yet.
   final BytesBuilder _pending = BytesBuilder(copy: false);
@@ -57,6 +56,10 @@ class ElectrumClient {
   // never carries a matching id, so this is how _methodHandler finds the
   // right pending task for a one-shot blockchain.tweaks.subscribe call.
   String? _lastTweaksSubscribeRequestId;
+
+  // Bumped by every connect() and close(). An attempt that is no longer the latest when its
+  // socket arrives (node switch, reconnect, wallet closed) must not install it or report status.
+  int _connectAttempt = 0;
 
   Uri? uri;
   bool? useSSL;
@@ -70,6 +73,7 @@ class ElectrumClient {
   }
 
   Future<void> connect({required String host, required int port}) async {
+    final attempt = ++_connectAttempt;
     _setConnectionStatus(ConnectionStatus.connecting);
 
     // Reset internal state to ensure clean connection
@@ -78,38 +82,54 @@ class ElectrumClient {
     try {
       await socket?.close();
     } catch (_) {}
+    if (attempt != _connectAttempt) {
+      return;
+    }
     socket = null;
 
     final ssl = !(useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum")));
+    final ProxySocket newSocket;
     try {
-      socket = await ProxyWrapper()
+      newSocket = await ProxyWrapper()
           .getSocksSocket(ssl, host, port, connectionTimeout: connectionTimeout);
     } catch (e) {
       printV("connect: $e");
+      if (attempt != _connectAttempt) {
+        return;
+      }
+
       if (e is HandshakeException) {
         useSSL = !(useSSL ?? false);
       }
 
-      if (_connectionStatus != ConnectionStatus.connecting) {
-        _setConnectionStatus(ConnectionStatus.failed);
-      }
-
+      // Always report it: "connecting" is not retried by the wallet, so a failure left
+      // unreported keeps it on the spinner until the app is resumed or restarted.
+      _setConnectionStatus(ConnectionStatus.failed);
       return;
     }
 
-    if (socket == null) {
-      if (_connectionStatus != ConnectionStatus.connecting) {
-        _setConnectionStatus(ConnectionStatus.failed);
-      }
-
+    if (attempt != _connectAttempt) {
+      newSocket.destroy();
       return;
     }
+
+    socket = newSocket;
 
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
-    socket!.listen(
-      _onData,
+    newSocket.listen(
+      (Uint8List event) {
+        // A replaced socket's late reply must not complete a same-id request of the new session.
+        if (!identical(socket, newSocket)) {
+          return;
+        }
+        _onData(event);
+      },
       onError: (Object error) {
+        // A replaced socket's late error/close must not tear down its successor.
+        if (!identical(socket, newSocket)) {
+          return;
+        }
         final errorMsg = error.toString();
         printV(errorMsg);
         _pending.clear();
@@ -119,6 +139,9 @@ class ElectrumClient {
       },
       onDone: () {
         printV("SOCKET CLOSED!!!!!");
+        if (!identical(socket, newSocket)) {
+          return;
+        }
         _pending.clear();
         try {
           _setConnectionStatus(ConnectionStatus.disconnected);
@@ -174,7 +197,11 @@ class ElectrumClient {
   }
 
   Future<void> ping() async {
-    if (_pingInFlight) {
+    // The keep-alive timer outlives a dropped socket, and callWithTimeout returns null when there
+    // is no socket, which must not count as a pong. A reply on a since-replaced socket says
+    // nothing about the current one either.
+    final pinged = socket;
+    if (_pingInFlight || pinged == null || pinged.isClosed) {
       return;
     }
 
@@ -182,11 +209,13 @@ class ElectrumClient {
 
     try {
       await callWithTimeout(method: 'server.ping');
-      _setConnectionStatus(ConnectionStatus.connected);
+      if (identical(socket, pinged)) {
+        _setConnectionStatus(ConnectionStatus.connected);
+      }
     } catch (_) {
       // a slow ping reply just means it's busy, not dead. Only treat
       // this as a real disconnect once the socket itself is actually gone.
-      if (!isConnected) {
+      if (identical(socket, pinged) && !isConnected) {
         _setConnectionStatus(ConnectionStatus.disconnected);
       }
     } finally {
@@ -724,6 +753,7 @@ class ElectrumClient {
   }
 
   Future<void> close() async {
+    _connectAttempt++;
     _aliveTimer?.cancel();
     try {
       await socket?.close();
@@ -735,7 +765,7 @@ class ElectrumClient {
   }
 
   void _resetInternalState() {
-    // Only clears errors and unterminated string, leaves tasks or reset ID
+    // Only clears errors and buffered reply bytes, leaves tasks or reset ID
     // This preserves active subscriptions while clearing error state
     _errors.clear();
     _pending.clear();
@@ -804,7 +834,6 @@ class ElectrumClient {
 
   void _setConnectionStatus(ConnectionStatus status) {
     onConnectionStatusChange?.call(status);
-    _connectionStatus = status;
     if (!isConnected) {
       try {
         socket?.destroy();

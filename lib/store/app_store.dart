@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
@@ -70,10 +72,10 @@ abstract class AppStoreBase with Store {
     } else if (previousWalletType != null && isWalletConnectCompatibleChain(previousWalletType)) {
       _queueWalletConnectAction(_disposeWalletConnect);
     }
-    await getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name);
-    await getIt
+    unawaited(getIt.get<SharedPreferences>().setString(PreferencesKey.currentWalletName, wallet.name));
+    unawaited(getIt
         .get<SharedPreferences>()
-        .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type));
+        .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type)));
   }
 
   Future<void> _lastWalletConnectAction = Future.value();
