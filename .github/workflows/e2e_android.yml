@@ -30,6 +30,10 @@ on:
         description: "test file/glob to run (empty = the no-funds slice)"
         type: string
         default: ""
+      grep:
+        description: "only tests whose title matches this regular expression (empty = all)"
+        type: string
+        default: ""
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -189,7 +193,7 @@ jobs:
           emulator-boot-timeout: 1200
           cores: 4
           force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 3072 -no-snapshot-save
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 4096 -no-snapshot-save
           # The handoff pins animations off, but NOT via the action's own
           # step: after a slow boot (764s observed) its `settings put` dies
           # with "Broken pipe" and the action tears the emulator down
@@ -208,7 +212,11 @@ jobs:
             nohup node cake-qa/tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
             sleep 2
             adb kill-server; adb start-server; i=0; until adb shell true >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 30 ]; then break; fi; sleep 2; done
-            CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; SUITE="${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}"; if [ -n "${{ inputs.shard }}" ]; then cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown --shard "${{ inputs.shard }}"; else cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown; fi
+            CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; SUITE="${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}"; GREP="${{ inputs.grep }}"; if [ -n "${{ inputs.shard }}" ]; then cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"} --shard "${{ inputs.shard }}"; else cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"}; fi
+
+      - name: Redact seed-like word runs from the results
+        if: always()
+        run: node cake-qa/tools/qa/redact.mjs cake-qa/.e2e || true
 
       - name: Upload results
         if: always()
