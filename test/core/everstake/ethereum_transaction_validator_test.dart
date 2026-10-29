@@ -57,7 +57,7 @@ void main() {
       );
 
   group("accepts the transactions Everstake builds", () {
-    test("stake", () {
+    test("a stake", () {
       final amount = eth("0.123456789012345678");
 
       expect(
@@ -71,7 +71,7 @@ void main() {
       );
     });
 
-    test("unstake", () {
+    test("an unstake", () {
       expect(
         () => validator.validateUnstake(
           transaction(_unstake),
@@ -84,7 +84,7 @@ void main() {
       );
     });
 
-    test("unstake pending", () {
+    test("a pending unstake", () {
       expect(
         () => validator.validateUnstakePending(
           transaction(_unstakePending),
@@ -95,7 +95,7 @@ void main() {
       );
     });
 
-    test("claim withdrawal", () {
+    test("a withdrawal claim", () {
       expect(
         () => validator.validateClaimWithdrawRequest(transaction(_claim), address: claimer),
         returnsNormally,
