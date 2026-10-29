@@ -843,6 +843,7 @@
   "picker_see_all": "سب دیکھیں",
   "picker_show_less": "کم دکھائیں۔",
   "pin_at_top": "${token} کو اوپر پن کریں",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN غلط ہے",
   "pin_number": "PIN نمبر",
   "placeholder_contacts": "آپ کے رابطے یہاں دکھائے جائیں گے",

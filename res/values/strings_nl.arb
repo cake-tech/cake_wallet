@@ -841,6 +841,7 @@
   "picker_see_all": "Bekijk alles",
   "picker_show_less": "Laat minder zien",
   "pin_at_top": "Zet ${token} bovenaan vast",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN is onjuist",
   "pin_number": "PIN-nummer",
   "placeholder_contacts": "Je contacten worden hier weergegeven",

@@ -842,6 +842,7 @@
   "picker_see_all": "全て見る",
   "picker_show_less": "表示を少なくする",
   "pin_at_top": "${token} を上部にピン留め",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PINが正しくありません",
   "pin_number": "PIN番号",
   "placeholder_contacts": "連絡先がここに表示されます",

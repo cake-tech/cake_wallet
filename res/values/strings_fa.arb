@@ -841,6 +841,7 @@
   "picker_see_all": "همه را ببینید",
   "picker_show_less": "کمتر نشان دادن",
   "pin_at_top": "سنجاق کردن ${token} به بالا",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "پین نادرست است",
   "pin_number": "شماره PIN",
   "placeholder_contacts": "مخاطبین شما اینجا نمایش داده می‌شوند",

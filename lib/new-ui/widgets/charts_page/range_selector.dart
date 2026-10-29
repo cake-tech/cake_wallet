@@ -1,4 +1,5 @@
 import "package:cake_wallet/new-ui/model/charts/util/chart_range.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
 
 class ChartRangeSelector extends StatelessWidget {
@@ -36,7 +37,9 @@ class ChartRangeSelector extends StatelessWidget {
           children: ChartRange.ranges.map((item) {
             final selected = selectedRange == item;
             final isFirst = ChartRange.ranges.indexOf(item) == 0;
-            return GestureDetector(
+            return TestId.merge("chart_range_${ChartRange.ranges.indexOf(item)}_key",
+                child: Semantics(button: true, selected: selected, inMutuallyExclusiveGroup: true,
+                child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 if (!selected) {
@@ -63,6 +66,8 @@ class ChartRangeSelector extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+            ),
             );
           }).toList(),
         ),

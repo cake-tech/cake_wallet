@@ -841,6 +841,7 @@
   "picker_see_all": "ดูทั้งหมด",
   "picker_show_less": "แสดงน้อยลง",
   "pin_at_top": "ปักหมุด ${token} ไว้ด้านบน",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN ไม่ถูกต้อง",
   "pin_number": "หมายเลข PIN",
   "placeholder_contacts": "รายชื่อผู้ติดต่อของคุณจะแสดงที่นี่",

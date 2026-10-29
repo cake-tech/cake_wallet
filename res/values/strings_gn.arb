@@ -844,6 +844,7 @@
   "picker_see_all": "Ehecha opa mba'e",
   "picker_show_less": "Ehechauka sa’ive",
   "pin_at_top": "Emboja ${token} yvate gotyo",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN ndoikói hag̃ua",
   "pin_number": "PIN papapy",
   "placeholder_contacts": "Nde contacto kuéra ojehechaukáta koʼápe.",

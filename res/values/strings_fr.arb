@@ -841,6 +841,7 @@
   "picker_see_all": "Voir tout",
   "picker_show_less": "Afficher moins",
   "pin_at_top": "Épingler ${token} en haut",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "Le PIN est incorrect",
   "pin_number": "Numéro de PIN",
   "placeholder_contacts": "Vos contacts seront affichés ici",

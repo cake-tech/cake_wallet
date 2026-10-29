@@ -841,6 +841,7 @@
   "picker_see_all": "အားလုံးကြည့်",
   "picker_show_less": "လျှော့ပြပါ။",
   "pin_at_top": "${token} ကို အပေါ်ဆုံးတွင် ပင်ထိုးပါ",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN မမှန်ပါ။",
   "pin_number": "PIN နံပါတ်",
   "placeholder_contacts": "သင့်အဆက်အသွယ်များကို ဤနေရာတွင် ပြသမည်။",

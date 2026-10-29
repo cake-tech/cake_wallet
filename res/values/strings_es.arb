@@ -842,6 +842,7 @@
   "picker_see_all": "Ver todo",
   "picker_show_less": "Mostrar menos",
   "pin_at_top": "Fijar ${token} arriba",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "El PIN es incorrecto",
   "pin_number": "Número de PIN",
   "placeholder_contacts": "Tus contactos se mostrarán aquí",

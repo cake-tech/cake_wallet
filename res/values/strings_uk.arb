@@ -841,6 +841,7 @@
   "picker_see_all": "Переглянути всі",
   "picker_show_less": "Показувати менше",
   "pin_at_top": "Закріпити ${token} зверху",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN-код неправильний",
   "pin_number": "PIN-номер",
   "placeholder_contacts": "Ваші контакти будуть відображатися тут",

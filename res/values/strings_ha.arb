@@ -843,6 +843,7 @@
   "picker_see_all": "Duba duka",
   "picker_show_less": "Nuna ƙasa",
   "pin_at_top": "Saka ${token} a sama",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN ɗin ba daidai ba ne",
   "pin_number": "Lambar PIN",
   "placeholder_contacts": "Za a nuna abokan hulɗarka a nan",

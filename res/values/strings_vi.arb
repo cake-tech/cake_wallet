@@ -842,6 +842,7 @@
   "picker_see_all": "Xem tất cả",
   "picker_show_less": "Hiển thị ít hơn",
   "pin_at_top": "Ghim ${token} lên đầu",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN không đúng",
   "pin_number": "Mã PIN",
   "placeholder_contacts": "Danh bạ của bạn sẽ được hiển thị ở đây",

@@ -842,6 +842,7 @@
   "picker_see_all": "Wo gbogbo",
   "picker_show_less": "Ṣe afihan kere si",
   "pin_at_top": "Fi ${token} mọ́ òkè",
+  "pin_digits_entered": "${entered} of ${total} digits entered",
   "pin_is_incorrect": "PIN kò tọ́",
   "pin_number": "Nọ́mbà PIN",
   "placeholder_contacts": "Àwọn olùbásọ̀rọ̀ yín yóò hàn níbí",
