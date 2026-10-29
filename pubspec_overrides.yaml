@@ -403,7 +403,7 @@ dependency_overrides:
   file_picker:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git
-      ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
+      ref: 5a4eb5cc393734c2f069f7cd29fdb3933988e90d
   file_selector_linux:
     git:
       url: https://github.com/flutter/packages

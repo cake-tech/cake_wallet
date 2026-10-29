@@ -2,13 +2,15 @@ import "dart:async";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/core/backup/app_backup_preferences.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
+import "package:cake_wallet/new-ui/pages/app_backup/app_backup_page.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
-import "package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/home_promo.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cw_core/sync_status.dart";
 import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
@@ -59,6 +61,8 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
       setState(() {});
     });
 
+    getIt.get<AppBackupPreferences>().homeBannerVisible.addListener(_onAppBackupPromoChanged);
+
     _migrationReaction = reaction((_) => widget.dashboardViewModel.isMigratingToIronwood, (val) {
       if (val && !widget.dashboardViewModel.settingsStore.zcashMigrationModalViewed) {
         if (!context.mounted) {
@@ -88,6 +92,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   void dispose() {
     _walletReaction();
     _migrationReaction();
+    getIt.get<AppBackupPreferences>().homeBannerVisible.removeListener(_onAppBackupPromoChanged);
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -129,6 +134,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                     child: Observer(
                       builder: (_) {
                         final _lightningMode = widget.dashboardViewModel.lightningMode;
+                        final promos = _promos(context);
                         return Column(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -218,14 +224,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                 ),
                               ],
                             ),
-                            if (AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) &&
-                                widget.dashboardViewModel.accountListViewModel != null &&
-                                !_lightningMode)
-                              AccountsPromo(
-                                settingsStore: widget.dashboardViewModel.settingsStore,
-                                walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
-                                onTap: _openAccountsFromPromo,
-                              ),
+                            if (promos.isNotEmpty) HomePromoCarousel(promos: promos),
                             Column(
                               children: [
                                 CoinActionRow(
@@ -320,8 +319,55 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
     await widget.dashboardViewModel.loadCardDesigns();
   }
 
+  Future<void> _openAppBackup() => getIt.get<AuthService>().authenticateAction(
+        context,
+        route: Routes.backup,
+        onAuthSuccess: (isAuthenticated) {
+          if (!isAuthenticated || !mounted) return;
+          CupertinoScaffold.showCupertinoModalBottomSheet(
+            barrierColor: Colors.black.withAlpha(60),
+            context: context,
+            expand: true,
+            builder: (_) => getIt.get<AppBackupPage>(),
+          );
+        },
+        conditionToDetermineIfToUse2FA: widget
+            .dashboardViewModel.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+      );
+
+  bool get _supportsAccountsPromo => widget.dashboardViewModel.wallet.type == WalletType.bitcoin;
+
+  bool get _showAccountsPromo =>
+      !widget.dashboardViewModel.settingsStore.accountsHomePromoDismissed &&
+      _supportsAccountsPromo &&
+      widget.dashboardViewModel.accountListViewModel != null &&
+      !widget.dashboardViewModel.lightningMode;
+
+  void _onAppBackupPromoChanged() => setState(() {});
+
+  List<HomePromo> _promos(BuildContext context) => [
+        if (_showAccountsPromo)
+          HomePromo(
+            title: S.of(context).accounts_home_promo_title(
+                walletTypeToString(widget.dashboardViewModel.wallet.type)),
+            description: S.of(context).accounts_home_promo_description,
+            iconPath: "assets/new-ui/settings_row_icons/accounts.svg",
+            onTap: _openAccountsFromPromo,
+            onDismiss: () =>
+                widget.dashboardViewModel.settingsStore.accountsHomePromoDismissed = true,
+          ),
+        if (getIt.get<AppBackupPreferences>().homeBannerVisible.value)
+          HomePromo(
+            title: S.of(context).app_backup_banner_title,
+            description: S.of(context).app_backup_banner_description,
+            iconPath: "assets/new-ui/app_backup/backup_file_small.svg",
+            onTap: _openAppBackup,
+            onDismiss: getIt.get<AppBackupPreferences>().dismissHomeBanner,
+          ),
+      ];
+
   Future<void> _openAccountsFromPromo() async {
-    if (!AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) ||
+    if (!_supportsAccountsPromo ||
         widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
 
     await AccountEducationPage(

@@ -10,6 +10,7 @@ class ListItemRegularRow extends ListItem {
     this.iconPath,
     this.badgeIconPath,
     this.onTap,
+    this.onLongPress,
     this.trailingIconPath,
     this.showArrow = true,
     this.bottomWidget,
@@ -34,6 +35,7 @@ class ListItemRegularRow extends ListItem {
   final String? badgeIconPath;
   final String? copyableText;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final String? secondaryLabel;
   final bool showArrow;
   final Widget? bottomWidget;

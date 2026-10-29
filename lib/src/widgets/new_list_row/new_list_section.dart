@@ -101,6 +101,7 @@ class NewListSections extends StatelessWidget {
         secondaryLabel: item.secondaryLabel,
         subtitleColor: item.subtitleColor,
         onTap: tapHandlers[item.keyValue] ?? item.onTap,
+        onLongPress: item.onLongPress,
         isFirstInSection: isFirst,
         isLastInSection: isLast,
         showArrow: item.showArrow,

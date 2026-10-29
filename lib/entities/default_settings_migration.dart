@@ -16,6 +16,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:collection/collection.dart';
+import 'package:cw_core/generate_name.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
@@ -26,7 +27,6 @@ import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -660,6 +660,9 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
           );
           break;
+        case 73:
+          await removeBackupPassword(secureStorage);
+          break;
         default:
           break;
       }
@@ -1092,7 +1095,16 @@ Future<void> generateBackupPassword(SecureStorage secureStorage) async {
     return;
   }
 
-  final password = encrypt.Key.fromSecureRandom(32).base16;
+  await saveBackupPassword(secureStorage, await generateWordPassword());
+}
+
+// we no longer allow arbitrary strings for passwords
+// by force-resetting the password we make sure it's always the new format and never weak/insecure
+Future<void> removeBackupPassword(SecureStorage secureStorage) =>
+    secureStorage.delete(key: generateStoreKeyFor(key: SecretStoreKey.backupPassword));
+
+Future<void> saveBackupPassword(SecureStorage secureStorage, String password) async {
+  final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
   await secureStorage.delete(key: key);
   await secureStorage.write(key: key, value: password);
 }

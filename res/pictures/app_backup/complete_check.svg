@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="check">
+<path id="Ellipse 274" d="M40 20C40 31.0457 31.0457 40 20 40C8.95431 40 0 31.0457 0 20C0 8.95431 8.95431 1.52588e-06 20 1.52588e-06C31.0457 1.52588e-06 40 8.95431 40 20Z" fill="url(#paint0_linear_0_384)"/>
+<path id="Ellipse 274 (Stroke)" d="M38.9333 20C38.9333 9.54341 30.4566 1.06667 20 1.06667C9.54341 1.06667 1.06667 9.54341 1.06667 20C1.06667 30.4566 9.54341 38.9333 20 38.9333V40C8.95431 40 0 31.0457 0 20C0 8.95431 8.95431 1.52588e-06 20 1.52588e-06C31.0457 1.52588e-06 40 8.95431 40 20C40 31.0457 31.0457 40 20 40V38.9333C30.4566 38.9333 38.9333 30.4566 38.9333 20Z" fill="url(#paint1_linear_0_384)"/>
+<path id="Vector" d="M10.1719 21.1213L12.1559 19.1364L17.1168 24.0954L28.0803 13.1328L30.0661 15.1168L17.1168 28.0661L10.1719 21.1213Z" fill="url(#paint2_linear_0_384)"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_384" x1="20" y1="1.52588e-06" x2="20" y2="40" gradientUnits="userSpaceOnUse">
+<stop stop-color="#78E551"/>
+<stop offset="1" stop-color="#158922"/>
+</linearGradient>
+<linearGradient id="paint1_linear_0_384" x1="20" y1="1.52588e-06" x2="20" y2="40" gradientUnits="userSpaceOnUse">
+<stop stop-color="#9FFFAA"/>
+<stop offset="1" stop-color="#158922"/>
+</linearGradient>
+<linearGradient id="paint2_linear_0_384" x1="20.119" y1="13.1328" x2="20.119" y2="28.0661" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="#C4FFAF"/>
+</linearGradient>
+</defs>
+</svg>

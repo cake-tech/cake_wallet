@@ -67,7 +67,7 @@ dependencies:
   file_picker:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git
-      ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
+      ref: 5a4eb5cc393734c2f069f7cd29fdb3933988e90d
   permission_handler: 11.4.0
   device_display_brightness:
     git:
@@ -93,6 +93,7 @@ dependencies:
   url_launcher_linux: 3.1.1 # https://github.com/flutter/flutter/issues/153083
   bloc: ^9.0.0
   flutter_bloc: ^9.1.0
+  bloc_presentation: ^1.1.2
   bloc_concurrency: ^0.3.0
   equatable: ^2.0.0
   sensitive_clipboard:
@@ -317,6 +318,8 @@ flutter:
     - assets/new-ui/address_sources/
     - assets/new-ui/buy_payment_methods/
     - assets/new-ui/charts_sort_criteria/
+    - assets/new-ui/app_backup/
+    - assets/new-ui/restore_options/
 
   fonts:
     - family: Wix Madefor Text

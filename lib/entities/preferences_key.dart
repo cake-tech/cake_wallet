@@ -4,6 +4,13 @@ class PreferencesKey {
   static const currentWalletType = 'current_wallet_type';
   static const currentWalletName = 'current_wallet_name';
   static const accountsHomePromoDismissed = 'accounts_home_promo_dismissed';
+  static const appBackupSetupCompleted = 'app_backup_setup_completed';
+  static const appBackupHomeBannerDismissed = 'app_backup_home_banner_dismissed';
+  static const appBackupExcludedWalletIds = 'app_backup_excluded_wallet_ids';
+  static const appBackupPreferredStorage = 'app_backup_preferred_storage';
+  static const appBackupLastTimestamp = 'app_backup_last_timestamp';
+  static const appBackupLastSize = 'app_backup_last_size';
+  static const appBackupLastSha256 = "app_backup_last_sha256";
   static String educationDismissed(String educationId) => "education_dismissed_$educationId";
   static const currentNodeIdKey = 'current_node_id';
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';

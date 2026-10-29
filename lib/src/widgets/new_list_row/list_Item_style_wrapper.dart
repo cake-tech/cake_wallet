@@ -8,6 +8,7 @@ class ListItemStyleWrapper extends StatelessWidget {
     required this.builder,
     this.backgroundColor,
     this.onTap,
+    this.onLongPress,
     this.iconPath,
     this.contentPadding,
     this.height,
@@ -18,6 +19,7 @@ class ListItemStyleWrapper extends StatelessWidget {
   final bool isLastInSection;
   final double? height;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
   final EdgeInsets? contentPadding;
@@ -61,6 +63,7 @@ class ListItemStyleWrapper extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                       onTap: onTap,
+                      onLongPress: onLongPress,
                       child: Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: height == null ? 11 : 0),

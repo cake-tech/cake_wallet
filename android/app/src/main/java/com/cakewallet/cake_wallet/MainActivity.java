@@ -35,6 +35,9 @@ public class MainActivity extends FlutterFragmentActivity {
                         UTILS_CHANNEL);
 
         utilsChannel.setMethodCallHandler(this::handle);
+
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), AppBackupChannel.CHANNEL)
+                .setMethodCallHandler(new AppBackupChannel(this));
     }
 
     private void handle(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
