@@ -2,12 +2,12 @@ import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
-import "package:cake_wallet/new-ui/pages/ethereum_staking/ethereum_staking_details_page.dart";
-import "package:cake_wallet/new-ui/pages/ethereum_staking/ethereum_staking_intro_page.dart";
-import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
+import "package:cake_wallet/new-ui/pages/everstake/everstake_details_page.dart";
+import "package:cake_wallet/new-ui/pages/everstake/everstake_intro_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/ethereum_staking_rows.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/everstake_logo.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_logo.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_rows.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -30,7 +30,7 @@ class DefiSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
         providers: [
-          BlocProvider(create: (_) => getIt.get<EthereumStakingBloc>()),
+          BlocProvider(create: (_) => getIt.get<EverstakeBloc>()),
           BlocProvider(create: (_) => getIt.get<FiatRateCubit>(param1: CryptoCurrency.eth)),
         ],
         child: const SliverToBoxAdapter(
@@ -46,13 +46,13 @@ class _EverstakeRow extends StatelessWidget {
   const _EverstakeRow();
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<EthereumStakingBloc, EthereumStakingState>(
+  Widget build(BuildContext context) => BlocBuilder<EverstakeBloc, EverstakeState>(
         builder: (context, state) => BlocBuilder<FiatRateCubit, ExchangeRate?>(
           builder: (context, fiatRate) {
             final data = state.data;
 
             if (data == null) {
-              final failed = state is EthereumStakingFailure;
+              final failed = state is EverstakeFailure;
               return _row(
                 context,
                 subtitle: failed ? (style) => Text(S.of(context).load_failed, style: style) : null,
@@ -63,7 +63,7 @@ class _EverstakeRow extends StatelessWidget {
                         )
                     : (_) => const CupertinoActivityIndicator(),
                 onTap: failed
-                    ? () => context.read<EthereumStakingBloc>().add(const StakingDataRequested())
+                    ? () => context.read<EverstakeBloc>().add(const StakingDataRequested())
                     : null,
               );
             }
@@ -73,11 +73,11 @@ class _EverstakeRow extends StatelessWidget {
                 context,
                 subtitle: data.apr == null
                     ? null
-                    : (style) => Text(stakingAprText(context, data.apr!), style: style),
+                    : (style) => Text(everstakeAprText(context, data.apr!), style: style),
                 trailing: (style) => Text(S.of(context).setup, style: style),
                 onTap: () => _open(
                   context,
-                  EthereumStakingIntroPage(authService: getIt.get<AuthService>()),
+                  EverstakeIntroPage(authService: getIt.get<AuthService>()),
                 ),
               );
             }
@@ -119,7 +119,7 @@ class _EverstakeRow extends StatelessWidget {
               ),
               onTap: () => _open(
                 context,
-                EthereumStakingDetailsPage(authService: getIt.get<AuthService>()),
+                EverstakeDetailsPage(authService: getIt.get<AuthService>()),
               ),
             );
           },
@@ -168,7 +168,7 @@ class _EverstakeRow extends StatelessWidget {
       );
 
   Future<void> _open(BuildContext context, Widget rootPage) async {
-    final bloc = context.read<EthereumStakingBloc>();
+    final bloc = context.read<EverstakeBloc>();
     final fiatRate = context.read<FiatRateCubit>();
     bloc.add(const StakingDataRequested());
 
@@ -187,15 +187,13 @@ class _EverstakeRow extends StatelessWidget {
       ),
     );
 
-    bool isBusy(EthereumStakingState state) =>
-        state is EthereumStakingLoading ||
-        state is EthereumStakingPreparing ||
-        state is EthereumStakingSubmitting;
+    bool isBusy(EverstakeState state) =>
+        state is EverstakeLoading || state is EverstakePreparing || state is EverstakeSubmitting;
     final settled = isBusy(bloc.state)
         ? await bloc.stream.firstWhere((state) => !isBusy(state), orElse: () => bloc.state)
         : bloc.state;
 
-    if (!bloc.isClosed && settled is! EthereumStakingReady) {
+    if (!bloc.isClosed && settled is! EverstakeReady) {
       bloc.add(const StakingDataRequested());
     }
   }

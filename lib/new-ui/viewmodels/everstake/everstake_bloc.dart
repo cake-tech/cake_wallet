@@ -22,11 +22,11 @@ import "package:meta/meta.dart";
 import "package:mobx/mobx.dart" show ReactionDisposer, reaction;
 import "package:shared_preferences/shared_preferences.dart";
 
-part "ethereum_staking_event.dart";
-part "ethereum_staking_state.dart";
+part "everstake_event.dart";
+part "everstake_state.dart";
 
-class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingState> {
-  EthereumStakingBloc({
+class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
+  EverstakeBloc({
     required WalletBase wallet,
     required SettingsStore settingsStore,
     required EVM evm,
@@ -38,9 +38,9 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
         _service = service,
         _validator = validator,
         _address = wallet.walletAddresses.address,
-        super(const EthereumStakingLoading(null)) {
+        super(const EverstakeLoading(null)) {
     // one handler so droppable() ignores events while another is in flight
-    on<EthereumStakingEvent>(
+    on<EverstakeEvent>(
       (event, emit) => switch (event) {
         StakingDataRequested() => _onStakingDataRequested(emit),
         TransactionRequested() => _onTransactionRequested(event, emit),
@@ -52,7 +52,7 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     add(const StakingDataRequested());
 
     _walletBalanceReaction = reaction((_) => _walletBalance, (_) {
-      if (state is! EthereumStakingPrepared) {
+      if (state is! EverstakePrepared) {
         add(const StakingDataRequested());
       }
     });
@@ -84,19 +84,19 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     return super.close();
   }
 
-  Future<void> _onStakingDataRequested(Emitter<EthereumStakingState> emit) async {
-    emit(EthereumStakingLoading(state.data));
+  Future<void> _onStakingDataRequested(Emitter<EverstakeState> emit) async {
+    emit(EverstakeLoading(state.data));
     try {
       final data = await _loadData();
-      emit(EthereumStakingReady(data));
+      emit(EverstakeReady(data));
     } catch (error) {
-      emit(EthereumStakingFailure(state.data, _errorMessage(error)));
+      emit(EverstakeFailure(state.data, _errorMessage(error)));
     }
   }
 
   Future<void> _onTransactionRequested(
     TransactionRequested event,
-    Emitter<EthereumStakingState> emit,
+    Emitter<EverstakeState> emit,
   ) async {
     final data = state.data;
     if (data == null) {
@@ -106,21 +106,21 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     try {
       await _prepare(event, data, emit);
     } catch (error) {
-      emit(EthereumStakingFailure(data, _errorMessage(error)));
+      emit(EverstakeFailure(data, _errorMessage(error)));
     }
   }
 
   Future<void> _onTransactionConfirmed(
     TransactionConfirmed event,
-    Emitter<EthereumStakingState> emit,
+    Emitter<EverstakeState> emit,
   ) async {
-    if (state case final EthereumStakingPrepared prepared
+    if (state case final EverstakePrepared prepared
         when identical(prepared.operation, event.operation)) {
-      emit(EthereumStakingSubmitting(prepared.data, prepared.operation));
+      emit(EverstakeSubmitting(prepared.data, prepared.operation));
       try {
         await prepared.operation.transaction.commit();
       } catch (error) {
-        emit(EthereumStakingFailure(prepared.data, _errorMessage(error)));
+        emit(EverstakeFailure(prepared.data, _errorMessage(error)));
         return;
       }
 
@@ -133,7 +133,7 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
       } catch (error) {
         printV("Failed to update background sync after staking: $error");
       }
-      emit(EthereumStakingSubmitted(prepared.data, prepared.operation));
+      emit(EverstakeSubmitted(prepared.data, prepared.operation));
 
       // like Send flow, record the pending transaction here because EVM sync can take a while
       final transaction = prepared.operation.transaction;
@@ -165,7 +165,7 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     }
   }
 
-  Future<EthereumStakingData> _loadData() async {
+  Future<EverstakeData> _loadData() async {
     final (minimum, fee, balances, rewards, withdrawal, apr, activationTime, totalRewards) = await (
       _service.getEthereumMinStakeAmount(),
       _service.getEthereumFee(),
@@ -176,7 +176,7 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
       _optional(_service.getEthereumActivationTime()),
       _optional(_service.getEthereumTotalRewards(_address)),
     ).wait;
-    return EthereumStakingData(
+    return EverstakeData(
       minStakeAmount: minimum,
       poolFee: fee,
       balances: balances,
@@ -200,18 +200,18 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
 
   Future<void> _prepare(
     TransactionRequested event,
-    EthereumStakingData data,
-    Emitter<EthereumStakingState> emit,
+    EverstakeData data,
+    Emitter<EverstakeState> emit,
   ) async {
-    emit(EthereumStakingPreparing(data));
+    emit(EverstakePreparing(data));
 
     final (action, amount) = switch (event) {
-      StakeRequested(:final amount) => (EthereumStakingAction.stake, amount),
-      MaxStakeRequested() => (EthereumStakingAction.stake, await _maxStakeAmount(data)),
-      UnstakeRequested(:final amount) => (EthereumStakingAction.unstake, amount),
-      PendingUnstakeRequested(:final amount) => (EthereumStakingAction.unstakePending, amount),
+      StakeRequested(:final amount) => (EverstakeAction.stake, amount),
+      MaxStakeRequested() => (EverstakeAction.stake, await _maxStakeAmount(data)),
+      UnstakeRequested(:final amount) => (EverstakeAction.unstake, amount),
+      PendingUnstakeRequested(:final amount) => (EverstakeAction.unstakePending, amount),
       WithdrawalClaimRequested() => (
-          EthereumStakingAction.claimWithdrawal,
+          EverstakeAction.claimWithdrawal,
           data.withdrawRequest.requested
         ),
     };
@@ -273,9 +273,9 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     final pending = await _signOnMainnet(transaction);
 
     emit(
-      EthereumStakingPrepared(
+      EverstakePrepared(
         data,
-        EthereumStakingOperation(
+        EverstakeOperation(
           action: action,
           amount: amount,
           transaction: pending,
@@ -296,7 +296,7 @@ class EthereumStakingBloc extends Bloc<EthereumStakingEvent, EthereumStakingStat
     return transaction;
   }
 
-  Future<Money> _maxStakeAmount(EthereumStakingData data) async {
+  Future<Money> _maxStakeAmount(EverstakeData data) async {
     final balance = _walletBalance;
     if (balance < data.minStakeAmount) {
       throw const EverstakeBelowMinimumException();

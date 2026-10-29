@@ -1,8 +1,8 @@
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
-import "package:cake_wallet/new-ui/pages/ethereum_staking/ethereum_staking_confirm_page.dart";
-import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
+import "package:cake_wallet/new-ui/pages/everstake/everstake_confirm_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import "package:cake_wallet/new-ui/widgets/floating_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
@@ -17,19 +17,19 @@ import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
-enum EthereumStakingAmountMode { deposit, withdraw }
+enum EverstakeAmountMode { deposit, withdraw }
 
-class EthereumStakingAmountPage extends StatefulWidget {
-  const EthereumStakingAmountPage({required this.mode, required this.authService, super.key});
+class EverstakeAmountPage extends StatefulWidget {
+  const EverstakeAmountPage({required this.mode, required this.authService, super.key});
 
-  final EthereumStakingAmountMode mode;
+  final EverstakeAmountMode mode;
   final AuthService authService;
 
   @override
-  State<EthereumStakingAmountPage> createState() => _EthereumStakingAmountPageState();
+  State<EverstakeAmountPage> createState() => _EverstakeAmountPageState();
 }
 
-class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
+class _EverstakeAmountPageState extends State<EverstakeAmountPage> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
@@ -40,7 +40,7 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
   bool _preparing = false;
   String? _prepareError;
 
-  bool get _isDeposit => widget.mode == EthereumStakingAmountMode.deposit;
+  bool get _isDeposit => widget.mode == EverstakeAmountMode.deposit;
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
   }
 
   @override
-  Widget build(BuildContext context) => BlocConsumer<EthereumStakingBloc, EthereumStakingState>(
+  Widget build(BuildContext context) => BlocConsumer<EverstakeBloc, EverstakeState>(
         listener: (context, state) {
           if (_useMax) {
             _syncMaxAmount(state.data!, context.read<FiatRateCubit>().state);
@@ -66,22 +66,22 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
           }
 
           switch (state) {
-            case EthereumStakingPrepared(:final operation):
+            case EverstakePrepared(:final operation):
               setState(() => _preparing = false);
               Navigator.of(context).push(
                 CupertinoPageRoute<void>(
                   builder: (_) => Material(
                     color: Colors.transparent,
-                    child: EthereumStakingConfirmPage(operation),
+                    child: EverstakeConfirmPage(operation),
                   ),
                 ),
               );
-            case EthereumStakingFailure(:final error):
+            case EverstakeFailure(:final error):
               setState(() {
                 _preparing = false;
                 _prepareError = error;
               });
-            case EthereumStakingReady():
+            case EverstakeReady():
               setState(() => _preparing = false);
             default:
               break;
@@ -90,13 +90,13 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
         builder: (context, state) => BlocConsumer<FiatRateCubit, ExchangeRate?>(
           listener: (context, fiatRate) {
             if (_useMax) {
-              _syncMaxAmount(context.read<EthereumStakingBloc>().state.data!, fiatRate);
+              _syncMaxAmount(context.read<EverstakeBloc>().state.data!, fiatRate);
             }
           },
           builder: (context, fiatRate) {
             final theme = Theme.of(context);
             final locale = Localizations.localeOf(context).toString();
-            final isBusy = state is EthereumStakingLoading || state is EthereumStakingPreparing;
+            final isBusy = state is EverstakeLoading || state is EverstakePreparing;
             final data = state.data!;
             final maxAmount = _isDeposit ? data.walletBalance : data.withdrawableBalance;
             final amount = _useMax ? maxAmount : _parseAmount(fiatRate);
@@ -262,7 +262,7 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
     return parts.length == 2 && parts.last.length > _inputCurrency.decimals;
   }
 
-  void _syncMaxAmount(EthereumStakingData data, ExchangeRate? fiatRate) {
+  void _syncMaxAmount(EverstakeData data, ExchangeRate? fiatRate) {
     final maxAmount = _isDeposit ? data.walletBalance : data.withdrawableBalance;
     final display = _inputCurrency == CryptoCurrency.eth ? maxAmount : fiatRate?.convert(maxAmount);
     if (display == null) {
@@ -278,7 +278,7 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
     }
   }
 
-  void _fillMax(EthereumStakingData data, ExchangeRate? fiatRate) {
+  void _fillMax(EverstakeData data, ExchangeRate? fiatRate) {
     if (_inputCurrency != CryptoCurrency.eth && fiatRate == null) {
       return;
     }
@@ -290,7 +290,7 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
     });
   }
 
-  void _continue(EthereumStakingData data, Money amount) {
+  void _continue(EverstakeData data, Money amount) {
     if (_isDeposit) {
       _prepare(_useMax ? const MaxStakeRequested() : StakeRequested(amount));
     } else {
@@ -319,7 +319,7 @@ class _EthereumStakingAmountPageState extends State<EthereumStakingAmountPage> {
           _preparing = true;
           _prepareError = null;
         });
-        context.read<EthereumStakingBloc>().add(event);
+        context.read<EverstakeBloc>().add(event);
       },
     );
   }

@@ -31,28 +31,32 @@ ListItemRegularRow everstakeProviderRow(BuildContext context) => ListItemRegular
       ),
     );
 
-ListItemRegularRow stakingServiceFeeRow(BuildContext context, double poolFee) => stakingTextRow(
+ListItemRegularRow everstakeServiceFeeRow(BuildContext context, double poolFee) => everstakeTextRow(
       context,
       keyValue: "staking_service_fee",
       label: S.of(context).service_fee,
       value: S.of(context).percent_of_rewards(_percent(context, poolFee)),
     );
 
-String stakingAprText(BuildContext context, double apr) =>
+String everstakeAprText(BuildContext context, double apr) =>
     S.of(context).percent_apr(_percent(context, apr));
 
-ListItemRegularRow stakingYieldRow(BuildContext context, double apr, {bool approximate = false}) =>
-    stakingTextRow(
+ListItemRegularRow everstakeYieldRow(
+  BuildContext context,
+  double apr, {
+  bool approximate = false,
+}) =>
+    everstakeTextRow(
       context,
       keyValue: "staking_yield",
       label: S.of(context).staking_yield,
-      value: "${approximate ? "~" : ""}${stakingAprText(context, apr)}",
+      value: "${approximate ? "~" : ""}${everstakeAprText(context, apr)}",
     );
 
-ListItemRegularRow stakingActivationRow(BuildContext context, Duration activationTime) {
+ListItemRegularRow everstakeActivationRow(BuildContext context, Duration activationTime) {
   final hours = activationTime.inHours;
 
-  return stakingTextRow(
+  return everstakeTextRow(
     context,
     keyValue: "staking_activation",
     label: S.of(context).stake_activation,
@@ -60,7 +64,7 @@ ListItemRegularRow stakingActivationRow(BuildContext context, Duration activatio
   );
 }
 
-ListItemRegularRow stakingTextRow(
+ListItemRegularRow everstakeTextRow(
   BuildContext context, {
   required String keyValue,
   required String label,
@@ -85,7 +89,7 @@ ListItemRegularRow stakingTextRow(
       ),
     );
 
-ListItemRegularRow stakingEarnedRow(
+ListItemRegularRow everstakeEarnedRow(
   BuildContext context,
   Money earned,
   ExchangeRate? fiatRate, {
@@ -119,7 +123,7 @@ ListItemRegularRow stakingEarnedRow(
   );
 }
 
-ListItemRegularRow stakingAmountRow(
+ListItemRegularRow everstakeAmountRow(
   BuildContext context, {
   required String keyValue,
   required String label,
@@ -154,7 +158,7 @@ ListItemRegularRow stakingAmountRow(
       ),
     );
 
-ListItemRegularRow stakingNetworkFeeRow(BuildContext context, Money fee, ExchangeRate? fiatRate) {
+ListItemRegularRow everstakeNetworkFeeRow(BuildContext context, Money fee, ExchangeRate? fiatRate) {
   final fiat = fiatRate?.convert(fee);
   final style = _trailingStyle(context);
 

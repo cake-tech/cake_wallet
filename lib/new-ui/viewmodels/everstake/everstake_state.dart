@@ -1,10 +1,10 @@
-part of "ethereum_staking_bloc.dart";
+part of "everstake_bloc.dart";
 
-enum EthereumStakingAction { stake, unstake, unstakePending, claimWithdrawal }
+enum EverstakeAction { stake, unstake, unstakePending, claimWithdrawal }
 
 @immutable
-class EthereumStakingData {
-  const EthereumStakingData({
+class EverstakeData {
+  const EverstakeData({
     required this.minStakeAmount,
     required this.poolFee,
     required this.balances,
@@ -47,72 +47,72 @@ class EthereumStakingData {
 }
 
 @immutable
-class EthereumStakingOperation {
-  const EthereumStakingOperation({
+class EverstakeOperation {
+  const EverstakeOperation({
     required this.action,
     required this.amount,
     required this.transaction,
     this.instantUnstakeAmount,
   });
 
-  final EthereumStakingAction action;
+  final EverstakeAction action;
   final Money amount;
   final PendingTransaction transaction;
   final Money? instantUnstakeAmount;
 }
 
 @immutable
-sealed class EthereumStakingState {
-  const EthereumStakingState();
+sealed class EverstakeState {
+  const EverstakeState();
 
-  EthereumStakingData? get data;
+  EverstakeData? get data;
 }
 
-sealed class EthereumStakingStateWithData extends EthereumStakingState {
-  const EthereumStakingStateWithData(this.data);
+sealed class EverstakeStateWithData extends EverstakeState {
+  const EverstakeStateWithData(this.data);
 
   @override
-  final EthereumStakingData data;
+  final EverstakeData data;
 }
 
-final class EthereumStakingLoading extends EthereumStakingState {
-  const EthereumStakingLoading(this.data);
+final class EverstakeLoading extends EverstakeState {
+  const EverstakeLoading(this.data);
 
   @override
-  final EthereumStakingData? data;
+  final EverstakeData? data;
 }
 
-final class EthereumStakingReady extends EthereumStakingStateWithData {
-  const EthereumStakingReady(super.data);
+final class EverstakeReady extends EverstakeStateWithData {
+  const EverstakeReady(super.data);
 }
 
-final class EthereumStakingPreparing extends EthereumStakingStateWithData {
-  const EthereumStakingPreparing(super.data);
+final class EverstakePreparing extends EverstakeStateWithData {
+  const EverstakePreparing(super.data);
 }
 
-final class EthereumStakingPrepared extends EthereumStakingStateWithData {
-  const EthereumStakingPrepared(super.data, this.operation);
+final class EverstakePrepared extends EverstakeStateWithData {
+  const EverstakePrepared(super.data, this.operation);
 
-  final EthereumStakingOperation operation;
+  final EverstakeOperation operation;
 }
 
-final class EthereumStakingSubmitting extends EthereumStakingStateWithData {
-  const EthereumStakingSubmitting(super.data, this.operation);
+final class EverstakeSubmitting extends EverstakeStateWithData {
+  const EverstakeSubmitting(super.data, this.operation);
 
-  final EthereumStakingOperation operation;
+  final EverstakeOperation operation;
 }
 
-final class EthereumStakingSubmitted extends EthereumStakingStateWithData {
-  const EthereumStakingSubmitted(super.data, this.operation);
+final class EverstakeSubmitted extends EverstakeStateWithData {
+  const EverstakeSubmitted(super.data, this.operation);
 
-  final EthereumStakingOperation operation;
+  final EverstakeOperation operation;
 }
 
-final class EthereumStakingFailure extends EthereumStakingState {
-  const EthereumStakingFailure(this.data, this.error);
+final class EverstakeFailure extends EverstakeState {
+  const EverstakeFailure(this.data, this.error);
 
   @override
-  final EthereumStakingData? data;
+  final EverstakeData? data;
 
   final String error;
 }

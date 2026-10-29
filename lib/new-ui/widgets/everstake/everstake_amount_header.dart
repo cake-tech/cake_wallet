@@ -6,8 +6,8 @@ import "package:cw_core/amount/money.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
-class EthereumStakingAmountHeader extends StatelessWidget {
-  const EthereumStakingAmountHeader(
+class EverstakeAmountHeader extends StatelessWidget {
+  const EverstakeAmountHeader(
     this.amount, {
     super.key,
     this.approximate = false,

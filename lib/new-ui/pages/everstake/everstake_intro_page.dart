@@ -1,9 +1,9 @@
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/pages/ethereum_staking/ethereum_staking_amount_page.dart";
-import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/ethereum_staking_rows.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/everstake_terms_text.dart";
+import "package:cake_wallet/new-ui/pages/everstake/everstake_amount_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_rows.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_terms_text.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -12,13 +12,13 @@ import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
-class EthereumStakingIntroPage extends StatelessWidget {
-  const EthereumStakingIntroPage({required this.authService, super.key});
+class EverstakeIntroPage extends StatelessWidget {
+  const EverstakeIntroPage({required this.authService, super.key});
 
   final AuthService authService;
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<EthereumStakingBloc, EthereumStakingState>(
+  Widget build(BuildContext context) => BlocBuilder<EverstakeBloc, EverstakeState>(
         builder: (context, state) {
           final theme = Theme.of(context);
           final data = state.data!;
@@ -61,7 +61,7 @@ class EthereumStakingIntroPage extends StatelessWidget {
                                     data.apr == null
                                         ? S.of(context).everstake_intro
                                         : S.of(context).everstake_intro_apr(
-                                              stakingAprText(context, data.apr!),
+                                              everstakeAprText(context, data.apr!),
                                             ),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
@@ -76,10 +76,10 @@ class EthereumStakingIntroPage extends StatelessWidget {
                                   sections: {
                                     "everstake": [
                                       everstakeProviderRow(context),
-                                      if (data.apr != null) stakingYieldRow(context, data.apr!),
+                                      if (data.apr != null) everstakeYieldRow(context, data.apr!),
                                       if (data.activationTime != null)
-                                        stakingActivationRow(context, data.activationTime!),
-                                      stakingServiceFeeRow(context, data.poolFee),
+                                        everstakeActivationRow(context, data.activationTime!),
+                                      everstakeServiceFeeRow(context, data.poolFee),
                                     ],
                                   },
                                 ),
@@ -101,8 +101,8 @@ class EthereumStakingIntroPage extends StatelessWidget {
                             CupertinoPageRoute<void>(
                               builder: (_) => Material(
                                 color: Colors.transparent,
-                                child: EthereumStakingAmountPage(
-                                  mode: EthereumStakingAmountMode.deposit,
+                                child: EverstakeAmountPage(
+                                  mode: EverstakeAmountMode.deposit,
                                   authService: authService,
                                 ),
                               ),

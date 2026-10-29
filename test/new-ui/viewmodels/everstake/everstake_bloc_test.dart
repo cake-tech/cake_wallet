@@ -4,7 +4,7 @@ import "package:cake_wallet/core/everstake/exceptions.dart";
 import "package:cake_wallet/core/everstake/models.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
@@ -157,13 +157,13 @@ void main() {
     ).thenAnswer((_) async => signed);
   });
 
-  Future<EthereumStakingBloc> loadedBloc() async {
+  Future<EverstakeBloc> loadedBloc() async {
     final settingsStore = _MockSettingsStore();
     when(() => settingsStore.getPriority(any(), chainId: any(named: "chainId"))).thenReturn(null);
     when(() => settingsStore.useBlinkProtection).thenReturn(true);
     when(() => settingsStore.languageCode).thenReturn("en");
 
-    final bloc = EthereumStakingBloc(
+    final bloc = EverstakeBloc(
       wallet: wallet,
       settingsStore: settingsStore,
       evm: evm,
@@ -171,13 +171,13 @@ void main() {
       validator: EverstakeEthereumTransactionValidator(),
     );
     addTearDown(bloc.close);
-    await bloc.stream.firstWhere((state) => state is EthereumStakingReady);
+    await bloc.stream.firstWhere((state) => state is EverstakeReady);
     return bloc;
   }
 
-  Future<EthereumStakingState> prepared(EthereumStakingBloc bloc, TransactionRequested event) {
+  Future<EverstakeState> prepared(EverstakeBloc bloc, TransactionRequested event) {
     final result = bloc.stream.firstWhere(
-      (state) => state is EthereumStakingPrepared || state is EthereumStakingFailure,
+      (state) => state is EverstakePrepared || state is EverstakeFailure,
     );
     bloc.add(event);
     return result;
@@ -222,8 +222,8 @@ void main() {
 
       expect(
         state,
-        isA<EthereumStakingPrepared>()
-            .having((s) => s.operation.action, "action", EthereumStakingAction.stake)
+        isA<EverstakePrepared>()
+            .having((s) => s.operation.action, "action", EverstakeAction.stake)
             .having((s) => s.operation.amount, "amount", _eth("0.994")),
       );
     });
@@ -236,7 +236,7 @@ void main() {
 
       expect(
         state,
-        isA<EthereumStakingFailure>()
+        isA<EverstakeFailure>()
             .having((s) => s.error, "error", S.current.error_text_input_below_minimum_limit),
       );
       verifyNever(
@@ -256,8 +256,7 @@ void main() {
 
     expect(
       state,
-      isA<EthereumStakingFailure>()
-          .having((s) => s.error, "error", S.current.tx_zero_fee_exception),
+      isA<EverstakeFailure>().having((s) => s.error, "error", S.current.tx_zero_fee_exception),
     );
   });
 
@@ -279,7 +278,7 @@ void main() {
 
     expect(
       state,
-      isA<EthereumStakingFailure>()
+      isA<EverstakeFailure>()
           .having((s) => s.error, "error", S.current.provider_error("Everstake")),
     );
     verifyNever(
@@ -304,7 +303,7 @@ void main() {
 
     expect(
       state,
-      isA<EthereumStakingFailure>()
+      isA<EverstakeFailure>()
           .having((s) => s.error, "error", S.current.error_text_input_above_maximum_limit),
     );
   });
@@ -318,7 +317,7 @@ void main() {
 
     expect(
       state,
-      isA<EthereumStakingFailure>().having(
+      isA<EverstakeFailure>().having(
         (s) => s.error,
         "error",
         S.current.staking_remainder_below_minimum(
@@ -331,7 +330,7 @@ void main() {
   group("when a transaction moves the wallet balance", () {
     test("reloads", () async {
       final bloc = await loadedBloc();
-      final reloaded = bloc.stream.firstWhere((state) => state is EthereumStakingReady);
+      final reloaded = bloc.stream.firstWhere((state) => state is EverstakeReady);
 
       runInAction(() => walletBalances[CryptoCurrency.eth] = _Balance(_eth("0.5")));
 
@@ -353,8 +352,8 @@ void main() {
 
   test("submits only the reviewed transaction and records it as pending", () async {
     final bloc = await loadedBloc();
-    final first = await prepared(bloc, StakeRequested(_eth("0.05"))) as EthereumStakingPrepared;
-    final second = await prepared(bloc, StakeRequested(_eth("0.1"))) as EthereumStakingPrepared;
+    final first = await prepared(bloc, StakeRequested(_eth("0.05"))) as EverstakePrepared;
+    final second = await prepared(bloc, StakeRequested(_eth("0.1"))) as EverstakePrepared;
 
     bloc.add(TransactionConfirmed(first.operation));
     await pumpEventQueue();
@@ -362,13 +361,12 @@ void main() {
     expect(bloc.state, same(second));
     verifyNever(() => signed.commit());
 
-    final submitted = bloc.stream.firstWhere((state) => state is EthereumStakingSubmitted);
+    final submitted = bloc.stream.firstWhere((state) => state is EverstakeSubmitted);
     bloc.add(TransactionConfirmed(second.operation));
 
     expect(
       await submitted,
-      isA<EthereumStakingSubmitted>()
-          .having((s) => s.operation, "operation", same(second.operation)),
+      isA<EverstakeSubmitted>().having((s) => s.operation, "operation", same(second.operation)),
     );
     verify(() => signed.commit()).called(1);
     verify(() => history.addOne(any())).called(1);
@@ -408,8 +406,8 @@ void main() {
 
     expect(
       state,
-      isA<EthereumStakingPrepared>()
-          .having((s) => s.operation.action, "action", EthereumStakingAction.unstake)
+      isA<EverstakePrepared>()
+          .having((s) => s.operation.action, "action", EverstakeAction.unstake)
           .having((s) => s.operation.amount, "amount", amount)
           .having((s) => s.operation.instantUnstakeAmount, "instantUnstakeAmount", instantAmount),
     );
@@ -448,14 +446,14 @@ void main() {
 
     expect(
       state,
-      isA<EthereumStakingPrepared>()
-          .having((s) => s.operation.action, "action", EthereumStakingAction.claimWithdrawal)
+      isA<EverstakePrepared>()
+          .having((s) => s.operation.action, "action", EverstakeAction.claimWithdrawal)
           .having((s) => s.operation.amount, "amount", _eth("0.5")),
     );
   });
 
   test("selects pending stake for withdrawal before active stake", () {
-    EthereumStakingData data(EverstakeEthereumUserBalances balances) => EthereumStakingData(
+    EverstakeData data(EverstakeEthereumUserBalances balances) => EverstakeData(
           minStakeAmount: _eth("0.01"),
           poolFee: 0.1,
           balances: balances,

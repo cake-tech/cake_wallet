@@ -11,8 +11,8 @@ import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
-import "package:cake_wallet/new-ui/pages/ethereum_staking/ethereum_staking_amount_page.dart";
-import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
+import "package:cake_wallet/new-ui/pages/everstake/everstake_amount_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
 import "package:cake_wallet/store/settings_store.dart";
@@ -71,7 +71,7 @@ void main() {
   late _MockEverstakeService service;
   late _MockAuthService authService;
   late _MockSettingsStore settingsStore;
-  late EthereumStakingBloc bloc;
+  late EverstakeBloc bloc;
 
   final usdRate = ExchangeRate(
     base: CryptoCurrency.eth,
@@ -129,7 +129,7 @@ void main() {
         .thenAnswer((_) async => const Duration(hours: 547));
     when(() => service.getEthereumTotalRewards(any())).thenAnswer((_) async => _eth("0.003"));
 
-    bloc = EthereumStakingBloc(
+    bloc = EverstakeBloc(
       wallet: wallet,
       settingsStore: settingsStore,
       evm: _MockEVM(),
@@ -142,9 +142,9 @@ void main() {
     unawaited(bloc.close());
   });
 
-  Future<void> openAmountPage(WidgetTester tester, EthereumStakingAmountMode mode) async {
+  Future<void> openAmountPage(WidgetTester tester, EverstakeAmountMode mode) async {
     await tester.pump();
-    expect(bloc.state, isA<EthereumStakingReady>());
+    expect(bloc.state, isA<EverstakeReady>());
 
     await tester.pumpWidget(
       MultiBlocProvider(
@@ -156,7 +156,7 @@ void main() {
         child: MaterialApp(
           localizationsDelegates: localizationDelegates,
           supportedLocales: S.delegate.supportedLocales,
-          home: Scaffold(body: EthereumStakingAmountPage(mode: mode, authService: authService)),
+          home: Scaffold(body: EverstakeAmountPage(mode: mode, authService: authService)),
         ),
       ),
     );
@@ -171,7 +171,7 @@ void main() {
         amount: any(named: "amount"),
       ),
     ).thenThrow(const EverstakeResponseException("unavailable", 503));
-    await openAmountPage(tester, EthereumStakingAmountMode.deposit);
+    await openAmountPage(tester, EverstakeAmountMode.deposit);
 
     await tester.enterText(find.byType(TextFormField), "100");
     await tester.pump();
@@ -194,7 +194,7 @@ void main() {
         allowedInterchangeNum: any(named: "allowedInterchangeNum"),
       ),
     ).thenThrow(const EverstakeResponseException("unavailable", 503));
-    await openAmountPage(tester, EthereumStakingAmountMode.withdraw);
+    await openAmountPage(tester, EverstakeAmountMode.withdraw);
 
     await tester.tap(find.text("All"));
     await tester.pump();
@@ -215,7 +215,7 @@ void main() {
   testWidgets("asks for 2FA before a deposit and stakes nothing without it", (tester) async {
     when(() => settingsStore.shouldRequireTOTP2FAForSendsToNonContact).thenReturn(true);
     authenticate(authenticated: false);
-    await openAmountPage(tester, EthereumStakingAmountMode.deposit);
+    await openAmountPage(tester, EverstakeAmountMode.deposit);
 
     await tester.enterText(find.byType(TextFormField), "100");
     await tester.pump();

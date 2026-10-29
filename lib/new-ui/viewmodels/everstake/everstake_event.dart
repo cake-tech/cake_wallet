@@ -1,15 +1,15 @@
-part of "ethereum_staking_bloc.dart";
+part of "everstake_bloc.dart";
 
 @immutable
-sealed class EthereumStakingEvent {
-  const EthereumStakingEvent();
+sealed class EverstakeEvent {
+  const EverstakeEvent();
 }
 
-final class StakingDataRequested extends EthereumStakingEvent {
+final class StakingDataRequested extends EverstakeEvent {
   const StakingDataRequested();
 }
 
-sealed class TransactionRequested extends EthereumStakingEvent {
+sealed class TransactionRequested extends EverstakeEvent {
   const TransactionRequested();
 }
 
@@ -39,8 +39,8 @@ final class WithdrawalClaimRequested extends TransactionRequested {
   const WithdrawalClaimRequested();
 }
 
-final class TransactionConfirmed extends EthereumStakingEvent {
+final class TransactionConfirmed extends EverstakeEvent {
   const TransactionConfirmed(this.operation);
 
-  final EthereumStakingOperation operation;
+  final EverstakeOperation operation;
 }

@@ -1,13 +1,13 @@
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
-import "package:cake_wallet/new-ui/pages/ethereum_staking/ethereum_staking_amount_page.dart";
-import "package:cake_wallet/new-ui/pages/ethereum_staking/ethereum_staking_confirm_page.dart";
-import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
+import "package:cake_wallet/new-ui/pages/everstake/everstake_amount_page.dart";
+import "package:cake_wallet/new-ui/pages/everstake/everstake_confirm_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/ethereum_staking_amount_header.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/ethereum_staking_rows.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/everstake_logo.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_amount_header.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_logo.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_rows.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
@@ -16,40 +16,40 @@ import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
-class EthereumStakingDetailsPage extends StatefulWidget {
-  const EthereumStakingDetailsPage({required this.authService, super.key});
+class EverstakeDetailsPage extends StatefulWidget {
+  const EverstakeDetailsPage({required this.authService, super.key});
 
   final AuthService authService;
 
   @override
-  State<EthereumStakingDetailsPage> createState() => _EthereumStakingDetailsPageState();
+  State<EverstakeDetailsPage> createState() => _EverstakeDetailsPageState();
 }
 
-class _EthereumStakingDetailsPageState extends State<EthereumStakingDetailsPage> {
+class _EverstakeDetailsPageState extends State<EverstakeDetailsPage> {
   bool _preparing = false;
   String? _prepareError;
 
   @override
-  Widget build(BuildContext context) => BlocConsumer<EthereumStakingBloc, EthereumStakingState>(
+  Widget build(BuildContext context) => BlocConsumer<EverstakeBloc, EverstakeState>(
         listenWhen: (_, __) => _preparing,
         listener: (context, state) {
           switch (state) {
-            case EthereumStakingPrepared(:final operation):
+            case EverstakePrepared(:final operation):
               setState(() => _preparing = false);
               Navigator.of(context).push(
                 CupertinoPageRoute<void>(
                   builder: (_) => Material(
                     color: Colors.transparent,
-                    child: EthereumStakingConfirmPage(operation),
+                    child: EverstakeConfirmPage(operation),
                   ),
                 ),
               );
-            case EthereumStakingFailure(:final error):
+            case EverstakeFailure(:final error):
               setState(() {
                 _preparing = false;
                 _prepareError = error;
               });
-            case EthereumStakingReady():
+            case EverstakeReady():
               setState(() => _preparing = false);
             default:
               break;
@@ -59,7 +59,7 @@ class _EthereumStakingDetailsPageState extends State<EthereumStakingDetailsPage>
           builder: (context, fiatRate) {
             final theme = Theme.of(context);
             final data = state.data!;
-            final isBusy = state is EthereumStakingLoading || state is EthereumStakingPreparing;
+            final isBusy = state is EverstakeLoading || state is EverstakePreparing;
             final withdrawal = data.withdrawRequest.requested;
             final canClaim = data.canClaimWithdrawal;
 
@@ -84,15 +84,15 @@ class _EthereumStakingDetailsPageState extends State<EthereumStakingDetailsPage>
                         child: Column(
                           spacing: 24,
                           children: [
-                            EthereumStakingAmountHeader(data.stakedBalance),
+                            EverstakeAmountHeader(data.stakedBalance),
                             NewListSections(
                               sections: {
                                 "position": [
                                   everstakeProviderRow(context),
-                                  if (data.apr != null) stakingYieldRow(context, data.apr!),
-                                  stakingEarnedRow(context, data.earned, fiatRate),
+                                  if (data.apr != null) everstakeYieldRow(context, data.apr!),
+                                  everstakeEarnedRow(context, data.earned, fiatRate),
                                   if (!data.pendingActivation.isZero)
-                                    stakingAmountRow(
+                                    everstakeAmountRow(
                                       context,
                                       keyValue: "staking_pending_activation",
                                       label: S.of(context).pending_activation,
@@ -101,12 +101,12 @@ class _EthereumStakingDetailsPageState extends State<EthereumStakingDetailsPage>
                                 ],
                                 "terms": [
                                   if (data.activationTime != null)
-                                    stakingActivationRow(context, data.activationTime!),
-                                  stakingServiceFeeRow(context, data.poolFee),
+                                    everstakeActivationRow(context, data.activationTime!),
+                                  everstakeServiceFeeRow(context, data.poolFee),
                                 ],
                                 if (!withdrawal.isZero)
                                   "withdrawal": [
-                                    stakingAmountRow(
+                                    everstakeAmountRow(
                                       context,
                                       keyValue: "staking_withdrawal",
                                       label: canClaim
@@ -137,7 +137,7 @@ class _EthereumStakingDetailsPageState extends State<EthereumStakingDetailsPage>
                         children: [
                           Expanded(
                             child: NewPrimaryButton(
-                              onPressed: () => _openAmountPage(EthereumStakingAmountMode.withdraw),
+                              onPressed: () => _openAmountPage(EverstakeAmountMode.withdraw),
                               disabled: _preparing || data.withdrawableBalance.isZero,
                               text: S.of(context).withdraw,
                               color: theme.colorScheme.surfaceContainer,
@@ -146,7 +146,7 @@ class _EthereumStakingDetailsPageState extends State<EthereumStakingDetailsPage>
                           ),
                           Expanded(
                             child: NewPrimaryButton(
-                              onPressed: () => _openAmountPage(EthereumStakingAmountMode.deposit),
+                              onPressed: () => _openAmountPage(EverstakeAmountMode.deposit),
                               disabled: _preparing,
                               text: S.of(context).deposit,
                               color: theme.colorScheme.primary,
@@ -181,18 +181,18 @@ class _EthereumStakingDetailsPageState extends State<EthereumStakingDetailsPage>
           _preparing = true;
           _prepareError = null;
         });
-        context.read<EthereumStakingBloc>().add(const WithdrawalClaimRequested());
+        context.read<EverstakeBloc>().add(const WithdrawalClaimRequested());
       },
     );
   }
 
-  void _openAmountPage(EthereumStakingAmountMode mode) {
+  void _openAmountPage(EverstakeAmountMode mode) {
     setState(() => _prepareError = null);
     Navigator.of(context).push(
       CupertinoPageRoute<void>(
         builder: (_) => Material(
           color: Colors.transparent,
-          child: EthereumStakingAmountPage(mode: mode, authService: widget.authService),
+          child: EverstakeAmountPage(mode: mode, authService: widget.authService),
         ),
       ),
     );

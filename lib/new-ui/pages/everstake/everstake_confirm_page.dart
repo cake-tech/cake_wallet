@@ -1,12 +1,12 @@
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/new-ui/viewmodels/ethereum_staking/ethereum_staking_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import "package:cake_wallet/new-ui/widgets/confirm_swiper.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/ethereum_staking_amount_header.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/ethereum_staking_rows.dart";
-import "package:cake_wallet/new-ui/widgets/ethereum_staking/everstake_terms_text.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_amount_header.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_rows.dart";
+import "package:cake_wallet/new-ui/widgets/everstake/everstake_terms_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
@@ -19,16 +19,16 @@ import "package:flutter_bloc/flutter_bloc.dart";
 
 enum _Phase { review, submitting, submitted, failed }
 
-class EthereumStakingConfirmPage extends StatefulWidget {
-  const EthereumStakingConfirmPage(this.operation, {super.key});
+class EverstakeConfirmPage extends StatefulWidget {
+  const EverstakeConfirmPage(this.operation, {super.key});
 
-  final EthereumStakingOperation operation;
+  final EverstakeOperation operation;
 
   @override
-  State<EthereumStakingConfirmPage> createState() => _EthereumStakingConfirmPageState();
+  State<EverstakeConfirmPage> createState() => _EverstakeConfirmPageState();
 }
 
-class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage> {
+class _EverstakeConfirmPageState extends State<EverstakeConfirmPage> {
   static final _minQueuedAmount = Money(BigInt.from(1000000000), CryptoCurrency.eth);
 
   _Phase _phase = _Phase.review;
@@ -42,16 +42,15 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
             Navigator.of(context, rootNavigator: true).pop();
           }
         },
-        child: BlocListener<EthereumStakingBloc, EthereumStakingState>(
+        child: BlocListener<EverstakeBloc, EverstakeState>(
           listener: (context, state) {
             switch (state) {
-              case EthereumStakingSubmitting(:final operation)
+              case EverstakeSubmitting(:final operation)
                   when identical(operation, widget.operation):
                 setState(() => _phase = _Phase.submitting);
-              case EthereumStakingSubmitted(:final operation)
-                  when identical(operation, widget.operation):
+              case EverstakeSubmitted(:final operation) when identical(operation, widget.operation):
                 setState(() => _phase = _Phase.submitted);
-              case EthereumStakingFailure(:final error) when _phase == _Phase.submitting:
+              case EverstakeFailure(:final error) when _phase == _Phase.submitting:
                 setState(() {
                   _phase = _Phase.failed;
                   _error = error;
@@ -70,7 +69,7 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
                   ? const Center(
                       child: TransactionCommitedScreen(),
                     )
-                  : BlocBuilder<EthereumStakingBloc, EthereumStakingState>(
+                  : BlocBuilder<EverstakeBloc, EverstakeState>(
                       builder: (context, state) => BlocBuilder<FiatRateCubit, ExchangeRate?>(
                         builder: (context, fiatRate) =>
                             _buildReview(context, state.data!, fiatRate),
@@ -83,21 +82,21 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
 
   Widget _buildReview(
     BuildContext context,
-    EthereumStakingData data,
+    EverstakeData data,
     ExchangeRate? fiatRate,
   ) {
-    final bloc = context.read<EthereumStakingBloc>();
+    final bloc = context.read<EverstakeBloc>();
     final queued = _queuedAmount;
 
     return Column(
       children: [
         ModalTopBar(
           title: switch (widget.operation.action) {
-            EthereumStakingAction.stake => S.of(context).confirm_deposit,
-            EthereumStakingAction.unstake ||
-            EthereumStakingAction.unstakePending =>
+            EverstakeAction.stake => S.of(context).confirm_deposit,
+            EverstakeAction.unstake ||
+            EverstakeAction.unstakePending =>
               S.of(context).confirm_withdrawal,
-            EthereumStakingAction.claimWithdrawal => S.of(context).confirm_claim,
+            EverstakeAction.claimWithdrawal => S.of(context).confirm_claim,
           },
           leadingIcon: const Icon(Icons.close),
           leadingSemanticLabel: S.of(context).close,
@@ -109,7 +108,7 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
             child: Column(
               spacing: 24,
               children: [
-                EthereumStakingAmountHeader(
+                EverstakeAmountHeader(
                   widget.operation.amount,
                   approximate: true,
                   isHiddenAmount: false,
@@ -117,13 +116,13 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
                 NewListSections(
                   sections: {
                     "account": [
-                      stakingTextRow(
+                      everstakeTextRow(
                         context,
                         keyValue: "staking_wallet",
                         label: S.of(context).wallet,
                         value: bloc.walletName,
                       ),
-                      stakingTextRow(
+                      everstakeTextRow(
                         context,
                         keyValue: "staking_address",
                         label: S.of(context).address,
@@ -134,7 +133,7 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
                     "details": [
                       everstakeProviderRow(context),
                       ..._actionRows(context, data, fiatRate, queued),
-                      stakingNetworkFeeRow(context, widget.operation.transaction.fee, fiatRate),
+                      everstakeNetworkFeeRow(context, widget.operation.transaction.fee, fiatRate),
                     ],
                   },
                 ),
@@ -162,11 +161,11 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
                 _Phase.review => ConfirmSwiper(
                     onConfirmed: () => bloc.add(TransactionConfirmed(widget.operation)),
                     swiperText: switch (widget.operation.action) {
-                      EthereumStakingAction.stake => S.of(context).swipe_to_deposit,
-                      EthereumStakingAction.unstake ||
-                      EthereumStakingAction.unstakePending =>
+                      EverstakeAction.stake => S.of(context).swipe_to_deposit,
+                      EverstakeAction.unstake ||
+                      EverstakeAction.unstakePending =>
                         S.of(context).swipe_to_withdraw,
-                      EthereumStakingAction.claimWithdrawal => S.of(context).swipe_to_claim,
+                      EverstakeAction.claimWithdrawal => S.of(context).swipe_to_claim,
                     },
                     accessibleNavigationModeButtonText: S.of(context).confirm,
                   ),
@@ -184,28 +183,28 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
 
   List<ListItem> _actionRows(
     BuildContext context,
-    EthereumStakingData data,
+    EverstakeData data,
     ExchangeRate? fiatRate,
     Money? queued,
   ) =>
       switch (widget.operation.action) {
-        EthereumStakingAction.stake => [
-            if (data.apr != null) stakingYieldRow(context, data.apr!, approximate: true),
-            if (data.activationTime != null) stakingActivationRow(context, data.activationTime!),
-            stakingServiceFeeRow(context, data.poolFee),
+        EverstakeAction.stake => [
+            if (data.apr != null) everstakeYieldRow(context, data.apr!, approximate: true),
+            if (data.activationTime != null) everstakeActivationRow(context, data.activationTime!),
+            everstakeServiceFeeRow(context, data.poolFee),
           ],
-        EthereumStakingAction.unstake || EthereumStakingAction.unstakePending => [
-            stakingEarnedRow(context, data.earned, fiatRate, isHiddenAmount: false),
+        EverstakeAction.unstake || EverstakeAction.unstakePending => [
+            everstakeEarnedRow(context, data.earned, fiatRate, isHiddenAmount: false),
             if (queued != null) ...[
               if (widget.operation.amount > queued)
-                stakingAmountRow(
+                everstakeAmountRow(
                   context,
                   keyValue: "staking_withdrawn_instantly",
                   label: S.of(context).withdrawn_instantly,
                   amount: widget.operation.amount - queued,
                   isHiddenAmount: false,
                 ),
-              stakingAmountRow(
+              everstakeAmountRow(
                 context,
                 keyValue: "staking_withdrawal_queue",
                 label: S.of(context).withdrawal_queue,
@@ -214,7 +213,7 @@ class _EthereumStakingConfirmPageState extends State<EthereumStakingConfirmPage>
               ),
             ],
           ],
-        EthereumStakingAction.claimWithdrawal => [],
+        EverstakeAction.claimWithdrawal => [],
       };
 
   Money? get _queuedAmount {
