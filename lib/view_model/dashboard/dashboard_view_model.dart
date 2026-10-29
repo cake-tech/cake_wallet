@@ -5,7 +5,7 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import "package:cake_wallet/entities/wallet_group_service.dart";
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';

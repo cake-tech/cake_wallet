@@ -327,6 +327,9 @@ class WalletRestorePage extends BasePage {
 
       this.derivationInfo = dInfo;
 
+      // TODO(serhii): temporary — Replace with explicit `groupName:` param once the Restore flow refactor PR is merged.
+      walletRestoreViewModel.name = name.trim();
+
       await walletRestoreViewModel.create(options: _credentials());
       seedSettingsViewModel.setPassphrase(null);
     } catch (e) {

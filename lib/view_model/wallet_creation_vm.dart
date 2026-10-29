@@ -2,7 +2,7 @@ import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/core/wallet_creation_service.dart";
 import "package:cake_wallet/di.dart";
-import "package:cake_wallet/entities/wallet_group_service.dart";
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/nano/nano.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";

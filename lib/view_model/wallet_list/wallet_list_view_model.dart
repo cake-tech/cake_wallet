@@ -3,7 +3,7 @@ import 'dart:async';
 import "package:cake_wallet/core/key_service.dart";
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
-import "package:cake_wallet/entities/wallet_group_service.dart";
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import "package:cw_core/wallet_service.dart";
 import 'package:mobx/mobx.dart';

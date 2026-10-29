@@ -28,6 +28,20 @@ bool isBIP39Wallet(WalletType walletType) {
   }
 }
 
+const alwaysBip39Types = {
+  WalletType.ethereum,
+  WalletType.polygon,
+  WalletType.base,
+  WalletType.arbitrum,
+  WalletType.bsc,
+  WalletType.robinhood,
+  WalletType.solana,
+  WalletType.tron,
+  WalletType.zcash,
+  WalletType.bitcoinCash,
+  WalletType.dogecoin,
+};
+
 bool isElectrumWallet(WalletType walletType) {
   switch (walletType) {
     case WalletType.bitcoin:

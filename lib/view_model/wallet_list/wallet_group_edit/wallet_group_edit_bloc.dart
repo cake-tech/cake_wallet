@@ -1,6 +1,6 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/entities/wallet_group.dart";
-import "package:cake_wallet/entities/wallet_group_service.dart";
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_group_edit_event.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_group_edit_state.dart";
 import "package:cw_core/utils/print_verbose.dart";

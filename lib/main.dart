@@ -345,7 +345,8 @@ Future<void> initialSetup({
     contactSource: contactSource,
     havenSeedStore: havenSeedStore,
   );
-  await migrateLegacyWalletsToGroups();
+
+  await migrateLegacyWalletsToGroups(sharedPreferences);
   await setup(
     contactSource: contactSource,
     ordersSource: ordersSource,

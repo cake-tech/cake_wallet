@@ -1,7 +1,7 @@
 import "package:cake_wallet/core/wallet_loading_service.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
-import "package:cake_wallet/entities/wallet_group_service.dart";
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/wallet_info.dart";

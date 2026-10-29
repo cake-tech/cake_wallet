@@ -15,6 +15,7 @@ class WalletGroupService {
 
   Stream<List<WalletGroup>> watch() => _subject.stream;
 
+
   Future<List<WalletGroup>> getAllGroups() async => [
         for (final g in await WalletGroupDbEntry.getAll())
           WalletGroup(g.id, groupName: g.name, icon: _iconFromPersisted(g)),

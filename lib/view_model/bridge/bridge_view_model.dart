@@ -7,7 +7,7 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import "package:cake_wallet/entities/wallet_group_service.dart";
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/evm/evm.dart';
