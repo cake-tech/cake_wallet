@@ -125,6 +125,8 @@ class MoonPayProvider extends BuyProvider {
       clearnetUri: uri,
       headers: {"Content-Type": "application/json", "x-api-key": _exchangeHelperApiKey},
       body: json.encode({"query": query}),
+      // The helper binds the URL to the IP it sees; browsers open it over IPv6 when they can.
+      preferIPv6: true,
     );
 
     if (response.statusCode == 200) {
