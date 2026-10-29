@@ -14,6 +14,9 @@ List<SemanticsNode> platformNodesWithId(WidgetTester tester, String identifier) 
     });
   }
 
-  visit(tester.binding.pipelineOwner.semanticsOwner!.rootSemanticsNode!);
+  visit(tester.binding.renderViews.first.owner!.semanticsOwner!.rootSemanticsNode!);
   return result;
 }
+
+List<SemanticsNode> screenReaderStops(WidgetTester tester) =>
+    tester.semantics.simulatedAccessibilityTraversal().toList();
