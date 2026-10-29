@@ -193,6 +193,22 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       _appStore.settingsStore.usePayjoin &&
       payjoinEndpoint.isNotEmpty;
 
+  /// True during the async payjoin receiver setup (directory + OHTTP relay
+  /// round-trips). The receive page renders a blurred placeholder QR instead
+  /// of the plain address while this is set, so the standard-address QR never
+  /// flashes before the pjuri is ready. Once setup finishes, either the real
+  /// pjuri QR is shown (hasPayjoin) or — on failure — the standard address.
+  /// Not gated on `payjoinEndpoint.isEmpty`: pending must win even if a stale
+  /// endpoint is still set, so a refresh shows the placeholder rather than an
+  /// outdated pjuri QR.
+  @computed
+  bool get isPayjoinLoading =>
+      wallet.type == WalletType.bitcoin &&
+      !isLightning &&
+      !isSilentPayments &&
+      _appStore.settingsStore.usePayjoin &&
+      bitcoin!.isPayjoinReceiverPending(wallet);
+
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
 
   @computed
