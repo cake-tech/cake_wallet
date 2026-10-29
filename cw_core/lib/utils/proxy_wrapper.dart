@@ -224,6 +224,7 @@ class ProxyWrapper {
     Uri? onionUri,
     String? body,
     bool allowMitmMoneroBypassSSLCheck = false,
+    bool preferIPv6 = false,
   }) async {
     HttpClient? torHttpClient;
     HttpClient cleatnetHttpClient = HttpClient();
@@ -277,6 +278,23 @@ class ProxyWrapper {
     }
 
     if (clearnetUri != null) {
+      if (preferIPv6) {
+        final ipv6Client = ioc.IOClient(_ipv6OnlyHttpClient());
+        try {
+          return await _make(
+            method: RequestMethod.post,
+            client: ipv6Client,
+            uri: clearnetUri,
+            headers: headers,
+            body: body,
+          ).timeout(const Duration(seconds: 10));
+        } catch (_) {
+          // No working IPv6 route: fall back to the request below, which Dart sends over IPv4
+        } finally {
+          ipv6Client.close();
+        }
+      }
+
       try {
         return HttpOverrides.runZoned(
           () async {
@@ -296,6 +314,24 @@ class ProxyWrapper {
 
     throw ConnectionException("Unable to connect to server");
   }
+
+  /// [HttpClient] that only connects over native IPv6. It fails at once on networks without IPv6,
+  /// and after [HttpClient.connectionTimeout] (which covers the TLS handshake) when IPv6 is broken.
+  HttpClient _ipv6OnlyHttpClient() => HttpClient()
+    ..connectionTimeout = const Duration(seconds: 3)
+    ..connectionFactory = (uri, proxyHost, proxyPort) async {
+      final addresses = (await InternetAddress.lookup(uri.host, type: InternetAddressType.IPv6)
+              .timeout(const Duration(seconds: 2)))
+          // Apple platforms answer with ::ffff:a.b.c.d on IPv4-only networks, which would silently
+          // connect over IPv4.
+          .where((address) => !address.address.startsWith("::ffff:"));
+      if (addresses.isEmpty) {
+        throw SocketException("No IPv6 address for ${uri.host}");
+      }
+      return uri.isScheme("https")
+          ? SecureSocket.startConnect(addresses.first, uri.port)
+          : Socket.startConnect(addresses.first, uri.port);
+    };
 
   Future<Response> put({
     Map<String, String>? headers,

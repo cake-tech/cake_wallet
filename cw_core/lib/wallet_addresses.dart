@@ -72,12 +72,13 @@ abstract class WalletAddresses {
   Future<void> saveAddressesInBox() async {
     try {
       walletInfo.address = address;
-      // TODO: check if it will affect the performance of each wallet
-      await walletInfo.setAddresses(addressesMap);
-      await walletInfo.setAddressInfos(addressInfos);
-      await walletInfo.setUsedAddresses(usedAddresses.toList());
-      await walletInfo.setHiddenAddresses(hiddenAddresses.toList());
-      await walletInfo.setManualAddresses(manualAddresses.toList());
+      await walletInfo.setAddressesInBatch(
+        addresses: addressesMap,
+        addressInfos: addressInfos,
+        usedAddresses: usedAddresses.toList(),
+        hiddenAddresses: hiddenAddresses.toList(),
+        manualAddresses: manualAddresses.toList(),
+      );
 
       await walletInfo.save();
     } catch (e) {

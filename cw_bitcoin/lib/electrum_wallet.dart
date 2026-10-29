@@ -111,7 +111,6 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
-    // Probably not needed as init will be called right after creating the wallet.
     _prepareHdForAccount(currentAccountIndex, currency);
   }
 
@@ -358,6 +357,8 @@ abstract class ElectrumWalletBase
   }
 
   void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
+    if (mainHdByTypeAndAccount.containsKey(accountIndex)) return;
+
     // For the first account, we support all address types. For extra accounts, we only support SegwitAddresType.p2wpkh.
     final supportedTypes =
         accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
@@ -369,13 +370,15 @@ abstract class ElectrumWalletBase
 
     if (canDeriveFromSeed && !isElectrumDerivation) {
       final coinType = _coinTypeFor(currency);
+      final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
 
       for (final type in supportedTypes) {
-        final purpose = _purposeForType(type);
-        final accountPath = "m/$purpose'/$coinType'/$accountIndex'";
+        final accountPath = "m/${_purposeForType(type)}'/$coinType'/$accountIndex'";
+        final accountHd = accountHdByPath[accountPath] ??=
+            _masterHD!.derivePath(accountPath) as Bip32Slip10Secp256k1;
 
-        mainMap[type] = _masterHD!.derivePath("$accountPath/0") as Bip32Slip10Secp256k1;
-        sideMap[type] = _masterHD!.derivePath("$accountPath/1") as Bip32Slip10Secp256k1;
+        mainMap[type] = accountHd.childKey(Bip32KeyIndex(0));
+        sideMap[type] = accountHd.childKey(Bip32KeyIndex(1));
       }
     } else {
       // case for Electrum derivation or when we don't have seed but only xpub (view only wallet)
@@ -598,6 +601,8 @@ abstract class ElectrumWalletBase
   bool silentPaymentsScanningActive = false;
 
   bool _isTryingToConnect = false;
+  Timer? _reconnectTimer;
+  bool _isClosed = false;
   bool? _isBatchSupported;
   DateTime? _syncBenchmarkStartTime;
   DateTime? _syncStartedAt;
@@ -727,6 +732,7 @@ abstract class ElectrumWalletBase
     for (final accountIndex in accountIndexes) {
       _prepareHdForAccount(accountIndex, currency);
     }
+
 
     await walletAddresses.init(accountIndexes: accountIndexes);
     await transactionHistory.init();
@@ -1047,6 +1053,7 @@ abstract class ElectrumWalletBase
   }
 
   Node? node;
+  bool? _connectingViaTor;
 
   Future<bool> getNodeIsElectrs() async {
     if (node == null) {
@@ -1104,17 +1111,33 @@ abstract class ElectrumWalletBase
   @action
   @override
   Future<void> connectToNode({required Node node}) async {
+    // A closed wallet is discarded; reconnecting it would leak a socket and its keep-alive.
+    if (_isClosed) {
+      return;
+    }
+    final viaTor = CakeTor.instance?.started ?? false;
+    final isSameConnection = node == this.node && viaTor == _connectingViaTor;
     this.node = node;
     _isBatchSupported = null;
 
-    if (syncStatus is ConnectingSyncStatus) return;
+    // Only a repeat of the attempt in flight is skipped; dropping a different node or a Tor
+    // toggle here would leave the wallet on the old attempt.
+    if (syncStatus is ConnectingSyncStatus && isSameConnection) {
+      return;
+    }
+    _connectingViaTor = viaTor;
 
     try {
       syncStatus = ConnectingSyncStatus();
 
       await _receiveStream?.cancel();
       await electrumClient.close();
+      if (_isClosed) {
+        return;
+      }
       _isBatchSupported = null;
+      // The new server session has no subscriptions yet.
+      _scripthashesUpdateSubject = {};
 
       electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
@@ -2103,6 +2126,11 @@ abstract class ElectrumWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     _missingHistoryQueue.clear();
     _unresolvedAccountRetryCount.clear();
+    // A pending or later reconnect (e.g. from a sync still running) would reopen the client of a
+    // closed wallet.
+    _isClosed = true;
+    _reconnectTimer?.cancel();
+    _isTryingToConnect = false;
     try {
       await _receiveStream?.cancel();
       await electrumClient.close();
@@ -2457,6 +2485,7 @@ abstract class ElectrumWalletBase
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash);
+      if (bundle.originalTransaction.txId() != tx.txHash) return null;
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2508,6 +2537,9 @@ abstract class ElectrumWalletBase
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
       final bundle = await getTransactionExpanded(hash: hash);
+      if (bundle.originalTransaction.txId() != hash) {
+        throw RbfException("Transaction does not match $hash");
+      }
 
       final utxos = <UtxoWithAddress>[];
       final outputs = <BitcoinOutput>[];
@@ -2520,7 +2552,7 @@ abstract class ElectrumWalletBase
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
-        if (inputTransaction == null) {
+        if (inputTransaction == null || inputTransaction.txId() != input.txId) {
           throw RbfException("Missing input transaction for replace-by-fee");
         }
         final vout = input.txIndex;
@@ -2960,8 +2992,8 @@ abstract class ElectrumWalletBase
           historiesWithDetails.addAll(result.transactions);
 
           final matchedAddresses = branchFor(addressRecord);
-          final isUsedAddressAboveGap = matchedAddresses.indexOf(addressRecord) >=
-              matchedAddresses.length -
+          final isUsedAddressAboveGap = addressRecord.index >=
+              nextIndexOf(matchedAddresses) -
                   (addressRecord.isHidden
                       ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
                       : ElectrumWalletAddressesBase.defaultReceiveAddressesCount);
@@ -3448,7 +3480,7 @@ abstract class ElectrumWalletBase
 
     final highestUsedIndex = _highestUsedIndex(currentBranch);
     final shouldDiscover =
-        highestUsedIndex >= 0 && highestUsedIndex >= currentBranch.length - gapLimit;
+        highestUsedIndex >= 0 && highestUsedIndex >= nextIndexOf(currentBranch) - gapLimit;
 
     if (!shouldDiscover) return;
 
@@ -3498,9 +3530,11 @@ abstract class ElectrumWalletBase
           .toList()
         ..sort((a, b) => a.index.compareTo(b.index));
 
+  /// The derivation index of the highest used address, -1 when none is used.
+  /// [addresses] must be sorted by index, as [getAddressBranchByType] returns them.
   int _highestUsedIndex(List<BitcoinAddressRecord> addresses) {
     for (int i = addresses.length - 1; i >= 0; i--) {
-      if (addresses[i].isUsed) return i;
+      if (addresses[i].isUsed) return addresses[i].index;
     }
     return -1;
   }
@@ -4427,11 +4461,11 @@ abstract class ElectrumWalletBase
       // Needs to re-subscribe to all scripthashes when reconnected
       _scripthashesUpdateSubject = {};
 
-      if (_isTryingToConnect) return;
+      if (_isTryingToConnect || _isClosed) return;
 
       _isTryingToConnect = true;
 
-      Timer(Duration(seconds: 5), () {
+      _reconnectTimer = Timer(Duration(seconds: 5), () {
         if (this.syncStatus is NotConnectedSyncStatus ||
             this.syncStatus is LostConnectionSyncStatus) {
           this.electrumClient.connectToUri(
@@ -4603,6 +4637,9 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> _performFullReconnection() async {
+    if (_isClosed) {
+      return;
+    }
     try {
       SocketHealthLogger().logHealthCheck(
         walletType: type,
@@ -4615,11 +4652,22 @@ abstract class ElectrumWalletBase
       await _receiveStream?.cancel();
 
       await electrumClient.close();
+      if (_isClosed) {
+        return;
+      }
+      // The new server session has no subscriptions yet.
+      _scripthashesUpdateSubject = {};
 
       if (node != null) {
         electrumClient.onConnectionStatusChange = _onConnectionStatusChange;
 
         await electrumClient.connectToUri(node!.uri, useSSL: node!.useSSL);
+
+        // On failure the client reports `failed` and the 5 s retry takes over. Syncing with no
+        // socket would only fail.
+        if (!electrumClient.isConnected) {
+          return;
+        }
 
         await startSync();
 
