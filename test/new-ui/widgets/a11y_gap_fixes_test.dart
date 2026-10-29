@@ -13,10 +13,12 @@ import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_s
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart";
 import "package:cake_wallet/src/screens/pin_code/pin_code_widget.dart";
+import "package:cake_wallet/src/screens/wallet_list/edit_wallet_button_widget.dart";
 import "package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart";
 import "package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
@@ -458,6 +460,30 @@ void main() {
       expect(
         one(tester, "alert_dialog_right_button_key"),
         isSemantics(label: "Confirm", isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
+    });
+  });
+
+  group("unlabelled controls", () {
+    testWidgets("the wallet edit button is a labelled button", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(EditWalletButtonWidget(key: const ValueKey("wallet_edit_key"), width: 120, onTap: () {})),
+      );
+      expect(
+        one(tester, "wallet_edit_key"),
+        isSemantics(label: "Edit", isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets("the coin control checkbox exposes its checked state", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(wrap(NewSimpleCheckbox(value: true, onChanged: (_) {})));
+      expect(
+        tester.getSemantics(find.byType(NewSimpleCheckbox)),
+        isSemantics(hasCheckedState: true, isChecked: true, hasTapAction: true),
       );
       handle.dispose();
     });
