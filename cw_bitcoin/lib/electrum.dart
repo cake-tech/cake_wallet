@@ -37,8 +37,7 @@ class ElectrumClient {
   ElectrumClient()
       : _id = 0,
         _tasks = {},
-        _errors = {},
-        unterminatedString = '';
+        _errors = {};
 
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 5);
@@ -52,7 +51,8 @@ class ElectrumClient {
   final Map<String, String> _errors;
   ConnectionStatus _connectionStatus = ConnectionStatus.disconnected;
   Timer? _aliveTimer;
-  String unterminatedString;
+  // Bytes of a reply whose terminating newline hasn't arrived yet.
+  final BytesBuilder _pending = BytesBuilder(copy: false);
   // See callWithTimeout's comment on this method: electrs-tweaks's reply
   // never carries a matching id, so this is how _methodHandler finds the
   // right pending task for a one-shot blockchain.tweaks.subscribe call.
@@ -108,36 +108,18 @@ class ElectrumClient {
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
     socket!.listen(
-      (Uint8List event) {
-        final msg = utf8.decode(event.toList());
-        final messagesList = msg.split("\n");
-        // Each message is parsed independently so a cast bug or malformed
-        // shape in one reply (e.g. a batch/tweaks response) can't throw an
-        // exception that aborts this loop and silently drops every other
-        // reply queued in the same TCP chunk (which can include the reply
-        // to an entirely unrelated request, like server.version).
-        for (var message in messagesList) {
-          if (message.isEmpty) {
-            continue;
-          }
-          try {
-            _parseResponse(message);
-          } catch (e) {
-            printV("socket.listen: $e");
-          }
-        }
-      },
+      _onData,
       onError: (Object error) {
         final errorMsg = error.toString();
         printV(errorMsg);
-        unterminatedString = '';
+        _pending.clear();
         socket?.destroy();
         socket = null;
         _setConnectionStatus(ConnectionStatus.disconnected);
       },
       onDone: () {
         printV("SOCKET CLOSED!!!!!");
-        unterminatedString = '';
+        _pending.clear();
         try {
           _setConnectionStatus(ConnectionStatus.disconnected);
           socket?.destroy();
@@ -152,43 +134,35 @@ class ElectrumClient {
     keepAlive();
   }
 
-  void _parseResponse(String message) {
+  // Replies are newline-delimited, but a socket read can end anywhere - mid
+  // line or mid UTF-8 character - so bytes are buffered until a full line
+  // arrives and each line is decoded once. A line that fails to decode or
+  // handle only loses itself; nothing is carried into the next reply.
+  void _onData(Uint8List chunk) {
+    var start = 0;
+    var newline = chunk.indexOf(0x0A, start);
+
+    while (newline != -1) {
+      _pending.add(chunk.sublist(start, newline));
+      _parseLine(_pending.takeBytes());
+      start = newline + 1;
+      newline = chunk.indexOf(0x0A, start);
+    }
+
+    if (start < chunk.length) {
+      _pending.add(chunk.sublist(start));
+    }
+  }
+
+  void _parseLine(List<int> line) {
+    if (line.isEmpty) {
+      return;
+    }
+
     try {
-      final response = json.decode(message);
-      _handleResponse(response);
-    } on FormatException catch (e) {
-      final msg = e.message.toLowerCase();
-
-      if (e.source is String) {
-        unterminatedString += e.source as String;
-      }
-
-      if (msg.contains("not a subtype of type")) {
-        unterminatedString += e.source as String;
-        return;
-      }
-
-      if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString);
-        _handleResponse(response);
-        unterminatedString = '';
-      }
-    } on TypeError catch (e) {
-      // json.decode above only throws FormatException for a syntactically
-      // incomplete/invalid string — it never throws TypeError. So reaching
-      // here means json.decode on `message` already succeeded and this
-      // TypeError came from _handleResponse's own casts (e.g. a batch
-      // response whose first item isn't a Map, or an unexpected params
-      // shape) while processing a message that was already complete and
-      // valid. Treating that as a partial fragment (the old behavior: append
-      // it to unterminatedString and retry) was always wrong for this case —
-      // it can permanently poison unterminatedString with a complete message
-      // that will never combine with anything else into valid JSON again,
-      // silently breaking all future fragment reassembly on this connection.
-      // Just log and drop this one malformed-content message.
-      printV("_parseResponse: TypeError handling '$message': $e");
+      _handleResponse(json.decode(utf8.decode(line)));
     } catch (e) {
-      printV("parse $e");
+      printV("_parseLine: dropping reply (${line.length} bytes): $e");
     }
   }
 
@@ -764,14 +738,14 @@ class ElectrumClient {
     // Only clears errors and unterminated string, leaves tasks or reset ID
     // This preserves active subscriptions while clearing error state
     _errors.clear();
-    unterminatedString = '';
+    _pending.clear();
   }
 
   void _resetInternalStateCompletely() {
     _id = 0;
     _tasks.clear();
     _errors.clear();
-    unterminatedString = '';
+    _pending.clear();
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -915,16 +889,6 @@ class ElectrumClient {
   String getErrorMessage(int id) => _errors[id.toString()] ?? '';
 
   bool get isInternalStateConsistent => _errors.isEmpty;
-}
-
-// FIXME: move me
-bool isJSONStringCorrect(String source) {
-  try {
-    json.decode(source);
-    return true;
-  } catch (_) {
-    return false;
-  }
 }
 
 class RequestFailedTimeoutException implements Exception {

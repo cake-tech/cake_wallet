@@ -485,7 +485,25 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
       // order below, then assigned in the only order Dart's no-forward-
       // reference rule for local functions actually allows.
       late void Function(int height) subscribeAndListen;
-      late void Function(Object error, StackTrace stackTrace) Function(int height) onSubscribeError;
+      late void Function(Object error, StackTrace stackTrace) Function(
+        int height, [
+        Stream<Object>? source,
+      ]) onSubscribeError;
+
+      // Idle watchdog state (see the Timer set up at the end of scan()).
+      // A connection can die without the socket ever reporting it (mobile
+      // NAT drops, half-open TCP), leaving the worker waiting forever on a
+      // subscription that will never deliver again.
+      // A non-historical request is silent until the server has resolved
+      // spent status for its whole range (~20s for 250 dense blocks on the
+      // production server) - too short a timeout would abort and resend the
+      // same request forever.
+      final idleTimeout =
+          scanData.historical ? const Duration(seconds: 60) : const Duration(minutes: 2);
+      var lastActivity = DateTime.now();
+      var eventsInFlight = 0;
+      var scannedAny = false;
+      Timer? watchdog;
 
       // Initial status UI update, send how many blocks in total to scan
       if (shouldUpdateSyncStatus) {
@@ -518,6 +536,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
         _scanningStream?.close();
         _scanningStream = null;
+        watchdog?.cancel();
 
         log(
           "ended: syncHeight: $syncHeight, rangeEnd: ${scanData.rangeEnd}, isSingleScan: ${isSingleScan}",
@@ -779,7 +798,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
             _scanningStream = nextStream;
             nextStream.listen(
               (event) => listenFn(event, nextReq),
-              onError: onSubscribeError(nextHeight),
+              onError: onSubscribeError(nextHeight, nextStream),
             );
           } else {
             if (shouldUpdateSyncStatus) {
@@ -950,6 +969,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
           // that never escapes a several-hundred-block window (confirmed:
           // the same match at 893804 was FOUND twice, and the worker never
           // advanced past ~894250 despite running for 36000+ log lines).
+          scannedAny = true;
           if (tweakHeight > syncHeight) {
             syncHeight = tweakHeight;
           }
@@ -1113,6 +1133,7 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         }
 
         // See the v2 branch above for why this must never regress.
+        scannedAny = true;
         if (tweakHeight > syncHeight) {
           syncHeight = tweakHeight;
         }
@@ -1133,10 +1154,16 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         // without it, every event after the first uncaught throw would
         // silently never run, the same silent-death failure mode the
         // response==null case used to have before it got its own handling.
-        _processingChain =
-            _processingChain.then((_) => _processEvent(event, req)).catchError((e, stacktrace) {
+        lastActivity = DateTime.now();
+        eventsInFlight++;
+        _processingChain = _processingChain
+            .then((_) => _processEvent(event, req))
+            .catchError((e, stacktrace) {
           log("_processEvent failed: $e", LogLevel.error);
           log(stacktrace.toString(), LogLevel.error);
+        }).whenComplete(() {
+          eventsInFlight--;
+          lastActivity = DateTime.now();
         });
       };
 
@@ -1166,14 +1193,26 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
         // new one). Also listen with `retryReq`, not the stale outer `req`.
         _scanningStream?.close();
         _scanningStream = stream;
-        stream.listen((event) => listenFn(event, retryReq), onError: onSubscribeError(height));
+        lastActivity = DateTime.now();
+        stream.listen(
+          (event) => listenFn(event, retryReq),
+          onError: onSubscribeError(height, stream),
+        );
       };
 
       // A rejected-as-too-large error (server-side outpoint/spend-resolution
       // cap) is recovered by halving _countCap and retrying the same
       // height; any other subscribe error is treated as a real connection
       // failure, matching listenFn's own error handling elsewhere.
-      onSubscribeError = (height) => (error, stackTrace) async {
+      onSubscribeError = (height, [source]) => (error, stackTrace) async {
+            // Shutting down (cleanupAndAck's disconnect fails every open
+            // subscription), or an error from a subscription this worker
+            // already replaced - e.g. the old connection's streams being
+            // failed while a reconnect is already under way.
+            if (stopRequested || (source != null && !identical(source, _scanningStream))) {
+              return;
+            }
+
             final message = error.toString();
             final tooLarge = message.contains("exceeds") && message.contains("cap");
             final current = getCountToScanPerRequest(height);
@@ -1193,6 +1232,12 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
             if (shouldUpdateSyncStatus) {
               sendSync(height, LostConnectionSyncStatus());
             }
+
+            // Detach from the dead subscription first: any further error
+            // from it is now stale (see the guard above), and the watchdog
+            // stays quiet until subscribeAndListen attaches a new one.
+            unawaited(_scanningStream?.close());
+            _scanningStream = null;
 
             // Any other subscribe error is treated as a dead connection.
             // Rebuild it and resume from the same height, capped exponential
@@ -1222,8 +1267,33 @@ Future<void> _handleScanSilentPayments(ScanData scanData) async {
 
       _scanningStream?.listen(
         (event) => listenFn(event, req),
-        onError: onSubscribeError(syncHeight),
+        onError: onSubscribeError(syncHeight, _scanningStream),
       );
+
+      // Only fires while nothing is queued for processing: a block stuck on
+      // tweaks.get backoff (or a slow scanBlock) is busy, not stalled.
+      watchdog = Timer.periodic(const Duration(seconds: 15), (_) {
+        if (stopRequested) {
+          watchdog?.cancel();
+          return;
+        }
+        if (_scanningStream == null || eventsInFlight > 0) {
+          return;
+        }
+        if (DateTime.now().difference(lastActivity) < idleTimeout) {
+          return;
+        }
+
+        final resumeHeight = scannedAny ? syncHeight + 1 : syncHeight;
+        log(
+          "no scan data for ${idleTimeout.inSeconds}s, reconnecting at height $resumeHeight",
+          LogLevel.warn,
+        );
+        onSubscribeError(resumeHeight)(
+          TimeoutException("scan subscription idle", idleTimeout),
+          StackTrace.current,
+        );
+      });
     }
 
     if (scanData.rescanHeights != null) {

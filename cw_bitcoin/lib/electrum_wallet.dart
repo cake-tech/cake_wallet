@@ -841,10 +841,19 @@ abstract class ElectrumWalletBase
         printV('[ELECTRUM_WALLET SYNC] Starting: ${_syncBenchmarkStartTime!}');
       }
 
-      syncStatus = SyncronizingSyncStatus();
+      // A running SP scan owns syncStatus (its progress) and survives this
+      // sync, e.g. a reconnect to the wallet node on app resume - the scan
+      // workers have their own scan-server connection.
+      final scanInProgress = _spScanner.isScanning;
+
+      if (!scanInProgress) {
+        syncStatus = SyncronizingSyncStatus();
+      }
 
       if (hasSilentPaymentsScanning) {
-        silentPaymentsScanningActive = alwaysScan ?? false;
+        if (!scanInProgress) {
+          silentPaymentsScanningActive = alwaysScan ?? false;
+        }
         await _setInitialHeight();
         await _spScanner.maybeReverify();
       }
@@ -856,7 +865,9 @@ abstract class ElectrumWalletBase
       await updateAllUnspents();
       await updateBalance();
 
-      if (alwaysScan == true) {
+      if (scanInProgress) {
+        _syncBenchmarkStartTime = null;
+      } else if (alwaysScan == true) {
         setSilentPaymentsScanning(true);
       } else if (syncStatus is LostConnectionSyncStatus) {
         _syncBenchmarkStartTime = null;
@@ -960,7 +971,7 @@ abstract class ElectrumWalletBase
     try {
       syncStatus = ConnectingSyncStatus();
 
-      await _spScanner.dispose();
+      _dropNodeSubscriptions();
       await electrumClient.close();
       _isBatchSupported = null;
 
@@ -4399,8 +4410,7 @@ abstract class ElectrumWalletBase
     }
 
     if (syncStatus is NotConnectedSyncStatus || syncStatus is LostConnectionSyncStatus) {
-      // Needs to re-subscribe to all scripthashes when reconnected
-      _scripthashesUpdateSubject = {};
+      _dropNodeSubscriptions();
 
       if (_isTryingToConnect) return;
 
@@ -4414,6 +4424,20 @@ abstract class ElectrumWalletBase
         if (this.syncStatus is SyncedTipSyncStatus) this.syncStatus = SyncedSyncStatus();
       });
     }
+  }
+
+  /// Forgets the wallet node's scripthash and chain tip subscriptions so the
+  /// next sync makes them again on the current connection. A new socket
+  /// knows nothing of the old one's subscriptions, so keeping them would
+  /// leave the wallet deaf to new transactions and blocks.
+  void _dropNodeSubscriptions() {
+    for (final subject in _scripthashesUpdateSubject.values) {
+      unawaited(subject?.close());
+    }
+    _scripthashesUpdateSubject = {};
+
+    unawaited(_chainTipUpdateSubject?.close());
+    _chainTipUpdateSubject = null;
   }
 
   Future<void> _reconnectWithBackoffUntilConnected() async {
@@ -4602,8 +4626,7 @@ abstract class ElectrumWalletBase
         trigger: 'full_reconnection_start',
       );
 
-      await _spScanner.dispose();
-
+      _dropNodeSubscriptions();
       await electrumClient.close();
 
       if (node != null) {

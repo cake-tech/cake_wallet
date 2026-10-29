@@ -97,6 +97,11 @@ class SilentPaymentsScanner {
 
   final Set<int> _doneWorkerIndices = {};
 
+  // More uncovered gaps than workers this round: partitionForWorkers hands
+  // out only the first workerCount of them, so another round has to pick up
+  // the rest once these workers finish.
+  bool _hasDeferredGaps = false;
+
   Timer? _checkpointFlushTimer;
   Future<void> _checkpointFlushQueue = Future.value();
   static const _checkpointFlushInterval = Duration(milliseconds: 1500);
@@ -108,8 +113,16 @@ class SilentPaymentsScanner {
   DateTime? _lastSilentPaymentsScan;
   static const Duration _silentPaymentsScanDelay = Duration(minutes: 1);
 
+  /// Whether a scan round still has workers running.
+  bool get isScanning => _scanWorkers.any((w) => !_doneWorkerIndices.contains(w.workerIndex));
+
+  /// Stops this wallet's scan for good (wallet closing). The workers use their
+  /// own scan-server connection, so a wallet-node reconnect must not call this.
   Future<void> dispose() async {
+    _scanWorkerGeneration++;
+    await stopScanWorkers();
     await _receiveStream?.cancel();
+    _receiveStream = null;
   }
 
   Future<void> rescan({
@@ -163,8 +176,7 @@ class SilentPaymentsScanner {
       return;
     }
 
-    final hasActiveWorkers = _scanWorkers.any((w) => !_doneWorkerIndices.contains(w.workerIndex));
-    if (_pendingSetListenersCalls > 0 || hasActiveWorkers) {
+    if (_pendingSetListenersCalls > 0 || isScanning) {
       return;
     }
 
@@ -213,11 +225,11 @@ class SilentPaymentsScanner {
       return;
     }
 
-    final historical =
-        historicalModeOverride ?? await _resolveHistoricalMode(height, chainTip, isForcedRescan);
-    if (generation != _scanWorkerGeneration) {
-      return;
-    }
+    // Historical is opt-in (the rescan page's toggle, passed as
+    // historicalModeOverride). The one internal exception is re-verifying
+    // known matches: a non-historical reply drops spent outputs, so an
+    // already-spent match would look reorged out.
+    final historical = historicalModeOverride ?? isForcedRescan;
     final scanFloor = (isForcedRescan || ignoreExistingCoverage)
         ? height
         : (height > _wallet.walletInfo.restoreHeight ? height : _wallet.walletInfo.restoreHeight);
@@ -245,6 +257,7 @@ class SilentPaymentsScanner {
     }
 
     List<CoverageRange> chunks;
+    var hasDeferredGaps = false;
     if (isForcedRescan || isSingleScan) {
       chunks = [CoverageRange(scanFloor, scanCeiling)];
     } else {
@@ -268,6 +281,7 @@ class SilentPaymentsScanner {
       }
       final gaps = uncoveredRanges(gapInputRanges, scanFloor, scanCeiling);
       chunks = partitionForWorkers(gaps, workerCount);
+      hasDeferredGaps = gaps.length > workerCount;
 
       if (chunks.isEmpty) {
         _wallet.syncStatus = SyncedSyncStatus();
@@ -322,6 +336,7 @@ class SilentPaymentsScanner {
     }
     _scanWorkers = workers;
     _doneWorkerIndices.clear();
+    _hasDeferredGaps = hasDeferredGaps;
 
     _receiveStream = receivePort.listen((var message) async {
       if (message is ScanWorkerReady) {
@@ -444,12 +459,31 @@ class SilentPaymentsScanner {
           } else if (isWorkerDone && !allWorkersDone) {
             _wallet.syncStatus = _aggregateScanProgress();
           } else if (!allWorkersDone) {
-            _wallet.syncStatus = message.syncStatus;
+            // A worker that lost the scan server reconnects on its own. Its
+            // LostConnection must not reach the wallet as-is: that status
+            // drives the wallet node's reconnect and resubscribe logic, and
+            // the wallet node is a different connection.
+            _wallet.syncStatus = message.syncStatus is NotConnectedSyncStatus
+                ? AttemptingScanSyncStatus()
+                : message.syncStatus;
           }
         }
 
         if (allWorkersDone) {
           await _flushCheckpoint();
+
+          if (shouldUpdateSyncStatus && _hasDeferredGaps) {
+            _hasDeferredGaps = false;
+
+            if (_wallet.walletInfo.restoreHeight < scanCeiling) {
+              await rescan(
+                height: _wallet.walletInfo.restoreHeight,
+                historicalModeOverride: historical,
+                ignoreExistingCoverage: false,
+              );
+              return;
+            }
+          }
 
           if (shouldUpdateSyncStatus) {
             final restoreHeight = _wallet.walletInfo.restoreHeight;
@@ -548,11 +582,6 @@ class SilentPaymentsScanner {
       return;
     }
 
-    // Every worker spawned together in one `setListeners` round shares
-    // the same historical decision (ADR-0004/ADR-0013) — a backfill job
-    // or a plain tip-follow is decided once per round, not per-worker.
-    final roundHistorical = _scanWorkers.first.historical;
-
     printV(
       "[SP CHECKPOINT DEBUG] flush start: restoreHeight(pre)=${_wallet.walletInfo.restoreHeight} "
       "pending=${pending.map((w) => '#${w.workerIndex}[${w.checkpointBaseline}->${w.pendingCheckpointHeight}]hist=${w.historical}').join(', ')}",
@@ -593,11 +622,6 @@ class SilentPaymentsScanner {
     var needsSave = false;
 
     if (recomputed > _wallet.walletInfo.restoreHeight) {
-      if (roundHistorical &&
-          _wallet.walletInfo.backfillTargetHeight != null &&
-          recomputed >= _wallet.walletInfo.backfillTargetHeight!) {
-        _wallet.walletInfo.backfillTargetHeight = null;
-      }
       _wallet.walletInfo.restoreHeight = recomputed;
       needsSave = true;
     }
@@ -609,26 +633,6 @@ class SilentPaymentsScanner {
       "[SP CHECKPOINT DEBUG] flush end: needsSave=$needsSave "
       "restoreHeight(post)=${_wallet.walletInfo.restoreHeight}",
     );
-  }
-
-  Future<bool> _resolveHistoricalMode(int height, int chainTip, bool isForcedRescan) async {
-    if (isForcedRescan) {
-      return true;
-    }
-
-    if (_wallet.walletInfo.backfillTargetHeight == null &&
-        chainTip > height &&
-        _wallet.transactionHistory.transactions.isEmpty) {
-      final existingCoverage = await WalletInfoScanCoverage.selectList(
-        _wallet.walletInfo.internalId,
-      );
-      if (existingCoverage.isEmpty) {
-        _wallet.walletInfo.backfillTargetHeight = chainTip;
-        await _wallet.walletInfo.save();
-      }
-    }
-
-    return true;
   }
 
   Future<bool> _getNodeIsElectrs() async {
