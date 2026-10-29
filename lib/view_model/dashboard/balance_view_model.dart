@@ -533,7 +533,9 @@ abstract class BalanceViewModelBase with Store {
     if (wallet.type == WalletType.bitcoin) {
       // "Other assets" here means enabled Spark tokens (e.g. USDB) - a plain Bitcoin+Lightning
       // wallet with nothing else held keeps its current plain sats display.
-      return lightningMode && TokenUtilities.walletHasEnabledSparkTokens(wallet);
+      return lightningMode &&
+          TokenUtilities.walletHasEnabledSparkTokens(wallet) &&
+          wallet.walletInfo.showCombinedBalance;
     }
     if (balances.values.length == 1) return false;
 

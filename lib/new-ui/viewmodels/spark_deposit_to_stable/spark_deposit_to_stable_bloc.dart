@@ -1,6 +1,7 @@
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/core/fiat_conversion_service.dart";
 import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/entities/pending_conversion.dart";
@@ -74,6 +75,8 @@ class SparkDepositToStableBloc extends Bloc<SparkDepositToStableEvent, SparkDepo
   BigInt? _lastAmountOutFwd;
   BigInt? _lastAmountInRev;
   BigInt? _lastAmountOutRev;
+
+  double? _btcUsdPrice;
 
   /// The wallet's current spendable Lightning/Spark BTC balance, shown as a "Max." reference
   /// next to the amount field (see `deposit_to_stable.dart`) when converting FROM Bitcoin - purely
@@ -197,6 +200,16 @@ class SparkDepositToStableBloc extends Bloc<SparkDepositToStableEvent, SparkDepo
     return fallback;
   }
 
+  /// The token amount [sats] is worth at [_btcUsdPrice], in [token]'s base units.
+  BigInt? _firstTokenGuess(Money sats, CryptoCurrency token) {
+    final usdText = satsToFiatText(sats.amount, _btcUsdPrice);
+    return usdText.isEmpty ? null : Money.tryParse(usdText, token)?.amount;
+  }
+
+  /// The inverse of [_firstTokenGuess]: the sats [tokenAmount] is worth at [_btcUsdPrice].
+  BigInt? _firstSatsGuess(Money tokenAmount) =>
+      fiatTextToSats(tokenAmount.toString(), _btcUsdPrice)?.amount;
+
   void _cacheForwardRate(SparkConversionQuote quote) {
     if (quote.amountIn.amount > BigInt.zero && quote.amountOut.amount > BigInt.zero) {
       _lastAmountInFwd = quote.amountIn.amount;
@@ -226,6 +239,16 @@ class SparkDepositToStableBloc extends Bloc<SparkDepositToStableEvent, SparkDepo
     if (token == null) {
       emit(SparkDepositToStableUnavailable(S.current.deposit_to_stable_unavailable_error));
       return;
+    }
+
+    try {
+      _btcUsdPrice = await FiatConversionService.fetchPrice(
+        crypto: CryptoCurrency.btc,
+        fiat: FiatCurrency.usd,
+        torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
+      );
+    } catch (e) {
+      printV("SparkDepositToStable: BTC/USD price fetch failed: $e");
     }
 
     try {
@@ -449,8 +472,9 @@ class SparkDepositToStableBloc extends Bloc<SparkDepositToStableEvent, SparkDepo
         "SparkDepositToStable: fetching quote #$requestId for ${satsAmount.toStringWithSymbol()} "
         "-> ${current.token.title} @ ${slippageLabel(maxSlippageBps)} slippage");
     try {
-      final fallback = current.limits.minAmountOut?.amount ??
-          (Money.tryParse("10", current.token)?.amount ?? BigInt.from(10));
+      final fallback = _firstTokenGuess(satsAmount, current.token) ??
+          current.limits.minAmountOut?.amount ??
+          (Money.tryParse("1", current.token)?.amount ?? BigInt.one);
       final tokenAmountGuess =
           _estimateFromRate(satsAmount.amount, _lastAmountInFwd, _lastAmountOutFwd, fallback);
       var quote = await bitcoin?.prepareBitcoinToStableConversion(
@@ -624,7 +648,9 @@ class SparkDepositToStableBloc extends Bloc<SparkDepositToStableEvent, SparkDepo
     printV("SparkDepositToStable: fetching reverse quote #$requestId for "
         "${tokenAmount.toStringWithSymbol()} -> sats @ ${slippageLabel(maxSlippageBps)} slippage");
     try {
-      final fallback = current.reverseLimits.minAmountIn?.amount ?? BigInt.from(1000);
+      final fallback = _firstSatsGuess(tokenAmount) ??
+          current.reverseLimits.minAmountIn?.amount ??
+          BigInt.from(1000);
       final satsAmountGuess =
           _estimateFromRate(tokenAmount.amount, _lastAmountInRev, _lastAmountOutRev, fallback);
       var quote = await bitcoin?.prepareTokenToBitcoinConversion(

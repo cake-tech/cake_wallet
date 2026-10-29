@@ -154,14 +154,20 @@ class SparkSettingsPage extends BasePage {
 
   Widget _failureBanner(BuildContext context) {
     final failed = _homeSettingsViewModel.failedSetting;
-    if (failed == null) {
+    final toggleError = _homeSettingsViewModel.toggleErrorMessage;
+    if (failed == null && toggleError == null) {
       return const SizedBox.shrink();
     }
 
     final revertedTo = _homeSettingsViewModel.failedSettingRevertedToLabel ?? "";
-    final subtitle = failed == StableBalanceSetting.maxSlippage
-        ? S.of(context).stable_balance_failed_subtitle_slippage
-        : S.of(context).stable_balance_failed_subtitle_threshold;
+    final headline = failed == null
+        ? S.of(context).stable_balance_toggle_failed
+        : S.of(context).stable_balance_failed_headline(revertedTo);
+    final subtitle = switch (failed) {
+      StableBalanceSetting.maxSlippage => S.of(context).stable_balance_failed_subtitle_slippage,
+      StableBalanceSetting.thresholdSats => S.of(context).stable_balance_failed_subtitle_threshold,
+      null => toggleError!,
+    };
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -185,7 +191,7 @@ class SparkSettingsPage extends BasePage {
                 ),
                 Flexible(
                   child: Text(
-                    S.of(context).stable_balance_failed_headline(revertedTo),
+                    headline,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.error,

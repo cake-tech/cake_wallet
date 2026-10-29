@@ -201,7 +201,8 @@ abstract class DashboardViewModelBase with Store {
     pendingConversionStore.reconcile(_wallet.id, transactions.map((t) => t.transaction));
     reaction(
       (_) => transactions.map((t) => t.transaction).toList(),
-      (List<TransactionInfo> txs) => pendingConversionStore.reconcile(_wallet.id, txs),
+      // [wallet], not [_wallet]: this reaction outlives wallet switches.
+      (List<TransactionInfo> txs) => pendingConversionStore.reconcile(wallet.id, txs),
     );
     _setupBitcoinAccountChangeReaction(_wallet);
 

@@ -9,6 +9,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/erc20_token_info_moralis.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -358,6 +359,11 @@ abstract class HomeSettingsViewModelBase with Store {
   @observable
   StableBalanceSetting? failedSetting;
 
+  /// Why the last on/off toggle failed, for Spark Settings' failure banner.
+  /// Cleared at the start of every new [setStableBalanceActive].
+  @observable
+  String? toggleErrorMessage;
+
   /// The value [failedSetting] was reverted back to, formatted for the failure banner headline
   /// ("Couldn't apply - reverted to ${this}") - read *after* the revert, so this is simply
   /// whatever the field's own display getter currently says.
@@ -410,6 +416,7 @@ abstract class HomeSettingsViewModelBase with Store {
     isTogglingStableBalance = true;
     applyingSetting = triggeredBy;
     failedSetting = null;
+    toggleErrorMessage = null;
     try {
       if (value) {
         printV("StableBalance: reconnecting with maxSlippageBps=$maxSlippageBps, "
@@ -423,6 +430,8 @@ abstract class HomeSettingsViewModelBase with Store {
         if (reconnected != true) {
           if (triggeredBy != null) {
             _revertSetting(triggeredBy, previousMaxSlippageBps, previousThresholdSats);
+          } else {
+            toggleErrorMessage = S.current.stable_balance_failed_subtitle_toggle;
           }
           return;
         }
@@ -441,6 +450,8 @@ abstract class HomeSettingsViewModelBase with Store {
       printV("StableBalance: failed to set active: $e");
       if (triggeredBy != null) {
         _revertSetting(triggeredBy, previousMaxSlippageBps, previousThresholdSats);
+      } else {
+        toggleErrorMessage = bitcoin?.getBreezSdkError(e) ?? e.toString();
       }
     } finally {
       await _balanceViewModel.refreshStableBalanceActive();

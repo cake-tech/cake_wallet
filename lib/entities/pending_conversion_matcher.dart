@@ -17,6 +17,14 @@ class PendingConversionMatcher {
     }
 
     final status = ConversionStatusUtils.fromAdditionalInfo(tx.additionalInfo);
-    return status != null && status != ConversionStatus.pending;
+
+    // A token -> BTC conversion is committed as a Lightning send to a self-invoice, which
+    // `LightningWallet` records as a token-funded send with no conversion status tag at all -
+    // for that record, the payment's own settled state is the terminal signal.
+    if (status == null) {
+      return !tx.isPending;
+    }
+
+    return status != ConversionStatus.pending;
   }
 }
