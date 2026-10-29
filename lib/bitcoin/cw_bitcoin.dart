@@ -796,6 +796,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  bool isPayjoinReceiverPending(Object wallet) {
+    final _wallet = wallet as ElectrumWallet;
+    return (_wallet.walletAddresses as BitcoinWalletAddresses)
+        .isPayjoinReceiverPending;
+  }
+
+  @override
   void updatePayjoinState(Object wallet, bool value) {
     final _wallet = wallet as ElectrumWallet;
     if (value) {
