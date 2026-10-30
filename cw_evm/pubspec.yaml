@@ -33,7 +33,9 @@ dependencies:
       path: packages/ledger-ethereum
       ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
   bitbox_flutter:
-    path: ../scripts/bitbox_flutter
+    git:
+      url: https://github.com/konstantinullrich/bitbox_flutter.git
+      ref: 1552486757c4fd83f1038a9cb618879756050484
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect

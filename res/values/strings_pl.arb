@@ -802,6 +802,7 @@
   "overshot": "Przekroczono",
   "overwrite_amount": "Nadpisz kwotę",
   "pairing_code": "Kod parowania",
+  "pairing_code_bitbox_confirm": "Potwierdź, że poniższy kod jest zgodny z kodem wyświetlanym na Twoim BitBoxie",
   "pairing_code_desc_1": "Twoje urządzenie wyświetli kod parowania.",
   "pairing_code_desc_2": "Wprowadź go tutaj, aby kontynuować",
   "pairing_error": "Błąd parowania",

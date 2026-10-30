@@ -1,23 +1,25 @@
-import 'dart:async';
-import 'dart:typed_data';
+import "dart:async";
+import "dart:typed_data";
 
-import 'package:bitbox_flutter/bitbox_manager.dart';
-import 'package:cw_core/hardware/device_not_connected_exception.dart' as exception;
-import 'package:web3dart/crypto.dart';
-import 'package:web3dart/web3dart.dart';
+import "package:bitbox_flutter/bitbox_flutter.dart";
+import "package:cw_core/hardware/device_not_connected_exception.dart" as exception;
+import "package:web3dart/crypto.dart";
+import "package:web3dart/web3dart.dart";
 
 class EvmBitboxCredentials extends CredentialsWithKnownAddress {
+  EvmBitboxCredentials(this._address);
+
+  BitboxConnection? bitboxManager;
+  String? derivationPath;
   final String _address;
 
-  BitboxManager? bitboxManager;
-  String? derivationPath;
-
-  EvmBitboxCredentials(this._address);
+  BitboxEthereum _getEthereum(int? chainId) =>
+      BitboxEthereum(bitboxManager!.ffi, chainId: chainId ?? 1);
 
   @override
   EthereumAddress get address => EthereumAddress.fromHex(_address);
 
-  void setBitbox(BitboxManager connection, [String? derivationPath_]) {
+  void setBitbox(BitboxConnection connection, [String? derivationPath_]) {
     bitboxManager = connection;
     derivationPath = derivationPath_ ?? "m/44'/60'/0'/0/0";
   }
@@ -27,15 +29,20 @@ class EvmBitboxCredentials extends CredentialsWithKnownAddress {
       throw UnimplementedError("EvmLedgerCredentials.signToEcSignature");
 
   @override
-  Future<MsgSignature> signToSignature(Uint8List payload,
-      {int? chainId, bool isEIP1559 = false}) async {
+  Future<MsgSignature> signToSignature(
+    Uint8List payload, {
+    int? chainId,
+    bool isEIP1559 = false,
+  }) async {
     if (bitboxManager == null) {
       throw exception.DeviceNotConnectedException();
     }
 
-    if (isEIP1559) payload = payload.sublist(1);
-    final sig = await bitboxManager!
-        .signETHRLPTransaction(chainId ?? 1, derivationPath!, bytesToHex(payload), isEIP1559);
+    if (isEIP1559) {
+      payload = payload.sublist(1);
+    }
+    final sig = await _getEthereum(chainId)
+        .signRLPTransaction(derivationPath!, bytesToHex(payload), isEIP1559);
 
     final r = bytesToHex(sig.sublist(0, 32));
     final s = bytesToHex(sig.sublist(32, 32 + 32));
@@ -66,9 +73,11 @@ class EvmBitboxCredentials extends CredentialsWithKnownAddress {
   }
 
   @override
-  Future<Uint8List> signPersonalMessage(Uint8List payload, {int? chainId}) async {
-    if (isNotConnected) throw exception.DeviceNotConnectedException();
-    return await bitboxManager!.signETHMessage(chainId ?? 1, derivationPath!, payload);
+  Future<Uint8List> signPersonalMessage(Uint8List payload, {int? chainId}) {
+    if (isNotConnected) {
+      throw exception.DeviceNotConnectedException();
+    }
+    return _getEthereum(chainId).signMessage(derivationPath!, payload);
   }
 
   @override

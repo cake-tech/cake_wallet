@@ -803,6 +803,7 @@
   "overshot": "Superato",
   "overwrite_amount": "Sovrascrivi importo",
   "pairing_code": "Codice di associazione",
+  "pairing_code_bitbox_confirm": "Conferma che il codice qui sotto corrisponde a quello mostrato sul tuo BitBox",
   "pairing_code_desc_1": "Il tuo dispositivo mostrerà un codice di associazione.",
   "pairing_code_desc_2": "Inseriscilo qui per continuare",
   "pairing_error": "Errore di associazione",

@@ -804,6 +804,7 @@
   "overshot": "Excedido",
   "overwrite_amount": "Substituir valor",
   "pairing_code": "Código de emparelhamento",
+  "pairing_code_bitbox_confirm": "Confirme que o código abaixo corresponde ao apresentado no seu BitBox",
   "pairing_code_desc_1": "O seu dispositivo irá mostrar um código de emparelhamento.",
   "pairing_code_desc_2": "Introduza-o aqui para continuar",
   "pairing_error": "Erro de emparelhamento",

@@ -802,6 +802,7 @@
   "overshot": "فراتر رفت",
   "overwrite_amount": "بازنویسی مقدار",
   "pairing_code": "کد جفت‌سازی",
+  "pairing_code_bitbox_confirm": "تأیید کنید که کد زیر با کدی که روی BitBox شما نمایش داده می‌شود مطابقت دارد",
   "pairing_code_desc_1": "دستگاه شما یک کد جفت‌سازی نمایش می‌دهد.",
   "pairing_code_desc_2": "برای ادامه، اینجا وارد کنید",
   "pairing_error": "خطای جفت‌سازی",

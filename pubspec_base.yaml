@@ -134,7 +134,9 @@ dependencies:
       ref: 591d4b8c821b9c10561f848b866324a9a8dcb489
       path: trezor-flutter
   bitbox_flutter:
-    path: ./scripts/bitbox_flutter
+    git:
+      url: https://github.com/konstantinullrich/bitbox_flutter.git
+      ref: 1552486757c4fd83f1038a9cb618879756050484
   hashlib: 1.19.2
   on_chain:
     git:
