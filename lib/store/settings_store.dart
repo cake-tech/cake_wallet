@@ -1618,6 +1618,28 @@ abstract class SettingsStoreBase with Store {
         );
 
     // Independent reads, so they go to secure storage concurrently instead of one by one
+    final List<Future<Object?> Function()> secureReads = [
+      () => secureInt(SecureKey.pinTimeOutDuration),
+      () => secureBool(SecureKey.allowBiometricalAuthenticationKey),
+      () => secureBool(SecureKey.enableDuressPin),
+      () => secureInt(SecureKey.selectedCake2FAPreset),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAccessingWallet),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToNonContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAddingContacts),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForCreatingNewWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
+      () => secureBool(SecureKey.useTOTP2FA),
+      () => SecureKey.getString(
+        secureStorage: secureStorage,
+        sharedPreferences: sharedPreferences,
+        key: SecureKey.totpSecretKey,
+      ),
+    ];
+
     final [
       timeOutDuration as int?,
       allowBiometricalAuthentication as bool,
@@ -1634,27 +1656,9 @@ abstract class SettingsStoreBase with Store {
       shouldRequireTOTP2FAForAllSecurityAndBackupSettings as bool,
       useTOTP2FA as bool,
       totpSecretKeyRaw as String?,
-    ] = await Future.wait<Object?>([
-      secureInt(SecureKey.pinTimeOutDuration),
-      secureBool(SecureKey.allowBiometricalAuthenticationKey),
-      secureBool(SecureKey.enableDuressPin),
-      secureInt(SecureKey.selectedCake2FAPreset),
-      secureBool(SecureKey.shouldRequireTOTP2FAForAccessingWallet),
-      secureBool(SecureKey.shouldRequireTOTP2FAForSendsToContact),
-      secureBool(SecureKey.shouldRequireTOTP2FAForSendsToNonContact),
-      secureBool(SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets),
-      secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets),
-      secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets),
-      secureBool(SecureKey.shouldRequireTOTP2FAForAddingContacts),
-      secureBool(SecureKey.shouldRequireTOTP2FAForCreatingNewWallets),
-      secureBool(SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
-      secureBool(SecureKey.useTOTP2FA),
-      SecureKey.getString(
-        secureStorage: secureStorage,
-        sharedPreferences: sharedPreferences,
-        key: SecureKey.totpSecretKey,
-      ),
-    ]);
+    ] = Platform.isWindows
+        ? [for (final read in secureReads) await read()]
+        : await Future.wait(secureReads.map((read) => read()));
 
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
