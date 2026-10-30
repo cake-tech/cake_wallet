@@ -1,23 +1,21 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
-import 'package:cake_wallet/order/order_provider_description.dart';
-import 'package:cake_wallet/order/order.dart';
-import 'package:cake_wallet/order/order_source_description.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
-import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_card.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_order.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart";
+import "package:cake_wallet/cake_pay/src/services/cake_pay_service.dart";
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/order/order.dart";
+import "package:cake_wallet/utils/date_formatter.dart";
+import "package:cake_wallet/utils/feature_flag.dart";
+import "package:cake_wallet/view_model/send/send_view_model.dart";
+import "package:cake_wallet/view_model/send/send_view_model_state.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:hive/hive.dart";
+import "package:mobx/mobx.dart";
 
-part 'cake_pay_buy_card_view_model.g.dart';
+part "cake_pay_buy_card_view_model.g.dart";
 
 class CakePayBuyCardViewModel = CakePayBuyCardViewModelBase with _$CakePayBuyCardViewModel;
 
@@ -109,7 +107,13 @@ abstract class CakePayBuyCardViewModelBase with Store {
       FeatureFlag.isCakePayPurchaseSimulationEnabled;
 
   @computed
-  List<CakePayPaymentMethod> get availableMethods {
+  List<CakePayPaymentMethod> get availableMethods => [
+        ..._walletMethods,
+        if (StablecoinNetwork.supportsCurrency(sendViewModel.wallet.currency))
+          CakePayPaymentMethod.STABLECOIN,
+      ];
+
+  List<CakePayPaymentMethod> get _walletMethods {
     switch (walletType) {
       case WalletType.bitcoin:
         return [
@@ -163,16 +167,55 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   Future<void> createOrder() async {
-    if (![
-      WalletType.bitcoin,
-      WalletType.monero,
-      WalletType.litecoin,
-      WalletType.zcash,
-    ].contains(walletType)) {
-      sendViewModel.state =
-          FailureState('Unsupported wallet type, please use Bitcoin, Monero, Litecoin or Zcash.');
-    }
+    try {
+      order = await _placeOrder();
+      final paymentData = CakePayOrder.getPaymentDataFor(
+          method: selectedPaymentMethod,
+          order: order); // TODO should hande other currencies if added
+      if (paymentData == null || order == null)
+        throw CakePayNoDataException('Payment data or order is not available.');
 
+      await confirmSending(paymentData);
+      expirationTime = order!.paymentData.expirationTime;
+
+      unawaited(
+        orders.add(
+          order!.toOrder(
+            from: CakePayOrder.getCurrencyCodeFromPaymentMethod(selectedPaymentMethod!),
+            amount: paymentData.amount,
+            receiveAddress: paymentData.address,
+            walletId: sendViewModel.wallet.id,
+          ),
+        ),
+      );
+      updateRemainingTime();
+      _startExpirationTimer();
+    } on CakePayUnauthorizedException {
+      rethrow;
+    } catch (e) {
+      sendViewModel.state = FailureState(
+          sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
+    }
+  }
+
+  Future<CakePayOrder?> createStablecoinOrder() async {
+    try {
+      final stablecoinOrder = await _placeOrder();
+      if (stablecoinOrder.paymentData.stablecoins.isEmpty) {
+        throw const CakePayNoDataException("USDC/USDT is not available for this order.");
+      }
+      return stablecoinOrder;
+    } on CakePayUnauthorizedException {
+      rethrow;
+    } catch (e) {
+      sendViewModel.state = FailureState(
+        sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency),
+      );
+      return null;
+    }
+  }
+
+  Future<CakePayOrder> _placeOrder() {
     final isPrepaidRangeSelected = card.prepaidRange.isNotEmpty;
 
     int selectedCardId = card.id;
@@ -187,47 +230,14 @@ abstract class CakePayBuyCardViewModelBase with Store {
       selectedPrice = selectedDenomination.$1;
     }
 
-    try {
-      order = await _cakePayService.createOrder(
-        cardId: selectedCardId,
-        price: selectedPrice,
-        quantity: quantity,
-        confirmsNoVpn: confirmsNoVpn,
-        confirmsVoidedRefund: confirmsVoidedRefund,
-        confirmsTermsAgreed: confirmsTermsAgreed,
-      );
-      final paymentData = CakePayOrder.getPaymentDataFor(
-          method: selectedPaymentMethod,
-          order: order); // TODO should hande other currencies if added
-      if (paymentData == null || order == null)
-        throw CakePayNoDataException('Payment data or order is not available.');
-
-      await confirmSending(paymentData);
-      expirationTime = order!.paymentData.expirationTime;
-
-      final orderRecord = Order(
-          id: order!.orderId,
-          state: TradeState.deserialize(raw: order!.status),
-          transferId: order!.externalId ?? '',
-          from: CakePayOrder.getCurrencyCodeFromPaymentMethod(selectedPaymentMethod!),
-          to: order!.fiatCurrencyCode,
-          createdAt: DateTime.now(),
-          amount: paymentData.amount,
-          receiveAmount: order!.totalReceiveAmount,
-          quantity: order!.quantity.toString(),
-          receiveAddress: paymentData.address,
-          source: OrderSourceDescription.order,
-          giftCardProvider: OrderProviderDescription.cakePay,
-          walletId: sendViewModel.wallet.id);
-      orders.add(orderRecord);
-      updateRemainingTime();
-      _startExpirationTimer();
-    } on CakePayUnauthorizedException {
-      rethrow;
-    } catch (e) {
-      sendViewModel.state = FailureState(
-          sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
-    }
+    return _cakePayService.createOrder(
+      cardId: selectedCardId,
+      price: selectedPrice,
+      quantity: quantity,
+      confirmsNoVpn: confirmsNoVpn,
+      confirmsVoidedRefund: confirmsVoidedRefund,
+      confirmsTermsAgreed: confirmsTermsAgreed,
+    );
   }
 
   @action
@@ -274,7 +284,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
       disposeExpirationTimer();
       sendViewModel.state = FailureState('Order has expired.');
     } else {
-      formattedRemainingTime = formatDuration(remainingTime!);
+      formattedRemainingTime = DateFormatter.formatDuration(remainingTime!);
     }
   }
 
@@ -283,13 +293,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       updateRemainingTime();
     });
-  }
-
-  String formatDuration(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes.remainder(60);
-    final seconds = duration.inSeconds.remainder(60);
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   void disposeExpirationTimer() {

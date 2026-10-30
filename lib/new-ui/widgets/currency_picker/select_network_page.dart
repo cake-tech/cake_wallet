@@ -4,8 +4,6 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class SelectNetworkPage extends StatelessWidget {
@@ -106,9 +104,7 @@ class _NetworkRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final wt = cryptoCurrencyOrTokenToWalletType(variant);
-    final networkIconPath =
-        wt != null ? getCryptoCurrencyIconForWalletListItem(wt) : variant.iconPath;
+    final networkIconPath = networkIconPathForCurrency(variant);
     final networkName = chainNameForCurrency(variant);
     return MergeSemantics(
       child: Semantics(

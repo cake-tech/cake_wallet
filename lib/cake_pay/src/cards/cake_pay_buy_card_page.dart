@@ -1,43 +1,46 @@
-import 'dart:io';
+import "dart:async";
+import "dart:io";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/enter_amount_widget.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/prepaid_range_amount_widget.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/rounded_overlay_cards_widget.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/text_icon_button.dart';
-import 'package:cake_wallet/cake_pay/src/widgets/three_checkbox_alert_content_widget.dart';
-import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/cake_pay_transaction_sent_bottom_sheet.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
-import 'package:cake_wallet/typography.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_card.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_order.dart";
+import "package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart";
+import "package:cake_wallet/cake_pay/src/widgets/cake_pay_stablecoin_checkout_sheet.dart";
+import "package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dart";
+import "package:cake_wallet/cake_pay/src/widgets/enter_amount_widget.dart";
+import "package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart";
+import "package:cake_wallet/cake_pay/src/widgets/link_extractor.dart";
+import "package:cake_wallet/cake_pay/src/widgets/prepaid_range_amount_widget.dart";
+import "package:cake_wallet/cake_pay/src/widgets/rounded_overlay_cards_widget.dart";
+import "package:cake_wallet/cake_pay/src/widgets/text_icon_button.dart";
+import "package:cake_wallet/cake_pay/src/widgets/three_checkbox_alert_content_widget.dart";
+import "package:cake_wallet/core/address_resolver/parsed_address.dart";
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
+import "package:cake_wallet/order/order.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/base_page.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/base_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/cake_pay_transaction_sent_bottom_sheet.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/confirm_sending_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/bottom_sheet/info_bottom_sheet_widget.dart";
+import "package:cake_wallet/src/widgets/primary_button.dart";
+import "package:cake_wallet/src/widgets/standard_checkbox.dart";
+import "package:cake_wallet/typography.dart";
+import "package:cake_wallet/utils/feature_flag.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart";
+import "package:cake_wallet/view_model/send/output.dart";
+import "package:cake_wallet/view_model/send/send_view_model.dart";
+import "package:cake_wallet/view_model/send/send_view_model_state.dart";
+import "package:cw_core/unspent_coin_type.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:mobx/mobx.dart";
 
 class CakePayBuyCardPage extends BasePage {
   CakePayBuyCardPage(this.cakePayBuyCardViewModel)
@@ -264,7 +267,9 @@ class CakePayBuyCardPage extends BasePage {
             Observer(builder: (_) {
               Widget _buildPaymentMethodWidget(
                   List<CakePayPaymentMethod> methods, CakePayPaymentMethod selected) {
-                return Row(
+                return Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 24, right: 8),
@@ -277,7 +282,6 @@ class CakePayBuyCardPage extends BasePage {
                         ),
                       ),
                     ),
-                    Expanded(child: const SizedBox()),
                     if (methods.length > 1)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
@@ -307,7 +311,10 @@ class CakePayBuyCardPage extends BasePage {
                 children: [
                   methods.length <= 1 || selected == null
                       ? const SizedBox.shrink()
-                      : _buildPaymentMethodWidget(methods, selected),
+                      : SizedBox(
+                          width: double.infinity,
+                          child: _buildPaymentMethodWidget(methods, selected),
+                        ),
                   if (_sendViewModel.walletType == WalletType.litecoin &&
                       _sendViewModel.isMwebEnabled)
                     Observer(
@@ -354,7 +361,8 @@ class CakePayBuyCardPage extends BasePage {
                               : confirmPurchaseFirst(context);
                         },
                         text: '(Dev) Simulate Purchasing Gift Card',
-                        isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                        isDisabled: methods.isEmpty ||
+                            !cakePayBuyCardViewModel.isAmountSufficient ||
                             cakePayBuyCardViewModel.isPurchasing,
                         isLoading: _sendViewModel.state is IsExecutingState ||
                             cakePayBuyCardViewModel.isPurchasing,
@@ -374,7 +382,8 @@ class CakePayBuyCardPage extends BasePage {
                             : confirmPurchaseFirst(context);
                       },
                       text: S.of(context).purchase_gift_card,
-                      isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                      isDisabled: methods.isEmpty ||
+                          !cakePayBuyCardViewModel.isAmountSufficient ||
                           cakePayBuyCardViewModel.isPurchasing ||
                           _sendViewModel.state is ExecutedSuccessfullyState,
                       isLoading: _sendViewModel.state is IsExecutingState ||
@@ -497,6 +506,8 @@ class CakePayBuyCardPage extends BasePage {
   }
 
   Future<void> purchaseCard(BuildContext context) async {
+    CakePayOrder? stablecoinOrder;
+
     try {
       final isLogged = await cakePayBuyCardViewModel.isUserLogged;
 
@@ -509,7 +520,12 @@ class CakePayBuyCardPage extends BasePage {
         return;
       }
 
-      await cakePayBuyCardViewModel.createOrder();
+      if (cakePayBuyCardViewModel.selectedPaymentMethod == CakePayPaymentMethod.STABLECOIN) {
+        cakePayBuyCardViewModel.isSimulatingFlow = false;
+        stablecoinOrder = await cakePayBuyCardViewModel.createStablecoinOrder();
+      } else {
+        await cakePayBuyCardViewModel.createOrder();
+      }
     } on CakePayUnauthorizedException {
       cakePayBuyCardViewModel.isSimulatingFlow = false;
 
@@ -527,6 +543,28 @@ class CakePayBuyCardPage extends BasePage {
       );
     } finally {
       cakePayBuyCardViewModel.isPurchasing = false;
+    }
+
+    if (stablecoinOrder != null && context.mounted) {
+      await _showStablecoinCheckout(context, stablecoinOrder);
+    }
+  }
+
+  Future<void> _showStablecoinCheckout(BuildContext context, CakePayOrder order) async {
+    final orderRecord = await showModalBottomSheet<Order>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => CakePayStablecoinCheckoutSheet(order),
+    );
+
+    if (orderRecord != null && context.mounted) {
+      unawaited(
+        Navigator.of(context).pushReplacementNamed(Routes.orderDetails, arguments: orderRecord),
+      );
     }
   }
 
