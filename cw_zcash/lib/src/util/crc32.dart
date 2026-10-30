@@ -20,11 +20,11 @@ class CRC32 {
 
     crc = crc ^ (0xffffffff);
 
-    for (final byte in input) {
-      if (!(byte >= -128 && byte <= 255))
+    for (final byte in input as Iterable<dynamic>) {
+      if (!((byte >= -128) as bool && (byte <= 255) as bool))
         throw new FormatException("Invalid value in input: $byte");
 
-      final x = CRC32._table[(crc ^ byte) & 0xff];
+      final x = CRC32._table[(crc ^ (byte as int)) & 0xff];
       crc = (crc & 0xffffffff) >> 8; // crc >>> 8 (32-bit unsigned integer)
       crc ^= x;
     }

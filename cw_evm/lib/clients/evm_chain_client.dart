@@ -53,7 +53,7 @@ class EVMChainClient {
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (jsonResponse['result'] is String) {
-        log(jsonResponse['result']);
+        log(jsonResponse['result'] as String);
         return [];
       }
 
@@ -66,7 +66,7 @@ class EVMChainClient {
           final spamThresholdWei = BigInt.from(10000000000000);
           res.removeWhere((e) {
             try {
-              final value = BigInt.parse(e['value'] ?? '0');
+              final value = BigInt.parse(e['value'] as String? ?? '0');
               final isIncoming = e['to']?.toLowerCase() == address.toLowerCase() &&
                   e['from']?.toLowerCase() != address.toLowerCase();
               return isIncoming && value < spamThresholdWei;
@@ -85,7 +85,7 @@ class EVMChainClient {
           if (mergedMap.containsKey(key)) {
             try {
               final currentNet = getNetFlow(mergedMap[key]!, address);
-              final newNet = getNetFlow(tx, address);
+              final newNet = getNetFlow(tx as Map<String, dynamic>, address);
               final totalNet = currentNet + newNet;
 
               mergedMap[key]!['value'] = totalNet.abs().toString();
@@ -99,7 +99,7 @@ class EVMChainClient {
               printV('Error merging transaction values: $e');
             }
           } else {
-            mergedMap[key] = Map<String, dynamic>.from(tx);
+            mergedMap[key] = Map<String, dynamic>.from(tx as Map<dynamic, dynamic>);
           }
         }
 
@@ -120,7 +120,7 @@ class EVMChainClient {
   }
 
   BigInt getNetFlow(Map<String, dynamic> txData, String address) {
-    final val = BigInt.parse(txData['value'] ?? '0');
+    final val = BigInt.parse(txData['value'] as String? ?? '0');
     final isIncoming = txData['to']?.toLowerCase() == address.toLowerCase();
     final isOutgoing = txData['from']?.toLowerCase() == address.toLowerCase();
 
@@ -605,8 +605,8 @@ class EVMChainClient {
     String filteredSymbol = symbol.replaceFirst(RegExp('^\\\$'), '');
 
     final name = (decodedResponse['name'] ?? '').toString();
-    final decimal = decodedResponse['decimals'] ?? '0';
-    final iconPath = decodedResponse['logo'] ?? '';
+    final decimal = (decodedResponse['decimals'] ?? '0') as String;
+    final iconPath = (decodedResponse['logo'] ?? '') as String;
 
     return Erc20Token(
       name: name,

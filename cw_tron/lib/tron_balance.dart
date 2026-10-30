@@ -17,7 +17,7 @@ class TronBalance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return TronBalance(Money(BigInt.parse(decoded['balance']), currency));
+      return TronBalance(Money(BigInt.parse(decoded['balance'] as String), currency));
     } catch (e) {
       return TronBalance(Money.zero(currency));
     }

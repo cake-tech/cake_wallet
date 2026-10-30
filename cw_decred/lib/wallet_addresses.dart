@@ -44,7 +44,7 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
   @override
   Future<void> updateAddressesInBox() async {
     final addrs = await _libAddresses();
-    final allAddrs = List.from(addrs.usedAddrs)..addAll(addrs.unusedAddrs);
+    final allAddrs = List<String>.from(addrs.usedAddrs)..addAll(addrs.unusedAddrs);
 
     // Add all addresses.
     allAddrs.forEach((addr) {
@@ -99,10 +99,10 @@ abstract class DecredWalletAddressesBase extends WalletAddresses with Store {
     try {
       final res = await _libwallet.addresses(walletInfo.name, nUsed, nUnused);
       final decoded = json.decode(res);
-      final usedAddrs = List<String>.from(decoded["used"] ?? []);
-      final unusedAddrs = List<String>.from(decoded["unused"] ?? []);
+      final usedAddrs = List<String>.from(decoded["used"] as Iterable<dynamic>? ?? []);
+      final unusedAddrs = List<String>.from(decoded["unused"] as Iterable<dynamic>? ?? []);
       // index is the index of the first unused address.
-      final index = decoded["index"] ?? 0;
+      final index = decoded["index"] as int? ?? 0;
       return _LibAddresses(usedAddrs, unusedAddrs, index);
     } catch (e) {
       printV(e);
