@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
@@ -479,6 +480,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   String _networkFor(CryptoCurrency currency) {
+    if (currency.title.toUpperCase() == "USDD" && currency.tag == "ETH") {
+      throw BadCurrencyException("Trocador's USDD on Ethereum may be a different USDD", currency);
+    }
     switch (currency) {
       case CryptoCurrency.eth:
         return 'ERC20';
@@ -492,6 +496,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'Mainnet';
       case CryptoCurrency.arb:
         return 'Mainnet';
+      case CryptoCurrency.usdcOp:
+        return "Optimism";
+      case CryptoCurrency.usdtNear:
+        throw BadCurrencyException("Trocador's USDT on NEAR may be bridged USDT.e", currency);
+      case CryptoCurrency.usdtOp:
+        throw BadCurrencyException("Trocador's USDT on Optimism may be legacy USDT", currency);
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -503,8 +513,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'zec';
       case CryptoCurrency.usdcEPoly:
         return 'usdce';
+      case CryptoCurrency.usdcApt:
+        return "usdcapt";
       default:
-        return currency.title.toLowerCase();
+        final ticker = currency.title.toLowerCase();
+        // Trocador's /coin lookup is case-sensitive
+        return ticker == "usds" || ticker == "eurc" ? ticker.toUpperCase() : ticker;
     }
   }
 
@@ -522,6 +536,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'Lightning';
       case 'BSC':
         return 'BEP20';
+      case "APT":
+        return "APTOS";
       default:
         return tag.toLowerCase();
     }
@@ -534,6 +550,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'BEP20' => 'BSC',
       'LIGHTNING' => 'LN',
       'MATIC' => 'POL',
+      "APTOS" => "APT",
+      "OPTIMISM" => "OP",
       _ => network,
     };
   }
