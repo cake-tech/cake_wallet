@@ -4,15 +4,9 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/pages/everstake/everstake_confirm_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
-import "package:cake_wallet/new-ui/widgets/floating_amount_input.dart";
-import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
-import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
-import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
-import "package:cw_core/amount/amount_sanitizer.dart";
+import "package:cake_wallet/new-ui/widgets/defi/defi_amount_view.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -30,44 +24,18 @@ class EverstakeAmountPage extends StatefulWidget {
 }
 
 class _EverstakeAmountPageState extends State<EverstakeAmountPage> {
-  final _controller = TextEditingController();
-  final _focusNode = FocusNode();
-
-  late final Currency _inputCurrency =
-      context.read<FiatRateCubit>().state?.quote.currency ?? CryptoCurrency.eth;
-
-  bool _useMax = false;
-  bool _preparing = false;
-  String? _prepareError;
+  bool _preparingTransaction = false;
+  String? _prepareTransactionError;
 
   bool get _isDeposit => widget.mode == EverstakeAmountMode.deposit;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _focusNode.requestFocus());
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) => BlocConsumer<EverstakeBloc, EverstakeState>(
+        listenWhen: (_, __) => _preparingTransaction,
         listener: (context, state) {
-          if (_useMax) {
-            _syncMaxAmount(state.data!, context.read<FiatRateCubit>().state);
-          }
-          if (!_preparing) {
-            return;
-          }
-
           switch (state) {
             case EverstakePrepared(:final operation):
-              setState(() => _preparing = false);
+              setState(() => _preparingTransaction = false);
               Navigator.of(context).push(
                 CupertinoPageRoute<void>(
                   builder: (_) => Material(
@@ -78,230 +46,56 @@ class _EverstakeAmountPageState extends State<EverstakeAmountPage> {
               );
             case EverstakeFailure(:final error):
               setState(() {
-                _preparing = false;
-                _prepareError = error;
+                _preparingTransaction = false;
+                _prepareTransactionError = error;
               });
             case EverstakeReady():
-              setState(() => _preparing = false);
+              setState(() => _preparingTransaction = false);
             default:
               break;
           }
         },
-        builder: (context, state) => BlocConsumer<FiatRateCubit, ExchangeRate?>(
-          listener: (context, fiatRate) {
-            if (_useMax) {
-              _syncMaxAmount(context.read<EverstakeBloc>().state.data!, fiatRate);
-            }
-          },
+        builder: (context, state) => BlocBuilder<FiatRateCubit, ExchangeRate?>(
           builder: (context, fiatRate) {
-            final theme = Theme.of(context);
-            final locale = Localizations.localeOf(context).toString();
-            final isBusy = state is EverstakeLoading || state is EverstakePreparing;
             final data = state.data!;
-            final maxAmount = _isDeposit ? data.walletBalance : data.withdrawableBalance;
-            final amount = _useMax ? maxAmount : _parseAmount(fiatRate);
-            final convertsToFiat = _inputCurrency == CryptoCurrency.eth;
-            final converted =
-                amount == null || !convertsToFiat ? amount : fiatRate?.convert(amount);
-            final convertedStyle = TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurfaceVariant,
-            );
-            final inputError = _hasTooManyDecimals ? S.of(context).decimal_places_error : null;
-            final error = inputError ?? _prepareError;
-            final maxLabel = _isDeposit
-                ? S.of(context).max
-                : data.withdrawsPendingStake
-                    ? S.of(context).pending_activation
-                    : S.of(context).staked;
+            final locale = Localizations.localeOf(context).toString();
 
-            return Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                gradient: LinearGradient(
-                  colors: [theme.colorScheme.surface, theme.colorScheme.surfaceDim],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    ModalTopBar(
-                      title: S.of(context).enter_amount,
-                      bottomText: "$maxLabel (${maxAmount.toLocalStringWithSymbol(
-                        fractionalDigits: 8,
-                        locale: locale,
-                      )})",
-                      leadingIcon: const Icon(Icons.close),
-                      leadingSemanticLabel: S.of(context).close,
-                      onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const SizedBox.shrink(),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18),
-                              child: Column(
-                                spacing: 8,
-                                children: [
-                                  FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    child: FloatingAmountInput(
-                                      currency: _inputCurrency,
-                                      controller: _controller,
-                                      focusNode: _focusNode,
-                                      onChanged: (_) => setState(() {
-                                        _useMax = false;
-                                        _prepareError = null;
-                                      }),
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    spacing: 8,
-                                    children: [
-                                      if (converted != null && _controller.text.isNotEmpty)
-                                        Flexible(
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Text("≈ ", style: convertedStyle),
-                                              Flexible(
-                                                child: MoneyText(
-                                                  converted,
-                                                  isHiddenAmount: false,
-                                                  fractionalDigits: convertsToFiat ? 2 : 8,
-                                                  trimZeros: !convertsToFiat,
-                                                  overflow: TextOverflow.ellipsis,
-                                                  style: convertedStyle,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      _MaxChip(
-                                        label: _isDeposit
-                                            ? S.of(context).max
-                                            : S.of(context).all_pascal_case,
-                                        onPressed: () => _fillMax(data, fiatRate),
-                                      ),
-                                    ],
-                                  ),
-                                  if (error != null)
-                                    Text(
-                                      error,
-                                      textAlign: TextAlign.center,
-                                      style:
-                                          TextStyle(fontSize: 12, color: theme.colorScheme.error),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(18),
-                              child: Column(
-                                spacing: 8,
-                                children: [
-                                  Text(
-                                    _isDeposit
-                                        ? S.of(context).min_amount(
-                                              data.minStakeAmount
-                                                  .toLocalStringWithSymbol(locale: locale),
-                                            )
-                                        : S.of(context).withdraw_all_or_partial,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  NewPrimaryButton(
-                                    onPressed: () => _continue(data, amount!),
-                                    isLoading: _preparing,
-                                    disabled: (isBusy && !_preparing) ||
-                                        inputError != null ||
-                                        amount == null ||
-                                        amount.sign <= 0,
-                                    text: S.of(context).continue_text,
-                                    color: theme.colorScheme.primary,
-                                    textColor: theme.colorScheme.onPrimary,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            return DefiAmountView(
+              maxAmount: _isDeposit ? data.walletBalance : data.withdrawableBalance,
+              maxLabel: _isDeposit
+                  ? S.of(context).max
+                  : data.withdrawsPendingStake
+                      ? S.of(context).pending_activation
+                      : S.of(context).staked,
+              maxChipLabel: _isDeposit ? S.of(context).max : S.of(context).all_pascal_case,
+              hint: _isDeposit
+                  ? S.of(context).min_amount(
+                        data.minStakeAmount.toLocalStringWithSymbol(locale: locale),
+                      )
+                  : S.of(context).withdraw_all_or_partial,
+              fiatRate: fiatRate,
+              error: _prepareTransactionError,
+              isLoading: _preparingTransaction,
+              disabled: !_preparingTransaction && state.isBusy,
+              onChanged: () => setState(() => _prepareTransactionError = null),
+              onContinue: (amount, {required isMax}) => _continue(data, amount, isMax: isMax),
             );
           },
         ),
       );
 
-  Money? _parseAmount(ExchangeRate? fiatRate) {
-    final input = Money.tryParse(_controller.text.sanitized(), _inputCurrency);
-    if (input == null || _inputCurrency == CryptoCurrency.eth) {
-      return input;
-    }
-
-    return fiatRate?.convert(input);
-  }
-
-  bool get _hasTooManyDecimals {
-    final parts = _controller.text.split(RegExp("[.,]"));
-    return parts.length == 2 && parts.last.length > _inputCurrency.decimals;
-  }
-
-  void _syncMaxAmount(EverstakeData data, ExchangeRate? fiatRate) {
-    final maxAmount = _isDeposit ? data.walletBalance : data.withdrawableBalance;
-    final display = _inputCurrency == CryptoCurrency.eth ? maxAmount : fiatRate?.convert(maxAmount);
-    if (display == null) {
-      return;
-    }
-
-    final text = display.toStringWithPrecision(fractionalDigits: 8);
-    if (_controller.text != text) {
-      _controller.value = TextEditingValue(
-        text: text,
-        selection: TextSelection.collapsed(offset: text.length),
-      );
-    }
-  }
-
-  void _fillMax(EverstakeData data, ExchangeRate? fiatRate) {
-    if (_inputCurrency != CryptoCurrency.eth && fiatRate == null) {
-      return;
-    }
-
-    _syncMaxAmount(data, fiatRate);
-    setState(() {
-      _useMax = true;
-      _prepareError = null;
-    });
-  }
-
-  void _continue(EverstakeData data, Money amount) {
+  void _continue(EverstakeData data, Money amount, {required bool isMax}) {
     if (_isDeposit) {
-      _prepare(_useMax ? const MaxStakeRequested() : StakeRequested(amount));
+      _prepareTransaction(isMax ? const MaxStakeRequested() : StakeRequested(amount));
     } else {
-      _prepare(
+      _prepareTransaction(
         data.withdrawsPendingStake ? PendingUnstakeRequested(amount) : UnstakeRequested(amount),
       );
     }
   }
 
-  void _prepare(TransactionRequested event) {
-    if (_preparing) {
+  void _prepareTransaction(TransactionRequested event) {
+    if (_preparingTransaction) {
       return;
     }
 
@@ -316,42 +110,11 @@ class _EverstakeAmountPageState extends State<EverstakeAmountPage> {
           return;
         }
         setState(() {
-          _preparing = true;
-          _prepareError = null;
+          _preparingTransaction = true;
+          _prepareTransactionError = null;
         });
         context.read<EverstakeBloc>().add(event);
       },
     );
   }
-}
-
-class _MaxChip extends StatelessWidget {
-  const _MaxChip({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) => MergeSemantics(
-        child: Semantics(
-          button: true,
-          child: Material(
-            color: Theme.of(context).colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(30),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(30),
-              onTap: onPressed,
-              child: Container(
-                height: 36,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                alignment: Alignment.center,
-                child: Text(
-                  label,
-                  style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
 }

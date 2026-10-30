@@ -66,6 +66,8 @@ sealed class EverstakeState {
   const EverstakeState();
 
   EverstakeData? get data;
+
+  bool get isBusy => false;
 }
 
 sealed class EverstakeStateWithData extends EverstakeState {
@@ -80,6 +82,9 @@ final class EverstakeLoading extends EverstakeState {
 
   @override
   final EverstakeData? data;
+
+  @override
+  bool get isBusy => true;
 }
 
 final class EverstakeReady extends EverstakeStateWithData {
@@ -88,6 +93,9 @@ final class EverstakeReady extends EverstakeStateWithData {
 
 final class EverstakePreparing extends EverstakeStateWithData {
   const EverstakePreparing(super.data);
+
+  @override
+  bool get isBusy => true;
 }
 
 final class EverstakePrepared extends EverstakeStateWithData {
@@ -100,6 +108,9 @@ final class EverstakeSubmitting extends EverstakeStateWithData {
   const EverstakeSubmitting(super.data, this.operation);
 
   final EverstakeOperation operation;
+
+  @override
+  bool get isBusy => true;
 }
 
 final class EverstakeSubmitted extends EverstakeStateWithData {
