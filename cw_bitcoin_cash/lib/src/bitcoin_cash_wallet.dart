@@ -107,15 +107,14 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
 
     ElectrumWalletSnapshot? snp = null;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
         encryptionFileUtils,
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         BitcoinCashNetwork.mainnet,
       );
@@ -130,8 +129,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
           WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );

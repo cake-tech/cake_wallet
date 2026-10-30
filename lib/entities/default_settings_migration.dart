@@ -24,12 +24,14 @@ import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/erc20_token.dart';
+import "package:uuid/uuid.dart";
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
@@ -831,7 +833,7 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
 
 Future<void> _validateWalletInfoBoxData() async {
   try {
-    final root = await getAppDir();
+    // One query instead of one per folder.
     final existingIds = (await WalletInfo.getAll()).map((info) => info.id).toSet();
 
     for (var type in WalletType.values) {
@@ -839,39 +841,40 @@ Future<void> _validateWalletInfoBoxData() async {
         continue;
       }
 
-      String prefix = walletTypeToString(type).toLowerCase();
-      Directory walletsDir = Directory('${root.path}/wallets/$prefix/');
+      final walletsDir = Directory(await pathForWalletTypeDir(type: type));
+      final entries = walletsDir.listSync().whereType<Directory>();
 
-      if (!walletsDir.existsSync()) {
-        continue;
-      }
+      for (final dir in entries) {
+        final folderName = dir.path.split("/").last;
 
-      List<String> walletNames = walletsDir.listSync().map((e) => e.path.split("/").last).toList();
-
-      for (var name in walletNames) {
-        final Directory dir;
-        try {
-          dir = Directory(await pathForWalletDir(name: name, type: type));
-        } catch (_) {
+        if (folderName.endsWith(".backup")) {
+          try {
+            if (dir.listSync().isEmpty) {
+              dir.deleteSync();
+            }
+          } catch (_) {}
           continue;
         }
 
         final walletFiles = dir.listSync();
-        final hasCacheFile = walletFiles.any((element) => element.path.contains("$name/$name"));
+        final hasCacheFile =
+        walletFiles.any((element) => element.path.endsWith("$folderName/$folderName"));
 
         if (!hasCacheFile) {
           continue;
         }
 
         if (type == WalletType.monero || type == WalletType.haven) {
-          final hasKeysFile = walletFiles.any((element) => element.path.contains(".keys"));
-
+          final hasKeysFile = walletFiles.any((element) => element.path.endsWith(".keys"));
           if (!hasKeysFile) {
             continue;
           }
         }
 
-        final id = prefix + '_' + name;
+        // New wallets: the folder is the UUID id. Legacy wallets: the folder is the name.
+        final isUuidFolder = Uuid.isValidUUID(fromString: folderName);
+        final id = isUuidFolder ? folderName : WalletBase.idFor(folderName, type);
+        final name = isUuidFolder ? walletTypeToDisplayName(type) : folderName;
 
         if (existingIds.contains(id)) {
           continue;
@@ -885,7 +888,7 @@ Future<void> _validateWalletInfoBoxData() async {
           restoreHeight: 0,
           date: DateTime.now(),
           dirPath: dir.path,
-          path: '${dir.path}/$name',
+          path: "${dir.path}/$folderName",
           address: '',
           showIntroCakePayCard: false,
         );
@@ -1061,7 +1064,7 @@ Future<void> addAddressesForMoneroWallets() async {
       (await WalletInfo.getAll()).where((info) => info.type == WalletType.monero);
   moneroWalletsInfo.forEach((info) async {
     try {
-      final walletPath = await pathForWallet(name: info.name, type: WalletType.monero);
+      final walletPath = await pathForWalletOf(info);
       final addressFilePath = '$walletPath.address.txt';
       final addressFile = File(addressFilePath);
 

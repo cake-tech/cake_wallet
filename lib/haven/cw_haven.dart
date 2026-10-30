@@ -18,24 +18,6 @@ class HavenWalletService extends WalletService {
   WalletType getType() => WalletType.haven;
 
   @override
-  Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: getType());
-
-    final file = Directory(path);
-    final isExist = file.existsSync();
-
-    if (isExist) {
-      await file.delete(recursive: true);
-    }
-
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-    await WalletInfo.delete(walletInfo);
-  }
-
-  @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> create(
       WalletCredentials credentials,
       {bool? isTestnet}) {
@@ -43,18 +25,16 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<bool> isWalletExit(String name) {
-    throw UnimplementedError();
-  }
+  Future<bool> isWalletExit(WalletInfo walletInfo) => throw UnimplementedError();
 
   @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(
-      String name, String password) {
+      WalletInfo walletInfo, String password) {
     throw UnimplementedError();
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) {
+  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) {
     throw UnimplementedError();
   }
 

@@ -8,6 +8,7 @@ import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bl
 import "package:cake_wallet/new-ui/widgets/account_confirmation_content.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/select_background_color_widget.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";

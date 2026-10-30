@@ -1,22 +1,56 @@
-import 'package:cw_core/wallet_info.dart';
+import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cw_core/wallet_info.dart";
 
 class WalletGroup {
-  WalletGroup(this.groupKey) : wallets = [];
+  WalletGroup(
+      this.groupKey, {
+        List<WalletInfo> wallets = const [],
+        this.groupName,
+        this.icon,
+        this.canManageNetworks = false,
+      }) : wallets = List.unmodifiable(wallets);
 
-  /// Primary identifier for the group. Previously was `parentAddress`.
-  /// Now we store either the wallet's hash OR fallback to parentAddress/address.
+
   final String groupKey;
-
-  /// Child wallets that share the same group key
   final List<WalletInfo> wallets;
+  final String? groupName;
+  final WalletIcon? icon;
 
-  /// Custom name for the group, editable for multi-child wallet groups
-  String? groupName;
+  final bool canManageNetworks;
 
-  /// Allows editing of the group name (only for multi-child groups).
-  void setCustomName(String name) {
-    if (wallets.length > 1) {
-      groupName = name;
+  WalletGroup copyWith({
+    List<WalletInfo>? wallets,
+    String? groupName,
+    WalletIcon? icon,
+    bool? canManageNetworks,
+  }) =>
+      WalletGroup(
+        groupKey,
+        wallets: wallets ?? this.wallets,
+        groupName: groupName ?? this.groupName,
+        icon: icon ?? this.icon,
+        canManageNetworks: canManageNetworks ?? this.canManageNetworks,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is WalletGroup &&
+              other.groupKey == groupKey &&
+              other.groupName == groupName &&
+              other.icon == icon &&
+              other.canManageNetworks == canManageNetworks &&
+              _sameWallets(other.wallets, wallets);
+
+  @override
+  int get hashCode => Object.hash(groupKey, groupName, icon, canManageNetworks,
+      Object.hashAll(wallets.map((w) => w.id)));
+
+  static bool _sameWallets(List<WalletInfo> a, List<WalletInfo> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i].id != b[i].id) return false;
     }
+    return true;
   }
 }
