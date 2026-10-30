@@ -38,17 +38,12 @@ const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
   P2shAddressType.p2wpkhInP2sh,
 ];
 
-/// The [BITCOIN_ADDRESS_TYPES] a wallet only derives, syncs and offers once the user enables them in
-/// the wallet settings. Saved records of these types stay in the wallet file, but nothing is fetched
-/// for them while they are off, even if they were used before.
 const List<BitcoinAddressType> OPTIONAL_BITCOIN_ADDRESS_TYPES = [
   P2pkhAddressType.p2pkh,
   SegwitAddresType.p2wsh,
   P2shAddressType.p2wpkhInP2sh,
 ];
 
-/// Whether a [walletType] wallet derives and syncs [type], given the optional types the user
-/// enabled. Only Bitcoin has optional types; every type of the other coins is always on.
 bool isAddressTypeEnabledFor(
   WalletType walletType,
   BitcoinAddressType type, {
@@ -209,7 +204,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final bool isHardwareWallet;
   LightningWallet? lightningWallet;
 
-  /// The [OPTIONAL_BITCOIN_ADDRESS_TYPES] the user enabled, shared with the wallet that owns it.
   final Set<BitcoinAddressType> enabledOptionalAddressTypes;
 
   bool isAddressTypeEnabled(BitcoinAddressType type) => isAddressTypeEnabledFor(
@@ -218,12 +212,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         enabledOptionalAddressTypes: enabledOptionalAddressTypes,
       );
 
-  /// The [BITCOIN_ADDRESS_TYPES] this wallet derives and syncs.
   List<BitcoinAddressType> get enabledBitcoinAddressTypes =>
       BITCOIN_ADDRESS_TYPES.where(isAddressTypeEnabled).toList();
 
-  /// The records of enabled types: the only ones the wallet subscribes to and fetches history,
-  /// UTXOs and balances for. Records of disabled types are kept as saved, never fetched.
   List<BitcoinAddressRecord> get activeAddresses =>
       _addresses.where((addressRecord) => isAddressTypeEnabled(addressRecord.type)).toList();
 
@@ -468,7 +459,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.bitcoin) {
       for (final accountIndex in effectiveAccountIndexes) {
-
         await prepareAccountAddresses(
           accountIndex,
           types: accountIndex == 0 ? enabledBitcoinAddressTypes : EXTRA_ACCOUNT_ADDRESS_TYPES,
@@ -650,7 +640,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   void addBitcoinAddressTypes(String activeAddress) {
     final lastP2wpkh = _addresses
         .where((addressRecord) =>
-        _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
         .lastOrNull;
     if (lastP2wpkh != null) {
       if (lastP2wpkh.address != activeAddress) {
@@ -661,7 +651,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final lastP2pkh = _addresses.firstWhereOrNull(
-            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
     if (lastP2pkh != null) {
       if (lastP2pkh.address != activeAddress) {
         addressesMap[lastP2pkh.address] = 'P2PKH';
@@ -681,7 +671,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final lastP2tr = _addresses.firstWhereOrNull(
-            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
     if (lastP2tr != null) {
       if (lastP2tr.address != activeAddress) {
         addressesMap[lastP2tr.address] = 'P2TR';
@@ -691,7 +681,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final lastP2wsh = _addresses.firstWhereOrNull(
-            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
     if (lastP2wsh != null) {
       if (lastP2wsh.address != activeAddress) {
         addressesMap[lastP2wsh.address] = 'P2WSH';
@@ -1111,7 +1101,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {
-
     final needsAccountScopedHd =
         type is! LightningAddressType && type != SilentPaymentsAddresType.p2sp;
 
@@ -1164,7 +1153,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateChangeAddresses();
     await updateAddressesInBox();
   }
-
 
   bool _isAddressTypeSupportedForAccount(BitcoinAddressType type, int accountIndex) {
     final effectiveAccountIndex = walletInfo.type == WalletType.bitcoin ? accountIndex : 0;

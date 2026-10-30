@@ -56,8 +56,6 @@ class ElectrumWalletSnapshot {
   bool useLightning;
   String? cachedLightningAddress;
 
-  /// Empty for wallets saved before address types could be turned off, so they start with only
-  /// the default types on, like new wallets.
   Set<BitcoinAddressType> enabledOptionalAddressTypes;
 
   ElectrumBalance balance;
