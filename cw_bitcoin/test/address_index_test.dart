@@ -104,6 +104,8 @@ class _Addresses extends BitcoinWalletAddresses {
           isHardwareWallet: false,
           payjoinManager: _NoPayjoin(),
           initialAddresses: records,
+          // These tests cover a user who enabled legacy addresses in the settings.
+          enabledOptionalAddressTypes: {P2pkhAddressType.p2pkh},
         );
 
   @override

@@ -39,6 +39,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialSilentAddressIndex = 0,
     super.masterHd,
     super.lightningWallet,
+    super.enabledOptionalAddressTypes,
   }) : super(walletInfo);
 
   final PayjoinManager payjoinManager;
@@ -110,7 +111,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       ];
     }
     return [
-      ...BitcoinReceivePageOption.all,
+      ...BitcoinReceivePageOption.all.where((option) => isAddressTypeEnabled(option.toType())),
       ...ReceivePageOptions.where((element) => element != ReceivePageOption.mainnet)
     ];
   }

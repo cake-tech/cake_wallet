@@ -130,6 +130,7 @@ import 'package:cake_wallet/src/screens/settings/privacy_page.dart';
 import 'package:cake_wallet/src/screens/settings/security_backup_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_logs_page.dart';
 import 'package:cake_wallet/src/screens/settings/silent_payments_settings.dart';
+import 'package:cake_wallet/src/screens/settings/address_types_settings_page.dart';
 import 'package:cake_wallet/new-ui/pages/wallet_accounts_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/modify_2fa_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa.dart';
@@ -241,6 +242,7 @@ import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/security_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_model.dart';
+import 'package:cake_wallet/view_model/settings/address_types_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/trocador_providers_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/start_tor_view_model.dart';
@@ -1089,6 +1091,12 @@ Future<void> setup({
       () => SilentPaymentsSettingsPage(getIt.get<SilentPaymentsSettingsViewModel>()));
 
   getIt.registerFactory(() => SilentPaymentsLogPage(getIt.get<SilentPaymentsSettingsViewModel>()));
+
+  getIt.registerFactory(
+      () => AddressTypesSettingsViewModel(getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory(() => AddressTypesSettingsPage(
+      addressTypesSettingsViewModel: getIt.get<AddressTypesSettingsViewModel>()));
 
   getIt.registerFactory(() => MwebSettingsPage(getIt.get<MwebSettingsViewModel>()));
 

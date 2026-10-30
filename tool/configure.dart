@@ -154,6 +154,7 @@ import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
@@ -262,6 +263,9 @@ abstract class Bitcoin {
   Future<void> setScanningActive(Object wallet, bool active);
   Future<void> setIsAlwaysScanningSP(Object wallet, bool active);
   bool getIsAlwaysScanningSP(Object wallet);
+  List<ReceivePageOption> getOptionalAddressTypeOptions(Object wallet);
+  bool isAddressTypeEnabled(Object wallet, ReceivePageOption option);
+  Future<void> setAddressTypeEnabled(Object wallet, ReceivePageOption option, bool enabled);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
