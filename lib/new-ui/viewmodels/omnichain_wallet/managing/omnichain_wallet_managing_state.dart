@@ -13,6 +13,7 @@ class OmniChainWalletManagingState {
     this.isLoading = false,
     this.error,
     this.closeRequested = false,
+    this.canManageNetworks = false,
   });
 
   final WalletType? currentNetwork;
@@ -24,6 +25,9 @@ class OmniChainWalletManagingState {
   final String? error;
   final bool closeRequested;
 
+  /// false until loaded, so "Manage" stays disabled while the group is checked.
+  final bool canManageNetworks;
+
   OmniChainWalletManagingState copyWith({
     WalletType? currentNetwork,
     List<WalletInfo>? wallets,
@@ -33,6 +37,7 @@ class OmniChainWalletManagingState {
     bool? isLoading,
     String? error,
     bool? closeRequested,
+    bool? canManageNetworks,
   }) =>
       OmniChainWalletManagingState(
         currentNetwork: currentNetwork ?? this.currentNetwork,
@@ -44,5 +49,6 @@ class OmniChainWalletManagingState {
         isLoading: isLoading ?? this.isLoading,
         error: error,
         closeRequested: closeRequested ?? this.closeRequested,
+        canManageNetworks: canManageNetworks ?? this.canManageNetworks,
       );
 }

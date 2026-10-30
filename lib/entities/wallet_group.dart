@@ -7,6 +7,7 @@ class WalletGroup {
         List<WalletInfo> wallets = const [],
         this.groupName,
         this.icon,
+        this.canManageNetworks = false,
       }) : wallets = List.unmodifiable(wallets);
 
 
@@ -15,16 +16,20 @@ class WalletGroup {
   final String? groupName;
   final WalletIcon? icon;
 
+  final bool canManageNetworks;
+
   WalletGroup copyWith({
     List<WalletInfo>? wallets,
     String? groupName,
     WalletIcon? icon,
+    bool? canManageNetworks,
   }) =>
       WalletGroup(
         groupKey,
         wallets: wallets ?? this.wallets,
         groupName: groupName ?? this.groupName,
         icon: icon ?? this.icon,
+        canManageNetworks: canManageNetworks ?? this.canManageNetworks,
       );
 
   @override
@@ -34,11 +39,12 @@ class WalletGroup {
               other.groupKey == groupKey &&
               other.groupName == groupName &&
               other.icon == icon &&
+              other.canManageNetworks == canManageNetworks &&
               _sameWallets(other.wallets, wallets);
 
   @override
-  int get hashCode =>
-      Object.hash(groupKey, groupName, icon, Object.hashAll(wallets.map((w) => w.id)));
+  int get hashCode => Object.hash(groupKey, groupName, icon, canManageNetworks,
+      Object.hashAll(wallets.map((w) => w.id)));
 
   static bool _sameWallets(List<WalletInfo> a, List<WalletInfo> b) {
     if (a.length != b.length) return false;

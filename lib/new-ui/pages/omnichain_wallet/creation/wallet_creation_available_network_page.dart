@@ -42,15 +42,14 @@ class WalletCreationTypeSelectionPage extends BasePage {
   String get title => "Wallet Networks";
 
   bool isSupportedHardwareWalletType(WalletType type) {
-    if (newWalletTypeArguments.hardwareWalletType == null) return true;
+    final hardwareWalletType = newWalletTypeArguments.hardwareWalletType;
+    if (hardwareWalletType == null) return true;
 
-    final supportedConnectionTypes = DeviceConnectionType.supportedConnectionTypes(
+    return DeviceConnectionType.supportedConnectionTypes(
       type,
-      newWalletTypeArguments.hardwareWalletType!,
-      Platform.isIOS,
-    );
-
-    return supportedConnectionTypes.isNotEmpty;
+      hardwareWalletType,
+      isIOS: Platform.isIOS,
+    ).isNotEmpty;
   }
 
   @override

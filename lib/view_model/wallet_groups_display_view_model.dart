@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import "package:cake_wallet/core/services/wallet_group_service.dart";
-import 'package:cake_wallet/reactions/wallet_utils.dart';
+import 'package:cake_wallet/new-ui/utils/omnichain_compatibility.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
@@ -55,14 +55,24 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     return singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
   }
 
+  /// Throws [GroupNotOmnichainCompatibleException] if the selected group/wallet's seed
+  /// can't be reused for another network.
   @action
   Future<String?> getSelectedWalletMnemonic() async {
     final WalletInfo walletInfo;
 
     if (selectedWalletGroup != null) {
-      walletInfo = selectedWalletGroup!.wallets.first;
+      final group = selectedWalletGroup!;
+      if (!await isOmnichainCompatibleGroup(group.wallets)) {
+        throw GroupNotOmnichainCompatibleException(group.groupKey);
+      }
+      // Seed source: a ready wallet (placeholders have no seed); all of them passed the rule.
+      walletInfo = group.wallets.firstWhere((w) => w.isReady);
     } else {
       walletInfo = selectedSingleWallet!;
+      if (!await isOmnichainCompatible(walletInfo)) {
+        throw GroupNotOmnichainCompatibleException(_walletManager.resolveGroupKey(walletInfo));
+      }
     }
 
     try {
@@ -102,47 +112,13 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
 
     // Iterate through the wallet groups to filter and categorize wallets
     for (var group in walletGroups) {
-      // Handle group wallet filtering
-      bool shouldExcludeGroup = false;
-      for (final wallet in group.wallets) {
-        // Check for non-BIP39 wallet types
-        bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
+      // A group that already has the selected type can't get another wallet of it.
+      final hasSelectedType = group.wallets.any((wallet) => wallet.type == type);
+      if (hasSelectedType) continue;
 
-        // Check for nano derivation type
-        final di = await wallet.getDerivationInfo();
-        bool isNanoDerivationType =
-            wallet.type == WalletType.nano && di.derivationType == DerivationType.nano;
-
-        // Check for electrum derivation type
-        bool isElectrumDerivationType =
-            (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
-                di.derivationType == DerivationType.electrum;
-
-        // Check that selected wallet type is not present already in group
-        bool isSameTypeAsSelectedWallet = wallet.type == type;
-
-        bool isNonSeedWallet = wallet.isNonSeedWallet;
-
-        bool isNotBip39CoinWallet =
-            (wallet.type == WalletType.monero || wallet.type == WalletType.zano) &&
-                di.derivationType != DerivationType.bip39;
-
-        bool isNotDecredBip39Wallet = wallet.type == WalletType.decred &&
-            di.derivationType != DerivationType.bip39 &&
-            di.derivationType != DerivationType.unknown;
-
-        // Exclude if any of these conditions are true
-        shouldExcludeGroup = shouldExcludeGroup ||
-            isNonBIP39Wallet ||
-            isNanoDerivationType ||
-            isElectrumDerivationType ||
-            isSameTypeAsSelectedWallet ||
-            isNonSeedWallet ||
-            isNotBip39CoinWallet ||
-            isNotDecredBip39Wallet;
-      }
-
-      if (shouldExcludeGroup) continue;
+      // Its seed is reused for the new wallet, so the group must pass the omnichain rule
+      // (computed by WalletGroupService.updateWalletGroups above).
+      if (!group.canManageNetworks) continue;
 
       // If the group passes the filters, add it to the wallets list
       wallets.add(group);

@@ -2,6 +2,8 @@ import "dart:async";
 
 import "package:cake_wallet/entities/wallet_group.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/new-ui/utils/omnichain_compatibility.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_group_db_entry.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:rxdart/rxdart.dart";
@@ -33,6 +35,8 @@ class WalletGroupService {
   }
 
   List<WalletInfo> getWalletsInGroup(String groupKey) => _find(groupKey)?.wallets ?? const [];
+
+  WalletGroup? getGroup(String groupKey) => _find(groupKey);
 
   String? getGroupName(WalletInfo walletInfo) => _persistedGroupOf(walletInfo)?.groupName;
 
@@ -105,7 +109,11 @@ class WalletGroupService {
     try {
       final allWallets = await WalletInfo.getAll();
       final persisted = {for (final g in await WalletGroupDbEntry.getAll()) g.id: g};
-      _emit(_buildGroups(allWallets, persisted));
+      final built = _buildGroups(allWallets, persisted);
+      _emit([
+        for (final g in built)
+          g.copyWith(canManageNetworks: await _computeCanManageNetworks(g.wallets)),
+      ]);
     } finally {
       done.complete();
     }
@@ -120,11 +128,16 @@ class WalletGroupService {
         ...groups,
         WalletGroup(key, wallets: [walletInfo])
       ]);
+      _scheduleCanManageNetworksRefresh(key);
       return;
     }
     if (existing.wallets.contains(walletInfo)) return;
 
-    _replaceGroup(key, (g) => g.copyWith(wallets: [...g.wallets, walletInfo]));
+    _replaceGroup(
+      key,
+      (g) => g.copyWith(wallets: [...g.wallets, walletInfo], canManageNetworks: false),
+    );
+    _scheduleCanManageNetworksRefresh(key);
   }
 
   void removeWallet(WalletInfo walletInfo) {
@@ -136,8 +149,49 @@ class WalletGroupService {
     if (remaining.isEmpty) {
       _emit(groups.where((g) => g.groupKey != key).toList());
     } else {
-      _replaceGroup(key, (g) => g.copyWith(wallets: remaining));
+      _replaceGroup(key, (g) => g.copyWith(wallets: remaining, canManageNetworks: false));
+      _scheduleCanManageNetworksRefresh(key);
     }
+  }
+
+  Future<bool> _computeCanManageNetworks(List<WalletInfo> wallets) async {
+    try {
+      return await isOmnichainCompatibleGroup(wallets);
+    } catch (e) {
+      printV("WalletGroupService: canManageNetworks check failed: $e");
+      return false;
+    }
+  }
+
+  void _scheduleCanManageNetworksRefresh(String groupKey) {
+    final waitFor = _lastUpdate;
+    final done = Completer<void>();
+    _lastUpdate = done.future;
+
+    unawaited(() async {
+      try {
+        await waitFor;
+        final group = _find(groupKey);
+        if (group == null) return;
+        final walletIds = group.wallets.map((w) => w.id).toList();
+        final canManage = await _computeCanManageNetworks(group.wallets);
+        // Only apply if the wallets didn't change meanwhile (a newer refresh is queued then).
+        _replaceGroup(
+          groupKey,
+          (g) => _sameIds(g.wallets, walletIds) ? g.copyWith(canManageNetworks: canManage) : g,
+        );
+      } finally {
+        done.complete();
+      }
+    }());
+  }
+
+  static bool _sameIds(List<WalletInfo> wallets, List<String> ids) {
+    if (wallets.length != ids.length) return false;
+    for (var i = 0; i < ids.length; i++) {
+      if (wallets[i].id != ids[i]) return false;
+    }
+    return true;
   }
 
   void _emit(List<WalletGroup> next) => _subject.add(List.unmodifiable(next));

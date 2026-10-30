@@ -1,5 +1,5 @@
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
-import "package:cake_wallet/reactions/wallet_utils.dart";
+import "package:cake_wallet/new-ui/utils/omnichain_compatibility.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_group_db_entry.dart";
 import "package:cw_core/wallet_info.dart";
@@ -14,7 +14,7 @@ import "package:uuid/uuid.dart";
 /// SharedPreferences under `wallet_group_name_<key>`.
 ///
 /// A legacy group is kept together only if it is a valid omnichain group:
-/// 2+ wallets, all BIP39-derived, no hardware wallets, no duplicate wallet types.
+/// 2+ wallets, no duplicate wallet types, every wallet passes `isOmnichainCompatible`.
 /// Every other wallet becomes its own single-wallet group.
 ///
 /// Idempotent: wallets already pointing to an existing group row are skipped, so it is
@@ -158,15 +158,8 @@ Future<String?> _splitReason(List<WalletInfo> wallets) async {
   final types = <WalletType>{};
   for (final wallet in wallets) {
     if (!types.add(wallet.type)) return "duplicate type ${wallet.type.name}";
-    if (!isBIP39Wallet(wallet.type)) return "${wallet.type.name} is not a BIP39 type";
-    if (wallet.hardwareWalletType != null) return "${wallet.type.name} is a hardware wallet";
-
-    // These types are always BIP39 in Cake, and often don't store their derivation type.
-    if (alwaysBip39Types.contains(wallet.type)) continue;
-
-    final derivation = await wallet.getDerivationInfo();
-    if (derivation.derivationType != DerivationType.bip39) {
-      return "${wallet.type.name} derivationType=${derivation.derivationType?.name}";
+    if (!await isOmnichainCompatible(wallet)) {
+      return "${wallet.type.name} is not omnichain compatible";
     }
   }
   return null;

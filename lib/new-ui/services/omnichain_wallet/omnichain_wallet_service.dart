@@ -3,11 +3,13 @@ import "package:cake_wallet/core/wallet_loading_service.dart";
 import "package:cake_wallet/entities/seed_type.dart";
 import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/omnichain_create_group_request.dart";
+import "package:cake_wallet/new-ui/utils/omnichain_compatibility.dart";
 import "package:cake_wallet/src/widgets/seed_language_picker.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/wallet_new_vm.dart";
 import "package:cake_wallet/zcash/zcash_network_type.dart";
 import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:uuid/uuid.dart";
@@ -43,6 +45,26 @@ class OmniChainWalletCreationService {
     final groupKey = walletManager.resolveGroupKey(currentWalletInfo);
 
     return walletManager.getWalletsInGroup(groupKey);
+  }
+
+  /// From the last group refresh (e.g. [getCurrentWalletGroupWallets]). For UI gating only;
+  /// the actions below re-check against the DB.
+  bool currentGroupCanManageNetworks() {
+    final currentWalletInfo = appStore.wallet?.walletInfo;
+    if (currentWalletInfo == null) return false;
+    final groupKey = walletManager.resolveGroupKey(currentWalletInfo);
+    return walletManager.getGroup(groupKey)?.canManageNetworks ?? false;
+  }
+
+  /// Throws [GroupNotOmnichainCompatibleException] unless the group's wallets, read fresh
+  /// from the DB, may get networks derived from their seed.
+  Future<void> _ensureGroupCanManageNetworks(String groupKey) async {
+    final wallets = (await WalletInfo.getAll())
+        .where((w) => walletManager.resolveGroupKey(w) == groupKey)
+        .toList();
+    if (!await isOmnichainCompatibleGroup(wallets)) {
+      throw GroupNotOmnichainCompatibleException(groupKey);
+    }
   }
 
   String _memberWalletName(WalletType type, String groupId) =>
@@ -103,6 +125,14 @@ class OmniChainWalletCreationService {
 
       final restTypesRaw = types.where((type) => type != primaryType).toList();
 
+      // The other networks get derived from the primary wallet's seed. If seed settings gave
+      // it a non-BIP39 seed (Electrum BTC/LTC, Nano-standard), keep the group single-type.
+      if (restTypesRaw.isNotEmpty && !await isOmnichainCompatible(wallet.walletInfo)) {
+        printV("createGroup: ${primaryType.name} seed is not omnichain compatible, "
+            "skipping ${restTypesRaw.length} other networks");
+        restTypesRaw.clear();
+      }
+
       await _createWalletPlaceholders(
         groupId: groupId,
         restTypes: restTypesRaw,
@@ -124,6 +154,14 @@ class OmniChainWalletCreationService {
     final currentWallet = appStore.wallet;
     if (currentWallet == null) {
       throw Exception('Current wallet is null');
+    }
+
+    // Deriving a new network from the current wallet's seed: the placeholder's group must
+    // allow it, and the seed's source wallet must pass the rule itself.
+    final groupKey = walletManager.resolveGroupKey(walletInfo);
+    await _ensureGroupCanManageNetworks(groupKey);
+    if (!await isOmnichainCompatible(currentWallet.walletInfo)) {
+      throw GroupNotOmnichainCompatibleException(groupKey);
     }
 
     final mnemonic = currentWallet.seed;
@@ -156,6 +194,7 @@ class OmniChainWalletCreationService {
     if (currentInfo == null) throw Exception('No current wallet');
 
     final groupKey = walletManager.resolveGroupKey(currentInfo);
+    await _ensureGroupCanManageNetworks(groupKey);
     final groupName = walletManager.getGroupName(currentInfo) ?? '';
 
     // existing group types (incl. the current wallet)

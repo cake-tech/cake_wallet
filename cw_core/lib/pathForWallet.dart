@@ -61,6 +61,10 @@ Future<String> pathForWalletOf(WalletInfo info) async {
 Future<String> walletDirPathOf(WalletInfo info) async =>
     p.join(await pathForWalletTypeDir(type: info.type), _dirNameOf(info));
 
+// <appDir>/wallets/<type>/<dirName>/<dirName> — path only, no side effects
+Future<String> walletFilePathOf(WalletInfo info) async =>
+    p.join(await walletDirPathOf(info), _dirNameOf(info));
+
 Future<String> outdatedAndroidPathForWalletDir({required String name}) async {
   final directory = await getAppDir();
   return p.join(directory.path, name);

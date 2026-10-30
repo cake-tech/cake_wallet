@@ -1,11 +1,13 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/utils/omnichain_compatibility.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -148,7 +150,13 @@ class WalletGroupsDisplayBody extends StatelessWidget {
   }
 
   Future<void> onTypeSelected(BuildContext context) async {
-    final mnemonic = await walletGroupsDisplayViewModel.getSelectedWalletMnemonic();
+    final String? mnemonic;
+    try {
+      mnemonic = await walletGroupsDisplayViewModel.getSelectedWalletMnemonic();
+    } on GroupNotOmnichainCompatibleException catch (e) {
+      if (context.mounted) showBar<void>(context, e.message);
+      return;
+    }
     if (context.mounted) {
       Navigator.of(context).pushNamed(
         Routes.newWallet,

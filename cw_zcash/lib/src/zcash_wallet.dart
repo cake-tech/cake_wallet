@@ -1615,7 +1615,7 @@ abstract class ZcashWalletBase
       hw: 2,
       aIndex: credentials.accountIndex,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1672,34 +1672,24 @@ abstract class ZcashWalletBase
     return accountId;
   }
 
-  static Future<int?> getLegacyZcashAccountIdForName(final WalletInfo walletInfo) async {
-    final wPath = await pathForWalletOf(walletInfo);
-    final f = File(wPath);
-    if (!f.existsSync()) {
-      final accs = await zkool_account.listAccounts(c: c);
-      for (final acc in accs) {
-        if (acc.name == walletInfo.name) {
-          return acc.id;
-        }
-      }
-    }
-    final content = f.readAsStringSync();
-    return int.tryParse(content.trim());
-  }
+  static Future<int?> getZcashAccountIdForName(final WalletInfo walletInfo) =>
+      _readAccountId(walletInfo, suffix: ".v2");
 
-  static Future<int?> getZcashAccountIdForName(final WalletInfo walletInfo) async {
-    final wPath = "${await pathForWalletOf(walletInfo)}.v2";
-    final f = File(wPath);
-    if (!f.existsSync()) {
-      final accs = await zkool_account.listAccounts(c: c);
-      for (final acc in accs) {
-        if (acc.name == walletInfo.name) {
-          return acc.id;
-        }
-      }
+  static Future<int?> getLegacyZcashAccountIdForName(final WalletInfo walletInfo) =>
+      _readAccountId(walletInfo, suffix: "");
+
+  static Future<int?> _readAccountId(final WalletInfo walletInfo, {required String suffix}) async {
+    final file = File("${await walletFilePathOf(walletInfo)}$suffix");
+    if (file.existsSync()) {
+      return int.tryParse(file.readAsStringSync().trim());
     }
-    final content = f.readAsStringSync();
-    return int.tryParse(content.trim());
+
+    // No id file. The name fallback is only safe for legacy wallets (unique, user-chosen
+    // names). UUID wallets all share their network name, so a match could be another wallet.
+    if (isUuidWallet(walletInfo)) return null;
+
+    final accounts = await zkool_account.listAccounts(c: c);
+    return accounts.where((a) => a.name == walletInfo.name).firstOrNull?.id;
   }
 
   static Future<void> saveAccountId(final WalletInfo walletInfo, final int accountId) async {

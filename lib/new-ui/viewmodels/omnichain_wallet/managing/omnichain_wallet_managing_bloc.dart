@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
+import 'package:cake_wallet/new-ui/utils/omnichain_compatibility.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_event.dart';
 import 'package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_state.dart';
 
@@ -39,6 +40,7 @@ class OmniChainWalletManagingBloc
         filteredWallets: _filterWallets(otherWallets, state.searchQuery),
         isLoading: false,
         error: null,
+        canManageNetworks: omniChainWalletCreationService.currentGroupCanManageNetworks(),
       ));
     } catch (e) {
       emit(state.copyWith(
@@ -83,6 +85,8 @@ class OmniChainWalletManagingBloc
     try {
       await omniChainWalletCreationService.activatePlaceholderWallet(event.walletInfo);
       emit(state.copyWith(isLoading: false, closeRequested: true));
+    } on GroupNotOmnichainCompatibleException catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.message, canManageNetworks: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -96,6 +100,8 @@ class OmniChainWalletManagingBloc
     try {
       await omniChainWalletCreationService.addNetworksToCurrentGroup(event.types);
       add(OmniChainWalletManagingLoaded());
+    } on GroupNotOmnichainCompatibleException catch (e) {
+      emit(state.copyWith(isLoading: false, error: e.message, canManageNetworks: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }

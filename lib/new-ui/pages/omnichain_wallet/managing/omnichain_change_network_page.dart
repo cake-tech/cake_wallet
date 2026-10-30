@@ -148,7 +148,25 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                             SingleChildScrollView(
                               physics: const AlwaysScrollableScrollPhysics(),
                               padding: const EdgeInsets.only(bottom: 112),
-                              child: NewListSections(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (!state.isLoading && !state.canManageNetworks)
+                                    Padding(
+                                      key: const ValueKey(
+                                        "change_network_manage_unsupported_text_key",
+                                      ),
+                                      padding: const EdgeInsets.only(bottom: 16),
+                                      child: Text(
+                                        // TODO(serhii): localize
+                                        "This wallet's seed type doesn't support other networks",
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color:
+                                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ),
+                                  NewListSections(
                                 showHeader: true,
                                 sections: {
                                   currentSectionTitle: isEvm
@@ -216,6 +234,8 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                   ],
                                 },
                               ),
+                                ],
+                              ),
                             ),
                             Align(
                               alignment: Alignment.bottomCenter,
@@ -243,7 +263,9 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                                 "change_network_wallet_manage_button_key",
                                               ),
                                               buttonText: 'Manage',
-                                              onPressed: () async {
+                                              onPressed: !state.canManageNetworks
+                                                  ? null
+                                                  : () async {
                                                 final bloc =
                                                     context.read<OmniChainWalletManagingBloc>();
                                                 final s = bloc.state;
