@@ -1,4 +1,5 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/asset_details_modal.dart';
+import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,8 @@ class AssetsSection extends StatelessWidget {
 
   final DashboardViewModel dashboardViewModel;
 
+  List<BalanceRecord> _visibleBalances() => dashboardViewModel.balanceViewModel.formattedBalances;
+
   @override
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
@@ -18,12 +21,12 @@ class AssetsSection extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 64.0),
         child: Observer(builder: (context) {
           final hasMweb = dashboardViewModel.hasMweb && dashboardViewModel.mwebEnabled;
+          final visibleBalances = _visibleBalances();
           return ListView.separated(
             shrinkWrap: true,
             padding: EdgeInsets.symmetric(vertical: 18),
             physics: NeverScrollableScrollPhysics(),
-            itemCount:
-                dashboardViewModel.balanceViewModel.formattedBalances.length + (hasMweb ? 1 : 0),
+            itemCount: visibleBalances.length + (hasMweb ? 1 : 0),
             separatorBuilder: (context, index) => Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18.0),
               child: Container(
@@ -57,15 +60,14 @@ class AssetsSection extends StatelessWidget {
                   );
                 }
 
-                final balance =
-                    dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
+                final balance = visibleBalances.elementAt(index);
                 return AssetTile(
                   showSwap: dashboardViewModel.isEnabledSwapAction,
                   showBridgeButton: dashboardViewModel.showBridge(balance.asset),
                   balance: balance,
                   wallet: dashboardViewModel.wallet,
                   isFirst: index == 0,
-                  isLast: index == dashboardViewModel.balanceViewModel.formattedBalances.length - 1,
+                  isLast: index == visibleBalances.length - 1,
                   chainIconPath: _getChainIconPath(),
                 );
               });

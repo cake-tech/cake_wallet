@@ -1,6 +1,9 @@
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/utils/show_bar.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/conversion_timeline_card.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -11,14 +14,15 @@ import "package:cake_wallet/src/screens/transaction_details/transaction_details_
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
+import "package:cake_wallet/entities/conversion_display.dart";
+import "package:cake_wallet/entities/conversion_status.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class TransactionDetailsModal extends StatefulWidget {
-  const TransactionDetailsModal(
-      {
+  const TransactionDetailsModal({
     required this.transactionDetailsViewModel,
     this.highlightNoteField = false,
     super.key,
@@ -34,6 +38,35 @@ class TransactionDetailsModal extends StatefulWidget {
 class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
   final TextEditingController noteController = TextEditingController();
   final FocusNode noteFocusNode = FocusNode();
+
+  ConversionDisplay? get _conversionDisplay => ConversionDisplayUtils.displayFrom(
+      widget.transactionDetailsViewModel.transactionInfo.additionalInfo);
+
+  bool _refunding = false;
+
+  Future<void> _requestRefund() async {
+    setState(() => _refunding = true);
+
+    var requested = false;
+    try {
+      requested = await widget.transactionDetailsViewModel.requestConversionRefund();
+    } catch (e) {
+      printV("TransactionDetailsModal: refund request failed: $e");
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() => _refunding = false);
+
+    await showBar<void>(
+      context,
+      requested
+          ? S.of(context).conversion_refund_requested
+          : S.of(context).conversion_refund_request_failed,
+    );
+  }
 
   @override
   void initState() {
@@ -82,11 +115,52 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             size: 64,
                           ),
                           const SizedBox(height: 10),
-                          Text(
-                            widget.transactionDetailsViewModel.formattedTitle +
-                                widget.transactionDetailsViewModel.formattedStatus,
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
-                          ),
+                          Builder(builder: (context) {
+                            final display = _conversionDisplay;
+                            final paidFrom = ConversionDisplayUtils.paidFromLabel(
+                                widget.transactionDetailsViewModel.transactionInfo.additionalInfo);
+                            // A conversion is always framed as receiving the destination asset -
+                            // never "Sent", even when this specific payment record's own
+                            // direction is outgoing (e.g. the token side of a BTC -> token
+                            // conversion, or a self-paid invoice's own bookkeeping).
+                            final title = display != null
+                                ? S.of(context).received
+                                : widget.transactionDetailsViewModel.formattedTitle;
+                            return Column(
+                              children: [
+                                Text(
+                                  // A conversion's own "Converting to …" line below already says
+                                  // it's pending.
+                                  display != null
+                                      ? title
+                                      : title + widget.transactionDetailsViewModel.formattedStatus,
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
+                                ),
+                                if (display == null && paidFrom != null)
+                                  Text(
+                                    S.of(context).stable_balance_send_paid_from(paidFrom),
+                                    key: const ValueKey("transaction_details_paid_from"),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                if (display != null &&
+                                    !ConversionDisplayUtils.needsAttention(display.status))
+                                  Text(
+                                    display.status == ConversionStatus.pending
+                                        ? S.of(context).conversion_converting_to(display.toLabel)
+                                        : S
+                                            .of(context)
+                                            .conversion_converted_from(display.fromLabel),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                              ],
+                            );
+                          }),
                           Observer(
                             builder: (_) => CopyWrapper(
                               requireLongPress: true,
@@ -115,6 +189,17 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                             child: Column(
                               spacing: 12,
                               children: [
+                                if (_conversionDisplay != null)
+                                  Observer(builder: (_) {
+                                    final vm = widget.transactionDetailsViewModel;
+                                    return ConversionTimelineCard(
+                                      display: _conversionDisplay!,
+                                      paymentReceivedAt: vm.transactionInfo.date,
+                                      onRequestRefund:
+                                          vm.canRequestConversionRefund ? _requestRefund : null,
+                                      refunding: _refunding,
+                                    );
+                                  }),
                                 NewListSections(
                                   sections: {
                                     "": widget.transactionDetailsViewModel.items
