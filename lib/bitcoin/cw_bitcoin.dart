@@ -635,6 +635,23 @@ class CWBitcoin extends Bitcoin {
   bool getIsAlwaysScanningSP(Object wallet) => (wallet as ElectrumWallet).alwaysScan ?? false;
 
   @override
+  List<ReceivePageOption> getOptionalAddressTypeOptions(Object wallet) {
+    if ((wallet as ElectrumWallet).walletInfo.isHardwareWallet) return [];
+
+    return OPTIONAL_BITCOIN_ADDRESS_TYPES.map(BitcoinReceivePageOption.fromType).toList();
+  }
+
+  @override
+  bool isAddressTypeEnabled(Object wallet, ReceivePageOption option) => (wallet as ElectrumWallet)
+      .isAddressTypeEnabled((option as BitcoinReceivePageOption).toType());
+
+  @override
+  Future<void> setAddressTypeEnabled(Object wallet, ReceivePageOption option, bool enabled) =>
+      (wallet as ElectrumWallet).setAddressTypeEnabled(
+          (option as BitcoinReceivePageOption).toType(),
+          willEnable: enabled);
+
+  @override
   bool isTestnet(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.isTestnet;
