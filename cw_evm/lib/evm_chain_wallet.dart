@@ -37,6 +37,7 @@ import 'package:cw_evm/evm_chain_wallet_addresses.dart';
 import 'package:cw_evm/hardware/evm_chain_bitbox_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_ledger_credentials.dart';
 import 'package:cw_evm/hardware/evm_chain_trezor_credentials.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -223,6 +224,7 @@ abstract class EVMChainWalletBase
   Future<void> addInitialTokens() async {
     final initialErc20Tokens = EVMChainDefaultTokens.getDefaultTokensByChainId(selectedChainId);
 
+    final changedTokens = <Erc20Token>[];
     for (final token in initialErc20Tokens) {
       final existingToken = _findCachedToken(token.contractAddress);
 
@@ -233,10 +235,19 @@ abstract class EVMChainWalletBase
         chainId: selectedChainId,
       );
 
-      await newToken.save();
+      if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
+
+      changedTokens.add(newToken);
       _upsertCachedToken(newToken);
     }
+
+    await Erc20Token.saveAll(changedTokens);
   }
+
+  bool _isStoredAs(Erc20Token stored, Erc20Token token) => mapEquals(
+        stored.toMap()..remove(Erc20Token.selfIdColumn),
+        token.toMap()..remove(Erc20Token.selfIdColumn),
+      );
 
   List<String> get getDefaultTokenContractAddresses =>
       EVMChainDefaultTokens.getDefaultTokenAddresses(selectedChainId);
