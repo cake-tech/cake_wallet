@@ -59,8 +59,8 @@ class WalletLoadingService {
   Future<WalletBase> load(WalletInfo walletInfo, {String? password, bool isBackground = false}) async {
     try {
       if (!isBackground) {
-        await sharedPreferences.setString(
-            PreferencesKey.backgroundSyncLastTrigger(walletInfo.name), DateTime.now().toIso8601String());
+        unawaited(sharedPreferences.setString(
+            PreferencesKey.backgroundSyncLastTrigger(walletInfo.name), DateTime.now().toIso8601String()));
       }
       final walletService = walletServiceFactory.call(walletInfo.type);
       final walletPassword = password ?? (await keyService.getWalletPasswordForWallet(walletInfo));

@@ -111,14 +111,32 @@ class WalletInfoAddressInfo {
     required String address,
     required String label,
   }) async {
-    return await db!.insert(tableName, {
-      "walletInfoId": walletInfoId,
-      "mapKey": mapKey,
-      "mapValueAccountIndex": accountIndex,
-      "mapValueAddress": address,
-      "mapValueLabel": label,
-    });
+    return await db!.insert(
+      tableName,
+      row(
+        walletInfoId: walletInfoId,
+        mapKey: mapKey,
+        accountIndex: accountIndex,
+        address: address,
+        label: label,
+      ),
+    );
   }
+
+  static Map<String, Object> row({
+    required int walletInfoId,
+    required int mapKey,
+    required int accountIndex,
+    required String address,
+    required String label,
+  }) =>
+      {
+        "walletInfoId": walletInfoId,
+        "mapKey": mapKey,
+        "mapValueAccountIndex": accountIndex,
+        "mapValueAddress": address,
+        "mapValueLabel": label,
+      };
 
   Map<String, dynamic> toJson() {
     return {
@@ -170,12 +188,14 @@ class WalletInfoAddressMap {
   }
 
   static Future<int> insert(int walletInfoId, String addressKey, String addressValue) async {
-    return await db!.insert(tableName, {
-      "walletInfoId": walletInfoId,
-      "addressKey": addressKey,
-      "addressValue": addressValue,
-    });
+    return await db!.insert(tableName, row(walletInfoId, addressKey, addressValue));
   }
+
+  static Map<String, Object> row(int walletInfoId, String addressKey, String addressValue) => {
+        "walletInfoId": walletInfoId,
+        "addressKey": addressKey,
+        "addressValue": addressValue,
+      };
 
   Map<String, dynamic> toJson() {
     return {
@@ -239,12 +259,14 @@ class WalletInfoAddress {
     if (select.isNotEmpty) {
       return select[0][selfIdColumn] as int;
     }
-    return await db!.insert(tableName, {
-      "walletInfoId": walletInfoId,
-      "type": type.index,
-      "address": address,
-    });
+    return await db!.insert(tableName, row(walletInfoId, type, address));
   }
+
+  static Map<String, Object> row(int walletInfoId, WalletInfoAddressType type, String address) => {
+        "walletInfoId": walletInfoId,
+        "type": type.index,
+        "address": address,
+      };
 
   Map<String, dynamic> toJson() {
     return {
@@ -533,13 +555,65 @@ class WalletInfo {
     return Map.fromEntries(list.map((e) => MapEntry(e.addressKey, e.addressValue)));
   }
 
-  Future<void> setAddresses(Map<String, String> addresses) async {
-    await WalletInfoAddressMap.deleteByWalletInfoId(internalId);
-    final entries = addresses.entries.toList();
-    for (final entry in entries) {
-      await WalletInfoAddressMap.insert(internalId, entry.key, entry.value);
+  Future<void> setAddresses(Map<String, String> addresses) =>
+      _commitBatch((batch) => _batchAddresses(batch, addresses));
+
+  Future<void> _commitBatch(void Function(Batch batch) fill) async {
+    final batch = db!.batch();
+    fill(batch);
+    await batch.commit(noResult: true);
+  }
+
+  void _batchAddresses(Batch batch, Map<String, String> addresses) {
+    batch.delete(WalletInfoAddressMap.tableName,
+        where: 'walletInfoId = ?', whereArgs: [internalId]);
+    for (final entry in addresses.entries.toList()) {
+      batch.insert(
+          WalletInfoAddressMap.tableName, WalletInfoAddressMap.row(internalId, entry.key, entry.value));
     }
   }
+
+  void _batchAddressInfos(Batch batch, Map<int, List<WalletInfoAddressInfo>> addressInfos) {
+    batch.delete(WalletInfoAddressInfo.tableName,
+        where: 'walletInfoId = ?', whereArgs: [internalId]);
+    for (final addressInfo in addressInfos.entries.toList()) {
+      for (final info in addressInfo.value.toList()) {
+        batch.insert(
+          WalletInfoAddressInfo.tableName,
+          WalletInfoAddressInfo.row(
+            walletInfoId: internalId,
+            mapKey: addressInfo.key,
+            accountIndex: info.accountIndex,
+            address: info.address,
+            label: info.label,
+          ),
+        );
+      }
+    }
+  }
+
+  void _batchAddressesOfType(Batch batch, WalletInfoAddressType type, List<String> addresses) {
+    batch.delete(WalletInfoAddress.tableName,
+        where: 'walletInfoId = ? AND type = ?', whereArgs: [internalId, type.index]);
+    for (final address in addresses.toSet()) {
+      batch.insert(WalletInfoAddress.tableName, WalletInfoAddress.row(internalId, type, address));
+    }
+  }
+
+  Future<void> setAddressesInBatch({
+    required Map<String, String> addresses,
+    required Map<int, List<WalletInfoAddressInfo>> addressInfos,
+    required List<String> usedAddresses,
+    required List<String> hiddenAddresses,
+    required List<String> manualAddresses,
+  }) =>
+      _commitBatch((batch) {
+        _batchAddresses(batch, addresses);
+        _batchAddressInfos(batch, addressInfos);
+        _batchAddressesOfType(batch, WalletInfoAddressType.used, usedAddresses);
+        _batchAddressesOfType(batch, WalletInfoAddressType.hidden, hiddenAddresses);
+        _batchAddressesOfType(batch, WalletInfoAddressType.manual, manualAddresses);
+      });
 
   String? yatEid;
   String? yatLastUsedAddressRaw;
@@ -555,58 +629,32 @@ class WalletInfo {
     return ret;
   }
 
-  Future<void> setAddressInfos(Map<int, List<WalletInfoAddressInfo>> addressInfos) async {
-    await WalletInfoAddressInfo.deleteByWalletInfoId(internalId);
-    final entries = addressInfos.entries.toList();
-    for (final addressInfo in entries) {
-      final infoList = addressInfo.value.toList();
-      for (final info in infoList) {
-        await WalletInfoAddressInfo.insert(
-          walletInfoId: internalId,
-          mapKey: addressInfo.key,
-          accountIndex: info.accountIndex,
-          address: info.address,
-          label: info.label,
-        );
-      }
-    }
-  }
+  Future<void> setAddressInfos(Map<int, List<WalletInfoAddressInfo>> addressInfos) =>
+      _commitBatch((batch) => _batchAddressInfos(batch, addressInfos));
 
   Future<Set<String>> getUsedAddresses() async {
     final list = await WalletInfoAddress.selectList(internalId, WalletInfoAddressType.used);
     return list.map((e) => e.address).toSet();
   }
 
-  Future<void> setUsedAddresses(List<String> addresses) async {
-    await WalletInfoAddress.deleteByType(internalId, WalletInfoAddressType.used);
-    for (final address in addresses) {
-      await WalletInfoAddress.insert(internalId, WalletInfoAddressType.used, address);
-    }
-  }
+  Future<void> setUsedAddresses(List<String> addresses) =>
+      _commitBatch((batch) => _batchAddressesOfType(batch, WalletInfoAddressType.used, addresses));
 
   Future<Set<String>> getHiddenAddresses() async {
     final list = await WalletInfoAddress.selectList(internalId, WalletInfoAddressType.hidden);
     return list.map((e) => e.address).toSet();
   }
 
-  Future<void> setHiddenAddresses(List<String> addresses) async {
-    await WalletInfoAddress.deleteByType(internalId, WalletInfoAddressType.hidden);
-    for (final address in addresses) {
-      await WalletInfoAddress.insert(internalId, WalletInfoAddressType.hidden, address);
-    }
-  }
+  Future<void> setHiddenAddresses(List<String> addresses) =>
+      _commitBatch((batch) => _batchAddressesOfType(batch, WalletInfoAddressType.hidden, addresses));
 
   Future<Set<String>> getManualAddresses() async {
     final list = await WalletInfoAddress.selectList(internalId, WalletInfoAddressType.manual);
     return list.map((e) => e.address).toSet();
   }
 
-  Future<void> setManualAddresses(List<String> addresses) async {
-    await WalletInfoAddress.deleteByType(internalId, WalletInfoAddressType.manual);
-    for (final address in addresses) {
-      await WalletInfoAddress.insert(internalId, WalletInfoAddressType.manual, address);
-    }
-  }
+  Future<void> setManualAddresses(List<String> addresses) =>
+      _commitBatch((batch) => _batchAddressesOfType(batch, WalletInfoAddressType.manual, addresses));
 
   Future<void> addAddress(String address, WalletInfoAddressType type) async {
     await WalletInfoAddress.insert(internalId, type, address);

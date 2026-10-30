@@ -17,30 +17,37 @@ import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 
-class MoneroHardwareWalletOptionsPage extends BasePage {
-  MoneroHardwareWalletOptionsPage(this._walletHardwareRestoreVM);
+class HardwareWalletAccountOptionsPage extends BasePage {
+  HardwareWalletAccountOptionsPage(
+    this._walletHardwareRestoreVM, {
+    this.walletType = WalletType.monero,
+  });
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
+
+  final WalletType walletType;
 
   @override
   String get title => S.current.restore_title_from_hardware_wallet;
 
   @override
-  Widget body(BuildContext context) => _MoneroHardwareWalletOptionsForm(_walletHardwareRestoreVM);
+  Widget body(BuildContext context) =>
+      _HardwareWalletAccountOptionsForm(_walletHardwareRestoreVM, walletType);
 }
 
-class _MoneroHardwareWalletOptionsForm extends StatefulWidget {
-  const _MoneroHardwareWalletOptionsForm(this._walletHardwareRestoreVM);
+class _HardwareWalletAccountOptionsForm extends StatefulWidget {
+  const _HardwareWalletAccountOptionsForm(this._walletHardwareRestoreVM, this.walletType);
 
   final WalletHardwareRestoreViewModel _walletHardwareRestoreVM;
+  final WalletType walletType;
 
   @override
-  _MoneroHardwareWalletOptionsFormState createState() =>
-      _MoneroHardwareWalletOptionsFormState(_walletHardwareRestoreVM);
+  _HardwareWalletAccountOptionsFormState createState() =>
+      _HardwareWalletAccountOptionsFormState(_walletHardwareRestoreVM);
 }
 
-class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletOptionsForm> {
-  _MoneroHardwareWalletOptionsFormState(this._walletHardwareRestoreVM)
+class _HardwareWalletAccountOptionsFormState extends State<_HardwareWalletAccountOptionsForm> {
+  _HardwareWalletAccountOptionsFormState(this._walletHardwareRestoreVM)
       : _formKey = GlobalKey<FormState>(),
         _blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
         _blockHeightFocusNode = FocusNode(),
@@ -124,7 +131,7 @@ class _MoneroHardwareWalletOptionsFormState extends State<_MoneroHardwareWalletO
                       focusNode: _blockHeightFocusNode,
                       key: _blockchainHeightKey,
                       hasDatePicker: true,
-                      walletType: WalletType.monero,
+                      walletType: widget.walletType,
                     ),
                   ),
                 ],

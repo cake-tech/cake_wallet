@@ -833,6 +833,9 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
 
 Future<void> _validateWalletInfoBoxData() async {
   try {
+    // One query instead of one per folder.
+    final existingIds = (await WalletInfo.getAll()).map((info) => info.id).toSet();
+
     for (var type in WalletType.values) {
       if (type == WalletType.none) {
         continue;
@@ -873,8 +876,7 @@ Future<void> _validateWalletInfoBoxData() async {
         final id = isUuidFolder ? folderName : WalletBase.idFor(folderName, type);
         final name = isUuidFolder ? walletTypeToDisplayName(type) : folderName;
 
-        final exist = await WalletInfo.getById(id) != null;
-        if (exist) {
+        if (existingIds.contains(id)) {
           continue;
         }
 
@@ -885,13 +887,14 @@ Future<void> _validateWalletInfoBoxData() async {
           isRecovery: true,
           restoreHeight: 0,
           date: DateTime.now(),
-          dirPath: "", // resolved at runtime via pathForWalletDirOf(info)
-          path: "",    // resolved at runtime via pathForWalletOf(info)
+          dirPath: dir.path,
+          path: "${dir.path}/$folderName",
           address: '',
           showIntroCakePayCard: false,
         );
 
         await walletInfo.save();
+        existingIds.add(id);
       }
     }
   } catch (_) {}
