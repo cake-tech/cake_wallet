@@ -249,6 +249,8 @@ class StablecoinNetwork {
     "solana": CryptoCurrency.sol,
   };
 
+  static bool supportsCurrency(CryptoCurrency currency) => _currencies.containsValue(currency);
+
   CryptoCurrency? get currency => _currencies[chain];
 }
 

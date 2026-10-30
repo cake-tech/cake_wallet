@@ -107,8 +107,11 @@ abstract class CakePayBuyCardViewModelBase with Store {
       FeatureFlag.isCakePayPurchaseSimulationEnabled;
 
   @computed
-  List<CakePayPaymentMethod> get availableMethods =>
-      [..._walletMethods, CakePayPaymentMethod.STABLECOIN];
+  List<CakePayPaymentMethod> get availableMethods => [
+        ..._walletMethods,
+        if (StablecoinNetwork.supportsCurrency(sendViewModel.wallet.currency))
+          CakePayPaymentMethod.STABLECOIN,
+      ];
 
   List<CakePayPaymentMethod> get _walletMethods {
     switch (walletType) {

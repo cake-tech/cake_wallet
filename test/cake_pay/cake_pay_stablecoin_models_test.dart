@@ -1,6 +1,8 @@
 import "package:cake_wallet/cake_pay/src/models/cake_pay_order.dart";
 import "package:cake_wallet/cake_pay/src/models/cake_pay_stablecoin_quote.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 
 Map<String, dynamic> _stablecoinEntry(List<Map<String, String>> networks) => {
@@ -99,6 +101,27 @@ void main() {
 
       expect(icons, isNot(contains(null)));
       expect(icons, hasLength(chains.length));
+    });
+  });
+
+  group("StablecoinNetwork", () {
+    test("supports only wallets on a recognized stablecoin network", () {
+      final supportedWallets = [
+        for (final type in WalletType.values)
+          if (type != WalletType.none &&
+              StablecoinNetwork.supportsCurrency(walletTypeToCryptoCurrency(type)))
+            type,
+      ];
+
+      expect(supportedWallets, [
+        WalletType.ethereum,
+        WalletType.polygon,
+        WalletType.solana,
+        WalletType.tron,
+        WalletType.base,
+        WalletType.arbitrum,
+        WalletType.bsc,
+      ]);
     });
   });
 

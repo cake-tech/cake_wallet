@@ -361,7 +361,8 @@ class CakePayBuyCardPage extends BasePage {
                               : confirmPurchaseFirst(context);
                         },
                         text: '(Dev) Simulate Purchasing Gift Card',
-                        isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                        isDisabled: methods.isEmpty ||
+                            !cakePayBuyCardViewModel.isAmountSufficient ||
                             cakePayBuyCardViewModel.isPurchasing,
                         isLoading: _sendViewModel.state is IsExecutingState ||
                             cakePayBuyCardViewModel.isPurchasing,
@@ -381,7 +382,8 @@ class CakePayBuyCardPage extends BasePage {
                             : confirmPurchaseFirst(context);
                       },
                       text: S.of(context).purchase_gift_card,
-                      isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
+                      isDisabled: methods.isEmpty ||
+                          !cakePayBuyCardViewModel.isAmountSufficient ||
                           cakePayBuyCardViewModel.isPurchasing ||
                           _sendViewModel.state is ExecutedSuccessfullyState,
                       isLoading: _sendViewModel.state is IsExecutingState ||
