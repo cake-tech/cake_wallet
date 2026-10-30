@@ -307,6 +307,7 @@ String walletTypeToDisplayTicker(WalletType type) => switch (type) {
       WalletType.zcash => 'ZEC',
       WalletType.bsc => 'BNB',
       WalletType.robinhood => "",
+      WalletType.minotari => 'XTM',
       WalletType.none => ''
     };
 
