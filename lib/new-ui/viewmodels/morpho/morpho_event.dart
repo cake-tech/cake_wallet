@@ -1,15 +1,15 @@
-part of "stablecoin_yield_bloc.dart";
+part of "morpho_bloc.dart";
 
 @immutable
-sealed class StablecoinYieldEvent {
-  const StablecoinYieldEvent();
+sealed class MorphoEvent {
+  const MorphoEvent();
 }
 
-final class YieldDataRequested extends StablecoinYieldEvent {
+final class YieldDataRequested extends MorphoEvent {
   const YieldDataRequested();
 }
 
-sealed class TransactionRequested extends StablecoinYieldEvent {
+sealed class TransactionRequested extends MorphoEvent {
   const TransactionRequested();
 }
 
@@ -29,8 +29,8 @@ final class WithdrawAllRequested extends TransactionRequested {
   const WithdrawAllRequested();
 }
 
-final class TransactionConfirmed extends StablecoinYieldEvent {
+final class TransactionConfirmed extends MorphoEvent {
   const TransactionConfirmed(this.operation);
 
-  final StablecoinYieldOperation operation;
+  final MorphoOperation operation;
 }

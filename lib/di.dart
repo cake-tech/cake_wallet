@@ -79,7 +79,7 @@ import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
-import "package:cake_wallet/new-ui/viewmodels/stablecoin_yield/stablecoin_yield_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/morpho/morpho_bloc.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -609,9 +609,9 @@ Future<void> setup({
     ),
   );
 
-  getIt.registerFactory<StablecoinYieldBloc>(() {
+  getIt.registerFactory<MorphoBloc>(() {
     final wallet = getIt.get<AppStore>().wallet!;
-    return StablecoinYieldBloc(
+    return MorphoBloc(
       wallet: wallet,
       settingsStore: getIt.get<SettingsStore>(),
       evm: evm!,

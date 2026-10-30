@@ -11,11 +11,11 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:meta/meta.dart";
 
-part "stablecoin_yield_event.dart";
-part "stablecoin_yield_state.dart";
+part "morpho_event.dart";
+part "morpho_state.dart";
 
-class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldState> {
-  StablecoinYieldBloc({
+class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
+  MorphoBloc({
     required WalletBase wallet,
     required SettingsStore settingsStore,
     required EVM evm,
@@ -27,8 +27,8 @@ class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldStat
         _vault = vault,
         _service = service,
         _address = wallet.walletAddresses.address,
-        super(const StablecoinYieldLoading(null)) {
-    on<StablecoinYieldEvent>(
+        super(const MorphoLoading(null)) {
+    on<MorphoEvent>(
       (event, emit) => switch (event) {
         YieldDataRequested() => _onYieldDataRequested(emit),
         TransactionRequested() => _onTransactionRequested(event, emit),
@@ -50,68 +50,68 @@ class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldStat
   final MorphoService _service;
   final String _address;
 
-  Future<void> _onYieldDataRequested(Emitter<StablecoinYieldState> emit) async {
-    emit(StablecoinYieldLoading(state.data));
+  Future<void> _onYieldDataRequested(Emitter<MorphoState> emit) async {
+    emit(MorphoLoading(state.data));
     try {
-      emit(StablecoinYieldReady(await _loadData()));
+      emit(MorphoReady(await _loadData()));
     } catch (error) {
-      emit(StablecoinYieldFailure(state.data, error));
+      emit(MorphoFailure(state.data, error));
     }
   }
 
   Future<void> _onTransactionRequested(
     TransactionRequested event,
-    Emitter<StablecoinYieldState> emit,
+    Emitter<MorphoState> emit,
   ) async {
     final data = state.data;
     if (data == null) {
       return;
     }
 
-    emit(StablecoinYieldPreparing(data));
+    emit(MorphoPreparing(data));
     try {
       final operation = switch (event) {
         DepositRequested(:final amount) => await _prepareDeposit(amount),
         WithdrawRequested(:final amount) => await _prepareWithdraw(amount, data),
         WithdrawAllRequested() => await _prepareWithdraw(data.positionValue, data),
       };
-      emit(StablecoinYieldPrepared(data, operation));
+      emit(MorphoPrepared(data, operation));
     } catch (error) {
-      emit(StablecoinYieldFailure(data, error));
+      emit(MorphoFailure(data, error));
     }
   }
 
   Future<void> _onTransactionConfirmed(
     TransactionConfirmed event,
-    Emitter<StablecoinYieldState> emit,
+    Emitter<MorphoState> emit,
   ) async {
-    if (state case StablecoinYieldPrepared(:final data, :final operation)
+    if (state case MorphoPrepared(:final data, :final operation)
         when identical(operation, event.operation)) {
-      emit(StablecoinYieldSubmitting(data, operation));
+      emit(MorphoSubmitting(data, operation));
       try {
         _checkNetwork();
         await operation.transaction.commit();
-        emit(StablecoinYieldConfirming(data, operation));
+        emit(MorphoConfirming(data, operation));
         await _waitForReceipt(operation.transactionHash, emit);
-        if (operation.action == StablecoinYieldAction.approve) {
-          emit(StablecoinYieldPrepared(data, await _signDeposit(operation.amount)));
+        if (operation.action == MorphoAction.approve) {
+          emit(MorphoPrepared(data, await _signDeposit(operation.amount)));
         } else {
-          emit(StablecoinYieldConfirmed(await _refreshedData(data), operation));
+          emit(MorphoConfirmed(await _refreshedData(data), operation));
         }
       } catch (error) {
-        emit(StablecoinYieldFailure(data, error));
+        emit(MorphoFailure(data, error));
       }
     }
   }
 
-  Future<StablecoinYieldData> _loadData() async {
+  Future<MorphoData> _loadData() async {
     _checkNetwork();
     final (shares, availableLiquidity, apy) = await (
       _vault.getShareBalance(_address),
       _vault.getAvailableLiquidity(),
       _loadApy(),
     ).wait;
-    return StablecoinYieldData(
+    return MorphoData(
       shares: shares,
       positionValue: await _vault.previewRedeem(shares),
       availableLiquidity: availableLiquidity,
@@ -128,7 +128,7 @@ class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldStat
     }
   }
 
-  Future<StablecoinYieldData> _refreshedData(StablecoinYieldData previous) async {
+  Future<MorphoData> _refreshedData(MorphoData previous) async {
     try {
       return await _loadData();
     } catch (error) {
@@ -137,45 +137,45 @@ class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldStat
     }
   }
 
-  Future<StablecoinYieldOperation> _prepareDeposit(Money amount) async {
+  Future<MorphoOperation> _prepareDeposit(Money amount) async {
     _checkNetwork();
     if (amount.sign <= 0) {
-      throw StablecoinYieldError.nonPositiveAmount;
+      throw MorphoError.nonPositiveAmount;
     }
     final (balance, allowance) =
         await (_vault.getUsdcBalance(_address), _vault.getUsdcAllowance(_address)).wait;
     if (amount > balance) {
-      throw StablecoinYieldError.exceedsBalance;
+      throw MorphoError.exceedsBalance;
     }
     if (allowance < amount) {
-      return _sign(StablecoinYieldAction.approve, amount, _vault.usdcApproveCall(amount));
+      return _sign(MorphoAction.approve, amount, _vault.usdcApproveCall(amount));
     }
     return _signDeposit(amount);
   }
 
-  Future<StablecoinYieldOperation> _signDeposit(Money amount) =>
-      _sign(StablecoinYieldAction.deposit, amount, _vault.depositCall(amount, _address));
+  Future<MorphoOperation> _signDeposit(Money amount) =>
+      _sign(MorphoAction.deposit, amount, _vault.depositCall(amount, _address));
 
-  Future<StablecoinYieldOperation> _prepareWithdraw(Money amount, StablecoinYieldData data) {
+  Future<MorphoOperation> _prepareWithdraw(Money amount, MorphoData data) {
     if (amount.sign <= 0) {
-      throw StablecoinYieldError.nonPositiveAmount;
+      throw MorphoError.nonPositiveAmount;
     }
     final withdrawable = data.withdrawableNow;
     if (withdrawable != null && amount > withdrawable) {
-      throw StablecoinYieldError.exceedsWithdrawable;
+      throw MorphoError.exceedsWithdrawable;
     }
     if (amount == data.positionValue) {
       return _sign(
-        StablecoinYieldAction.withdrawAll,
+        MorphoAction.withdrawAll,
         amount,
         _vault.redeemCall(data.shares, _address),
       );
     }
-    return _sign(StablecoinYieldAction.withdraw, amount, _vault.withdrawCall(amount, _address));
+    return _sign(MorphoAction.withdraw, amount, _vault.withdrawCall(amount, _address));
   }
 
-  Future<StablecoinYieldOperation> _sign(
-    StablecoinYieldAction action,
+  Future<MorphoOperation> _sign(
+    MorphoAction action,
     Money amount,
     ContractCall call,
   ) async {
@@ -193,12 +193,12 @@ class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldStat
       useBlinkProtection: _settingsStore.useBlinkProtection,
     );
     if (transaction.fee.isZero) {
-      throw StablecoinYieldError.feeEstimateFailed;
+      throw MorphoError.feeEstimateFailed;
     }
-    return StablecoinYieldOperation(action: action, amount: amount, transaction: transaction);
+    return MorphoOperation(action: action, amount: amount, transaction: transaction);
   }
 
-  Future<void> _waitForReceipt(String transactionHash, Emitter<StablecoinYieldState> emit) async {
+  Future<void> _waitForReceipt(String transactionHash, Emitter<MorphoState> emit) async {
     while (!emit.isDone) {
       final status = await _evm
           .getTransactionReceipt(_wallet, transactionHash)
@@ -207,7 +207,7 @@ class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldStat
         case true:
           return;
         case false:
-          throw StablecoinYieldError.transactionFailed;
+          throw MorphoError.transactionFailed;
         case null:
           await Future<void>.delayed(_receiptPollInterval);
       }
@@ -217,7 +217,7 @@ class StablecoinYieldBloc extends Bloc<StablecoinYieldEvent, StablecoinYieldStat
 
   void _checkNetwork() {
     if (_wallet.chainId != MorphoVault.chainId) {
-      throw StablecoinYieldError.networkMismatch;
+      throw MorphoError.networkMismatch;
     }
   }
 }
