@@ -320,10 +320,10 @@ abstract class DashboardViewModelBase with Store {
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
       SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.letsExchange,
-          value: () => tradeFilterStore.displayLetsExchange,
+          providerDescription: ExchangeProviderDescription.whyNot,
+          value: () => tradeFilterStore.displayWhyNot,
           onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.whyNot)),
       SwapProviderFilterItem(
           providerDescription: ExchangeProviderDescription.stealthEx,
           value: () => tradeFilterStore.displayStealthEx,

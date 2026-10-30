@@ -5,7 +5,6 @@ import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
@@ -15,6 +14,7 @@ import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart'
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/whynot_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -63,8 +63,8 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.swapTrade:
         _provider = SwapTradeExchangeProvider();
-      case ExchangeProviderDescription.letsExchange:
-        _provider = LetsExchangeExchangeProvider();
+      case ExchangeProviderDescription.whyNot:
+        _provider = WhyNotExchangeProvider();
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
@@ -110,8 +110,9 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://track.ninerealms.com/${trade.id}';
       case ExchangeProviderDescription.swapTrade:
         return 'https://swaptrade.io/send/${trade.id}';
-      case ExchangeProviderDescription.letsExchange:
-        return 'https://letsexchange.io/?transactionId=${trade.id}';
+      // TODO: WhyNot has no public order tracker yet; letsexchange.io is closed
+      // case ExchangeProviderDescription.whyNot:
+      //   return 'https://letsexchange.io/?transactionId=${trade.id}';
       case ExchangeProviderDescription.stealthEx:
         return 'https://stealthex.io/exchange/?id=${trade.id}';
       case ExchangeProviderDescription.chainflip:
