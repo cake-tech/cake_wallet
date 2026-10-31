@@ -1,3 +1,4 @@
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -49,6 +50,7 @@ class BaseTextFormField extends StatelessWidget {
     this.suffixText,
     this.borderRadius = const BorderRadius.all(Radius.circular(18)),
     this.onEditingComplete,
+    this.testId,
   });
 
   final TextEditingController? controller;
@@ -96,10 +98,11 @@ class BaseTextFormField extends StatelessWidget {
   final bool hasUnderlineBorder;
   final double borderWidth;
   final BorderRadius borderRadius;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
+    return TestId.container(testId ?? TestId.fromKey(key), child: TextFormField(
       enableIMEPersonalizedLearning: enableIMEPersonalizedLearning ?? true,
       cursorColor: cursorColor,
       cursorWidth: cursorWidth ?? 2.0,
@@ -197,6 +200,7 @@ class BaseTextFormField extends StatelessWidget {
             : OutlineInputBorder(borderRadius: borderRadius, borderSide: BorderSide.none),
       ),
       validator: validator,
+    ),
     );
   }
 }

@@ -1,5 +1,6 @@
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
 
 class SeedCheckboxRow extends StatelessWidget {
@@ -8,6 +9,7 @@ class SeedCheckboxRow extends StatelessWidget {
     required this.text,
     required this.isChecked,
     required this.onChanged,
+    this.testId,
     super.key,
   });
 
@@ -15,10 +17,12 @@ class SeedCheckboxRow extends StatelessWidget {
   final String text;
   final bool isChecked;
   final ValueChanged<bool> onChanged;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) => MergeSemantics(
         child: Semantics(
+          identifier: testId ?? TestId.fromKey(key),
           checked: isChecked,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,

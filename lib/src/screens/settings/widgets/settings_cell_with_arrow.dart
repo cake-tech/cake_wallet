@@ -6,7 +6,8 @@ class SettingsCellWithArrow extends StandardListRow {
     required String title,
     required Function(BuildContext context)? handler,
     Key? key,
-  }) : super(title: title, isSelected: false, onTap: handler, key: key);
+    String? testId,
+  }) : super(title: title, isSelected: false, onTap: handler, key: key, testId: testId);
 
   @override
   Widget buildTrailing(BuildContext context) => Image.asset(

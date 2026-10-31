@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/core/theme_extension.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class OptionTile extends StatelessWidget {
@@ -9,6 +10,7 @@ class OptionTile extends StatelessWidget {
     required this.title,
     required this.description,
     this.tag,
+    this.testId,
     super.key,
   }) : assert(image != null || icon != null);
 
@@ -18,10 +20,11 @@ class OptionTile extends StatelessWidget {
   final String title;
   final String description;
   final String? tag;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return TestId.merge(testId ?? TestId.fromKey(key), child: Container(
       width: double.infinity,
       alignment: Alignment.center,
       decoration: ShapeDecoration(
@@ -95,6 +98,7 @@ class OptionTile extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
