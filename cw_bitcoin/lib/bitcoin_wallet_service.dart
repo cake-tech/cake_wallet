@@ -5,8 +5,7 @@ import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_core/encryption_file_utils.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/payjoin_session.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -22,10 +21,9 @@ class BitcoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  BitcoinWalletService(this.unspentCoinsInfoSource, this.payjoinSessionSource, this.isDirect);
+  BitcoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-  final Box<PayjoinSession> payjoinSessionSource;
   final bool isDirect;
 
   @override
@@ -65,7 +63,6 @@ class BitcoinWalletService extends WalletService<
       passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
@@ -92,7 +89,6 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        payjoinBox: payjoinSessionSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -105,7 +101,6 @@ class BitcoinWalletService extends WalletService<
         name: name,
         walletInfo: walletInfo,
         unspentCoinsInfo: unspentCoinsInfoSource,
-        payjoinBox: payjoinSessionSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -152,7 +147,6 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      payjoinBox: payjoinSessionSource,
       useLightning: false,
     );
     await wallet.save();
@@ -176,7 +170,6 @@ class BitcoinWalletService extends WalletService<
       unspentCoinsInfo: unspentCoinsInfoSource,
       networkParam: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-      payjoinBox: payjoinSessionSource,
       useLightning: false,
     );
 
@@ -201,7 +194,6 @@ class BitcoinWalletService extends WalletService<
       mnemonic: credentials.mnemonic,
       walletInfo: credentials.walletInfo!,
       unspentCoinsInfo: unspentCoinsInfoSource,
-      payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );

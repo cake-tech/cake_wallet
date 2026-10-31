@@ -1,10 +1,13 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
+import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/anonpay_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_order_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
@@ -18,7 +21,7 @@ import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
@@ -29,13 +32,11 @@ class HistorySection extends StatelessWidget {
       {super.key,
       required this.dashboardViewModel,
       required this.short,
-      required this.roundedTopSection,
-      required this.detailsAsPage});
+      required this.roundedTopSection});
 
   final DashboardViewModel dashboardViewModel;
   final bool short;
   final bool roundedTopSection;
-  final bool detailsAsPage;
 
   /// A history row is a single button node: every text inside it (direction,
   /// date, amounts) merges into one label.
@@ -89,6 +90,7 @@ class HistorySection extends StatelessWidget {
                             final transaction = item.transaction;
                             final transactionType =
                                 dashboardViewModel.getTransactionType(transaction);
+                            final isPayjoin = transaction.additionalInfo['isPayjoin'] == true;
 
                             if (item.hasTokens && item.assetOfTransaction == null) {
                               return Container();
@@ -104,16 +106,11 @@ class HistorySection extends StatelessWidget {
                               onTap: () {
                                 final page =
                                     getIt.get<TransactionDetailsModal>(param1: transaction);
-                                if (detailsAsPage) {
-                                  Navigator.of(context).push(CupertinoPageRoute(
-                                      builder: (context) => Material(child: page)));
-                                } else {
-                                  showMaterialModalBottomSheet(
-                                      backgroundColor: Colors.transparent,
-                                      context: context,
-                                      builder: (context) =>
-                                          FractionallySizedBox(heightFactor: 0.9, child: page));
-                                }
+                                showMaterialModalBottomSheet(
+                                    backgroundColor: Colors.transparent,
+                                    context: context,
+                                    builder: (context) =>
+                                        FractionallySizedBox(heightFactor: 0.9, child: page));
                               },
                               child: HistoryTile(
                                 key: ValueKey("home_page_transaction_${transaction.id}_key"),
@@ -126,9 +123,10 @@ class HistorySection extends StatelessWidget {
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
-                                direction: item.transaction.direction,
+                                direction: item.displayDirection,
                                 pending: item.transaction.isPending,
                                 asset: asset,
+                                badgeIconPath: isPayjoin ? 'assets/new-ui/payjoin.svg' : null,
                               ),
                             );
                           } else if (item is TradeListItem) {
@@ -186,20 +184,45 @@ class HistorySection extends StatelessWidget {
                             );
                           } else if (item is PayjoinTransactionListItem) {
                             final session = item.session;
+                            final direction = session.isSenderSession
+                                ? TransactionDirection.outgoing
+                                : TransactionDirection.incoming;
+                            final isComplete =
+                                session.status == 'success' && item.transaction?.isPending == false;
+                            final pending = !isComplete &&
+                                (session.status == 'inProgress' ||
+                                    session.status == 'waiting' ||
+                                    session.status == 'success');
 
                             return _historyRow(
-                              onTap: () => Navigator.of(context).pushNamed(
-                                Routes.payjoinDetails,
-                                arguments: [item.sessionId, item.transaction],
-                              ),
+                              onTap: () {
+                                if (isComplete && item.transaction != null) {
+                                  final page = getIt.get<TransactionDetailsModal>(
+                                      param1: item.transaction);
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (context) =>
+                                          FractionallySizedBox(heightFactor: 0.9, child: page));
+                                } else {
+                                  final page = getIt.get<PayjoinDetailsModal>(
+                                      param1: item.sessionId, param2: item.transaction);
+                                  showModalBottomSheet(
+                                      isScrollControlled: true,
+                                      context: context,
+                                      builder: (context) =>
+                                          FractionallySizedBox(heightFactor: 0.9, child: page));
+                                }
+                              },
                               child: PayjoinHistoryTile(
                                   createdAt:
                                       _formatTransactionDate(session.inProgressSince!, localeName),
                                   amount: dashboardViewModel.appStore.amountParsingProxy
-                                      .asDisplayString(Money(session.amount, CryptoCurrency.btc)),
-                                  currency: item.transaction?.from ?? "BTC",
-                                  state: item.status,
-                                  isSending: session.isSenderSession,
+                                      .asDisplayStringWithSymbol(
+                                          Money(session.amount, CryptoCurrency.btc)),
+                                  amountFiat: _computeFiatAmount(session.amount),
+                                  direction: direction,
+                                  pending: pending,
                                   roundedTop: roundedTop,
                                   roundedBottom: roundedBottom,
                                   bottomSeparator: !roundedBottom),
@@ -233,6 +256,15 @@ class HistorySection extends StatelessWidget {
                   );
           },
         ));
+  }
+
+  String _computeFiatAmount(BigInt amount) {
+    final price = dashboardViewModel.balanceViewModel.price;
+    final cryptoAmount = double.parse(Money(amount, CryptoCurrency.btc).toString());
+    final raw = calculateFiatAmountRaw(cryptoAmount: cryptoAmount, price: price)
+        .withLocalSeperator(dashboardViewModel.appStore.settingsStore.languageCode);
+    final fiatCurrency = dashboardViewModel.appStore.settingsStore.fiatCurrency;
+    return '${fiatCurrency.title} $raw';
   }
 
   String _getChainIconPath() {

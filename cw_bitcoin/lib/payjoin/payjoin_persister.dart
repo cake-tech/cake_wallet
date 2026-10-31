@@ -1,67 +1,36 @@
-import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
-import 'package:payjoin_flutter/src/generated/api/receive.dart';
-import 'package:payjoin_flutter/src/generated/api/send.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
+import 'package:payjoin/payjoin.dart' as pj;
 
-class PayjoinSenderPersister implements DartSenderPersister {
-  static DartSenderPersister impl() {
-    final impl = PayjoinSenderPersister();
-    return DartSenderPersister(
-      save: (sender) => impl.save(sender: sender),
-      load: (token) => impl.load(token: token),
-    );
-  }
+class PayjoinSenderPersister extends pj.JsonSenderSessionPersister {
+  final PayjoinEventStore _store;
+  final String _key;
 
-  final Map<String, FfiSender> _store = {};
-
-  Future<SenderToken> save({required FfiSender sender}) async {
-    final token = sender.key();
-    _store[token.toBytes().toString()] = sender;
-    return token;
-  }
-
-  Future<FfiSender> load({required SenderToken token}) async {
-    final sender = _store[token.toBytes().toString()];
-    if (sender == null) {
-      throw PayjoinSenderException('Sender not found for the provided token.');
-    }
-    return sender;
-  }
+  PayjoinSenderPersister(this._store, String sessionId)
+      : _key = PayjoinEventStore.senderKey(sessionId);
 
   @override
-  void dispose() => _store.clear();
+  void save(String event) => _store.append(_key, event);
 
   @override
-  bool get isDisposed => _store.isEmpty;
+  List<String> load() => _store.load(_key);
+
+  @override
+  void close() {}
 }
 
-class PayjoinReceiverPersister implements DartReceiverPersister {
-  static DartReceiverPersister impl() {
-    final impl = PayjoinReceiverPersister();
-    return DartReceiverPersister(
-      save: (receiver) => impl.save(receiver: receiver),
-      load: (token) => impl.load(token: token),
-    );
-  }
+class PayjoinReceiverPersister extends pj.JsonReceiverSessionPersister {
+  final PayjoinEventStore _store;
+  final String _key;
 
-  final Map<String, FfiReceiver> _store = {};
-
-  Future<ReceiverToken> save({required FfiReceiver receiver}) async {
-    final token = receiver.key();
-    _store[token.toBytes().toString()] = receiver;
-    return token;
-  }
-
-  Future<FfiReceiver> load({required ReceiverToken token}) async {
-    final receiver = _store[token.toBytes().toString()];
-    if (receiver == null) {
-      throw PayjoinReceiverException('Receiver not found for the provided token.');
-    }
-    return receiver;
-  }
+  PayjoinReceiverPersister(this._store, String sessionId)
+      : _key = PayjoinEventStore.receiverKey(sessionId);
 
   @override
-  void dispose() => _store.clear();
+  void save(String event) => _store.append(_key, event);
 
   @override
-  bool get isDisposed => _store.isEmpty;
+  List<String> load() => _store.load(_key);
+
+  @override
+  void close() {}
 }

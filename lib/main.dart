@@ -50,7 +50,6 @@ import 'package:cw_core/key.dart';
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/node_legacy.dart' show performNodeHiveMigration;
-import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token_legacy.dart' show performSplTokenHiveMigration;
 import 'package:cw_core/tron_token_legacy.dart' show performTronTokenHiveMigration;
@@ -277,10 +276,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     CakeHive.registerAdapter(MwebUtxoAdapter());
   }
 
-  if (!CakeHive.isAdapterRegistered(PayjoinSession.typeId)) {
-    CakeHive.registerAdapter(PayjoinSessionAdapter());
-  }
-
   await performHiveMigration();
   await performErc20TokenHiveMigration();
   await performSplTokenHiveMigration();
@@ -303,7 +298,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   final exchangeTemplates = await CakeHive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
   final anonpayInvoiceInfo = await CakeHive.openBox<AnonpayInvoiceInfo>(AnonpayInvoiceInfo.boxName);
   final unspentCoinsInfoSource = await CakeHive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-  final payjoinSessionSource = await CakeHive.openBox<PayjoinSession>(PayjoinSession.boxName);
 
   final havenSeedStoreBoxKey =
       await getEncryptionKey(secureStorage: secureStorage, forKey: HavenSeedStore.boxKey);
@@ -321,7 +315,6 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     exchangeTemplates: exchangeTemplates,
     transactionDescriptions: transactionDescriptions,
     secureStorage: secureStorage,
-    payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
     initialMigrationVersion: 72,
@@ -340,7 +333,6 @@ Future<void> initialSetup({
   required SecureStorage secureStorage,
   required Box<AnonpayInvoiceInfo> anonpayInvoiceInfo,
   required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-  required Box<PayjoinSession> payjoinSessionSource,
   required Box<HavenSeedStore> havenSeedStore,
   required int initialMigrationVersion,
 }) async {
@@ -361,7 +353,6 @@ Future<void> initialSetup({
     transactionDescriptionBox: transactionDescriptions,
     anonpayInvoiceInfoSource: anonpayInvoiceInfo,
     unspentCoinsInfoSource: unspentCoinsInfoSource,
-    payjoinSessionSource: payjoinSessionSource,
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );

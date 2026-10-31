@@ -2869,6 +2869,16 @@ abstract class ElectrumWalletBase
     );
   }
 
+  /// Lets a concrete wallet enrich a parsed transaction with metadata that is
+  /// not derivable from the chain data alone (payjoin amounts/direction).
+  ///
+  /// Every path that builds an [ElectrumTransactionInfo] calls this, so
+  /// subclasses only need to override it once instead of patching each
+  /// call site. Returns true when [info] was modified.
+  Future<bool> applyTransactionMetadata(ElectrumTransactionInfo info,
+          {required String txId}) async =>
+      false;
+
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, int? height, bool? retryOnFailure}) async {
     try {
@@ -2884,6 +2894,10 @@ abstract class ElectrumWalletBase
         height: height,
       );
       info.accountIndex = owner;
+      info.id = hash;
+
+      await applyTransactionMetadata(info, txId: hash);
+
       return info;
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
@@ -3197,6 +3211,11 @@ abstract class ElectrumWalletBase
                 transactionHistory.addOne(storedTx);
                 didUpdateHistory = true;
               }
+            }
+
+            if (await applyTransactionMetadata(storedTx, txId: txid)) {
+              transactionHistory.addOne(storedTx);
+              didUpdateHistory = true;
             }
 
             transactions[txid] = storedTx;
@@ -3647,6 +3666,9 @@ abstract class ElectrumWalletBase
           );
           info.id = txId;
           info.accountIndex = owner;
+
+          await applyTransactionMetadata(info, txId: txId);
+
           result[txId] = info;
         } catch (_) {
           result[txId] = null;
