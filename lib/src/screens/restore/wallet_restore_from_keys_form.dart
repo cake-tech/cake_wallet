@@ -210,6 +210,35 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   }
 
   Widget _restoreFromKeysFormFields() {
+    if (widget.walletRestoreViewModel.type == WalletType.minotari) {
+      return Column(
+        children: [
+          BaseTextFormField(
+            controller: viewKeyController,
+            hintText: S.of(context).restore_view_key_private,
+            maxLines: null,
+            validator: (value) => value != null && value.isNotEmpty ? null : S.of(context).field_required,
+          ),
+          Container(
+            padding: EdgeInsets.only(top: 20.0),
+            child: BaseTextFormField(
+              controller: spendPubkeyController,
+              hintText: S.of(context).restore_spend_key_public,
+              maxLines: null,
+              validator: (value) => value != null && value.isNotEmpty ? null : S.of(context).field_required,
+            ),
+          ),
+          BlockchainHeightWidget(
+            key: blockchainHeightKey,
+            hasDatePicker: false,
+            onHeightChange: (_) => null,
+            onHeightOrDateEntered: widget.onHeightOrDateEntered,
+            walletType: widget.walletRestoreViewModel.type,
+          ),
+        ],
+      );
+    }
+
     // Decred can only restore a view only wallet with an account pubkey. Other
     // fields are not used.
     if (widget.walletRestoreViewModel.onlyViewKeyRestore) {
