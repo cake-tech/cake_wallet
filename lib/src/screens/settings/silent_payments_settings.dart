@@ -3,15 +3,46 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_cell_with_arrow.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/settings/silent_payments_settings_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
-class SilentPaymentsSettingsPage extends StatelessWidget {
+class SilentPaymentsSettingsPage extends StatefulWidget {
   SilentPaymentsSettingsPage(this._silentPaymentsSettingsViewModel);
 
   final SilentPaymentsSettingsViewModel _silentPaymentsSettingsViewModel;
+
+  @override
+  State<SilentPaymentsSettingsPage> createState() => _SilentPaymentsSettingsPageState();
+}
+
+class _SilentPaymentsSettingsPageState extends State<SilentPaymentsSettingsPage> {
+  SilentPaymentsSettingsViewModel get _silentPaymentsSettingsViewModel =>
+      widget._silentPaymentsSettingsViewModel;
+
+  late final TextEditingController _scanServerController;
+  bool _scanServerInvalid = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scanServerController =
+        TextEditingController(text: _silentPaymentsSettingsViewModel.scanServer);
+  }
+
+  @override
+  void dispose() {
+    _scanServerController.dispose();
+    super.dispose();
+  }
+
+  void _onScanServerChanged(String value) {
+    final valid = _silentPaymentsSettingsViewModel.isValidScanServer(value);
+    setState(() => _scanServerInvalid = !valid);
+    if (valid) _silentPaymentsSettingsViewModel.setScanServer(value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,15 +70,78 @@ class SilentPaymentsSettingsPage extends StatelessWidget {
                           _silentPaymentsSettingsViewModel.setSilentPaymentsAlwaysScan(value);
                         },
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, top: 4, bottom: 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            S.current.silent_payments_always_scan_description,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, top: 8),
+                        child: TextField(
+                          controller: _scanServerController,
+                          onChanged: _onScanServerChanged,
+                          keyboardType: TextInputType.url,
+                          autocorrect: false,
+                          enableSuggestions: false,
+                          decoration: InputDecoration(
+                            labelText: S.current.silent_payments_scan_server,
+                            hintText: S.current.silent_payments_scan_server_hint,
+                            errorText: _scanServerInvalid
+                                ? S.current.silent_payments_scan_server_invalid
+                                : null,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, top: 4, bottom: 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            S.current.silent_payments_scan_server_description,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                      ),
                       SettingsCellWithArrow(
-                        title: S.current.silent_payments_scanning,
+                        title: S.current.rescan,
                         handler: (BuildContext context) =>
                             Navigator.of(context).pushNamed(Routes.rescan),
                       ),
-                      SettingsCellWithArrow(
-                        title: S.current.silent_payments_logs,
-                        handler: (BuildContext context) =>
-                            Navigator.of(context).pushNamed(Routes.silentPaymentsLogs),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, top: 16, bottom: 8),
+                        child: PrimaryButton(
+                          text: S.current.silent_payments_resume_scanning,
+                          color: Theme.of(context).colorScheme.primary,
+                          textColor: Theme.of(context).colorScheme.onPrimary,
+                          isDisabled: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,
+                          onPressed: () {
+                            _silentPaymentsSettingsViewModel.resumeScanning();
+                            Navigator.of(context, rootNavigator: true).pop();
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 12, right: 12, bottom: 12),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan
+                                ? S.current.silent_payments_resume_scanning_disabled_description
+                                : S.current.silent_payments_resume_scanning_description,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
