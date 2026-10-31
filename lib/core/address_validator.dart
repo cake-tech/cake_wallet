@@ -194,7 +194,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.kmd:
         pattern = 'R[0-9a-zA-Z]{33}';
       case CryptoCurrency.pivx:
-        pattern = 'D([1-9a-km-zA-HJ-NP-Z]){33}';
+        // D p2pkh, 6 p2sh, EXM exchange (transparent funds only), ps1 Sapling.
+        pattern = '(D([1-9a-km-zA-HJ-NP-Z]){33}|6([1-9a-km-zA-HJ-NP-Z]){33}|EXM([1-9a-km-zA-HJ-NP-Z]){33}|ps1[a-z0-9]{70,})';
       case CryptoCurrency.btcln:
         pattern =
             r'(lightning:)?(lnbc|lntb|lnbs|lnbcrt|lnurl|LNBC|LNTB|LNBS|LNBCRT|LNURL)[a-zA-Z0-9]+';
@@ -327,9 +328,10 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.zec:
         return null;
       case CryptoCurrency.kmd:
-      case CryptoCurrency.pivx:
       case CryptoCurrency.rvn:
         return [34];
+      case CryptoCurrency.pivx:
+        return null; // 34 for D and 6, 36 for EXM, ~78 for ps1
       case CryptoCurrency.dcr:
         return [35];
       case CryptoCurrency.stx:
@@ -401,6 +403,8 @@ class AddressValidator extends TextValidator {
         pattern = '([1-9A-HJ-NP-Za-km-z]{90,200})|(@[\w\d.-]+)';
       case CryptoCurrency.zec:
         pattern = "(?:$zcashAddressPattern|zxviews[a-z0-9]{278})";
+      case CryptoCurrency.pivx:
+        pattern = '(D|6)[1-9a-km-zA-HJ-NP-Z]{33}|EXM[1-9a-km-zA-HJ-NP-Z]{33}|ps1[a-z0-9]{70,}';
       default:
         if (type.tag == CryptoCurrency.eth.title) {
           pattern = '0x[0-9a-zA-Z]+';

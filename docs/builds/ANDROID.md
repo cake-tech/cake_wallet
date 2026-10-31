@@ -35,6 +35,7 @@ pushd scripts/android
     ./build_decred.sh
     ./build_mwebd.sh
     ./build_zcash.sh
+    ./build_pivx.sh
 popd
 pushd android/app
     [[ -f key.jks ]] || keytool -genkey -v -keystore key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias testKey -noprompt -dname "CN=CakeWallet, OU=CakeWallet, O=CakeWallet, L=Florida, S=America, C=USA" -storepass hunter1 -keypass hunter1

@@ -1,3 +1,4 @@
+import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/anypay/anypay_models.dart";
 import "package:cake_wallet/core/anypay/anypay_parser.dart";
 import "package:cake_wallet/core/anypay/anypay_resolver.dart";
@@ -43,6 +44,26 @@ class AnyPayService {
 
   Future<AnyPayEvaluation> _evaluate(AnyPayRequest request) async {
     try {
+      // PIVX and Dogecoin D... addrs share version byte 30, so the detector
+      // reads a PIVX addr as Doge and offers a swap. A schemeless or pivx: addr
+      // valid for the open PIVX wallet is a native send.
+      final wallet = appStore.wallet;
+      final scheme = request.paymentRequest.scheme.toLowerCase();
+      if (wallet != null &&
+          wallet.type == WalletType.pivx &&
+          (scheme.isEmpty || scheme == "pivx") &&
+          AddressValidator(type: wallet.currency, isTestnet: wallet.isTestnet)
+              .isValid(request.address.trim())) {
+        return AnyPayEvaluation(
+          request: request,
+          decision: AnyPayApplyToCurrentWallet(
+            fallbackCurrency: scheme.isNotEmpty && request.amount.isNotEmpty && !request.hasContract
+                ? wallet.currency
+                : null,
+          ),
+        );
+      }
+
       final snapshot = await _buildWalletSnapshot();
       final resolution = await resolver.resolve(request, snapshot);
 
