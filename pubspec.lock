@@ -833,6 +833,14 @@ packages:
       url: "https://github.com/xclud/dart_eip55"
     source: git
     version: "1.0.2"
+  emoji_picker_flutter:
+    dependency: "direct main"
+    description:
+      name: emoji_picker_flutter
+      sha256: "50f4da413a3dc5d2f59f2b0835ab3b3cce76c0779eb275058213506e6709503b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.5.4"
   encrypt:
     dependency: "direct main"
     description:
@@ -3275,7 +3283,7 @@ packages:
     source: git
     version: "3.1.5"
   uuid:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: "."
       ref: d602950818e4b11d097d26f5408b461f38248130

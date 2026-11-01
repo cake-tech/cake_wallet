@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:bip39/bip39.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -26,10 +23,6 @@ class DogeCoinWalletService extends WalletService<
   WalletType getType() => WalletType.dogecoin;
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
   Future<DogeCoinWallet> create(credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
@@ -49,11 +42,8 @@ class DogeCoinWalletService extends WalletService<
   }
 
   @override
-  Future<DogeCoinWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: name, type: getType());
-    }
+  Future<DogeCoinWallet> openWallet(WalletInfo walletInfo, String password) async {
+    final name = walletInfo.name;
     try {
       final wallet = await DogeCoinWalletBase.open(
         password: password,
@@ -63,10 +53,10 @@ class DogeCoinWalletService extends WalletService<
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
       final wallet = await DogeCoinWalletBase.open(
         password: password,
         name: name,
@@ -80,19 +70,13 @@ class DogeCoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: wallet, type: getType());
-    }
-    await WalletInfo.delete(walletInfo);
-
+  Future<void> remove(WalletInfo walletInfo) async {
     final unspentCoinsToDelete = unspentCoinsInfoSource.values
         .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
         .toList();
-
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
+
+    await super.remove(walletInfo);
 
     if (keysToDelete.isNotEmpty) {
       await unspentCoinsInfoSource.deleteAll(keysToDelete);

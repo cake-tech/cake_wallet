@@ -26,10 +26,6 @@ class BitcoinCashWalletService extends WalletService<
   WalletType getType() => WalletType.bitcoinCash;
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
   Future<BitcoinCashWallet> create(credentials, {bool? isTestnet}) async {
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
 
@@ -48,12 +44,8 @@ class BitcoinCashWalletService extends WalletService<
   }
 
   @override
-  Future<BitcoinCashWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: name, type: getType());
-    }
-
+  Future<BitcoinCashWallet> openWallet(WalletInfo walletInfo, String password) async {
+    final name = walletInfo.name;
     try {
       final wallet = await BitcoinCashWalletBase.open(
         password: password,
@@ -63,10 +55,10 @@ class BitcoinCashWalletService extends WalletService<
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
       final wallet = await BitcoinCashWalletBase.open(
         password: password,
         name: name,
@@ -80,19 +72,13 @@ class BitcoinCashWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: wallet, type: getType());
-    }
-    await WalletInfo.delete(walletInfo);
-
+  Future<void> remove(WalletInfo walletInfo) async {
     final unspentCoinsToDelete = unspentCoinsInfoSource.values
         .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
         .toList();
-
     final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
+
+    await super.remove(walletInfo);
 
     if (keysToDelete.isNotEmpty) {
       await unspentCoinsInfoSource.deleteAll(keysToDelete);

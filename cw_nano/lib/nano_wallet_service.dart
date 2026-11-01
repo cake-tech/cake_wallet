@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -56,50 +55,6 @@ class NanoWalletService extends WalletService<
     );
     await wallet.init();
     return wallet;
-  }
-
-  @override
-  Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: getType());
-    final file = Directory(path);
-    final isExist = file.existsSync();
-
-    if (isExist) {
-      await file.delete(recursive: true);
-    }
-
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: wallet, type: getType());
-    }
-    await WalletInfo.delete(walletInfo);
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw WalletNotFoundException(name: currentName, type: getType());
-    }
-
-    String randomWords =
-        (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
-    final currentWallet = NanoWallet(
-      walletInfo: currentWalletInfo,
-      derivationInfo: await currentWalletInfo.getDerivationInfo(),
-      password: password,
-      mnemonic: randomWords,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-    await saveBackup(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
   }
 
   @override
@@ -184,15 +139,8 @@ class NanoWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
-  Future<NanoWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: name, type: getType());
-    }
+  Future<NanoWallet> openWallet(WalletInfo walletInfo, String password) async {
+    final name = walletInfo.name;
 
     try {
       final wallet = await NanoWalletBase.open(
@@ -204,10 +152,10 @@ class NanoWalletService extends WalletService<
 
       await wallet.init();
       await wallet.save();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
       final wallet = await NanoWalletBase.open(
         name: name,
         password: password,

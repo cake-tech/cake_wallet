@@ -1,17 +1,11 @@
-import "dart:io";
-
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/imported_nft.dart";
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:path/path.dart' as p;
 import 'package:cw_evm/clients/evm_chain_client.dart';
 import 'package:cw_evm/evm_chain_client_factory.dart';
 import 'package:cw_evm/evm_chain_exceptions.dart';
@@ -50,54 +44,20 @@ class EVMChainWalletService extends WalletService<
     }
     return null;
   }
-
   /// getType() is not meaningful for this unified service, it throws to prevent misuse
   @override
   WalletType getType() {
     throw UnsupportedError(
       "EVMChainWalletService is unified and does not have a single type. "
-      "Use walletInfo.type instead.",
+          "Use walletInfo.type instead.",
     );
-  }
-
-  /// Override saveBackup to look up walletType from wallet name
-  /// Optionally accepts walletInfo to avoid lookup (useful during rename)
-  @override
-  Future<void> saveBackup(String name, {WalletInfo? walletInfo}) async {
-    final info = walletInfo ?? await _findWalletByName(name);
-    if (info == null) {
-      throw WalletNotFoundException(name: name);
-    }
-
-    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: info.type);
-    final walletDirPath = await pathForWalletDir(name: name, type: info.type);
-
-    if (File(walletDirPath).existsSync()) {
-      await File(walletDirPath).copy(backupWalletDirPath);
-    }
-  }
-
-  /// Override restoreWalletFilesFromBackup to look up walletType from wallet name
-  @override
-  Future<void> restoreWalletFilesFromBackup(String name) async {
-    final walletInfo = await _findWalletByName(name);
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: name);
-    }
-
-    final backupWalletDirPath = await pathForWalletDir(name: "$name.backup", type: walletInfo.type);
-    final walletDirPath = await pathForWalletDir(name: name, type: walletInfo.type);
-
-    if (File(backupWalletDirPath).existsSync()) {
-      await File(backupWalletDirPath).copy(walletDirPath);
-    }
   }
 
   @override
   Future<EVMChainWallet> create(
-    EVMChainNewWalletCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+      EVMChainNewWalletCredentials credentials, {
+        bool? isTestnet,
+      }) async {
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
@@ -135,28 +95,25 @@ class EVMChainWalletService extends WalletService<
   }
 
   @override
-  Future<EVMChainWallet> openWallet(String name, String password) async {
-    final walletInfo = await _findWalletByName(name);
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: name);
-    }
-
+  Future<EVMChainWallet> openWallet(WalletInfo walletInfo, String password) async {
     try {
       final wallet = await _openWalletInstance(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
 
       await wallet.init();
-      await saveBackup(name);
+      await wallet.addInitialTokens();
+      await wallet.save();
+      await saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
 
       final wallet = await _openWalletInstance(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -168,55 +125,31 @@ class EVMChainWalletService extends WalletService<
   }
 
   @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    if (currentName == newName) return;
+  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
+    if (currentWalletInfo.name == newName) return;
 
-    final currentWalletInfo = await _findWalletByName(currentName);
-    if (currentWalletInfo == null) {
-      throw WalletNotFoundException(name: currentName);
+    final oldName = currentWalletInfo.name;
+
+    await super.rename(currentWalletInfo, password, newName);
+
+    for (final token in await Erc20Token.selectList("walletName = ?", [oldName])) {
+      final copiedToken = Erc20Token.copyWith(token, walletName: newName);
+      await copiedToken.save();
     }
 
-    final type = currentWalletInfo.type;
-
-    await copyWalletFilesTo(fromName: currentName, toName: newName, type: type);
-    await saveBackup(newName, walletInfo: currentWalletInfo);
-
-    currentWalletInfo.id = WalletBase.idFor(newName, type);
-    currentWalletInfo.name = newName;
-    await currentWalletInfo.save();
-
-    final oldNameStillUsed = (await _findWalletByName(currentName)) != null;
-    if (oldNameStillUsed) {
-      for (final token in await Erc20Token.selectList("walletName = ?", [currentName])) {
-        final copiedToken = Erc20Token.copyWith(token, walletName: newName);
-        await copiedToken.save();
-      }
-
-      final ownNFTs = (await ImportedNFT.getAllForWallet(currentName))
-          .where((nft) => _importedNFTChains.contains(nft.chain));
-      for (final nft in ownNFTs) {
-        await ImportedNFT.copyWith(nft, walletName: newName).save();
-      }
-    } else {
-      await Erc20Token.renameWallet(currentName, newName);
-      await ImportedNFT.renameWallet(currentName, newName, chains: _importedNFTChains);
+    final ownNFTs = (await ImportedNFT.getAllForWallet(oldName))
+        .where((nft) => _importedNFTChains.contains(nft.chain));
+    for (final nft in ownNFTs) {
+      await ImportedNFT.copyWith(nft, walletName: newName).save();
     }
 
-    final oldDir = Directory(p.join(await pathForWalletTypeDir(type: type), currentName));
-    if (oldDir.existsSync()) {
-      try {
-        await oldDir.delete(recursive: true);
-      } catch (e) {
-        printV('rename: failed to delete old wallet dir "$currentName": $e');
-      }
-    }
   }
 
   @override
   Future<EVMChainWallet> restoreFromSeed(
-    EVMChainRestoreWalletFromSeedCredentials credentials, {
-    bool? isTestnet,
-  }) async {
+      EVMChainRestoreWalletFromSeedCredentials credentials, {
+        bool? isTestnet,
+      }) async {
     if (!bip39.validateMnemonic(credentials.mnemonic)) {
       throw EVMChainMnemonicIsIncorrectException();
     }
@@ -257,9 +190,9 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<EVMChainWallet> restoreFromKeys(
-    EVMChainRestoreWalletFromPrivateKey credentials, {
-    bool? isTestnet,
-  }) async {
+      EVMChainRestoreWalletFromPrivateKey credentials, {
+        bool? isTestnet,
+      }) async {
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
@@ -295,8 +228,8 @@ class EVMChainWalletService extends WalletService<
 
   @override
   Future<EVMChainWallet> restoreFromHardwareWallet(
-    EVMChainRestoreWalletFromHardware credentials,
-  ) async {
+      EVMChainRestoreWalletFromHardware credentials,
+      ) async {
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
@@ -330,28 +263,12 @@ class EVMChainWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async {
-    for (final type in _evmWalletTypes) {
-      if (File(await pathForWallet(name: name, type: type)).existsSync()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  @override
-  Future<void> remove(String wallet) async {
-    final walletInfo = await _findWalletByName(wallet);
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: wallet);
-    }
-
-    File(await pathForWalletDir(name: wallet, type: walletInfo.type)).delete(recursive: true);
-    await WalletInfo.delete(walletInfo);
-    final nameStillUsed = (await _findWalletByName(wallet)) != null;
+  Future<void> remove(WalletInfo walletInfo) async {
+    await super.remove(walletInfo);
+    final nameStillUsed = (await _findWalletByName(walletInfo.name)) != null;
     if (!nameStillUsed) {
-      await Erc20Token.deleteAllForWallet(wallet);
-      await ImportedNFT.deleteAllForWallet(wallet, chains: _importedNFTChains);
+      await Erc20Token.deleteAllForWallet(walletInfo.name);
+      await ImportedNFT.deleteAllForWallet(walletInfo.name, chains: _importedNFTChains);
     }
   }
 
