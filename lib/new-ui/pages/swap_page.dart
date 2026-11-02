@@ -151,41 +151,44 @@ class _NewSwapPageState extends State<NewSwapPage> {
       final receiveFiatAmountController = receiveKey.currentState!.fiatAmountController;
 
       depositFiatAmountController.addListener(() {
-        if (!depositKey.currentState!.amountFocusNode.hasFocus) {
+        if (!depositKey.currentState!.amountFocusNode.hasFocus ||
+            depositKey.currentState!.isUpdatingFiatAmount) {
           return;
         }
         widget.exchangeViewModel.isFixedRateMode = false;
         widget.exchangeViewModel.isSendAllEnabled = false;
+        final generation = widget.exchangeViewModel.fiatConversionStore.generation;
+        final text = depositFiatAmountController.text;
         Future.delayed(const Duration(milliseconds: 200)).then((_) {
-          if (!mounted) {
+          if (!mounted ||
+              generation != widget.exchangeViewModel.fiatConversionStore.generation ||
+              text != depositFiatAmountController.text) {
             return;
           }
-          if (double.tryParse(depositFiatAmountController.text) != null) {
-            widget.exchangeViewModel
-                .setDepositAmountFromFiat(fiatAmount: depositFiatAmountController.text);
+          if (double.tryParse(text) != null) {
+            widget.exchangeViewModel.setDepositAmountFromFiat(fiatAmount: text);
             receiveKey.currentState?.updateFiatAmount();
           }
         });
       });
       receiveFiatAmountController.addListener(() {
-        if (!receiveKey.currentState!.amountFocusNode.hasFocus) {
+        if (!receiveKey.currentState!.amountFocusNode.hasFocus ||
+            receiveKey.currentState!.isUpdatingFiatAmount) {
           return;
         }
 
         widget.exchangeViewModel.enableFixedRateMode();
         widget.exchangeViewModel.isSendAllEnabled = false;
+        final generation = widget.exchangeViewModel.fiatConversionStore.generation;
+        final text = receiveFiatAmountController.text;
         Future.delayed(const Duration(milliseconds: 200)).then((_) {
-          if (!mounted) {
+          if (!mounted ||
+              generation != widget.exchangeViewModel.fiatConversionStore.generation ||
+              text != receiveFiatAmountController.text) {
             return;
           }
-          if (double.tryParse(receiveFiatAmountController.text) != null) {
-            String text = receiveFiatAmountController.text;
-            if (text.contains(".")) {
-              text = text.replaceAll(RegExp(r"0+$"), "");
-              text = text.replaceAll(RegExp(r"\.$"), "");
-            }
-            widget.exchangeViewModel
-                .setReceiveAmountFromFiat(fiatAmount: receiveFiatAmountController.text);
+          if (double.tryParse(text) != null) {
+            widget.exchangeViewModel.setReceiveAmountFromFiat(fiatAmount: text);
             depositKey.currentState!.updateFiatAmount();
           }
         });

@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:cake_wallet/core/fiat_conversion_service.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/erc20_token_info_moralis.dart';
 import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
@@ -423,10 +421,7 @@ abstract class HomeSettingsViewModelBase with Store {
   void _updateFiatPrices(CryptoCurrency token) async {
     if (token.isPotentialScam) return; // don't fetch price data for potential scam tokens
     try {
-      _balanceViewModel.fiatConversionStore.prices[token] = await FiatConversionService.fetchPrice(
-          crypto: token,
-          fiat: _settingsStore.fiatCurrency,
-          torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly);
+      await _balanceViewModel.fiatConversionStore.fetchPrice(token, force: true);
     } catch (_) {}
   }
 

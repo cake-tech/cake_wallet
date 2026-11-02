@@ -297,7 +297,6 @@ import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
 
-
 final getIt = GetIt.instance;
 
 var _isSetupFinished = false;
@@ -373,7 +372,10 @@ Future<void> setup({
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
-  getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
+  getIt.registerSingleton<FiatConversionStore>(
+    FiatConversionStore(settingsStore: settingsStore),
+    dispose: (store) => store.dispose(),
+  );
   getIt.registerSingleton<AnonpayTransactionsStore>(
       AnonpayTransactionsStore(anonpayInvoiceInfoSource: _anonpayInvoiceInfoSource));
   getIt.registerSingleton<SeedSettingsStore>(SeedSettingsStore());
@@ -390,7 +392,8 @@ Future<void> setup({
       case HardwareWalletType.coldcard:
       case HardwareWalletType.seedsigner:
       case HardwareWalletType.keystone:
-        throw ArgumentError("This should not have happened, because airgapped Wallets don't need View Models");
+        throw ArgumentError(
+            "This should not have happened, because airgapped Wallets don't need View Models");
     }
   });
 
@@ -509,8 +512,7 @@ Future<void> setup({
           type: type));
 
   getIt.registerFactory<WalletAddressListViewModel>(() => WalletAddressListViewModel(
-      appStore: getIt.get<AppStore>(),
-      fiatConversionStore: getIt.get<FiatConversionStore>()));
+      appStore: getIt.get<AppStore>(), fiatConversionStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -559,25 +561,26 @@ Future<void> setup({
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 
-  getIt.registerFactoryParam<CardCustomizerBloc, CardCustomizerBlocParams, void>(
-      (params, _) {
+  getIt.registerFactoryParam<CardCustomizerBloc, CardCustomizerBlocParams, void>((params, _) {
     final wallet = getIt.get<AppStore>().wallet!;
     return CardCustomizerBloc(wallet,
         canHide: params.canHide,
         lightningMode: params.lightningMode,
         displaySats: wallet.type == WalletType.bitcoin &&
             (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshi ||
-                (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshiForLightning && params.lightningMode)));
+                (params.amountDisplayMode == BitcoinAmountDisplayMode.satoshiForLightning &&
+                    params.lightningMode)));
   });
 
-  getIt.registerLazySingleton<PriceStore>(() => PriceStore(settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerLazySingleton<PriceStore>(
+      () => PriceStore(settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactory<ChartsBloc>(
-          () => ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));
+      () => ChartsBloc(appStore: getIt.get<AppStore>(), priceStore: getIt.get<PriceStore>()));
 
   getIt.registerFactory<ChartsPage>(() => ChartsPage(
-    chartsBloc: getIt.get<ChartsBloc>(),
-  ));
+        chartsBloc: getIt.get<ChartsBloc>(),
+      ));
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
@@ -743,7 +746,6 @@ Future<void> setup({
     return walletKitService;
   });
 
-
   getIt.registerFactory<NewDashboard>(() => NewDashboard(
         dashboardViewModel: getIt.get<DashboardViewModel>(),
         bottomSheetService: getIt.get<BottomSheetService>(),
@@ -780,7 +782,6 @@ Future<void> setup({
       (WalletAddressListItem? item, _) =>
           WalletAddressEditOrCreateViewModel(wallet: getIt.get<AppStore>().wallet!, item: item));
 
-
   getIt.registerFactoryParam<AddressLabelInputPopup, dynamic, void>((dynamic item, _) =>
       AddressLabelInputPopup(
           walletAddressEditOrCreateViewModel:
@@ -794,7 +795,6 @@ Future<void> setup({
       ReceiveLabelModal(
           walletAddressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
-
 
   getIt.registerFactoryParam<SendViewModel, UnspentCoinType?, void>(
     (coinTypeToSpendFrom, _) => SendViewModel(
@@ -813,8 +813,6 @@ Future<void> setup({
         getIt.get<FeesViewModel>()),
   );
 
-
-
   getIt.registerFactoryParam<NewSendPage, SendPageParams?, void>((params, _) {
     params ??= SendPageParams();
     return NewSendPage(
@@ -827,8 +825,6 @@ Future<void> setup({
       walletSwitcherViewModel: getIt.get<WalletSwitcherViewModel>(),
     );
   });
-
-
 
   if (DeviceInfo.instance.isMobile) {
     getIt.registerFactory(
@@ -887,7 +883,8 @@ Future<void> setup({
       return NanoAccountListViewModel(wallet);
     }
     throw BadWalletTypeException(
-        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel',wallet.type);
+        'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel',
+        wallet.type);
   });
 
   getIt.registerFactory<MoneroAccountListViewModel>(() {
@@ -898,7 +895,8 @@ Future<void> setup({
       return MoneroAccountListViewModel(wallet);
     }
     throw BadWalletTypeException(
-        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel',wallet.type);
+        'Unexpected wallet type: ${wallet.type} for generate Monero AccountListViewModel',
+        wallet.type);
   });
 
   getIt.registerFactory<BitcoinAccountListViewModel>(() {
@@ -951,7 +949,7 @@ Future<void> setup({
   });
 
   getIt.registerFactory<BitcoinAccountEditOrCreateViewModel>(
-        () => BitcoinAccountEditOrCreateViewModel(
+    () => BitcoinAccountEditOrCreateViewModel(
       wallet: getIt.get<AppStore>().wallet!,
     ),
   );
@@ -1030,7 +1028,6 @@ Future<void> setup({
   getIt.registerFactoryParam<ContactPage, ContactRecord?, void>(
       (ContactRecord? contact, _) => ContactPage(getIt.get<ContactViewModel>(param1: contact)));
 
-
   getIt.registerFactoryParam<NodeListViewModel, bool, void>((isPow, _) {
     final appStore = getIt.get<AppStore>();
     return NodeListViewModel(appStore, isPow);
@@ -1053,7 +1050,6 @@ Future<void> setup({
   getIt.registerFactory(() => SecurityBackupPage(getIt.get<SecuritySettingsViewModel>(),
       getIt.get<AuthService>(), getIt.get<AppStore>().wallet!.isHardwareWallet));
 
-
   getIt.registerFactory<WalletAccountEditOrCreateViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
     switch (wallet.type) {
@@ -1070,16 +1066,15 @@ Future<void> setup({
   });
 
   getIt.registerFactoryParam<WalletAccountsPage, DashboardViewModel, void>(
-        (dashboardViewModel, _) => WalletAccountsPage(
+    (dashboardViewModel, _) => WalletAccountsPage(
       dashboardViewModel: dashboardViewModel,
       accountListViewModel:
-      dashboardViewModel.accountListViewModel ?? getIt.get<WalletAccountListViewModel>(),
+          dashboardViewModel.accountListViewModel ?? getIt.get<WalletAccountListViewModel>(),
       accountEditOrCreateViewModel: getIt.get<WalletAccountEditOrCreateViewModel>(),
     ),
   );
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));
-
 
   getIt.registerFactory(() => DomainLookupsPage(getIt.get<ConnectionSyncViewModel>()));
 
@@ -1181,7 +1176,6 @@ Future<void> setup({
     ),
   );
 
-
   getIt.registerFactoryParam<NewSwapPage, PaymentRequest?, CryptoCurrency?>(
       (PaymentRequest? paymentRequest, CryptoCurrency? initialCurrency) {
     return NewSwapPage(
@@ -1194,9 +1188,7 @@ Future<void> setup({
     );
   });
 
-
   getIt.registerFactory(() => BackgroundSyncPage(getIt.get<DashboardViewModel>()));
-
 
   getIt.registerFactoryParam<SwapConfirmationBottomSheet, PaymentFlowResult, void>(
     (paymentFlowResult, _) => SwapConfirmationBottomSheet(
@@ -1278,7 +1270,8 @@ Future<void> setup({
       case WalletType.zcash:
         return zcash!.createZcashWalletService(SettingsStoreBase.walletPasswordDirectInput);
       case WalletType.none:
-        throw BadWalletTypeException('Unexpected token: ${param1.toString()} for generating of WalletService',param1);
+        throw BadWalletTypeException(
+            'Unexpected token: ${param1.toString()} for generating of WalletService', param1);
     }
   });
 
@@ -1382,9 +1375,9 @@ Future<void> setup({
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>(
       (trade, _) => TradeDetailsViewModel(tradeForDetails: trade, appStore: getIt.get<AppStore>()));
 
-
   getIt.registerFactory(() => CakeFeaturesPage(
-      dashboardViewModel: getIt.get<DashboardViewModel>(),));
+        dashboardViewModel: getIt.get<DashboardViewModel>(),
+      ));
 
   getIt.registerFactory(() => BackupServiceV3(getIt.get<SecureStorage>(),
       _transactionDescriptionBox, getIt.get<KeyService>(), getIt.get<SharedPreferences>()));
@@ -1412,12 +1405,14 @@ Future<void> setup({
 
   getIt.registerFactory(() => BuyAmountViewModel());
 
-  getIt.registerFactoryParam<BuySellViewModel, NewBuySellParams, void>((params, _) => BuySellViewModel(
-      params: params, getIt.get<AppStore>(), fiatConversionStore: getIt.get<FiatConversionStore>()));
+  getIt.registerFactoryParam<BuySellViewModel, NewBuySellParams, void>((params, _) =>
+      BuySellViewModel(
+          params: params,
+          getIt.get<AppStore>(),
+          fiatConversionStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactoryParam<NewBuySellAmountPage, NewBuySellParams, void>((params, _) =>
       NewBuySellAmountPage(buySellViewModel: getIt.get<BuySellViewModel>(param1: params)));
-
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) {
     final wallet = getIt.get<AppStore>().wallet;
