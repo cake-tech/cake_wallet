@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import "package:cake_wallet/cake_pay/src/models/cake_pay_payment_method.dart";
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_alert_modal.dart';
+import "package:cake_wallet/cake_pay/src/widgets/cake_pay_payment_method_sheet.dart";
 import 'package:cake_wallet/cake_pay/src/widgets/denominations_amount_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/enter_amount_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/image_placeholder.dart';
@@ -509,6 +510,29 @@ class CakePayBuyCardPage extends BasePage {
         return;
       }
 
+      if (cakePayBuyCardViewModel.isStablecoinWallet) {
+        final methods = await cakePayBuyCardViewModel.prepareStablecoinOrder();
+        if (methods.isEmpty || !context.mounted) {
+          cakePayBuyCardViewModel.isSimulatingFlow = false;
+          return;
+        }
+
+        final method = methods.length == 1
+            ? methods.single
+            : await showModalBottomSheet<CakePayPaymentMethod>(
+                context: context,
+                useSafeArea: true,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => CakePayPaymentMethodSheet(methods: methods),
+              );
+        if (method == null || !context.mounted) {
+          cakePayBuyCardViewModel.isSimulatingFlow = false;
+          return;
+        }
+        cakePayBuyCardViewModel.chooseMethod(method);
+      }
+
       await cakePayBuyCardViewModel.createOrder();
     } on CakePayUnauthorizedException {
       cakePayBuyCardViewModel.isSimulatingFlow = false;
@@ -612,6 +636,11 @@ class CakePayBuyCardPage extends BasePage {
         });
 
         WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (_sendViewModel.state is! ExecutedSuccessfullyState) {
+            disposer?.call();
+            return;
+          }
+
           if (context.mounted) {
             final order = cakePayBuyCardViewModel.order;
 
