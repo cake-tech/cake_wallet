@@ -117,16 +117,6 @@ Future<void> migrateLegacyWalletsToGroups(
     }
   }
 
-  // 4. Drop main's group-name preferences (their keys contain the legacy key) for every
-  //    legacy bucket whose wallets are now all grouped — kept or split.
-  //    Done last, so a failed group can be retried on the next launch with its name.
-  for (final MapEntry(key: legacyKey, value: wallets) in legacyBuckets.entries) {
-    final allGrouped = wallets.every((w) => (w.groupId ?? "").isNotEmpty);
-    if (allGrouped) {
-      await prefs.remove(_legacyGroupNamePrefKey(legacyKey));
-    }
-  }
-
   _log("created $createdCount/${groupsToCreate.length} groups "
       "(kept $keptCount legacy groups, split $splitCount)");
 }

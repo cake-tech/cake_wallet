@@ -307,8 +307,10 @@ class $BackupService {
   Future<void> importWalletKeychainInfo(Map<String, dynamic> info) async {
     final name = info['name'] as String;
     final password = info['password'] as String;
+    // Backups made before wallet ids have no 'id'; those are stored by name as before.
+    final id = info['id'] as String?;
 
-    await keyService.saveWalletPassword(walletName: name, password: password);
+    await keyService.saveWalletPassword(walletName: id ?? name, password: password);
   }
 
   Future<Uint8List> exportKeychainDumpV2(String password,
@@ -317,13 +319,15 @@ class $BackupService {
     final wallets = await Future.wait((await WalletInfo.getAll()).map((walletInfo) async {
       try {
         return {
+          'id': walletInfo.id,
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
-          'password': await keyService.getWalletPassword(walletName: walletInfo.name),
+          'password': await keyService.getWalletPasswordForWallet(walletInfo),
           'hardwareWalletType': walletInfo.hardwareWalletType?.index,
         };
       } catch (e) {
         return {
+          'id': walletInfo.id,
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
           'password': '',

@@ -216,13 +216,20 @@ class MoneroWalletService extends WalletService<
     final path = await pathForWalletOf(walletInfo);
 
     if (openedWalletsByPath[path] != null) {
-      // NOTE: this is realistically only required on windows.
       printV("closing wallet");
       final w = openedWalletsByPath[path]!;
       final wmaddr = wmPtr.ffiAddress();
       final waddr = w.ffiAddress();
       openedWalletsByPath.remove(path);
-      await closeWalletAwaitIfShould(wmaddr, waddr);
+      if (currentWallet?.ffiAddress() == waddr) {
+        currentWallet = null;
+      }
+      // must finish before deleting the files, a pending close stores the cache mid-deletion
+      await Isolate.run(() {
+        monero.WalletManager_closeWallet(
+            Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), false);
+        monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
+      });
       printV("wallet closed");
     }
 

@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/wallet_info.dart";
 
 class KeyService {
@@ -13,6 +14,9 @@ class KeyService {
   Future<String> getWalletPasswordForWallet(WalletInfo walletInfo) async {
     final byId = await _secureStorage.read(key: _keyFor(walletInfo.id));
     if (byId != null) return decodeWalletPassword(password: byId);
+
+    // Only legacy wallets ever stored their password under the name.
+    if (isUuidWallet(walletInfo)) throw WalletOpenException("Wallet password not found");
 
     final byName = await _secureStorage.read(key: _keyFor(walletInfo.name));
     if (byName == null) throw WalletOpenException("Wallet password not found");

@@ -182,6 +182,7 @@ class WalletLoadingService {
     final bakWalletName = '#__${wallet.name}_bak__#';
     await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
     await wallet.changePassword(password);
+    await keyService.saveWalletPasswordForWallet(wallet.walletInfo, password);
     await keyService.saveWalletPassword(walletName: wallet.name, password: password);
     isPasswordUpdated = true;
     await sharedPreferences.setBool(key, isPasswordUpdated);
