@@ -473,7 +473,7 @@ Map<String, dynamic> getWalletCacheDebug() {
         monero.MONERO_Wallet_serializeCacheToJson(Pointer.fromAddress(currentWallet!.ffiAddress()));
     final blob = json.decode(jsonString);
     blob['cake:unspent'] = getAllUnspent();
-    return blob;
+    return blob as Map<String, dynamic>;
   } catch (e) {
     return {
       "error": e.toString(),

@@ -1436,7 +1436,11 @@ abstract class EVMChainWalletBase
     final newToken = createNewErc20TokenObject(token, iconPath);
 
     if (newToken.enabled) {
-      balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
+      try {
+        balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
+      } catch (_) {
+        balance[newToken] = EVMChainERC20Balance(Money.zero(newToken));
+      }
 
       await newToken.save();
     } else {
