@@ -168,6 +168,61 @@ void main() {
     });
   });
 
+  group("rate limiting", () {
+    final swapRequest = FloatingRateRequest(
+      depositAmount: Money.parse("2", CryptoCurrency.btc),
+      payoutCurrency: CryptoCurrency.xmr,
+    );
+
+    test("the coin limits are only fetched once per currency", () async {
+      final mock = _TrocadorMock(rate: _swapRate);
+      final provider = _provider(mock);
+
+      await provider.fetchRate(swapRequest);
+      await provider.fetchRate(swapRequest);
+
+      expect(mock.requestsTo("/new_rate"), hasLength(2));
+      expect(mock.requestsTo("/coin"), hasLength(1));
+    });
+
+    test("the trade reuses the quote of the rate the user was shown", () async {
+      final mock = _TrocadorMock(rate: _swapRate, stored: _trade(amountFrom: "2", amountTo: "497"));
+      final provider = _provider(mock);
+
+      await provider.fetchRate(swapRequest);
+      await provider.createTrade(request: _request());
+
+      expect(mock.requestsTo("/new_rate"), hasLength(1));
+      expect(mock.requestsTo("/new_trade").single.query["id"], "rate-id");
+    });
+
+    test("a quote is only traded once", () async {
+      final mock = _TrocadorMock(rate: _swapRate, stored: _trade(amountFrom: "2", amountTo: "497"));
+      final provider = _provider(mock);
+
+      await provider.fetchRate(swapRequest);
+      await provider.createTrade(request: _request());
+      await provider.createTrade(request: _request());
+
+      expect(mock.requestsTo("/new_rate"), hasLength(2));
+    });
+
+    test("a quote for another amount is not reused", () async {
+      final mock = _TrocadorMock(rate: _swapRate, stored: _trade(amountFrom: "2", amountTo: "497"));
+      final provider = _provider(mock);
+
+      await provider.fetchRate(
+        FloatingRateRequest(
+          depositAmount: Money.parse("1", CryptoCurrency.btc),
+          payoutCurrency: CryptoCurrency.xmr,
+        ),
+      );
+      await provider.createTrade(request: _request());
+
+      expect(mock.requestsTo("/new_rate"), hasLength(2));
+    });
+  });
+
   group("a sub-provider refusing the trade", () {
     test("moves on to the next quote, on the same rate id", () async {
       final mock = _TrocadorMock(rate: _crowdedRate, refusals: {"Exolix": 400});

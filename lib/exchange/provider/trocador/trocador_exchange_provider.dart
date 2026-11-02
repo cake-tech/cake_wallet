@@ -65,6 +65,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     },
   );
 
+  static const _limitsLifetime = Duration(minutes: 10);
+  static const _quoteLifetime = Duration(seconds: 30);
+
+  final Map<CryptoCurrency, (ExchangeLimits, DateTime)> _limits = {};
+
+  ({RateRequest request, TrocadorRate rate, List<TrocadorQuote> quotes, DateTime fetchedAt})?
+  _lastQuotes;
 
   @override
   bool get supportsFixedRate => true;
@@ -81,21 +88,29 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
+    if (_limits[from] case (final limits, final fetchedAt)
+        when DateTime.now().difference(fetchedAt) < _limitsLifetime) {
+      return limits;
+    }
+
     final coins = await _api.send(
       TrocadorCoinRequest(ticker: _normalizeCurrency(from), name: from.name),
     );
 
     final coinJson = coins.first;
 
-    return ExchangeLimits(
+    final limits = ExchangeLimits(
       min: Money.trySafeParse(coinJson.minimum, from),
       max: Money.trySafeParse(coinJson.maximum, from),
     );
+    _limits[from] = (limits, DateTime.now());
+    return limits;
   }
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
     final (rate, quotes) = await _getQuotes(request);
+    _lastQuotes = (request: request, rate: rate, quotes: quotes, fetchedAt: DateTime.now());
 
     return ProviderRate(
       provider: description,
@@ -113,7 +128,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    final (rate, quotes) = await _getQuotes(request.rateRequest);
+    final (rate, quotes) =
+        _takeLastQuotes(request.rateRequest) ?? await _getQuotes(request.rateRequest);
 
     final responseData = await _newTrade(request, rate.tradeId, quotes.take(3).toList());
 
@@ -188,6 +204,18 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       );
       return _newTrade(request, rateId, quotes.sublist(1));
     }
+  }
+
+  (TrocadorRate, List<TrocadorQuote>)? _takeLastQuotes(RateRequest request) {
+    final last = _lastQuotes;
+    _lastQuotes = null;
+
+    return switch (last) {
+      (request: final quoted, :final rate, :final quotes, :final fetchedAt)
+          when quoted == request && DateTime.now().difference(fetchedAt) < _quoteLifetime =>
+        (rate, quotes),
+      _ => null,
+    };
   }
 
   Future<(TrocadorRate, List<TrocadorQuote>)> _getQuotes(RateRequest request) async {
