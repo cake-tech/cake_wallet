@@ -5,12 +5,12 @@ import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/screens/connect_device/widgets/dotted_divider.dart";
 import "package:cake_wallet/src/screens/connect_device/widgets/manufacturer_option_tile.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
 import "package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:flutter/material.dart";
-import "package:flutter_svg/flutter_svg.dart";
 import "package:fluttertoast/fluttertoast.dart";
 import "package:permission_handler/permission_handler.dart";
 
@@ -36,16 +36,16 @@ class SelectDeviceManufacturerPage extends BasePage {
 
   List<_DeviceManufacturer> get _availableManufacturers => [
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/ledger_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/ledger_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
           hardwareWalletType: HardwareWalletType.ledger,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/trezor_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/trezor_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
@@ -53,8 +53,8 @@ class SelectDeviceManufacturerPage extends BasePage {
           // tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/bitbox_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/bitbox_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
@@ -62,22 +62,20 @@ class SelectDeviceManufacturerPage extends BasePage {
           tag: Platform.isIOS ? S.current.new_tag : null,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/cupcake_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/cupcake_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
           hardwareWalletType: HardwareWalletType.cupcake,
-          // tag: S.current.new_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/coldcard_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/coldcard_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
           hardwareWalletType: HardwareWalletType.coldcard,
-          // tag: S.current.new_tag,
         ),
         // _DeviceManufacturer(
         //   image: SvgPicture.asset(
@@ -98,8 +96,8 @@ class SelectDeviceManufacturerPage extends BasePage {
 
   List<_DeviceManufacturer> get _comingManufacturers => [
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/seedsigner_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/seedsigner_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
@@ -107,16 +105,16 @@ class SelectDeviceManufacturerPage extends BasePage {
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/foundation_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/foundation_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
           tag: S.current.coming_soon_tag,
         ),
         _DeviceManufacturer(
-          image: SvgPicture.asset(
-            "assets/images/hardware_wallet/keystone_man.svg",
+          image: CakeImageWidget(
+            imageUrl: "assets/images/hardware_wallet/keystone_man.svg",
             height: 25,
             colorFilter: _colorFilter,
           ),
@@ -170,7 +168,6 @@ class SelectDeviceManufacturerPage extends BasePage {
                         onPressed: () =>
                             Fluttertoast.showToast(msg: "One more tap and it might work"),
                         // Ester egg
-
                         isUnavailable: true,
                       ),
                     ),
@@ -224,7 +221,7 @@ class SelectDeviceManufacturerPage extends BasePage {
 class _DeviceManufacturer {
   const _DeviceManufacturer({required this.image, this.hardwareWalletType, this.tag});
 
-  final SvgPicture image;
+  final CakeImageWidget image;
   final HardwareWalletType? hardwareWalletType;
   final String? tag;
 }
