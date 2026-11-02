@@ -183,6 +183,7 @@ void main() {
     when(() => dashboardViewModel.wallet).thenReturn(wallet);
     when(() => dashboardViewModel.loadCardDesigns()).thenAnswer((_) async {});
     when(() => wallet.walletInfo).thenReturn(walletInfo);
+    when(() => wallet.hasLightningSupport).thenReturn(false);
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.currency).thenReturn(CryptoCurrency.xmr);
     when(() => walletInfo.internalId).thenReturn(42);

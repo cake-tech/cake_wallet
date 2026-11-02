@@ -5,6 +5,7 @@ import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/order_filter_store.dart";
 import "package:cake_wallet/store/dashboard/orders_store.dart";
 import "package:cake_wallet/store/dashboard/payjoin_transactions_store.dart";
+import "package:cake_wallet/store/dashboard/pending_conversion_store.dart";
 import "package:cake_wallet/store/dashboard/trade_filter_store.dart";
 import "package:cake_wallet/store/dashboard/trades_store.dart";
 import "package:cake_wallet/store/dashboard/transaction_filter_store.dart";
@@ -81,6 +82,7 @@ class _DashboardViewModelProbe extends DashboardViewModelBase {
     required super.ordersStore,
     required super.anonpayTransactionsStore,
     required super.payjoinTransactionsStore,
+    required super.pendingConversionStore,
     required super.sharedPreferences,
     required super.keyService,
   });
@@ -185,8 +187,11 @@ void main() {
     when(() => tradesStore.trades).thenReturn(const []);
     when(() => tradeMonitor.monitorActiveTrades(any())).thenReturn(null);
 
+    final balanceViewModel = _MockBalanceViewModel();
+    when(() => balanceViewModel.stableBalanceActive).thenReturn(false);
+
     final viewModel = _DashboardViewModelProbe(
-      balanceViewModel: _MockBalanceViewModel(),
+      balanceViewModel: balanceViewModel,
       accountListViewModelFactory: () => null,
       tradeMonitor: tradeMonitor,
       appStore: appStore,
@@ -198,6 +203,7 @@ void main() {
       ordersStore: _MockOrdersStore(),
       anonpayTransactionsStore: _MockAnonpayTransactionsStore(),
       payjoinTransactionsStore: _MockPayjoinTransactionsStore(),
+      pendingConversionStore: PendingConversionStore(sharedPreferences),
       sharedPreferences: sharedPreferences,
       keyService: _MockKeyService(),
     );
