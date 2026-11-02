@@ -12,7 +12,6 @@ import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
-import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
@@ -111,13 +110,10 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
 
     StreamSubscription<BitboxEvent>? events;
     try {
-      final appDocDir = await getAppDir();
-
       final bitBoxManager =
           device.connectionType == HardwareWalletConnectionType.ble ? bleManager : usbManager;
 
       _connection = await bitBoxManager.connect(device.device);
-      printV("Got Connection", file: "${appDocDir.path}/error.txt");
 
       final channelHashVerified = Completer<bool>();
       events = bitBoxManager.events.listen((event) async {
@@ -164,16 +160,17 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
       printV(e);
     } finally {
       unawaited(events?.cancel());
-      printV("DONE!");
       isConnecting = false;
     }
     return false;
   }
 
   Future<void> disconnect() async {
-    await _connection?.disconnect();
+    try {
+      await _connection?.disconnect();
+      await _statusChanges?.cancel();
+    } catch (_) {}
     _connection = null;
-    await _statusChanges?.cancel();
     _statusChanges = null;
   }
 
