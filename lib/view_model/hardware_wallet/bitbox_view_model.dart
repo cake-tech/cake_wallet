@@ -29,7 +29,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   BitboxViewModelBase() {
     if (!isMoneroOnly) {
       reaction((_) => isBleEnabled, (_) {
-        if (isBleEnabled) {
+        if (isBleEnabled && hasBluetooth) {
           _initBLE();
         }
       });
@@ -58,7 +58,7 @@ abstract class BitboxViewModelBase extends HardwareWalletViewModel with Store {
   bool isConnecting = false;
 
   @override
-  bool get hasBluetooth => false;
+  bool get hasBluetooth => Platform.isIOS;
 
   bool _bleIsInitialized = false;
 
