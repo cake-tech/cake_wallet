@@ -4,14 +4,14 @@ import 'dart:developer';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -126,7 +126,7 @@ class RobinhoodBuyProvider extends BuyProvider {
       case WalletType.zano:
       case WalletType.zcash:
       case WalletType.decred:
-        throw Exception("Wallet Type ${wallet.type.name} is not available for Robinhood");
+        throw BadWalletTypeException("Wallet Type ${wallet.type.name} is not available for Robinhood",wallet.type);
     }
   }
 
@@ -149,7 +149,7 @@ class RobinhoodBuyProvider extends BuyProvider {
     if (response.statusCode == 200) {
       return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
     } else {
-      throw Exception('Provider currently unavailable. Status: ${response.statusCode}');
+      throw BuySellProviderResponseException('Provider currently unavailable. Status: ${response.statusCode}');
     }
   }
 
@@ -173,26 +173,9 @@ class RobinhoodBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-    if (wallet.isHardwareWallet) {
-      if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
-        await Navigator.of(context).pushNamed(
-          Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-            walletType: wallet.walletInfo.type,
-            hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (context, hwwVM) {
-              hwwVM.initWallet(wallet);
-              Navigator.of(context).pop();
-            },
-            isReconnect: false,
-          ),
-        );
-        if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
-          return;
-        }
-      } else {
-        hardwareWalletVM!.initWallet(wallet);
-      }
+    if (wallet.isHardwareWallet &&
+        !(await hardwareWalletVM!.ensureDeviceConnection(context, wallet))) {
+      return;
     }
 
     try {

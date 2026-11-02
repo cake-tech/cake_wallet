@@ -1,7 +1,8 @@
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/hive_type_ids.dart";
-import "package:cw_core/utils/print_verbose.dart";
-import "package:hive/hive.dart";
+import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
+import 'package:cw_core/hive_type_ids.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:hive/hive.dart';
 
 part "wallet_type.part.dart";
 
@@ -221,7 +222,7 @@ WalletType deserializeFromInt(int raw) {
     case 19:
       return WalletType.robinhood;
     default:
-      throw Exception("Unexpected token: $raw for WalletType deserializeFromInt");
+      throw DeserializeException('Unexpected token: $raw for WalletType deserializeFromInt');
   }
 }
 

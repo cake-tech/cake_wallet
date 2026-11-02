@@ -137,6 +137,12 @@ class CWWownero extends Wownero {
   WowneroAccountList getAccountList(Object wallet) => CWWowneroAccountList(wallet);
 
   @override
+  Money getAccountFullBalance(int accountIndex) => Money.fromInt(
+        wownero_wallet_api.getFullBalance(accountIndex: accountIndex),
+        CryptoCurrency.wow,
+      );
+
+  @override
   WowneroSubaddressList getSubaddressList(Object wallet) => CWWowneroSubaddressList(wallet);
 
   @override

@@ -506,7 +506,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   String get explorerDescription => S.current.view_transaction_on + Uri.parse(_explorerUrl).host;
 
   void launchExplorer() {
-    launchUrl(Uri.parse(_explorerUrl));
+    launchUrl(Uri.parse(_explorerUrl), mode: LaunchMode.externalApplication);
   }
 
   void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {

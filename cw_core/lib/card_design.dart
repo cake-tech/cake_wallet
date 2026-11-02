@@ -327,10 +327,9 @@ class CardDesign {
 
   static const robinhoodSpecial = CardDesign(
       gradient: const LinearGradient(
-          colors: <Color>[Color(0xFF5AA438), Color(0xFF2E6B1E)],
+          colors: <Color>[Color(0xFFBDFE00), Color(0xFF85BE00)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter),
-      colors: CardColorCombination.light,
       backgroundType: CardDesignBackgroundTypes.svgFull,
       imagePath: "assets/new-ui/balance_card_backgrounds/robinhood.svg");
 

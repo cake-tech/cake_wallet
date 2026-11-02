@@ -33,6 +33,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -153,6 +154,7 @@ abstract class SettingsStoreBase with Store {
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
+      required this.accountsHomePromoDismissed,
       required this.balanceHideCounter,
         required this.zcashMigrationModalViewed,
       required bool initialEnableAutomaticNodeSwitching,
@@ -312,6 +314,9 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => mwebAdDismissed,
         (val) => sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
+
+    reaction((_) => accountsHomePromoDismissed,
+        (val) => sharedPreferences.setBool(PreferencesKey.accountsHomePromoDismissed, val));
 
     priority.observe((change) {
       final String? key;
@@ -1106,6 +1111,9 @@ abstract class SettingsStoreBase with Store {
   bool mwebAdDismissed;
 
   @observable
+  bool accountsHomePromoDismissed;
+
+  @observable
   bool zcashMigrationModalViewed;
 
   final SecureStorage _secureStorage;
@@ -1127,15 +1135,15 @@ abstract class SettingsStoreBase with Store {
         }
       }
 
-      throw Exception('No node found for EVM wallet type with chainId: $chainId');
+      throw NodeLookupException('No node found for EVM wallet type with chainId: $chainId');
     }
 
     final node = nodes[walletType];
     if (node == null) {
-      throw Exception('No node found for wallet type: ${walletType.toString()}');
+      throw NodeLookupException('No node found for wallet type: ${walletType.toString()}');
     }
     if (node.type != walletType) {
-      throw Exception("Node is not valid for $walletType (found: ${node.type}");
+      throw NodeLookupException("Node is not valid for $walletType (found: ${node.type}");
     }
 
     return node;
@@ -1165,7 +1173,7 @@ abstract class SettingsStoreBase with Store {
     final node = powNodes[walletType];
 
     if (node == null) {
-      throw Exception('No pow node found for wallet type: ${walletType.toString()}');
+      throw NodeLookupException('No pow node found for wallet type: ${walletType.toString()}');
     }
 
     return node;
@@ -1190,6 +1198,12 @@ abstract class SettingsStoreBase with Store {
 
   Future<void> setShouldShowReceiveWarning(bool value) async =>
       _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
+
+  bool isEducationDismissed(String educationId) =>
+      _sharedPreferences.getBool(PreferencesKey.educationDismissed(educationId)) ?? false;
+
+  Future<void> dismissEducation(String educationId) =>
+      _sharedPreferences.setBool(PreferencesKey.educationDismissed(educationId), true);
 
   static Future<SettingsStore> load(
       {required bool isBitcoinBuyEnabled,
@@ -1590,107 +1604,74 @@ abstract class SettingsStoreBase with Store {
     final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? false;
 
     // migrated to secure:
-    final timeOutDuration = await SecureKey.getInt(
-      secureStorage: secureStorage,
-      sharedPreferences: sharedPreferences,
-      key: SecureKey.pinTimeOutDuration,
-    );
+    Future<bool> secureBool(String key) async =>
+        await SecureKey.getBool(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: key,
+        ) ??
+        false;
+    Future<int?> secureInt(String key) => SecureKey.getInt(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: key,
+        );
+
+    // Independent reads, so they go to secure storage concurrently instead of one by one
+    final List<Future<Object?> Function()> secureReads = [
+      () => secureInt(SecureKey.pinTimeOutDuration),
+      () => secureBool(SecureKey.allowBiometricalAuthenticationKey),
+      () => secureBool(SecureKey.enableDuressPin),
+      () => secureInt(SecureKey.selectedCake2FAPreset),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAccessingWallet),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToNonContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAddingContacts),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForCreatingNewWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
+      () => secureBool(SecureKey.useTOTP2FA),
+      () => SecureKey.getString(
+        secureStorage: secureStorage,
+        sharedPreferences: sharedPreferences,
+        key: SecureKey.totpSecretKey,
+      ),
+    ];
+
+    final [
+      timeOutDuration as int?,
+      allowBiometricalAuthentication as bool,
+      enableDuressPin as bool,
+      selectedCake2FAPresetRaw as int?,
+      shouldRequireTOTP2FAForAccessingWallet as bool,
+      shouldRequireTOTP2FAForSendsToContact as bool,
+      shouldRequireTOTP2FAForSendsToNonContact as bool,
+      shouldRequireTOTP2FAForSendsToInternalWallets as bool,
+      shouldRequireTOTP2FAForExchangesToInternalWallets as bool,
+      shouldRequireTOTP2FAForExchangesToExternalWallets as bool,
+      shouldRequireTOTP2FAForAddingContacts as bool,
+      shouldRequireTOTP2FAForCreatingNewWallets as bool,
+      shouldRequireTOTP2FAForAllSecurityAndBackupSettings as bool,
+      useTOTP2FA as bool,
+      totpSecretKeyRaw as String?,
+    ] = Platform.isWindows
+        ? [for (final read in secureReads) await read()]
+        : await Future.wait(secureReads.map((read) => read()));
 
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
-
-    final allowBiometricalAuthentication = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.allowBiometricalAuthenticationKey,
-        ) ??
-        false;
-
-    final enableDuressPin = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.enableDuressPin,
-        ) ??
-        false;
-
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
-        raw: await SecureKey.getInt(
-              secureStorage: secureStorage,
-              sharedPreferences: sharedPreferences,
-              key: SecureKey.selectedCake2FAPreset,
-            ) ??
-            Cake2FAPresetsOptions.normal.raw);
-
-    final shouldRequireTOTP2FAForAccessingWallet = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToContact = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToNonContact = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToInternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForExchangesToInternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForExchangesToExternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForAddingContacts = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForCreatingNewWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        ) ??
-        false;
-    final useTOTP2FA = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.useTOTP2FA,
-        ) ??
-        false;
-    final totpSecretKey = await SecureKey.getString(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.totpSecretKey,
-        ) ??
-        '';
+        raw: selectedCake2FAPresetRaw ?? Cake2FAPresetsOptions.normal.raw);
+    final totpSecretKey = totpSecretKeyRaw ?? '';
 
     final mwebAdDismissed =
         await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
+
+    final accountsHomePromoDismissed =
+        sharedPreferences.getBool(PreferencesKey.accountsHomePromoDismissed) ?? false;
 
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
@@ -1815,6 +1796,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
+      accountsHomePromoDismissed: accountsHomePromoDismissed,
       balanceHideCounter: balanceHideCounter,
       zcashMigrationModalViewed: zcashMigrationModalViewed
     );

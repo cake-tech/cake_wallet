@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -13,6 +14,7 @@ import 'package:hive/hive.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:archive/archive_io.dart' hide Mac;
+import 'package:path/path.dart' as p;
 import 'package:cw_core/cake_hive.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
@@ -27,6 +29,20 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
 
+
+class BackupServiceException extends CakeException {
+  const BackupServiceException(super.message);
+}
+
+class UnknownBackupVersionException extends BackupServiceException {
+  const UnknownBackupVersionException() : super("unknown backup version");
+}
+
+class InvalidBackupException extends BackupServiceException {
+  const InvalidBackupException(super.message);
+}
+
+
 class $BackupService {
   $BackupService(
       this._secureStorage, this.transactionDescriptionBox, this.keyService, this.sharedPreferences)
@@ -34,6 +50,13 @@ class $BackupService {
         correctWallets = <WalletInfo>[];
 
   static const currentVersion = _v3;
+
+  static String? safeExtractPath(String baseDir, ArchiveFile file) {
+    if (file.isSymbolicLink || file.name.isEmpty || p.isAbsolute(file.name)) return null;
+    final root = p.normalize(p.absolute(baseDir));
+    final target = p.normalize(p.join(root, file.name));
+    return p.isWithin(root, target) ? target : null;
+  }
 
   static const _v2 = 2;
   static const _v3 = 3;
@@ -51,15 +74,18 @@ class $BackupService {
     final zip = ZipDecoder().decodeBytes(decryptedData);
 
     for (var file in zip.files) {
-      final filename = file.name;
+      final outPath = safeExtractPath(appDir.path, file);
+      if (outPath == null) {
+        throw InvalidBackupException("unsafe backup entry: ${file.name}, please contact support");
+      }
 
       if (file.isFile) {
         final content = file.content as List<int>;
-        File('${appDir.path}/' + filename)
+        File(outPath)
           ..createSync(recursive: true)
           ..writeAsBytesSync(content, flush: true);
       } else {
-        Directory('${appDir.path}/' + filename)..create(recursive: true);
+        Directory(outPath)..create(recursive: true);
       }
     }
     ;
@@ -92,14 +118,18 @@ class $BackupService {
           continue outer;
         }
       }
+      final outPath = safeExtractPath(appDir.path, file);
+      if (outPath == null) {
+        throw InvalidBackupException("unsafe backup entry: $filename, please contact support");
+      }
       printV("restoring: $filename");
       if (file.isFile) {
         final content = file.content as List<int>;
-        File('${appDir.path}/' + filename)
+        File(outPath)
           ..createSync(recursive: true)
           ..writeAsBytesSync(content, flush: true);
       } else {
-        final dir = Directory('${appDir.path}/' + filename);
+        final dir = Directory(outPath);
         if (!dir.existsSync()) {
           dir.createSync(recursive: true);
         }

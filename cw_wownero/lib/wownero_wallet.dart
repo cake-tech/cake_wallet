@@ -138,6 +138,9 @@ abstract class WowneroWalletBase
   bool get hasRescan => true;
 
   @override
+  bool get hasCoinControl => true;
+
+  @override
   bool get hasAccountsSupport => true;
 
   @override

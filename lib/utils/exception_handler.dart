@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
+import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/root_dir.dart';
@@ -17,12 +18,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mailer/flutter_mailer.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ExceptionHandler {
   static bool _hasError = false;
   static const _coolDownDurationInDays =
       bool.fromEnvironment('hasDevOptions', defaultValue: kDebugMode || kProfileMode) ? 0 : 7;
+  static const _supportEmail = "support@cakewallet.com";
+  static const _reportSubject = "Mobile App Issue";
   static File? _file;
 
   static Future<void> _saveException(String? error, StackTrace? stackTrace,
@@ -84,13 +88,14 @@ class ExceptionHandler {
       final bool canSend = await FlutterMailer.canSendMail();
 
       if (Platform.isIOS && !canSend) {
-        printV('Mail app is not available');
+        printV("Mail app is not available, falling back to the share sheet");
+        await _shareExceptionFile();
         return;
       }
 
       final MailOptions mailOptions = MailOptions(
-        subject: 'Mobile App Issue',
-        recipients: ['support@cakewallet.com'],
+        subject: _reportSubject,
+        recipients: [_supportEmail],
         attachments: [_file!.path],
       );
 
@@ -105,6 +110,25 @@ class ExceptionHandler {
       }
     } catch (e, s) {
       _saveException(e.toString(), s);
+    }
+  }
+
+  static Future<void> _shareExceptionFile() async {
+    final context = navigatorKey.currentContext;
+    if (context == null) {
+      return;
+    }
+
+    final result = await ShareUtil.shareFile(
+      filePath: _file!.path,
+      fileName: "error.txt",
+      context: context,
+      subject: _reportSubject,
+      text: _supportEmail,
+    );
+
+    if (result.status == ShareResultStatus.success) {
+      await _file!.writeAsString("", mode: FileMode.write);
     }
   }
 

@@ -12,6 +12,13 @@ class NewSettingsPageRobot extends BaseRobot {
     await pumpUntilFound(find.byType(SettingsMainPage));
   }
 
+  // Wallet-specific rows (nodes, accounts, coin control, ...) live on WalletSettingsPage,
+  // which is opened from the wallet type row at the top of the main settings page
+  Future<void> openWalletSettings() async {
+    await tapByKey("wallet_type_settings");
+    await pumpUntilFound(find.byType(WalletSettingsPage));
+  }
+
   Future<void> openRow(String route) async {
     await scrollUntilRowVisible(route);
     await tapByKey(route);
@@ -21,6 +28,12 @@ class NewSettingsPageRobot extends BaseRobot {
     final rowFinder = find.byKey(ValueKey(route));
 
     if (tester.any(rowFinder)) {
+      // A row just below the fold is built but its center is clipped, so the tap would miss
+      if (!tester.any(rowFinder.hitTestable())) {
+        await tester.ensureVisible(rowFinder.first);
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+
       return;
     }
 

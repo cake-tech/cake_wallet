@@ -44,6 +44,7 @@ import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/amount/money_double.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/wallet_info.dart";
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -303,7 +304,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChainflipExchangeProvider(),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
-        LetsExchangeExchangeProvider(),
+        // LetsExchangeExchangeProvider(),
         // StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         SwapsXyzExchangeProvider(),
@@ -536,7 +537,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     final priority = _settingsStore.getPriority(wallet.type, chainId: wallet.chainId);
 
     if (priority == null) {
-      throw Exception('Unexpected type ${wallet.type.toString()}');
+      throw BadWalletTypeException('Unexpected type ${wallet.type.toString()}', wallet.type);
     }
 
     return priority;
@@ -1047,6 +1048,27 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @action
   Future<void> createTrade() async {
+    // Ignore repeated taps while a trade is already being created
+    if (tradeState is TradeIsCreating) return;
+
+    // Set synchronously, before the first await, so the swap button shows its
+    // loading state and further taps are ignored right away
+    tradeState = TradeIsCreating();
+
+    try {
+      await _createTrade();
+    } finally {
+      // Never leave the swap button stuck in its loading state
+      // (e.g. if an unexpected exception is thrown)
+      if (tradeState is TradeIsCreating) {
+        tradeState = TradeIsCreatedFailure(
+            title: S.current.trade_not_created,
+            error: S.current.none_of_selected_providers_can_exchange);
+      }
+    }
+  }
+
+  Future<void> _createTrade() async {
     final depositAmountValue = _depositAmount ?? Money.zero(depositCurrency);
     final receiveAmountValue = _receiveAmount ?? Money.zero(receiveCurrency);
 
@@ -1335,7 +1357,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       ///
       /// this is because the limitation of the SplayTreeMap that
       /// you can't modify it while iterating through it
-      Future.delayed(Duration(milliseconds: 200), createTrade);
+      await Future<void>.delayed(Duration(milliseconds: 200));
+      await _createTrade();
     }
   }
 

@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:cw_core/db/sqlite_debug.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
@@ -32,6 +33,10 @@ Future<File> sqliteDebugMarkerFile() async {
   return File(dbDebugMarker);
 }
 
+class DebugMarkerException extends CakeException {
+  const DebugMarkerException() : super("Debug marker is present");
+}
+
 Future<void> initDb({String? pathOverride}) async {
   if (!kDebugMode && !kProfileMode) {
     await _initDb(pathOverride: pathOverride);
@@ -40,7 +45,7 @@ Future<void> initDb({String? pathOverride}) async {
   final dbDebugMarker = await sqliteDebugMarkerFile();
   try {
     if (dbDebugMarker.existsSync()) {
-      throw Exception("Debug marker is present");
+      throw const DebugMarkerException();
     }
     await _initDb(pathOverride: pathOverride);
   } catch (e, s) {
@@ -194,7 +199,12 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         await _migrateBitcoinCardStylesForAccounts(db);
       }
       if(oldVersion <= 14) {
-        await _createDeprecatedWalletSeedTable(db);
+        await _addColumnIfNotExists(
+          db,
+          table: "BalanceCardStyleSettings",
+          column: "hidden",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
       }
     },
     onCreate: (Database db, int version) async {
@@ -289,6 +299,7 @@ CREATE TABLE BalanceCardStyleSettings (
   iconStyleIndex INTEGER DEFAULT 0,
   isGradientOnly BOOLEAN DEFAULT FALSE,
   cardOrder INTEGER DEFAULT 0,
+  hidden BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
@@ -302,8 +313,6 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
-    await _createDeprecatedWalletSeedTable(db);
-
     },
   );
 }
@@ -316,7 +325,7 @@ CREATE TABLE PriceData (
   timestamp INTEGER NOT NULL,
   price TEXT NOT NULL,
   PRIMARY KEY (fromCurrency, toCurrency, timestamp)
-);        
+);
 """);
   await db.execute("""
 CREATE TABLE ChartsAssets (
@@ -593,16 +602,4 @@ isBuiltin BOOLEAN DEFAULT FALSE,
 isDefault BOOLEAN DEFAULT FALSE
 );
         """);
-}
-
-
-Future<void> _createDeprecatedWalletSeedTable(Database db) async {
-  await db.execute("""
-CREATE TABLE DeprecatedWalletSeeds (
-walletInfoId INTEGER PRIMARY KEY,
-seed TEXT NOT NULL,
-passphrase TEXT NOT NULL,
-FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
-);
-""");
 }

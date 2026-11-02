@@ -2,7 +2,12 @@
 set -x -e
 cd "$(dirname "$0")"
 
-HASH=3a35a32eee2ec29262c5275fc92079a7127f9ccc
+# IMPORTANT: Make sure to update action 'Build Torch` in
+# - .github/workflows/pr_test_build_android.yml
+# - .github/workflows/pr_test_build_linux.yml
+# https://github.com/MrCyjaneK/torch_dart/releases/download/v1.0.17/torch_dart-v1.0.17.tar.gz
+
+HASH=0aa029e4dce8162d0650918f1ac5ada6df87f991
 
 if [[ ! -d "torch_dart/.git" ]];
 then
