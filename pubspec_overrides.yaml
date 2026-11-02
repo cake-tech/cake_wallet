@@ -120,7 +120,7 @@ dependency_overrides:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: 5943a3e773203f21728f87f1c0779040db8f2c28
+      ref: afc9c4d3fb803e53cbdc542ce35f99fdb1089f27
   bs58:
     git:
       url: https://github.com/litaoh/base58
@@ -562,7 +562,7 @@ dependency_overrides:
   flutter_rust_bridge:
     git:
       url: https://github.com/fzyzcjy/flutter_rust_bridge
-      ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      ref: 8631db91a90c699439c9ce2a1fb4164ae8661da9
       path: ./frb_dart
   flutter_secure_storage:
     git:
