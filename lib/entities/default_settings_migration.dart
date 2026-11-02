@@ -21,7 +21,6 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cw_core/node_list.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/wallet_base.dart";
@@ -874,7 +873,9 @@ Future<void> _validateWalletInfoBoxData() async {
         // New wallets: the folder is the UUID id. Legacy wallets: the folder is the name.
         final isUuidFolder = Uuid.isValidUUID(fromString: folderName);
         final id = isUuidFolder ? folderName : WalletBase.idFor(folderName, type);
-        final name = isUuidFolder ? walletTypeToDisplayName(type) : folderName;
+        final name = isUuidFolder
+            ? "${walletTypeToDisplayName(type)} ${folderName.substring(0, 4)}"
+            : folderName;
 
         if (existingIds.contains(id)) {
           continue;

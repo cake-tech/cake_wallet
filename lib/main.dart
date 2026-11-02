@@ -356,7 +356,11 @@ Future<void> initialSetup({
   );
 
   if (loadWallet) {
-    await migrateLegacyWalletsToGroups(sharedPreferences);
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
   }
   await setup(
     contactSource: contactSource,

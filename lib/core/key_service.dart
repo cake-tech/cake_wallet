@@ -24,7 +24,9 @@ class KeyService {
   }
 
   Future<void> saveWalletPasswordForWallet(WalletInfo walletInfo, String password) =>
-      saveWalletPassword(walletName: walletInfo.id, password: password);
+      saveWalletPassword(
+          walletName: isUuidWallet(walletInfo) ? walletInfo.id : walletInfo.name,
+          password: password);
 
   String _keyFor(String walletName) =>
       generateStoreKeyFor(key: SecretStoreKey.moneroWalletPassword, walletName: walletName);

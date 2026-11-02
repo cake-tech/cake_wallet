@@ -5,7 +5,6 @@ import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import "package:cake_wallet/entities/wallet_group.dart";
-import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/routes.dart';

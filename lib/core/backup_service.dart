@@ -28,6 +28,7 @@ import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
+import 'package:uuid/uuid.dart';
 
 
 class BackupServiceException extends CakeException {
@@ -307,10 +308,10 @@ class $BackupService {
   Future<void> importWalletKeychainInfo(Map<String, dynamic> info) async {
     final name = info['name'] as String;
     final password = info['password'] as String;
-    // Backups made before wallet ids have no 'id'; those are stored by name as before.
     final id = info['id'] as String?;
+    final key = (id != null && Uuid.isValidUUID(fromString: id)) ? id : name;
 
-    await keyService.saveWalletPassword(walletName: id ?? name, password: password);
+    await keyService.saveWalletPassword(walletName: key, password: password);
   }
 
   Future<Uint8List> exportKeychainDumpV2(String password,

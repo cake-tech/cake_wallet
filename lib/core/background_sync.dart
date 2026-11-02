@@ -116,7 +116,7 @@ class BackgroundSync {
         .where((element) => ![WalletType.haven, WalletType.decred].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
-      final walletInfo = await WalletInfo.getById(moneroWallets[i].key as String);
+      final walletInfo = await WalletInfo.getById(moneroWallets[i].key);
       if (walletInfo == null) continue;
       final wallet = await walletLoadingService.load(walletInfo, isBackground: true);
       int syncedTicks = 0;

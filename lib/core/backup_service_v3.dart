@@ -6,7 +6,6 @@ import 'package:archive/archive_io.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
-import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/wallet_group_migration.dart";
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
@@ -343,7 +342,11 @@ class BackupServiceV3 extends $BackupService {
     await initDb();
 
     // Restored wallets keep their legacy folders; each becomes its own group.
-    await migrateLegacyWalletsToGroups(sharedPreferences, keepLegacyGroups: false);
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences, keepLegacyGroups: false);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
 
   }
 

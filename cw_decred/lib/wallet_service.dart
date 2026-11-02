@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/wallet_keys_file.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_decred/api/libdcrwallet.dart';
 import 'package:cw_decred/mnemonic_validation.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';

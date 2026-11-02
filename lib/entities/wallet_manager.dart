@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -81,6 +79,7 @@ class WalletManager {
     }
   }
 
+  // TODO(serhii): group key can be hashedWalletIdentifier (plaintext seed in debug builds); drop with DB groups.
   String _groupNameKey(String groupKey) => 'wallet_group_name_$groupKey';
 
   Future<void> setGroupName(String groupKey, String name) async {

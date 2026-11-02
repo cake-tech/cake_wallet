@@ -10,7 +10,6 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import "package:cw_core/wallet_info.dart";
-import 'package:cw_core/wallet_type.dart';
 
 mixin WalletKeysFile<BalanceType extends Balance, HistoryType extends TransactionHistoryBase,
 TransactionType extends TransactionInfo>

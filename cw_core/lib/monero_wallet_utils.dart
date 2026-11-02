@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/pathForWallet.dart';
 import "package:cw_core/wallet_info.dart";
-import 'package:cw_core/wallet_type.dart';
 
 String backupFileName(String originalPath) {
   final pathParts = originalPath.split('/');

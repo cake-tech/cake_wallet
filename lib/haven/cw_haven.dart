@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:cw_core/balance.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';

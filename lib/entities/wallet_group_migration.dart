@@ -149,6 +149,7 @@ Future<String?> _splitReason(List<WalletInfo> wallets) async {
     if (!types.add(wallet.type)) return "duplicate type ${wallet.type.name}";
     if (!isBIP39Wallet(wallet.type)) return "${wallet.type.name} is not a BIP39 type";
     if (wallet.hardwareWalletType != null) return "${wallet.type.name} is a hardware wallet";
+    if (wallet.isNonSeedWallet) return "${wallet.type.name} is not seed-based";
 
     // These types are always BIP39 in Cake, and often don't store their derivation type.
     if (alwaysBip39Types.contains(wallet.type)) continue;

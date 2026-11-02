@@ -213,7 +213,7 @@ class MoneroWalletService extends WalletService<
 
   @override
   Future<void> remove(WalletInfo walletInfo) async {
-    final path = await pathForWalletOf(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
 
     if (openedWalletsByPath[path] != null) {
       printV("closing wallet");

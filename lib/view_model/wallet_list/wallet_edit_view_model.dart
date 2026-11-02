@@ -40,6 +40,7 @@ abstract class WalletEditViewModelBase with Store {
     state = WalletEditRenamePending();
     try {
       await _walletManager.updateWalletGroups();
+      // TODO(serhii): also write the name to the walletGroup row when the UI moves to DB groups.
       await _walletManager.setGroupName(walletGroupKey, name);
       await _walletListViewModel.updateList();
     } finally {

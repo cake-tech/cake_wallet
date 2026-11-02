@@ -20,7 +20,7 @@ Future<bool> requireHardwareWalletConnection() async {
 
   final type = deserializeFromInt(typeRaw);
 
-  // TODO(serhii): name + type is ambiguous for UUID wallets; resolve by currentWalletId.
+  // TODO(wallet-id): name + type is ambiguous for UUID wallets; resolve by currentWalletId.
   final walletInfo = await WalletInfo.get(name, type);
   if (walletInfo == null) {
     return false;

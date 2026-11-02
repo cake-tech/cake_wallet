@@ -109,7 +109,7 @@ class ZanoWalletService extends WalletService<
   Future<void> remove(WalletInfo walletInfo) async {
     // Close the native handle first; the cache is keyed by the wallet file path
     // that open() used (<type>/<uuid>/<uuid>).
-    await ZanoWalletApi.closeCachedWallet(await pathForWalletOf(walletInfo));
+    await ZanoWalletApi.closeCachedWallet(await walletFilePathOf(walletInfo));
     await super.remove(walletInfo);
   }
 

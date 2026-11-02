@@ -7,7 +7,6 @@ import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:flutter/foundation.dart';
