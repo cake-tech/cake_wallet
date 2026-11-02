@@ -69,6 +69,7 @@ class KeychainRestoreUtilities {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         credentials = evm!.createEVMRestoreWalletFromSeedCredentials(
           name: data.name,
           mnemonic: data.seed,
