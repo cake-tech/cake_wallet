@@ -71,21 +71,23 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     }
   }
 
+  // TODO(wallet-id): dev's backup never ran (it checked the directory); fix separately.
   Future<void> restoreWalletFilesFromBackup(WalletInfo walletInfo) async {
-    final path = await walletFilePathOf(walletInfo);
-    final backup = File("$path.backup");
+    final walletDirPath = await walletDirPathOf(walletInfo);
+    final backupWalletDirPath = "$walletDirPath.backup";
 
-    if (backup.existsSync()) {
-      await backup.copy(path);
+    if (File(backupWalletDirPath).existsSync()) {
+      await File(backupWalletDirPath).copy(walletDirPath);
     }
   }
 
+  // TODO(wallet-id): dev's backup never ran (it checked the directory); fix separately.
   Future<void> saveBackup(WalletInfo walletInfo) async {
-    final path = await walletFilePathOf(walletInfo);
-    final file = File(path);
+    final walletDirPath = await walletDirPathOf(walletInfo);
+    final backupWalletDirPath = "$walletDirPath.backup";
 
-    if (file.existsSync()) {
-      await file.copy("$path.backup");
+    if (File(walletDirPath).existsSync()) {
+      await File(walletDirPath).copy(backupWalletDirPath);
     }
   }
 

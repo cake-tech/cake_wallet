@@ -53,7 +53,7 @@ abstract class NanoTransactionHistoryBase extends TransactionHistoryBase<NanoTra
       this.transactions.addAll(transactions);
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath = await pathForWalletDirOf(walletInfo);
+    final dirPath = await walletDirPathOf(walletInfo);
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {

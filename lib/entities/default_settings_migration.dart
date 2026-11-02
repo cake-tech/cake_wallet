@@ -30,6 +30,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
+import "package:path/path.dart" as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cw_core/erc20_token.dart';
 
@@ -833,6 +834,8 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
 
 Future<void> _validateWalletInfoBoxData() async {
   try {
+    final existingIds = (await WalletInfo.getAll()).map((i) => i.id).toSet();
+
     for (var type in WalletType.values) {
       if (type == WalletType.none) {
         continue;
@@ -842,7 +845,7 @@ Future<void> _validateWalletInfoBoxData() async {
       final entries = walletsDir.listSync().whereType<Directory>();
 
       for (final dir in entries) {
-        final folderName = dir.path.split("/").last;
+        final folderName = p.basename(dir.path);
 
         if (folderName.endsWith(".backup")) {
           try {
@@ -873,8 +876,7 @@ Future<void> _validateWalletInfoBoxData() async {
         final id = isUuidFolder ? folderName : WalletBase.idFor(folderName, type);
         final name = isUuidFolder ? walletTypeToDisplayName(type) : folderName;
 
-        final exist = await WalletInfo.getById(id) != null;
-        if (exist) {
+        if (existingIds.contains(id)) {
           continue;
         }
 
@@ -892,6 +894,7 @@ Future<void> _validateWalletInfoBoxData() async {
         );
 
         await walletInfo.save();
+        existingIds.add(id);
       }
     }
   } catch (_) {}

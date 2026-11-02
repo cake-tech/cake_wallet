@@ -112,8 +112,8 @@ Future<void> migrateLegacyWalletsToGroups(
       }
 
       createdCount++;
-    } catch (e, s) {
-      _log("failed to create a group of ${wallets.length} wallets: $e\n$s");
+    } catch (e) {
+      _log("failed to create a group of ${wallets.length} wallets: ${e.runtimeType}");
     }
   }
 

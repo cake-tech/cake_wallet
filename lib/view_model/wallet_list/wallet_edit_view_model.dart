@@ -40,7 +40,7 @@ abstract class WalletEditViewModelBase with Store {
     state = WalletEditRenamePending();
     try {
       await _walletManager.updateWalletGroups();
-      _walletManager.setGroupName(walletGroupKey, name);
+      await _walletManager.setGroupName(walletGroupKey, name);
       await _walletListViewModel.updateList();
     } finally {
       resetState();

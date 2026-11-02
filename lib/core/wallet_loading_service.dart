@@ -92,7 +92,7 @@ class WalletLoadingService {
       for (var walletInfo in await WalletInfo.getAll()) {
         try {
           final walletService = walletServiceFactory.call(walletInfo.type);
-          final walletPassword = await keyService.getWalletPassword(walletName: walletInfo.name);
+          final walletPassword = await keyService.getWalletPasswordForWallet(walletInfo);
           wallet = await walletService.openWallet(walletInfo, walletPassword);
 
           if (walletInfo.type == WalletType.monero) {

@@ -54,7 +54,7 @@ on WalletBase<BalanceType, HistoryType, TransactionType> {
 
   static Future<bool> hasKeysFile(WalletInfo walletInfo) async {
     try {
-      final path = await pathForWalletOf(walletInfo);
+      final path = await walletFilePathOf(walletInfo);
       return File("$path.keys").existsSync() || File("$path.keys.backup").existsSync();
     } catch (_) {
       return false;
@@ -66,7 +66,7 @@ on WalletBase<BalanceType, HistoryType, TransactionType> {
       String password,
       EncryptionFileUtils encryptionFileUtils,
       ) async {
-    final path = await pathForWalletOf(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
 
     var readPath = "$path.keys";
     try {

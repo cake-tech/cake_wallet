@@ -78,7 +78,7 @@ class ZanoWalletService extends WalletService<
 
   @override
   Future<bool> isWalletExit(WalletInfo walletInfo) async {
-    final path = await pathForWalletOf(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
     return zano.PlainWallet_isWalletExist(path);
   }
 

@@ -84,7 +84,7 @@ class ZcashWalletService
 
   @override
   Future<bool> isWalletExit(final WalletInfo walletInfo) async {
-    final oldPath = await pathForWalletOf(walletInfo);
+    final oldPath = await walletFilePathOf(walletInfo);
     final path = "$oldPath.v2";
     return File(path).existsSync() || File(oldPath).existsSync();
   }
