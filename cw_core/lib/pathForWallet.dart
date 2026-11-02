@@ -1,43 +1,85 @@
-import 'dart:io';
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/root_dir.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:path/path.dart' as p;
+import "dart:io";
 
+import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/root_dir.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:path/path.dart" as p;
+import "package:uuid/uuid.dart";
+
+/// Wallet folder layout:
+///   new wallets:    <appDir>/wallets/<type>/<uuid>/<uuid>
+///   legacy wallets: <appDir>/wallets/<type>/<name>/<name>
+///
+/// Functions named `pathFor…` create the directory (use them before writing files).
+/// Functions named `wallet…PathOf` only build the path (use them for reads, checks, deletes).
+
+/// New wallets have a UUID id; legacy wallets have "<type>_<name>".
+bool isUuidWallet(WalletInfo info) => Uuid.isValidUUID(fromString: info.id);
+
+/// Folder name on disk: the UUID for new wallets, the name for legacy ones.
+/// Throws on a name that would resolve outside the wallet's own folder.
+String _dirNameOf(WalletInfo info) {
+  final dirName = isUuidWallet(info) ? info.id : info.name;
+  final isUnsafe = dirName.trim().isEmpty ||
+      dirName == "." ||
+      dirName == ".." ||
+      dirName.contains("/") ||
+      dirName.contains(p.separator);
+
+  if (isUnsafe) {
+    throw ArgumentError.value(dirName, "dirName", "Invalid wallet folder name (id: ${info.id})");
+  }
+  return dirName;
+}
+
+/// <appDir>/wallets/<type> — always created.
 Future<String> pathForWalletTypeDir({required WalletType type}) async {
   final root = await getAppDir();
-  final prefix = walletTypeToString(type).toLowerCase();
-  final walletsDir = Directory('${root.path}/wallets');
-  final walletDir = Directory('${walletsDir.path}/$prefix');
+  final dir = Directory(p.join(root.path, "wallets", walletTypeToString(type).toLowerCase()));
 
-  if (!walletDir.existsSync()) {
-    walletDir.createSync(recursive: true);
+  if (!dir.existsSync()) {
+    dir.createSync(recursive: true);
   }
-
-  return walletDir.path;
+  return dir.path;
 }
 
-Future<String> pathForWalletDir({required String name, required WalletType type}) async {
-  final typeRoot = await pathForWalletTypeDir(type: type);
-  final walletDire = Directory('${typeRoot}/$name');
+// ---- Path only (no side effects besides the type root) ---------------------
 
-  if (!walletDire.existsSync()) {
-    walletDire.createSync(recursive: true);
+/// <appDir>/wallets/<type>/<dirName>
+Future<String> walletDirPathOf(WalletInfo info) async =>
+    p.join(await pathForWalletTypeDir(type: info.type), _dirNameOf(info));
+
+/// <appDir>/wallets/<type>/<dirName>/<dirName>
+Future<String> walletFilePathOf(WalletInfo info) async =>
+    p.join(await walletDirPathOf(info), _dirNameOf(info));
+
+// ---- Creates the wallet directory -------------------------------------------
+
+/// Like [walletDirPathOf], but creates the directory.
+Future<String> pathForWalletDirOf(WalletInfo info) async {
+  final dir = Directory(await walletDirPathOf(info));
+
+  if (!dir.existsSync()) {
+    dir.createSync(recursive: true);
   }
-
-  return walletDire.path;
+  return dir.path;
 }
 
-Future<String> pathForWallet({required String name, required WalletType type}) async =>
-    await pathForWalletDir(name: name, type: type).then((path) => path + '/$name');
+/// Like [walletFilePathOf], but creates the wallet directory.
+Future<String> pathForWalletOf(WalletInfo info) async =>
+    p.join(await pathForWalletDirOf(info), _dirNameOf(info));
+
+// ---- Legacy ------------------------------------------------------------------
 
 Future<String> outdatedAndroidPathForWalletDir({required String name}) async {
   final directory = await getAppDir();
-  final pathDir = directory.path + '/$name';
-
-  return pathDir;
+  return p.join(directory.path, name);
 }
 
+// ---- Deprecated: wallet files are stored by id and no longer move -----------
+
+@Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
 Future<void> copyWalletFilesTo({
   required String fromName,
   required String toName,

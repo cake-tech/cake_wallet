@@ -328,8 +328,9 @@ abstract class NanoWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+    if (!await WalletKeysFile.hasKeysFile(walletInfo)) {
       await saveKeysFile(_password, _encryptionFileUtils);
+      //TODO(serhii): saveKeysFile is not awaited, double check if this is correct
       saveKeysFile(_password, _encryptionFileUtils, true);
     }
 
@@ -395,13 +396,12 @@ abstract class NanoWalletBase
       });
 
   static Future<NanoWallet> open({
-    required String name,
     required String password,
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
 
     Map<String, dynamic>? data = null;
     try {
@@ -427,8 +427,7 @@ abstract class NanoWalletBase
           mnemonic: isHexSeed ? null : mnemonic, altMnemonic: isHexSeed ? mnemonic : null);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );
@@ -448,12 +447,14 @@ abstract class NanoWalletBase
         derivationInfo.derivationType = DerivationType.bip39;
       }
     }
+    // TODO(serhii): save is not awaited here, double check if this is correct
     derivationInfo.save();
 
     return NanoWallet(
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
       password: password,
+      // TODO(serhii): hex-seed wallets (restored from a 64/128-char seed) have no mnemonic
       mnemonic: keysData.mnemonic!,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
@@ -548,21 +549,23 @@ abstract class NanoWalletBase
     }
   }
 
+  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
+    final currentWalletPath = await walletFilePathOf(walletInfo);
     final currentWalletFile = File(currentWalletPath);
 
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentDirPath = await walletDirPathOf(walletInfo);
     final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
+
+    final newDirPath = '${await pathForWalletTypeDir(type: type)}/$newWalletName';
+    await Directory(newDirPath).create(recursive: true);
 
     // Copies current wallet files into new wallet name's dir and files
     if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
+      await currentWalletFile.copy('$newDirPath/$newWalletName');
     }
     if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
       await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
     }
 

@@ -860,13 +860,11 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
       walletListViewModel,
-      getIt.get<WalletLoadingService>(),
       getIt.get<WalletManager>(),
     ),
   );
 
-  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
-    return WalletEditPage(
+  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) => WalletEditPage(
       pageArguments: WalletEditPageArguments(
         walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
         authService: getIt.get<AuthService>(),
@@ -875,11 +873,11 @@ Future<void> setup({
         ),
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
+        isSingleWalletGroup: arguments.isSingleWalletGroup,
         groupName: arguments.groupName,
         walletGroupKey: arguments.walletGroupKey,
       ),
-    );
-  });
+    ));
 
   getIt.registerFactory<NanoAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;

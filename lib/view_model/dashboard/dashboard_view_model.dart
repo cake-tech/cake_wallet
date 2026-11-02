@@ -1641,8 +1641,8 @@ abstract class DashboardViewModelBase with Store {
       final walletInfos = await WalletInfo.getAll();
       for (var walletInfo in walletInfos) {
         if (walletInfo.type == WalletType.bitcoin) {
-          final password = await keyService.getWalletPassword(walletName: walletInfo.name);
-          final path = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+          final password = await keyService.getWalletPasswordForWallet(walletInfo);
+          final path = await walletFilePathOf(walletInfo);
           final encryption = encryptionFileUtilsFor(SettingsStoreBase.walletPasswordDirectInput);
           final jsonSource = await encryption.read(path: path, password: password);
           final data = json.decode(jsonSource) as Map;

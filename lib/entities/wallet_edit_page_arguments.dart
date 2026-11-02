@@ -8,6 +8,7 @@ class WalletEditPageArguments {
   WalletEditPageArguments({
     required this.editingWallet,
     this.isWalletGroup = false,
+    this.isSingleWalletGroup = false,
     this.walletListViewModel,
     this.groupName = '',
     this.walletGroupKey = '',
@@ -17,7 +18,10 @@ class WalletEditPageArguments {
   });
 
   final WalletListItem editingWallet;
+
   final bool isWalletGroup;
+  final bool isSingleWalletGroup;
+
   final String groupName;
   final String walletGroupKey;
   final WalletListViewModel? walletListViewModel;

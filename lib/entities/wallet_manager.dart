@@ -27,17 +27,13 @@ class WalletManager {
   }
 
   String _resolveGroupKey(WalletInfo walletInfo) {
-    if (walletInfo.hashedWalletIdentifier != null &&
-        walletInfo.hashedWalletIdentifier!.isNotEmpty) {
-      return walletInfo.hashedWalletIdentifier!;
+    final hash = walletInfo.hashedWalletIdentifier;
+    if (hash != null && hash.isNotEmpty) {
+      return hash;
     }
 
-    // Fallback to old logic
     final address = walletInfo.parentAddress ?? walletInfo.address;
-    if (address.isEmpty) {
-      return Random().nextInt(100000).toString();
-    }
-    return address;
+    return address.isNotEmpty ? address : walletInfo.id;
   }
 
   WalletGroup _getOrCreateGroup(String groupKey) {
@@ -77,25 +73,22 @@ class WalletManager {
   }
 
   void _loadCustomGroupNames() {
-    for (var group in walletGroups) {
-      final key = 'wallet_group_name_${group.groupKey}';
-      final groupName = _sharedPreferences.getString(key);
-      if (groupName != null && group.wallets.length > 1) {
+    for (final group in walletGroups) {
+      final groupName = _sharedPreferences.getString(_groupNameKey(group.groupKey));
+      if (groupName != null && groupName.isNotEmpty) {
         group.groupName = groupName;
       }
     }
   }
 
-  void _saveCustomGroupName(String groupKey, String name) {
-    _sharedPreferences.setString('wallet_group_name_$groupKey', name);
-  }
+  String _groupNameKey(String groupKey) => 'wallet_group_name_$groupKey';
 
-  void setGroupName(String groupKey, String name) {
-    if (groupKey.isEmpty || name.isEmpty) return;
+  Future<void> setGroupName(String groupKey, String name) async {
+    final trimmedName = name.trim();
+    if (groupKey.isEmpty || trimmedName.isEmpty) return;
 
-    final group = walletGroups.firstWhere((g) => g.groupKey == groupKey);
-    group.setCustomName(name);
-    _saveCustomGroupName(groupKey, name);
+    await _sharedPreferences.setString(_groupNameKey(groupKey), trimmedName);
+    walletGroups.where((g) => g.groupKey == groupKey).firstOrNull?.setCustomName(trimmedName);
   }
 
   // ---------------------------------------------------------------------------

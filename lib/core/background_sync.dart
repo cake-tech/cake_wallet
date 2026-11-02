@@ -14,6 +14,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_info.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,8 +116,9 @@ class BackgroundSync {
         .where((element) => ![WalletType.haven, WalletType.decred].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
-      final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name,
-          isBackground: true);
+      final walletInfo = await WalletInfo.getById(moneroWallets[i].key as String);
+      if (walletInfo == null) continue;
+      final wallet = await walletLoadingService.load(walletInfo, isBackground: true);
       int syncedTicks = 0;
       final keyService = getIt.get<KeyService>();
 
@@ -159,8 +161,7 @@ class BackgroundSync {
             syncedTicks = 0;
             printV("WALLET $i SYNCED");
             try {
-              await wallet.stopBackgroundSync(
-                  (await keyService.getWalletPassword(walletName: wallet.name)));
+              await wallet.stopBackgroundSync(await keyService.getWalletPasswordForWallet(wallet.walletInfo));
             } catch (e) {
               printV("error stopping sync: $e");
             }
@@ -223,7 +224,7 @@ class BackgroundSync {
             "${wallet.currency.fullName} in ${wallet.name}: TX: ${tx.date} ${tx.amount} ${tx.direction}");
       }
       wallet.id;
-      await wallet.stopBackgroundSync(await keyService.getWalletPassword(walletName: wallet.name));
+      await wallet.stopBackgroundSync(await keyService.getWalletPasswordForWallet(wallet.walletInfo));
       await wallet.close(shouldCleanup: true);
     }
   }

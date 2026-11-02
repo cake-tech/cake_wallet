@@ -316,7 +316,7 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: WalletType.decred);
+      final dirPath = await pathForWalletDirOf(walletInfo);
       final config = {
         "name": walletInfo.name,
         "datadir": dirPath,
@@ -617,12 +617,14 @@ abstract class DecredWalletBase
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
+  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
+    final currentDirPath = await walletDirPathOf(walletInfo);
+    final fromName = p.basename(currentDirPath);
 
-    final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
+    final newDirPath = p.join(await pathForWalletTypeDir(type: type), newWalletName);
 
-    if (File(newDirPath).existsSync()) {
+    if (Directory(newDirPath).existsSync()) {
       throw "wallet already exists at $newDirPath";
     }
 
@@ -647,7 +649,7 @@ abstract class DecredWalletBase
     await sourceDir.delete(recursive: true);
 
     for (final suffix in const ['.keys', '.keys.backup']) {
-      final file = File(p.join(newDirPath, '${walletInfo.name}$suffix'));
+      final file = File(p.join(newDirPath, '$fromName$suffix'));
       if (file.existsSync()) {
         await file.rename(p.join(newDirPath, '$newWalletName$suffix'));
       }

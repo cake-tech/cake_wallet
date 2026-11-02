@@ -6,6 +6,8 @@ import 'package:archive/archive_io.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_group_migration.dart";
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_core/db/sqlite.dart';
@@ -339,6 +341,10 @@ class BackupServiceV3 extends $BackupService {
     // Delete decrypted data file
     decryptedData.deleteSync();
     await initDb();
+
+    // Restored wallets keep their legacy folders; each becomes its own group.
+    await migrateLegacyWalletsToGroups(sharedPreferences, keepLegacyGroups: false);
+
   }
 
   Future<void> verifyHardwareWallets(String password,

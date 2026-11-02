@@ -17,10 +17,10 @@ class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(
-    this._appStore,
-    this._walletLoadingService,
-    this._walletManager,
-  )   : wallets = ObservableList<WalletListItem>(),
+      this._appStore,
+      this._walletLoadingService,
+      this._walletManager,
+      )   : wallets = ObservableList<WalletListItem>(),
         multiWalletGroups = ObservableList<WalletGroup>(),
         singleWalletsList = ObservableList<WalletListItem>(),
         expansionTileStateTrack = ObservableMap<int, bool>() {
@@ -46,6 +46,10 @@ abstract class WalletListViewModelBase with Store {
   @observable
   ObservableMap<int, bool> expansionTileStateTrack;
 
+  /// The one-wallet group behind each entry of [singleWalletsList], by wallet id.
+  /// A single wallet is a group of one: editing it renames this group.
+  final Map<String, WalletGroup> singleWalletGroupByWalletId = {};
+
   @action
   void updateTileState(int index, bool isExpanded) {
     if (expansionTileStateTrack.containsKey(index)) {
@@ -69,8 +73,11 @@ abstract class WalletListViewModelBase with Store {
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
-  Future<bool> requireHardwareWalletConnection(WalletListItem walletItem) async =>
-      _walletLoadingService.requireHardwareWalletConnection(walletItem.type, walletItem.name);
+  Future<bool> requireHardwareWalletConnection(WalletListItem walletItem) async {
+    final walletInfo = await WalletInfo.getById(walletItem.key);
+    if (walletInfo == null) return false;
+    return _walletLoadingService.requireHardwareWalletConnection(walletInfo);
+  }
 
   @action
   Future<void> loadWallet(WalletListItem walletItem) async {
@@ -78,7 +85,7 @@ abstract class WalletListViewModelBase with Store {
       return;
     }
 
-    final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
+    final wallet = await _walletLoadingService.loadById(walletItem.key);
     await _appStore.changeCurrentWallet(wallet);
     updateList();
   }
@@ -104,6 +111,7 @@ abstract class WalletListViewModelBase with Store {
       wallets.clear();
       multiWalletGroups.clear();
       singleWalletsList.clear();
+      singleWalletGroupByWalletId.clear();
 
       final list = await WalletInfo.getAll();
 
@@ -117,7 +125,9 @@ abstract class WalletListViewModelBase with Store {
 
       for (var group in walletGroupsFromManager) {
         if (group.wallets.length == 1) {
-          singleWalletsList.add(convertWalletInfoToWalletListItem(group.wallets.first));
+          final wallet = group.wallets.first;
+          singleWalletsList.add(convertWalletInfoToWalletListItem(wallet));
+          singleWalletGroupByWalletId[wallet.id] = group;
           continue;
         }
 
@@ -156,7 +166,7 @@ abstract class WalletListViewModelBase with Store {
     for (WalletGroup group in multiWalletGroups) {
       for (WalletInfo walletInfo in group.wallets) {
         for (int i = 0; i < wiList.length; i++) {
-          if (wiList[i].name == walletInfo.name) {
+          if (wiList[i].id == walletInfo.id) {
             wiList[i].sortOrder = i + oldI;
             await wiList[i].save();
             wiList.removeAt(i);
@@ -213,7 +223,7 @@ abstract class WalletListViewModelBase with Store {
       await wiList[i].save();
     }
 
-    updateList();
+    await updateList();
   }
 
   void setAscending(bool ascending) {
@@ -246,7 +256,7 @@ abstract class WalletListViewModelBase with Store {
       name: info.name,
       type: info.type,
       key: info.id,
-      isCurrent: info.name == _appStore.wallet?.name && info.type == _appStore.wallet?.type,
+      isCurrent: info.id == _appStore.wallet?.walletInfo.id,
       isEnabled: availableWalletTypes.contains(info.type),
       isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
       isHardware: info.isHardwareWallet,

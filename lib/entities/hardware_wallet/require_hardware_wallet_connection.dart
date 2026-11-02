@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +19,13 @@ Future<bool> requireHardwareWalletConnection() async {
   }
 
   final type = deserializeFromInt(typeRaw);
+
+  // TODO(serhii): name + type is ambiguous for UUID wallets; resolve by currentWalletId.
+  final walletInfo = await WalletInfo.get(name, type);
+  if (walletInfo == null) {
+    return false;
+  }
+
   final walletLoadingService = getIt.get<WalletLoadingService>();
-  return await walletLoadingService.requireHardwareWalletConnection(type, name);
+  return await walletLoadingService.requireHardwareWalletConnection(walletInfo);
 }

@@ -1,30 +1,28 @@
-import 'dart:async';
-import 'dart:ffi';
-import 'dart:io';
-import 'dart:isolate';
+import "dart:async";
+import "dart:ffi";
+import "dart:io";
+import "dart:isolate";
 
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/monero_wallet_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
-import 'package:cw_monero/api/wallet_manager.dart';
-import 'package:cw_monero/bip39_seed.dart';
-import 'package:cw_monero/ledger.dart';
-import 'package:cw_monero/monero_wallet.dart';
-import 'package:cw_monero/trezor.dart';
-import 'package:hive/hive.dart';
-import 'package:monero/monero.dart' as monero;
-import 'package:polyseed/polyseed.dart';
+import "package:cw_core/get_height_by_date.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/monero_wallet_utils.dart";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_monero/api/account_list.dart";
+import "package:cw_monero/api/wallet_manager.dart" as monero_wallet_manager;
+import "package:cw_monero/api/wallet_manager.dart";
+import "package:cw_monero/bip39_seed.dart";
+import "package:cw_monero/ledger.dart";
+import "package:cw_monero/monero_wallet.dart";
+import "package:cw_monero/trezor.dart";
+import "package:hive/hive.dart";
+import "package:monero/monero.dart" as monero;
+import "package:polyseed/polyseed.dart";
 
 enum MoneroSeedType { polyseed, legacy, bip39 }
 
@@ -116,7 +114,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<MoneroWallet> create(MoneroNewWalletCredentials credentials, {bool? isTestnet}) async {
     try {
-      final path = await pathForWallet(name: credentials.name, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
 
       if (credentials.seedType == MoneroSeedType.bip39) {
         return _restoreFromBip39(
@@ -163,9 +161,9 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async {
+  Future<bool> isWalletExit(WalletInfo walletInfo) async {
     try {
-      final path = await pathForWallet(name: name, type: getType());
+      final path = await pathForWalletOf(walletInfo);
       return monero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
@@ -175,18 +173,14 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<MoneroWallet> openWallet(String name, String password,
+  Future<MoneroWallet> openWallet(WalletInfo walletInfo, String password,
       {OpenWalletTry openWalletTry = OpenWalletTry.initial}) async {
     try {
-      final path = await pathForWallet(name: name, type: getType());
+      final path = await pathForWalletOf(walletInfo);
 
-      if (walletFilesExist(path)) await repairOldAndroidWallet(name);
+      if (walletFilesExist(path)) await repairOldAndroidWallet(walletInfo);
 
       await monero_wallet_manager.openWallet(path: path, password: password);
-      final walletInfo = await WalletInfo.get(name, getType());
-      if (walletInfo == null) {
-        throw WalletNotFoundException(name: name, type: getType());
-      }
       final wallet = MoneroWallet(
           walletInfo: walletInfo,
           derivationInfo: await walletInfo.getDerivationInfo(),
@@ -206,11 +200,11 @@ class MoneroWalletService extends WalletService<
 
       switch (openWalletTry) {
         case OpenWalletTry.initial:
-          await restoreOrResetWalletFiles(name);
-          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRestored);
+          await restoreOrResetWalletFiles(walletInfo);
+          return await openWallet(walletInfo, password, openWalletTry: OpenWalletTry.cacheRestored);
         case OpenWalletTry.cacheRestored:
-          await removeCache(name);
-          return await openWallet(name, password, openWalletTry: OpenWalletTry.cacheRemoved);
+          await removeCache(walletInfo);
+          return await openWallet(walletInfo, password, openWalletTry: OpenWalletTry.cacheRemoved);
         case OpenWalletTry.cacheRemoved:
           rethrow;
       }
@@ -218,67 +212,28 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: getType());
-    if (openedWalletsByPath["$path/$wallet"] != null) {
+  Future<void> remove(WalletInfo walletInfo) async {
+    final path = await pathForWalletOf(walletInfo);
+
+    if (openedWalletsByPath[path] != null) {
+      // NOTE: this is realistically only required on windows.
       printV("closing wallet");
-      final w = openedWalletsByPath["$path/$wallet"]!;
+      final w = openedWalletsByPath[path]!;
       final wmaddr = wmPtr.ffiAddress();
       final waddr = w.ffiAddress();
-      openedWalletsByPath.remove("$path/$wallet");
-      if (currentWallet?.ffiAddress() == waddr) {
-        currentWallet = null;
-      }
-      // must finish before deleting the files, a pending close stores the cache mid-deletion
-      await Isolate.run(() {
-        monero.WalletManager_closeWallet(
-            Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), false);
-        monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-      });
+      openedWalletsByPath.remove(path);
+      await closeWalletAwaitIfShould(wmaddr, waddr);
       printV("wallet closed");
     }
 
-    final file = Directory(path);
-    final isExist = file.existsSync();
-
-    if (isExist) {
-      await file.delete(recursive: true);
-    }
-
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: wallet, type: getType());
-    }
-    await WalletInfo.delete(walletInfo);
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    final currentWalletInfo = await WalletInfo.get(currentName, getType());
-    if (currentWalletInfo == null) {
-      throw WalletNotFoundException(name: currentName, type: getType());
-    }
-    final currentWallet = MoneroWallet(
-      walletInfo: currentWalletInfo,
-      derivationInfo: await currentWalletInfo.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfoSource,
-      password: password,
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
+    await super.remove(walletInfo);
   }
 
   @override
   Future<MoneroWallet> restoreFromKeys(MoneroRestoreWalletFromKeysCredentials credentials,
       {bool? isTestnet}) async {
     try {
-      final path = await pathForWallet(name: credentials.name, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
       monero_wallet_manager.restoreWalletFromKeys(
           path: path,
           password: credentials.password!,
@@ -306,7 +261,7 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromHardwareWallet(
       MoneroRestoreWalletFromHardwareCredentials credentials) async {
     try {
-      final path = await pathForWallet(name: credentials.name, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
       final password = credentials.password;
 
       if (credentials.hardwareWalletService case MoneroLedgerService service) {
@@ -368,7 +323,7 @@ class MoneroWalletService extends WalletService<
 
     try {
       if (isBip39Seed(credentials.mnemonic)) {
-        final path = await pathForWallet(name: credentials.name, type: getType());
+        final path = await pathForWalletOf(credentials.walletInfo!);
 
         return _restoreFromBip39(
           path: path,
@@ -385,7 +340,7 @@ class MoneroWalletService extends WalletService<
     }
 
     try {
-      final path = await pathForWallet(name: credentials.name, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
 
       monero_wallet_manager.restoreWalletFromSeedSync(
           path: path,
@@ -454,7 +409,7 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromPolyseed(
       MoneroRestoreWalletFromSeedCredentials credentials) async {
     try {
-      final path = await pathForWallet(name: credentials.name, type: getType());
+      final path = await pathForWalletOf(credentials.walletInfo!);
       final polyseedCoin = PolyseedCoin.POLYSEED_MONERO;
       final lang = PolyseedLang.getByPhrase(credentials.mnemonic);
       final polyseed = Polyseed.decode(credentials.mnemonic, lang, polyseedCoin);
@@ -527,16 +482,16 @@ class MoneroWalletService extends WalletService<
     return wallet;
   }
 
-  Future<void> repairOldAndroidWallet(String name) async {
+  Future<void> repairOldAndroidWallet(WalletInfo walletInfo) async {
     try {
       if (!Platform.isAndroid) return;
 
-      final oldAndroidWalletDirPath = await outdatedAndroidPathForWalletDir(name: name);
+      final oldAndroidWalletDirPath = await outdatedAndroidPathForWalletDir(name: walletInfo.name);
       final dir = Directory(oldAndroidWalletDirPath);
 
       if (!dir.existsSync()) return;
 
-      final newWalletDirPath = await pathForWalletDir(name: name, type: getType());
+      final newWalletDirPath = await pathForWalletDirOf(walletInfo);
 
       dir.listSync().forEach((f) {
         final file = File(f.path);
@@ -555,17 +510,13 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<String> getSeeds(String name, String password, WalletType type) async {
+  Future<String> getSeeds(WalletInfo walletInfo, String password) async {
     try {
-      final path = await pathForWallet(name: name, type: getType());
+      final path = await pathForWalletOf(walletInfo);
 
-      if (walletFilesExist(path)) await repairOldAndroidWallet(name);
+      if (walletFilesExist(path)) await repairOldAndroidWallet(walletInfo);
 
       await monero_wallet_manager.openWallet(path: path, password: password);
-      final walletInfo = await WalletInfo.get(name, getType());
-      if (walletInfo == null) {
-        throw WalletNotFoundException(name: name, type: getType());
-      }
       final wallet = MoneroWallet(
         walletInfo: walletInfo,
         derivationInfo: await walletInfo.getDerivationInfo(),
@@ -574,19 +525,13 @@ class MoneroWalletService extends WalletService<
       );
       return wallet.seed;
     } catch (_) {
-      // if the file couldn't be opened or read
       return '';
     }
   }
 
   @override
-  Future<bool> requireHardwareWalletConnection(String name) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      return false;
-    }
-    return walletInfo.hardwareWalletType == HardwareWalletType.ledger;
-  }
+  Future<bool> requireHardwareWalletConnection(WalletInfo walletInfo) async =>
+      walletInfo.hardwareWalletType == HardwareWalletType.ledger;
 }
 
 Future<void> closeWalletAwaitIfShould(int wmaddr, int waddr) async {

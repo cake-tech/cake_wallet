@@ -162,7 +162,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = await pathForWalletOf(credentials.walletInfo!);
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
     final providedMnemonic =
         credentials is ZanoNewWalletCredentials ? credentials.mnemonic : null;
@@ -193,7 +193,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = await pathForWalletOf(credentials.walletInfo!);
     final passphrase = credentials.passphrase ?? '';
     final CreateWalletResult createWalletResult;
     final isBip39 = isBip39Seed(credentials.mnemonic);
@@ -244,7 +244,7 @@ abstract class ZanoWalletBase
       required String password,
       required WalletInfo walletInfo,
       required EncryptionFileUtils encryptionFileUtils}) async {
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final path = await walletFilePathOf(walletInfo);
     final wallet =
         ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password, encryptionFileUtils);
 
@@ -544,10 +544,11 @@ abstract class ZanoWalletBase
     });
   }
 
+  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-    final currentWalletPath = '$currentWalletDirPath/$name';
+    final currentWalletDirPath = await walletDirPathOf(walletInfo);
+    final currentWalletPath = await walletFilePathOf(walletInfo);
     final currentCacheFile = File(currentWalletPath);
     final currentKeysFile = File('$currentWalletPath.keys');
     final currentAddressListFile = File('$currentWalletPath.address.txt');
@@ -556,7 +557,8 @@ abstract class ZanoWalletBase
     final currentCakeKeysFile = File('$currentWalletPath$_cakeKeysFileSuffix');
     final currentCakeKeysBackupFile = File('$currentWalletPath$_cakeKeysFileSuffix.backup');
 
-    final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
+    final newWalletDirPath = p.join(await pathForWalletTypeDir(type: type), newWalletName);
+    await Directory(newWalletDirPath).create(recursive: true);
     final newWalletPath = '$newWalletDirPath/$newWalletName';
 
     // Copies current wallet files into new wallet name's dir and files

@@ -51,28 +51,17 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   bool isFetchingMnemonic;
 
   @computed
-  bool get hasNoFilteredWallet {
-    return singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
-  }
+  bool get hasNoFilteredWallet => singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
 
   @action
   Future<String?> getSelectedWalletMnemonic() async {
-    WalletListItem walletToUse;
-
-    bool isGroupSelected = selectedWalletGroup != null;
-
-    if (isGroupSelected) {
-      walletToUse = convertWalletInfoToWalletListItem(selectedWalletGroup!.wallets.first);
-    } else {
-      walletToUse = convertWalletInfoToWalletListItem(selectedSingleWallet!);
-    }
+    final walletInfo = selectedWalletGroup != null
+        ? selectedWalletGroup!.wallets.first
+        : selectedSingleWallet!;
 
     try {
       isFetchingMnemonic = true;
-      final wallet = await _walletLoadingService.load(
-        walletToUse.type,
-        walletToUse.name,
-      );
+      final wallet = await _walletLoadingService.load(walletInfo);
 
       return wallet.seed;
     } catch (e) {

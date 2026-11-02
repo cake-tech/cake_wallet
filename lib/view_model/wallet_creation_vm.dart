@@ -21,6 +21,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
+import "package:uuid/uuid.dart";
 
 part 'wallet_creation_vm.g.dart';
 
@@ -100,9 +101,6 @@ abstract class WalletCreationVMBase with Store {
       }
 
       await walletCreationService.checkIfExists(name);
-      final dirPath = await pathForWalletDir(name: name, type: type);
-      final path = await pathForWallet(name: name, type: type);
-
       final credentials = getCredentials(options);
 
       final di = ((credentials.derivationInfo?.derivationPath ?? "") == "")
@@ -113,14 +111,14 @@ abstract class WalletCreationVMBase with Store {
       credentials.derivationInfo = di;
 
       credentials.walletInfo = WalletInfo.external(
-        id: WalletBase.idFor(name, type),
+        id: const Uuid().v4(),
         name: name,
         type: type,
         isRecovery: isRecovery,
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
-        path: path,
-        dirPath: dirPath,
+        path: "",
+        dirPath: "",
         address: '',
         showIntroCakePayCard:
             (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
