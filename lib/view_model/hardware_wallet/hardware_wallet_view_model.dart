@@ -1,6 +1,6 @@
 import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
+import "package:cake_wallet/src/screens/connect_device/connect_device_page_params.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
@@ -42,18 +42,40 @@ abstract class HardwareWalletViewModel {
 
     if (wallet.isHardwareWallet) {
       if (!isConnected(wallet.walletInfo.type)) {
+        Object? initializationError;
+        StackTrace? initializationStack;
+        var initializationStarted = false;
+        var completedOnConnectionRoute = false;
         await Navigator.of(context).pushNamed(
           Routes.connectDevices,
           arguments: ConnectDevicePageParams(
             walletType: wallet.walletInfo.type,
             hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (context, hwwVM) {
-              hwwVM.initWallet(wallet);
-              Navigator.of(context).pop();
+            onConnectDevice: (pageContext, hwwVM) async {
+              if (initializationStarted || !pageContext.mounted) return;
+              final route = ModalRoute.of(pageContext);
+              if (route?.isCurrent != true) return;
+              initializationStarted = true;
+              try {
+                await hwwVM.initWallet(wallet);
+              } catch (error, stack) {
+                initializationError = error;
+                initializationStack = stack;
+              }
+              if (pageContext.mounted && route!.isCurrent) {
+                completedOnConnectionRoute = true;
+                Navigator.of(pageContext).pop();
+              }
             },
             isReconnect: false,
           ),
         );
+        if (!completedOnConnectionRoute) {
+          return false;
+        }
+        if (initializationError != null) {
+          Error.throwWithStackTrace(initializationError!, initializationStack!);
+        }
         if (!isConnected(wallet.walletInfo.type)) {
           return false;
         }

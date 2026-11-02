@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
@@ -89,6 +90,12 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           name: name,
           hardwareWalletService: hardwareWalletVM.getHardwareWalletService(type),
           height: _options["height"] as int? ?? 0,
+        );
+        break;
+      case WalletType.tron:
+        credentials = tron!.createTronHardwareWalletCredentials(
+          name: name,
+          accountData: selectedAccount!,
         );
         break;
       case WalletType.monero:

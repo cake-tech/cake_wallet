@@ -211,6 +211,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/bitbox_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/ledger_view_model.dart';
+import 'package:cake_wallet/view_model/hardware_wallet/ledger_app_dependencies.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/integrations/deuro_view_model.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
@@ -394,7 +395,7 @@ Future<void> setup({
     }
   });
 
-  getIt.registerLazySingleton(() => LedgerViewModel(getIt<AppStore>()));
+  getIt.registerLazySingleton(() => LedgerViewModel(ledgerAppDependencies(getIt<AppStore>())));
 
   getIt.registerLazySingleton(BitboxViewModel.new);
 

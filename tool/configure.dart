@@ -1113,7 +1113,7 @@ class JupiterSwapFailedException implements Exception {
 Future<void> generateTron(bool hasImplementation) async {
   final outputFile = File(tronOutputPath);
   const tronCommonHeaders = """
-import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cake_wallet/view_model/send/tron_output_data.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -1125,6 +1125,9 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/tron_token.dart';
 import 'package:cw_core/transaction_direction.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 
 """;
   const tronCWHeaders = """
@@ -1137,6 +1140,7 @@ import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_service.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
+import 'package:cw_tron/hardware/tron_ledger_service.dart';
 
 """;
   const tronCwPart = "part 'cw_tron.dart';";
@@ -1147,10 +1151,15 @@ abstract class Tron {
   WalletCredentials createTronNewWalletCredentials({required String name, WalletInfo? walletInfo, String? password, String? mnemonic, String? passphrase});
   WalletCredentials createTronRestoreWalletFromSeedCredentials({required String name, required String mnemonic, required String password, String? passphrase});
   WalletCredentials createTronRestoreWalletFromPrivateKey({required String name, required String privateKey, required String password});
+  WalletCredentials createTronHardwareWalletCredentials({required String name, required HardwareAccountData accountData});
+  HardwareWalletService getLedgerHardwareWalletService(LedgerConnection connection);
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  void clearHardwareWalletService(WalletBase wallet);
+  Future<void> verifyHardwareAddress(WalletBase wallet);
   String getAddress(WalletBase wallet);
 
   Object createTronTransactionCredentials(
-    List<Output> outputs, {
+    List<TronOutputData> outputs, {
     required CryptoCurrency currency,
   });
 

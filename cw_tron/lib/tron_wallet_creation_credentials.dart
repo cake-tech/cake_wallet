@@ -1,5 +1,6 @@
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/hardware/hardware_account_data.dart';
 
 class TronNewWalletCredentials extends WalletCredentials {
   TronNewWalletCredentials({
@@ -44,4 +45,15 @@ class TronRestoreWalletFromPrivateKey extends WalletCredentials {
       : super(name: name, password: password, walletInfo: walletInfo);
 
   final String privateKey;
+}
+
+class TronRestoreWalletFromHardware extends WalletCredentials {
+  TronRestoreWalletFromHardware({
+    required super.name,
+    required this.accountData,
+    super.walletInfo,
+    super.password,
+  });
+
+  final HardwareAccountData accountData;
 }

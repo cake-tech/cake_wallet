@@ -49,8 +49,33 @@ class CWTron extends Tron {
   @override
   String getAddress(WalletBase wallet) => (wallet as TronWallet).walletAddresses.address;
 
+  @override
+  WalletCredentials createTronHardwareWalletCredentials({
+    required String name,
+    required HardwareAccountData accountData,
+  }) =>
+      TronRestoreWalletFromHardware(name: name, accountData: accountData);
+
+  @override
+  HardwareWalletService getLedgerHardwareWalletService(LedgerConnection connection) =>
+      TronLedgerService(connection);
+
+  @override
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
+    (wallet as TronWallet).setHardwareWalletService(service as TronLedgerService);
+  }
+
+  @override
+  void clearHardwareWalletService(WalletBase wallet) {
+    (wallet as TronWallet).clearHardwareWalletService();
+  }
+
+  @override
+  Future<void> verifyHardwareAddress(WalletBase wallet) =>
+      (wallet as TronWallet).verifyHardwareAddress();
+
   Object createTronTransactionCredentials(
-    List<Output> outputs, {
+    List<TronOutputData> outputs, {
     required CryptoCurrency currency,
   }) =>
       TronTransactionCredentials(
@@ -61,6 +86,7 @@ class CWTron extends Tron {
                 cryptoAmount: out.cryptoAmountMoney,
                 address: out.address,
                 note: out.note,
+                memo: out.memo,
                 sendAll: out.sendAll,
                 extractedAddress: out.extractedAddress,
                 isParsedAddress: out.isParsedAddress,

@@ -1,14 +1,10 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
-import 'package:cw_core/balance.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/tron_token.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -16,12 +12,13 @@ import 'package:cw_tron/tron_client.dart';
 import 'package:cw_tron/tron_exception.dart';
 import 'package:cw_tron/tron_wallet.dart';
 import 'package:cw_tron/tron_wallet_creation_credentials.dart';
+import 'package:on_chain/on_chain.dart';
 
 class TronWalletService extends WalletService<
     TronNewWalletCredentials,
     TronRestoreWalletFromSeedCredentials,
     TronRestoreWalletFromPrivateKey,
-    TronNewWalletCredentials> {
+    TronRestoreWalletFromHardware> {
   TronWalletService({required this.client, required this.isDirect});
 
   late TronClient client;
@@ -44,6 +41,7 @@ class TronWalletService extends WalletService<
       password: credentials.password!,
       passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      client: client,
     );
 
     await wallet.init();
@@ -66,6 +64,7 @@ class TronWalletService extends WalletService<
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        client: client,
       );
 
       await wallet.init();
@@ -81,6 +80,7 @@ class TronWalletService extends WalletService<
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+        client: client,
       );
 
       await wallet.init();
@@ -101,6 +101,7 @@ class TronWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      client: client,
     );
 
     await wallet.init();
@@ -126,6 +127,7 @@ class TronWalletService extends WalletService<
       derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
       passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      client: client,
     );
 
     await wallet.init();
@@ -154,9 +156,36 @@ class TronWalletService extends WalletService<
   }
 
   @override
-  Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromHardwareWallet(TronNewWalletCredentials credentials) {
-    // TODO: implement restoreFromHardwareWallet
-    throw UnimplementedError();
+  Future<TronWallet> restoreFromHardwareWallet(TronRestoreWalletFromHardware credentials) async {
+    final info = credentials.walletInfo!;
+    if (credentials.hardwareWalletType != HardwareWalletType.ledger) {
+      throw UnsupportedError('Only Ledger hardware wallets are supported for TRON');
+    }
+    final account = credentials.accountData;
+    final expectedPath = "m/44'/195'/${account.accountIndex}'/0/0";
+    if (account.accountIndex < 0 ||
+        account.accountIndex >= 0x80000000 ||
+        account.derivationPath != expectedPath) {
+      throw ArgumentError('Invalid TRON Ledger account derivation path');
+    }
+    final address = TronAddress(account.address).toAddress();
+    final derivation = await info.getDerivationInfo();
+    derivation.derivationType = DerivationType.bip39;
+    derivation.derivationPath = account.derivationPath;
+    await derivation.save();
+    info.hardwareWalletType = credentials.hardwareWalletType;
+    info.address = address;
+    await info.save();
+    final wallet = TronWallet(
+      walletInfo: info,
+      derivationInfo: derivation,
+      password: credentials.password!,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      client: client,
+    );
+    await wallet.init();
+    await wallet.addInitialTokens();
+    await wallet.save();
+    return wallet;
   }
 }

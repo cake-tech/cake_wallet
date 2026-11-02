@@ -15,6 +15,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
+import 'package:cake_wallet/view_model/send/tron_output_data.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/balance.dart';
@@ -36,7 +37,7 @@ const String cryptoNumberPattern = '0.0';
 
 class Output = OutputBase with _$Output;
 
-abstract class OutputBase with Store {
+abstract class OutputBase with Store implements TronOutputData {
   OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
       : key = UniqueKey(),
         sendAll = false,

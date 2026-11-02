@@ -1853,9 +1853,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
-      resolved-ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
-      url: "https://github.com/cake-tech/ledger-flutter-plus"
+      ref: "1b902d4babe199d7b1e7d42aa42c7895ab497850"
+      resolved-ref: "1b902d4babe199d7b1e7d42aa42c7895ab497850"
+      url: "https://github.com/Odrin/ledger-flutter-plus"
     source: git
     version: "1.6.0+1"
   ledger_litecoin:

@@ -860,8 +860,8 @@ dependency_overrides:
       path: ./packages/ledger-ethereum
   ledger_flutter_plus:
     git:
-      url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
+      url: https://github.com/Odrin/ledger-flutter-plus
+      ref: 1b902d4babe199d7b1e7d42aa42c7895ab497850
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
