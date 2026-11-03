@@ -1,12 +1,18 @@
 ARG BASE_IMAGE
 FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 
+COPY scripts/docker/git-credential-github.sh /usr/local/bin/git-credential-github
+RUN chmod 755 /usr/local/bin/git-credential-github \
+    && git config --system credential.helper /usr/local/bin/git-credential-github
+
 RUN mkdir -p /w/scripts/android
 COPY scripts/functions.sh /w/scripts/functions.sh
 COPY scripts/prepare_reown.sh /w/scripts/prepare_reown.sh
 COPY scripts/android/build_reown_deps.sh /w/scripts/android/build_reown_deps.sh
-RUN cd $(dirname $(which flutter)) && git checkout 3.32.0
-RUN /w/scripts/android/build_reown_deps.sh \
+RUN --mount=type=secret,id=github_token,required=false,mode=0444 \
+    cd $(dirname $(which flutter)) && git checkout 3.32.0
+RUN --mount=type=secret,id=github_token,required=false,mode=0444 \
+    /w/scripts/android/build_reown_deps.sh \
     && rm -rf /w/scripts/reown_flutter/packages/reown_core/.dart_tool \
     && rm -rf /w/scripts/reown_flutter/packages/reown_sign/.dart_tool \
     && rm -rf /w/scripts/reown_flutter/packages/reown_cli/.dart_tool \

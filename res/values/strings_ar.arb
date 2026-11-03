@@ -802,6 +802,7 @@
   "overshot": "تجاوز الحد",
   "overwrite_amount": "استبدال المبلغ",
   "pairing_code": "رمز الإقران",
+  "pairing_code_bitbox_confirm": "تأكد من أن الرمز أدناه يطابق الرمز المعروض على جهاز BitBox الخاص بك",
   "pairing_code_desc_1": "سيعرض جهازك رمز إقران.",
   "pairing_code_desc_2": "أدخله هنا للمتابعة",
   "pairing_error": "خطأ في الإقران",
