@@ -801,6 +801,7 @@
   "overshot": "Ohasa hetave (overshot)",
   "overwrite_amount": "Embyekovia hetakue",
   "pairing_code": "Pairing Código",
+  "pairing_code_bitbox_confirm": "Ehechauka pe código oĩva yvy gotyo ojoja pe ojehechaukáva ne BitBox-pe",
   "pairing_code_desc_1": "Ne mba'e'oka ohechaukáta peteĩ pairing código.",
   "pairing_code_desc_2": "Emoinge ko'ápe resegí hag̃ua",
   "pairing_error": "Pairing Jejavy",

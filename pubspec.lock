@@ -209,10 +209,12 @@ packages:
   bitbox_flutter:
     dependency: "direct main"
     description:
-      path: "scripts/bitbox_flutter"
-      relative: true
-    source: path
-    version: "0.0.1"
+      path: "."
+      ref: "3d1c607f14c6d5bace2971ec4c10b5201053cc56"
+      resolved-ref: "3d1c607f14c6d5bace2971ec4c10b5201053cc56"
+      url: "https://github.com/cake-tech/bitbox_flutter.git"
+    source: git
+    version: "0.1.0"
   bitcoin_base:
     dependency: "direct overridden"
     description:
@@ -3491,5 +3493,5 @@ packages:
     source: git
     version: "6.31.0"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
+  dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.19.0"

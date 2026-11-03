@@ -42,26 +42,6 @@ jobs:
       - name: Build base
         run: ./scripts/android/docker/build.sh --only base
 
-  bitbox:
-    needs: base
-    runs-on: puzl-ubuntu-latest
-    timeout-minutes: 360
-    steps:
-      - uses: actions/checkout@v4
-        if: ${{ env.ACT != 'true' }}
-        with:
-          ref: ${{ inputs.ref }}
-      - name: Docker sock permissions
-        run: sudo chmod 666 /var/run/docker.sock || true
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build bitbox
-        run: ./scripts/android/docker/build.sh --only bitbox
-
   mwebd:
     needs: base
     runs-on: puzl-ubuntu-latest
@@ -236,7 +216,7 @@ jobs:
         run: ./scripts/android/docker/build.sh --only decred
 
   final:
-    needs: [bitbox, mwebd, reown, zcash, torch_merge, monero_merge, decred]
+    needs: [mwebd, reown, zcash, torch_merge, monero_merge, decred]
     runs-on: puzl-ubuntu-latest
     timeout-minutes: 360
     steps:

@@ -802,6 +802,7 @@
   "overshot": "लक्ष्य से अधिक हो गया",
   "overwrite_amount": "राशि ओवरराइट करें",
   "pairing_code": "पेयरिंग कोड",
+  "pairing_code_bitbox_confirm": "पुष्टि करें कि नीचे दिया गया कोड आपके BitBox पर दिखाए गए कोड से मेल खाता है",
   "pairing_code_desc_1": "आपका डिवाइस एक पेयरिंग कोड दिखाएगा।",
   "pairing_code_desc_2": "जारी रखने के लिए यहाँ दर्ज करें",
   "pairing_error": "पेयरिंग त्रुटि",

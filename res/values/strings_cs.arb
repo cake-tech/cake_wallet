@@ -802,6 +802,7 @@
   "overshot": "Přestřelení",
   "overwrite_amount": "Přepsat částku",
   "pairing_code": "Párovací kód",
+  "pairing_code_bitbox_confirm": "Ověřte, že níže uvedený kód odpovídá kódu zobrazenému na vašem BitBoxu",
   "pairing_code_desc_1": "Vaše zařízení zobrazí párovací kód.",
   "pairing_code_desc_2": "Zadejte ho zde a pokračujte",
   "pairing_error": "Chyba párování",
