@@ -210,9 +210,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "1552486757c4fd83f1038a9cb618879756050484"
-      resolved-ref: "1552486757c4fd83f1038a9cb618879756050484"
-      url: "https://github.com/konstantinullrich/bitbox_flutter.git"
+      ref: "3d1c607f14c6d5bace2971ec4c10b5201053cc56"
+      resolved-ref: "3d1c607f14c6d5bace2971ec4c10b5201053cc56"
+      url: "https://github.com/cake-tech/bitbox_flutter.git"
     source: git
     version: "0.1.0"
   bitcoin_base:
