@@ -1224,6 +1224,7 @@
   "solana_no_associated_token_account_exception": "Il n'existe aucun compte de jeton associé pour cette adresse.",
   "solana_sign_native_transaction_rent_exception": "La transaction ne peut pas être effectuée. SOL insuffisant pour couvrir le loyer après la transaction. Veuillez approvisionner votre solde SOL ou réduire le montant de SOL que vous envoyez.",
   "solana_sign_spl_token_transaction_rent_exception": "La transaction ne peut pas être effectuée. SOL insuffisant pour couvrir le loyer après la transaction. Veuillez approvisionner votre solde SOL.",
+  "solana_unrecognized_token_program_exception": "Ce jeton utilise un programme de jeton non reconnu, la transaction n'a donc pas été créée. Votre nœud renvoie peut-être des données erronées, essayez de passer à un autre nœud.",
   "sort_by": "Trier par",
   "spend_key_private": "Clé de dépense (privée)",
   "spend_key_public": "Clé de dépense (publique)",

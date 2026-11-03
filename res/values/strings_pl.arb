@@ -1224,6 +1224,7 @@
   "solana_no_associated_token_account_exception": "Nie ma powiązanego konta tokenów dla tego adresu.",
   "solana_sign_native_transaction_rent_exception": "Transakcja nie może zostać zrealizowana. Po transakcji pozostanie niewystarczająca ilość SOL na opłatę rent. Doładuj saldo SOL lub zmniejsz ilość wysyłanego SOL.",
   "solana_sign_spl_token_transaction_rent_exception": "Transakcja nie może zostać zrealizowana. Po jej wykonaniu pozostanie niewystarczająca ilość SOL na opłatę za rent. Proszę doładować saldo SOL.",
+  "solana_unrecognized_token_program_exception": "Ten token korzysta z nierozpoznanego programu tokena, więc transakcja nie została utworzona. Twój węzeł może zwracać błędne dane. Spróbuj przełączyć się na inny węzeł.",
   "sort_by": "Sortuj według",
   "spend_key_private": "Klucz wydawania (prywatny)",
   "spend_key_public": "Klucz wydawania (publiczny)",

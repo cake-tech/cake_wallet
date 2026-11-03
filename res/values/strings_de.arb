@@ -1272,6 +1272,7 @@
   "solana_no_associated_token_account_exception": "Für diese Adresse gibt es kein zugeordnetes Token-Konto.",
   "solana_sign_native_transaction_rent_exception": "Transaktion kann nicht abgeschlossen werden. Nach der Transaktion bleibt nicht genügend SOL für die Rent-Reserve übrig. Bitte laden Sie Ihr SOL-Guthaben auf oder reduzieren Sie den Betrag an SOL, den Sie senden.",
   "solana_sign_spl_token_transaction_rent_exception": "Transaktion kann nicht abgeschlossen werden. Nach der Transaktion ist nicht genug SOL für die Miete übrig. Bitte laden Sie Ihr SOL-Guthaben auf.",
+  "solana_unrecognized_token_program_exception": "Dieser Token verwendet ein unbekanntes Token-Programm, daher wurde die Transaktion nicht erstellt. Ihr Knoten gibt möglicherweise falsche Daten zurück. Versuchen Sie, zu einem anderen Knoten zu wechseln.",
   "sort_by": "Sortieren nach",
   "spend_key_private": "Spend-Key (privat)",
   "spend_key_public": "Spend-Key (öffentlich)",

@@ -1224,6 +1224,7 @@
   "solana_no_associated_token_account_exception": "Ne postoji povezani token račun za ovu adresu.",
   "solana_sign_native_transaction_rent_exception": "Transakcija se ne može dovršiti. Nakon transakcije neće ostati dovoljno SOL-a za rentu. Molimo nadopunite svoj SOL saldo ili smanjite iznos SOL-a koji šaljete.",
   "solana_sign_spl_token_transaction_rent_exception": "Transakcija se ne može dovršiti. Nakon transakcije nema dovoljno SOL-a za rent. Molimo nadopunite svoj SOL saldo.",
+  "solana_unrecognized_token_program_exception": "Ovaj token koristi neprepoznati program tokena, tako da transakcija nije stvorena. Vaš čvor možda vraća krive podatke, pokušajte se prebaciti na drugi čvor.",
   "sort_by": "Sortiraj po",
   "spend_key_private": "Ključ za trošenje (privatni)",
   "spend_key_public": "Ključ za trošenje (javni)",

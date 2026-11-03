@@ -1225,6 +1225,7 @@
   "solana_no_associated_token_account_exception": "Không có tài khoản token liên kết cho địa chỉ này.",
   "solana_sign_native_transaction_rent_exception": "Giao dịch không thể hoàn tất. Không đủ SOL còn lại để trả phí rent sau giao dịch. Vui lòng nạp thêm SOL vào số dư của bạn hoặc giảm số lượng SOL bạn đang gửi.",
   "solana_sign_spl_token_transaction_rent_exception": "Giao dịch không thể hoàn tất. Không đủ SOL còn lại để trả phí rent sau giao dịch. Vui lòng nạp thêm SOL vào số dư của bạn.",
+  "solana_unrecognized_token_program_exception": "Token này sử dụng chương trình token không được nhận dạng nên giao dịch không được tạo. Nút của bạn có thể trả về dữ liệu sai, hãy thử chuyển sang nút khác.",
   "sort_by": "Sắp xếp theo",
   "spend_key_private": "Khóa chi tiêu (riêng tư)",
   "spend_key_public": "Khóa chi tiêu (công khai)",

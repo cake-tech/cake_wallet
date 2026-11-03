@@ -1272,6 +1272,7 @@
   "solana_no_associated_token_account_exception": "There is no associated token account for this address.",
   "solana_sign_native_transaction_rent_exception": "Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance or reduce the amount of SOL you are sending.",
   "solana_sign_spl_token_transaction_rent_exception": "Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance.",
+  "solana_unrecognized_token_program_exception": "This token uses an unrecognized token program, so the transaction was not created. Your node may be returning wrong data, try switching to another node.",
   "sort_by": "Sort by",
   "spend_key_private": "Spend key (private)",
   "spend_key_public": "Spend key (public)",

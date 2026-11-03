@@ -1224,6 +1224,7 @@
   "solana_no_associated_token_account_exception": "Walang nauugnay na token account para sa address na ito.",
   "solana_sign_native_transaction_rent_exception": "Hindi makumpleto ang transaksyon. Hindi sapat ang natitirang SOL para sa rent pagkatapos ng transaksyon. Pakidagdagan ang iyong SOL balance o bawasan ang halagang SOL na ipinapadala mo.",
   "solana_sign_spl_token_transaction_rent_exception": "Hindi makumpleto ang transaksyon. Hindi sapat ang natitirang SOL para sa rent pagkatapos ng transaksyon. Pakidagdagan ang iyong SOL balance.",
+  "solana_unrecognized_token_program_exception": "Gumagamit ang token na ito ng hindi nakikilalang token program, kaya hindi nagawa ang transaksyon. Maaaring maling data ang ibinabalik ng iyong node, subukang lumipat sa ibang node.",
   "sort_by": "Pag-uri-uriin ayon sa",
   "spend_key_private": "Spend key (pribado)",
   "spend_key_public": "Spend key (pampubliko)",

@@ -1227,6 +1227,7 @@
   "solana_no_associated_token_account_exception": "Tidak ada akun token terkait untuk alamat ini.",
   "solana_sign_native_transaction_rent_exception": "Transaksi tidak dapat diselesaikan. Saldo SOL tidak mencukupi untuk biaya sewa (rent) setelah transaksi. Mohon isi ulang saldo SOL Anda atau kurangi jumlah SOL yang Anda kirim.",
   "solana_sign_spl_token_transaction_rent_exception": "Transaksi tidak dapat diselesaikan. SOL tidak cukup tersisa untuk biaya sewa (rent) setelah transaksi. Silakan isi ulang saldo SOL Anda.",
+  "solana_unrecognized_token_program_exception": "Token ini menggunakan program token yang tidak dikenal, sehingga transaksi tidak dibuat. Node Anda mungkin mengembalikan data yang salah, coba beralih ke node lain.",
   "sort_by": "Urutkan berdasarkan",
   "spend_key_private": "Kunci belanja (privat)",
   "spend_key_public": "Kunci belanja (publik)",
