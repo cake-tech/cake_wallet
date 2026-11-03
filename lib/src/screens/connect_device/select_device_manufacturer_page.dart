@@ -6,8 +6,10 @@ import "package:cake_wallet/src/screens/base_page.dart";
 import "package:cake_wallet/src/screens/connect_device/widgets/dotted_divider.dart";
 import "package:cake_wallet/src/screens/connect_device/widgets/manufacturer_option_tile.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/utils/device_info.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
 import "package:cake_wallet/view_model/restore/wallet_restore_from_qr_code.dart";
+import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:flutter/material.dart";
@@ -52,15 +54,17 @@ class SelectDeviceManufacturerPage extends BasePage {
           hardwareWalletType: HardwareWalletType.trezor,
           // tag: S.current.new_tag,
         ),
-        _DeviceManufacturer(
-          image: CakeImageWidget(
-            imageUrl: "assets/images/hardware_wallet/bitbox_man.svg",
-            height: 25,
-            colorFilter: _colorFilter,
+        if (DeviceInfo.instance.isMobile && !isMoneroOnly) ...[
+          _DeviceManufacturer(
+            image: CakeImageWidget(
+              imageUrl: "assets/images/hardware_wallet/bitbox_man.svg",
+              height: 25,
+              colorFilter: _colorFilter,
+            ),
+            hardwareWalletType: HardwareWalletType.bitbox,
+            tag: Platform.isIOS ? S.current.new_tag : null,
           ),
-          hardwareWalletType: HardwareWalletType.bitbox,
-          tag: Platform.isIOS ? S.current.new_tag : null,
-        ),
+        ],
         _DeviceManufacturer(
           image: CakeImageWidget(
             imageUrl: "assets/images/hardware_wallet/cupcake_man.svg",
