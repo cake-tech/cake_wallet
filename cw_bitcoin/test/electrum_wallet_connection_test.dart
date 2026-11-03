@@ -7,6 +7,7 @@ import "package:bitcoin_base/bitcoin_base.dart";
 import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
+import "package:cw_bitcoin/electrum_account.dart";
 import "package:cw_bitcoin/electrum_wallet.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
@@ -42,33 +43,32 @@ class _NoUnspentsBox implements Box<UnspentCoinsInfo> {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+ElectrumAccounts _accounts() => ElectrumAccounts(
+  primaryTypes: [SegwitAddresType.p2wpkh],
+  deriveHd: (_, __) => AccountHdKeys()
+    ..set(SegwitAddresType.p2wpkh, receive: _receiveHd, change: _changeHd)
+    ..setLegacy(receive: _receiveHd, change: _changeHd),
+)..getOrCreate(0);
+
 class _Addresses extends BitcoinWalletAddresses {
   _Addresses(super.walletInfo)
       : super(
-          mainHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _receiveHd},
-          },
-          sideHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _changeHd},
-          },
-          accountIndexes: [0],
-          currentAccountIndex: 0,
-          legacyMainHd: _receiveHd,
-          legacySideHd: _changeHd,
+    accounts: _accounts(),
+    currentAccountIndex: 0,
+    network: BitcoinNetwork.mainnet,
+    isHardwareWallet: false,
+    payjoinManager: _NoPayjoin(),
+    masterHd: _master,
+    initialAddresses: [
+      for (var i = 0; i < _addressCount; i++)
+        BitcoinAddressRecord(
+          generateP2WPKHAddress(hd: _receiveHd, network: BitcoinNetwork.mainnet, index: i),
+          index: i,
+          type: SegwitAddresType.p2wpkh,
           network: BitcoinNetwork.mainnet,
-          isHardwareWallet: false,
-          payjoinManager: _NoPayjoin(),
-          masterHd: _master,
-          initialAddresses: [
-            for (var i = 0; i < _addressCount; i++)
-              BitcoinAddressRecord(
-                generateP2WPKHAddress(hd: _receiveHd, network: BitcoinNetwork.mainnet, index: i),
-                index: i,
-                type: SegwitAddresType.p2wpkh,
-                network: BitcoinNetwork.mainnet,
-              ),
-          ],
-        );
+        ),
+    ],
+  );
 
   @override
   Future<void> saveAddressesInBox() async {}

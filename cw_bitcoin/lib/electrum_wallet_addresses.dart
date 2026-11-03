@@ -88,6 +88,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialMwebAddresses,
     Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
+    this.currentAccountIndex = 0,
     this.lightningWallet,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
@@ -169,12 +170,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final BasedUtxoNetwork network;
   final ElectrumAccounts accounts;
 
-  int get currentAccountIndex => 0;
-
-  void setCurrentAccountIndex(int index) {}
-
   final bool isHardwareWallet;
   LightningWallet? lightningWallet;
+
+  @observable
+  int currentAccountIndex;
 
   @observable
   ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
@@ -351,10 +351,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   String _firstReceiveAddressForType(BitcoinAddressType addrType) {
-    final account = accounts[currentAccountIndex];
-    if (account == null) return "";
-
-    final hd = account.hd.receive(addrType) ?? account.hd.receive(account.supportedTypes.first);
+    final hd = accounts.receiveHd(currentAccountIndex, addrType);
     if (hd == null) return "";
 
     return getAddress(index: 0, hd: hd, addressType: addrType);

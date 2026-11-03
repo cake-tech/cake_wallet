@@ -47,23 +47,23 @@ class _NoPayjoin implements PayjoinManager {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
-ElectrumAccounts _bitcoinAccounts() {
-  final accounts = ElectrumAccounts(primaryTypes: [SegwitAddresType.p2wpkh]);
-  accounts.getOrCreate(0).hd
+ElectrumAccounts _bitcoinAccounts() => ElectrumAccounts(
+  primaryTypes: [SegwitAddresType.p2wpkh],
+  deriveHd: (_, __) => AccountHdKeys()
     ..set(SegwitAddresType.p2wpkh, receive: _receiveHd, change: _changeHd)
-    ..setLegacy(receive: _receiveHd, change: _changeHd);
-  return accounts;
-}
+    ..setLegacy(receive: _receiveHd, change: _changeHd),
+)..getOrCreate(0);
 
-ElectrumAccounts _litecoinAccounts() {
-  final accounts = ElectrumAccounts(primaryTypes: LITECOIN_ADDRESS_TYPES);
-  final hd = accounts.getOrCreate(0).hd;
-  for (final type in LITECOIN_ADDRESS_TYPES) {
-    hd.set(type, receive: _ltcReceiveHd, change: _ltcChangeHd);
-  }
-  hd.setLegacy(receive: _ltcReceiveHd, change: _ltcChangeHd);
-  return accounts;
-}
+ElectrumAccounts _litecoinAccounts() => ElectrumAccounts(
+  primaryTypes: LITECOIN_ADDRESS_TYPES,
+  deriveHd: (_, types) {
+    final hd = AccountHdKeys();
+    for (final type in types) {
+      hd.set(type, receive: _ltcReceiveHd, change: _ltcChangeHd);
+    }
+    return hd..setLegacy(receive: _ltcReceiveHd, change: _ltcChangeHd);
+  },
+)..getOrCreate(0);
 
 class _BitcoinAddresses extends BitcoinWalletAddresses {
   _BitcoinAddresses(super.walletInfo)

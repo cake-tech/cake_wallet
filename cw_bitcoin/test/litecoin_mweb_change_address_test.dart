@@ -29,22 +29,24 @@ WalletInfo _walletInfo() => WalletInfo.external(
       address: "",
     );
 
-ElectrumAccounts _accounts() {
-  final accounts = ElectrumAccounts(primaryTypes: LITECOIN_ADDRESS_TYPES);
-  final account = accounts.getOrCreate(0);
-  for (final type in account.supportedTypes) {
-    account.hd.set(
-      type,
-      receive: _derive("m/84'/2'/0'/0"),
-      change: _derive("m/84'/2'/0'/1"),
-    );
-  }
-  account.hd.setLegacy(
-    receive: _accountHd.childKey(Bip32KeyIndex(0)),
-    change: _accountHd.childKey(Bip32KeyIndex(1)),
-  );
-  return accounts;
-}
+ElectrumAccounts _accounts() => ElectrumAccounts(
+  primaryTypes: LITECOIN_ADDRESS_TYPES,
+  deriveHd: (_, types) {
+    final hd = AccountHdKeys();
+    for (final type in types) {
+      hd.set(
+        type,
+        receive: _accountHd.childKey(Bip32KeyIndex(0)),
+        change: _accountHd.childKey(Bip32KeyIndex(1)),
+      );
+    }
+    return hd
+      ..setLegacy(
+        receive: _accountHd.childKey(Bip32KeyIndex(0)),
+        change: _accountHd.childKey(Bip32KeyIndex(1)),
+      );
+  },
+)..getOrCreate(0);
 
 LitecoinWalletAddresses _addresses(ElectrumAccounts accounts) {
   final addresses = LitecoinWalletAddresses(

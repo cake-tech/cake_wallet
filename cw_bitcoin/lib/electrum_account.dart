@@ -3,12 +3,22 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
+typedef AccountHdDeriver = AccountHdKeys Function(int index, List<BitcoinAddressType> types);
+
 class ElectrumAccounts {
-  ElectrumAccounts({required List<BitcoinAddressType> primaryTypes})
-      : _primaryTypes = List.unmodifiable(primaryTypes);
+  ElectrumAccounts({
+    required List<BitcoinAddressType> primaryTypes,
+    required AccountHdDeriver deriveHd,
+    List<BitcoinAddressType> extraTypes = EXTRA_ACCOUNT_ADDRESS_TYPES,
+  })  : _primaryTypes = List.unmodifiable(primaryTypes),
+        _extraTypes = List.unmodifiable(extraTypes),
+        _deriveHd = deriveHd;
 
   final List<BitcoinAddressType> _primaryTypes;
+  final List<BitcoinAddressType> _extraTypes;
+  final AccountHdDeriver _deriveHd;
   final Map<int, ElectrumAccount> _byIndex = {};
+  final Map<int, AccountHdKeys> _hdByIndex = {};
 
   List<int> get indexes => _byIndex.keys.toList()..sort();
 
@@ -20,7 +30,7 @@ class ElectrumAccounts {
     required bool isChange,
     bool isLegacy = false,
   }) =>
-      _byIndex[accountIndex]?.hd.branch(type, isChange: isChange, isLegacy: isLegacy);
+      _hdByIndex[accountIndex]?.branch(type, isChange: isChange, isLegacy: isLegacy);
 
   ElectrumAccount getOrCreate(int index) {
     final existing = _byIndex[index];
@@ -29,9 +39,12 @@ class ElectrumAccounts {
     final account = ElectrumAccount(
       index: index,
       label: index == 0 ? "Primary account" : "Account $index",
-      supportedTypes: index == 0 ? _primaryTypes : EXTRA_ACCOUNT_ADDRESS_TYPES,
+      supportedTypes: index == 0 ? _primaryTypes : _extraTypes,
     );
+
+    _hdByIndex[index] = _deriveHd(index, account.supportedTypes);
     _byIndex[index] = account;
+
     printV("[ELECTRUM ACCOUNTS] added account $index "
         '(${account.supportedTypes.map((t) => t.value).join('/')}), now $indexes');
     return account;
@@ -40,13 +53,20 @@ class ElectrumAccounts {
   bool contains(int index) => _byIndex.containsKey(index);
 
   void remove(int index) {
+    _hdByIndex.remove(index);
     if (_byIndex.remove(index) != null) {
       printV("[ELECTRUM ACCOUNTS] removed account $index, now $indexes");
     }
   }
 
+  Bip32Slip10Secp256k1? receiveHd(int index, BitcoinAddressType type) =>
+      _hdByIndex[index]?.receive(type);
+
+  bool isLegacyChange(Bip32Slip10Secp256k1 hd) => _hdByIndex[0]?.isLegacyChange(hd) ?? false;
+
   @override
-  String toString() => 'ElectrumAccounts(${indexes.map((i) => _byIndex[i]).join(',\n')})';
+  String toString() =>
+      'ElectrumAccounts(${indexes.map((i) => '${_byIndex[i]} ${_hdByIndex[i]}').join(',\n')})';
 }
 
 class ElectrumAccount {
@@ -59,11 +79,10 @@ class ElectrumAccount {
   final int index;
   String label;
   final List<BitcoinAddressType> supportedTypes;
-  final AccountHdKeys hd = AccountHdKeys();
 
   @override
   String toString() =>
-      'ElectrumAccount(index: $index, label: $label, types: ${supportedTypes.map((t) => t.value).join('/')}, hd: $hd)';
+      'ElectrumAccount(index: $index, label: $label, types: ${supportedTypes.map((t) => t.value).join('/')})';
 }
 
 class AccountHdKeys {
@@ -89,8 +108,6 @@ class AccountHdKeys {
 
   Bip32Slip10Secp256k1? receive(BitcoinAddressType type) => _receive[type];
 
-  Bip32Slip10Secp256k1? change(BitcoinAddressType type) => _change[type];
-
   Bip32Slip10Secp256k1? branch(
     BitcoinAddressType type, {
     required bool isChange,
@@ -99,9 +116,6 @@ class AccountHdKeys {
     if (isLegacy) return isChange ? _legacyChange : _legacyReceive;
     return isChange ? _change[type] : _receive[type];
   }
-
-  bool isChangeBranch(Bip32Slip10Secp256k1 hd) =>
-      identical(hd, _legacyChange) || _change.values.any((key) => identical(key, hd));
 
   bool isLegacyChange(Bip32Slip10Secp256k1 hd) => identical(hd, _legacyChange);
 

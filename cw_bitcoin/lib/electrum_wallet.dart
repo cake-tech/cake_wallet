@@ -88,8 +88,7 @@ abstract class ElectrumWalletBase
     List<int>? accountIndexes,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
-            currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
-        accounts = ElectrumAccounts(primaryTypes: supportedAddressTypes(walletInfo.type)),
+            currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType,),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -116,9 +115,14 @@ abstract class ElectrumWalletBase
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
 
+    accounts = ElectrumAccounts(
+      primaryTypes: supportedAddressTypes(walletInfo.type),
+      deriveHd: (index, types) => _deriveAccountHd(index, types, currency),
+    );
+
     final indexes = hasAccountsSupport ? (accountIndexes ?? [currentAccountIndex]) : [0];
     for (final accountIndex in indexes) {
-      _prepareHdForAccount(accountIndex, currency);
+      accounts.getOrCreate(accountIndex);
     }
   }
 
@@ -312,7 +316,7 @@ abstract class ElectrumWalletBase
   final Bip32Slip10Secp256k1 accountHD;
   final String? _mnemonic;
 
-  final ElectrumAccounts accounts;
+  late final ElectrumAccounts accounts;
 
   Bip32Slip10Secp256k1 get mainHd => accountHD.childKey(Bip32KeyIndex(0));
 
@@ -354,10 +358,12 @@ abstract class ElectrumWalletBase
     return current;
   }
 
-  void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
-    if (accounts.contains(accountIndex)) return;
-
-    final account = accounts.getOrCreate(accountIndex);
+  AccountHdKeys _deriveAccountHd(
+      int accountIndex,
+      List<BitcoinAddressType> types,
+      CryptoCurrency? currency,
+      ) {
+    final hd = AccountHdKeys();
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     final canDeriveFromSeed = _masterHD != null && currency != null;
 
@@ -365,26 +371,28 @@ abstract class ElectrumWalletBase
       final coinType = _coinTypeFor(currency);
       final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
 
-      for (final type in account.supportedTypes) {
+      for (final type in types) {
         final accountPath = "m/${_purposeForType(type)}'/$coinType'/$accountIndex'";
         final accountHd = accountHdByPath[accountPath] ??=
         _masterHD!.derivePath(accountPath) as Bip32Slip10Secp256k1;
 
-        account.hd.set(
+        hd.set(
           type,
           receive: accountHd.childKey(Bip32KeyIndex(0)),
           change: accountHd.childKey(Bip32KeyIndex(1)),
         );
       }
     } else {
-      for (final type in account.supportedTypes) {
-        account.hd.set(type, receive: mainHd, change: sideHd);
+      for (final type in types) {
+        hd.set(type, receive: mainHd, change: sideHd);
       }
     }
 
     if (accountIndex == 0) {
-      account.hd.setLegacy(receive: mainHd, change: sideHd);
+      hd.setLegacy(receive: mainHd, change: sideHd);
     }
+
+    return hd;
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) =>
@@ -507,10 +515,9 @@ abstract class ElectrumWalletBase
 
     await walletInfo.setSelectedAccount(accountIndex);
 
-    _prepareHdForAccount(accountIndex, currency);
-    final account = accounts[accountIndex]!;
+    final account = accounts.getOrCreate(accountIndex);
 
-    walletAddresses.setCurrentAccountIndex(accountIndex);
+    walletAddresses.currentAccountIndex = accountIndex;
 
     final currentPageType = walletAddresses.addressPageType;
     await walletAddresses.setAddressType(currentPageType);
@@ -3350,10 +3357,7 @@ abstract class ElectrumWalletBase
       final isAccountProbe = accountIndex > 0;
 
       final isNewAccount = !accounts.contains(accountIndex);
-      if (isNewAccount) {
-        _prepareHdForAccount(accountIndex, currency);
-      }
-      final addressTypesForAccount = accounts[accountIndex]!.supportedTypes;
+      final addressTypesForAccount = accounts.getOrCreate(accountIndex).supportedTypes;
 
       if (isNewAccount) {
         await walletAddresses.prepareAccountAddresses(accountIndex, types: addressTypesForAccount);
