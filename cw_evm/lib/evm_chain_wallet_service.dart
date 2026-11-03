@@ -131,8 +131,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -152,8 +150,6 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      await wallet.addInitialTokens();
-      await wallet.save();
       await saveBackup(name);
       return wallet;
     } catch (_) {
@@ -167,8 +163,6 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      await wallet.addInitialTokens();
-      await wallet.save();
       return wallet;
     }
   }
@@ -258,8 +252,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -298,8 +290,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -336,8 +326,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 

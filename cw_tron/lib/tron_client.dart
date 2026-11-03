@@ -469,7 +469,7 @@ class TronClient {
         ),
       );
 
-      final outputResult = request.outputResult?.first ?? BigInt.zero;
+      final outputResult = request.outputResult?.first as BigInt? ?? BigInt.zero;
 
       return TronBalance(Money(outputResult, currency));
     } catch (_) {
