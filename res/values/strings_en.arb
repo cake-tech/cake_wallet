@@ -1637,6 +1637,7 @@
   "withdrawal_pending": "Withdrawal pending",
   "withdrawal_queue": "Withdrawal Queue",
   "withdrawal_queue_note": "Queued ETH can be claimed here once Everstake processes the withdrawal.",
+  "withdrawal_time": "Withdrawal Time",
   "withdrawn_instantly": "Withdrawn Instantly",
   "wouoldLikeToConnect": "would like to connect",
   "write_down_backup_password": "Please write down your backup password, which is used for the import of your backup files.",

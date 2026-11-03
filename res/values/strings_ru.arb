@@ -1585,6 +1585,7 @@
   "withdrawal_pending": "Вывод в обработке",
   "withdrawal_queue": "Очередь на вывод средств",
   "withdrawal_queue_note": "ETH из очереди можно будет получить здесь, когда Everstake обработает вывод.",
+  "withdrawal_time": "Время вывода",
   "withdrawn_instantly": "Выведено мгновенно",
   "wouoldLikeToConnect": "хотел бы подключиться",
   "write_down_backup_password": "Пожалуйста, запишите пароль для резервной копии, который используется для импорта файлов резервных копий.",

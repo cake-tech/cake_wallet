@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "อยู่ระหว่างการถอนเงิน",
   "withdrawal_queue": "คิวถอนเงิน",
   "withdrawal_queue_note": "คุณสามารถรับ ETH ที่อยู่ในคิวได้ที่นี่เมื่อ Everstake ดำเนินการถอนเสร็จ",
+  "withdrawal_time": "ระยะเวลาถอนเงิน",
   "withdrawn_instantly": "ถอนออกทันที",
   "wouoldLikeToConnect": "ต้องการเชื่อมต่อ",
   "write_down_backup_password": "โปรดจดรหัสผ่านสำรองข้อมูลของคุณไว้ ซึ่งจะใช้ในการนำเข้าไฟล์สำรองข้อมูลของคุณ",

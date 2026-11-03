@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Սպասվում է դուրսբերում",
   "withdrawal_queue": "Կանխիկացման հերթ",
   "withdrawal_queue_note": "Հերթագրված ETH-ը կարող է պահանջվել այստեղ, երբ Everstake-ը մշակի դուրսբերումը:",
+  "withdrawal_time": "Կանխիկացման ժամանակ",
   "withdrawn_instantly": "Անմիջապես հանվել է",
   "wouoldLikeToConnect": "ցանկանում է միանալ",
   "write_down_backup_password": "Խնդրում ենք գրի առնել ձեր պահուստային գաղտնաբառը, որը օգտագործվում է ձեր պահուստային ֆայլերը ներմուծելու համար։",

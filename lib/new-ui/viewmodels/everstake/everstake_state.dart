@@ -13,6 +13,7 @@ class EverstakeData {
     required this.walletBalance,
     this.apr,
     this.activationTime,
+    this.withdrawalTime,
     this.totalRewards,
   });
 
@@ -26,6 +27,7 @@ class EverstakeData {
 
   final double? apr; // fraction, e.g. 0.026 for 2.6%
   final Duration? activationTime;
+  final Duration? withdrawalTime;
   final Money? totalRewards;
 
   bool get canClaimWithdrawal =>
@@ -36,9 +38,11 @@ class EverstakeData {
 
   Money get stakedBalance => balances.autocompoundBalance + pendingActivation;
 
+  Money get positionAmount => stakedBalance + withdrawRequest.requested;
+
   Money get earned => totalRewards ?? restakedRewards;
 
-  bool get hasPosition => !stakedBalance.isZero || !withdrawRequest.requested.isZero;
+  bool get hasPosition => !positionAmount.isZero;
 
   bool get withdrawsPendingStake => !balances.pendingBalance.isZero;
 

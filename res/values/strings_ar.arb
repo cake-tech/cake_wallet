@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "السحب قيد الانتظار",
   "withdrawal_queue": "قائمة انتظار السحب",
   "withdrawal_queue_note": "يمكنك استلام ETH الموجود في قائمة الانتظار هنا بمجرد أن تعالج Everstake السحب.",
+  "withdrawal_time": "وقت السحب",
   "withdrawn_instantly": "سُحب فورًا",
   "wouoldLikeToConnect": "يرغب في الاتصال",
   "write_down_backup_password": "يرجى تدوين كلمة مرور النسخة الاحتياطية الخاصة بك، والتي تُستخدم لاستيراد ملفات النسخ الاحتياطي.",

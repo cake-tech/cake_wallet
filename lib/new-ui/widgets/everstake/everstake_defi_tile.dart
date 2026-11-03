@@ -62,8 +62,7 @@ class EverstakeDefiTile extends StatelessWidget {
                 );
               }
 
-              final amount =
-                  data.stakedBalance.isZero ? data.withdrawRequest.requested : data.stakedBalance;
+              final amount = data.positionAmount;
               final amountFiat = fiatRate?.convert(amount);
               final earnedFiat = fiatRate?.convert(data.earned);
 

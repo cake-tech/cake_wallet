@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Para çekme işlemi bekleniyor",
   "withdrawal_queue": "Para Çekme Sırası",
   "withdrawal_queue_note": "Sıradaki ETH'yi, Everstake çekimi işledikten sonra buradan alabilirsiniz.",
+  "withdrawal_time": "Para Çekme Süresi",
   "withdrawn_instantly": "Anında Çekilen",
   "wouoldLikeToConnect": "bağlanmak istiyor",
   "write_down_backup_password": "Lütfen yedek dosyalarınızı içe aktarmak için kullanılan yedekleme parolanızı not edin.",

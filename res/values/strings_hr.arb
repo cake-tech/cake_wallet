@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Isplata na čekanju",
   "withdrawal_queue": "Red čekanja za povlačenje",
   "withdrawal_queue_note": "Ovdje se može zatražiti stavljeni ETH nakon što Everstake obradi isplatu.",
+  "withdrawal_time": "Vrijeme povlačenja",
   "withdrawn_instantly": "Povučen Trenutačno",
   "wouoldLikeToConnect": "želi se povezati",
   "write_down_backup_password": "Molimo zapišite svoju lozinku za sigurnosnu kopiju, koja se koristi za uvoz vaših datoteka sigurnosne kopije.",

@@ -1585,6 +1585,7 @@
   "withdrawal_pending": "出金保留中",
   "withdrawal_queue": "出金キュー",
   "withdrawal_queue_note": "キュー内のETHは、Everstakeが出金を処理した後にここで受け取れます。",
+  "withdrawal_time": "出金所要時間",
   "withdrawn_instantly": "即時出金",
   "wouoldLikeToConnect": "接続しようとしています",
   "write_down_backup_password": "バックアップファイルのインポートに使用するバックアップパスワードを書き留めてください。",

@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "برداشت در انتظار",
   "withdrawal_queue": "صف برداشت",
   "withdrawal_queue_note": "ETH در صف را می‌توانید پس از پردازش برداشت توسط Everstake از اینجا دریافت کنید.",
+  "withdrawal_time": "زمان برداشت",
   "withdrawn_instantly": "بلافاصله برداشته شد",
   "wouoldLikeToConnect": "مایل است متصل شود",
   "write_down_backup_password": "لطفاً رمز عبور پشتیبان خود را یادداشت کنید؛ این رمز برای وارد کردن فایل‌های پشتیبان شما استفاده می‌شود.",

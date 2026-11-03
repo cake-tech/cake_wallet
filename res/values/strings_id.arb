@@ -1587,6 +1587,7 @@
   "withdrawal_pending": "Penarikan tertunda",
   "withdrawal_queue": "Antrian Penarikan",
   "withdrawal_queue_note": "ETH yang antri dapat diklaim di sini setelah Everstake memproses penarikan.",
+  "withdrawal_time": "Waktu Penarikan",
   "withdrawn_instantly": "Ditarik Seketika",
   "wouoldLikeToConnect": "ingin terhubung",
   "write_down_backup_password": "Silakan tuliskan kata sandi cadangan Anda, yang digunakan untuk mengimpor file cadangan Anda.",

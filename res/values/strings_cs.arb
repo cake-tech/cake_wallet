@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Výběr čeká na zpracování",
   "withdrawal_queue": "Fronta na výběr",
   "withdrawal_queue_note": "ETH ve frontě si zde vyzvednete, jakmile Everstake výběr zpracuje.",
+  "withdrawal_time": "Doba výběru",
   "withdrawn_instantly": "Vybráno okamžitě",
   "wouoldLikeToConnect": "se chce připojit",
   "write_down_backup_password": "Prosím zapište si své záložní heslo, které se používá při importu vašich záložních souborů.",

@@ -8,7 +8,7 @@ import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:http/http.dart" as very_insecure_http_do_not_use;
 
 class EverstakeService {
-  // TODO: add Cake Wallet's Everstake source once it is available
+  // TODO(lapatric): add Cake Wallet's Everstake source once it is available
   static const source = "0";
 
   static const _apiHost = "wallet-sdk-api.everstake.com";
@@ -34,13 +34,10 @@ class EverstakeService {
     return (blockchain["apr"] as num) / 100;
   }
 
-  Future<Duration> getEthereumActivationTime() async {
+  Future<EverstakeEthereumValidatorQueue> getEthereumValidatorQueue() async {
     final uri = Uri.https(_b2cApiHost, "/api/v1/validators/queue");
     final response = await _get<Map<String, dynamic>>(uri);
-    return Duration(
-      seconds: (response["validator_activation_time"] as int) +
-          (response["validator_adding_delay"] as int),
-    );
+    return EverstakeEthereumValidatorQueue.fromJson(response);
   }
 
   Future<Money> getEthereumTotalRewards(String address) async {

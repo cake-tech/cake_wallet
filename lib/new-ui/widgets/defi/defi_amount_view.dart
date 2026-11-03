@@ -1,6 +1,7 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/defi/defi_scaffold.dart";
 import "package:cake_wallet/new-ui/widgets/floating_amount_input.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
@@ -44,11 +45,19 @@ class _DefiAmountViewState extends State<DefiAmountView> {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
 
-  late final Currency _inputCurrency = widget.fiatRate?.quote.currency ?? _asset;
+  late Currency _inputCurrency = widget.fiatRate?.quote.currency ?? _asset;
 
   bool _useMax = false;
 
+  Money? _switchedAmount;
+
   Currency get _asset => widget.maxAmount.currency;
+
+  Money? get _fixedAmount => _useMax ? widget.maxAmount : _switchedAmount;
+
+  Money? get _typedAmount => Money.tryParse(_controller.text.sanitized(), _inputCurrency);
+
+  Money? get _amount => _inAsset(_fixedAmount ?? _typedAmount);
 
   @override
   void initState() {
@@ -59,9 +68,10 @@ class _DefiAmountViewState extends State<DefiAmountView> {
   @override
   void didUpdateWidget(DefiAmountView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_useMax &&
+    final fixedAmount = _fixedAmount;
+    if (fixedAmount != null &&
         (widget.maxAmount != oldWidget.maxAmount || widget.fiatRate != oldWidget.fiatRate)) {
-      _syncMaxAmount();
+      _showAmount(fixedAmount);
     }
   }
 
@@ -76,9 +86,12 @@ class _DefiAmountViewState extends State<DefiAmountView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
-    final amount = _useMax ? widget.maxAmount : _parseAmount();
+    final amount = _amount;
     final convertsToFiat = _inputCurrency == _asset;
-    final converted = amount == null || !convertsToFiat ? amount : widget.fiatRate?.convert(amount);
+    final shownAmount = amount ?? (_controller.text.isEmpty ? Money.zero(_asset) : null);
+    final converted = shownAmount == null || !convertsToFiat
+        ? shownAmount
+        : widget.fiatRate?.convert(shownAmount);
     final convertedStyle = TextStyle(
       fontSize: 18,
       fontWeight: FontWeight.w600,
@@ -113,39 +126,64 @@ class _DefiAmountViewState extends State<DefiAmountView> {
                     child: Column(
                       spacing: 8,
                       children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: FloatingAmountInput(
-                            currency: _inputCurrency,
-                            controller: _controller,
-                            focusNode: _focusNode,
-                            onChanged: (_) {
-                              setState(() => _useMax = false);
-                              widget.onChanged?.call();
-                            },
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: 8,
+                          children: [
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: FloatingAmountInput(
+                                  currency: _inputCurrency,
+                                  controller: _controller,
+                                  focusNode: _focusNode,
+                                  onChanged: (_) {
+                                    setState(() {
+                                      _useMax = false;
+                                      _switchedAmount = null;
+                                    });
+                                    widget.onChanged?.call();
+                                  },
+                                ),
+                              ),
+                            ),
+                            if (widget.fiatRate != null)
+                              ModernButton.svg(
+                                size: 28,
+                                iconSize: 18,
+                                svgPath: "assets/new-ui/switch.svg",
+                                semanticLabel: S.of(context).switch_input_currency,
+                                onPressed: _switchInputCurrency,
+                              ),
+                          ],
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           spacing: 8,
                           children: [
-                            if (converted != null && _controller.text.isNotEmpty)
+                            if (converted != null)
                               Flexible(
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text("≈ ", style: convertedStyle),
-                                    Flexible(
-                                      child: MoneyText(
-                                        converted,
-                                        isHiddenAmount: false,
-                                        fractionalDigits: convertsToFiat ? 2 : 8,
-                                        trimZeros: !convertsToFiat,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: convertedStyle,
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  // the switch button already offers this to screen readers
+                                  excludeFromSemantics: true,
+                                  onTap: _switchInputCurrency,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text("≈ ", style: convertedStyle),
+                                      Flexible(
+                                        child: MoneyText(
+                                          converted,
+                                          isHiddenAmount: false,
+                                          fractionalDigits: convertsToFiat ? 2 : 8,
+                                          trimZeros: !convertsToFiat,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: convertedStyle,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             _MaxChip(label: widget.maxChipLabel, onPressed: _fillMax),
@@ -197,13 +235,18 @@ class _DefiAmountViewState extends State<DefiAmountView> {
     );
   }
 
-  Money? _parseAmount() {
-    final input = Money.tryParse(_controller.text.sanitized(), _inputCurrency);
-    if (input == null || _inputCurrency == _asset) {
-      return input;
+  Money? _inAsset(Money? amount) {
+    if (amount == null || amount.currency == _asset) {
+      return amount;
     }
 
-    return widget.fiatRate?.convert(input);
+    final fiatRate = widget.fiatRate;
+    if (fiatRate == null) {
+      return null;
+    }
+
+    final asset = fiatRate.convert(amount);
+    return fiatRate.convert(asset) < amount ? asset + Money(BigInt.one, _asset) : asset;
   }
 
   bool get _hasTooManyDecimals {
@@ -211,9 +254,8 @@ class _DefiAmountViewState extends State<DefiAmountView> {
     return parts.length == 2 && parts.last.length > _inputCurrency.decimals;
   }
 
-  void _syncMaxAmount() {
-    final display =
-        _inputCurrency == _asset ? widget.maxAmount : widget.fiatRate?.convert(widget.maxAmount);
+  void _showAmount(Money amount) {
+    final display = amount.currency == _inputCurrency ? amount : widget.fiatRate?.convert(amount);
     if (display == null) {
       return;
     }
@@ -232,9 +274,27 @@ class _DefiAmountViewState extends State<DefiAmountView> {
       return;
     }
 
-    _syncMaxAmount();
+    _showAmount(widget.maxAmount);
     setState(() => _useMax = true);
     widget.onChanged?.call();
+  }
+
+  void _switchInputCurrency() {
+    final fiatRate = widget.fiatRate;
+    if (fiatRate == null) {
+      return;
+    }
+
+    final amount = _fixedAmount ?? _typedAmount;
+    setState(() {
+      _inputCurrency = _inputCurrency == _asset ? fiatRate.quote.currency : _asset;
+      _switchedAmount = amount;
+    });
+    if (amount == null) {
+      _controller.clear();
+    } else {
+      _showAmount(amount);
+    }
   }
 }
 

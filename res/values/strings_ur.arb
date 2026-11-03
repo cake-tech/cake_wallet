@@ -1586,6 +1586,7 @@
   "withdrawal_pending": "واپسی زیر التواء ہے۔",
   "withdrawal_queue": "واپسی کی قطار",
   "withdrawal_queue_note": "Everstake کی واپسی پر کارروائی کرنے کے بعد یہاں قطار میں لگے ETH کا دعویٰ کیا جا سکتا ہے۔",
+  "withdrawal_time": "واپسی کا وقت",
   "withdrawn_instantly": "فوری طور پر واپس لے لیا گیا۔",
   "wouoldLikeToConnect": "کنیکٹ کرنا چاہتا ہے",
   "write_down_backup_password": "براہ کرم اپنا بیک اپ پاس ورڈ لکھ کر محفوظ کر لیں، جو آپ کی بیک اپ فائلوں کو امپورٹ کرنے کے لیے استعمال ہوتا ہے۔",

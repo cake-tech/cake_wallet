@@ -125,8 +125,14 @@ void main() {
           EverstakeEthereumWithdrawRequest.fromJson({"requested": "0", "readyForClaim": "0"}),
     );
     when(() => service.getEthereumApr()).thenAnswer((_) async => 0.026);
-    when(() => service.getEthereumActivationTime())
-        .thenAnswer((_) async => const Duration(hours: 547));
+    when(() => service.getEthereumValidatorQueue()).thenAnswer(
+      (_) async => EverstakeEthereumValidatorQueue.fromJson({
+        "validator_activation_time": 1637220,
+        "validator_adding_delay": 57600,
+        "validator_exit_time": 167700,
+        "validator_withdraw_time": 720900,
+      }),
+    );
     when(() => service.getEthereumTotalRewards(any())).thenAnswer((_) async => _eth("0.003"));
 
     bloc = EverstakeBloc(
@@ -202,6 +208,8 @@ void main() {
 
     await tester.tap(find.text("Continue"));
     await tester.pump();
+    // All re-reads the stake first, and the bloc runs outside the fake async zone
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
 
     verify(
       () => service.simulateEthereumUnstake(
@@ -209,6 +217,70 @@ void main() {
         amount: _eth("0.123456789012345678"),
         allowedInterchangeNum: 5,
       ),
+    ).called(1);
+  });
+
+  testWidgets("All withdraws the stake as it is at Continue, not when the page opened",
+      (tester) async {
+    // Stops the flow before signing; only the requested amount matters here.
+    when(
+      () => service.simulateEthereumUnstake(
+        address: any(named: "address"),
+        amount: any(named: "amount"),
+        allowedInterchangeNum: any(named: "allowedInterchangeNum"),
+      ),
+    ).thenThrow(const EverstakeResponseException("unavailable", 503));
+    await openAmountPage(tester, EverstakeAmountMode.withdraw);
+    when(() => service.getEthereumUserBalances(any())).thenAnswer(
+      (_) async => EverstakeEthereumUserBalances.fromJson({
+        "pendingBalanceOf": "0",
+        "pendingDepositedBalanceOf": "0",
+        "autocompoundBalanceOf": "0.123456789012345999",
+      }),
+    );
+
+    await tester.tap(find.text("All"));
+    await tester.pump();
+    await tester.tap(find.text("Continue"));
+    await tester.pump();
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+
+    verify(
+      () => service.simulateEthereumUnstake(
+        address: _staker,
+        amount: _eth("0.123456789012345999"),
+        allowedInterchangeNum: 5,
+      ),
+    ).called(1);
+  });
+
+  testWidgets("All on a pending stake withdraws that pending stake", (tester) async {
+    // Stops the flow before signing; only the requested part matters here.
+    when(
+      () => service.prepareEthereumUnstakePending(
+        address: any(named: "address"),
+        amount: any(named: "amount"),
+      ),
+    ).thenThrow(const EverstakeResponseException("unavailable", 503));
+    when(() => service.getEthereumUserBalances(any())).thenAnswer(
+      (_) async => EverstakeEthereumUserBalances.fromJson({
+        "pendingBalanceOf": "0.05",
+        "pendingDepositedBalanceOf": "0",
+        "autocompoundBalanceOf": "0.123456789012345678",
+      }),
+    );
+    bloc.add(const StakingDataRequested());
+    await tester.runAsync(() => bloc.stream.firstWhere((state) => state is EverstakeReady));
+    await openAmountPage(tester, EverstakeAmountMode.withdraw);
+
+    await tester.tap(find.text("All"));
+    await tester.pump();
+    await tester.tap(find.text("Continue"));
+    await tester.pump();
+    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+
+    verify(
+      () => service.prepareEthereumUnstakePending(address: _staker, amount: _eth("0.05")),
     ).called(1);
   });
 

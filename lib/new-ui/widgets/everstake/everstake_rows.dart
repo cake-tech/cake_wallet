@@ -23,13 +23,23 @@ ListItemRegularRow everstakeYieldRow(
 }) =>
     defiYieldRow(context, everstakeAprText(context, apr), approximate: approximate);
 
-ListItemRegularRow everstakeActivationRow(BuildContext context, Duration activationTime) {
-  final hours = activationTime.inHours;
+ListItemRegularRow everstakeActivationRow(BuildContext context, Duration activationTime) =>
+    defiTextRow(
+      context,
+      keyValue: "staking_activation",
+      label: S.of(context).stake_activation,
+      value: _approximateDuration(context, activationTime),
+    );
 
-  return defiTextRow(
-    context,
-    keyValue: "staking_activation",
-    label: S.of(context).stake_activation,
-    value: "~${S.of(context).duration_days_hours("${hours ~/ 24}", "${hours % 24}")}",
-  );
+ListItemRegularRow everstakeWithdrawalTimeRow(BuildContext context, Duration withdrawalTime) =>
+    defiTextRow(
+      context,
+      keyValue: "staking_withdrawal_time",
+      label: S.of(context).withdrawal_time,
+      value: _approximateDuration(context, withdrawalTime),
+    );
+
+String _approximateDuration(BuildContext context, Duration duration) {
+  final hours = duration.inHours;
+  return "~${S.of(context).duration_days_hours("${hours ~/ 24}", "${hours % 24}")}";
 }

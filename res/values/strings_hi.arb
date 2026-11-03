@@ -1586,6 +1586,7 @@
   "withdrawal_pending": "निकासी लंबित है",
   "withdrawal_queue": "निकासी कतार",
   "withdrawal_queue_note": "Everstake द्वारा निकासी प्रोसेस होने के बाद कतार में मौजूद ETH यहां प्राप्त किया जा सकता है।",
+  "withdrawal_time": "निकासी का समय",
   "withdrawn_instantly": "तुरंत वापस ले लिया गया",
   "wouoldLikeToConnect": "कनेक्ट होना चाहेंगे",
   "write_down_backup_password": "कृपया अपना बैकअप पासवर्ड लिखकर सुरक्षित रखें, जिसका उपयोग आपकी बैकअप फ़ाइलों को इम्पोर्ट करने के लिए किया जाता है।",

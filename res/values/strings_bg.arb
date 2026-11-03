@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Предстои теглене",
   "withdrawal_queue": "Опашка за теглене",
   "withdrawal_queue_note": "ETH в опашката може да бъде заявен тук, след като Everstake обработи тегленето.",
+  "withdrawal_time": "Време за теглене",
   "withdrawn_instantly": "Изтеглено незабавно",
   "wouoldLikeToConnect": "би искал да се свърже",
   "write_down_backup_password": "Моля, запишете своята парола за резервно копие, която се използва за импортиране на вашите резервни файлове.",

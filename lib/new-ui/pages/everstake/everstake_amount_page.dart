@@ -87,6 +87,8 @@ class _EverstakeAmountPageState extends State<EverstakeAmountPage> {
   void _continue(EverstakeData data, Money amount, {required bool isMax}) {
     if (_isDeposit) {
       _prepareTransaction(isMax ? const MaxStakeRequested() : StakeRequested(amount));
+    } else if (isMax) {
+      _prepareTransaction(MaxUnstakeRequested(pending: data.withdrawsPendingStake));
     } else {
       _prepareTransaction(
         data.withdrawsPendingStake ? PendingUnstakeRequested(amount) : UnstakeRequested(amount),

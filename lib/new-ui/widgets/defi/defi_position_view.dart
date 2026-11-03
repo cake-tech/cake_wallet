@@ -29,7 +29,7 @@ class DefiPositionView extends StatelessWidget {
   final Money amount;
   final ExchangeRate? fiatRate;
   final Map<String, List<ListItem>> sections;
-  final VoidCallback onWithdraw;
+  final VoidCallback? onWithdraw;
   final VoidCallback onDeposit;
   final String? error;
   final bool withdrawDisabled;
@@ -38,6 +38,7 @@ class DefiPositionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final onWithdraw = this.onWithdraw;
 
     return DefiScaffold(
       child: Column(
@@ -72,15 +73,16 @@ class DefiPositionView extends StatelessWidget {
             child: Row(
               spacing: 8,
               children: [
-                Expanded(
-                  child: NewPrimaryButton(
-                    onPressed: onWithdraw,
-                    disabled: withdrawDisabled,
-                    text: S.of(context).withdraw,
-                    color: theme.colorScheme.surfaceContainer,
-                    textColor: theme.colorScheme.primary,
+                if (onWithdraw != null)
+                  Expanded(
+                    child: NewPrimaryButton(
+                      onPressed: onWithdraw,
+                      disabled: withdrawDisabled,
+                      text: S.of(context).withdraw,
+                      color: theme.colorScheme.surfaceContainer,
+                      textColor: theme.colorScheme.primary,
+                    ),
                   ),
-                ),
                 Expanded(
                   child: NewPrimaryButton(
                     onPressed: onDeposit,

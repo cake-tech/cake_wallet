@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "출금 대기 중",
   "withdrawal_queue": "출금 대기열",
   "withdrawal_queue_note": "대기열의 ETH는 Everstake가 출금을 처리하면 여기에서 수령할 수 있습니다.",
+  "withdrawal_time": "출금 소요 시간",
   "withdrawn_instantly": "즉시 출금",
   "wouoldLikeToConnect": "연결하려고 합니다",
   "write_down_backup_password": "백업 파일을 가져올 때 사용되는 백업 비밀번호를 꼭 적어두세요.",

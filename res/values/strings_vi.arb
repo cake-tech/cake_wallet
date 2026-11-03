@@ -1585,6 +1585,7 @@
   "withdrawal_pending": "Đang chờ rút tiền",
   "withdrawal_queue": "Hàng đợi rút tiền",
   "withdrawal_queue_note": "Bạn có thể nhận ETH đã xếp hàng tại đây sau khi Everstake xử lý việc rút tiền.",
+  "withdrawal_time": "Thời gian rút tiền",
   "withdrawn_instantly": "Rút tiền ngay lập tức",
   "wouoldLikeToConnect": "muốn kết nối",
   "write_down_backup_password": "Vui lòng ghi lại mật khẩu sao lưu của bạn, mật khẩu này được dùng để nhập các tệp sao lưu.",

@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Nakabinbin ang withdrawal",
   "withdrawal_queue": "Withdrawal Queue",
   "withdrawal_queue_note": "Maaaring i-claim dito ang nakapila na ETH kapag naproseso na ng Everstake ang withdrawal.",
+  "withdrawal_time": "Tagal ng Withdrawal",
   "withdrawn_instantly": "Agad na binawi",
   "wouoldLikeToConnect": "nais kumonekta",
   "write_down_backup_password": "Mangyaring isulat ang iyong backup password, na ginagamit sa pag-import ng iyong mga backup file.",

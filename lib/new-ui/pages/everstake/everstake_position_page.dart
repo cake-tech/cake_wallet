@@ -62,7 +62,7 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
             return DefiPositionView(
               name: "Everstake",
               logo: const EverstakeLogo(),
-              amount: data.stakedBalance,
+              amount: data.positionAmount,
               fiatRate: fiatRate,
               sections: {
                 "position": [
@@ -76,14 +76,7 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
                       label: S.of(context).pending_activation,
                       amount: data.pendingActivation,
                     ),
-                ],
-                "terms": [
-                  if (data.activationTime != null)
-                    everstakeActivationRow(context, data.activationTime!),
-                  everstakeServiceFeeRow(context, data.poolFee),
-                ],
-                if (!withdrawal.isZero)
-                  "withdrawal": [
+                  if (!withdrawal.isZero)
                     defiAmountRow(
                       context,
                       keyValue: "staking_withdrawal",
@@ -95,11 +88,20 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
                       labelColor: canClaim ? Theme.of(context).colorScheme.primary : null,
                       onTap: canClaim && !state.isBusy ? _claimWithdrawal : null,
                     ),
-                  ],
+                ],
+                "terms": [
+                  if (data.activationTime != null && !data.pendingActivation.isZero)
+                    everstakeActivationRow(context, data.activationTime!),
+                  if (!withdrawal.isZero && !canClaim && data.withdrawalTime != null)
+                    everstakeWithdrawalTimeRow(context, data.withdrawalTime!),
+                  everstakeServiceFeeRow(context, data.poolFee),
+                ],
               },
               error: _claimError,
-              onWithdraw: () => _openAmountPage(EverstakeAmountMode.withdraw),
-              withdrawDisabled: _preparingClaim || data.withdrawableBalance.isZero,
+              onWithdraw: data.withdrawableBalance.isZero
+                  ? null
+                  : () => _openAmountPage(EverstakeAmountMode.withdraw),
+              withdrawDisabled: _preparingClaim,
               onDeposit: () => _openAmountPage(EverstakeAmountMode.deposit),
               depositDisabled: _preparingClaim,
             );

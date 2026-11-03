@@ -23,6 +23,20 @@ class EverstakeEthereumWithdrawRequest {
   final Money readyForClaim;
 }
 
+class EverstakeEthereumValidatorQueue {
+  EverstakeEthereumValidatorQueue.fromJson(Map<String, dynamic> json)
+      : activationTime = Duration(
+          seconds:
+              (json["validator_activation_time"] as int) + (json["validator_adding_delay"] as int),
+        ),
+        withdrawalTime = Duration(
+          seconds: (json["validator_exit_time"] as int) + (json["validator_withdraw_time"] as int),
+        );
+
+  final Duration activationTime;
+  final Duration withdrawalTime;
+}
+
 class EverstakeEthereumTransaction {
   // The API rounds value through a JavaScript number; retain the exact requested ETH value.
   EverstakeEthereumTransaction.fromJson(Map<String, dynamic> json, {required this.value})

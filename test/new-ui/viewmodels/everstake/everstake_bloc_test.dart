@@ -65,6 +65,14 @@ EverstakeEthereumUserBalances _balances({
       "autocompoundBalanceOf": autocompound,
     });
 
+// validators/queue as Everstake's B2C API returned it on 2026-11-03
+final _queue = EverstakeEthereumValidatorQueue.fromJson({
+  "validator_activation_time": 1637220,
+  "validator_adding_delay": 57600,
+  "validator_exit_time": 167700,
+  "validator_withdraw_time": 720900,
+});
+
 void main() {
   late _MockWallet wallet;
   late ObservableMap<CryptoCurrency, Balance> walletBalances;
@@ -125,8 +133,7 @@ void main() {
           EverstakeEthereumWithdrawRequest.fromJson({"requested": "0", "readyForClaim": "0"}),
     );
     when(() => service.getEthereumApr()).thenAnswer((_) async => 0.026);
-    when(() => service.getEthereumActivationTime())
-        .thenAnswer((_) async => const Duration(hours: 547, minutes: 16));
+    when(() => service.getEthereumValidatorQueue()).thenAnswer((_) async => _queue);
     when(() => service.getEthereumTotalRewards(any())).thenAnswer((_) async => _eth("0"));
     when(
       () => service.prepareEthereumStake(
@@ -191,7 +198,8 @@ void main() {
 
       final data = bloc.state.data!;
       expect(data.apr, 0.026);
-      expect(data.activationTime, const Duration(hours: 547, minutes: 16));
+      expect(data.activationTime, const Duration(seconds: 1637220 + 57600));
+      expect(data.withdrawalTime, const Duration(seconds: 167700 + 720900));
       expect(data.earned, _eth("0.03"));
     });
 
@@ -199,7 +207,7 @@ void main() {
       when(() => service.getEthereumRestakedRewards(any())).thenAnswer((_) async => _eth("0.01"));
       when(() => service.getEthereumApr())
           .thenAnswer((_) => Future.error(const EverstakeResponseException("", 500)));
-      when(() => service.getEthereumActivationTime())
+      when(() => service.getEthereumValidatorQueue())
           .thenAnswer((_) => Future.error(const EverstakeResponseException("", 500)));
       when(() => service.getEthereumTotalRewards(any()))
           .thenAnswer((_) => Future.error(const EverstakeResponseException("\"address\"", 400)));
@@ -208,6 +216,7 @@ void main() {
       final data = bloc.state.data!;
       expect(data.apr, isNull);
       expect(data.activationTime, isNull);
+      expect(data.withdrawalTime, isNull);
       expect(data.earned, _eth("0.01"));
     });
   });
@@ -421,6 +430,25 @@ void main() {
         useBlinkProtection: true,
       ),
     ).called(1);
+  });
+
+  test("All on a pending stake that went to a validator leaves the active stake alone", () async {
+    when(() => service.getEthereumUserBalances(any()))
+        .thenAnswer((_) async => _balances(pending: "0.05", autocompound: "1"));
+    final bloc = await loadedBloc();
+    when(() => service.getEthereumUserBalances(any()))
+        .thenAnswer((_) async => _balances(pendingDeposited: "0.05", autocompound: "1"));
+
+    final state = await prepared(bloc, const MaxUnstakeRequested(pending: true));
+
+    expect(state, isA<EverstakeFailure>());
+    verifyNever(
+      () => service.simulateEthereumUnstake(
+        address: any(named: "address"),
+        amount: any(named: "amount"),
+        allowedInterchangeNum: any(named: "allowedInterchangeNum"),
+      ),
+    );
   });
 
   test("prepares the claim of a withdrawal that is ready", () async {

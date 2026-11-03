@@ -1576,6 +1576,7 @@
   "withdrawal_pending": "Saque pendente",
   "withdrawal_queue": "Fila de saque",
   "withdrawal_queue_note": "O ETH na fila pode ser resgatado aqui assim que a Everstake processar o saque.",
+  "withdrawal_time": "Tempo de saque",
   "withdrawn_instantly": "Sacado na hora",
   "wouoldLikeToConnect": "gostaria de se conectar",
   "write_down_backup_password": "Por favor, anote sua senha de backup, necessária para importar seus arquivos de backup.",

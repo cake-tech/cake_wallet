@@ -1637,6 +1637,7 @@
   "withdrawal_pending": "Auszahlung ausstehend",
   "withdrawal_queue": "Auszahlungswarteschlange",
   "withdrawal_queue_note": "ETH in der Warteschlange können Sie hier abholen, sobald Everstake die Auszahlung bearbeitet hat.",
+  "withdrawal_time": "Auszahlungsdauer",
   "withdrawn_instantly": "Sofort ausgezahlt",
   "wouoldLikeToConnect": "möchte eine Verbindung herstellen",
   "write_down_backup_password": "Bitte notieren Sie sich Ihr Backup-Passwort, das für den Import Ihrer Backup-Dateien verwendet wird.",

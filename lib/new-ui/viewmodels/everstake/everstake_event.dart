@@ -29,6 +29,12 @@ final class UnstakeRequested extends TransactionRequested {
   final Money amount;
 }
 
+final class MaxUnstakeRequested extends TransactionRequested {
+  const MaxUnstakeRequested({required this.pending});
+
+  final bool pending;
+}
+
 final class PendingUnstakeRequested extends TransactionRequested {
   const PendingUnstakeRequested(this.amount);
 

@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "提取处理中",
   "withdrawal_queue": "提取队列",
   "withdrawal_queue_note": "Everstake 处理提取后，可在此领取排队中的 ETH。",
+  "withdrawal_time": "提取时间",
   "withdrawn_instantly": "即时提取",
   "wouoldLikeToConnect": "想要连接",
   "write_down_backup_password": "请写下您的备份密码，该密码用于导入您的备份文件。",

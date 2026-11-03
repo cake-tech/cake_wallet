@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Wypłata w toku",
   "withdrawal_queue": "Kolejka do wypłaty",
   "withdrawal_queue_note": "Znajdujący się w kolejce ETH można odebrać tutaj, gdy Everstake przetworzy wypłatę.",
+  "withdrawal_time": "Czas wypłaty",
   "withdrawn_instantly": "Wypłacone od razu",
   "wouoldLikeToConnect": "chce się połączyć",
   "write_down_backup_password": "Zapisz swoje hasło do kopii zapasowej, które jest używane podczas importowania plików kopii zapasowych.",

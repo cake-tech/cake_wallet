@@ -1585,6 +1585,7 @@
   "withdrawal_pending": "Opname in behandeling",
   "withdrawal_queue": "Wachtrij voor opname",
   "withdrawal_queue_note": "ETH in de wachtrij kan hier worden geclaimd zodra Everstake de opname heeft verwerkt.",
+  "withdrawal_time": "Opnameduur",
   "withdrawn_instantly": "Direct opgenomen",
   "wouoldLikeToConnect": "wil graag verbinden",
   "write_down_backup_password": "Noteer je back-upwachtwoord, dat wordt gebruikt voor het importeren van je back-upbestanden.",

@@ -166,14 +166,14 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
   }
 
   Future<EverstakeData> _loadData() async {
-    final (minimum, fee, balances, rewards, withdrawal, apr, activationTime, totalRewards) = await (
+    final (minimum, fee, balances, rewards, withdrawal, apr, queue, totalRewards) = await (
       _service.getEthereumMinStakeAmount(),
       _service.getEthereumFee(),
       _service.getEthereumUserBalances(_address),
       _service.getEthereumRestakedRewards(_address),
       _service.getEthereumWithdrawRequest(_address),
       _optional(_service.getEthereumApr()),
-      _optional(_service.getEthereumActivationTime()),
+      _optional(_service.getEthereumValidatorQueue()),
       _optional(_service.getEthereumTotalRewards(_address)),
     ).wait;
     return EverstakeData(
@@ -184,7 +184,8 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
       withdrawRequest: withdrawal,
       walletBalance: _walletBalance,
       apr: apr,
-      activationTime: activationTime,
+      activationTime: queue?.activationTime,
+      withdrawalTime: queue?.withdrawalTime,
       totalRewards: totalRewards,
     );
   }
@@ -204,11 +205,23 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     Emitter<EverstakeState> emit,
   ) async {
     emit(EverstakePreparing(data));
+    // max unstake reads fresh to leave no dust from compounding
+    final balances = event is MaxUnstakeRequested
+        ? await _service.getEthereumUserBalances(_address)
+        : data.balances;
 
     final (action, amount) = switch (event) {
       StakeRequested(:final amount) => (EverstakeAction.stake, amount),
       MaxStakeRequested() => (EverstakeAction.stake, await _maxStakeAmount(data)),
       UnstakeRequested(:final amount) => (EverstakeAction.unstake, amount),
+      MaxUnstakeRequested(pending: true) => (
+          EverstakeAction.unstakePending,
+          balances.pendingBalance,
+        ),
+      MaxUnstakeRequested(pending: false) => (
+          EverstakeAction.unstake,
+          balances.autocompoundBalance,
+        ),
       PendingUnstakeRequested(:final amount) => (EverstakeAction.unstakePending, amount),
       WithdrawalClaimRequested() => (
           EverstakeAction.claimWithdrawal,
@@ -221,8 +234,8 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
 
     final EverstakeEthereumTransaction transaction;
     Money? instantUnstakeAmount;
-    switch (event) {
-      case StakeRequested() || MaxStakeRequested():
+    switch (action) {
+      case EverstakeAction.stake:
         if (amount < data.minStakeAmount) {
           throw const EverstakeBelowMinimumException();
         }
@@ -230,8 +243,8 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
           throw const EverstakeInsufficientBalanceException();
         }
         transaction = await _prepareStake(amount);
-      case UnstakeRequested():
-        if (amount > data.balances.autocompoundBalance) {
+      case EverstakeAction.unstake:
+        if (amount > balances.autocompoundBalance) {
           throw const EverstakeInsufficientBalanceException();
         }
         instantUnstakeAmount = await _service.simulateEthereumUnstake(
@@ -251,8 +264,8 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
           allowedInterchangeNum: _allowedInterchangeNum,
           source: EverstakeService.source,
         );
-      case PendingUnstakeRequested():
-        final remainder = data.balances.pendingBalance - amount;
+      case EverstakeAction.unstakePending:
+        final remainder = balances.pendingBalance - amount;
         if (remainder.isNegative) {
           throw const EverstakeInsufficientBalanceException();
         }
@@ -262,7 +275,7 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
         transaction =
             await _service.prepareEthereumUnstakePending(address: _address, amount: amount);
         _validator.validateUnstakePending(transaction, address: _address, amount: amount);
-      case WithdrawalClaimRequested():
+      case EverstakeAction.claimWithdrawal:
         if (!data.canClaimWithdrawal) {
           throw const EverstakeWithdrawalNotReadyException();
         }

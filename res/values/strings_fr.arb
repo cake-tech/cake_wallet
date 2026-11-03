@@ -1584,6 +1584,7 @@
   "withdrawal_pending": "Retrait en attente",
   "withdrawal_queue": "File d'attente de retrait",
   "withdrawal_queue_note": "L'ETH en file d'attente peut être réclamé ici une fois qu'Everstake a traité le retrait.",
+  "withdrawal_time": "Délai de retrait",
   "withdrawn_instantly": "Retiré instantanément",
   "wouoldLikeToConnect": "souhaite se connecter",
   "write_down_backup_password": "Veuillez noter votre mot de passe de sauvegarde, qui est utilisé pour importer vos fichiers de sauvegarde.",

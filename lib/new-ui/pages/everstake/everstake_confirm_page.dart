@@ -108,6 +108,8 @@ class _EverstakeConfirmPageState extends State<EverstakeConfirmPage> {
                 amount: queuedUnstakeAmount,
                 isHiddenAmount: false,
               ),
+              if (data.withdrawalTime != null)
+                everstakeWithdrawalTimeRow(context, data.withdrawalTime!),
             ],
           ],
         EverstakeAction.claimWithdrawal => [],
