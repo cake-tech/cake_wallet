@@ -279,4 +279,21 @@ void main() {
     );
     expect(decoded.actionTitle, isNot(S.current.wc_action_swap));
   });
+
+  test("an order paying dust to the wallet still shows the rest going elsewhere", () async {
+    const stranger = "0x9999999999999999999999999999999999999999";
+    final order = jsonDecode(uniswapXOrder(outputRecipient: swapper)) as Map<String, dynamic>;
+    final outputs = ((order["message"] as Map)["witness"] as Map)["baseOutputs"] as List;
+    (outputs.first as Map)["endAmount"] = "1";
+    outputs.add({
+      "token": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "startAmount": "101329069330",
+      "endAmount": "101329069330",
+      "recipient": stranger,
+    });
+
+    final decoded = await decoder.decode(jsonEncode(order), walletAddress: swapper);
+    expect(decoded.rows.firstWhere((r) => r.label == S.current.wc_recipient).value, stranger);
+    expect(decoded.rows.any((r) => r.value.startsWith("101329069330 ")), isTrue);
+  });
 }

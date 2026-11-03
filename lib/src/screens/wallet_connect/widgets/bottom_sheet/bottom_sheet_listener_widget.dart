@@ -17,6 +17,8 @@ class BottomSheetListener extends StatefulWidget {
 }
 
 class BottomSheetListenerState extends State<BottomSheetListener> {
+  BottomSheetQueueItemModel? _presentedSheet;
+
   @override
   void initState() {
     super.initState();
@@ -34,8 +36,9 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
     if (!mounted) {
       return;
     }
-    if (widget.bottomSheetService.currentSheet.value != null) {
-      BottomSheetQueueItemModel item = widget.bottomSheetService.currentSheet.value!;
+    final item = widget.bottomSheetService.currentSheet.value;
+    if (item != null && !identical(item, _presentedSheet)) {
+      _presentedSheet = item;
       try {
         final value = await showModalBottomSheet(
           context: context,

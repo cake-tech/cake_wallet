@@ -29,6 +29,8 @@ class UniversalRouterDecoder {
   static const _v4ActionTake = 0x0e;
   static const _v4ActionTakeAll = 0x0f;
   static const _v4ActionTakePortion = 0x10;
+  static const _v4MultiHopHeadBytes = 0x80;
+  static const _v4MultiHopWithHopSlippageHeadBytes = 0xa0;
 
   static const _sentinelMsgSender = "0x0000000000000000000000000000000000000001";
   static const _sentinelAddressThis = "0x0000000000000000000000000000000000000002";
@@ -563,27 +565,19 @@ class UniversalRouterDecoder {
       return null;
     }
 
-    final s2 = p.uintAt(2);
-    final s3 = p.uintAt(3);
-    final s4 = p.uintAt(4);
-
-    BigInt? specified;
-    BigInt? limit;
-    final looksShifted =
-        s2 != null && s3 != null && s2 < BigInt.from(0x10000) && s3 > s2 * BigInt.from(1000);
-    if (looksShifted && s4 != null) {
-      specified = s3;
-      limit = s4;
-    } else {
-      specified = s2;
-      limit = s3;
-    }
-    if (specified == null || limit == null) {
+    final pathOffsetBytes = p.uintAt(1)?.toInt();
+    final amountsWord = switch (pathOffsetBytes) {
+      _v4MultiHopHeadBytes => 2,
+      _v4MultiHopWithHopSlippageHeadBytes => 3,
+      _ => null,
+    };
+    if (pathOffsetBytes == null || amountsWord == null) {
       return null;
     }
 
-    final pathOffsetBytes = p.uintAt(1)?.toInt();
-    if (pathOffsetBytes == null) {
+    final specified = p.uintAt(amountsWord);
+    final limit = p.uintAt(amountsWord + 1);
+    if (specified == null || limit == null) {
       return null;
     }
 

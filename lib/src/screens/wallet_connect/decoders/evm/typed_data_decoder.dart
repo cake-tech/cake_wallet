@@ -258,7 +258,8 @@ class TypedDataDecoder {
       actionSubtitle: S.current.wc_via("UniswapX"),
       rows: [
         WCDecodedRow(label: S.current.wc_swap_from_max, value: describe(payToken, payAmount)),
-        ...(walletOutputs.isEmpty ? otherOutputs : walletOutputs),
+        ...walletOutputs,
+        ...otherOutputs,
         if (deadline != null)
           WCDecodedRow(
             label: S.current.wc_signature_valid_until,
@@ -266,7 +267,6 @@ class TypedDataDecoder {
           ),
       ],
       detailRows: [
-        if (walletOutputs.isNotEmpty) ...otherOutputs,
         WCDecodedRow(
           label: S.current.wc_approved_spender,
           value: reactor,

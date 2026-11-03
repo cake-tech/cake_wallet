@@ -247,6 +247,18 @@ class EvmSelectors {
 
   static String? routerNameFor(String selector) => selectorToRouterName[selector];
 
+  static const Map<int, String> wrappedNativeAddresses = {
+    1: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    56: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+    137: "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+    4663: "0x0bd7d308f8e1639fab988df18a8011f41eacad73",
+    8453: "0x4200000000000000000000000000000000000006",
+    42161: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+  };
+
+  static bool isWrappedNative(int? chainId, String address) =>
+      wrappedNativeAddresses[chainId] == address.toLowerCase();
+
   static bool isKnownRouter(String routerName, int? chainId, String address) =>
       knownRouterAddresses[routerName]?[chainId]?.contains(address.toLowerCase()) ?? false;
 

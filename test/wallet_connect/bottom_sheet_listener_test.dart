@@ -48,4 +48,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text("second"), findsOneWidget);
   });
+
+  testWidgets("a sheet queued during the first frame is shown once", (tester) async {
+    final service = BottomSheetServiceImpl();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(service.queueBottomSheet(widget: const Text("first frame")));
+    });
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BottomSheetListener(
+          bottomSheetService: service,
+          child: const Scaffold(body: SizedBox()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("first frame"), findsOneWidget);
+  });
 }

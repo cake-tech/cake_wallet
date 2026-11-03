@@ -16,13 +16,14 @@ void main() {
   final resolver = Erc20TokenResolver(null);
   final decoder = Erc20Decoder(resolver);
   const contract = "0x1111111111111111111111111111111111111111";
-  const wethContract = "0x5555555555555555555555555555555555555555";
+  const spoofedWeth = "0x5555555555555555555555555555555555555555";
+  const mainnetWeth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
   final wethDecoder = Erc20Decoder(
     StubErc20Resolver({
-      wethContract: Erc20Token(
+      spoofedWeth: Erc20Token(
         name: "Wrapped Ether",
         symbol: "WETH",
-        contractAddress: wethContract,
+        contractAddress: spoofedWeth,
         decimal: 18,
       ),
       contract: Erc20Token(
@@ -44,6 +45,7 @@ void main() {
         calldata: calldata("095ea7b3", wordAddr(spender) + wordInt(100)),
         contractAddress: contract,
         nativeSymbol: "ETH",
+        chainId: 1,
       );
       expect(decoded, isNotNull);
       expect(decoded!.actionTitle, S.current.wc_action_approve);
@@ -60,6 +62,7 @@ void main() {
         calldata: calldata("095ea7b3", wordAddr(spender) + word(max)),
         contractAddress: contract,
         nativeSymbol: "ETH",
+        chainId: 1,
       );
       expect(decoded!.warnings, contains(S.current.wc_warning_unlimited_approval));
       expect(decoded.rows.any((r) => r.value.startsWith(S.current.wc_unlimited)), isTrue);
@@ -71,6 +74,7 @@ void main() {
         calldata: calldata("095ea7b3", wordAddr(spender) + word(max)),
         contractAddress: contract,
         nativeSymbol: "ETH",
+        chainId: 1,
       );
       expect(decoded!.warnings, contains(S.current.wc_warning_unlimited_approval));
     });
@@ -80,6 +84,7 @@ void main() {
         calldata: calldata("095ea7b3", wordAddr(spender) + wordInt(0)),
         contractAddress: contract,
         nativeSymbol: "ETH",
+        chainId: 1,
       );
       expect(decoded!.actionTitle, S.current.wc_action_revoke_approval);
     });
@@ -90,6 +95,7 @@ void main() {
       calldata: calldata("a9059cbb", wordAddr(recipient) + wordInt(2500)),
       contractAddress: contract,
       nativeSymbol: "ETH",
+      chainId: 1,
     );
     expect(decoded!.actionTitle, S.current.wc_action_transfer);
     expect(decoded.rows.any((r) => r.value == recipient), isTrue);
@@ -102,6 +108,7 @@ void main() {
       calldata: calldata("39509351", wordAddr(spender) + word(max)),
       contractAddress: contract,
       nativeSymbol: "ETH",
+      chainId: 1,
     );
     expect(decoded!.actionTitle, S.current.wc_action_increase_allowance);
     expect(decoded.warnings, contains(S.current.wc_warning_unlimited_approval));
@@ -116,6 +123,7 @@ void main() {
       ),
       contractAddress: contract,
       nativeSymbol: "ETH",
+      chainId: 1,
     );
     expect(decoded!.rows.any((r) => r.value == spender), isTrue);
     expect(decoded.rows.any((r) => r.value == recipient), isTrue);
@@ -126,6 +134,7 @@ void main() {
       calldata: calldata("a457c2d7", wordAddr(spender) + wordInt(40)),
       contractAddress: contract,
       nativeSymbol: "ETH",
+      chainId: 1,
     );
     expect(decoded!.actionTitle, S.current.wc_action_decrease_allowance);
     expect(decoded.rows.any((r) => r.value.startsWith("40")), isTrue);
@@ -136,8 +145,9 @@ void main() {
     test("deposit on the wrapped-native contract reads as wrap", () async {
       final decoded = await wethDecoder.decode(
         calldata: calldata("d0e30db0", ""),
-        contractAddress: wethContract,
+        contractAddress: mainnetWeth,
         nativeSymbol: "ETH",
+        chainId: 1,
       );
       expect(decoded, isNotNull);
       expect(decoded!.actionTitle, S.current.wc_action_wrap("ETH"));
@@ -147,11 +157,32 @@ void main() {
     test("withdraw reads as unwrap and shows the native amount", () async {
       final decoded = await wethDecoder.decode(
         calldata: calldata("2e1a7d4d", word(BigInt.from(10).pow(17))),
-        contractAddress: wethContract,
+        contractAddress: mainnetWeth,
         nativeSymbol: "ETH",
+        chainId: 1,
       );
       expect(decoded!.actionTitle, S.current.wc_action_unwrap("ETH"));
       expect(decoded.rows.single.value, "0.1 ETH");
+    });
+
+    test("a contract that only calls itself WETH is not claimed as a wrap", () async {
+      final decoded = await wethDecoder.decode(
+        calldata: calldata("d0e30db0", ""),
+        contractAddress: spoofedWeth,
+        nativeSymbol: "ETH",
+        chainId: 1,
+      );
+      expect(decoded, isNull);
+    });
+
+    test("the mainnet wrapped-native address is not trusted on another chain", () async {
+      final decoded = await wethDecoder.decode(
+        calldata: calldata("d0e30db0", ""),
+        contractAddress: mainnetWeth,
+        nativeSymbol: "ETH",
+        chainId: 8453,
+      );
+      expect(decoded, isNull);
     });
 
     test("deposit on an unrelated token is not claimed as a wrap", () async {
@@ -159,6 +190,7 @@ void main() {
         calldata: calldata("d0e30db0", ""),
         contractAddress: contract,
         nativeSymbol: "ETH",
+        chainId: 1,
       );
       expect(decoded, isNull);
     });
@@ -169,6 +201,7 @@ void main() {
       calldata: calldata("095ea7b3", wordAddr(spender)),
       contractAddress: contract,
       nativeSymbol: "ETH",
+      chainId: 1,
     );
     expect(decoded, isNull);
   });
@@ -182,6 +215,7 @@ void main() {
       ),
       contractAddress: contract,
       nativeSymbol: "ETH",
+      chainId: 1,
     );
     expect(decoded!.actionSubtitle, "Permit2");
     expect(decoded.warnings, contains(S.current.wc_warning_unlimited_approval));
@@ -193,6 +227,7 @@ void main() {
       calldata: calldata("095ea7b3", wordAddr(spender) + wordInt(500)),
       contractAddress: contract,
       nativeSymbol: "ETH",
+      chainId: 1,
     );
     expect(decoded!.actionSubtitle, isNull);
     expect(decoded.warnings, isNot(contains(S.current.wc_warning_permit2_approval)));

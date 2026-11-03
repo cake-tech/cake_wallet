@@ -206,6 +206,14 @@ void main() {
     expect(decoded!.title, S.current.wc_action_create_token_account);
   });
 
+  test("AtaDecoder does not read RecoverNested as a create", () async {
+    final decoded = await AtaDecoder(resolver).decode(
+      data: const [2],
+      accounts: [source, dest, authority, mint, source, dest, authority],
+    );
+    expect(decoded, isNull);
+  });
+
   test("AtaDecoder rejects a truncated account list", () async {
     final decoded = await AtaDecoder(resolver).decode(data: const [1], accounts: [source, dest]);
     expect(decoded, isNull);

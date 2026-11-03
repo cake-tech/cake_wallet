@@ -8,11 +8,13 @@ class AtaDecoder {
 
   final SplTokenResolver resolver;
 
+  static const _createTags = {0, 1};
+
   Future<SolDecodedInstruction?> decode({
     required List<int> data,
     required List<String> accounts,
   }) async {
-    if (accounts.length < 4) {
+    if (accounts.length < 4 || (data.isNotEmpty && !_createTags.contains(data.first))) {
       return null;
     }
 

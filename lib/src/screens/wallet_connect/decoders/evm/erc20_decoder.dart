@@ -16,6 +16,7 @@ class Erc20Decoder {
     required EvmCalldata calldata,
     required String? contractAddress,
     required String nativeSymbol,
+    required int? chainId,
   }) async {
     switch (calldata.selector) {
       case EvmSelectors.erc20Approve:
@@ -37,21 +38,11 @@ class Erc20Decoder {
           S.current.wc_action_decrease_allowance,
         );
       case EvmSelectors.wethDeposit:
-        return _decodeWethWrap(contractAddress, nativeSymbol);
+        return _decodeWethWrap(contractAddress, nativeSymbol, chainId);
       case EvmSelectors.wethWithdraw:
-        return _decodeWethUnwrap(calldata, contractAddress, nativeSymbol);
+        return _decodeWethUnwrap(calldata, contractAddress, nativeSymbol, chainId);
     }
     return null;
-  }
-
-  Future<bool> _isWrappedNative(String contractAddress, String nativeSymbol) async {
-    final token = await tokenResolver.resolve(contractAddress);
-    if (token == null) {
-      return false;
-    }
-    final symbol = token.symbol.toUpperCase();
-    final native = nativeSymbol.toUpperCase();
-    return symbol == "W$native" || symbol == native;
   }
 
   Future<WCDecodedRequest?> _decodeApprove(
@@ -227,11 +218,12 @@ class Erc20Decoder {
   Future<WCDecodedRequest?> _decodeWethWrap(
     String? contractAddress,
     String nativeSymbol,
+    int? chainId,
   ) async {
     if (contractAddress == null) {
       return null;
     }
-    if (!await _isWrappedNative(contractAddress, nativeSymbol)) {
+    if (!EvmSelectors.isWrappedNative(chainId, contractAddress)) {
       return null;
     }
     return WCDecodedRequest(
@@ -246,11 +238,12 @@ class Erc20Decoder {
     EvmCalldata calldata,
     String? contractAddress,
     String nativeSymbol,
+    int? chainId,
   ) async {
     if (contractAddress == null) {
       return null;
     }
-    if (!await _isWrappedNative(contractAddress, nativeSymbol)) {
+    if (!EvmSelectors.isWrappedNative(chainId, contractAddress)) {
       return null;
     }
     final rawAmount = calldata.uintAt(0);

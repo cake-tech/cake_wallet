@@ -75,6 +75,7 @@ class EvmRequestDecoder {
       calldata: calldata,
       contractAddress: toAddress,
       nativeSymbol: nativeSymbol,
+      chainId: chainId,
     );
     if (erc20Result != null) {
       return erc20Result;
