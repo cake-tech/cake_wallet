@@ -9,14 +9,7 @@ class ShareUtil {
     Share.share(
       text,
       sharePositionOrigin: _sharePosition(context),
-    ).catchError(
-      // _sharePosition always gives a valid anchor, so on iOS this only means something is already
-      // presented on top, in practice a share sheet after a quick double tap. Drop the duplicate.
-      (Object _) => ShareResult.unavailable,
-      test: (error) =>
-          error is PlatformException &&
-          (error.message?.startsWith('sharePositionOrigin') ?? false),
-    );
+    ).catchError((Object _) => ShareResult.unavailable, test: _isAlreadyPresenting);
   }
 
   static Future<ShareResult> shareFile({
@@ -38,8 +31,13 @@ class ShareUtil {
       subject: subject,
       text: text,
       sharePositionOrigin: _sharePosition(context),
-    );
+    ).catchError((Object _) => ShareResult.unavailable, test: _isAlreadyPresenting);
   }
+
+  // _sharePosition always gives a valid anchor, so on iOS this only means something is already
+  // presented on top, in practice a share sheet after a quick double tap. Drop the duplicate.
+  static bool _isAlreadyPresenting(Object error) =>
+      error is PlatformException && (error.message?.startsWith('sharePositionOrigin') ?? false);
 
   static Rect _sharePosition(BuildContext context) {
     if (!context.mounted) {

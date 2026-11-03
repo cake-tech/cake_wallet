@@ -212,7 +212,12 @@ class ChartsAssetCard extends StatelessWidget {
                                   ? displayPrice
                                   : displayPrice.withLocalSeperator(
                                       getIt.get<AppStore>().settingsStore.languageCode),
-                              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 20),
+                              style: const TextStyle(
+                                fontFamily: "IBM Plex Sans",
+                                fontFeatures: [FontFeature.tabularFigures()],
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20,
+                              ),
                             ),
                             Text(
                               ticker,

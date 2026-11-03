@@ -80,7 +80,8 @@ class _ChartHeaderState extends State<ChartHeader> {
                                     ? Text(
                                         _viewedTime!,
                                         style: TextStyle(
-                                          fontFamily: "IBM Plex Mono",
+                                          fontFamily: "IBM Plex Sans",
+                                          fontFeatures: const [FontFeature.tabularFigures()],
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           fontSize: 16,
