@@ -861,7 +861,7 @@ dependency_overrides:
   ledger_flutter_plus:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
@@ -1239,7 +1239,7 @@ dependency_overrides:
   rlz:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
       path: ./rust_builder
   rxdart:
     git:
@@ -1681,4 +1681,4 @@ dependency_overrides:
   zkool:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7

@@ -20,6 +20,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
       this.showArrow = true,
       this.trailingIconPath,
       this.truncateTrailingText = false,
+      this.truncateLabel = false,
       this.foregroundColor,
       this.trailingIconSize,
       this.bottomWidget,
@@ -48,6 +49,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final Widget? bottomWidget;
   final Widget? trailingWidget;
   final bool truncateTrailingText;
+  final bool truncateLabel;
   final Color? foregroundColor;
   final double? trailingIconSize;
   final String? copyableText;
@@ -76,6 +78,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
             isFirstInSection: isFirstInSection,
             isLastInSection: isLastInSection,
             builder: (context, textStyle, labelStyle) {
+              final labelTextStyle = foregroundColor == null
+                  ? textStyle
+                  : textStyle.copyWith(color: foregroundColor);
               final leadingIcon = iconPath != null
                   ? CakeImageWidget(
                       imageUrl: iconPath!,
@@ -150,10 +155,17 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                     Row(
                                       spacing: 4,
                                       children: [
-                                        Text(label,
-                                            style: foregroundColor == null
-                                                ? textStyle
-                                                : textStyle.copyWith(color: foregroundColor)),
+                                        if (truncateLabel)
+                                          Flexible(
+                                            child: Text(
+                                              label,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: labelTextStyle,
+                                            ),
+                                          )
+                                        else
+                                          Text(label, style: labelTextStyle),
                                         if (secondaryLabel != null)
                                           Text(
                                             secondaryLabel!,

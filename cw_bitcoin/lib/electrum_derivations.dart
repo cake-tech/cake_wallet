@@ -1,7 +1,10 @@
 import 'package:cw_core/wallet_info.dart';
 
-const SILENT_PAYMENTS_SCAN_PATH = "m/352'/0'/0'/1'/0";
-const SILENT_PAYMENTS_SPEND_PATH = "m/352'/0'/0'/0'/0";
+const SILENT_PAYMENTS_ACCOUNT_PATH = "m/352'/0'/0'";
+const SILENT_PAYMENTS_SCAN_SUBPATH = "1'/0";
+const SILENT_PAYMENTS_SPEND_SUBPATH = "0'/0";
+const SILENT_PAYMENTS_SCAN_PATH = "$SILENT_PAYMENTS_ACCOUNT_PATH/$SILENT_PAYMENTS_SCAN_SUBPATH";
+const SILENT_PAYMENTS_SPEND_PATH = "$SILENT_PAYMENTS_ACCOUNT_PATH/$SILENT_PAYMENTS_SPEND_SUBPATH";
 const SILENT_PAYMENTS_SCAN_PATH_TESTNET = "m/352'/1'/0'/1'/0";
 const SILENT_PAYMENTS_SPEND_PATH_TESTNET = "m/352'/1'/0'/0'/0";
 
@@ -116,3 +119,4 @@ Map<DerivationType, List<DerivationInfo>> electrum_derivations = {
 
 String electrum_path = electrum_derivations[DerivationType.electrum]!.first.derivationPath!;
 String segwit_path = "m/84'/0'/0'";
+String litecoin_segwit_path = "m/84'/2'/0'";
