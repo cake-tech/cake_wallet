@@ -119,6 +119,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
+      if (_isExcluded(from) || _isExcluded(to)) {
+        return 0.0;
+      }
 
       final params = <String, String>{
         'ticker_from': _normalizeCurrency(from),
@@ -225,6 +228,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
+    if (_isExcluded(request.fromCurrency) || _isExcluded(request.toCurrency)) {
+      throw BadCurrencyPairException(
+        "Not supported by Trocador",
+        request.fromCurrency,
+        request.toCurrency,
+      );
+    }
+
     final params = {
       'ticker_from': _normalizeCurrency(request.fromCurrency),
       'ticker_to': _normalizeCurrency(request.toCurrency),
@@ -479,10 +490,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     return filteredProvidersList;
   }
 
+  // partners may pay out bridged USDT.e (NEAR), legacy USDT (OP) or another USDD (ETH)
+  bool _isExcluded(CryptoCurrency currency) {
+    final title = currency.title.toUpperCase();
+    return (title == "USDT" && (currency.tag == "NEAR" || currency.tag == "OP")) ||
+        (title == "USDD" && currency.tag == "ETH");
+  }
+
   String _networkFor(CryptoCurrency currency) {
-    if (currency.title.toUpperCase() == "USDD" && currency.tag == "ETH") {
-      throw BadCurrencyException("Trocador's USDD on Ethereum may be a different USDD", currency);
-    }
     switch (currency) {
       case CryptoCurrency.eth:
         return 'ERC20';
@@ -498,10 +513,6 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'Mainnet';
       case CryptoCurrency.usdcOp:
         return "Optimism";
-      case CryptoCurrency.usdtNear:
-        throw BadCurrencyException("Trocador's USDT on NEAR may be bridged USDT.e", currency);
-      case CryptoCurrency.usdtOp:
-        throw BadCurrencyException("Trocador's USDT on Optimism may be legacy USDT", currency);
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
