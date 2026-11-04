@@ -88,14 +88,8 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   List<CryptoCurrency> get _visibleItems {
     final query = _searchController.text.trim();
     return widget.args.items
-        .where(_hasSupportedChain)
         .where((c) => currencyMatchesQuery(c, query) && _matchesNetwork(c))
         .toList(growable: false);
-  }
-
-  bool _hasSupportedChain(CryptoCurrency c) {
-    if (c.tag == null) return true;
-    return cryptoCurrencyOrTokenToWalletType(c) != null;
   }
 
   void _selectCurrency(CryptoCurrency currency) {
@@ -105,10 +99,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   void _onStablecoinPillTapped(CryptoCurrency tapped) {
     var variants = widget.args.items
-        .where((c) =>
-            isTrustedStablecoin(c) &&
-            c.title.toUpperCase() == tapped.title.toUpperCase() &&
-            cryptoCurrencyOrTokenToWalletType(c) != null)
+        .where((c) => isTrustedStablecoin(c) && c.title.toUpperCase() == tapped.title.toUpperCase())
         .toList();
 
     if (_selectedNetwork != null) {
@@ -479,7 +470,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
     if (c == CryptoCurrency.btcln) return _shortChainLabel(c);
     if (_isL2NativeEth(c)) return _shortChainLabel(c);
     if (widget.natives.contains(c)) return null;
-    if (cryptoCurrencyOrTokenToWalletType(c) == null) return null;
+    if (c.tag == null && cryptoCurrencyOrTokenToWalletType(c) == null) return null;
     return _shortChainLabel(c);
   }
 

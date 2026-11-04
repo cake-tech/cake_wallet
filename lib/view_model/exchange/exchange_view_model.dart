@@ -77,6 +77,12 @@ part 'exchange_view_model.g.dart';
 class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with Store {
+  static const excludedCurrencies = [
+    CryptoCurrency.btt,
+    CryptoCurrency.usdt,
+    CryptoCurrency.avaxc,
+  ];
+
   @override
   void onWalletChange(wallet) {
     // FIXME this caused a bug when switching wallet, i can't figure out why it's here?
@@ -124,8 +130,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         super(appStore: _appStore) {
     _useTorOnly = _settingsStore.exchangeStatus == ExchangeApiMode.torOnly;
     _setProviders();
-    const excludeDepositCurrencies = [CryptoCurrency.btt];
-    const excludeReceiveCurrencies = [CryptoCurrency.btt];
     _initialPairBasedOnWallet();
 
     unspentCoinsListViewModel.initialSetup().then((_) {
@@ -194,11 +198,11 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     }, delay: 300));
 
     receiveCurrencies = CryptoCurrency.all
-        .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
+        .where((cryptoCurrency) => !excludedCurrencies.contains(cryptoCurrency))
         .toList()
         .asObservable();
     depositCurrencies = CryptoCurrency.all
-        .where((cryptoCurrency) => !excludeDepositCurrencies.contains(cryptoCurrency))
+        .where((cryptoCurrency) => !excludedCurrencies.contains(cryptoCurrency))
         .toList()
         .asObservable();
 

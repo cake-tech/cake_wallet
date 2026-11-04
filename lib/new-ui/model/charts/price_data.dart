@@ -15,7 +15,11 @@ Currency currencyFromApiString(String key) {
     case "fiat":
       return FiatCurrency.deserialize(raw: id);
     case "crypto":
-      return CryptoCurrency.fromString(id);
+      try {
+        return CryptoCurrency.fromString(id);
+      } on ArgumentError {
+        return CryptoCurrency.all.firstWhere((c) => c.title == id);
+      }
     case "evm":
       throw UnimplementedError();
     case "sol":
