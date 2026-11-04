@@ -5,15 +5,18 @@ import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
-Future<void> createNewAddress(WalletBase wallet, String label) async {
+/// Creates a receive address. Returns it for Electrum wallets, which may hand out an address they
+/// already had instead of appending one, and null for the other wallet types.
+Future<String?> createNewAddress(WalletBase wallet, String label) async {
   final isElectrum = wallet.type == WalletType.bitcoin ||
       wallet.type == WalletType.bitcoinCash ||
       wallet.type == WalletType.litecoin ||
       wallet.type == WalletType.dogecoin;
 
   if (isElectrum) {
-    await bitcoin!.generateNewAddress(wallet, label);
+    final newAddress = await bitcoin!.generateNewAddress(wallet, label);
     await wallet.save();
+    return newAddress;
   }
 
   if (wallet.type == WalletType.decred) {
@@ -30,7 +33,7 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
       // this shouldn't happen, we just added an addr.
       // somehow, it happened once in prod regardless.
       // we just return instead of crashing, user can press the button again ig
-      return;
+      return null;
     }
     final addr = subaddressList.first.address; // first because the order is reversed
     wallet.walletAddresses.manualAddresses.add(addr);
@@ -49,4 +52,6 @@ Future<void> createNewAddress(WalletBase wallet, String label) async {
     wallet.walletAddresses.manualAddresses.add(addr);
     await wallet.save();
   }
+
+  return null;
 }
