@@ -30,7 +30,7 @@ class PendingSolanaTransaction with PendingTransaction {
 
   @override
   Future<void> commit() async {
-    _sig = await sendTransaction();
+    _sig = await sendTransaction() as String?;
   }
 
   @override

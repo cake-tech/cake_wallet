@@ -234,13 +234,13 @@ abstract class DecredWalletBase
     final syncStatusJSON = await _libwallet.syncStatus(walletInfo.name);
     final decoded = json.decode(syncStatusJSON.isEmpty ? "{}" : syncStatusJSON);
 
-    final syncStatusCode = decoded["syncstatuscode"] ?? 0;
+    final syncStatusCode = decoded["syncstatuscode"] as int? ?? 0;
     // final syncStatusStr = decoded["syncstatus"] ?? "";
-    final targetHeight = decoded["targetheight"] ?? 1;
+    final targetHeight = decoded["targetheight"] as int? ?? 1;
     final numPeers = decoded["numpeers"] ?? 0;
     // final cFiltersHeight = decoded["cfiltersheight"] ?? 0;
-    final headersHeight = decoded["headersheight"] ?? 0;
-    final rescanHeight = decoded["rescanheight"] ?? 0;
+    final headersHeight = decoded["headersheight"] as int? ?? 0;
+    final rescanHeight = decoded["rescanheight"] as int? ?? 0;
 
     if (numPeers == 0) {
       syncStatus = NotConnectedSyncStatus();
@@ -421,18 +421,18 @@ abstract class DecredWalletBase
     };
     final res = await _libwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
-    final signedHex = decoded["hex"];
+    final signedHex = decoded["hex"] as String? ?? "";
     final send = () async {
       await _libwallet.sendRawTransaction(walletInfo.name, signedHex);
       await updateBalance();
     };
-    final fee = decoded["fee"] ?? 0;
+    final fee = decoded["fee"] as int? ?? 0;
     if (sendAll) {
       totalAmt = (totalAmt - fee).round();
     }
 
     return DecredPendingTransaction(
-      txId: decoded["txid"] ?? "",
+      txId: decoded["txid"] as String? ?? "",
       amount: Money.fromInt(totalAmt, currency),
       fee: Money.fromInt(fee, currency),
       rawHex: signedHex,
@@ -497,18 +497,20 @@ abstract class DecredWalletBase
       final decoded = json.decode(res);
       final txs = <String, DecredTransactionInfo>{};
 
-      for (final d in decoded) {
-        final txid = uniqueTxID(d["txid"] ?? "", d["vout"] ?? 0);
+      for (final d in decoded as Iterable<dynamic>) {
+        final txid = uniqueTxID(d["txid"] as String? ?? "", d["vout"] as int? ?? 0);
         var direction = TransactionDirection.outgoing;
         if (d["category"] == "receive") {
           direction = TransactionDirection.incoming;
         }
-        final amountDouble = d["amount"] ?? 0.0;
+        // amount and fee are Go float64s, and Go writes whole values without a decimal point
+        // (1, not 1.0), so they can decode as int. Cast to num, never double.
+        final amountDouble = d["amount"] as num? ?? 0.0;
         final amount = (amountDouble * 1e8).round().abs();
-        final feeDouble = d["fee"] ?? 0.0;
+        final feeDouble = d["fee"] as num? ?? 0.0;
         final fee = (feeDouble * 1e8).round().abs();
-        final confs = d["confirmations"] ?? 0;
-        final sendTime = d["time"] ?? 0;
+        final confs = d["confirmations"] as int? ?? 0;
+        final sendTime = d["time"] as int? ?? 0;
 
         txs[txid] = DecredTransactionInfo(
           id: txid,
@@ -517,9 +519,9 @@ abstract class DecredWalletBase
           direction: direction,
           isPending: confs == 0,
           date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: false),
-          height: d["height"] ?? 0,
+          height: d["height"] as int? ?? 0,
           confirmations: confs,
-          to: d["address"] ?? "",
+          to: d["address"] as String? ?? "",
         );
       }
       return txs;
@@ -603,8 +605,8 @@ abstract class DecredWalletBase
     });
 
     balance[CryptoCurrency.dcr] = DecredBalance(
-      confirmed: Money.fromInt(balanceMap["confirmed"] ?? 0, currency),
-      unconfirmed: Money.fromInt(balanceMap["unconfirmed"] ?? 0, currency),
+      confirmed: Money.fromInt(balanceMap["confirmed"] as int? ?? 0, currency),
+      unconfirmed: Money.fromInt(balanceMap["unconfirmed"] as int? ?? 0, currency),
       frozen: Money.fromInt(totalFrozen, currency),
     );
   }
@@ -672,15 +674,22 @@ abstract class DecredWalletBase
       final res = await _libwallet.listUnspents(walletInfo.name);
       final decoded = json.decode(res);
       final unspents = <Unspent>[];
-      for (final d in decoded) {
-        final spendable = d["spendable"] ?? false;
+      for (final d in decoded as Iterable<dynamic>) {
+        final spendable = d["spendable"] as bool? ?? false;
         if (!spendable) {
           continue;
         }
-        final amountDouble = d["amount"] ?? 0.0;
+        // A Go float64, so it can decode as int (see fetchFiveTransactions): num, not double.
+        final amountDouble = d["amount"] as num? ?? 0.0;
         final amount = (amountDouble * 1e8).round().abs();
-        final utxo = Unspent(d["address"] ?? "", d["txid"] ?? "", amount, d["vout"] ?? 0, null);
-        utxo.isChange = d["ischange"] ?? false;
+        final utxo = Unspent(
+          d["address"] as String? ?? "",
+          d["txid"] as String? ?? "",
+          amount,
+          d["vout"] as int? ?? 0,
+          null,
+        );
+        utxo.isChange = d["ischange"] as bool? ?? false;
         unspents.add(utxo);
       }
       _unspents = unspents;
@@ -765,7 +774,7 @@ abstract class DecredWalletBase
       if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
         return -1;
       }
-      return decoded["height"] ?? 0;
+      return decoded["height"] as int? ?? 0;
     } on FormatException catch (_) {
       return 0;
     }
