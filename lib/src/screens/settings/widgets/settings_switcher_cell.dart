@@ -34,7 +34,7 @@ class SettingsSwitcherCell extends StandardListRow {
   Widget build(BuildContext context) {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
-    return Container(
+    return MergeSemantics(child: Container(
       height: height,
       padding: padding ?? EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
@@ -63,7 +63,7 @@ class SettingsSwitcherCell extends StandardListRow {
           ],
         ),
       ),
-    );
+    ));
   }
 
   @override
