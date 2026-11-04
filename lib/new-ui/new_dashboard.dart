@@ -74,63 +74,65 @@ class _NewDashboardState extends State<NewDashboard> {
     return BottomSheetListener(
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
-        body: Material(
-          key: ValueKey("new_dashboard_page_key"),
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              // widget.dashboardPageWidgets[_selectedPage],
-              IndexedStack(
-                index: _selectedPage,
-                children: widget.dashboardPageWidgets,
-              ),
-              IgnorePointer(
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                      ],
+        body: _ModalTransitionSnapshot(
+          child: Material(
+            key: ValueKey("new_dashboard_page_key"),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                // widget.dashboardPageWidgets[_selectedPage],
+                IndexedStack(
+                  index: _selectedPage,
+                  children: widget.dashboardPageWidgets,
+                ),
+                IgnorePointer(
+                  child: Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Invisible pointer-absorbing strip behind the nav bar: it must not
-              // be reachable by screen-reader traversal either.
-              ExcludeSemantics(
-                child: SafeArea(
-                  bottom: !(Platform.isIOS),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
-                    child: AbsorbPointer(
-                      absorbing: true,
-                      child: Container(color: Colors.transparent),
+                // Invisible pointer-absorbing strip behind the nav bar: it must not
+                // be reachable by screen-reader traversal either.
+                ExcludeSemantics(
+                  child: SafeArea(
+                    bottom: !(Platform.isIOS),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                      child: AbsorbPointer(
+                        absorbing: true,
+                        child: Container(color: Colors.transparent),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              NewMainNavBar(
-                dashboardViewModel: widget.dashboardViewModel,
-                selectedIndex: _selectedPage,
-                onItemTap: (index) {
-                  setState(() {
-                    _selectedPage = index;
-                  });
-                  if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
-                    page.onPageOpen();
-                  }
-                },
-              )
-            ],
+                NewMainNavBar(
+                  dashboardViewModel: widget.dashboardViewModel,
+                  selectedIndex: _selectedPage,
+                  onItemTap: (index) {
+                    setState(() {
+                      _selectedPage = index;
+                    });
+                    if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
+                      page.onPageOpen();
+                    }
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -200,4 +202,43 @@ class _NewDashboardState extends State<NewDashboard> {
       }
     }
   }
+}
+
+// While a cupertino modal scales the dashboard away (or back), draw it as a single image
+// instead of re-rasterizing the whole tree at a new scale every frame.
+class _ModalTransitionSnapshot extends StatefulWidget {
+  const _ModalTransitionSnapshot({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_ModalTransitionSnapshot> createState() => _ModalTransitionSnapshotState();
+}
+
+class _ModalTransitionSnapshotState extends State<_ModalTransitionSnapshot> {
+  final _controller = SnapshotController();
+  Animation<double>? _animation;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final animation = CupertinoScaffold.of(context)?.animation;
+    if (animation == _animation) return;
+    _animation?.removeStatusListener(_onStatusChanged);
+    _animation = animation?..addStatusListener(_onStatusChanged);
+  }
+
+  void _onStatusChanged(AnimationStatus status) =>
+      _controller.allowSnapshotting = status.isAnimating;
+
+  @override
+  void dispose() {
+    _animation?.removeStatusListener(_onStatusChanged);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      SnapshotWidget(controller: _controller, mode: SnapshotMode.permissive, child: widget.child);
 }
