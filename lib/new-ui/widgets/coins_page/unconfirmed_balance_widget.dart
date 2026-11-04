@@ -71,7 +71,7 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                     }
 
                     return Container(
-                      width: MediaQuery.of(context).size.width * 0.87,
+                      width: MediaQuery.sizeOf(context).width * 0.87,
                       height: 48,
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -162,7 +162,7 @@ class ZcashManualShieldingRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: MediaQuery.of(context).size.width * 0.87,
+        width: MediaQuery.sizeOf(context).width * 0.87,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(16),

@@ -22,7 +22,7 @@ class CoinActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size.width * sizeFactor;
+    final size = MediaQuery.sizeOf(context).width * sizeFactor;
     final double effectiveSize = min(size, 80);
 
     // The caption below the circle is the accessible name, so it is excluded

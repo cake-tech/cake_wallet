@@ -41,7 +41,7 @@ class CoinActionRow extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
-        spacing: MediaQuery.of(context).size.width * 0.05,
+        spacing: MediaQuery.sizeOf(context).width * 0.05,
         children: [
           CoinActionButton(
             key: ValueKey("home_page_send_button_key"),
