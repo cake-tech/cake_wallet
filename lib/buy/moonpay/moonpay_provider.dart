@@ -30,16 +30,21 @@ class MoonPayProvider extends BuyProvider {
   MoonPayProvider({
     required AppStore appStore,
     required super.wallet,
+    super.hardwareWalletVM,
     super.isTestEnvironment = false,
   })  : baseSellUrl = isTestEnvironment ? _baseSellTestUrl : _baseSellProductUrl,
         baseBuyUrl = isTestEnvironment ? _baseBuyTestUrl : _baseBuyProductUrl,
         _appStore = appStore,
         super(
-            hardwareWalletVM: null,
-            supportedCryptoList: supportedCryptoToFiatPairs(
-                notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-            supportedFiatList: supportedFiatToCryptoPairs(
-                notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
+          supportedCryptoList: supportedCryptoToFiatPairs(
+            notSupportedCrypto: _notSupportedCrypto,
+            notSupportedFiat: _notSupportedFiat,
+          ),
+          supportedFiatList: supportedFiatToCryptoPairs(
+            notSupportedFiat: _notSupportedFiat,
+            notSupportedCrypto: _notSupportedCrypto,
+          ),
+        );
 
   final AppStore _appStore;
 
@@ -307,19 +312,20 @@ class MoonPayProvider extends BuyProvider {
   }
 
   @override
-  Future<void>? launchProvider(
-      {required BuildContext context,
-      required Quote quote,
-      required double amount,
-      required bool isBuyAction,
-      required String cryptoCurrencyAddress,
-      String? countryCode}) async {
+  Future<void>? launchProvider({
+    required BuildContext context,
+    required Quote quote,
+    required double amount,
+    required bool isBuyAction,
+    required String cryptoCurrencyAddress,
+    String? countryCode,
+  }) async {
     final Map<String, String> params = {
       "theme": _appStore.themeStore.currentTheme.type.name,
       "language": _appStore.settingsStore.languageCode,
       "colorCode": _appStore.themeStore.currentTheme.isDark
-          ? '#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}'
-          : '#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}',
+          ? "#${Palette.blueCraiola.value.toRadixString(16).substring(2, 8)}"
+          : "#${Palette.moderateSlateBlue.value.toRadixString(16).substring(2, 8)}",
       "baseCurrencyCode": isBuyAction ? quote.fiatCurrency.name : quote.cryptoCurrency.name,
       "baseCurrencyAmount": amount.toStringAsFixed(2),
       "walletAddress": cryptoCurrencyAddress,
@@ -330,31 +336,36 @@ class MoonPayProvider extends BuyProvider {
         "enabledPaymentMethods": normalizePaymentMethod(quote.paymentType) ??
             quote.customPaymentMethodType ??
             "credit_debit_card,apple_pay,google_pay,samsung_pay,sepa_bank_transfer,gbp_bank_transfer,gbp_open_banking_payment",
-      if (!isBuyAction) 'refundWalletAddress': cryptoCurrencyAddress
+      if (!isBuyAction) "refundWalletAddress": cryptoCurrencyAddress,
+      if (isBuyAction) "currencyCode": quote.cryptoCurrency.name,
+      if (!isBuyAction) "quoteCurrencyCode": quote.cryptoCurrency.name,
     };
 
-    if (isBuyAction) params['currencyCode'] = quote.cryptoCurrency.name;
-    if (!isBuyAction) params['quoteCurrencyCode'] = quote.cryptoCurrency.name;
+    if (wallet.isHardwareWallet &&
+        !(await hardwareWalletVM!.ensureDeviceConnection(context, wallet))) {
+      return;
+    }
 
     try {
       final uri = await requestMoonPayUrl(
-          walletAddress: cryptoCurrencyAddress,
-          isBuyAction: isBuyAction,
-          amount: amount.toString(),
-          params: params);
+        walletAddress: cryptoCurrencyAddress,
+        isBuyAction: isBuyAction,
+        amount: amount.toString(),
+        params: params,
+      );
 
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw BuySellLaunchException('Could not launch URL');
+        throw const BuySellLaunchException("Could not launch URL");
       }
     } catch (e) {
       if (context.mounted) {
         await showDialog<void>(
           context: context,
-          builder: (BuildContext context) => AlertWithOneAction(
-            alertTitle: 'MoonPay',
-            alertContent: 'The MoonPay service is currently unavailable: $e',
+          builder: (context) => AlertWithOneAction(
+            alertTitle: "MoonPay",
+            alertContent: "The MoonPay service is currently unavailable: $e",
             buttonText: S.of(context).ok,
             buttonAction: () => Navigator.of(context).pop(),
           ),

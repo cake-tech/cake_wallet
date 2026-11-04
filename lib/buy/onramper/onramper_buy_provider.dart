@@ -26,9 +26,11 @@ class OnramperSignatureException implements Exception {
 }
 
 class OnRamperBuyProvider extends BuyProvider {
-  OnRamperBuyProvider({required super.wallet, super.isTestEnvironment = false})
-      : super(
-          hardwareWalletVM: null,
+  OnRamperBuyProvider({
+    required super.wallet,
+    super.hardwareWalletVM,
+    super.isTestEnvironment = false,
+  }) : super(
           supportedCryptoList: supportedCryptoToFiatPairs(
             notSupportedCrypto: _notSupportedCrypto,
             notSupportedFiat: _notSupportedFiat,
@@ -304,6 +306,11 @@ class OnRamperBuyProvider extends BuyProvider {
 
     final networkWallets =
         "${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title).toLowerCase()}:$cryptoCurrencyAddress";
+
+    if (wallet.isHardwareWallet &&
+        !(await hardwareWalletVM!.ensureDeviceConnection(context, wallet))) {
+      return;
+    }
 
     final widgetUrl = await getOnramperSignedWidgetUrl({
       "apiKey": _apiKey,
