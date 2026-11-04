@@ -1,6 +1,10 @@
 ARG BASE_IMAGE
 FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 
+COPY scripts/docker/git-credential-github.sh /usr/local/bin/git-credential-github
+RUN chmod 755 /usr/local/bin/git-credential-github \
+    && git config --system credential.helper /usr/local/bin/git-credential-github
+
 COPY scripts/functions.sh /w/scripts/functions.sh
 COPY scripts/prepare_moneroc.sh /w/scripts/prepare_moneroc.sh
 COPY scripts/android/build_monero_all.sh /w/scripts/android/build_monero_all.sh
@@ -18,7 +22,8 @@ ARG COIN
 ARG TARGET
 ENV COIN=$COIN
 ENV TARGET=$TARGET
-RUN /w/scripts/android/build_monero_all.sh \
+RUN --mount=type=secret,id=github_token,required=false,mode=0444 \
+    /w/scripts/android/build_monero_all.sh \
     && rm -rf /w/scripts/monero_c/contrib \
     /w/scripts/monero_c/.git \
     /w/scripts/monero_c/monero_libwallet2_api_c/build \

@@ -9,7 +9,7 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 const priceApiHost = "prices.cakewallet.com";
-const priceApiHostOnion = "46wisoe2uwipcj2j4og6smiq7hbmj34fkkrquwlzbbsqtgat7bf3erid.onion";
+const priceApiHostOnion = "cakeprcgc6mywkgmft2qd7qkkzddsfdmvcia7geilte7qhd2vazgi6id.onion";
 
 class LatestPriceRequest {
   LatestPriceRequest({required this.from, required this.to});
