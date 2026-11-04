@@ -177,6 +177,28 @@ void main() {
         expect(validator.isValid(address.substring(1)), isFalse);
       });
 
+      test("validates TON addresses", () {
+        const bounceable = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
+        const nonBounceable = "UQDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff+W72r5gqPuwA";
+        const testnet = "0QDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff-W72r5gqPleK";
+        for (final currency in [
+          CryptoCurrency.ton,
+          CryptoCurrency.usdtTon,
+          CryptoCurrency.usdeTon,
+        ]) {
+          final validator = AddressValidator(type: currency);
+          expect(validator.isValid(bounceable), isTrue, reason: currency.toString());
+          expect(validator.isValid(nonBounceable), isTrue, reason: currency.toString());
+          expect(validator.isValid(testnet), isFalse, reason: currency.toString());
+          expect(validator.isValid(bounceable.substring(1)), isFalse, reason: currency.toString());
+          expect(
+            validator.isValid("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            isFalse,
+            reason: currency.toString(),
+          );
+        }
+      });
+
       test('validates valid Monero address', () {
         final validator = AddressValidator(type: CryptoCurrency.xmr);
         expect(

@@ -217,6 +217,10 @@ class AddressValidator extends TextValidator {
         pattern = "0x[0-9a-fA-F]{64}";
       case CryptoCurrency.usdcAlgo:
         pattern = "[A-Z2-7]{58}";
+      case CryptoCurrency.ton:
+      case CryptoCurrency.usdtTon:
+      case CryptoCurrency.usdeTon:
+        pattern = "[EU][0-9A-Za-z+/_-]{47}";
       case CryptoCurrency.rune:
         pattern = 'thor1[0-9a-z]{38}';
       case CryptoCurrency.scrt:
@@ -410,6 +414,10 @@ class AddressValidator extends TextValidator {
         return [66];
       case CryptoCurrency.usdcAlgo:
         return [58];
+      case CryptoCurrency.ton:
+      case CryptoCurrency.usdtTon:
+      case CryptoCurrency.usdeTon:
+        return [48];
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
       case CryptoCurrency.zano:
