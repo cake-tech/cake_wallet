@@ -26,6 +26,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     ),
   ];
 
+  static const _evmNatives = [
+    CryptoCurrency.eth,
+    CryptoCurrency.maticpoly,
+    CryptoCurrency.baseEth,
+    CryptoCurrency.arbEth,
+    CryptoCurrency.avaxc,
+  ];
+
   static const _transferSig = '0xa9059cbb';
   static const _swapAndExecuteSig = '0x9be111d1';
 
@@ -739,6 +747,11 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
     required CryptoCurrency currency,
     required Chain chain,
   }) {
+    // Polygon also lists POL as an ERC-20, which needs an approval
+    if (_evmNatives.contains(currency)) {
+      return "0x0000000000000000000000000000000000000000";
+    }
+
     final knownContract = TokenUtilities.findErc20TokenForSwap(currency)?.contractAddress ??
         TokenUtilities.findTronTokenContract(currency);
     if (knownContract != null) {

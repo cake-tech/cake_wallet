@@ -32,10 +32,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _appFeeRecipientNearIntents = secrets.nearIntentsAppFeeRecipient;
 
   static const _memoRequiredCurrencies = <CryptoCurrency>[
-    CryptoCurrency.xrp,
     CryptoCurrency.xlm,
     CryptoCurrency.usdcXlm,
-    CryptoCurrency.ton,
   ];
 
   /// Use these only for quote/rate testing (dummy data).
@@ -563,6 +561,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     // Native NEAR isn't listed; "NEAR" would match bridged NEAR on BSC
     if (currency.tag == null && currency.title == "NEAR") {
       return null;
+    }
+
+    // Pin Tether's USDT as NEAR also lists another
+    if (currency.tag == "NEAR" && currency.title == "USDT") {
+      return supported.firstWhereOrNull((t) => t.assetId == "nep141:usdt.tether-token.near");
     }
 
     final cakeSymbol = currency.title.toUpperCase();
