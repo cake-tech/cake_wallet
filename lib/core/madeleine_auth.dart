@@ -3,7 +3,6 @@ import "dart:convert";
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:convert/convert.dart";
 import "package:crypto/crypto.dart";
-import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 
 ///# Madeleine Authentication
@@ -31,7 +30,7 @@ import "package:cw_core/wallet_base.dart";
 /// | X-Madeleine-Valid-Until | `<unix_seconds>`                                                                  |
 /// | X-Madeleine-Wallet      | `<user_address>`                                                                  |
 class MadeleineAuth {
-  MadeleineAuth({required this.useSandbox});
+  const MadeleineAuth({required this.useSandbox});
 
   static const madeleineLightAuthMagic = "Madeleine Light Auth v1:\n";
   static const madeleineFullAuthMagic = "Madeleine Auth v1:\n";
