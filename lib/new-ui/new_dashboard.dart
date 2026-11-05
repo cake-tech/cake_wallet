@@ -3,6 +3,7 @@ import 'dart:io';
 import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import "package:cake_wallet/new-ui/modal_transition_snapshot.dart";
 import "package:cake_wallet/new-ui/page_open_listener.dart";
 import "package:cake_wallet/new-ui/page_open_listener.dart";
 import 'package:cake_wallet/new-ui/pages/charts_page.dart';
@@ -74,7 +75,7 @@ class _NewDashboardState extends State<NewDashboard> {
     return BottomSheetListener(
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
-        body: _ModalTransitionSnapshot(
+        body: ModalTransitionSnapshot(
           child: Material(
             key: ValueKey("new_dashboard_page_key"),
             child: Stack(
@@ -202,43 +203,4 @@ class _NewDashboardState extends State<NewDashboard> {
       }
     }
   }
-}
-
-// While a cupertino modal scales the dashboard away (or back), draw it as a single image
-// instead of re-rasterizing the whole tree at a new scale every frame.
-class _ModalTransitionSnapshot extends StatefulWidget {
-  const _ModalTransitionSnapshot({required this.child});
-
-  final Widget child;
-
-  @override
-  State<_ModalTransitionSnapshot> createState() => _ModalTransitionSnapshotState();
-}
-
-class _ModalTransitionSnapshotState extends State<_ModalTransitionSnapshot> {
-  final _controller = SnapshotController();
-  Animation<double>? _animation;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final animation = CupertinoScaffold.of(context)?.animation;
-    if (animation == _animation) return;
-    _animation?.removeStatusListener(_onStatusChanged);
-    _animation = animation?..addStatusListener(_onStatusChanged);
-  }
-
-  void _onStatusChanged(AnimationStatus status) =>
-      _controller.allowSnapshotting = status.isAnimating;
-
-  @override
-  void dispose() {
-    _animation?.removeStatusListener(_onStatusChanged);
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) =>
-      SnapshotWidget(controller: _controller, mode: SnapshotMode.permissive, child: widget.child);
 }
