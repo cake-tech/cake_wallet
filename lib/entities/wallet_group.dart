@@ -3,20 +3,17 @@ import 'package:cw_core/wallet_info.dart';
 class WalletGroup {
   WalletGroup(this.groupKey) : wallets = [];
 
-  /// Primary identifier for the group. Previously was `parentAddress`.
-  /// Now we store either the wallet's hash OR fallback to parentAddress/address.
+  /// Primary identifier for the group: the wallets' `groupId` (the `walletGroup` row id).
   final String groupKey;
 
   /// Child wallets that share the same group key
   final List<WalletInfo> wallets;
 
-  /// Custom name for the group, editable for multi-child wallet groups
+  /// Group name from the `walletGroup` row, editable for every group (single ones too)
   String? groupName;
 
-  /// Allows editing of the group name (only for multi-child groups).
+  /// Sets the group name in memory.
   void setCustomName(String name) {
-    if (wallets.length > 1) {
-      groupName = name;
-    }
+    groupName = name;
   }
 }

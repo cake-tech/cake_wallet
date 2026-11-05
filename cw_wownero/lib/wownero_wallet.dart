@@ -412,49 +412,6 @@ abstract class WowneroWalletBase
     }
   }
 
-  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await walletFilePathOf(walletInfo);
-    if (openedWalletsByPath[currentWalletPath] != null) {
-      // NOTE: this is realistically only required on windows.
-      printV("closing wallet");
-      final wmaddr = wmPtr.address;
-      final waddr = openedWalletsByPath[currentWalletPath]!.address;
-      await Isolate.run(() {
-        wownero.WalletManager_closeWallet(
-            Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-      });
-      openedWalletsByPath.remove(currentWalletPath);
-      printV("wallet closed");
-    }
-
-    // -- rename the wallet folder --
-    final currentWalletDir = Directory(await walletDirPathOf(walletInfo));
-    final oldFileName = currentWalletPath.split(Platform.pathSeparator).last;
-    final newWalletDirPath = '${await pathForWalletTypeDir(type: type)}/$newWalletName';
-    await currentWalletDir.rename(newWalletDirPath);
-
-    // -- use the new wallet folder to rename files that still have the old name --
-    final renamedWalletPath = '$newWalletDirPath/$oldFileName';
-
-      final currentCacheFile = File(renamedWalletPath);
-      final currentKeysFile = File('$renamedWalletPath.keys');
-      final currentAddressListFile = File('$renamedWalletPath.address.txt');
-
-    final newWalletPath = '$newWalletDirPath/$newWalletName';
-
-    if (currentCacheFile.existsSync()) {
-      await currentCacheFile.rename(newWalletPath);
-    }
-    if (currentKeysFile.existsSync()) {
-      await currentKeysFile.rename('$newWalletPath.keys');
-    }
-    if (currentAddressListFile.existsSync()) {
-      await currentAddressListFile.rename('$newWalletPath.address.txt');
-    }
-  }
-
   @override
   Future<void> changePassword(String password) async => wownero_wallet.setPasswordSync(password);
 

@@ -154,6 +154,8 @@ class WalletGroupsDisplayBody extends StatelessWidget {
           type: walletGroupsDisplayViewModel.type,
           mnemonic: mnemonic,
           isChildWallet: true,
+          parentGroupId: walletGroupsDisplayViewModel.selectedWalletGroup?.groupKey ??
+              walletGroupsDisplayViewModel.selectedSingleWallet?.groupId,
         ),
       );
     }

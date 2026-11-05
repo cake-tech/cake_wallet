@@ -1,55 +1,54 @@
 import "package:cake_wallet/entities/new_ui_entities/wallet_icon.dart";
 import "package:cake_wallet/entities/wallet_group_db_entry.dart";
 import "package:cake_wallet/reactions/wallet_utils.dart";
+import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
+import "package:flutter/foundation.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:uuid/uuid.dart";
 
-/// Gives every ready wallet a persisted `walletGroup` row.
+/// Gives every wallet a persisted `walletGroup` row.
 ///
-/// Legacy (main) groups were never persisted: wallets were grouped at runtime by
+/// Legacy groups were never persisted: wallets were grouped at runtime by
 /// `hashedWalletIdentifier ?? parentAddress ?? address`, and custom group names lived in
 /// SharedPreferences under `wallet_group_name_<key>`.
 ///
-/// A legacy group is kept together only if it is a valid omnichain group:
-/// 2+ wallets, all BIP39-derived, no hardware wallets, no duplicate wallet types.
-/// Every other wallet becomes its own single-wallet group.
+/// For each legacy group:
+/// - wallets that can't share a group (hardware, or failing the add-to-group picker rule,
+///   see [canShareWalletGroup]) each get their own single-wallet group;
+/// - of duplicate types only the oldest wallet stays, the others get their own group;
+/// - if 2+ wallets remain they form one group (keeping the custom legacy name), else single.
+///
+/// Each group is written in one transaction (group row + its wallets' `groupId`), which also
+/// clears the wallets' `hashedWalletIdentifier`. Once every group of a legacy group is
+/// written, its `wallet_group_name_<key>` preference is removed.
 ///
 /// Idempotent: wallets already pointing to an existing group row are skipped, so it is
 /// safe to run on every (foreground) startup and after a backup import.
 ///
-/// [keepLegacyGroups] = false puts every migrated wallet in its own group
-/// (used after a backup import).
+/// Writes the DB directly, so it can run before DI setup.
 ///
-/// Writes the DB directly (no WalletGroupService), so it can run before DI setup.
-/// Call `WalletGroupService.updateWalletGroups()` afterwards if the service is live.
-///
-/// SECURITY: on main, `hashedWalletIdentifier` contains the plaintext mnemonic, and so do
-/// the `wallet_group_name_<key>` preference keys. Never log legacy keys.
+
 Future<void> migrateLegacyWalletsToGroups(
-    SharedPreferences prefs, {
-      bool keepLegacyGroups = true,
-    }) async {
-  final existingGroups = {for (final g in await WalletGroupDbEntry.getAll()) g.id: g};
-  final takenNames = existingGroups.values
-      .map((g) => (g.name ?? "").trim().toLowerCase())
-      .where((name) => name.isNotEmpty)
-      .toSet();
+  SharedPreferences prefs, {
+  @visibleForTesting void Function(List<WalletInfo> wallets)? beforeGroupCommit,
+}) async {
+  final existingGroupIds = {for (final g in await WalletGroupDbEntry.getAll()) g.id};
+  final takenNames = await _takenGroupNames();
 
   // 1. Collect wallets that still need a group, bucketed by main's legacy group key.
   final legacyBuckets = <String, List<WalletInfo>>{};
   final singles = <WalletInfo>[];
 
   for (final wallet in await WalletInfo.getAll()) {
-
     final currentId = wallet.groupId;
     final hasValidGroup =
-        currentId != null && currentId.isNotEmpty && existingGroups.containsKey(currentId);
+        currentId != null && currentId.isNotEmpty && existingGroupIds.contains(currentId);
     if (hasValidGroup) continue; // already migrated
 
-    final legacyKey = keepLegacyGroups ? _legacyGroupKey(wallet) : null;
+    final legacyKey = _legacyGroupKey(wallet);
     if (legacyKey == null) {
       singles.add(wallet);
     } else {
@@ -59,66 +58,112 @@ Future<void> migrateLegacyWalletsToGroups(
 
   if (legacyBuckets.isEmpty && singles.isEmpty) return; // nothing to migrate
 
-  // 2. Keep only clean omnichain groups together; split everything else.
-  final groupsToCreate = <String, List<WalletInfo>>{}; // groupId -> wallets
-  final legacyKeyByGroupId = <String, String>{};
+  // 2. Keep the shareable wallets of each legacy group together; split off the rest.
+  final plans = <_GroupPlan>[];
+  final pendingPerLegacyKey = <String, int>{};
   var keptCount = 0;
-  var splitCount = 0;
+  var splitOffCount = 0;
 
   for (final MapEntry(key: legacyKey, value: wallets) in legacyBuckets.entries) {
-    final splitReason = await _splitReason(wallets);
-    if (splitReason == null) {
-      final groupId = const Uuid().v4();
-      groupsToCreate[groupId] = wallets;
-      legacyKeyByGroupId[groupId] = legacyKey;
-      keptCount++;
-    } else {
-      singles.addAll(wallets);
-      if (wallets.length > 1) {
-        splitCount++;
-        _log("split legacy group of ${wallets.length} wallets: $splitReason");
+    final shared = <WalletInfo>[];
+    final splitOff = <WalletInfo>[];
+    final seenTypes = <WalletType>{};
+
+    final byAge = [...wallets]..sort((a, b) => a.date.compareTo(b.date));
+    for (final wallet in byAge) {
+      final canShare = wallet.hardwareWalletType == null && await canShareWalletGroup(wallet);
+      if (canShare && seenTypes.add(wallet.type)) {
+        shared.add(wallet);
+      } else {
+        splitOff.add(wallet);
       }
     }
+
+    final keepGroup = shared.length >= 2;
+    if (keepGroup) {
+      plans.add(_GroupPlan(shared, legacyKey));
+      keptCount++;
+      splitOffCount += splitOff.length;
+    } else {
+      splitOff.insertAll(0, shared);
+    }
+    plans.addAll(splitOff.map((w) => _GroupPlan([w], legacyKey)));
+    pendingPerLegacyKey[legacyKey] = (keepGroup ? 1 : 0) + splitOff.length;
   }
 
-  for (final wallet in singles) {
-    groupsToCreate[const Uuid().v4()] = [wallet];
-  }
+  plans.addAll(singles.map((w) => _GroupPlan([w], null)));
 
-  // 3. Create the rows and attach the wallets.
+  // 3. Create the rows and attach the wallets, one transaction per group.
   var createdCount = 0;
-  for (final MapEntry(key: groupId, value: wallets) in groupsToCreate.entries) {
+  for (final plan in plans) {
+    final wallets = plan.wallets;
+    final legacyKey = plan.legacyKey;
     try {
-      final legacyKey = legacyKeyByGroupId[groupId];
-      final name = _uniqueName(_groupName(wallets, legacyKey, prefs), takenNames);
-      takenNames.add(name.toLowerCase());
+      // main only showed custom group names for multi-wallet groups.
+      final customName = wallets.length > 1 && legacyKey != null
+          ? prefs.getString(_legacyGroupNamePrefKey(legacyKey))
+          : null;
+      final entry = _newGroupEntry(wallets, takenNames, customName: customName);
 
-      final icon = wallets.length > 1 ? WalletIcon.defaultIcon : _coinIcon(wallets.first.type);
-
-      await WalletGroupDbEntry.external(
-        id: groupId,
-        name: name,
-        iconType: icon.type.name,
-        iconValue: icon.value,
-        iconColor: icon.colorIndex.toString(),
-        iconBg: icon.backgroundEnabled.toString(),
-      ).save();
+      await db!.transaction((txn) async {
+        await txn.insert(WalletGroupDbEntry.tableName, entry.toJson());
+        for (final wallet in wallets) {
+          await txn.update(
+            WalletInfo.tableName,
+            {"groupId": entry.id, "hashedWalletIdentifier": null},
+            where: "${WalletInfo.selfIdColumn} = ?",
+            whereArgs: [wallet.internalId],
+          );
+        }
+        beforeGroupCommit?.call(wallets);
+      });
 
       for (final wallet in wallets) {
-        wallet.groupId = groupId;
-        // TODO(security): main stored the plaintext mnemonic in hashedWalletIdentifier.
-        //  Clear it here once the team confirms nothing else reads it.
-        await wallet.save();
+        wallet.groupId = entry.id;
+        wallet.hashedWalletIdentifier = null;
       }
-
+      takenNames.add(entry.name!.toLowerCase());
       createdCount++;
+
+      if (legacyKey != null) {
+        final pending = pendingPerLegacyKey[legacyKey]! - 1;
+        pendingPerLegacyKey[legacyKey] = pending;
+        if (pending == 0) await prefs.remove(_legacyGroupNamePrefKey(legacyKey));
+      }
     } catch (e) {
       _log("failed to create a group of ${wallets.length} wallets: ${e.runtimeType}");
     }
   }
 
-  _log("created $createdCount/${groupsToCreate.length} groups "
-      "(kept $keptCount legacy groups, split $splitCount)");
+  _log("created $createdCount/${plans.length} groups "
+      "(kept $keptCount legacy groups, split off $splitOffCount wallets)");
+}
+
+/// Puts a newly created [wallet] into a group and sets `wallet.groupId`.
+///
+/// Joins [joinGroupId] if that group row exists, otherwise creates a new single-wallet
+/// group named after the wallet. Does not save the wallet; the caller does.
+Future<String> assignWalletGroup(WalletInfo wallet, {String? joinGroupId}) async {
+  if (joinGroupId != null &&
+      joinGroupId.isNotEmpty &&
+      await WalletGroupDbEntry.get(joinGroupId) != null) {
+    wallet.groupId = joinGroupId;
+    return joinGroupId;
+  }
+
+  final entry = _newGroupEntry([wallet], await _takenGroupNames());
+  await entry.save();
+  wallet.groupId = entry.id;
+  return entry.id;
+}
+
+class _GroupPlan {
+  _GroupPlan(this.wallets, this.legacyKey);
+
+  final List<WalletInfo> wallets;
+
+  /// May contain the plaintext mnemonic — never log it.
+  final String? legacyKey;
 }
 
 void _log(String message) => printV("[WalletGroupMigration] $message");
@@ -137,39 +182,34 @@ String? _legacyGroupKey(WalletInfo wallet) {
 
 String _legacyGroupNamePrefKey(String legacyKey) => "wallet_group_name_$legacyKey";
 
-// ---- Omnichain compatibility -------------------------------------------------
-
-/// null = the wallets may stay together; otherwise why the group is split.
-/// The reason only mentions wallet types, never names or keys.
-Future<String?> _splitReason(List<WalletInfo> wallets) async {
-  if (wallets.length < 2) return "single wallet";
-
-  final types = <WalletType>{};
-  for (final wallet in wallets) {
-    if (!types.add(wallet.type)) return "duplicate type ${wallet.type.name}";
-    if (!isBIP39Wallet(wallet.type)) return "${wallet.type.name} is not a BIP39 type";
-    if (wallet.hardwareWalletType != null) return "${wallet.type.name} is a hardware wallet";
-    if (wallet.isNonSeedWallet) return "${wallet.type.name} is not seed-based";
-
-    // These types are always BIP39 in Cake, and often don't store their derivation type.
-    if (alwaysBip39Types.contains(wallet.type)) continue;
-
-    final derivation = await wallet.getDerivationInfo();
-    if (derivation.derivationType != DerivationType.bip39) {
-      return "${wallet.type.name} derivationType=${derivation.derivationType?.name}";
-    }
-  }
-  return null;
-}
-
 // ---- Naming & icons ----------------------------------------------------------
 
-String _groupName(List<WalletInfo> wallets, String? legacyKey, SharedPreferences prefs) {
-  // main only showed custom group names for multi-wallet groups.
-  if (wallets.length > 1 && legacyKey != null) {
-    final customName = prefs.getString(_legacyGroupNamePrefKey(legacyKey))?.trim();
-    if (customName != null && customName.isNotEmpty) return customName;
-  }
+Future<Set<String>> _takenGroupNames() async => (await WalletGroupDbEntry.getAll())
+    .map((g) => (g.name ?? "").trim().toLowerCase())
+    .where((name) => name.isNotEmpty)
+    .toSet();
+
+/// A new (unsaved) group row for [wallets] with a unique name and the default icon.
+WalletGroupDbEntry _newGroupEntry(
+  List<WalletInfo> wallets,
+  Set<String> takenNames, {
+  String? customName,
+}) {
+  final name = _uniqueName(_groupName(wallets, customName?.trim()), takenNames);
+  final icon = wallets.length > 1 ? WalletIcon.defaultIcon : _coinIcon(wallets.first.type);
+
+  return WalletGroupDbEntry.external(
+    id: const Uuid().v4(),
+    name: name,
+    iconType: icon.type.name,
+    iconValue: icon.value,
+    iconColor: icon.colorIndex.toString(),
+    iconBg: icon.backgroundEnabled.toString(),
+  );
+}
+
+String _groupName(List<WalletInfo> wallets, String? customName) {
+  if (customName != null && customName.isNotEmpty) return customName;
 
   final source = _nameSource(wallets);
   final ownName = source.name.trim();
@@ -180,7 +220,7 @@ String _groupName(List<WalletInfo> wallets, String? legacyKey, SharedPreferences
 WalletInfo _nameSource(List<WalletInfo> wallets) {
   final sorted = [...wallets]..sort((a, b) => a.date.compareTo(b.date));
   return sorted.firstWhere(
-        (w) => w.name.trim().isNotEmpty && w.name.trim() != walletTypeToDisplayName(w.type),
+    (w) => w.name.trim().isNotEmpty && w.name.trim() != walletTypeToDisplayName(w.type),
     orElse: () => sorted.first,
   );
 }
@@ -195,8 +235,8 @@ String _uniqueName(String base, Set<String> takenLower) {
 }
 
 WalletIcon _coinIcon(WalletType type) => WalletIcon(
-  type: WalletIconType.crypto,
-  value: type.name,
-  colorIndex: 0,
-  backgroundEnabled: false,
-);
+      type: WalletIconType.crypto,
+      value: type.name,
+      colorIndex: 0,
+      backgroundEnabled: false,
+    );

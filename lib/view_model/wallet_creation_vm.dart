@@ -2,9 +2,10 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/entities/wallet_group_db_entry.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/generate_name.dart';
-import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
+import 'package:cake_wallet/entities/wallet_group_migration.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -69,6 +70,8 @@ abstract class WalletCreationVMBase with Store {
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
+  String? get joinGroupId => null;
+
   bool _isCreating = false;
   Future<void> create({dynamic options}) async {
     try {
@@ -130,9 +133,14 @@ abstract class WalletCreationVMBase with Store {
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
-      credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       credentials.walletInfo!.address = wallet.walletAddresses.address;
-      await credentials.walletInfo!.save();
+      final createdGroupId = await assignWalletGroup(credentials.walletInfo!, joinGroupId: joinGroupId);
+      try {
+        await credentials.walletInfo!.save();
+      } catch (_) {
+        if (createdGroupId != joinGroupId) await WalletGroupDbEntry.delete(createdGroupId);
+        rethrow;
+      }
       await wallet.save();
       await _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowedCreate();

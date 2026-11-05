@@ -123,15 +123,6 @@ class LitecoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    if (currentWalletInfo.name == newName) return;
-
-    await LitecoinWalletBase.copyMwebBox(fromName: currentWalletInfo.name, toName: newName);
-    await super.rename(currentWalletInfo, password, newName);
-    await LitecoinWalletBase.deleteMwebBox(currentWalletInfo.name);
-  }
-
-  @override
   Future<LitecoinWallet> restoreFromHardwareWallet(BitcoinRestoreWalletFromHardware credentials,
       {bool? isTestnet}) async {
     final network = isTestnet == true ? LitecoinNetwork.testnet : LitecoinNetwork.mainnet;

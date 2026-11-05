@@ -70,29 +70,6 @@ class NanoWalletService extends WalletService<
     await WalletInfo.delete(walletInfo);
   }
 
-  @Deprecated("Wallet files are stored by id. Kept for legacy callers; will be removed.")
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    String randomWords =
-    (List<String>.from(nm.NanoMnemomics.WORDLIST)..shuffle()).take(24).join(' ');
-    final currentWallet = NanoWallet(
-      walletInfo: currentWalletInfo,
-      derivationInfo: await currentWalletInfo.getDerivationInfo(),
-      password: password,
-      mnemonic: randomWords,
-      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
-    );
-
-    await currentWallet.renameWalletFiles(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-
-    await newWalletInfo.save();
-    await saveBackup(newWalletInfo);
-  }
-
   @override
   Future<NanoWallet> restoreFromKeys(NanoRestoreWalletFromKeysCredentials credentials,
       {bool? isTestnet}) async {

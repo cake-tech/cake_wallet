@@ -92,8 +92,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -108,8 +106,6 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      await wallet.addInitialTokens();
-      await wallet.save();
       await saveBackup(walletInfo);
       return wallet;
     } catch (_) {
@@ -123,31 +119,8 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      await wallet.addInitialTokens();
-      await wallet.save();
       return wallet;
     }
-  }
-
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    if (currentWalletInfo.name == newName) return;
-
-    final oldName = currentWalletInfo.name;
-
-    await super.rename(currentWalletInfo, password, newName);
-
-    for (final token in await Erc20Token.selectList("walletName = ?", [oldName])) {
-      final copiedToken = Erc20Token.copyWith(token, walletName: newName);
-      await copiedToken.save();
-    }
-
-    final ownNFTs = (await ImportedNFT.getAllForWallet(oldName))
-        .where((nft) => _importedNFTChains.contains(nft.chain));
-    for (final nft in ownNFTs) {
-      await ImportedNFT.copyWith(nft, walletName: newName).save();
-    }
-
   }
 
   @override
@@ -190,8 +163,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -230,8 +201,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -268,11 +237,10 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
+  // TODO(serhii): tokens/NFTs are keyed by wallet name; re-key by walletInfo.id.
   @override
   Future<void> remove(WalletInfo walletInfo) async {
     await super.remove(walletInfo);

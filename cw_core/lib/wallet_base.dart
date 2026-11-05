@@ -117,10 +117,6 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
-  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename()")
-  Future<void> renameWalletFiles(String newWalletName) =>
-      copyWalletFilesTo(fromName: walletInfo.name, toName: newWalletName, type: type);
-
   Future<String> signMessage(String message, {String? address = null});
 
   Future<bool> verifyMessage(String message, String signature, {String? address = null});

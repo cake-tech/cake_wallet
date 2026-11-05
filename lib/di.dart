@@ -435,11 +435,7 @@ Future<void> setup({
 
   final walletList = await WalletInfo.getAll();
 
-  getIt.registerFactory<WalletManager>(
-    () => WalletManager(
-      getIt.get<SharedPreferences>(),
-    ),
-  );
+  getIt.registerFactory<WalletManager>(() => WalletManager());
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
     (type, _) => WalletGroupsDisplayViewModel(
@@ -868,9 +864,6 @@ Future<void> setup({
       pageArguments: WalletEditPageArguments(
         walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
         authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(
-          param1: NewWalletArguments(type: arguments.editingWallet.type),
-        ),
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
         isSingleWalletGroup: arguments.isSingleWalletGroup,

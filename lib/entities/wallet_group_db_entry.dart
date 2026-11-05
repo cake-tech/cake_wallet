@@ -1,4 +1,5 @@
 import 'package:cw_core/db/sqlite.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:sqflite/sqflite.dart';
 
 class WalletGroupDbEntry {
@@ -48,13 +49,6 @@ class WalletGroupDbEntry {
         json['iconBg'] as String?,
       );
 
-  Future<void> save() async {
-    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  static Future<int> updateName(String id, String name) =>
-      db!.update(tableName, {'name': name}, where: 'id = ?', whereArgs: [id]);
-
   static Future<int> updateIcon(
     String id, {
     required String iconType,
@@ -95,7 +89,20 @@ class WalletGroupDbEntry {
     return WalletGroupDbEntry.fromJson(list[0]);
   }
 
+  Future<void> save() async {
+    await db!.insert(tableName, toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    printV("[WalletGroups] saved group $id \"$name\"");
+  }
+
+  static Future<int> updateName(String id, String name) async {
+    final count =
+    await db!.update(tableName, {"name": name}, where: "id = ?", whereArgs: [id]);
+    printV("[WalletGroups] renamed group $id to \"$name\" ($count row)");
+    return count;
+  }
+
   static Future<void> delete(String id) async {
-    await db!.delete(tableName, where: 'id = ?', whereArgs: [id]);
+    await db!.delete(tableName, where: "id = ?", whereArgs: [id]);
+    printV("[WalletGroups] deleted group $id");
   }
 }

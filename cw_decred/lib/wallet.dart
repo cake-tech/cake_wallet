@@ -616,45 +616,6 @@ abstract class DecredWalletBase
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
-  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentDirPath = await walletDirPathOf(walletInfo);
-    final fromName = p.basename(currentDirPath);
-
-    final newDirPath = p.join(await pathForWalletTypeDir(type: type), newWalletName);
-
-    if (Directory(newDirPath).existsSync()) {
-      throw "wallet already exists at $newDirPath";
-    }
-
-    final sourceDir = Directory(currentDirPath);
-    final targetDir = Directory(newDirPath);
-
-    if (!targetDir.existsSync()) {
-      await targetDir.create(recursive: true);
-    }
-
-    await for (final entity in sourceDir.list(recursive: true)) {
-      final relativePath = entity.path.substring(sourceDir.path.length + 1);
-      final targetPath = p.join(targetDir.path, relativePath);
-
-      if (entity is File) {
-        await entity.rename(targetPath);
-      } else if (entity is Directory) {
-        await Directory(targetPath).create(recursive: true);
-      }
-    }
-
-    await sourceDir.delete(recursive: true);
-
-    for (final suffix in const ['.keys', '.keys.backup']) {
-      final file = File(p.join(newDirPath, '$fromName$suffix'));
-      if (file.existsSync()) {
-        await file.rename(p.join(newDirPath, '$newWalletName$suffix'));
-      }
-    }
-  }
-
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
     if (watchingOnly) {

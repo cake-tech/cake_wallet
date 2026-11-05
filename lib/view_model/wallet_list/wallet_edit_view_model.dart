@@ -1,4 +1,5 @@
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_group_db_entry.dart";
 import "package:cake_wallet/entities/wallet_manager.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_list_item.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart";
@@ -40,7 +41,6 @@ abstract class WalletEditViewModelBase with Store {
     state = WalletEditRenamePending();
     try {
       await _walletManager.updateWalletGroups();
-      // TODO(serhii): also write the name to the walletGroup row when the UI moves to DB groups.
       await _walletManager.setGroupName(walletGroupKey, name);
       await _walletListViewModel.updateList();
     } finally {
@@ -56,6 +56,13 @@ abstract class WalletEditViewModelBase with Store {
       if (walletInfo == null) return; // already removed
 
       await getIt.get<WalletService>(param1: walletInfo.type).remove(walletInfo);
+
+      // remove group if it is empty
+      final groupId = walletInfo.groupId;
+      if (groupId != null && !(await WalletInfo.getAll()).any((w) => w.groupId == groupId)) {
+        await WalletGroupDbEntry.delete(groupId);
+      }
+
       await _walletListViewModel.updateList();
     } finally {
       resetState();

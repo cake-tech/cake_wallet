@@ -171,42 +171,6 @@ class DecredWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(WalletInfo walletInfo) async {
-    final dir = Directory(await walletDirPathOf(walletInfo));
-    if (dir.existsSync()) {
-      await dir.delete(recursive: true);
-    }
-    await WalletInfo.delete(walletInfo);
-  }
-
-  @Deprecated("Wallet files are stored by id. Kept for legacy callers; will be removed.")
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    final di = await currentWalletInfo.getDerivationInfo();
-    final network =
-        di.derivationPath == seedRestorePathTestnet || di.derivationPath == pubkeyRestorePathTestnet
-            ? testnet
-            : mainnet;
-    currentWalletInfo.network = network;
-    currentWalletInfo.save();
-    if (libwallet == null) {
-      libwallet = await Libwallet.spawn();
-      libwallet!.initLibdcrwallet("", "err");
-    }
-    final currentWallet = _createWalletInstance(currentWalletInfo, di, password);
-
-    await currentWallet.renameWalletFiles(newName);
-
-    final newWalletInfo = currentWalletInfo;
-    newWalletInfo.id = WalletBase.idFor(newName, getType());
-    newWalletInfo.name = newName;
-    newWalletInfo.dirPath = "";
-    newWalletInfo.path = "";
-
-    await newWalletInfo.save();
-  }
-
-  @override
   Future<DecredWallet> restoreFromSeed(DecredRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     validateDecredMnemonic(credentials.mnemonic);

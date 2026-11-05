@@ -519,7 +519,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<String> getSeeds(WalletInfo walletInfo, String password) async {
     try {
-      final path = await pathForWalletOf(walletInfo);
+      final path = await walletFilePathOf(walletInfo);
 
       if (walletFilesExist(path)) await repairOldAndroidWallet(walletInfo);
 

@@ -113,30 +113,6 @@ class ZanoWalletService extends WalletService<
     await super.remove(walletInfo);
   }
 
-  @Deprecated("Wallet files are stored by id. Kept for legacy callers; will be removed.")
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    final currentWallet =
-    ZanoWallet(currentWalletInfo, await currentWalletInfo.getDerivationInfo(), password,
-        encryptionFileUtilsFor(isDirect));
-
-    final oldPath = await walletFilePathOf(currentWalletInfo);
-    final cached = ZanoWalletApi.openWalletCache.remove(oldPath);
-    if (cached != null) {
-      currentWallet.hWallet = cached.walletId;
-      await currentWallet.closeWallet(cached.walletId, force: true);
-    }
-
-    await currentWallet.renameWalletFiles(newName);
-
-    final newDirPath = '${await pathForWalletTypeDir(type: getType())}/$newName';
-    currentWalletInfo.id = WalletBase.idFor(newName, getType());
-    currentWalletInfo.name = newName;
-    currentWalletInfo.dirPath = newDirPath;
-    currentWalletInfo.path = '$newDirPath/$newName';
-    await currentWalletInfo.save();
-  }
-
   @override
   Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials,
       {bool? isTestnet}) async {

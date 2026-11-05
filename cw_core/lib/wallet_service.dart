@@ -2,10 +2,7 @@ import "dart:convert";
 import "dart:io";
 
 import "package:cw_core/encryption_file_utils.dart";
-import "package:cw_core/imported_nft.dart";
 import "package:cw_core/pathForWallet.dart";
-import "package:cw_core/spl_token.dart";
-import "package:cw_core/tron_token.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
 import "package:cw_core/wallet_info.dart";
@@ -38,40 +35,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     await WalletInfo.delete(walletInfo);
   }
 
-  /// Only updates the display name (and name-keyed token rows); wallet files are
-  /// stored by id and never move.
-  @Deprecated(
-    "Wallet files are stored by id, so renaming a wallet is display-only. "
-        "Rename the wallet group instead. Kept for legacy callers; will be removed.",
-  )
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    if (currentWalletInfo.name == newName) return;
-
-    await _renameTokenRows(currentWalletInfo.name, newName);
-
-    currentWalletInfo.name = newName;
-    await currentWalletInfo.save();
-  }
-
-  // TODO(wallet-id): tokens/NFTs are keyed by wallet name, so same-type wallets with the
-  //  same name share them. Re-key by walletInfo.id, then delete this.
-  Future<void> _renameTokenRows(String currentName, String newName) async {
-    switch (getType()) {
-      case WalletType.solana:
-        await SPLToken.renameWallet(currentName, newName);
-        await ImportedNFT.renameWallet(
-          currentName,
-          newName,
-          chains: const [ImportedNFT.solanaChain],
-        );
-      case WalletType.tron:
-        await TronToken.renameWallet(currentName, newName);
-      default:
-        break;
-    }
-  }
-
-  // TODO(wallet-id): dev's backup never ran (it checked the directory); fix separately.
+  // TODO(serhii): backup never ran (it checked the directory), fix separately.
   Future<void> restoreWalletFilesFromBackup(WalletInfo walletInfo) async {
     final walletDirPath = await walletDirPathOf(walletInfo);
     final backupWalletDirPath = "$walletDirPath.backup";
@@ -81,7 +45,7 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     }
   }
 
-  // TODO(wallet-id): dev's backup never ran (it checked the directory); fix separately.
+  // TODO(serhii): backup never ran (it checked the directory), fix separately.
   Future<void> saveBackup(WalletInfo walletInfo) async {
     final walletDirPath = await walletDirPathOf(walletInfo);
     final backupWalletDirPath = "$walletDirPath.backup";

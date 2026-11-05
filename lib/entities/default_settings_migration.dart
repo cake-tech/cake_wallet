@@ -21,6 +21,7 @@ import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cw_core/node_list.dart';
 import 'package:cw_core/pathForWallet.dart';
+import "package:cw_core/root_dir.dart";
 import 'package:cw_core/spl_token.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/wallet_base.dart";
@@ -834,13 +835,16 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
 Future<void> _validateWalletInfoBoxData() async {
   try {
     final existingIds = (await WalletInfo.getAll()).map((i) => i.id).toSet();
+    final root = await getAppDir();
 
     for (var type in WalletType.values) {
       if (type == WalletType.none) {
         continue;
       }
 
-      final walletsDir = Directory(await pathForWalletTypeDir(type: type));
+      final prefix = walletTypeToString(type).toLowerCase();
+      final walletsDir = Directory("${root.path}/wallets/$prefix/");
+      if (!walletsDir.existsSync()) continue;
       final entries = walletsDir.listSync().whereType<Directory>();
 
       for (final dir in entries) {
@@ -1065,7 +1069,7 @@ Future<void> addAddressesForMoneroWallets() async {
       (await WalletInfo.getAll()).where((info) => info.type == WalletType.monero);
   moneroWalletsInfo.forEach((info) async {
     try {
-      final walletPath = await pathForWalletOf(info);
+      final walletPath = await walletFilePathOf(info);
       final addressFilePath = '$walletPath.address.txt';
       final addressFile = File(addressFilePath);
 

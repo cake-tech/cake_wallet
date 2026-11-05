@@ -994,30 +994,6 @@ abstract class ZcashWalletBase
   @override
   String get password => _password!;
 
-  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
-  @override
-  Future<void> renameWalletFiles(final String newWalletName) async {
-    final currentWalletDir = Directory(await walletDirPathOf(walletInfo));
-    if (!currentWalletDir.existsSync()) {
-      throw WalletNotFoundException(name: walletInfo.name, type: _type);
-    }
-    final fromName = currentWalletDir.path.split(Platform.pathSeparator).last;
-    if (fromName == newWalletName) {
-      return;
-    }
-    final newWalletDirPath = '${await pathForWalletTypeDir(type: _type)}/$newWalletName';
-    if (Directory(newWalletDirPath).existsSync()) {
-      throw BadWalletDataException('Cannot rename wallet: "$newWalletName" already exists');
-    }
-    await currentWalletDir.rename(newWalletDirPath);
-    for (final suffix in const ['', '.v2']) {
-      final oldFile = File('$newWalletDirPath/$fromName$suffix');
-      if (oldFile.existsSync()) {
-        await oldFile.rename('$newWalletDirPath/$newWalletName$suffix');
-      }
-    }
-  }
-
   @override
   bool get hasRescan => true;
 
@@ -1697,8 +1673,8 @@ abstract class ZcashWalletBase
       return int.tryParse(file.readAsStringSync().trim());
     }
 
-    // No id file. The name fallback is only safe for legacy wallets (unique, user-chosen
-    // names). UUID wallets all share their network name, so a match could be another wallet.
+    // No id file. Fall back to the account name only for legacy wallets: their folder and
+    // zkool account were created under that name. UUID wallets always have a .v2 file.
     if (isUuidWallet(walletInfo)) return null;
 
     final accounts = await zkool_account.listAccounts(c: c);

@@ -341,9 +341,9 @@ class BackupServiceV3 extends $BackupService {
     decryptedData.deleteSync();
     await initDb();
 
-    // Restored wallets keep their legacy folders; each becomes its own group.
+    // Backups made before wallet groups get them the same way as an app upgrade.
     try {
-      await migrateLegacyWalletsToGroups(sharedPreferences, keepLegacyGroups: false);
+      await migrateLegacyWalletsToGroups(sharedPreferences);
     } catch (e) {
       printV("Wallet group migration failed: ${e.runtimeType}");
     }
@@ -368,7 +368,10 @@ class BackupServiceV3 extends $BackupService {
 
     for (final expectedHardwareWallet in expectedHardwareWallets) {
       final info = expectedHardwareWallet as Map<String, dynamic>;
-      final actualWalletInfo = await WalletInfo.get(info['name'] as String,
+      final id = info['id'] as String?;
+      final actualWalletInfo = id != null
+          ? await WalletInfo.getById(id)
+          : await WalletInfo.get(info['name'] as String,
           WalletType.values.firstWhere((e) => e.toString() == info['type'] as String));
       if (actualWalletInfo != null &&
           info["hardwareWalletType"] != actualWalletInfo.hardwareWalletType?.index) {

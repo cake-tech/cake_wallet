@@ -330,7 +330,7 @@ abstract class NanoWalletBase
   Future<void> save() async {
     if (!await WalletKeysFile.hasKeysFile(walletInfo)) {
       await saveKeysFile(_password, _encryptionFileUtils);
-      //TODO(serhii): saveKeysFile is not awaited, double check if this is correct
+      //TODO(nano): saveKeysFile is not awaited, double check if this is correct
       saveKeysFile(_password, _encryptionFileUtils, true);
     }
 
@@ -447,14 +447,14 @@ abstract class NanoWalletBase
         derivationInfo.derivationType = DerivationType.bip39;
       }
     }
-    // TODO(serhii): save is not awaited here, double check if this is correct
+    // TODO(nano): save is not awaited here, double check if this is correct
     derivationInfo.save();
 
     return NanoWallet(
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
       password: password,
-      // TODO(serhii): hex-seed wallets (restored from a 64/128-char seed) have no mnemonic
+      // TODO(nano): hex-seed wallets (restored from a 64/128-char seed) have no mnemonic
       mnemonic: keysData.mnemonic!,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
@@ -547,30 +547,6 @@ abstract class NanoWalletBase
     } catch (_) {
       return false;
     }
-  }
-
-  @Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await walletFilePathOf(walletInfo);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await walletDirPathOf(walletInfo);
-    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
-
-    final newDirPath = '${await pathForWalletTypeDir(type: type)}/$newWalletName';
-    await Directory(newDirPath).create(recursive: true);
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      await currentWalletFile.copy('$newDirPath/$newWalletName');
-    }
-    if (currentTransactionsFile.existsSync()) {
-      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
   }
 
   @override
