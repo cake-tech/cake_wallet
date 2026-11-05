@@ -9,6 +9,7 @@ import "package:cake_wallet/src/widgets/standard_switch.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
 import "package:cake_wallet/view_model/settings/choices_list_item.dart";
 import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
 import "package:flutter_test/flutter_test.dart";
 
 void main() {
@@ -82,6 +83,41 @@ void main() {
         hasTapAction: true,
       ),
     );
+    handle.dispose();
+  });
+
+  testWidgets("SettingsSwitcherCell with onTap keeps row and switch actions apart", (tester) async {
+    final handle = tester.ensureSemantics();
+    var opened = 0;
+    bool? toggledTo;
+    await pump(
+      tester,
+      SettingsSwitcherCell(
+        title: "Tether USD (USDT)",
+        value: false,
+        onValueChange: (_, value) => toggledTo = value,
+        onTap: (_) => opened++,
+      ),
+    );
+
+    final switchNode = tester.getSemantics(find.byType(StandardSwitch));
+    expect(
+      switchNode,
+      containsSemantics(
+        label: "Tether USD (USDT)",
+        hasToggledState: true,
+        isToggled: false,
+        hasTapAction: true,
+      ),
+    );
+    switchNode.owner!.performAction(switchNode.id, SemanticsAction.tap);
+    expect(toggledTo, true);
+    expect(opened, 0);
+
+    final rowNode = tester.getSemantics(find.byType(TextButton));
+    expect(rowNode.id, isNot(switchNode.id));
+    rowNode.owner!.performAction(rowNode.id, SemanticsAction.tap);
+    expect(opened, 1);
     handle.dispose();
   });
 
