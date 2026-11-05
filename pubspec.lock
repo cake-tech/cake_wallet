@@ -27,7 +27,7 @@ packages:
     source: hosted
     version: "10.0.1"
   animate_do:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: "."
       ref: "94ca5c43abd93901fcd97b47102b6e5d37ce67ca"
@@ -845,7 +845,7 @@ packages:
     source: git
     version: "1.0.0"
   equatable:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: "."
       ref: f98a58960545ba72b51d0eacf746af393a0c6b24
@@ -1369,7 +1369,7 @@ packages:
     source: git
     version: "3.1.2"
   flutter_spinkit:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: "."
       ref: bf8508db798f1e31dea152b9b762f223d90d3449
@@ -1974,7 +1974,7 @@ packages:
     source: git
     version: "1.3.0"
   lottie:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: "."
       ref: "1eef993a7a69cd05cfcc4c9eac4f2d89ecfab2d1"

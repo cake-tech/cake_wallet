@@ -2,7 +2,6 @@ name: cw_bitcoin
 description: A new Flutter package project.
 version: 0.0.1
 publish_to: none
-author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
@@ -15,15 +14,10 @@ dependencies:
   path_provider: ^2.0.11
   http: ^1.1.0
   mobx: ^2.6.0
-  flutter_mobx: ^2.3.0
   intl: any
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
-  bitbox:
-    git:
-      url: https://github.com/cake-tech/bitbox-flutter.git
-      ref: Add-Support-For-OP-Return-data
   rxdart: ^0.28.0
   cryptography: ^2.0.5
   blockchain_utils:
@@ -64,10 +58,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bitbox_flutter.git
       ref: 3d1c607f14c6d5bace2971ec4c10b5201053cc56
-  socks_socket:
-    git:
-      url: https://github.com/sneurlax/socks_socket
-      ref: e6232c53c1595469931ababa878759a067c02e94
   ur:
     git:
       url: https://github.com/bukata-sa/bc-ur-dart
