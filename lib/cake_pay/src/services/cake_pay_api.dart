@@ -3,6 +3,7 @@ import 'dart:convert';
 import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import "package:cake_wallet/cake_pay/src/models/cake_pay_stablecoin.dart";
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -150,6 +151,10 @@ class CakePayApi {
         final decoded = json.decode(response.body);
         if (decoded is List && decoded.isNotEmpty) {
           message = decoded.first.toString();
+        } else if (decoded is Map && decoded["message"] != null) {
+          message = decoded["message"].toString();
+        } else if (decoded is Map && decoded["error"] != null) {
+          message = decoded["error"].toString();
         } else if (decoded is Map && decoded['detail'] != null) {
           message = decoded['detail'].toString();
         } else {
@@ -185,6 +190,46 @@ class CakePayApi {
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     return CakePayOrder.fromMap(bodyJson);
+  }
+
+  Future<CakePayStablecoinQuote> getStablecoinQuote({
+    required String orderId,
+    required String paymentMethod,
+    required String chain,
+    required String token,
+  }) async {
+    final uri = Uri.https(baseCakePayUri, "$orderPath/$orderId/quote/");
+    final headers = {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Authorization": "Token $token",
+    };
+    final response = await ProxyWrapper().post(
+      clearnetUri: uri,
+      headers: headers,
+      body: json.encode({"payment_method": paymentMethod, "chain": chain}),
+    );
+
+    if (response.statusCode == 401) {
+      throw const CakePayUnauthorizedException();
+    }
+
+    if (response.statusCode == 200) {
+      final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+      return CakePayStablecoinQuote.fromMap(bodyJson["quote"] as Map<String, dynamic>);
+    }
+
+    try {
+      final decoded = json.decode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        final message = decoded["message"] ?? decoded["error"] ?? decoded["detail"];
+        if (message is String) {
+          throw CakePayResponseException(message);
+        }
+      }
+    } on FormatException {}
+
+    throw CakePayResponseException("Server error ${response.statusCode}");
   }
 
   ///Simulate Payment
