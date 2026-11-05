@@ -35,6 +35,8 @@ import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/entities/block_explorer_settings.dart';
+import 'package:cake_wallet/src/screens/settings/block_explorers_page.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -1082,6 +1084,16 @@ Future<void> setup({
 
 
   getIt.registerFactory(() => DomainLookupsPage(getIt.get<ConnectionSyncViewModel>()));
+
+  getIt.registerFactory<BlockExplorerSettings>(
+      () => BlockExplorerSettings(getIt.get<SharedPreferences>()));
+
+  getIt.registerFactoryParam<BlockExplorersPage, BlockExplorerScope, void>(
+      (scope, _) => BlockExplorersPage(
+            scope: scope,
+            settings: getIt.get<BlockExplorerSettings>(),
+            mempoolApiEnabled: getIt.get<SettingsStore>().useMempoolFeeAPI,
+          ));
 
   getIt.registerFactory(() => DisplaySettingsPage(getIt.get<DisplaySettingsViewModel>()));
 
