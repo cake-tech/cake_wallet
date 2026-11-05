@@ -7,7 +7,6 @@ import 'package:cw_decred/api/libdcrwallet.dart';
 import 'package:cw_decred/mnemonic_validation.dart';
 import 'package:cw_decred/wallet_creation_credentials.dart';
 import 'package:cw_decred/wallet.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -31,6 +30,7 @@ class DecredWalletService extends WalletService<
   static final pubkeyRestorePathTestnet = "m/44'/1'/0'";
   final mainnet = "mainnet";
   final testnet = "testnet";
+  // TODO(wallet-id): libdcrwallet is keyed by walletInfo.name; switch to walletInfo.id (with data migration) before names can repeat.
   static Libwallet? libwallet;
 
   Future<void> init() async {

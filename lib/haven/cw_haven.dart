@@ -32,11 +32,6 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) {
-    throw UnimplementedError();
-  }
-
-  @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
       restoreFromHardwareWallet(WalletCredentials credentials) {
     throw UnimplementedError();

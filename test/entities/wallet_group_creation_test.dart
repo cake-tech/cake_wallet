@@ -183,4 +183,3 @@ Future<void> main() async {
     expect((await WalletGroupDbEntry.getAll()).length, 1);
   });
 }
-

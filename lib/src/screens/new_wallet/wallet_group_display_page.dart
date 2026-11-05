@@ -154,8 +154,11 @@ class WalletGroupsDisplayBody extends StatelessWidget {
           type: walletGroupsDisplayViewModel.type,
           mnemonic: mnemonic,
           isChildWallet: true,
-          parentGroupId: walletGroupsDisplayViewModel.selectedWalletGroup?.groupKey ??
-              walletGroupsDisplayViewModel.selectedSingleWallet?.groupId,
+          // Without the parent's seed the new wallet gets its own seed, so it must not join.
+          parentGroupId: mnemonic == null
+              ? null
+              : walletGroupsDisplayViewModel.selectedWalletGroup?.groupKey ??
+                  walletGroupsDisplayViewModel.selectedSingleWallet?.groupId,
         ),
       );
     }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/amount/money.dart';

@@ -30,7 +30,8 @@ import "package:uuid/uuid.dart";
 ///
 /// Writes the DB directly, so it can run before DI setup.
 ///
-
+/// SECURITY: in debug builds hashedWalletIdentifier (and the legacy wallet_group_name_* pref
+/// keys) may contain the plaintext mnemonic. Never log legacy keys.
 Future<void> migrateLegacyWalletsToGroups(
   SharedPreferences prefs, {
   @visibleForTesting void Function(List<WalletInfo> wallets)? beforeGroupCommit,

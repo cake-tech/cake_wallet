@@ -216,4 +216,3 @@ Future<void> main() async {
     expect(prefs.containsKey("wallet_group_name_seedA"), isFalse);
   });
 }
-

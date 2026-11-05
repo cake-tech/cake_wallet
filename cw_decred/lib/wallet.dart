@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:cw_core/amount/money.dart';
-import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -73,6 +71,7 @@ abstract class DecredWalletBase
   final syncIntervalSynced = 30; // seconds
   static final defaultFeeRate = 10000;
   final String _password;
+  // TODO(wallet-id): libdcrwallet is keyed by walletInfo.name; switch to walletInfo.id (with data migration) before names can repeat.
   final Libwallet _libwallet;
   final Function() _closeLibwallet;
   final idPrefix = "decred_";

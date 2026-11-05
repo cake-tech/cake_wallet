@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/wallet_group_migration.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
@@ -94,6 +95,13 @@ class $BackupService {
     await verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
     await importPreferencesDump();
+
+    // Backups made before wallet groups get them the same way as an app upgrade.
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
   }
 
   // checked with .endsWith - so this should be the last part of the filename
@@ -142,6 +150,13 @@ class $BackupService {
     await importKeychainDumpV2(password);
     await importPreferencesDump();
     await importTransactionDescriptionDump(); // HiveError: Box has already been closed
+
+    // Backups made before wallet groups get them the same way as an app upgrade.
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
   }
 
   Future<void> verifyWallets() async {

@@ -38,7 +38,6 @@ import 'package:cw_zano/zano_wallet_service.dart';
 import 'package:cw_zano/zano_utils.dart';
 import 'package:cw_zano/api/model/balance.dart';
 import 'package:cw_zano/bip39_seed.dart';
-import 'package:path/path.dart' as p;
 
 import 'package:mobx/mobx.dart';
 

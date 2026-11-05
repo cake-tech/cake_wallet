@@ -4,14 +4,10 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/wallet_unlock/wallet_unlock_arguments.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
@@ -115,44 +111,18 @@ class WalletEditPage extends BasePage {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     try {
-      final confirmed = SettingsStoreBase.walletPasswordDirectInput
-          ? await _renameWithPassword(context)
-          : await _rename();
+      await walletEditViewModel.renameGroup(pageArguments.walletGroupKey);
 
-      if (confirmed && context.mounted) {
+      if (context.mounted) {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      printV("Failed to rename wallet group: $e");
+      printV("Failed to rename wallet group: ${e.runtimeType}");
     } finally {
       walletEditViewModel.resetState();
     }
   }
 
-  Future<bool> _rename() async {
-    await walletEditViewModel.renameGroup(pageArguments.walletGroupKey);
-    return true;
-  }
-
-  Future<bool> _renameWithPassword(BuildContext context) async {
-    var confirmed = false;
-
-    await Navigator.of(context).pushNamed(
-      Routes.walletUnlockLoadable,
-      arguments: WalletUnlockArguments(
-        authPasswordHandler: (_) => walletEditViewModel.renameGroup(pageArguments.walletGroupKey),
-        callback: (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
-          if (!isAuthenticatedSuccessfully) return;
-          auth.close();
-          confirmed = true;
-        },
-        walletName: pageArguments.editingWallet.name,
-        walletType: pageArguments.editingWallet.type,
-      ),
-    );
-
-    return confirmed;
-  }
 
   void _removeWallet(BuildContext context) {
     pageArguments.authService!.authenticateAction(

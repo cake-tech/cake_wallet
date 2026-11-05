@@ -1,6 +1,5 @@
 import "dart:io";
 
-import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -18,14 +17,17 @@ import "package:uuid/uuid.dart";
 bool isUuidWallet(WalletInfo info) => Uuid.isValidUUID(fromString: info.id);
 
 /// Folder name on disk: the UUID for new wallets, the name for legacy ones.
-/// Throws on a name that would resolve outside the wallet's own folder.
+/// Throws on a name that would resolve to the type folder or outside it.
+/// Whitespace-only legacy names are valid folder names, except on Windows, which strips
+/// trailing spaces and dots (so "   " or "..." would be the type folder itself).
 String _dirNameOf(WalletInfo info) {
   final dirName = isUuidWallet(info) ? info.id : info.name;
-  final isUnsafe = dirName.trim().isEmpty ||
+  final isUnsafe = dirName.isEmpty ||
       dirName == "." ||
       dirName == ".." ||
       dirName.contains("/") ||
-      dirName.contains(p.separator);
+      dirName.contains(p.separator) ||
+      (Platform.isWindows && dirName.replaceAll(RegExp(r"[ .]+$"), "").isEmpty);
 
   if (isUnsafe) {
     throw ArgumentError.value(dirName, "dirName", "Invalid wallet folder name (id: ${info.id})");
@@ -75,47 +77,4 @@ Future<String> pathForWalletOf(WalletInfo info) async =>
 Future<String> outdatedAndroidPathForWalletDir({required String name}) async {
   final directory = await getAppDir();
   return p.join(directory.path, name);
-}
-
-// ---- Deprecated: wallet files are stored by id and no longer move -----------
-
-@Deprecated("Wallet files are stored by id and never move. Will be removed with rename().")
-Future<void> copyWalletFilesTo({
-  required String fromName,
-  required String toName,
-  required WalletType type,
-}) async {
-  if (fromName == toName) return;
-
-  final typeRoot = await pathForWalletTypeDir(type: type);
-  final sourceDir = Directory(p.join(typeRoot, fromName));
-  if (!sourceDir.existsSync()) {
-    throw WalletNotFoundException(name: fromName, type: type);
-  }
-
-  if (Directory(p.join(typeRoot, toName)).existsSync()) {
-    throw WalletExistsException('Cannot rename wallet: "$toName" already exists');
-  }
-
-  final destinationDir = Directory(p.join(typeRoot, toName));
-  await _copyDirectory(sourceDir, destinationDir);
-
-  for (final suffix in const ['', '.keys', '.keys.backup']) {
-    final file = File(p.join(destinationDir.path, '$fromName$suffix'));
-    if (file.existsSync()) {
-      await file.rename(p.join(destinationDir.path, '$toName$suffix'));
-    }
-  }
-}
-
-Future<void> _copyDirectory(Directory source, Directory destination) async {
-  await destination.create(recursive: true);
-  await for (final entity in source.list(followLinks: false)) {
-    final name = p.basename(entity.path);
-    if (entity is File) {
-      await entity.copy(p.join(destination.path, name));
-    } else if (entity is Directory) {
-      await _copyDirectory(entity, Directory(p.join(destination.path, name)));
-    }
-  }
 }

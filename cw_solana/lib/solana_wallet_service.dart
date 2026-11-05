@@ -79,7 +79,7 @@ class SolanaWalletService extends WalletService<
     }
   }
 
-  // TODO(serhii): sync prefs, SPL tokens and NFTs are keyed by wallet name; re-key by walletInfo.id.
+  // TODO(wallet-id): tokens/NFTs (and Solana sync prefs) are keyed by wallet name; re-key by walletInfo.id.
   @override
   Future<void> remove(WalletInfo walletInfo) async {
     final prefs = await SharedPreferences.getInstance();
