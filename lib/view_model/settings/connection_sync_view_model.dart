@@ -8,6 +8,7 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -25,9 +26,10 @@ part 'connection_sync_view_model.g.dart';
 class ConnectionSyncViewModel = ConnectionSyncViewModelBase with _$ConnectionSyncViewModel;
 
 abstract class ConnectionSyncViewModelBase with Store {
-  ConnectionSyncViewModelBase(this._settingsStore, this._wallet);
+  ConnectionSyncViewModelBase(this._settingsStore, this._wallet, this._appStore);
 
   final SettingsStore _settingsStore;
+  final AppStore _appStore;
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
 
   @computed
@@ -320,6 +322,7 @@ abstract class ConnectionSyncViewModelBase with Store {
     }
     _settingsStore.currentBuiltinTor = value;
     if (value) {
+      _appStore.disconnectWalletConnect();
       unawaited(ensureTorStarted(context: context).then((_) async {
         if (_settingsStore.currentBuiltinTor == false) return;
         int? chainId;
@@ -328,6 +331,7 @@ abstract class ConnectionSyncViewModelBase with Store {
         }
         await _wallet.connectToNode(
             node: _settingsStore.getCurrentNode(_wallet.type, chainId: chainId));
+        _appStore.reconnectWalletConnect();
       }));
     } else {
       unawaited(ensureTorStopped(context: context).then((_) async {
@@ -338,6 +342,7 @@ abstract class ConnectionSyncViewModelBase with Store {
         }
         await _wallet.connectToNode(
             node: _settingsStore.getCurrentNode(_wallet.type, chainId: chainId));
+        _appStore.reconnectWalletConnect();
       }));
     }
   }

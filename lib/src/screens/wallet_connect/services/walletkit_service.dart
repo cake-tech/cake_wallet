@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/et
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/utils/dapp_icon.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/method_utils.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bottom_sheet_message_display_widget.dart';
@@ -25,6 +26,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_reques
 import 'package:cake_wallet/store/app_store.dart';
 
 import 'bottom_sheet_service.dart';
+import 'walletkit_tor.dart';
 import 'chain_service/solana/solana_chain_id.dart';
 import 'chain_service/solana/solana_chain_service.dart';
 
@@ -72,6 +74,8 @@ abstract class WalletKitServiceBase with Store {
     _walletKit = ReownWalletKit(
       core: ReownCore(
         projectId: secrets.walletConnectProjectId,
+        httpClient: WalletKitHttpClient(_isTorRequired),
+        webSocketHandler: WalletKitWebSocketHandler(_isTorRequired),
       ),
       metadata: const PairingMetadata(
         name: 'Cake Wallet',
@@ -115,6 +119,8 @@ abstract class WalletKitServiceBase with Store {
     }
   }
 
+  bool _isTorRequired() => isWalletConnectTorRequired(appStore.settingsStore);
+
   void _logListener(String event) {
     debugPrint('[WalletKit] $event');
   }
@@ -125,8 +131,9 @@ abstract class WalletKitServiceBase with Store {
     debugPrint('Intializing walletKit');
     if (!isInitialized) {
       try {
+        // Relay handshake over Tor is much slower than over clearnet.
         await _walletKit.init().timeout(
-              const Duration(seconds: 8),
+              Duration(seconds: _isTorRequired() ? 60 : 8),
               onTimeout: () => throw TimeoutException('walletKit init timed out'),
             );
         debugPrint('Initialized');
@@ -446,8 +453,7 @@ abstract class WalletKitServiceBase with Store {
       }
 
       final requesterMetadata = args.requester.metadata;
-      final requesterIcon =
-          requesterMetadata.icons.isNotEmpty ? requesterMetadata.icons.first : null;
+      final requesterIcon = wcDappIconUrl(requesterMetadata);
       final chainKeysForAuth = walletKeyService.getKeysForChain(appStore.wallet!);
       final addressForAuth = chainKeysForAuth.isNotEmpty ? chainKeysForAuth.first.publicKey : '';
       final combinedMessageBody =

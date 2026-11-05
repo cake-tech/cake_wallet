@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/wallet_connect/utils/dapp_icon.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/confirm_swiper.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
@@ -42,7 +43,7 @@ class WCConnectionRequestSheet extends StatelessWidget {
         WCPermissionsMapper.fromGeneratedNamespaces(proposalData.generatedNamespaces ?? const {});
 
     final metadata = requester.metadata;
-    final iconUrl = metadata.icons.isNotEmpty ? metadata.icons.first : null;
+    final iconUrl = wcDappIconUrl(metadata);
     final walletName = appStore.wallet?.name ?? '';
     final address = _resolveAddress();
     final isScam = verifyContext?.validation.scam ?? false;
