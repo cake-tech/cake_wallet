@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -91,6 +93,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   Future<void> initialSetup() async {
     await _updateUnspents();
+    _updateUnspentCoinsInfo();
     _storeOriginalState();
   }
 
@@ -199,7 +202,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
     // return items.where((element) => element.isSending).fold(0, (previousValue, element) => previousValue + element.value);
     // go through all unspent coins and add up the value minus frozen and non sending:
     int total = 0;
-    await _updateUnspents();
+    // await _updateUnspents();
     Set<String> seen = {};
     for (final item in _getSpecificUnspents(overrideCoinTypeToSpendFrom)) {
       if (seen.contains(item.toString())) continue;

@@ -213,27 +213,9 @@ abstract class DashboardViewModelBase with Store {
     });
 
     _transactionDisposer?.reaction.dispose();
-    _transactionDisposer = reaction((_) {
-      final length = appStore.wallet!.transactionHistory.transactions.length;
-      if (length == 0) {
-        return 0;
-      }
-      int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
-        try {
-          confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
-                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
-                  1;
-        } catch (_) {}
-      } else {
-        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
-            .where((item) => item.isPending)
-            .length;
-        confirmations = pendingCount + 1;
-      }
-      return length * confirmations;
-    }, _transactionDisposerCallback, delay: 300);
+    _transactionDisposer = reaction((_) => _transactionsChangeSignature(),
+        _transactionDisposerCallback,
+        delay: 300, fireImmediately: true);
 
     if (hasSilentPayments) {
       silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
@@ -353,6 +335,9 @@ abstract class DashboardViewModelBase with Store {
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
+  bool _transactionDisposerCallbackQueued = false;
+
+  final Map<String, String> _lastTxContentByIdentity = {};
 
   @action
   void _reloadTransactions() {
@@ -366,7 +351,6 @@ abstract class DashboardViewModelBase with Store {
         ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet)
         : wallet.transactionHistory.transactions.values.toList();
     filteredTransactions.sort((a, b) => a.date.compareTo(b.date));
-
 
     transactions.addAll(
       filteredTransactions.map(
@@ -514,64 +498,91 @@ abstract class DashboardViewModelBase with Store {
         : cardDesigns[designIndex == -1 ? 0 : designIndex];
   }
 
-  void _transactionDisposerCallback(int _) async {
-    // Simple check to prevent the callback from being called multiple times in the same frame
-    if (_isTransactionDisposerCallbackRunning) return;
+  void _transactionDisposerCallback(String _) async {
+    if (_isTransactionDisposerCallbackRunning) {
+      _transactionDisposerCallbackQueued = true;
+      return;
+    }
     _isTransactionDisposerCallbackRunning = true;
-    await Future.delayed(Duration.zero);
 
     try {
-      final currentAccountId = wallet.type == WalletType.monero
-          ? monero!.getCurrentAccount(wallet).id
-          : wallet.type == WalletType.wownero
-              ? wow.wownero!.getCurrentAccount(wallet).id
-              : null;
+      do {
+        _transactionDisposerCallbackQueued = false;
+        await _runTransactionDisposerCallback();
+      } while (_transactionDisposerCallbackQueued);
+    } finally {
+      _isTransactionDisposerCallbackRunning = false;
+    }
+  }
 
-      final allTxs = appStore.wallet!.transactionHistory.transactions.values;
-      final List<TransactionInfo> relevantTxs;
+  Future<void> _runTransactionDisposerCallback() async {
+    await Future.delayed(Duration.zero);
 
-      if (wallet.type == WalletType.monero) {
-        relevantTxs = allTxs
-            .where((tx) => monero!.getTransactionInfoAccountId(tx) == currentAccountId)
-            .toList();
+    final currentAccountId = wallet.type == WalletType.monero
+        ? monero!.getCurrentAccount(wallet).id
+        : wallet.type == WalletType.wownero
+            ? wow.wownero!.getCurrentAccount(wallet).id
+            : null;
+    final List<TransactionInfo> relevantTxs = [];
+
+    final bitcoinAccountTxs = wallet.type == WalletType.bitcoin
+        ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet).toSet()
+        : null;
+
+    for (final tx in appStore.wallet!.transactionHistory.transactions.values) {
+      bool isRelevant = true;
+      if (bitcoinAccountTxs != null) {
+        isRelevant = bitcoinAccountTxs.contains(tx);
+      } else if (wallet.type == WalletType.monero) {
+        isRelevant = monero!.getTransactionInfoAccountId(tx) == currentAccountId;
       } else if (wallet.type == WalletType.wownero) {
-        relevantTxs = allTxs
-            .where((tx) => wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId)
-            .toList();
-      } else if (wallet.type == WalletType.bitcoin) {
-        relevantTxs = bitcoin!.getCurrentAccountBitcoinTransactions(wallet);
-      } else {
-        relevantTxs = allTxs.toList();
+        isRelevant = wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId;
       }
-      // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
 
-      // TODO(malik) update this in a saner way during the vm refactor
-      String _txIdentityString(String txHash, TransactionDirection direction) =>
-          "${txHash}_$direction";
-      String _txIdentityStringConfirmations(
-              String txHash, TransactionDirection direction, int confirmations, bool isPending) =>
-          "${txHash}_${direction}_${confirmations}_$isPending";
+      if (isRelevant) {
+        relevantTxs.add(tx);
+      }
+    }
+    // TODO(malik) update this in a saner way during the vm refactor
+    String _txIdentityString(String txHash, TransactionDirection direction) =>
+        "${txHash}_$direction";
+    String _txContentSignature(TransactionInfo tx) =>
+        "${tx.confirmations}_${tx.isPending}_${tx.amount}_${tx.height}_${tx.date}_${tx.fee}_"
+        "${tx.direction}_${wallet.type == WalletType.bitcoin ? bitcoin?.txIsReceivedSilentPayment(tx) : null}";
 
-      final existingKeys = transactions
-          .map((item) => _txIdentityStringConfirmations(
-              item.transaction.txHash,
-              item.transaction.direction,
-              item.transaction.confirmations,
-              item.transaction.isPending))
-          .toSet();
+    runInAction(() {
+      final existingIndexByIdentity = <String, int>{};
+      for (var i = 0; i < transactions.length; i++) {
+        final item = transactions[i];
+        existingIndexByIdentity[
+            _txIdentityString(item.transaction.txHash, item.transaction.direction)] = i;
+      }
 
-      final newTransactions = relevantTxs
-          .where((tx) => !existingKeys.contains(_txIdentityStringConfirmations(
-              tx.txHash, tx.direction, tx.confirmations, tx.isPending)))
-          .map((tx) => TransactionListItem(
-                transaction: tx,
-                balanceViewModel: balanceViewModel,
-                appStore: appStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-              ))
-          .toList();
+      final relevantIdentities = <String>{};
+      final newTransactions = <TransactionListItem>[];
 
-      final newKeys = newTransactions
+      for (final tx in relevantTxs) {
+        final identity = _txIdentityString(tx.txHash, tx.direction);
+        relevantIdentities.add(identity);
+
+        final contentSignature = _txContentSignature(tx);
+        final contentChanged = _lastTxContentByIdentity[identity] != contentSignature;
+        _lastTxContentByIdentity[identity] = contentSignature;
+
+        final existingIndex = existingIndexByIdentity[identity];
+        if (existingIndex == null || contentChanged) {
+          newTransactions.add(TransactionListItem(
+            transaction: tx,
+            balanceViewModel: balanceViewModel,
+            appStore: appStore,
+            key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+          ));
+        }
+      }
+
+      _lastTxContentByIdentity.removeWhere((identity, _) => !relevantIdentities.contains(identity));
+
+      final newIdentities = newTransactions
           .map((item) => _txIdentityString(item.transaction.txHash, item.transaction.direction))
           .toSet();
 
@@ -581,22 +592,13 @@ abstract class DashboardViewModelBase with Store {
             (n) => n.transaction.txHash == item.transaction.txHash,
           );
         }
-        return newKeys.contains(
+        return newIdentities.contains(
           _txIdentityString(item.transaction.txHash, item.transaction.direction),
         );
       });
 
       transactions.addAll(newTransactions);
-      // transactions.clear();
-      // transactions.addAll(relevantTxs.map((tx) => TransactionListItem(
-      //       transaction: tx,
-      //       balanceViewModel: balanceViewModel,
-      //       appStore: appStore,
-      //       key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
-      //     )));
-    } finally {
-      _isTransactionDisposerCallbackRunning = false;
-    }
+    });
   }
 
   void _checkMweb() {
@@ -853,11 +855,6 @@ abstract class DashboardViewModelBase with Store {
       // if (keys['publicSpendKey'] == List.generate(64, (index) => "0").join("")) "public spend key is 0",
       if (keys['publicViewKey'] == List.generate(64, (index) => "0").join(""))
         "public view key is 0",
-      // if (wallet.seed == null) "wallet seed is null",
-      // if (wallet.seed == "") "wallet seed is empty",
-      // if (monero!.getSubaddressList(wallet).getAll(wallet)[0].address ==
-      //     "41d7FXjswpK1111111111111111111111111111111111111111111111111111111111111111111111111111112KhNi4")
-      // "primary address is invalid, you won't be able to receive / spend funds",
     ];
     return errors;
   }
@@ -1249,7 +1246,6 @@ abstract class DashboardViewModelBase with Store {
 
   SettingsStore settingsStore;
 
-
   TradesStore tradesStore;
 
   OrdersStore ordersStore;
@@ -1471,27 +1467,31 @@ abstract class DashboardViewModelBase with Store {
       _chainChangeDisposer = null;
     }
 
-    _transactionDisposer = reaction((_) {
-      final length = appStore.wallet!.transactionHistory.transactions.length;
-      if (length == 0) {
-        return 0;
-      }
-      int confirmations = 1;
-      if (![WalletType.solana, WalletType.tron].contains(wallet.type)) {
-        try {
-          confirmations =
-              appStore.wallet!.transactionHistory.transactions.values.first.confirmations +
-                  appStore.wallet!.transactionHistory.transactions.values.last.confirmations +
-                  1;
-        } catch (_) {}
-      } else {
-        final pendingCount = appStore.wallet!.transactionHistory.transactions.values
-            .where((item) => item.isPending)
-            .length;
-        confirmations = pendingCount + 1;
-      }
-      return length * confirmations;
-    }, _transactionDisposerCallback, delay: 300);
+    _transactionDisposer = reaction((_) => _transactionsChangeSignature(),
+        _transactionDisposerCallback,
+        delay: 300, fireImmediately: true);
+  }
+
+  String _transactionsChangeSignature() {
+    final txs = appStore.wallet?.transactionHistory.transactions;
+    if (txs == null || txs.isEmpty) return '';
+    final isBitcoin = wallet.type == WalletType.bitcoin;
+    final buffer = StringBuffer();
+    for (final tx in txs.values) {
+      buffer
+        ..write(tx.id)
+        ..write(':')
+        ..write(tx.confirmations)
+        ..write(':')
+        ..write(tx.isPending)
+        ..write(':')
+        ..write(tx.amount)
+        ..write(':')
+        ..write(isBitcoin ? bitcoin!.txSilentPaymentUnspentsCount(tx) : -1)
+        ..write('|');
+    }
+    final signature = buffer.toString();
+    return signature;
   }
 
   void _setupBitcoinAccountChangeReaction(WalletBase wallet) {
@@ -1714,6 +1714,9 @@ abstract class DashboardViewModelBase with Store {
     }
   }
 
+  bool isSilentPaymentTx(TransactionInfo tx) =>
+      wallet.type == WalletType.bitcoin && (bitcoin?.txIsReceivedSilentPayment(tx) ?? false);
+
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {
       if (tx.isReplaced == true) return ' (replaced)';
@@ -1728,7 +1731,6 @@ abstract class DashboardViewModelBase with Store {
   Future<void> refreshDashboard() async {
     reconnect();
   }
-
 
   static const walletTypesToBeRemoved = [
     WalletType.zano,
