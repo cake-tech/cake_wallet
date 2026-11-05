@@ -803,6 +803,7 @@
   "overshot": "オーバーシュート",
   "overwrite_amount": "金額を上書き",
   "pairing_code": "ペアリングコード",
+  "pairing_code_bitbox_confirm": "以下のコードがBitBoxに表示されているコードと一致することを確認してください",
   "pairing_code_desc_1": "デバイスにペアリングコードが表示されます。",
   "pairing_code_desc_2": "続行するにはここに入力してください",
   "pairing_error": "ペアリングエラー",

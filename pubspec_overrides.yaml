@@ -1239,7 +1239,7 @@ dependency_overrides:
   rlz:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
       path: ./rust_builder
   rxdart:
     git:
@@ -1681,4 +1681,4 @@ dependency_overrides:
   zkool:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653

@@ -802,6 +802,7 @@
   "overshot": "超出",
   "overwrite_amount": "覆盖金额",
   "pairing_code": "配对码",
+  "pairing_code_bitbox_confirm": "请确认下方代码与您的 BitBox 上显示的代码一致",
   "pairing_code_desc_1": "您的设备将显示一个配对码。",
   "pairing_code_desc_2": "在此处输入以继续",
   "pairing_error": "配对错误",
