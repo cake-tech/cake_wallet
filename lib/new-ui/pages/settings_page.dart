@@ -28,6 +28,8 @@ bool _hasAccounts(DashboardViewModel vm) => vm.wallet.hasAccountsSupport;
 
 bool _hasCoinControl(DashboardViewModel vm) => vm.wallet.hasCoinControl;
 
+bool _hasOptionalAddressTypes(DashboardViewModel vm) => vm.hasOptionalAddressTypes;
+
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
@@ -108,6 +110,13 @@ class WalletSettingsResolver {
         isCore: true,
         condition: _hasCoinControl,
         routeArgs: const CoinControlPageArgs(canEdit: false),
+      ),
+      SettingsListItem(
+        "assets/new-ui/address-type-picker-icons/btc_standard.svg",
+        S.current.addresses,
+        Routes.addressTypesSettings,
+        isCore: true,
+        condition: _hasOptionalAddressTypes,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/lightning_username.svg",
