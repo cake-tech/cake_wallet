@@ -119,7 +119,6 @@ dependencies:
     git:
       url: https://github.com/cake-tech/nostr_tools.git
       ref: 089d5a2dd751429a040ba10fb24fcbae564053e5
-  solana: ^0.31.0+1
   ledger_flutter_plus:
     git:
       url: https://github.com/vespr-wallet/ledger-flutter-plus

@@ -269,15 +269,6 @@ packages:
       url: "https://github.com/dart-lang/tools"
     source: git
     version: "2.1.2"
-  borsh_annotation:
-    dependency: "direct overridden"
-    description:
-      path: "packages/borsh_annotation"
-      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      resolved-ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      url: "https://github.com/espresso-cash/espresso-cash-public"
-    source: git
-    version: "0.3.2"
   breez_sdk_spark_flutter:
     dependency: "direct overridden"
     description:
@@ -2860,15 +2851,6 @@ packages:
       url: "https://github.com/sneurlax/socks_socket"
     source: git
     version: "1.1.1"
-  solana:
-    dependency: "direct main"
-    description:
-      path: "packages/solana"
-      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      resolved-ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      url: "https://github.com/espresso-cash/espresso-cash-public"
-    source: git
-    version: "0.31.2+1"
   source_gen:
     dependency: "direct overridden"
     description:
