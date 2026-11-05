@@ -30,16 +30,18 @@ import "package:cw_core/wallet_base.dart";
 /// | X-Madeleine-Valid-Until | `<unix_seconds>`                                                                  |
 /// | X-Madeleine-Wallet      | `<user_address>`                                                                  |
 class MadeleineAuth {
-  const MadeleineAuth({required this.useSandbox});
+  const MadeleineAuth({
+    required this.useSandbox,
+    this.secret = secrets.exchangeHelperApiKey,
+  });
 
-  static const madeleineLightAuthMagic = "Madeleine Light Auth v1:\n";
-  static const madeleineFullAuthMagic = "Madeleine Auth v1:\n";
+  static const lightAuthMagic = "Madeleine Light Auth v1:\n";
+  static const fullAuthMagic = "Madeleine Auth v1:\n";
 
   static const baseUrl = "madeleine.cakewallet.com";
 
-  static String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
-
   final bool useSandbox;
+  final String secret;
 
   Map<String, String> getLightHeaders({
     required String method,
@@ -48,8 +50,7 @@ class MadeleineAuth {
   }) {
     final validUntil = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 10;
 
-    final message = "$madeleineLightAuthMagic$method $path $validUntil";
-    final hmac = _getHmac(message);
+    final hmac = _getHmac("$lightAuthMagic$method $path $validUntil");
 
     headers ??= {};
     headers["X-Madeleine-Valid-Until"] = "$validUntil";
@@ -71,7 +72,7 @@ class MadeleineAuth {
     final walletAddress = wallet.walletAddresses.address;
     final validUntil = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 200;
 
-    final message = "$madeleineFullAuthMagic$method $path $walletAddress $validUntil";
+    final message = "$fullAuthMagic$method $path $walletAddress $validUntil";
     final signature = await wallet.signMessage(message, address: walletAddress);
     final hmac = _getHmac(signature);
 
@@ -89,7 +90,7 @@ class MadeleineAuth {
   }
 
   String _getHmac(String message) {
-    final key = utf8.encode(_exchangeHelperApiKey);
+    final key = utf8.encode(secret);
     final bytes = utf8.encode(message);
 
     final hmacSha256 = Hmac(sha256, key);
