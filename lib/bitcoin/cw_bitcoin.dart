@@ -955,4 +955,53 @@ class CWBitcoin extends Bitcoin {
         label: acc.label,
         balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
   }
+
+  @override
+  bool canRecoverFundsFromOtherDerivations(Object wallet) =>
+      wallet is ElectrumWallet && DerivationRecoveryService.isSupported(wallet);
+
+  @override
+  Future<DerivationRecoveryScan> scanForFundsOnOtherDerivations(
+    Object wallet, {
+    void Function(int checkedAddresses)? onProgress,
+  }) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    // The scan compares against the wallet's own coins, so bring them up to date first.
+    await electrumWallet.updateAllUnspents();
+    final result = await DerivationRecoveryService(electrumWallet).scan(onProgress: onProgress);
+
+    final byChain = groupBy(
+      result.coins,
+      (coin) => "${coin.chain.seedType.name} ${coin.chain.path} ${coin.type.value}",
+    );
+    return DerivationRecoveryScan(
+      funds: [
+        for (final coins in byChain.values)
+          DerivationRecoveryFunds(
+            path: coins.first.chain.path,
+            seedType: coins.first.chain.seedType.name,
+            addressType: coins.first.type.value,
+            amount: coins.fold(0, (sum, coin) => sum + coin.value),
+            coinCount: coins.length,
+          ),
+      ],
+      total: result.total,
+      unrecoverableTotal: result.unrecoverableTotal,
+      checkedAddresses: result.checkedAddresses,
+      result: result,
+    );
+  }
+
+  @override
+  Future<PendingTransaction> createDerivationRecoverySweep(
+    Object wallet,
+    DerivationRecoveryScan scan,
+    TransactionPriority priority,
+  ) {
+    final electrumWallet = wallet as ElectrumWallet;
+    return DerivationRecoveryService(electrumWallet).createSweepTransaction(
+      scan.result as DerivationRecoveryResult,
+      feeRate: electrumWallet.feeRate(priority),
+    );
+  }
 }
