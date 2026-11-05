@@ -28,6 +28,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -340,7 +341,7 @@ class CakePayBuyCardPage extends BasePage {
                         ),
                       ),
                     ),
-                  if (FeatureFlag.hasDevOptions && FeatureFlag.isCakePayPurchaseSimulationEnabled)
+                  if (CakePayApi.useStaging && FeatureFlag.isCakePayPurchaseSimulationEnabled)
                     Padding(
                       padding: EdgeInsets.only(top: 10, bottom: 0, right: 20, left: 20),
                       child: LoadingPrimaryButton(
@@ -362,6 +363,7 @@ class CakePayBuyCardPage extends BasePage {
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
                     ),
+                  if (!CakePayApi.useStaging)
                   Padding(
                     padding: EdgeInsets.only(top: 10, bottom: 34, right: 20, left: 20),
                     child: LoadingPrimaryButton(
@@ -579,7 +581,10 @@ class CakePayBuyCardPage extends BasePage {
         // wait a bit to avoid showing the loading dialog if transaction is failed
         await Future.delayed(const Duration(milliseconds: 300));
         final currentState = _sendViewModel.state;
-        if (currentState is ExecutedSuccessfullyState || currentState is FailureState) {
+
+        // Anything but still executing (success, failure, a committed simulation) means the
+        // loading sheet is no longer needed, and nothing would dismiss it afterwards.
+        if (currentState is! IsExecutingState) {
           return;
         }
 
@@ -681,6 +686,33 @@ class CakePayBuyCardPage extends BasePage {
             if (result == null) _sendViewModel.dismissTransaction();
           }
         });
+      }
+
+      // In simulation mode show the simulated API response in a dialog and skip the normal
+      // post-purchase flow below (there is no purchase and no sending coins when just hitting
+      // to simulate a payment)
+      if (state is TransactionCommitted && cakePayBuyCardViewModel.isSimulating) {
+        final simulatedResponse = cakePayBuyCardViewModel.simulatedResponse;
+        cakePayBuyCardViewModel.isSimulatingFlow = false;
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!context.mounted) {
+            return;
+          }
+
+          showPopUp<void>(
+            context: context,
+            builder: (context) => AlertWithOneAction(
+              key: const ValueKey('cake_pay_buy_page_simulated_payment_dialog_key'),
+              alertTitle: 'Cake Pay',
+              alertContent: simulatedResponse,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(),
+            ),
+          );
+        });
+
+        return;
       }
 
       if (state is TransactionCommitted) {

@@ -3,8 +3,10 @@ import 'package:cake_wallet/cake_pay/src/widgets/flip_card_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/link_extractor.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/image_utill.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'base_bottom_sheet_widget.dart';
 
@@ -22,12 +24,15 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
     VoidCallback? onRightActionButtonPressed,
     Key? rightActionButtonKey,
     Key? leftActionButtonKey,
-    required this.onUpdateBalancePressed,
-    required this.isReloadable,
     required this.balance,
+    this.cardNumber,
+    required this.cardNumberLabel,
+    this.pin,
     this.contentImage,
     this.howToUse,
+    this.orderId,
     this.applyBoxShadow = false,
+    this.isLoading = false,
     Key? key,
   }) : super(
             titleText: titleText,
@@ -45,12 +50,17 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
             rightActionButtonKey: rightActionButtonKey,
             key: key);
 
-  final VoidCallback onUpdateBalancePressed;
   final String? contentImage;
   final String? howToUse;
-  final bool isReloadable;
+  final String? orderId;
   final String balance;
+  final String? cardNumber;
+  final String cardNumberLabel;
+  final String? pin;
   final bool applyBoxShadow;
+
+  /// The codes and instructions are still being fetched, so show spinners in their place.
+  final bool isLoading;
 
   final _cardKey = GlobalKey<FlipCardState>();
 
@@ -85,8 +95,13 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                       key: _cardKey,
                       flipOnTouch: true,
                       front: _buildCardImage(context, contentImage!, applyBoxShadow),
-                      back: _buildBarcodeSide(context,
-                          cardNumber: '6006491979836784204', pin: '4782'),
+                      back: _buildBarcodeSide(
+                        context,
+                        cardNumber: cardNumber,
+                        cardNumberLabel: cardNumberLabel,
+                        pin: pin,
+                        isLoading: isLoading,
+                      ),
                     ),
                   ),
                 ),
@@ -115,24 +130,46 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
               ],
             ),
           ),
-        Container(),
-        Text(
-          'Tap card to show details',
-          style: itemTitleTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
-        ),
+        if (contentImage == null)
+          // Without an image there is nothing to flip, so show the codes directly.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48),
+            child: AspectRatio(
+              aspectRatio: 1.6,
+              child: _buildBarcodeSide(
+                context,
+                cardNumber: cardNumber,
+                cardNumberLabel: cardNumberLabel,
+                pin: pin,
+                isLoading: isLoading,
+              ),
+            ),
+          )
+        else
+          Text(
+            S.of(context).tap_card_to_show_details,
+            style: itemTitleTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+          ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Column(
             children: [
               const SizedBox(height: 34),
               CakePayInfoTile(
-                  isReloadable: isReloadable,
                   itemValue: balance,
                   itemTitleTextStyle: itemTitleTextStyle,
                   itemSubTitleTextStyle: itemSubTitleTextStyle,
                   tileBackgroundColor: tileBackgroundColor),
               const SizedBox(height: 8),
-              _HowToUseTile(howToUse: howToUse ?? '', tileBackgroundColor: tileBackgroundColor),
+              _HowToUseTile(
+                howToUse: howToUse ?? '',
+                tileBackgroundColor: tileBackgroundColor,
+                isLoading: isLoading,
+              ),
+              if (orderId != null) ...[
+                const SizedBox(height: 8),
+                _OrderIdTile(orderId: orderId!, tileBackgroundColor: tileBackgroundColor),
+              ],
               const SizedBox(height: 40),
             ],
           ),
@@ -143,15 +180,20 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
 }
 
 class _HowToUseTile extends StatelessWidget {
-  const _HowToUseTile({required this.howToUse, required this.tileBackgroundColor});
+  const _HowToUseTile({
+    required this.howToUse,
+    required this.tileBackgroundColor,
+    required this.isLoading,
+  });
 
   final String howToUse;
+  final bool isLoading;
   final Color tileBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () => _showHowToUseCard(context: context, howToUse: howToUse),
+      onTap: isLoading ? null : () => _showHowToUseCard(context: context, howToUse: howToUse),
       child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration:
@@ -160,12 +202,73 @@ class _HowToUseTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(S.of(context).how_to_use_card, style: Theme.of(context).textTheme.bodyLarge),
+              if (isLoading)
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Theme.of(context).textTheme.titleLarge!.color!,
+                ),
+            ],
+          )),
+    );
+  }
+}
+
+class _OrderIdTile extends StatelessWidget {
+  const _OrderIdTile({required this.orderId, required this.tileBackgroundColor});
+
+  final String orderId;
+  final Color tileBackgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: '${S.of(context).copy} ${S.of(context).order_id}',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () async {
+          await Clipboard.setData(ClipboardData(text: orderId));
+
+          if (context.mounted) {
+            await showBar<void>(context, S.of(context).copied_to_clipboard);
+          }
+        },
+        child: Container(
+          key: const ValueKey('cake_pay_card_info_order_id_tile_key'),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration:
+              BoxDecoration(borderRadius: BorderRadius.circular(10), color: tileBackgroundColor),
+          child: Row(
+            children: [
+              Text(S.of(context).order_id, style: Theme.of(context).textTheme.bodyLarge),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  orderId,
+                  textAlign: TextAlign.end,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Icon(
-                Icons.chevron_right_rounded,
+                Icons.copy_rounded,
+                size: 16,
                 color: Theme.of(context).textTheme.titleLarge!.color!,
               ),
             ],
-          )),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -173,7 +276,6 @@ class _HowToUseTile extends StatelessWidget {
 class CakePayInfoTile extends StatelessWidget {
   const CakePayInfoTile({
     super.key,
-    required this.isReloadable,
     required this.itemValue,
     required this.itemTitleTextStyle,
     this.itemSubTitle,
@@ -181,7 +283,6 @@ class CakePayInfoTile extends StatelessWidget {
     required this.tileBackgroundColor,
   });
 
-  final bool isReloadable;
   final String itemValue;
   final TextStyle itemTitleTextStyle;
   final String? itemSubTitle;
@@ -192,7 +293,7 @@ class CakePayInfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      label: isReloadable ? 'Balance' : 'Total Value',
+      label: S.of(context).total_value,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration:
@@ -203,19 +304,11 @@ class CakePayInfoTile extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(isReloadable ? 'Balance' : 'Total Value', style: itemTitleTextStyle),
+                Text(S.of(context).total_value, style: itemTitleTextStyle),
                 Text(itemValue,
                     style: itemTitleTextStyle.copyWith(fontSize: 18, fontWeight: FontWeight.w600)),
               ],
             ),
-            const SizedBox(height: 14),
-            Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Text(isReloadable ? 'Top Up Balance' : 'Manually update Balance',
-                    style: itemTitleTextStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w600)),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
-                    color: Theme.of(context).dialogBackgroundColor)),
             const SizedBox(height: 4),
           ],
         ),
@@ -273,7 +366,13 @@ Widget _buildCardImage(BuildContext ctx, String path, bool addShadow) {
   );
 }
 
-Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, required String pin}) =>
+Widget _buildBarcodeSide(
+  BuildContext context, {
+  String? cardNumber,
+  required String cardNumberLabel,
+  String? pin,
+  bool isLoading = false,
+}) =>
     SizedBox.expand(
       child: Container(
         padding: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 34),
@@ -291,44 +390,100 @@ Widget _buildBarcodeSide(BuildContext context, {required String cardNumber, requ
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Gift Card Number',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Color.fromRGBO(207, 207, 207, 1))),
-                    const SizedBox(height: 4),
-                    Text(cardNumber,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromRGBO(146, 146, 146, 1))),
-                  ],
+            if (isLoading)
+              const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('PIN Number',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: Color.fromRGBO(207, 207, 207, 1))),
-                    const SizedBox(height: 4),
-                    Text(pin,
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                            color: Color.fromRGBO(146, 146, 146, 1))),
+              )
+            else
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (cardNumber != null)
+                    Flexible(
+                      child: _CopyableField(
+                        key: const ValueKey('cake_pay_card_info_number_field_key'),
+                        label: cardNumberLabel,
+                        value: cardNumber,
+                      ),
+                    ),
+                  if (pin != null) ...[
+                    const SizedBox(width: 12),
+                    _CopyableField(
+                      key: const ValueKey('cake_pay_card_info_pin_field_key'),
+                      label: S.of(context).pin_number,
+                      value: pin,
+                    ),
                   ],
-                ),
-              ],
-            ),
+                ],
+              ),
           ],
         ),
       ),
     );
+
+class _CopyableField extends StatelessWidget {
+  const _CopyableField({super.key, required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: Color.fromRGBO(207, 207, 207, 1),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                SelectableText(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w900,
+                    color: Color.fromRGBO(146, 146, 146, 1),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 6),
+          Semantics(
+            button: true,
+            label: '${S.of(context).copy} $label',
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () async {
+                await Clipboard.setData(ClipboardData(text: value));
+
+                if (context.mounted) {
+                  await showBar<void>(context, S.of(context).copied_to_clipboard);
+                }
+              },
+              child: const Padding(
+                padding: EdgeInsets.all(4),
+                child: Icon(
+                  Icons.copy_rounded,
+                  size: 16,
+                  color: Color.fromRGBO(146, 146, 146, 1),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+}

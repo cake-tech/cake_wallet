@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:mobx/mobx.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'cake_pay_cards_list_view_model.g.dart';
 
@@ -20,7 +22,11 @@ abstract class CakePayCardsListViewModelBase with Store {
   CakePayCardsListViewModelBase({
     required this.cakePayService,
     required this.settingsStore,
+    required this.sharedPreferences,
   })  : cakePayVendors = [],
+        _openedCards = ObservableSet.of(
+          sharedPreferences.getStringList(_openedCardsKey) ?? const <String>[],
+        ),
         userCards = [],
         availableCountries = ObservableList<Country>.of(Country.allForCakePay),
         page = 1,
@@ -52,6 +58,24 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   final CakePayService cakePayService;
   final SettingsStore settingsStore;
+  final SharedPreferences sharedPreferences;
+
+  static const _openedCardsKey = 'cake_pay_opened_cards';
+
+  /// Keys of the cards whose details were revealed at least once.
+  final ObservableSet<String> _openedCards;
+
+  static String _cardKey(CakePayUserCard card) => '${card.orderId}:${card.cardId}:${card.unitIndex}';
+
+  bool isNewCard(CakePayUserCard card) => !_openedCards.contains(_cardKey(card));
+
+  Future<void> _markOpened(CakePayUserCard card) async {
+    if (!_openedCards.add(_cardKey(card))) {
+      return;
+    }
+
+    await sharedPreferences.setStringList(_openedCardsKey, _openedCards.toList());
+  }
 
   Map<String, List<FilterItem>> get createFilterItems => {
         'Card Type': [
@@ -90,7 +114,7 @@ abstract class CakePayCardsListViewModelBase with Store {
   String? username;
 
   @observable
-  List<CakePayCard> userCards;
+  List<CakePayUserCard> userCards;
 
   @observable
   String searchMyCardsString;
@@ -147,7 +171,7 @@ abstract class CakePayCardsListViewModelBase with Store {
       settingsStore.selectedCakePayCountry == null && availableCountries.isNotEmpty;
 
   @computed
-  List<CakePayCard> get filteredUserCards {
+  List<CakePayUserCard> get filteredUserCards {
     final query = searchMyCardsString.trim().toLowerCase();
     if (query.isEmpty) return userCards;
     return userCards
@@ -163,37 +187,153 @@ abstract class CakePayCardsListViewModelBase with Store {
         displayCustomValueCards != _initialDisplayCustomValueCards;
   }
 
-  Future<void> getUserCards() async {
-    //Dummy user cards // TODO: fetch from API
-    userCardState = UserCakePayCardsStateFetching();
+  @action
+  Future<void> getUserCards({bool showLoading = true}) async {
+    final isLogged = await cakePayService.isLogged();
+
+    if (!isLogged) {
+      userCards = [];
+      userCardState = UserCakePayCardsStateInitial();
+      return;
+    }
+
+    if (showLoading) {
+      userCardState = UserCakePayCardsStateFetching();
+    }
+
     try {
-      await Future.delayed(const Duration(seconds: 2));
-      final vendorsCard = cakePayVendors
-          .where((vendor) => vendor.card != null)
-          .map((vendor) => vendor.card!)
-          .toList();
-      userCards = vendorsCard.sublist(0, 10);
+      userCards = await cakePayService.getUserCards();
 
-      vendorsCard.forEach((card) {
-        if (card.name.toLowerCase().contains('amazon.com')) {
-          userCards.add(card);
-        }
-      });
+      userCardState =
+          userCards.isEmpty ? UserCakePayCardsStateNoCards() : UserCakePayCardsStateSuccess();
+    } on CakePayUnauthorizedException catch (e) {
+      // The service already dropped the stored session.
+      printV(e);
 
-      userCardState = UserCakePayCardsStateSuccess();
-      if (userCards.isEmpty) {
-        userCardState = UserCakePayCardsStateNoCards();
-      }
+      await checkAuth();
     } catch (e) {
-      userCardState = UserCakePayCardsStateFailure(error: e.toString());
+      printV(e);
+
+      // given this function also runs in the background, only fail if on initial load
+      // otherwise a page full of cards gets wiped due to a temporary error
+      if (showLoading || userCards.isEmpty) {
+        userCardState = UserCakePayCardsStateFailure(error: e.toString());
+      }
+    }
+  }
+
+  static const _userCardsPollInterval = Duration(seconds: 5);
+
+  Timer? _userCardsTimer;
+  bool _isRefreshingUserCards = false;
+
+  /// Refreshes the user's cards in the background every [_userCardsPollInterval], so purchases
+  /// made elsewhere (another device, the web) show up. Call it only while the cards are visible.
+  void startUserCardsPolling() {
+    _userCardsTimer?.cancel();
+    _userCardsTimer = Timer.periodic(_userCardsPollInterval, (_) => _pollUserCards());
+  }
+
+  void stopUserCardsPolling() {
+    _userCardsTimer?.cancel();
+    _userCardsTimer = null;
+  }
+
+  Future<void> _pollUserCards() async {
+    final isLoaded = userCardState is UserCakePayCardsStateSuccess ||
+        userCardState is UserCakePayCardsStateNoCards;
+
+    if (!isLoaded) {
+      return refreshUserCards();
+    }
+
+    if (_isRefreshingUserCards) {
+      return;
+    }
+
+    _isRefreshingUserCards = true;
+
+    try {
+      final knownOrderIds = userCards.map((card) => card.orderId).toSet();
+
+      final latestUserCards = await cakePayService.getLatestUserCards();
+      final hasNewCards = latestUserCards.any((card) => !knownOrderIds.contains(card.orderId));
+
+      // There is a purchase we don't have yet, call the full fetch (every page)
+      if (hasNewCards) {
+        await getUserCards(showLoading: false);
+      }
+    } on CakePayUnauthorizedException catch (e) {
+      printV(e);
+      await checkAuth();
+    } catch (e) {
+      printV(e);
+    } finally {
+      _isRefreshingUserCards = false;
+    }
+  }
+
+  /// Silently re-fetches the user's cards, skipping if a refresh is already in flight.
+  Future<void> refreshUserCards() async {
+    if (_isRefreshingUserCards) {
+      return;
+    }
+
+    _isRefreshingUserCards = true;
+    try {
+      await getUserCards(showLoading: false);
+    } finally {
+      _isRefreshingUserCards = false;
+    }
+  }
+
+  /// Runs the VPN/location checks and reveals the codes of [card].
+  Future<CakePayRedemptionState> redeem(CakePayUserCard card) async {
+    try {
+      final redemption = await cakePayService.redeem(redemptionToken: card.redemptionToken);
+
+      if (!redemption.allowed) {
+        return CakePayRedemptionStateBlocked(
+          message: redemption.message ?? S.current.cakepay_redemption_unavailable,
+          reason: redemption.blockReason,
+        );
+      }
+
+      final voucher = card.voucherFrom(redemption.vouchers);
+      if (voucher == null) {
+        return CakePayRedemptionStateBlocked(message: S.current.cakepay_no_gift_code_returned);
+      }
+
+      await _markOpened(card);
+
+      return CakePayRedemptionStateSuccess(voucher: voucher);
+    } on CakePayUnauthorizedException catch (e) {
+      printV(e);
+
+      await checkAuth();
+
+      return CakePayRedemptionStateFailure(error: e.toString());
+    } catch (e) {
+      printV(e);
+
+      return CakePayRedemptionStateFailure(error: e.toString());
     }
   }
 
   @action
   Future<void> checkAuth() async {
+    final wasLogged = isUserAuthenticated;
     final logged = await cakePayService.isLogged();
     username = logged ? await cakePayService.getUserEmail() : null;
     authFuture = ObservableFuture.value(logged);
+
+    // Cards are only fetched while logged in, so (re)load them when the session changes.
+    if (logged && wasLogged == false) {
+      await getUserCards();
+    } else if (!logged && wasLogged == true) {
+      userCards = [];
+      userCardState = UserCakePayCardsStateInitial();
+    }
   }
 
   @action

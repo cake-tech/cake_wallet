@@ -3,19 +3,35 @@ import 'dart:convert';
 import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_credentials.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CakePayApi {
-  static const testBaseUri = false; //FeatureFlag.hasDevOptions;
+  /// Only non-production builds can pick the server; production always uses the prod one.
+  static const canSelectServer = FeatureFlag.hasDevOptions;
+
+  static const useStagingPreferencesKey = 'cake_pay_use_staging_server';
+
+  static bool useStaging = canSelectServer;
+
+  static void loadServerChoice(SharedPreferences preferences) {
+    useStaging = canSelectServer && (preferences.getBool(useStagingPreferencesKey) ?? true);
+  }
+
+  static Future<void> saveServerChoice(SharedPreferences preferences, bool staging) async {
+    useStaging = canSelectServer && staging;
+    await preferences.setBool(useStagingPreferencesKey, useStaging);
+  }
 
   static const baseTestCakePayUri = 'api-stg.cakepay.com';
   static const baseProdCakePayUri = 'api-prod.cakepay.com';
 
-  static const baseCakePayUri = testBaseUri ? baseTestCakePayUri : baseProdCakePayUri;
+  static String get baseCakePayUri => useStaging ? baseTestCakePayUri : baseProdCakePayUri;
 
   static const vendorsPath = '/api/marketplace/vendors';
   static const authPath = '/api/accounts/auth';
@@ -23,6 +39,8 @@ class CakePayApi {
   static final logoutPath = '/api/accounts/logout';
   static final orderPath = '/api/orders/order';
   static final simulatePaymentPath = '/api/orders/simulate-payment';
+  static final myOrdersPath = '/api/orders/my_orders/';
+  static final redemptionPath = '/api/orders/redemption';
 
   /// AuthenticateUser
   Future<String> authenticateUser({required String email, required String apiKey}) async {
@@ -185,6 +203,73 @@ class CakePayApi {
     final bodyJson = json.decode(response.body) as Map<String, dynamic>;
 
     return CakePayOrder.fromMap(bodyJson);
+  }
+
+  /// Get one page of the user's orders (20 per page, newest first).
+  ///
+  /// Returns the raw order maps together with whether another page is available.
+  Future<({List<Map<String, dynamic>> orders, bool hasNextPage})> getMyOrders({
+    required String token,
+    required int page,
+  }) async {
+    final uri = Uri.https(baseCakePayUri, myOrdersPath, {'page': page.toString()});
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Token $token',
+    };
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+
+    if (response.statusCode == 401) {
+      throw const CakePayUnauthorizedException();
+    }
+
+    if (response.statusCode != 200) {
+      throw CakePayApiException('Unexpected http status: ${response.statusCode}');
+    }
+
+    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+
+    return (
+      orders: (bodyJson['results'] as List).cast<Map<String, dynamic>>(),
+      hasNextPage: bodyJson['next'] != null,
+    );
+  }
+
+  /// Run the security checks and, unless [checkOnly], reveal the codes of an order.
+  ///
+  /// A blocked redemption (403) is returned as a [CakePayRedemption] with `allowed == false`
+  /// rather than thrown, so the server's message can be shown as is.
+  Future<CakePayRedemption> getRedemption({
+    required String redemptionToken,
+    required String token,
+    bool checkOnly = false,
+  }) async {
+    final uri = Uri.https(
+      baseCakePayUri,
+      '$redemptionPath/$redemptionToken/',
+      checkOnly ? {'check_only': 'true'} : null,
+    );
+    final headers = {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization': 'Token $token',
+    };
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+
+    if (response.statusCode == 401) {
+      throw const CakePayUnauthorizedException();
+    }
+
+    if (response.statusCode == 404) {
+      throw const CakePayRedemptionLinkInvalidException();
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 403) {
+      throw CakePayApiException('Unexpected http status: ${response.statusCode}');
+    }
+
+    return CakePayRedemption.fromMap(json.decode(response.body) as Map<String, dynamic>);
   }
 
   ///Simulate Payment

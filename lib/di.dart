@@ -1485,17 +1485,27 @@ Future<void> setup({
   getIt.registerFactoryParam<FullscreenQRPage, QrViewData, void>(
       (QrViewData viewData, _) => FullscreenQRPage(qrViewData: viewData));
 
-  getIt.registerFactory(() => CakePayApi());
+  getIt.registerFactory(() {
+    CakePayApi.loadServerChoice(getIt.get<SharedPreferences>());
+    return CakePayApi();
+  });
 
   getIt.registerFactory(() => AnyPayApi());
 
   getIt.registerFactory<CakePayService>(
       () => CakePayService(getIt.get<SecureStorage>(), getIt.get<CakePayApi>()));
 
-  getIt.registerFactory(() => CakePayCardsListViewModel(
-      cakePayService: getIt.get<CakePayService>(), settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerFactory(
+    () => CakePayCardsListViewModel(
+      cakePayService: getIt.get<CakePayService>(),
+      settingsStore: getIt.get<SettingsStore>(),
+      sharedPreferences: getIt.get<SharedPreferences>(),
+    ),
+  );
 
-  getIt.registerFactory(() => CakePayAuthViewModel(cakePayService: getIt.get<CakePayService>()));
+  getIt.registerFactory(() => CakePayAuthViewModel(
+      cakePayService: getIt.get<CakePayService>(),
+      sharedPreferences: getIt.get<SharedPreferences>()));
 
   getIt.registerFactoryParam<CakePayBuyCardViewModel, CakePayVendor, void>(
       (CakePayVendor vendor, _) {
