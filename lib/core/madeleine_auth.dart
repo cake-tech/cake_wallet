@@ -57,7 +57,7 @@ class MadeleineAuth {
     headers["X-Madeleine-Mac"] = hmac;
 
     if (useSandbox) {
-      headers["x-madeleine-sandbox"] = "true";
+      headers["X-Madeleine-Sandbox"] = "true";
     }
 
     return headers;
@@ -83,7 +83,7 @@ class MadeleineAuth {
     headers["X-Madeleine-Wallet"] = walletAddress;
 
     if (useSandbox) {
-      headers["x-madeleine-sandbox"] = "true";
+      headers["X-Madeleine-Sandbox"] = "true";
     }
 
     return headers;
