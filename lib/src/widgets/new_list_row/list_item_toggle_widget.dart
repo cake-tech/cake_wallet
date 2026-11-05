@@ -15,6 +15,7 @@ class ListItemToggleWidget extends StatefulWidget {
     this.leadingEndWidget,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.isLoading = false,
   });
 
   final String keyValue;
@@ -26,6 +27,7 @@ class ListItemToggleWidget extends StatefulWidget {
   final Widget? leadingEndWidget;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final bool isLoading;
 
   @override
   State<ListItemToggleWidget> createState() => _ListItemToggleWidgetState();
@@ -42,9 +44,11 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
     return ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
-        onTap: () {
-          widget.onChanged(!widget.value);
-        },
+        onTap: widget.isLoading
+            ? null
+            : () {
+                widget.onChanged(!widget.value);
+              },
         builder: (context, textStyle, labelStyle) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,8 +57,12 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                 child: Row(
                   spacing: 8,
                   children: [
-                    if(widget.iconPath != null && widget.iconPath!.isNotEmpty)
-                    CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24,),
+                    if (widget.iconPath != null && widget.iconPath!.isNotEmpty)
+                      CakeImageWidget(
+                        imageUrl: widget.iconPath,
+                        width: 24,
+                        height: 24,
+                      ),
                     Flexible(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -78,6 +86,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
               ),
               StandardSwitch(
                 value: widget.value,
+                isLoading: widget.isLoading,
                 onTapped: () {
                   widget.onChanged(!widget.value);
                 },

@@ -265,6 +265,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       largeQrMode: _largeQrMode,
                       showAccountsButton: widget.addressListViewModel.hasAddressList,
                       showLabelButton: widget.addressListViewModel.hasAddressList && !hasLabel,
+                      hasTokensList: widget.addressListViewModel.hasTokensList,
                       copyData: widget.addressListViewModel.hasPayjoin
                           ? null
                           : ClipboardData(

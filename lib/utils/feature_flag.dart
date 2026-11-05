@@ -17,4 +17,5 @@ class FeatureFlag {
   static const bool duressPinEnabled = true;
   static const bool isEVMChainSwitcherEnabled = false;
   static const bool isAutomaticNodeSwitchingEnabled = false;
+  static const bool isSparkTokensEnabled = true; // TODO(rafael): revert to false before commit
 }

@@ -116,13 +116,14 @@ class _CardCustomizerState extends State<CardCustomizer> {
 
   bool _showIconStylePanel(CardCustomizerState state) {
     final design = state.availableDesigns[state.selectedDesignIndex];
-    return design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
-        state.availableIconPaths.isNotEmpty;
+    return design.backgroundType != CardDesignBackgroundTypes.gradientOnly &&
+        state.availableIconPaths.length > 1;
   }
 
   CardDesign _cardStylePreviewDesign(CardCustomizerState state, int index) {
     var design = state.availableDesigns[index].withGradient(state.selectedColor);
-    if (design.backgroundType == CardDesignBackgroundTypes.svgIcon &&
+    if (index == state.selectedDesignIndex &&
+        design.backgroundType != CardDesignBackgroundTypes.gradientOnly &&
         state.availableIconPaths.isNotEmpty) {
       design = design.withIcon(state.availableIconPaths[state.selectedIconIndex]);
     }
@@ -309,76 +310,10 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                   ),
                                 ),
                                 child: _showIconStylePanel(state)
-                                    ? Column(
+                                    ? _IconStylePicker(
                                         key: const ValueKey("icon_style_panel"),
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const SizedBox(height: 8),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                                            child: Column(
-                                              spacing: 8,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(S.of(context).icon_style),
-                                                SizedBox(
-                                                  height: 48,
-                                                  child: ListView.separated(
-                                                    scrollDirection: Axis.horizontal,
-                                                    itemCount: state.availableIconPaths.length,
-                                                    separatorBuilder: (context, _) =>
-                                                        const SizedBox(width: 8),
-                                                    itemBuilder: (context, index) {
-                                                      final icon = state.availableIconPaths[index];
-                                                      final isSelected =
-                                                          index == state.selectedIconIndex;
-                                                      return GestureDetector(
-                                                        onTap: () {
-                                                          context
-                                                              .read<CardCustomizerBloc>()
-                                                              .add(IconStyleSelected(index));
-                                                        },
-                                                        child: AnimatedContainer(
-                                                          duration:
-                                                              const Duration(milliseconds: 200),
-                                                          width: 48,
-                                                          height: 48,
-                                                          decoration: BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(18),
-                                                            color: Theme.of(context).brightness ==
-                                                                    Brightness.light
-                                                                ? Theme.of(context)
-                                                                    .colorScheme
-                                                                    .onSurfaceVariant
-                                                                    .withAlpha(64)
-                                                                : Theme.of(context)
-                                                                    .colorScheme
-                                                                    .surfaceContainerHigh,
-                                                            border: Border.all(
-                                                              color: isSelected
-                                                                  ? Theme.of(context)
-                                                                      .colorScheme
-                                                                      .onSurface
-                                                                  : Colors.transparent,
-                                                              width: 2,
-                                                            ),
-                                                          ),
-                                                          child: Padding(
-                                                            padding: const EdgeInsets.all(10),
-                                                            child: CakeImageWidget(
-                                                              imageUrl: icon.path,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                        iconPaths: state.availableIconPaths,
+                                        selectedIndex: state.selectedIconIndex,
                                       )
                                     : const SizedBox.shrink(key: ValueKey("icon_style_hidden")),
                               ),
@@ -399,7 +334,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                                         width: double.infinity,
                                         child: Wrap(
                                           direction: Axis.horizontal,
-                                          spacing: 4,
+                                          spacing: 4, // space between items in a row
                                           runSpacing: 8,
                                           children: List.generate(
                                             state.availableColors.length,
@@ -532,5 +467,70 @@ class _CardCustomizerState extends State<CardCustomizer> {
             );
           },
         ),
+      );
+}
+
+/// The "Icon style" row under the card style list. Only shown when the selected card style has
+/// more than one icon to pick from (see [_CardCustomizerState._showIconStylePanel]).
+class _IconStylePicker extends StatelessWidget {
+  const _IconStylePicker({required this.iconPaths, required this.selectedIndex, super.key});
+
+  final List<CardIconPath> iconPaths;
+  final int selectedIndex;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              spacing: 8,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(S.of(context).icon_style),
+                SizedBox(
+                  height: 48,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: iconPaths.length,
+                    separatorBuilder: (context, _) => const SizedBox(width: 8),
+                    itemBuilder: (context, index) {
+                      final isSelected = index == selectedIndex;
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<CardCustomizerBloc>().add(IconStyleSelected(index));
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            color: Theme.of(context).brightness == Brightness.light
+                                ? Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(64)
+                                : Theme.of(context).colorScheme.surfaceContainerHigh,
+                            border: Border.all(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: CakeImageWidget(imageUrl: iconPaths[index].displayPath),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       );
 }

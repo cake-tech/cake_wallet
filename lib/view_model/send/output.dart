@@ -218,6 +218,11 @@ abstract class OutputBase with Store {
       }
     } catch (e) {
       printV(e.toString());
+      final feeCurrency = cryptoCurrencyHandler();
+
+      if (estimatedFee.currency != feeCurrency) {
+        estimatedFee = Money.zero(feeCurrency);
+      }
     }
   }
 

@@ -74,6 +74,7 @@ void main() {
     when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
     when(() => wallet.hasAccountsSupport).thenReturn(false);
     when(() => wallet.hasCoinControl).thenReturn(false);
+    when(() => wallet.hasLightningSupport).thenReturn(false);
     when(() => wallet.name).thenReturn("My Cake Wallet");
     when(() => wallet.hardwareWalletType).thenReturn(null);
   });

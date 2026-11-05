@@ -18,6 +18,8 @@ import "package:cake_wallet/tron/tron.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:collection/collection.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cake_wallet/entities/conversion_status.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/transaction_direction.dart";
@@ -53,6 +55,19 @@ String _moneroRecipientAddressForDisplay(String raw, WalletType walletType) {
 bool isLightning(TransactionInfo tx) => (tx.additionalInfo["isLightning"] as bool?) ?? false;
 
 bool hasLightningPreimage(TransactionInfo tx) => (tx.additionalInfo["preimage"] as String?) != null;
+
+ConversionStatus? conversionStatusOf(TransactionInfo tx) =>
+    ConversionStatusUtils.fromAdditionalInfo(tx.additionalInfo);
+
+String conversionStatusLabel(ConversionStatus status) => switch (status) {
+      ConversionStatus.pending => S.current.conversion_converting,
+      ConversionStatus.failed => S.current.conversion_failed,
+      ConversionStatus.refundNeeded => S.current.conversion_refund_needed,
+      ConversionStatus.refunded => S.current.conversion_refunded,
+      // A completed conversion is never shown as its own detail row - it's indistinguishable
+      // from any other settled payment by that point.
+      ConversionStatus.completed => "",
+    };
 
 class TxDetailRowDefinition {
   TxDetailRowDefinition({
@@ -225,6 +240,15 @@ class TxDetailRowDefinition {
       title: S.current.transaction_details_transaction_id,
       valueGetter: (vm) => vm.transactionInfo.txHash,
     ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_conversion_status_key",
+      title: S.current.conversion_status_title,
+      valueGetter: (vm) {
+        final status = conversionStatusOf(vm.transactionInfo);
+        return status != null ? conversionStatusLabel(status) : "";
+      },
+      applicable: (vm) => conversionStatusOf(vm.transactionInfo) != null,
+    ),
   ];
 }
 
@@ -284,6 +308,14 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
   }
 
+  bool get canRequestConversionRefund =>
+      conversionStatusOf(transactionInfo) == ConversionStatus.refundNeeded;
+
+  Future<bool> requestConversionRefund() async {
+    if (wallet.type != WalletType.bitcoin) return false;
+    return bitcoin!.refundPendingConversions(wallet);
+  }
+
   void updateNote(String note) {
     final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
     final description = transactionDescriptionBox.values.firstWhere(
@@ -302,8 +334,8 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String get note {
     final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
-    final description = transactionDescriptionBox.values
-      .firstWhereOrNull((val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+    final description = transactionDescriptionBox.values.firstWhereOrNull(
+      (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
     );
     return description?.transactionNote ?? "";
   }
@@ -328,6 +360,15 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
 
     if (isLightning(transactionInfo)) {
+      // A Spark token payment also sets isLightning (every payment from the Breez/Spark side of
+      // the wallet carries it) - check tokenIdentifier first so it isn't mislabeled as a plain
+      // BTC/Lightning payment (same fix as history_section.dart's asset resolution).
+      final tokenIdentifier = transactionInfo.additionalInfo["tokenIdentifier"] as String?;
+      if (tokenIdentifier != null) {
+        final token = (bitcoin?.getSparkTokenCurrencies(wallet) ?? const <CryptoCurrency>[])
+            .firstWhereOrNull((c) => bitcoin?.getSparkTokenIdentifier(c) == tokenIdentifier);
+        if (token != null) return token;
+      }
       return CryptoCurrency.btcln;
     }
 
@@ -340,16 +381,21 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   @computed
-  String get transactionAmount =>
-      _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.amount);
+  String get transactionAmount => _appStore.amountParsingProxy
+      .asDisplayStringWithSymbol(_inTransactionAsset(transactionInfo.amount));
 
   @computed
-  String get feeAmount =>
-      _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.fee!);
+  String get feeAmount => _appStore.amountParsingProxy
+      .asDisplayStringWithSymbol(_inTransactionAsset(transactionInfo.fee!));
 
   @computed
   String get transactionCopyAmount =>
-      _appStore.amountParsingProxy.asDisplayString(transactionInfo.amount);
+      _appStore.amountParsingProxy.asDisplayString(_inTransactionAsset(transactionInfo.amount));
+
+  /// A live-received Spark token payment can carry `btcln` as its currency (see [transactionAsset]),
+  /// so re-denominate by the resolved asset or a 1 USDB payment reads as "1000000 sats".
+  Money _inTransactionAsset(Money money) =>
+      wallet.type == WalletType.bitcoin ? Money(money.amount, transactionAsset) : money;
 
   // TODO(malik1004x): integrate these getters with the TransactionInfo object
   String get formattedPendingStatus {

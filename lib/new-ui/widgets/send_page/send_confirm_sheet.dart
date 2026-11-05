@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import "package:cake_wallet/new-ui/widgets/send_page/generating_transaction_overlay.dart";
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
+import "package:cake_wallet/new-ui/widgets/send_page/spark_stable_balance_conversion_details.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
@@ -147,18 +148,11 @@ class SendTransactionDetails extends StatelessWidget {
                 leadingWidget: Row(
                   spacing: 8,
                   children: [
-                    if (resolvedIconPath.toLowerCase().endsWith(".svg"))
-                      CakeImageWidget(
-                        imageUrl: resolvedIconPath,
-                        width: 28,
-                        height: 28,
-                      )
-                    else
-                      Image.asset(
-                        resolvedIconPath,
-                        width: 28,
-                        height: 28,
-                      ),
+                    CakeImageWidget(
+                      imageUrl: resolvedIconPath,
+                      width: 28,
+                      height: 28,
+                    ),
                     Semantics(
                       header: true,
                       // Android reads the heading from headingLevel since the
@@ -204,8 +198,16 @@ class SendTransactionDetails extends StatelessWidget {
       final transaction = sendViewModel.pendingTransaction;
       final additionalCostNotice = sendViewModel.pendingTransactionAdditionalCostNotice;
 
-      final currencySymbol =
-          sendViewModel.amountParsingProxy.getCryptoSymbol(sendViewModel.selectedCryptoCurrency);
+      // Spark: Set when Stable Balance funds this Lightning send by converting from the stablecoin.
+      // The amount and fee are then sats, whatever currency the send page had selected.
+      final conversion =
+          transaction == null ? null : bitcoin?.getLightningSendConversion(transaction);
+
+      final currencySymbol = sendViewModel.amountParsingProxy.getCryptoSymbol(
+          conversion != null ? CryptoCurrency.btcln : sendViewModel.selectedCryptoCurrency);
+      final feeSymbol = conversion != null
+          ? sendViewModel.amountParsingProxy.getCryptoSymbol(CryptoCurrency.btcln)
+          : sendViewModel.currencySymbol;
 
       final amount = (transaction == null)
           ? sendViewModel.amountParsingProxy.asDisplayString(sumByMoney(sendViewModel.outputs, (o) {
@@ -297,6 +299,16 @@ class SendTransactionDetails extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                           color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
+                    if (conversion != null)
+                      Text(
+                        S.of(context).stable_balance_send_paid_from(sendViewModel.amountParsingProxy
+                            .asDisplayStringWithSymbol(conversion.amountIn)),
+                        key: const ValueKey("send_confirm_stable_balance_paid_from"),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
                   ],
                 ),
               ),
@@ -368,6 +380,22 @@ class SendTransactionDetails extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
+                    if (conversion != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: SparkStableBalanceConversionDetails(
+                          conversion: conversion,
+                          formatAmount: sendViewModel.amountParsingProxy.asDisplayStringWithSymbol,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Container(
+                          height: 1,
+                          color: Theme.of(context).colorScheme.surfaceContainerHigh,
+                        ),
+                      ),
+                    ],
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: MergeSemantics(
@@ -383,7 +411,7 @@ class SendTransactionDetails extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  "${fee.withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currencySymbol}",
+                                  "${fee.withLocalSeperator(sendViewModel.languageCode)} $feeSymbol",
                                   style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w400,
@@ -442,7 +470,9 @@ class SendTransactionDetails extends StatelessWidget {
                               Column(
                                 children: [
                                   Text(
-                                      sendViewModel.selectedCryptoCurrency == CryptoCurrency.btcln
+                                      sendViewModel.selectedCryptoCurrency ==
+                                                  CryptoCurrency.btcln ||
+                                              conversion != null
                                           ? "Lightning"
                                           : bitcoin!.getNetworkName(sendViewModel.wallet),
                                       style: TextStyle(

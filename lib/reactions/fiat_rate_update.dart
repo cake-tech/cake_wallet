@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/evm/evm.dart';
@@ -33,6 +34,17 @@ Future<void> startFiatRateUpdate(
               fiat: settingsStore.fiatCurrency,
               torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
 
+      // CryptoCurrency.btcln is a distinct currency from wallet.currency (CryptoCurrency.btc for
+      // a Bitcoin wallet), so the fetch above never covers it - without this, a Lightning balance
+      // silently prices at $0 wherever it's summed (e.g. BalanceViewModel.combinedFiatBalance),
+      // same value as BTC/Lightning being genuinely worth nothing.
+      if (appStore.wallet!.type == WalletType.bitcoin && appStore.wallet!.hasLightningSupport) {
+        fiatConversionStore.prices[CryptoCurrency.btcln] = await FiatConversionService.fetchPrice(
+            crypto: CryptoCurrency.btcln,
+            fiat: settingsStore.fiatCurrency,
+            torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+      }
+
       Iterable<CryptoCurrency>? currencies;
       if (isEVMCompatibleChain(appStore.wallet!.type)) {
         currencies = evm!.getERC20Currencies(appStore.wallet!).where((element) => element.enabled);
@@ -46,6 +58,11 @@ Future<void> startFiatRateUpdate(
       if (appStore.wallet!.type == WalletType.tron) {
         currencies =
             tron!.getTronTokenCurrencies(appStore.wallet!).where((element) => element.enabled);
+      }
+
+      if (appStore.wallet!.type == WalletType.bitcoin) {
+        currencies = (bitcoin?.getSparkTokenCurrencies(appStore.wallet!) ?? const [])
+            .where((element) => element.enabled);
       }
 
       if (currencies != null) {

@@ -102,7 +102,20 @@ class HomeSettingsPage extends BasePage {
                           if (res != null && res is CryptoCurrency) {
                             _homeSettingsViewModel.setFavoriteToken(res);
                           }
-                        })
+                        }),
+                  if (_homeSettingsViewModel.showStableBalanceToggle)
+                    ListItemRegularRow(
+                        keyValue: "configure stable balance",
+                        label: S.of(context).configure_stable_balance,
+                        subtitle: S.of(context).stable_balance_description,
+                        showArrow: true,
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            Routes.sparkSettingsPage,
+                            arguments: _homeSettingsViewModel.balanceViewModel,
+                          );
+                        }),
                 ]
               }),
             ),
