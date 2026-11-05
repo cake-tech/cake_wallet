@@ -185,6 +185,7 @@ class HomeSettingsPage extends BasePage {
                           },
                           leading: TokenImageWidget(
                             imageUrl: token.iconPath ?? '',
+                            networkImageUrl: token.networkIconUrl,
                             size: 40,
                             errorWidget: Container(
                               height: 30.0,

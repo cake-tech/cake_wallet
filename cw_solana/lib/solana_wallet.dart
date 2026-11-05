@@ -9,6 +9,7 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
+import "package:cw_core/token_icon_refresh.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/homoglyph_normalizer.dart';
@@ -40,7 +41,7 @@ class SolanaWallet = SolanaWalletBase with _$SolanaWallet;
 
 abstract class SolanaWalletBase
     extends WalletBase<SolanaBalance, SolanaTransactionHistory, SolanaTransactionInfo>
-    with Store, WalletKeysFile {
+    with Store, WalletKeysFile, TokenIconRefresh<SPLToken> {
   SolanaWalletBase({
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
@@ -168,11 +169,29 @@ abstract class SolanaWalletBase
       );
       if (suspicious && !token.isPotentialScam) {
         token.isPotentialScam = true;
+        token.networkIconUrl = null;
         await token.save();
       }
     }
 
     await prefs.setBool(_scamCheckDoneKey, true);
+  }
+
+  @override
+  Future<String?> fetchTokenIconUrl(SPLToken token) async =>
+      (await _client.getTokenInfo(token.mintAddress))?.iconPath;
+
+  @override
+  Future<void> saveTokenIconUrl(SPLToken token, String iconUrl) async {
+    final updatedRows =
+        await SPLToken.updateNetworkIconUrl(walletInfo.name, token.mintAddress, iconUrl);
+
+    final cachedToken = _findCachedToken(token.mintAddress);
+    if (updatedRows == 0 || cachedToken == null) {
+      return;
+    }
+
+    cachedToken.networkIconUrl = iconUrl;
   }
 
   Future<SolanaPrivateKey> getPrivateKey({
@@ -799,11 +818,13 @@ abstract class SolanaWalletBase
         token,
         enabled: existingToken?.enabled ?? token.enabled,
         walletName: walletInfo.name,
-      );
+      )..networkIconUrl = existingToken?.networkIconUrl;
 
       await newToken.save();
       _upsertCachedToken(newToken);
     }
+
+    unawaited(refreshTokenIcons(_splTokens));
   }
 
   Future<SolanaMoralisDiscoveryResult> discoverTokensFromMoralis() async {

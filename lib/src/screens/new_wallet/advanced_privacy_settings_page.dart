@@ -271,6 +271,13 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                       widget.privacySettingsViewModel.setDisableBulletin(value);
                     },
                   ),
+                  SettingsSwitcherCell(
+                    title: S.current.disable_token_image_refresh,
+                    value: widget.privacySettingsViewModel.disableTokenImageRefresh,
+                    onValueChange: (BuildContext _, bool value) {
+                      widget.privacySettingsViewModel.setDisableTokenImageRefresh(value);
+                    },
+                  ),
                   if (widget.privacySettingsViewModel.canUseBlinkProtection)
                     SettingsSwitcherCell(
                       title: S.current.use_blink_protection,
