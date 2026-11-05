@@ -5,6 +5,7 @@ import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/pages/verify_ledger_address.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type.dart";
@@ -20,9 +21,13 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_token_display.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/tron/tron.dart";
 import "package:cake_wallet/utils/share_util.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/receive_option_view_model.dart";
+import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart";
 import "package:cake_wallet/zcash/zcash.dart";
@@ -30,6 +35,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/payment_uris.dart";
 import "package:cw_core/receive_page_option.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -64,6 +70,7 @@ class NewReceivePage extends StatefulWidget {
 
 class _NewReceivePageState extends State<NewReceivePage> {
   bool _largeQrMode = false;
+  bool _verifyHardwareAddressBusy = false;
   late WalletAddressListItem? _addressItemWithLabel;
 
   @override
@@ -74,15 +81,17 @@ class _NewReceivePageState extends State<NewReceivePage> {
       if (widget.lightningMode) {
         widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
         widget.receiveOptionViewModel.selectReceiveOption(
-          widget.receiveOptionViewModel.options
-                  .firstWhereOrNull((item) => item.value.contains("Lightning")) ??
+          widget.receiveOptionViewModel.options.firstWhereOrNull(
+                (item) => item.value.contains("Lightning"),
+              ) ??
               ReceivePageOption.mainnet,
         );
         widget.addressListViewModel.selectedCurrency = CryptoCurrency.btcln;
       } else if (widget.addressListViewModel.wallet.type == WalletType.bitcoin) {
         widget.receiveOptionViewModel.selectReceiveOption(
-          widget.receiveOptionViewModel.options
-                  .firstWhereOrNull((item) => item.value.contains("Standard")) ??
+          widget.receiveOptionViewModel.options.firstWhereOrNull(
+                (item) => item.value.contains("Standard"),
+              ) ??
               ReceivePageOption.mainnet,
         );
         widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
@@ -91,10 +100,13 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
     reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
 
-    _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
-      (item) =>
-          item is WalletAddressListItem && item.address == widget.addressListViewModel.uri.address,
-    ) as WalletAddressListItem?;
+    _addressItemWithLabel =
+        widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
+              (item) =>
+                  item is WalletAddressListItem &&
+                  item.address == widget.addressListViewModel.uri.address,
+            )
+            as WalletAddressListItem?;
 
     reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
       // The infobox depends on the selected address type, so the page has to be
@@ -116,8 +128,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
         return;
       }
 
-      if ([WalletType.bitcoin, WalletType.litecoin]
-          .contains(widget.addressListViewModel.type)) {
+      if ([WalletType.bitcoin, WalletType.litecoin].contains(widget.addressListViewModel.type)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
       }
       if (widget.addressListViewModel.type == WalletType.zcash) {
@@ -134,8 +145,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
     final infoboxDismissed = widget.addressListViewModel.wallet.walletInfo.receiveInfoboxDismissed;
     final infobox = ReceiveInfoBox.forWalletType(
       widget.addressListViewModel.type,
-      supportedCurrencies:
-          widget.addressListViewModel.tokenCurrencies.whereType<CryptoCurrency>().toList(),
+      supportedCurrencies: widget.addressListViewModel.tokenCurrencies
+          .whereType<CryptoCurrency>()
+          .toList(),
       onDismissed: () {
         widget.addressListViewModel.dismissInfobox();
         setState(() {});
@@ -173,7 +185,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
               trailingWidget: Observer(
                 builder: (_) => AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  child: _largeQrMode ||
+                  child:
+                      _largeQrMode ||
                           widget.addressListViewModel.hasAddressRotation
                               /* TODO rotating is broken on mweb, disabling for now, fix after mvp*/
                               &&
@@ -187,8 +200,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           icon: _largeQrMode
                               ? const Icon(Icons.share)
                               : widget.addressListViewModel.isRotatingAddress
-                                  ? const CupertinoActivityIndicator()
-                                  : const Icon(Icons.refresh),
+                              ? const CupertinoActivityIndicator()
+                              : const Icon(Icons.refresh),
                           semanticLabel: _largeQrMode
                               ? S.of(context).share_address
                               : S.of(context).rotate_address,
@@ -239,6 +252,17 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     ),
                   ReceiveAddressWidget(
                     addressListViewModel: widget.addressListViewModel,
+                    showVerifyAddressButton:
+                        widget.addressListViewModel.wallet.type == WalletType.tron &&
+                        widget.addressListViewModel.wallet.hardwareWalletType ==
+                            HardwareWalletType.ledger,
+                    isVerifyAddressBusy: _verifyHardwareAddressBusy,
+                    onVerifyAddressPressed:
+                        widget.addressListViewModel.wallet.type == WalletType.tron &&
+                            widget.addressListViewModel.wallet.hardwareWalletType ==
+                                HardwareWalletType.ledger
+                        ? () => _verifyHardwareAddress()
+                        : null,
                   ),
                   // The label chip animates to zero height when there is no
                   // label (or in large QR mode); keep it out of the semantics
@@ -295,10 +319,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                       },
                       onLabelButtonPressed: _showLabelModal,
                       onAccountsButtonPressed: () {
-                        Navigator.of(context).pushNamed(
-                          Routes.receiveAddresses,
-                          arguments: false,
-                        );
+                        Navigator.of(context).pushNamed(Routes.receiveAddresses, arguments: false);
                       },
                     ),
                   ),
@@ -338,6 +359,56 @@ class _NewReceivePageState extends State<NewReceivePage> {
       widget.addressListViewModel.type != WalletType.zcash ||
       zcash!.isRotatingAddressOption(widget.receiveOptionViewModel.selectedReceiveOption);
 
+  Future<void> _verifyHardwareAddress() async {
+    final wallet = widget.addressListViewModel.wallet;
+    if (!mounted || _verifyHardwareAddressBusy) {
+      return;
+    }
+
+    final isTronLedgerWallet =
+        wallet.type == WalletType.tron && wallet.hardwareWalletType == HardwareWalletType.ledger;
+    if (!isTronLedgerWallet) {
+      return;
+    }
+
+    final activeWallet = wallet;
+    final hardwareWalletVM = getIt.get<HardwareWalletViewModel>(param1: HardwareWalletType.ledger);
+    setState(() => _verifyHardwareAddressBusy = true);
+
+    try {
+      await verifyLedgerAddress(
+        wallet: wallet,
+        ensureConnected: () => hardwareWalletVM.ensureDeviceConnection(context, wallet),
+        isCurrentWallet: () => mounted && identical(widget.addressListViewModel.wallet, activeWallet),
+        verifyAddress: tron!.verifyHardwareAddress,
+      );
+      if (!mounted || !identical(widget.addressListViewModel.wallet, activeWallet)) {
+        return;
+      }
+    } catch (error) {
+      if (!mounted || !identical(widget.addressListViewModel.wallet, activeWallet)) {
+        return;
+      }
+
+      final alertMessage =
+          hardwareWalletVM.interpretErrorCode(error.toString()) ?? error.toString();
+
+      await showPopUp<void>(
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).error,
+          alertContent: alertMessage,
+          buttonText: S.of(context).close,
+          buttonAction: () => Navigator.of(context).pop(),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _verifyHardwareAddressBusy = false);
+      }
+    }
+  }
+
   void _showLabelModal() {
     showMaterialModalBottomSheet(
       context: context,
@@ -352,9 +423,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
   void _reloadAddressWithLabel(PaymentURI newAddress) {
     // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later
     setState(() {
-      _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
-        (item) => item is WalletAddressListItem && item.address == newAddress.address,
-      ) as WalletAddressListItem?;
+      _addressItemWithLabel =
+          widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
+                (item) => item is WalletAddressListItem && item.address == newAddress.address,
+              )
+              as WalletAddressListItem?;
     });
   }
 }

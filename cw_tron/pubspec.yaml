@@ -15,6 +15,10 @@ dependencies:
     path: ../cw_core
   cw_evm:
     path: ../cw_evm
+  ledger_flutter_plus:
+    git:
+      url: https://github.com/Odrin/ledger-flutter-plus
+      ref: 1b902d4babe199d7b1e7d42aa42c7895ab497850
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git

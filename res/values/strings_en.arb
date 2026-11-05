@@ -929,6 +929,7 @@
   "proceed": "Proceed",
   "proceed_after_one_minute": "If the screen doesn’t proceed after 1 minute, check your email.",
   "proceed_on_device": "Proceed on your device",
+  "verify_address_on_device": "Verify address on device",
   "proceed_on_device_description": "Please follow the instructions prompted on your hardware wallet",
   "processing": "Processing",
   "processing_signed_tx": "Processing signed transaction",

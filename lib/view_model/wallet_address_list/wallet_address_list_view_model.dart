@@ -20,6 +20,7 @@ import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/tron/tron.dart";
 import "package:cake_wallet/utils/list_item.dart";
 import "package:cake_wallet/utils/qr_util.dart";
+import "package:cake_wallet/view_model/wallet_address_list/receive_address_data.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_hidden_list_header.dart";
 import "package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart";
@@ -42,7 +43,9 @@ part "wallet_address_list_view_model.g.dart";
 
 class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletAddressListViewModel;
 
-abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
+abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel
+    with Store
+    implements ReceiveAddressData {
   WalletAddressListViewModelBase({
     required super.appStore,
     required this.fiatConversionStore,

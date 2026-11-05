@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:typed_data';
 
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
@@ -10,6 +11,7 @@ import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
+import 'package:cw_tron/hardware/tron_ledger_app.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
@@ -21,10 +23,43 @@ import 'package:flutter/services.dart';
 import '.secrets.g.dart' as secrets;
 import 'package:on_chain/on_chain.dart';
 
+class PreparedTronTransaction {
+  PreparedTronTransaction._({
+    required TransactionRaw raw,
+    required this.amount,
+    required this.ownerAddress,
+    required this.isHardware,
+  })  : _raw = Uint8List.fromList(raw.toBuffer()),
+        expiration = raw.expiration,
+        fee = Money(raw.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
+        id = raw.txID;
+
+  final Uint8List _raw;
+  final Money amount;
+  final Money fee;
+  final TronAddress ownerAddress;
+  final bool isHardware;
+  final BigInt expiration;
+  final String id;
+
+  Uint8List get rawData => Uint8List.fromList(_raw);
+
+  void ensureNotExpired() {
+    if (expiration <= BigInt.from(DateTime.now().millisecondsSinceEpoch)) {
+      throw StateError('TRON transaction expired; rebuild and sign again');
+    }
+  }
+}
+
 class TronClient {
+  TronClient({TronProvider? provider, Future<String> Function(Uint8List)? broadcast})
+      : _provider = provider,
+        _broadcast = broadcast;
+
   late final client = ProxyWrapper().getHttpIOClient();
 
   TronProvider? _provider;
+  final Future<String> Function(Uint8List)? _broadcast;
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
 
@@ -275,13 +310,41 @@ class TronClient {
     required BigInt tronBalance,
     required bool sendAll,
   }) async {
-    // Get the owner tron address from the key
-    final ownerAddress = ownerPrivKey.publicKey().toAddress();
+    final prepared = await prepareTransaction(
+      ownerAddress: ownerPrivKey.publicKey().toAddress(),
+      toAddress: toAddress,
+      amount: amount,
+      tronBalance: tronBalance,
+      sendAll: sendAll,
+    );
+    return createPendingTransaction(prepared, ownerPrivKey.sign(prepared.rawData));
+  }
 
+  Future<PreparedTronTransaction> prepareTransaction({
+    required TronAddress ownerAddress,
+    required String toAddress,
+    required Money amount,
+    required BigInt tronBalance,
+    required bool sendAll,
+    bool isHardware = false,
+  }) async {
     // Define the receiving Tron address for the transaction.
     final receiverAddress = TronAddress(toAddress);
 
     final isNativeTransaction = amount.currency == CryptoCurrency.trx;
+    if (isHardware && !isNativeTransaction) {
+      if (amount.currency is! TronToken ||
+          TronAddress((amount.currency as TronToken).contractAddress).toAddress() !=
+              'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' ||
+          amount.currency.decimals != 6) {
+        throw UnsupportedError('TRON Ledger supports only TRX and mainnet USDT');
+      }
+      final genesis = await _provider!.request(TronRequestGetBlockByNum(num: 0));
+      if (genesis['blockID'] !=
+          '00000000000000001ebf88508a03865c71d452e25f4d51194196a1d22b6653dc') {
+        throw UnsupportedError('USDT Ledger transfers require a TRON mainnet node');
+      }
+    }
 
     Money totalAmount;
     TransactionRaw rawTransaction;
@@ -323,19 +386,167 @@ class TronClient {
       );
     }
 
-    final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
-
-    sendTx() async => await sendTransaction(
-          rawTransaction: rawTransaction,
-          signature: signature,
-        );
-
-    return PendingTronTransaction(
-        signedTransaction: signature,
+    if (isHardware) {
+      return prepareHardwareTransaction(
+        raw: rawTransaction,
+        owner: ownerAddress,
+        recipient: receiverAddress,
         amount: totalAmount,
-        fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
-        sendTransaction: sendTx,
-        id: rawTransaction.txID);
+      );
+    }
+    return PreparedTronTransaction._(
+      raw: rawTransaction,
+      amount: totalAmount,
+      ownerAddress: ownerAddress,
+      isHardware: false,
+    );
+  }
+
+  PreparedTronTransaction prepareHardwareTransaction({
+    required TransactionRaw raw,
+    required TronAddress owner,
+    required TronAddress recipient,
+    required Money amount,
+  }) {
+    if (amount.currency != CryptoCurrency.trx &&
+        (amount.currency is! TronToken ||
+            TronAddress((amount.currency as TronToken).contractAddress).toAddress() !=
+                'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' ||
+            amount.currency.decimals != 6)) {
+      throw UnsupportedError('TRON Ledger supports only TRX and mainnet USDT');
+    }
+    _validateLedgerTransfer(raw, owner, recipient, amount);
+    final prepared = PreparedTronTransaction._(
+      raw: raw,
+      amount: amount,
+      ownerAddress: owner,
+      isHardware: true,
+    );
+    // Validate field framing before asking the user to approve.
+    tronLedgerTransactionChunks("m/44'/195'/0'/0/0", prepared.rawData);
+    return prepared;
+  }
+
+  void _validateLedgerTransfer(
+    TransactionRaw raw,
+    TronAddress owner,
+    TronAddress recipient,
+    Money amount,
+  ) {
+    if (raw.contract.length != 1 ||
+        raw.data != null ||
+        (raw.auths?.isNotEmpty ?? false) ||
+        raw.scripts != null ||
+        raw.refBlockBytes.length != 2 ||
+        raw.refBlockHash.length != 8 ||
+        raw.refBlockNum != null ||
+        raw.timestamp <= BigInt.zero ||
+        raw.timestamp >= raw.expiration ||
+        (raw.feeLimit ?? BigInt.zero) < BigInt.zero ||
+        amount.amount <= BigInt.zero ||
+        raw.expiration <= BigInt.from(DateTime.now().millisecondsSinceEpoch) ||
+        raw.expiration >
+            BigInt.from(DateTime.now().add(const Duration(hours: 24)).millisecondsSinceEpoch)) {
+      throw FormatException('Unsupported or expired TRON transaction fields');
+    }
+    final contract = raw.contract.single;
+    if ((contract.permissionId ?? 0) != 0 ||
+        (contract.provider?.isNotEmpty ?? false) ||
+        (contract.contractName?.isNotEmpty ?? false)) {
+      throw FormatException('Unsupported TRON contract permissions');
+    }
+    final value = contract.parameter.value;
+    if (amount.currency == CryptoCurrency.trx) {
+      if (value is! TransferContract ||
+          contract.type != value.contractType ||
+          contract.parameter.typeUrl != value.typeURL ||
+          value.ownerAddress.toAddress() != owner.toAddress() ||
+          value.toAddress.toAddress() != recipient.toAddress() ||
+          value.amount != amount.amount) {
+        throw FormatException('TRX transaction does not match the requested transfer');
+      }
+    } else {
+      final expectedData = ContractABI.fromJson(
+        trc20Abi,
+        isTron: true,
+      ).functionFromName('transfer').encodeHex([recipient, amount.amount]);
+      if (value is! TriggerSmartContract ||
+          contract.type != value.contractType ||
+          contract.parameter.typeUrl != value.typeURL ||
+          value.ownerAddress.toAddress() != owner.toAddress() ||
+          value.contractAddress.toAddress() != 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t' ||
+          (value.callValue ?? BigInt.zero) != BigInt.zero ||
+          (value.callTokenValue ?? BigInt.zero) != BigInt.zero ||
+          (value.tokenId ?? BigInt.zero) != BigInt.zero ||
+          value.data == null ||
+          BytesUtils.toHexString(value.data!).toLowerCase() !=
+              expectedData.replaceFirst('0x', '').toLowerCase()) {
+        throw FormatException('USDT transaction does not match the requested transfer');
+      }
+    }
+  }
+
+  PendingTronTransaction createPendingTransaction(
+    PreparedTronTransaction prepared,
+    List<int> signature,
+  ) {
+    final signed = Uint8List.fromList(signature);
+    if (prepared.isHardware) {
+      prepared.ensureNotExpired();
+      if (signed.length != 65 || signed.last > 1) {
+        throw FormatException('Invalid Ledger TRON signature');
+      }
+      final publicKey = TronPublicKey.fromPersonalSignature(
+        QuickCrypto.sha256Hash(prepared.rawData),
+        BytesUtils.toHexString(signed),
+        hashMessage: false,
+      );
+      if (publicKey == null ||
+          publicKey.toAddress().toAddress() != prepared.ownerAddress.toAddress()) {
+        throw FormatException('Ledger signature does not match the wallet');
+      }
+    }
+    return PendingTronTransaction(
+      signedTransaction: Uint8List.fromList(signed),
+      amount: prepared.amount,
+      fee: prepared.fee,
+      id: prepared.id,
+      sendTransaction: () async {
+        if (prepared.isHardware) prepared.ensureNotExpired();
+        return _broadcastPrepared(prepared.rawData, signed);
+      },
+    );
+  }
+
+  Future<String> _broadcastPrepared(Uint8List raw, Uint8List signature) async {
+    List<int> varint(int value) {
+      final result = <int>[];
+      while (value >= 128) {
+        result.add((value & 127) | 128);
+        value >>= 7;
+      }
+      return result..add(value);
+    }
+
+    final envelope = <int>[
+      0x0a,
+      ...varint(raw.length),
+      ...raw,
+      0x12,
+      ...varint(signature.length),
+      ...signature,
+    ];
+    try {
+      if (_broadcast != null) return await _broadcast!(Uint8List.fromList(envelope));
+      final result = await _provider!.request(
+        TronRequestBroadcastHex(transaction: BytesUtils.toHexString(envelope)),
+      );
+      if (!result.isSuccess) throw TransactionSendingException(result.error ?? '');
+      return result.txId!;
+    } catch (e) {
+      log('Send block Exception: ${e.toString()}');
+      throw TransactionSendingException(e.toString());
+    }
   }
 
   Future<TransactionRaw> _signNativeTransaction(

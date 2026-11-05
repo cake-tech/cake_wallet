@@ -122,8 +122,8 @@ dependencies:
   solana: ^0.31.0+1
   ledger_flutter_plus:
     git:
-      url: https://github.com/vespr-wallet/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      url: https://github.com/Odrin/ledger-flutter-plus
+      ref: 1b902d4babe199d7b1e7d42aa42c7895ab497850
   trezor_connect:
     git:
       url: https://github.com/cake-tech/trezor_connect
@@ -209,8 +209,8 @@ dev_dependencies:
 #   ffi: 2.1.0
 #   ledger_flutter_plus:
 #     git:
-#       url: https://github.com/cake-tech/ledger-flutter-plus
-#       ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+#       url: https://github.com/Odrin/ledger-flutter-plus
+#       ref: 1b902d4babe199d7b1e7d42aa42c7895ab497850
 #   ledger_usb_plus:
 #     git:
 #       url: https://github.com/cake-tech/ledger-usb-plus

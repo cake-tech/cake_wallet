@@ -28,6 +28,7 @@ enum DeviceConnectionType {
           WalletType.ethereum,
           WalletType.polygon,
           WalletType.zcash,
+          WalletType.tron,
         ].contains(walletType);
         break;
       case HardwareWalletType.trezor:

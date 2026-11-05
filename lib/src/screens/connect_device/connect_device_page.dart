@@ -3,10 +3,10 @@ import "dart:io";
 
 import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/base_page.dart";
+import "package:cake_wallet/src/screens/connect_device/connect_device_page_params.dart";
 import "package:cake_wallet/src/widgets/bottom_sheet/info_steps_bottom_sheet_widget.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
@@ -14,29 +14,12 @@ import "package:cake_wallet/themes/core/material_base_theme.dart";
 import "package:cake_wallet/utils/responsive_layout_util.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 
-typedef OnConnectDevice = void Function(BuildContext, HardwareWalletViewModel);
-
-class ConnectDevicePageParams {
-  const ConnectDevicePageParams({
-    required this.walletType,
-    required this.hardwareWalletType,
-    required this.onConnectDevice,
-    this.allowChangeWallet = false,
-    this.isReconnect = true,
-  });
-
-  final WalletType walletType;
-  final OnConnectDevice onConnectDevice;
-  final bool allowChangeWallet;
-  final bool isReconnect;
-  final HardwareWalletType hardwareWalletType;
-}
+export "connect_device_page_params.dart";
 
 class ConnectDevicePage extends BasePage {
   ConnectDevicePage(ConnectDevicePageParams params, this.hardwareWalletVM)
@@ -215,8 +198,8 @@ class ConnectDevicePageBodyState extends State<ConnectDevicePageBody> {
       _isConnectPressed = false;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (isConnected) {
-          widget.onConnectDevice(navigatorKey.currentContext!, widget.hardwareWalletVM);
+        if (isConnected && mounted && ModalRoute.of(context)?.isCurrent == true) {
+          widget.onConnectDevice(context, widget.hardwareWalletVM);
         }
       });
     } catch (_) {

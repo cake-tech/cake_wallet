@@ -21,6 +21,8 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
+import 'package:cw_tron/hardware/tron_ledger_app.dart';
+import 'package:cw_tron/hardware/tron_ledger_service.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
 import 'package:cw_tron/tron_client.dart';
@@ -50,16 +52,21 @@ abstract class TronWalletBase
     TronBalance? initialBalance,
     required this.encryptionFileUtils,
     this.passphrase,
+    TronClient? client,
   })  : syncStatus = const NotConnectedSyncStatus(),
         _password = password,
         _mnemonic = mnemonic,
         _hexPrivateKey = privateKey,
-        _client = TronClient(),
+        _client = client ?? TronClient(),
         walletAddresses = TronWalletAddresses(walletInfo),
         balance = ObservableMap<CryptoCurrency, TronBalance>.of(
           {CryptoCurrency.trx: initialBalance ?? TronBalance(Money.zero(CryptoCurrency.trx))},
         ),
         super(walletInfo, derivationInfo) {
+    if (walletInfo.isHardwareWallet &&
+        (mnemonic != null || privateKey != null || passphrase != null)) {
+      throw ArgumentError('TRON hardware wallets cannot contain private keys or seed material');
+    }
     this.walletInfo = walletInfo;
     transactionHistory = TronTransactionHistory(
         walletInfo: walletInfo, password: password, encryptionFileUtils: encryptionFileUtils);
@@ -75,6 +82,7 @@ abstract class TronWalletBase
   late final TronPrivateKey _tronPrivateKey;
 
   late final TronPublicKey _tronPublicKey;
+  TronLedgerService? _hardwareWalletService;
 
   TronPublicKey get tronPublicKey => _tronPublicKey;
 
@@ -113,16 +121,24 @@ abstract class TronWalletBase
 
     await walletAddresses.init();
     await transactionHistory.init();
-    _tronPrivateKey = await getPrivateKey(
-      mnemonic: _mnemonic,
-      privateKey: _hexPrivateKey,
-      password: _password,
-      passphrase: passphrase,
-    );
-
-    _tronPublicKey = _tronPrivateKey.publicKey();
-
-    _tronAddress = _tronPublicKey.toAddress().toString();
+    if (isHardwareWallet) {
+      if (walletInfo.hardwareWalletType != HardwareWalletType.ledger ||
+          derivationInfo.derivationPath == null ||
+          derivationInfo.derivationPath!.isEmpty) {
+        throw StateError('Invalid TRON hardware wallet metadata');
+      }
+      encodeTronLedgerPath(derivationInfo.derivationPath!);
+      _tronAddress = TronAddress(walletInfo.address).toAddress();
+    } else {
+      _tronPrivateKey = await getPrivateKey(
+        mnemonic: _mnemonic,
+        privateKey: _hexPrivateKey,
+        password: _password,
+        passphrase: passphrase,
+      );
+      _tronPublicKey = _tronPrivateKey.publicKey();
+      _tronAddress = _tronPublicKey.toAddress().toString();
+    }
 
     walletAddresses.address = _tronAddress;
 
@@ -134,6 +150,7 @@ abstract class TronWalletBase
     required String password,
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
+    TronClient? client,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
     final path = await pathForWallet(name: name, type: walletInfo.type);
@@ -152,7 +169,9 @@ abstract class TronWalletBase
 
     final WalletKeysData keysData;
     // Migrate wallet from the old scheme to then new .keys file scheme
-    if (!hasKeysFile) {
+    if (walletInfo.isHardwareWallet) {
+      keysData = WalletKeysData();
+    } else if (!hasKeysFile) {
       final mnemonic = data!['mnemonic'] as String?;
       final privateKey = data['private_key'] as String?;
       final passphrase = data['passphrase'] as String?;
@@ -178,6 +197,7 @@ abstract class TronWalletBase
       passphrase: keysData.passphrase,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
+      client: client,
     );
   }
 
@@ -280,7 +300,7 @@ abstract class TronWalletBase
 
   Future<int> _getNativeTxFee() async {
     try {
-      final fee = await _client.getEstimatedFee(_tronPublicKey.toAddress());
+      final fee = await _client.getEstimatedFee(TronAddress(_tronAddress));
       return fee;
     } catch (e) {
       log(e.toString());
@@ -290,7 +310,7 @@ abstract class TronWalletBase
 
   Future<int> _getTrc20TxFee() async {
     try {
-      final trc20fee = await _client.getTRCEstimatedFee(_tronPublicKey.toAddress());
+      final trc20fee = await _client.getTRCEstimatedFee(TronAddress(_tronAddress));
       return trc20fee;
     } catch (e) {
       log(e.toString());
@@ -331,6 +351,10 @@ abstract class TronWalletBase
     final tronCredentials = credentials as TronTransactionCredentials;
 
     final outputs = tronCredentials.outputs;
+    if (outputs.isEmpty) throw ArgumentError('A TRON recipient is required');
+    if (isHardwareWallet && (outputs.first.memo?.isNotEmpty ?? false)) {
+      throw UnsupportedError('TRON Ledger transfers with a memo are not supported');
+    }
 
     final hasMultiDestination = outputs.length > 1;
 
@@ -366,17 +390,30 @@ abstract class TronWalletBase
 
     final tronBalance = balance[CryptoCurrency.trx]?.balance ?? Money.zero(CryptoCurrency.trx);
 
-    final pendingTransaction = await _client.signTransaction(
-      ownerPrivKey: _tronPrivateKey,
+    final prepared = await _client.prepareTransaction(
+      ownerAddress: TronAddress(_tronAddress),
       toAddress: tronCredentials.outputs.first.isParsedAddress
           ? tronCredentials.outputs.first.extractedAddress!
           : tronCredentials.outputs.first.address,
       amount: totalAmount,
       tronBalance: tronBalance.amount,
       sendAll: shouldSendAll,
+      isHardware: isHardwareWallet,
     );
-
-    return pendingTransaction;
+    final List<int> signature;
+    if (isHardwareWallet) {
+      final service = _hardwareWalletService;
+      if (service == null) throw StateError('Connect the TRON Ledger wallet first');
+      prepared.ensureNotExpired();
+      signature = await service.signPreparedTransaction(
+        derivationInfo.derivationPath!,
+        prepared.rawData,
+        requireClearUsdt: prepared.amount.currency != CryptoCurrency.trx,
+      );
+    } else {
+      signature = _tronPrivateKey.sign(prepared.rawData);
+    }
+    return _client.createPendingTransaction(prepared, signature);
   }
 
   @override
@@ -547,7 +584,8 @@ abstract class TronWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+    if (!isHardwareWallet &&
+        !(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
       await saveKeysFile(_password, encryptionFileUtils);
       saveKeysFile(_password, encryptionFileUtils, true);
     }
@@ -559,10 +597,30 @@ abstract class TronWalletBase
   }
 
   @override
-  String? get seed => _mnemonic;
+  String? get seed => isHardwareWallet ? null : _mnemonic;
 
   @override
-  String get privateKey => _tronPrivateKey.toHex();
+  String? get privateKey => isHardwareWallet ? null : _tronPrivateKey.toHex();
+
+  @override
+  bool get canSignMessages => !isHardwareWallet;
+
+  void setHardwareWalletService(TronLedgerService service) {
+    if (!isHardwareWallet) throw StateError('Not a hardware wallet');
+    _hardwareWalletService = service;
+  }
+
+  void clearHardwareWalletService() {
+    _hardwareWalletService = null;
+  }
+
+  Future<void> verifyHardwareAddress() async {
+    final service = _hardwareWalletService;
+    if (!isHardwareWallet || service == null) {
+      throw StateError('Connect the TRON Ledger wallet first');
+    }
+    await service.verifyAddress(derivationInfo.derivationPath!, _tronAddress);
+  }
 
   @override
   WalletKeysData get walletKeysData => WalletKeysData(
@@ -586,7 +644,7 @@ abstract class TronWalletBase
   }
 
   Future<TronBalance> _fetchTronBalance() async {
-    final balance = await _client.getBalance(_tronPublicKey.toAddress());
+    final balance = await _client.getBalance(TronAddress(_tronAddress));
     return TronBalance(Money(balance, CryptoCurrency.trx));
   }
 
@@ -613,7 +671,7 @@ abstract class TronWalletBase
   Future<bool> checkNodeHealth() async {
     try {
       // Check native balance
-      await _client.getBalance(_tronPublicKey.toAddress(), throwOnError: true);
+      await _client.getBalance(TronAddress(_tronAddress), throwOnError: true);
 
       // Check USDT token balance
       final usdtContractAddress = DefaultTronTokens().usdt.contractAddress;
@@ -708,6 +766,9 @@ abstract class TronWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address}) async {
+    if (isHardwareWallet) {
+      throw UnsupportedError('Personal message signing is unavailable for TRON Ledger wallets');
+    }
     return _tronPrivateKey.signPersonalMessage(ascii.encode(message));
   }
 
