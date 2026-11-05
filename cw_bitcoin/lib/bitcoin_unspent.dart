@@ -1,6 +1,13 @@
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_core/unspent_transaction_output.dart';
 
+bool matchesUnspentOutpoint(
+  Unspent unspent, {
+  required String transactionHash,
+  required int outputIndex,
+}) =>
+    unspent.hash == transactionHash && unspent.vout == outputIndex;
+
 class BitcoinUnspent extends Unspent {
   BitcoinUnspent(BaseBitcoinAddressRecord addressRecord, String hash, int value, int vout)
       : bitcoinAddressRecord = addressRecord,
