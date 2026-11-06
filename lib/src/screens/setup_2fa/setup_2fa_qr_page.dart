@@ -44,21 +44,15 @@ class Setup2FAQRPage extends BasePage {
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.3),
             child: AspectRatio(
               aspectRatio: 1.0,
-              child: Container(
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 3,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                child: Container(
-                    child: QrImage(
+              child: LayoutBuilder(
+                builder: (context, constraints) => QrImage(
+                  size: constraints.biggest.shortestSide,
+                  embeddedImagePath: "assets/new-ui/settings_row_icons/security.svg",
                   data: setup2FAViewModel.totpVersionOneLink,
                   version: qr.QrVersions.auto,
                   foregroundColor: Theme.of(context).colorScheme.onSurface,
                   backgroundColor: Colors.transparent,
-                )),
+                ),
               ),
             ),
           ),
