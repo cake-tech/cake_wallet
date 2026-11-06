@@ -22,7 +22,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
-import 'package:cake_wallet/entities/wallet_group_db_entry.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import '../src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 

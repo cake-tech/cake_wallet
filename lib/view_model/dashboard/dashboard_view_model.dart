@@ -1653,7 +1653,9 @@ abstract class DashboardViewModelBase with Store {
       List<String> affectedWallets = [];
       final walletInfos = await WalletInfo.getAll();
       for (var walletInfo in walletInfos) {
-        if (walletInfo.type == WalletType.bitcoin) {
+        if (walletInfo.type != WalletType.bitcoin || !walletInfo.isReady) continue;
+
+        try {
           final password = await keyService.getWalletPasswordForWallet(walletInfo);
           final path = await walletFilePathOf(walletInfo);
           final encryption = encryptionFileUtilsFor(SettingsStoreBase.walletPasswordDirectInput);

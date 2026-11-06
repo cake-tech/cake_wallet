@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:another_flushbar/flushbar.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
-import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
 import "package:cake_wallet/entities/wallet_group.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -21,6 +20,7 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/exception_handler.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
@@ -108,6 +108,12 @@ class WalletListBodyState extends State<WalletListBody> {
   WalletListViewModel get _viewModel => widget.walletListViewModel;
 
   @override
+  void dispose() {
+    if (DeviceInfo.instance.isMobile) _viewModel.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) => GradientBackground(
     scaffold: Container(
       height: double.infinity,
@@ -187,17 +193,13 @@ class WalletListBodyState extends State<WalletListBody> {
         width: 88,
         isGroup: true,
         isExpanded: isExpanded,
-        onTap: () => _openGroupEdit(group, groupName: groupName),
+        onTap: () => _openGroupEdit(group),
       ),
-      childWallets: group.wallets.map(_viewModel.convertWalletInfoToWalletListItem).toList(),
+      childWallets: group.wallets
+          .where((w) => w.isReady)
+          .map(_viewModel.convertWalletInfoToWalletListItem)
+          .toList(),
       onChildItemTapped: _onWalletTapped,
-      childTrailingWidget: (item) => item.isCurrent
-          ? const SizedBox.shrink()
-          : EditWalletButtonWidget(
-        key: ValueKey("wallet_list_edit_${item.name}_button_key"),
-        width: 64,
-        onTap: () => _openWalletEdit(item),
-      ),
     );
   }
 
@@ -220,7 +222,7 @@ class WalletListBodyState extends State<WalletListBody> {
           : EditWalletButtonWidget(
         key: ValueKey("wallet_list_edit_${wallet.name}_button_key"),
         width: 64,
-        onTap: () => _openGroupEdit(group, groupName: title, wallet: wallet),
+        onTap: () => _openGroupEdit(group),
       ),
     );
   }
@@ -231,27 +233,8 @@ class WalletListBodyState extends State<WalletListBody> {
     }
   }
 
-  void _openGroupEdit(WalletGroup group, {required String groupName, WalletListItem? wallet}) =>
-      Navigator.of(context).pushNamed(
-        Routes.walletEdit,
-        arguments: WalletEditPageArguments(
-          walletListViewModel: _viewModel,
-          editingWallet:
-          wallet ?? _viewModel.convertWalletInfoToWalletListItem(group.wallets.first),
-          isWalletGroup: true,
-          isSingleWalletGroup: wallet != null,
-          groupName: groupName,
-          walletGroupKey: group.groupKey,
-        ),
-      );
-
-  void _openWalletEdit(WalletListItem wallet) => Navigator.of(context).pushNamed(
-    Routes.walletEdit,
-    arguments: WalletEditPageArguments(
-      walletListViewModel: _viewModel,
-      editingWallet: wallet,
-    ),
-  );
+  void _openGroupEdit(WalletGroup group) =>
+      Navigator.of(context).pushNamed(Routes.walletEdit, arguments: group.groupKey);
 
   void _openRestore() => _pushWithCreation2FA(Routes.restoreOptions, arguments: false);
 
@@ -262,7 +245,7 @@ class WalletListBodyState extends State<WalletListBody> {
         arguments: NewWalletArguments(type: _viewModel.currentWalletType),
       );
     } else {
-      _pushWithCreation2FA(Routes.newWalletType);
+      _pushWithCreation2FA(Routes.walletCreationTypeSelectionPage);
     }
   }
 

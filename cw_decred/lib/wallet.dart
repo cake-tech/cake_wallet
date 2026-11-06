@@ -19,6 +19,7 @@ import 'package:cw_decred/balance.dart';
 import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_keys_file.dart';

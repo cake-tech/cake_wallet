@@ -844,6 +844,7 @@ Future<void> setup({
 
   WalletListViewModel _buildWalletListViewModel() => WalletListViewModel(
     getIt.get<AppStore>(),
+    getIt.get<WalletLoadingService>(),
     getIt.get<WalletGroupService>(),
     getIt.get<KeyService>(),
     (type) => getIt.get<WalletService>(param1: type),

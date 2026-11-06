@@ -78,7 +78,7 @@ Future<bool> backupWalletFilesExists(WalletInfo walletInfo) async {
 
 // WARNING: Transaction keys and your Polyseed CANNOT be recovered if this file is deleted
 Future<void> removeCache(WalletInfo walletInfo) async {
-  final path = await wall
+  final path = await walletFilePathOf(walletInfo);
   final cacheFile = File(path);
   final backgroundCacheFile = File(path + ".background");
   if (cacheFile.existsSync()) {

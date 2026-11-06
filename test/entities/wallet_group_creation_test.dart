@@ -3,7 +3,7 @@ import "dart:io";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/core/new_wallet_arguments.dart";
 import "package:cake_wallet/core/wallet_creation_service.dart";
-import "package:cake_wallet/entities/wallet_group_db_entry.dart";
+import "package:cw_core/wallet_group_db_entry.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/authentication_store.dart";
 import "package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart";

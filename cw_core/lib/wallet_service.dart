@@ -4,6 +4,7 @@ import "dart:io";
 import "package:cw_core/encryption_file_utils.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_keys_file.dart";
 import "package:cw_core/wallet_type.dart";

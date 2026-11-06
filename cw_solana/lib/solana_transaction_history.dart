@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
 import 'package:mobx/mobx.dart';
