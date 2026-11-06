@@ -995,35 +995,6 @@ abstract class ZcashWalletBase
   String get password => _password!;
 
   @override
-  Future<void> renameWalletFiles(final String newWalletName) async {
-    await renameWalletFilesForName(fromName: name, toName: newWalletName);
-  }
-
-  static Future<void> renameWalletFilesForName({
-    required final String fromName,
-    required final String toName,
-  }) async {
-    if (fromName == toName) {
-      return;
-    }
-    final currentWalletDir = Directory(await pathForWalletDir(name: fromName, type: _type));
-    if (!currentWalletDir.existsSync()) {
-      throw WalletNotFoundException(name: fromName, type: _type);
-    }
-    final newWalletDirPath = '${await pathForWalletTypeDir(type: _type)}/$toName';
-    if (Directory(newWalletDirPath).existsSync()) {
-      throw BadWalletDataException('Cannot rename wallet: "$toName" already exists');
-    }
-    await currentWalletDir.rename(newWalletDirPath);
-    for (final suffix in const ['', '.v2']) {
-      final oldFile = File('$newWalletDirPath/$fromName$suffix');
-      if (oldFile.existsSync()) {
-        await oldFile.rename('$newWalletDirPath/$toName$suffix');
-      }
-    }
-  }
-
-  @override
   bool get hasRescan => true;
 
   static int? lastKnownRestoreHeight = null;
@@ -1536,7 +1507,7 @@ abstract class ZcashWalletBase
       passphrase: newWalletCredentials.passphrase,
       birthHeight: birthHeight,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1562,7 +1533,7 @@ abstract class ZcashWalletBase
       passphrase: fromSeedCredentials.passphrase,
       birthHeight: credentials.height!,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1593,7 +1564,7 @@ abstract class ZcashWalletBase
       passphrase: fromKeysCredentials.passphrase,
       birthHeight: credentials.height!,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1634,7 +1605,7 @@ abstract class ZcashWalletBase
       hw: 2,
       aIndex: credentials.accountIndex,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1657,7 +1628,7 @@ abstract class ZcashWalletBase
     // if (password.isNotEmpty) {
     //   setDbPasswd(coin, password);
     // }
-    final accountId = await getZcashAccountIdForName(name);
+    final accountId = await getZcashAccountIdForName(walletInfo);
     if (accountId == null) {
       throw ZcashAccountException("accountId is null");
     }
@@ -1690,44 +1661,29 @@ abstract class ZcashWalletBase
     return accountId;
   }
 
-  static Future<int?> getLegacyZcashAccountIdForName(final String name) async {
-    final wPath = (await pathForWallet(name: name, type: _type));
-    final f = File(wPath);
-    if (!f.existsSync()) {
-      final accs = await zkool_account.listAccounts(c: c);
-      for (final acc in accs) {
-        if (acc.name == name) {
-          return acc.id;
-        }
-      }
+  static Future<int?> getLegacyZcashAccountIdForName(final WalletInfo walletInfo) =>
+      _readAccountId(walletInfo, suffix: "");
+
+  static Future<int?> getZcashAccountIdForName(final WalletInfo walletInfo) =>
+      _readAccountId(walletInfo, suffix: ".v2");
+
+  static Future<int?> _readAccountId(final WalletInfo walletInfo, {required String suffix}) async {
+    final file = File("${await walletFilePathOf(walletInfo)}$suffix");
+    if (file.existsSync()) {
+      return int.tryParse(file.readAsStringSync().trim());
     }
-    final content = f.readAsStringSync();
-    return int.tryParse(content.trim());
+
+    // No id file. Fall back to the account name only for legacy wallets: their folder and
+    // zkool account were created under that name. UUID wallets always have a .v2 file.
+    if (isUuidWallet(walletInfo)) return null;
+
+    final accounts = await zkool_account.listAccounts(c: c);
+    return accounts.where((a) => a.name == walletInfo.name).firstOrNull?.id;
   }
 
-  static Future<int?> getZcashAccountIdForName(final String name) async {
-    final wPath = (await pathForWallet(name: name, type: _type)) + ".v2";
-    final f = File(wPath);
-    if (!f.existsSync()) {
-      final accs = await zkool_account.listAccounts(c: c);
-      for (final acc in accs) {
-        if (acc.name == name) {
-          return acc.id;
-        }
-      }
-    }
-    final content = f.readAsStringSync();
-    return int.tryParse(content.trim());
-  }
-
-  static Future<void> saveAccountId(final String name, final int accountId) async {
-    final wPath = (await pathForWallet(name: name, type: _type)) + ".v2";
-    final dirName = Directory(wPath).parent.path;
-    if (!Directory(dirName).existsSync()) {
-      Directory(dirName).createSync(recursive: true);
-    }
-    final f = File(wPath);
-    f.writeAsStringSync(accountId.toString());
+  static Future<void> saveAccountId(final WalletInfo walletInfo, final int accountId) async {
+    final wPath = "${await pathForWalletOf(walletInfo)}.v2";
+    File(wPath).writeAsStringSync(accountId.toString());
   }
 
   static WalletType get _type => WalletType.zcash;

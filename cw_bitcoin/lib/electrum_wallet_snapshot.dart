@@ -63,9 +63,11 @@ class ElectrumWalletSnapshot {
   DerivationType? derivationType;
   String? derivationPath;
 
-  static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils, String name,
-      WalletType type, String password, BasedUtxoNetwork network) async {
-    final path = await pathForWallet(name: name, type: type);
+  static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils,
+      WalletInfo walletInfo, String password, BasedUtxoNetwork network) async {
+    final name = walletInfo.name;
+    final type = walletInfo.type;
+    final path = await walletFilePathOf(walletInfo);
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;

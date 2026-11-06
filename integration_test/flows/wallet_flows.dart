@@ -23,7 +23,7 @@ class WalletFlows {
         return;
       }
 
-      await tester.tap(tile, warnIfMissed: false);
+      await tester.tap(tile.first, warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 300));
     }
   }
@@ -31,26 +31,21 @@ class WalletFlows {
   Future<void> switchToWallet(String name) async {
     await _dashboardRobot.openWalletsTab();
 
+    // A group can carry the same name as one of its wallets (single-wallet groups are named
+    // after their wallet), so always open the groups and tap the wallet row, not the header.
+    await _expandWalletGroups();
+
     final walletFinder = find.text(name);
-
-    // Wallets sharing a seed are listed under their group's name, so the wallet itself is
-    // not on screen until that group is opened.
-    if (!tester.any(walletFinder)) {
-      await _expandWalletGroups();
-    }
-
     await _dashboardRobot.pumpUntilFound(walletFinder);
 
-    await tester.tap(walletFinder.first, warnIfMissed: false);
+    // The wallet row comes after its group's header in the list.
+    await tester.tap(walletFinder.last, warnIfMissed: false);
     await tester.pump(const Duration(milliseconds: 500));
 
     await _authFlows.authenticateWithPin(required: false);
 
-    // The row does nothing at all when that wallet is already the open one, and the load
-    // itself runs behind a progress overlay, so the store is the only thing that tells us
-    // the switch happened.
     final switched = await _dashboardRobot.pumpUntil(
-      () => getIt.get<AppStore>().wallet?.name == name,
+          () => getIt.get<AppStore>().wallet?.name == name,
       timeout: const Duration(minutes: 2),
     );
 

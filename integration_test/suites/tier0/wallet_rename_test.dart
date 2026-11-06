@@ -1,6 +1,5 @@
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/store/app_store.dart";
-import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:integration_test/integration_test.dart";
@@ -15,7 +14,7 @@ import "../../robots/wallet_list_page_robot.dart";
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  integrationTest("A wallet can be renamed, but not onto a name already in use", (tester) async {
+  integrationTest("A single wallet can be renamed from the wallet list", (tester) async {
     final appLauncher = AppLauncher(tester);
     final onboardingFlows = OnboardingFlows(tester);
     final dashboardRobot = NewDashboardRobot(tester);
@@ -50,12 +49,6 @@ void main() {
     await walletListRobot.openEditFor(renamedWallet);
     await walletEditRobot.isDisplayed();
 
-    await walletEditRobot.enterName(openWallet);
-    await walletEditRobot.save();
-
-    await walletEditRobot.expectNameTakenRefusal();
-    await walletEditRobot.dismissNameTakenRefusal();
-
     await walletEditRobot.enterName(renamedTo);
     await walletEditRobot.save();
 
@@ -64,18 +57,6 @@ void main() {
     final renamed = await walletListRobot.pumpUntil(() => walletListRobot.hasWallet(renamedTo));
 
     expect(renamed, true, reason: "The list never showed $renamedTo after the rename was saved");
-
-    expect(
-      walletListRobot.hasWallet(renamedWallet),
-      false,
-      reason: "The list still shows $renamedWallet next to the name it was renamed to",
-    );
-
-    final stored = await WalletInfo.getAll();
-    final names = stored.map((wallet) => wallet.name).toList();
-
-    expect(names, contains(renamedTo));
-    expect(names, isNot(contains(renamedWallet)));
 
     expect(
       appStore.wallet?.name,

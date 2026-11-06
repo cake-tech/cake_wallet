@@ -435,11 +435,7 @@ Future<void> setup({
 
   final walletList = await WalletInfo.getAll();
 
-  getIt.registerFactory<WalletManager>(
-    () => WalletManager(
-      getIt.get<SharedPreferences>(),
-    ),
-  );
+  getIt.registerFactory<WalletManager>(() => WalletManager());
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
     (type, _) => WalletGroupsDisplayViewModel(
@@ -860,26 +856,21 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
       walletListViewModel,
-      getIt.get<WalletLoadingService>(),
       getIt.get<WalletManager>(),
     ),
   );
 
-  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
-    return WalletEditPage(
+  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) => WalletEditPage(
       pageArguments: WalletEditPageArguments(
         walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
         authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(
-          param1: NewWalletArguments(type: arguments.editingWallet.type),
-        ),
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
+        isSingleWalletGroup: arguments.isSingleWalletGroup,
         groupName: arguments.groupName,
         walletGroupKey: arguments.walletGroupKey,
       ),
-    );
-  });
+    ));
 
   getIt.registerFactory<NanoAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;

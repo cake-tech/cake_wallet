@@ -1,8 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -63,7 +61,6 @@ void startCurrentWalletChangeReaction(
         return;
       }
 
-      await getIt.get<WalletManager>().ensureGroupHasHashedIdentifier(wallet);
 
       int? chainId;
       if (isEVMCompatibleChain(wallet.type)) {

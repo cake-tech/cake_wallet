@@ -51,28 +51,17 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   bool isFetchingMnemonic;
 
   @computed
-  bool get hasNoFilteredWallet {
-    return singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
-  }
+  bool get hasNoFilteredWallet => singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
 
   @action
   Future<String?> getSelectedWalletMnemonic() async {
-    WalletListItem walletToUse;
-
-    bool isGroupSelected = selectedWalletGroup != null;
-
-    if (isGroupSelected) {
-      walletToUse = convertWalletInfoToWalletListItem(selectedWalletGroup!.wallets.first);
-    } else {
-      walletToUse = convertWalletInfoToWalletListItem(selectedSingleWallet!);
-    }
+    final walletInfo = selectedWalletGroup != null
+        ? selectedWalletGroup!.wallets.first
+        : selectedSingleWallet!;
 
     try {
       isFetchingMnemonic = true;
-      final wallet = await _walletLoadingService.load(
-        walletToUse.type,
-        walletToUse.name,
-      );
+      final wallet = await _walletLoadingService.load(walletInfo);
 
       return wallet.seed;
     } catch (e) {
@@ -110,41 +99,11 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       // Handle group wallet filtering
       bool shouldExcludeGroup = false;
       for (final wallet in group.wallets) {
-        // Check for non-BIP39 wallet types
-        bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
-
-        // Check for nano derivation type
-        final di = await wallet.getDerivationInfo();
-        bool isNanoDerivationType =
-            wallet.type == WalletType.nano && di.derivationType == DerivationType.nano;
-
-        // Check for electrum derivation type
-        bool isElectrumDerivationType =
-            (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
-                di.derivationType == DerivationType.electrum;
-
-        // Check that selected wallet type is not present already in group
-        bool isSameTypeAsSelectedWallet = wallet.type == type;
-
-        bool isNonSeedWallet = wallet.isNonSeedWallet;
-
-        bool isNotBip39CoinWallet =
-            (wallet.type == WalletType.monero || wallet.type == WalletType.zano) &&
-                di.derivationType != DerivationType.bip39;
-
-        bool isNotDecredBip39Wallet = wallet.type == WalletType.decred &&
-            di.derivationType != DerivationType.bip39 &&
-            di.derivationType != DerivationType.unknown;
-
-        // Exclude if any of these conditions are true
-        shouldExcludeGroup = shouldExcludeGroup ||
-            isNonBIP39Wallet ||
-            isNanoDerivationType ||
-            isElectrumDerivationType ||
-            isSameTypeAsSelectedWallet ||
-            isNonSeedWallet ||
-            isNotBip39CoinWallet ||
-            isNotDecredBip39Wallet;
+        // Selected wallet type must not be present already in the group
+        if (wallet.type == type || !await canShareWalletGroup(wallet)) {
+          shouldExcludeGroup = true;
+          break;
+        }
       }
 
       if (shouldExcludeGroup) continue;

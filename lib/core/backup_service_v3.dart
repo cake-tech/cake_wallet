@@ -6,6 +6,7 @@ import 'package:archive/archive_io.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
+import "package:cake_wallet/entities/wallet_group_migration.dart";
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_core/db/sqlite.dart';
@@ -339,6 +340,14 @@ class BackupServiceV3 extends $BackupService {
     // Delete decrypted data file
     decryptedData.deleteSync();
     await initDb();
+
+    // Backups made before wallet groups get them the same way as an app upgrade.
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
+
   }
 
   Future<void> verifyHardwareWallets(String password,
@@ -359,7 +368,10 @@ class BackupServiceV3 extends $BackupService {
 
     for (final expectedHardwareWallet in expectedHardwareWallets) {
       final info = expectedHardwareWallet as Map<String, dynamic>;
-      final actualWalletInfo = await WalletInfo.get(info['name'] as String,
+      final id = info['id'] as String?;
+      final actualWalletInfo = id != null
+          ? await WalletInfo.getById(id)
+          : await WalletInfo.get(info['name'] as String,
           WalletType.values.firstWhere((e) => e.toString() == info['type'] as String));
       if (actualWalletInfo != null &&
           info["hardwareWalletType"] != actualWalletInfo.hardwareWalletType?.index) {
