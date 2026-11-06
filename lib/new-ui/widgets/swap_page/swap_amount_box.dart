@@ -86,6 +86,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final memoController = TextEditingController();
   final _amountFieldKey = GlobalKey<FormFieldState<String>>();
   mobx.ReactionDisposer? _memoReactionDisposer;
+  mobx.ReactionDisposer? _fiatReactionDisposer;
+  bool _isUpdatingFiatAmount = false;
+  bool _fiatRefreshPending = false;
+
+  bool get isUpdatingFiatAmount => _isUpdatingFiatAmount;
 
   @override
   void initState() {
@@ -109,12 +114,35 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       });
     }
 
+    var previousFiat = widget.exchangeViewModel.fiat;
+    _fiatReactionDisposer = mobx.reaction(
+      (_) => (
+        widget.exchangeViewModel.fiat,
+        widget.isReceiverCard
+            ? widget.exchangeViewModel.receiveAmountFiat
+            : widget.exchangeViewModel.depositAmountFiat,
+      ),
+      (value) {
+        if (previousFiat != value.$1 || value.$2.isEmpty) {
+          _fiatRefreshPending = true;
+        }
+        previousFiat = value.$1;
+        if (_fiatRefreshPending || !amountFocusNode.hasFocus) {
+          updateFiatAmount();
+          if (value.$2.isNotEmpty) {
+            _fiatRefreshPending = false;
+          }
+        }
+      },
+    );
+
     super.initState();
   }
 
   @override
   void dispose() {
     _memoReactionDisposer?.call();
+    _fiatReactionDisposer?.call();
     memoController.dispose();
     addressController.dispose();
     amountController.dispose();
@@ -713,11 +741,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         : widget.exchangeViewModel.depositAmountFiat;
 
     if (double.tryParse(fiatAmountController.text) != double.tryParse(newText)) {
-      if (newText == "0.00") {
-        fiatAmountController.text = "";
-      } else {
-        fiatAmountController.text =
-            newText.replaceAll(RegExp(r"(?<=\.\d*)0+$"), "").replaceAll(RegExp(r"\.$"), "");
+      _isUpdatingFiatAmount = true;
+      try {
+        fiatAmountController.text = newText == "0.00"
+            ? ""
+            : newText.replaceAll(RegExp(r"(?<=\.\d*)0+$"), "").replaceAll(RegExp(r"\.$"), "");
+      } finally {
+        _isUpdatingFiatAmount = false;
       }
     }
   }

@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
-import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
@@ -290,23 +288,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     destinationWalletName = destWalletName;
   }
 
-  Future<void> _ensureFiatPriceFor(CryptoCurrency crypto) async {
-    if (fiatConversionStore.prices[crypto] != null) return;
-
-    try {
-      final p = await FiatConversionService.fetchPrice(
-        crypto: crypto,
-        fiat: settingsStore.fiatCurrency,
-        torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly,
-      );
-
-      runInAction(() {
-        fiatConversionStore.prices[crypto] = p;
-      });
-    } catch (e) {
-      printV('Error ensuring fiat price for $crypto: $e');
-    }
-  }
+  Future<void> _ensureFiatPriceFor(CryptoCurrency crypto) => fiatConversionStore.fetchPrice(crypto);
 
   @action
   Future<void> ensureFiatPriceForSelectedToken() async {

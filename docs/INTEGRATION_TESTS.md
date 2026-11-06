@@ -114,7 +114,7 @@ stable history. funds_suites run only from the manual funds workflow.
 
 ## What is covered today
 
-Twenty seven suites. Add a line here when you add one.
+Twenty eight suites. Add a line here when you add one.
 
 ### tier0, no network needed
 
@@ -147,6 +147,7 @@ Twenty seven suites. Add a line here when you add one.
 | `transaction_history_test` | A wallet with known transactions renders them, both in the home preview and the full list |
 | `transaction_details_test` | Tapping a transaction opens the details of that transaction and not another one |
 | `swap_quote_test` | The swap sheet reaches a provider and returns a real quote, no trade is created |
+| `swap_fiat_currency_test` | Cached swap assets use the selected USD/UAH rates after changing fiat in settings and in an open swap, without creating a trade |
 | `monero_legacy_seed_test` | A 25 word monero seed restores through the legacy path, which takes a seed type and a restore height the polyseed path never asks for |
 
 ### funds_suites, manual workflow only
