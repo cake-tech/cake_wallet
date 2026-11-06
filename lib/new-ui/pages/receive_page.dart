@@ -86,6 +86,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               ReceivePageOption.mainnet,
         );
         widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
+        _ensurePayjoinSession();
       }
     });
 
@@ -109,6 +110,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
         } else {
           widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
         }
+        // The displayed address changed with the type, so the payjoin
+        // receiver must be rebound to it — otherwise getPaymentUri silently
+        // strips pj= because payjoinAddress no longer matches (and for
+        // Lightning the stale session is cleared outright).
+        _ensurePayjoinSession();
         return;
       }
       if (widget.dashboardViewModel.type == WalletType.zcash) {
@@ -119,12 +125,29 @@ class _NewReceivePageState extends State<NewReceivePage> {
       if ([WalletType.bitcoin, WalletType.litecoin]
           .contains(widget.addressListViewModel.type)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+        // Same rebinding requirement as above for the non-BitcoinReceivePageOption
+        // path (no-op for litecoin — _ensurePayjoinSession checks wallet type).
+        _ensurePayjoinSession();
       }
       if (widget.addressListViewModel.type == WalletType.zcash) {
         printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
         widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
       }
     });
+  }
+
+  void _ensurePayjoinSession() {
+    if (!widget.dashboardViewModel.settingsStore.usePayjoin) {
+      return;
+    }
+    final wallet = widget.addressListViewModel.wallet;
+    if (wallet.type == WalletType.bitcoin) {
+      bitcoin!.ensurePayjoinSession(
+        wallet,
+        shouldSaveRecipientAddress:
+            widget.dashboardViewModel.settingsStore.shouldSaveRecipientAddress,
+      );
+    }
   }
 
   @override
@@ -192,7 +215,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           semanticLabel: _largeQrMode
                               ? S.of(context).share_address
                               : S.of(context).rotate_address,
-                          onPressed: () {
+                          onPressed: () async {
                             if (_largeQrMode) {
                               ShareUtil.share(
                                 text: widget.addressListViewModel.uri.toString(),
@@ -200,7 +223,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               );
                             } else {
                               if (widget.addressListViewModel.hasAddressRotation) {
-                                widget.addressListViewModel.rotateAddress();
+                                await widget.addressListViewModel.rotateAddress();
+                                _ensurePayjoinSession();
                               }
                             }
                           },
@@ -276,6 +300,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                         if (widget.addressListViewModel.hasPayjoin) {
                           showModalBottomSheet(
                             isScrollControlled: true,
+                            useRootNavigator: true,
                             context: context,
                             builder: (context) =>
                                 PayjoinCopyModal(uri: widget.addressListViewModel.uri),

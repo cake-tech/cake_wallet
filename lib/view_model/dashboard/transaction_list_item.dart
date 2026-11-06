@@ -7,6 +7,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -43,15 +44,40 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.solana ||
       balanceViewModel.wallet.type == WalletType.tron;
 
+  Money get displayAmount {
+    final pjNetFlow = transaction.additionalInfo['pjNetFlow'];
+    if (pjNetFlow is int) {
+      if (pjNetFlow > 0) {
+        return Money.fromInt(pjNetFlow, transaction.amount.currency);
+      }
+      return Money.fromInt(pjNetFlow.abs(), transaction.amount.currency);
+    }
+    return transaction.amount;
+  }
+
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
     if (balanceViewModel.wallet.type == WalletType.bitcoin) {
       return _appStore.amountParsingProxy
-          .asDisplayStringWithSymbol(transaction.amount)
+          .asDisplayStringWithSymbol(displayAmount)
           .withLocalSeperator(_appStore.settingsStore.languageCode);
     }
 
-    return transaction.amount.toStringWithSymbol(fractionalDigits: 8);
+    return displayAmount.toStringWithSymbol(fractionalDigits: 8);
+  }
+
+  TransactionDirection get displayDirection {
+    final isPayjoin = transaction.additionalInfo['isPayjoin'] == true;
+    if (!isPayjoin) return transaction.direction;
+    final pjNetFlow = transaction.additionalInfo['pjNetFlow'];
+    if (pjNetFlow is int) {
+      return pjNetFlow > 0 ? TransactionDirection.incoming : TransactionDirection.outgoing;
+    }
+    final stored = transaction.additionalInfo['payjoinDirection'];
+    if (stored is String) {
+      return TransactionDirection.values.byName(stored);
+    }
+    return transaction.direction;
   }
 
   String get formattedTitle {
@@ -59,6 +85,9 @@ class TransactionListItem extends ActionListItem with Keyable {
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
     }
+    final isPayjoin = transaction.additionalInfo['isPayjoin'] == true;
+    final displayDirection = this.displayDirection;
+
     if (transaction.additionalInfo['isAutoShield'] == true) {
       if (transaction.isPending) {
         final status = formattedStatus;
@@ -69,13 +98,23 @@ class TransactionListItem extends ActionListItem with Keyable {
     }
     if (transaction.isPending) {
       final status = formattedStatus;
-      final baseString = transaction.direction == TransactionDirection.incoming
+      final baseString = displayDirection == TransactionDirection.incoming
           ? S.current.receiving
           : S.current.sending;
+      final payjoin = isPayjoin ? " Payjoin" : "";
+      if (isPayjoin) {
+        return status.isNotEmpty ? "$baseString$payjoin $status" : "$baseString$payjoin...";
+      }
       return status.isNotEmpty ? "$baseString $status" : "$baseString...";
     }
 
-    if (transaction.direction == TransactionDirection.incoming) {
+    if (isPayjoin) {
+      final baseString =
+          displayDirection == TransactionDirection.incoming ? S.current.received : S.current.sent;
+      return "$baseString Payjoin";
+    }
+
+    if (displayDirection == TransactionDirection.incoming) {
       return S.current.received;
     }
 
@@ -187,6 +226,7 @@ class TransactionListItem extends ActionListItem with Keyable {
 
   String get formattedFiatAmount {
     var amount = '';
+    final amt = double.parse(displayAmount.toString());
 
     switch (balanceViewModel.wallet.type) {
       case WalletType.monero:
@@ -199,7 +239,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.decred:
       case WalletType.zcash:
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: amt,
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
       case WalletType.ethereum:
@@ -211,7 +251,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = assetOfTransaction;
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: amt,
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -219,7 +259,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = solana!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: amt,
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -227,7 +267,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         final asset = tron!.assetOfTransaction(balanceViewModel.wallet, transaction);
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: amt,
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;
@@ -239,7 +279,7 @@ class TransactionListItem extends ActionListItem with Keyable {
         }
         final price = balanceViewModel.fiatConversionStore.prices[asset];
         amount = calculateFiatAmountRaw(
-          cryptoAmount: double.parse(transaction.amount.toString()),
+          cryptoAmount: amt,
           price: price,
         ).withLocalSeperator(_appStore.settingsStore.languageCode);
         break;

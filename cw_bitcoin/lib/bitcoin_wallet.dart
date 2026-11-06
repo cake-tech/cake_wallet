@@ -34,10 +34,10 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/output_info.dart';
-import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import "package:cw_core/receive_page_option.dart";
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -62,7 +62,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
     Uint8List? seedBytes,
     String? mnemonic,
@@ -123,7 +122,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    payjoinManager = PayjoinManager(PayjoinStorage(payjoinBox), this);
+    payjoinManager = PayjoinManager(PayjoinStorage(), this);
     walletAddresses = BitcoinWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -186,7 +185,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Box<PayjoinSession> payjoinBox,
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
     String? addressPageType,
@@ -229,7 +227,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       addressPageType: addressPageType,
       networkParam: network,
-      payjoinBox: payjoinBox,
       useLightning: true,
     );
   }
@@ -238,7 +235,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required String name,
     required WalletInfo walletInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Box<PayjoinSession> payjoinBox,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
@@ -334,7 +330,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       alwaysScan: snp?.alwaysScan,
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
-      payjoinBox: payjoinBox,
     );
   }
 
@@ -420,6 +415,29 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   LightningWallet? lightningWallet;
 
   late final PayjoinManager payjoinManager;
+
+  @override
+  Future<bool> applyTransactionMetadata(ElectrumTransactionInfo info,
+      {required String txId}) async {
+    final session =
+        await payjoinManager.sessionForTxIdWithBackfill(txId, info.outputAddresses ?? const []);
+    if (session == null) return false;
+
+    if (session.isSenderSession) {
+      info.amount = Money(session.amount, info.amount.currency);
+      info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+    } else {
+      info.direction = TransactionDirection.incoming;
+      // A zero session amount means no proposal was ever processed —
+      // keep the amount derived from the actual transaction.
+      if (session.amount > BigInt.zero) {
+        info.amount = Money(session.amount, info.amount.currency);
+        info.additionalInfo['pjNetFlow'] = session.amount.toInt();
+      }
+    }
+
+    return true;
+  }
 
   @override
   bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
@@ -576,6 +594,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final tx = (await super.createTransaction(credentials)) as PendingBitcoinTransaction;
 
     final payjoinUri = credentials.payjoinUri;
+    // Defensive: the send view model should have already stripped self-send
+    // payjoin URIs at scan time via SendViewModel.setPayjoinUri. Keep this
+    // check as a backstop in case a self-send URI reaches here directly.
+    if (payjoinUri != null && await payjoinManager.isSelfSendPayjoinUri(payjoinUri)) {
+      printV('Stripping self-addressed payjoin at createTransaction ($payjoinUri)');
+      if (!tx.shouldCommitUR()) return tx;
+    }
     if (payjoinUri == null && !tx.shouldCommitUR()) return tx;
 
     final transaction = await buildPsbt(
@@ -605,10 +630,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final originalPsbt =
         await signPsbt(base64.encode(transaction.asPsbtV0()), getUtxoWithPrivateKeys());
 
+    final shouldSaveRecipientAddress = credentials.shouldSaveRecipientAddress;
+    final pjUri = payjoinUri!;
     tx.commitOverride = () async {
-      final sender =
-          await payjoinManager.initSender(payjoinUri!, originalPsbt, int.parse(tx.feeRate));
-      payjoinManager.spawnNewSender(sender: sender, pjUrl: payjoinUri, amount: tx.amount.amount);
+      await payjoinManager.initSender(pjUri, originalPsbt);
+      final parsedUri = Uri.parse(pjUri);
+      final recipientAddress = shouldSaveRecipientAddress
+          ? (parsedUri.queryParameters['address'] ?? parsedUri.path)
+          : null;
+      payjoinManager.spawnNewSender(
+        pjUrl: pjUri,
+        originalPsbt: originalPsbt,
+        amount: tx.amount.amount,
+        networkFeesSatPerVb: int.parse(tx.feeRate),
+        recipientAddress: recipientAddress?.isEmpty == true ? null : recipientAddress,
+      );
     };
 
     return tx;
@@ -641,24 +677,56 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<String> signPsbt(String preProcessedPsbt, List<UtxoWithPrivateKey> utxos) async {
-    final psbt = PsbtV2()..deserializeV0(base64Decode(preProcessedPsbt));
+    printV('[signPsbt] enter; utxos=${utxos.length}; psbtLen=${preProcessedPsbt.length}');
+    final psbt = PsbtV2();
+    try {
+      psbt.deserializeV0(base64Decode(preProcessedPsbt));
+    } catch (e, s) {
+      printV('[signPsbt] deserializeV0 FAILED: $e\n$s');
+      rethrow;
+    }
+    printV('[signPsbt] deserialized OK; inputs=${psbt.getGlobalInputCount()} outputs=${psbt.getGlobalOutputCount()}');
+    for (var i = 0; i < psbt.getGlobalInputCount(); i++) {
+      final txid = BytesUtils.toHexString(psbt.getInputPreviousTxid(i).reversed.toList());
+      final vout = psbt.getInputOutputIndex(i);
+      final wit = psbt.getInputWitnessUtxo(i);
+      String? finWit;
+      try { finWit = BytesUtils.toHexString(psbt.getInputFinalScriptwitness(i)); } catch (_) {}
+      printV('[signPsbt] in[$i] txid=$txid vout=$vout witUtxo=${wit != null} finWit=${finWit != null}');
+    }
 
-    await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
-      return utxo.utxo.isP2tr()
-          ? key.signTapRoot(
-              txDigest,
-              sighash: sighash,
-              tweak: utxo.utxo.isSilentPayment != true,
-            )
-          : key.signInput(txDigest, sigHash: sighash);
-    }, (txId, vout) async {
-      final txHex = await electrumClient.getTransactionHex(hash: txId);
-      final output = BtcTransaction.fromRaw(txHex).outputs[vout];
-      return TaprootAmountScriptPair(output.amount, output.scriptPubKey);
-    });
+    try {
+      await psbt.signWithUTXO(utxos, (txDigest, utxo, key, sighash) {
+        return utxo.utxo.isP2tr()
+            ? key.signTapRoot(
+                txDigest,
+                sighash: sighash,
+                tweak: utxo.utxo.isSilentPayment != true,
+              )
+            : key.signInput(txDigest, sigHash: sighash);
+      }, (txId, vout) async {
+        printV('[signPsbt] getTaprootPair fetch txId=$txId vout=$vout');
+        final txHex = await electrumClient.getTransactionHex(hash: txId);
+        final output = BtcTransaction.fromRaw(txHex).outputs[vout];
+        return TaprootAmountScriptPair(output.amount, output.scriptPubKey);
+      });
+      printV('[signPsbt] signWithUTXO completed');
+    } catch (e, s) {
+      printV('[signPsbt] signWithUTXO FAILED: $e\n$s');
+      rethrow;
+    }
 
-    psbt.finalizeV0();
-    return base64Encode(psbt.asPsbtV0());
+    try {
+      psbt.finalizeV0();
+      printV('[signPsbt] finalizeV0 completed');
+    } catch (e, s) {
+      printV('[signPsbt] finalizeV0 FAILED: $e\n$s');
+      rethrow;
+    }
+
+    final result = base64Encode(psbt.asPsbtV0());
+    printV('[signPsbt] exit; resultLen=${result.length}');
+    return result;
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
