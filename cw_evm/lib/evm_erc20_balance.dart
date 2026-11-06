@@ -15,7 +15,7 @@ class EVMChainERC20Balance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return EVMChainERC20Balance(Money(BigInt.parse(decoded["balanceInWei"]), currency));
+      return EVMChainERC20Balance(Money(BigInt.parse(decoded["balanceInWei"] as String), currency));
     } catch (e) {
       return EVMChainERC20Balance(Money.zero(currency));
     }

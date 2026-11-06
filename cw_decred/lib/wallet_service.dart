@@ -30,6 +30,8 @@ class DecredWalletService extends WalletService<
   static final pubkeyRestorePathTestnet = "m/44'/1'/0'";
   final mainnet = "mainnet";
   final testnet = "testnet";
+
+  // TODO(wallet-id): libdcrwallet is keyed by walletInfo.name; switch to walletInfo.id (with data migration) before names can repeat.
   static Libwallet? libwallet;
 
   Future<void> init() async {
@@ -141,7 +143,6 @@ class DecredWalletService extends WalletService<
 
     // Cake wallet version 4.27.0 and earlier gave a wallet dir that did not
     // match the name. Move those to the correct place.
-
     if (walletInfo.path != "") {
       // On ios the stored dir no longer exists. We can only trust the basename.
       // dirPath may already be updated and lost the basename, so look at path.
@@ -168,28 +169,6 @@ class DecredWalletService extends WalletService<
     await wallet.init();
     await _persistSeedDerivationType(wallet);
     return wallet;
-  }
-
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    final di = await currentWalletInfo.getDerivationInfo();
-    final network =
-    di.derivationPath == seedRestorePathTestnet || di.derivationPath == pubkeyRestorePathTestnet
-        ? testnet
-        : mainnet;
-    currentWalletInfo.network = network;
-    await currentWalletInfo.save();
-
-// TODO(decred-id-refactor): this used to spawn/load a DecredWallet
-// instance here purely to call currentWallet.renameWalletFiles(newName).
-// That method's file-moving logic was removed in DecredWalletBase since
-// directories no longer move on rename — see wallet.dart's TODO. Still
-// unresolved: does libdcrwallet need to be told about the new name
-// internally (it appears to key an already-loaded wallet by name)? Needs
-// a real answer from libdcrwallet's contract before adding anything back.
-
-    currentWalletInfo.name = newName;
-    await currentWalletInfo.save();
   }
 
   @override

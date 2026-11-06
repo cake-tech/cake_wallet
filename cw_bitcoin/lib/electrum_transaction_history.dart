@@ -62,7 +62,7 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath = await pathForWalletDirOf(walletInfo);
+    final dirPath = await walletDirPathOf(walletInfo);
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     return json.decode(content) as Map<String, dynamic>;

@@ -1,11 +1,7 @@
 import "dart:convert";
 import "dart:io";
+
 import "package:cw_core/encryption_file_utils.dart";
-import "package:cw_core/exceptions/cake_exception.dart";
-import "package:cw_core/imported_nft.dart";
-import "package:cw_core/pathForWallet.dart";
-import "package:cw_core/spl_token.dart";
-import "package:cw_core/tron_token.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
 import "package:cw_core/wallet_info.dart";
@@ -13,7 +9,7 @@ import "package:cw_core/wallet_keys_file.dart";
 import "package:cw_core/wallet_type.dart";
 
 abstract class WalletService<N extends WalletCredentials, RFS extends WalletCredentials,
-    RFK extends WalletCredentials, RFH extends WalletCredentials> {
+RFK extends WalletCredentials, RFH extends WalletCredentials> {
   WalletType getType();
 
   Future<WalletBase> create(N credentials, {bool? isTestnet});
@@ -27,11 +23,10 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
   Future<WalletBase> openWallet(WalletInfo walletInfo, String password);
 
   Future<bool> isWalletExit(WalletInfo walletInfo) async =>
-      File(await pathForWalletOf(walletInfo)).existsSync();
+      File(await walletFilePathOf(walletInfo)).existsSync();
 
   Future<void> remove(WalletInfo walletInfo) async {
     final dir = Directory(await walletDirPathOf(walletInfo));
-
     if (dir.existsSync()) {
       await dir.delete(recursive: true);
     }
@@ -39,57 +34,25 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
     await WalletInfo.delete(walletInfo);
   }
 
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    if (currentWalletInfo.name == newName) {
-      return;
-    }
-
-    if (!currentWalletInfo.isReady) {
-      throw WalletNotFoundException(name: currentWalletInfo.name, type: getType());
-    }
-
-    await _renameTokenRows(currentWalletInfo.name, newName);
-
-    currentWalletInfo.name = newName;
-    await currentWalletInfo.save();
-  }
-
-  Future<void> _renameTokenRows(String currentName, String newName) async {
-    if (getType() == WalletType.solana) {
-      await SPLToken.renameWallet(currentName, newName);
-      await ImportedNFT.renameWallet(
-        currentName,
-        newName,
-        chains: const [ImportedNFT.solanaChain],
-      );
-    }
-
-    if (getType() == WalletType.tron) {
-      await TronToken.renameWallet(currentName, newName);
-    }
-  }
-
-  Future<String> _backupPathFor(WalletInfo walletInfo) async =>
-      "${await pathForWalletOf(walletInfo)}.backup";
-
+  // TODO(wallet-id): backup never ran (it checked the directory), fix separately.
   Future<void> restoreWalletFilesFromBackup(WalletInfo walletInfo) async {
-    final path = await pathForWalletOf(walletInfo);
-    final backupPath = await _backupPathFor(walletInfo);
+    final walletDirPath = await walletDirPathOf(walletInfo);
+    final backupWalletDirPath = "$walletDirPath.backup";
 
-    if (File(backupPath).existsSync()) {
-      await File(backupPath).copy(path);
+    if (File(backupWalletDirPath).existsSync()) {
+      await File(backupWalletDirPath).copy(walletDirPath);
     }
   }
 
+  // TODO(wallet-id): backup never ran (it checked the directory), fix separately.
   Future<void> saveBackup(WalletInfo walletInfo) async {
-    final path = await pathForWalletOf(walletInfo);
-    final backupPath = await _backupPathFor(walletInfo);
+    final walletDirPath = await walletDirPathOf(walletInfo);
+    final backupWalletDirPath = "$walletDirPath.backup";
 
-    if (File(path).existsSync()) {
-      await File(path).copy(backupPath);
+    if (File(walletDirPath).existsSync()) {
+      await File(walletDirPath).copy(backupWalletDirPath);
     }
   }
-
 
   Future<String> getSeeds(WalletInfo walletInfo, String password) async {
     try {
@@ -100,22 +63,23 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
         return keysData.mnemonic ?? keysData.altMnemonic ?? keysData.privateKey ?? "";
       }
 
-      final path = await pathForWalletOf(walletInfo);
+      final path = await walletFilePathOf(walletInfo);
+      if (!File(path).existsSync()) return "";
+
       final jsonSource = await encryption.read(path: path, password: password);
       try {
         final data = json.decode(jsonSource) as Map;
         return data["mnemonic"] as String? ?? "";
       } catch (_) {
-        // if not a valid json
-        return jsonSource.substring(0, 200);
+        // Not JSON: older wallets stored the raw seed text.
+        return jsonSource.length > 200 ? jsonSource.substring(0, 200) : jsonSource;
       }
     } catch (_) {
-      // if the file couldn't be opened or read
       return "";
     }
   }
 
-  /// Check if the Wallet requires a hardware wallet to be connected during
-  /// the opening flow. (Currently only the case for Monero)
+  /// Whether the wallet needs a hardware wallet connected while opening.
+  /// (Currently only the case for Monero.)
   Future<bool> requireHardwareWalletConnection(WalletInfo walletInfo) async => false;
 }

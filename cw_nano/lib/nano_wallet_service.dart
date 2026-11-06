@@ -1,18 +1,17 @@
-import 'dart:io';
+import "dart:io";
 
+import "package:bip39/bip39.dart" as bip39;
+import "package:cw_core/encryption_file_utils.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_nano/nano_mnemonic.dart' as nm;
-import 'package:cw_nano/nano_wallet.dart';
-import 'package:cw_nano/nano_wallet_creation_credentials.dart';
-import 'package:hive/hive.dart';
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:nanodart/nanodart.dart';
-import 'package:nanoutil/nanoutil.dart';
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_nano/nano_mnemonic.dart" as nm;
+import "package:cw_nano/nano_wallet.dart";
+import "package:cw_nano/nano_wallet_creation_credentials.dart";
+import "package:nanodart/nanodart.dart";
+import "package:nanoutil/nanoutil.dart";
 
 class NanoWalletService extends WalletService<
     NanoNewWalletCredentials,
@@ -140,11 +139,8 @@ class NanoWalletService extends WalletService<
 
   @override
   Future<NanoWallet> openWallet(WalletInfo walletInfo, String password) async {
-    final name = walletInfo.name;
-
     try {
       final wallet = await NanoWalletBase.open(
-        name: name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -157,7 +153,6 @@ class NanoWalletService extends WalletService<
     } catch (_) {
       await restoreWalletFilesFromBackup(walletInfo);
       final wallet = await NanoWalletBase.open(
-        name: name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),

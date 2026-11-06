@@ -6,7 +6,6 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -65,7 +64,9 @@ class ElectrumWalletSnapshot {
 
   static Future<ElectrumWalletSnapshot> load(EncryptionFileUtils encryptionFileUtils,
       WalletInfo walletInfo, String password, BasedUtxoNetwork network) async {
-    final path = await pathForWalletOf(walletInfo);
+
+    final path = await walletFilePathOf(walletInfo);
+
     final jsonSource = await encryptionFileUtils.read(path: path, password: password);
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String?;

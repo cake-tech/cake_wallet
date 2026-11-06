@@ -804,6 +804,7 @@
   "overshot": "اوور شوٹ",
   "overwrite_amount": "رقم کو اوور رائٹ کریں",
   "pairing_code": "پیئرنگ کوڈ",
+  "pairing_code_bitbox_confirm": "تصدیق کریں کہ نیچے دیا گیا کوڈ آپ کے BitBox پر دکھائے گئے کوڈ سے میل کھاتا ہے",
   "pairing_code_desc_1": "آپ کا ڈیوائس ایک پیئرنگ کوڈ دکھائے گا۔",
   "pairing_code_desc_2": "جاری رکھنے کے لیے یہاں درج کریں",
   "pairing_error": "پیئرنگ کی خرابی",

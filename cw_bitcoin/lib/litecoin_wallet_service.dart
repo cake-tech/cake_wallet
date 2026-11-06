@@ -1,18 +1,19 @@
-import 'dart:io';
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:path_provider/path_provider.dart';
+import "dart:io";
+
+import "package:bip39/bip39.dart" as bip39;
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:cw_bitcoin/bitcoin_mnemonic.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart";
+import "package:cw_bitcoin/litecoin_wallet.dart";
+import "package:cw_bitcoin/mnemonic_is_incorrect_exception.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:hive/hive.dart";
+import "package:path_provider/path_provider.dart";
 
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -119,15 +120,6 @@ class LitecoinWalletService extends WalletService<
     if (keysToDelete.isNotEmpty) {
       await unspentCoinsInfoSource.deleteAll(keysToDelete);
     }
-  }
-
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {
-    if (currentWalletInfo.name == newName) return;
-
-    await LitecoinWalletBase.copyMwebBox(fromName: currentWalletInfo.name, toName: newName);
-    await super.rename(currentWalletInfo, password, newName);
-    await LitecoinWalletBase.deleteMwebBox(currentWalletInfo.name);
   }
 
   @override

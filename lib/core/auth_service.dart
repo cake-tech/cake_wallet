@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import "package:cake_wallet/core/key_service.dart";
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -21,6 +22,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
+import 'package:cake_wallet/entities/wallet_group_db_entry.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import '../src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
 
@@ -138,7 +140,7 @@ class AuthService with Store {
         walletNames: () async {
           final currentWalletName = sharedPreferences.getString(PreferencesKey.currentWalletName);
           return {
-            for (final walletInfo in await WalletInfo.getAll()) walletInfo.name,
+            for (final walletInfo in await WalletInfo.getAll()) KeyService.passwordKeyOf(walletInfo),
             if (currentWalletName != null && currentWalletName.isNotEmpty) currentWalletName,
           };
         },
@@ -324,6 +326,7 @@ Future<void> _handleDuressLogin(
       await txn.delete(DerivationInfo.tableName);
       await txn.delete(WalletGroupDbEntry.tableName);
       await txn.delete(WalletInfo.tableName);
+      await txn.delete(WalletGroupDbEntry.tableName);
     });
     printV('[DURESS] SQLite wallet tables wiped');
   } catch (e) {

@@ -1,5 +1,5 @@
-import "dart:io";
-import "package:cw_core/pathForWallet.dart";
+import 'dart:io';
+import 'package:cw_core/pathForWallet.dart';
 import "package:cw_core/wallet_info.dart";
 
 String backupFileName(String originalPath) {
@@ -32,8 +32,10 @@ Future<void> backupWalletFiles(WalletInfo walletInfo) async {
 
 Future<void> restoreWalletFiles(WalletInfo walletInfo) async {
   final cacheFilePath = await pathForWalletOf(walletInfo);
-  final keysFilePath = '$cacheFilePath.keys';
-  final addressListFilePath = '$cacheFilePath.address.txt';
+
+  final keysFilePath = "$cacheFilePath.keys";
+  final addressListFilePath = "$cacheFilePath.address.txt";
+
   final backupCacheFile = File(backupFileName(cacheFilePath));
   final backupKeysFile = File(backupFileName(keysFilePath));
   final backupAddressListFile = File(backupFileName(addressListFilePath));
@@ -60,9 +62,11 @@ Future<void> resetCache(WalletInfo walletInfo) async {
 }
 
 Future<bool> backupWalletFilesExists(WalletInfo walletInfo) async {
-  final cacheFilePath = await pathForWalletOf(walletInfo);
-  final keysFilePath = '$cacheFilePath.keys';
-  final addressListFilePath = '$cacheFilePath.address.txt';
+
+  final cacheFilePath = await walletFilePathOf(walletInfo);
+  final keysFilePath = "$cacheFilePath.keys";
+  final addressListFilePath = "$cacheFilePath.address.txt";
+
   final backupCacheFile = File(backupFileName(cacheFilePath));
   final backupKeysFile = File(backupFileName(keysFilePath));
   final backupAddressListFile = File(backupFileName(addressListFilePath));
@@ -74,7 +78,7 @@ Future<bool> backupWalletFilesExists(WalletInfo walletInfo) async {
 
 // WARNING: Transaction keys and your Polyseed CANNOT be recovered if this file is deleted
 Future<void> removeCache(WalletInfo walletInfo) async {
-  final path = await pathForWalletOf(walletInfo);
+  final path = await wall
   final cacheFile = File(path);
   final backgroundCacheFile = File(path + ".background");
   if (cacheFile.existsSync()) {
@@ -90,6 +94,10 @@ Future<void> restoreOrResetWalletFiles(WalletInfo walletInfo) async {
 
   if (backupsExists) {
     await removeCache(walletInfo);
+
+    // TODO(mrcyjanek): is this needed?
+    // If we remove cache then wallet should be restored from .keys file.
+
     await restoreWalletFiles(walletInfo);
   }
 }

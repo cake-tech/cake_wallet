@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
-import 'dart:io';
-import 'dart:isolate';
 
 import 'package:cw_core/account.dart';
 import 'package:cw_core/amount/money.dart';
@@ -26,7 +23,6 @@ import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:cw_wownero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_wownero/api/wallet.dart' as wownero_wallet;
-import 'package:cw_wownero/api/wallet_manager.dart';
 import 'package:cw_wownero/api/wownero_output.dart';
 import 'package:cw_wownero/exceptions/wownero_transaction_creation_exception.dart';
 import 'package:cw_wownero/exceptions/wownero_transaction_no_inputs_exception.dart';

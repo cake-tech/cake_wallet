@@ -1,17 +1,17 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:bip39/bip39.dart' as bip39;
+import "package:bip39/bip39.dart" as bip39;
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_zcash/cw_zcash.dart';
-import 'package:cw_zcash/src/migrate.dart';
-import 'package:mutex/mutex.dart';
-import 'package:path/path.dart' as p;
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_zcash/cw_zcash.dart";
+import "package:cw_zcash/src/migrate.dart";
+import "package:mutex/mutex.dart";
+import "package:path/path.dart" as p;
 
 class ZcashWalletService
     extends
@@ -84,7 +84,7 @@ class ZcashWalletService
 
   @override
   Future<bool> isWalletExit(final WalletInfo walletInfo) async {
-    final oldPath = await pathForWalletOf(walletInfo);
+    final oldPath = await walletFilePathOf(walletInfo);
     final path = "$oldPath.v2";
     return File(path).existsSync() || File(oldPath).existsSync();
   }
@@ -95,7 +95,7 @@ class ZcashWalletService
     await ZcashWalletBase.$init(network: ZcashWalletBase.networkFor(walletInfo));
 
     if (await isWalletExit(walletInfo)) {
-      final path = "${await pathForWalletOf(walletInfo)}.v2";
+      final path = "${await walletFilePathOf(walletInfo)}.v2";
       if (!File(path).existsSync()) {
         await migrateOldSqliteToZkool2(walletInfo: walletInfo);
       }
@@ -127,13 +127,15 @@ class ZcashWalletService
   Future<ZcashWallet> restoreFromKeys(
     final ZcashFromKeysWalletCredentials credentials, {
     final bool? isTestnet,
-  }) => ZcashWalletBase.restoreKeys(credentials);
+  }) async {
+    return ZcashWalletBase.restoreKeys(credentials);
+  }
 
   @override
   Future<ZcashWallet> restoreFromSeed(
     final ZcashFromSeedWalletCredentials credentials, {
     final bool? isTestnet,
-  }) {
+  }) async {
     if (credentials.seed == null || credentials.seed!.isEmpty) {
       throw BadMnemonicException("Seed is missing");
     }

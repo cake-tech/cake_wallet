@@ -1,13 +1,13 @@
-import 'package:bip39/bip39.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_core/encryption_file_utils.dart';
+import "package:bip39/bip39.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_core/encryption_file_utils.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_dogecoin/cw_dogecoin.dart';
-import 'package:hive/hive.dart';
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_dogecoin/cw_dogecoin.dart";
+import "package:hive/hive.dart";
 
 class DogeCoinWalletService extends WalletService<
     DogeCoinNewWalletCredentials,
@@ -99,7 +99,7 @@ class DogeCoinWalletService extends WalletService<
   Future<DogeCoinWallet> restoreFromSeed(DogeCoinRestoreWalletFromSeedCredentials credentials,
       {bool? isTestnet}) async {
     if (!validateMnemonic(credentials.mnemonic)) {
-      throw BadMnemonicException('Invalid mnemonic: ${credentials.mnemonic}');
+      throw const BadMnemonicException("Invalid mnemonic");
     }
 
     final wallet = await DogeCoinWalletBase.create(

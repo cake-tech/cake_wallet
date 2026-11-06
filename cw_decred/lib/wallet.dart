@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:flutter/foundation.dart';
@@ -72,9 +70,9 @@ abstract class DecredWalletBase
   final syncIntervalSynced = 30; // seconds
   static final defaultFeeRate = 10000;
   final String _password;
+  // TODO(wallet-id): libdcrwallet is keyed by walletInfo.name; switch to walletInfo.id (with data migration) before names can repeat.
   final Libwallet _libwallet;
   final Function() _closeLibwallet;
-  final idPrefix = "decred_";
 
   // TODO: Encrypt this.
   var _seed = "";
@@ -122,9 +120,9 @@ abstract class DecredWalletBase
 
   @override
   WalletKeysData get walletKeysData => WalletKeysData(
-        mnemonic: seed,
-        passphrase: passphrase,
-      );
+    mnemonic: seed,
+    passphrase: passphrase,
+  );
 
   @override
   Object get keys => {};
@@ -232,13 +230,13 @@ abstract class DecredWalletBase
     final syncStatusJSON = await _libwallet.syncStatus(walletInfo.name);
     final decoded = json.decode(syncStatusJSON.isEmpty ? "{}" : syncStatusJSON);
 
-    final syncStatusCode = decoded["syncstatuscode"] ?? 0;
+    final syncStatusCode = decoded["syncstatuscode"] as int? ?? 0;
     // final syncStatusStr = decoded["syncstatus"] ?? "";
-    final targetHeight = decoded["targetheight"] ?? 1;
+    final targetHeight = decoded["targetheight"] as int? ?? 1;
     final numPeers = decoded["numpeers"] ?? 0;
     // final cFiltersHeight = decoded["cfiltersheight"] ?? 0;
-    final headersHeight = decoded["headersheight"] ?? 0;
-    final rescanHeight = decoded["rescanheight"] ?? 0;
+    final headersHeight = decoded["headersheight"] as int? ?? 0;
+    final rescanHeight = decoded["rescanheight"] as int? ?? 0;
 
     if (numPeers == 0) {
       syncStatus = NotConnectedSyncStatus();
@@ -314,7 +312,7 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
-      final dirPath = walletInfo.path;
+      final dirPath = await pathForWalletDirOf(walletInfo);
       final config = {
         "name": walletInfo.name,
         "datadir": dirPath,
@@ -419,18 +417,18 @@ abstract class DecredWalletBase
     };
     final res = await _libwallet.createSignedTransaction(walletInfo.name, jsonEncode(signReq));
     final decoded = json.decode(res);
-    final signedHex = decoded["hex"];
+    final signedHex = decoded["hex"] as String? ?? "";
     final send = () async {
       await _libwallet.sendRawTransaction(walletInfo.name, signedHex);
       await updateBalance();
     };
-    final fee = decoded["fee"] ?? 0;
+    final fee = decoded["fee"] as int? ?? 0;
     if (sendAll) {
       totalAmt = (totalAmt - fee).round();
     }
 
     return DecredPendingTransaction(
-      txId: decoded["txid"] ?? "",
+      txId: decoded["txid"] as String? ?? "",
       amount: Money.fromInt(totalAmt, currency),
       fee: Money.fromInt(fee, currency),
       rawHex: signedHex,
@@ -458,7 +456,7 @@ abstract class DecredWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     if (priority is DecredTransactionPriority) {
       final P2PKHOutputSize =
-          36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
+      36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
       // MsgTxOverhead is 4 bytes version (lower 2 bytes for the real transaction
       // version and upper 2 bytes for the serialization type) + 4 bytes locktime
       // + 4 bytes expiry + 3 bytes of varints for the number of transaction
@@ -495,18 +493,20 @@ abstract class DecredWalletBase
       final decoded = json.decode(res);
       final txs = <String, DecredTransactionInfo>{};
 
-      for (final d in decoded) {
-        final txid = uniqueTxID(d["txid"] ?? "", d["vout"] ?? 0);
+      for (final d in decoded as Iterable<dynamic>) {
+        final txid = uniqueTxID(d["txid"] as String? ?? "", d["vout"] as int? ?? 0);
         var direction = TransactionDirection.outgoing;
         if (d["category"] == "receive") {
           direction = TransactionDirection.incoming;
         }
-        final amountDouble = d["amount"] ?? 0.0;
+        // amount and fee are Go float64s, and Go writes whole values without a decimal point
+        // (1, not 1.0), so they can decode as int. Cast to num, never double.
+        final amountDouble = d["amount"] as num? ?? 0.0;
         final amount = (amountDouble * 1e8).round().abs();
-        final feeDouble = d["fee"] ?? 0.0;
+        final feeDouble = d["fee"] as num? ?? 0.0;
         final fee = (feeDouble * 1e8).round().abs();
-        final confs = d["confirmations"] ?? 0;
-        final sendTime = d["time"] ?? 0;
+        final confs = d["confirmations"] as int? ?? 0;
+        final sendTime = d["time"] as int? ?? 0;
 
         txs[txid] = DecredTransactionInfo(
           id: txid,
@@ -515,9 +515,9 @@ abstract class DecredWalletBase
           direction: direction,
           isPending: confs == 0,
           date: DateTime.fromMillisecondsSinceEpoch(sendTime * 1000, isUtc: false),
-          height: d["height"] ?? 0,
+          height: d["height"] as int? ?? 0,
           confirmations: confs,
-          to: d["address"] ?? "",
+          to: d["address"] as String? ?? "",
         );
       }
       return txs;
@@ -601,8 +601,8 @@ abstract class DecredWalletBase
     });
 
     balance[CryptoCurrency.dcr] = DecredBalance(
-      confirmed: Money.fromInt(balanceMap["confirmed"] ?? 0, currency),
-      unconfirmed: Money.fromInt(balanceMap["unconfirmed"] ?? 0, currency),
+      confirmed: Money.fromInt(balanceMap["confirmed"] as int? ?? 0, currency),
+      unconfirmed: Money.fromInt(balanceMap["unconfirmed"] as int? ?? 0, currency),
       frozen: Money.fromInt(totalFrozen, currency),
     );
   }
@@ -612,46 +612,6 @@ abstract class DecredWalletBase
 
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
-
-  // Deliberately left as a no-op / not implemented for now — renaming a
-  // Decred wallet may still need to tell libdcrwallet itself about the new
-  // name internally (it appears to key an already-loaded wallet by name via
-  // walletSeed/estimateFee/syncStatus/etc.), independent of any file move.
-  // The directory-moving logic below (and its extension to also rename
-  // .keys/.keys.backup) is no longer needed either way: directories no
-  // longer move on rename, and .keys/.keys.backup are addressed via
-  // walletInfo.id through WalletKeysFile, which also never changes on
-  // rename. Needs a real answer from libdcrwallet's actual contract before
-  // writing a replacement.
-  //
-  // Future<void> renameWalletFiles(String newWalletName) async {
-  //   final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-  //   final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-  //   if (File(newDirPath).existsSync()) {
-  //     throw "wallet already exists at $newDirPath";
-  //   }
-  //   final sourceDir = Directory(currentDirPath);
-  //   final targetDir = Directory(newDirPath);
-  //   if (!targetDir.existsSync()) {
-  //     await targetDir.create(recursive: true);
-  //   }
-  //   await for (final entity in sourceDir.list(recursive: true)) {
-  //     final relativePath = entity.path.substring(sourceDir.path.length + 1);
-  //     final targetPath = p.join(targetDir.path, relativePath);
-  //     if (entity is File) {
-  //       await entity.rename(targetPath);
-  //     } else if (entity is Directory) {
-  //       await Directory(targetPath).create(recursive: true);
-  //     }
-  //   }
-  //   await sourceDir.delete(recursive: true);
-  //   for (final suffix in const ['.keys', '.keys.backup']) {
-  //     final file = File(p.join(newDirPath, '${walletInfo.name}$suffix'));
-  //     if (file.existsSync()) {
-  //       await file.rename(p.join(newDirPath, '$newWalletName$suffix'));
-  //     }
-  //   }
-  // }
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
@@ -673,15 +633,22 @@ abstract class DecredWalletBase
       final res = await _libwallet.listUnspents(walletInfo.name);
       final decoded = json.decode(res);
       final unspents = <Unspent>[];
-      for (final d in decoded) {
-        final spendable = d["spendable"] ?? false;
+      for (final d in decoded as Iterable<dynamic>) {
+        final spendable = d["spendable"] as bool? ?? false;
         if (!spendable) {
           continue;
         }
-        final amountDouble = d["amount"] ?? 0.0;
+        // A Go float64, so it can decode as int (see fetchFiveTransactions): num, not double.
+        final amountDouble = d["amount"] as num? ?? 0.0;
         final amount = (amountDouble * 1e8).round().abs();
-        final utxo = Unspent(d["address"] ?? "", d["txid"] ?? "", amount, d["vout"] ?? 0, null);
-        utxo.isChange = d["ischange"] ?? false;
+        final utxo = Unspent(
+          d["address"] as String? ?? "",
+          d["txid"] as String? ?? "",
+          amount,
+          d["vout"] as int? ?? 0,
+          null,
+        );
+        utxo.isChange = d["ischange"] as bool? ?? false;
         unspents.add(utxo);
       }
       _unspents = unspents;
@@ -706,18 +673,13 @@ abstract class DecredWalletBase
       return;
     }
 
-    // TODO(serhii): this was previously `idPrefix + walletInfo.name`.
-    // Existing UnspentCoinsInfo rows for wallets that already existed before
-    // this change were saved under the OLD name-based walletId. Switching to
-    // walletInfo.id means those old rows will no longer match here and will
-    // look orphaned/lost (isFrozen/isSending/note reset) for any wallet that
-    // existed pre-refactor. Check whether a one-time migration is needed to
-    // rewrite existing rows' walletId from name-based to id-based.
-    final walletID = idPrefix + walletInfo.id;
+    // walletInfo.id is "decred_<name>" for legacy wallets (same key as the old
+    // idPrefix + name), and the UUID for new wallets, so existing rows still match.
+    final walletID = walletInfo.id;
     if (unspentCoins.isNotEmpty) {
       unspentCoins.forEach((coin) {
         final coinInfoList = this.unspentCoinsInfo.values.where((element) =>
-            element.walletId == walletID && element.hash == coin.hash && element.vout == coin.vout);
+        element.walletId == walletID && element.hash == coin.hash && element.vout == coin.vout);
 
         if (coinInfoList.isEmpty) {
           this.addCoinInfo(coin);
@@ -747,7 +709,7 @@ abstract class DecredWalletBase
 
   void addCoinInfo(Unspent coin) {
     final newInfo = UnspentCoinsInfo(
-      walletId: idPrefix + walletInfo.id,
+      walletId: walletInfo.id,
       hash: coin.hash,
       isFrozen: false,
       isSending: coin.isSending,
@@ -773,7 +735,7 @@ abstract class DecredWalletBase
       if (decoded["setfromheight"] == true || decoded["setfromtime"] == true) {
         return -1;
       }
-      return decoded["height"] ?? 0;
+      return decoded["height"] as int? ?? 0;
     } on FormatException catch (_) {
       return 0;
     }

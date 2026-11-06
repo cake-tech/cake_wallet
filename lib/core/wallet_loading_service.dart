@@ -32,28 +32,14 @@ class WalletLoadingService {
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
 
-  Future<void> renameWallet(WalletInfo walletInfo, String newName, {String? password}) async {
-    try {
-      final walletService = walletServiceFactory.call(walletInfo.type);
-      final walletPassword = password ?? (await keyService.getWalletPasswordForWallet(walletInfo));
-
-      // Password storage is keyed by walletInfo.id, which a rename doesn't
-      // change — nothing to move or delete here anymore. (Previously this
-      // saved under the new name's key and deleted the old one; if the app
-      // died between those two calls, the password was gone. That whole
-      // failure mode no longer exists.)
-      await walletService.rename(walletInfo, walletPassword, newName);
-
-      if (walletInfo.type == WalletType.monero) {
-        final oldNameKey = PreferencesKey.moneroWalletUpdateV1Key(walletInfo.name);
-        final isPasswordUpdated = sharedPreferences.getBool(oldNameKey) ?? false;
-        final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
-        await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
-      }
-    } catch (error, stack) {
-      await ExceptionHandler.resetLastPopupDate();
-      await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+  /// For callers that only have the id (wallet list items, background sync).
+  Future<WalletBase> loadById(String walletId,
+      {String? password, bool isBackground = false}) async {
+    final walletInfo = await WalletInfo.getById(walletId);
+    if (walletInfo == null) {
+      throw WalletNotFoundException(name: walletId);
     }
+    return load(walletInfo, password: password, isBackground: isBackground);
   }
 
   Future<WalletBase> load(WalletInfo walletInfo, {String? password, bool isBackground = false}) async {
@@ -129,17 +115,17 @@ class WalletLoadingService {
         await showPopUp<void>(
             context: navigatorKey.currentContext!,
             builder: (BuildContext context) => AlertWithTwoActions(
-                alertTitle: "Corrupted seeds",
-                alertContent: S.of(context).corrupted_seed_notice,
-                leftButtonText: S.of(context).cancel,
-                rightButtonText: S.of(context).show_seed,
-                actionLeftButton: () {
-                  if (context.mounted && Navigator.of(context).canPop()) {
-                    Navigator.of(context).pop();
-                  }
-                },
-                actionRightButton: () => showSeedsPopup(context, msg),
-              ));
+              alertTitle: "Corrupted seeds",
+              alertContent: S.of(context).corrupted_seed_notice,
+              leftButtonText: S.of(context).cancel,
+              rightButtonText: S.of(context).show_seed,
+              actionLeftButton: () {
+                if (context.mounted && Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+              actionRightButton: () => showSeedsPopup(context, msg),
+            ));
       } else {
         throw msg;
       }
@@ -178,14 +164,13 @@ class WalletLoadingService {
       return;
     }
 
-    final walletInfo = wallet.walletInfo;
     final password = generateWalletPassword();
     // Save new generated password with backup key for case where
     // wallet will change password, but it will fail to update in secure storage
-    final bakWalletId = '#__${walletInfo.id}_bak__#';
-    await keyService.saveWalletPasswordForId(walletId: bakWalletId, password: password);
+    final bakWalletName = '#__${wallet.name}_bak__#';
+    await keyService.saveWalletPassword(walletName: bakWalletName, password: password);
     await wallet.changePassword(password);
-    await keyService.saveWalletPasswordForWallet(walletInfo: walletInfo, password: password);
+    await keyService.saveWalletPasswordForWallet(wallet.walletInfo, password);
     isPasswordUpdated = true;
     await sharedPreferences.setBool(key, isPasswordUpdated);
   }
@@ -194,7 +179,8 @@ class WalletLoadingService {
     final walletService = walletServiceFactory.call(walletInfo.type);
     final password = await keyService.getWalletPasswordForWallet(walletInfo);
 
-    return "\n\n${walletInfo.type} (${walletInfo.name}): ${await walletService.getSeeds(walletInfo, password)}";
+    return "\n\n${walletInfo.type} (${walletInfo.name}): "
+        "${await walletService.getSeeds(walletInfo, password)}";
   }
 
   Future<bool> requireHardwareWalletConnection(WalletInfo walletInfo) async {

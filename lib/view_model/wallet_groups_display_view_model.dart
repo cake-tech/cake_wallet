@@ -51,9 +51,7 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   bool isFetchingMnemonic;
 
   @computed
-  bool get hasNoFilteredWallet {
-    return singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
-  }
+  bool get hasNoFilteredWallet => singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
 
   /// Throws [GroupNotOmnichainCompatibleException] if the selected group/wallet's seed
   /// can't be reused for another network.
@@ -134,13 +132,13 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   }
 
   WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) => WalletListItem(
-      walletInfo: info,
-      name: info.name,
-      type: info.type,
-      key: info.id,
-      isCurrent: info.id == _appStore.wallet?.walletInfo.id,
-      isEnabled: availableWalletTypes.contains(info.type),
-      isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
-      isHardware: info.isHardwareWallet,
-    );
+        walletInfo: info,
+        name: info.name,
+        type: info.type,
+        key: info.id,
+        isCurrent: info.id == _appStore.wallet?.walletInfo.id,
+        isEnabled: availableWalletTypes.contains(info.type),
+        isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
+        isHardware: info.isHardwareWallet,
+      );
 }

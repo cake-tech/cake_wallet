@@ -1,8 +1,8 @@
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/core/wallet_creation_service.dart";
 import "package:cake_wallet/di.dart";
-import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/nano/nano.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
@@ -13,7 +13,6 @@ import "package:cake_wallet/view_model/seed_settings_view_model.dart";
 import "package:cake_wallet/zcash/zcash_network_type.dart";
 import "package:cw_core/exceptions.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
-import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_credentials.dart";
@@ -74,6 +73,8 @@ abstract class WalletCreationVMBase with Store {
   Future<bool> nameExists(String name) => _walletGroupService.isGroupNameTaken(name);
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
+
+  String? get joinGroupId => null;
 
   bool _isCreating = false;
 
@@ -151,7 +152,7 @@ abstract class WalletCreationVMBase with Store {
 
       final existingGroupId = (placeholderRealGroupId?.isNotEmpty ?? false)
           ? placeholderRealGroupId
-          : ((groupId?.isNotEmpty ?? false) ? groupId : null);
+          : ((groupId?.isNotEmpty ?? false) ? groupId : joinGroupId);
       final shouldCreateGroup = !isGroupCreationDeferred && existingGroupId == null;
       final groupName = name.trim().isNotEmpty ? name.trim() : walletTypeToDisplayName(type);
 

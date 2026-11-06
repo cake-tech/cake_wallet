@@ -97,7 +97,9 @@ abstract class EVMChainTransactionHistoryBase
 
   Future<Map<String, dynamic>> _read() async {
     final transactionsHistoryFileNameForWallet = getTransactionHistoryFileName();
-    final dirPath = await pathForWalletDirOf(walletInfo);
+
+    final dirPath = await walletDirPathOf(walletInfo);
+
     String path = '$dirPath/$transactionsHistoryFileNameForWallet';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {

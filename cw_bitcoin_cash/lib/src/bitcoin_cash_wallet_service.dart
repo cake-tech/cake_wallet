@@ -1,16 +1,12 @@
-import 'dart:io';
-
-import 'package:bip39/bip39.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
+import "package:bip39/bip39.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_bitcoin_cash/cw_bitcoin_cash.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:hive/hive.dart";
 
 class BitcoinCashWalletService extends WalletService<
     BitcoinCashNewWalletCredentials,

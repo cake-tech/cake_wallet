@@ -12,13 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.1.0
-  file: ^7.0.0
   path_provider: ^2.1.5
   mobx: ^2.6.0
-  flutter_mobx: ^2.3.0
   intl: any
   encrypt: ^5.0.1
-  decimal: ^2.3.3
   cake_backup:
     git:
       url: https://github.com/cake-tech/cake_backup.git
@@ -48,6 +45,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/bech32.git
   sqlite3_flutter_libs: 0.5.40
+  uuid: 4.6.0
 
 dev_dependencies:
   flutter_test:

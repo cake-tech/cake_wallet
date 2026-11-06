@@ -1653,12 +1653,12 @@ abstract class DashboardViewModelBase with Store {
       List<String> affectedWallets = [];
       final walletInfos = await WalletInfo.getAll();
       for (var walletInfo in walletInfos) {
-        if (walletInfo.type != WalletType.bitcoin || !walletInfo.isReady) continue;
-
-        try {
+        if (walletInfo.type == WalletType.bitcoin) {
           final password = await keyService.getWalletPasswordForWallet(walletInfo);
-          final path = await pathForWalletOf(walletInfo);
-          final jsonSource = await read(path: path, password: password);
+          final path = await walletFilePathOf(walletInfo);
+          final encryption = encryptionFileUtilsFor(SettingsStoreBase.walletPasswordDirectInput);
+          final jsonSource = await encryption.read(path: path, password: password);
+
           final data = json.decode(jsonSource) as Map;
           final mnemonic = data['mnemonic'] as String?;
 

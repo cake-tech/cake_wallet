@@ -1,18 +1,18 @@
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/payjoin_session.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/zpub.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
-import 'package:bip39/bip39.dart' as bip39;
+import "package:bip39/bip39.dart" as bip39;
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:cw_bitcoin/bitcoin_mnemonic.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_bitcoin/bitcoin_wallet.dart";
+import "package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart";
+import "package:cw_bitcoin/mnemonic_is_incorrect_exception.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/payjoin_session.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/utils/zpub.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:hive/hive.dart";
 
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,

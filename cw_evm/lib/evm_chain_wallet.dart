@@ -1495,7 +1495,8 @@ abstract class EVMChainWalletBase
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
-    final path = await pathForWalletOf(walletInfo);
+
+    final path = await walletFilePathOf(walletInfo);
 
     Map<String, dynamic>? data;
     try {

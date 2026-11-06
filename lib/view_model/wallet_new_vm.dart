@@ -41,6 +41,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   final NewWalletArguments? newWalletArguments;
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
 
+  @override
+  String? get joinGroupId => newWalletArguments?.parentGroupId;
+
   @observable
   String selectedMnemonicLanguage;
 

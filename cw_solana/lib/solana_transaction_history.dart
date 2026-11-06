@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:core';
 import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_solana/solana_transaction_info.dart';
@@ -71,7 +70,9 @@ abstract class SolanaTransactionHistoryBase extends TransactionHistoryBase<Solan
       this.transactions.addAll(transactions);
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath = await pathForWalletDirOf(walletInfo);
+
+    final dirPath = await walletDirPathOf(walletInfo);
+
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {

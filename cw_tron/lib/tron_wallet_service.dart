@@ -1,17 +1,17 @@
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:cw_core/balance.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/tron_token.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_tron/tron_client.dart';
-import 'package:cw_tron/tron_exception.dart';
-import 'package:cw_tron/tron_wallet.dart';
-import 'package:cw_tron/tron_wallet_creation_credentials.dart';
+import "package:bip39/bip39.dart" as bip39;
+import "package:cw_core/balance.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/transaction_history.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/tron_token.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_tron/tron_client.dart";
+import "package:cw_tron/tron_exception.dart";
+import "package:cw_tron/tron_wallet.dart";
+import "package:cw_tron/tron_wallet_creation_credentials.dart";
 
 class TronWalletService extends WalletService<
     TronNewWalletCredentials,

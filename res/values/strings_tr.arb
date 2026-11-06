@@ -802,6 +802,7 @@
   "overshot": "Aşıldı",
   "overwrite_amount": "Miktarın üzerine yaz",
   "pairing_code": "Eşleştirme Kodu",
+  "pairing_code_bitbox_confirm": "Aşağıdaki kodun BitBox'ınızda gösterilen kodla eşleştiğini onaylayın",
   "pairing_code_desc_1": "Cihazınız bir eşleştirme kodu gösterecektir.",
   "pairing_code_desc_2": "Devam etmek için buraya girin",
   "pairing_error": "Eşleştirme Hatası",

@@ -25,8 +25,9 @@ abstract class WalletListViewModelBase with Store {
     this._keyService,
     this._walletServiceFactory,
   )   : wallets = ObservableList<WalletListItem>(),
-        multiWalletGroups = ObservableList<WalletGroup>.of(_walletGroupService.groups),
+        multiWalletGroups = ObservableList<WalletGroup>(),
         expansionTileStateTrack = ObservableMap<int, bool>() {
+    _setGroups(_walletGroupService.groups);
     _groupsSub = _walletGroupService.watch().listen(_setGroups);
 
     setOrderType(_appStore.settingsStore.walletListOrder);
@@ -46,20 +47,42 @@ abstract class WalletListViewModelBase with Store {
   @observable
   ObservableList<WalletListItem> wallets;
 
+  /// Groups with 2+ ready wallets.
   @observable
   ObservableList<WalletGroup> multiWalletGroups;
+
+  /// Wallets that are alone in their group (the list shows them as plain rows).
+  final ObservableList<WalletListItem> singleWalletsList = ObservableList<WalletListItem>();
 
   @observable
   ObservableMap<int, bool> expansionTileStateTrack;
 
+  /// The one-wallet group behind each entry of [singleWalletsList], by wallet id.
+  /// A single wallet is a group of one: editing it renames this group.
+  final Map<String, WalletGroup> singleWalletGroupByWalletId = {};
+
+  /// Splits the service's groups into [multiWalletGroups] and [singleWalletsList].
+  /// Placeholders (not ready yet) are not counted; a group with no ready wallet is hidden.
   @action
-  void _setGroups(List<WalletGroup> groups) => multiWalletGroups
-    ..clear()
-    ..addAll(groups);
+  void _setGroups(List<WalletGroup> groups) {
+    multiWalletGroups.clear();
+    singleWalletsList.clear();
+    singleWalletGroupByWalletId.clear();
+
+    for (final group in groups) {
+      final ready = group.wallets.where((w) => w.isReady).toList();
+      if (ready.length == 1) {
+        final wallet = ready.single;
+        singleWalletsList.add(convertWalletInfoToWalletListItem(wallet));
+        singleWalletGroupByWalletId[wallet.id] = group;
+      } else if (ready.length > 1) {
+        multiWalletGroups.add(group);
+      }
+    }
+  }
 
   bool groupContainsCurrentWallet(WalletGroup group) =>
       group.wallets.any((w) => w.id == _appStore.wallet?.walletInfo.id);
-
 
   Future<void> deleteGroup(WalletGroup group) async {
     if (_isDeletingGroup) return;
@@ -152,7 +175,7 @@ abstract class WalletListViewModelBase with Store {
     // make a copy of the walletInfoSource:
     List<WalletInfo> wiList = await WalletInfo.getAll();
 
-    for (WalletGroup group in multiWalletGroups) {
+    for (WalletGroup group in _walletGroupService.groups) {
       for (WalletInfo walletInfo in group.wallets) {
         for (int i = 0; i < wiList.length; i++) {
           if (wiList[i].id == walletInfo.id) {
@@ -212,7 +235,7 @@ abstract class WalletListViewModelBase with Store {
       await wiList[i].save();
     }
 
-    updateList();
+    await updateList();
   }
 
   void setAscending(bool ascending) {

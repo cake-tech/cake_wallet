@@ -18,7 +18,7 @@ class WalletListItem {
   final WalletInfo walletInfo;
   final WalletType type;
   final bool isCurrent;
-  final dynamic key;
+  final String key;
   final bool isEnabled;
   final bool isTestnet;
   final bool isHardware;

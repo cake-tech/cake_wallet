@@ -105,6 +105,12 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         // Convert the shortcut type to a URI and add it to the stream
         final uri = Uri.parse('cakewallet://quickaction/$shortcutType');
         quickActionsStream.sink.add(uri);
+      }).then((_) {
+        // On Android initialize() reads the launch shortcut from the intent and calls the handler
+        // before returning, so no shortcut by now means there isn't one. iOS delivers it later.
+        if (Platform.isAndroid && !initialShortcutCompleter.isCompleted) {
+          initialShortcutCompleter.complete(null);
+        }
       });
 
       quickActions.setShortcutItems(<ShortcutItem>[
@@ -117,7 +123,8 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
             localizedSubtitle: 'Receive funds')
       ]);
 
-      // Fallback in case the initial shortcut is not received (normal cold start)
+      // Fallback in case the initial shortcut is not received (normal cold start on iOS, or if
+      // initialize() fails on Android)
       Future<void>.delayed(const Duration(milliseconds: 500), () {
         if (!initialShortcutCompleter.isCompleted) {
           initialShortcutCompleter.complete(null);
@@ -127,7 +134,6 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       initialShortcutCompleter.complete(null);
     }
 
-    final initialQuickAction = await initialShortcutCompleter.future;
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -178,6 +184,9 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       }
       zcash?.unlockDatabase(zcashPassword);
     }
+
+    // Awaited only now so the fallback timeout runs concurrently with the startup work above
+    final initialQuickAction = await initialShortcutCompleter.future;
 
     // Basically when we're running a test
     if (topLevelKey != null) {
@@ -346,7 +355,15 @@ Future<void> initialSetup({
     havenSeedStore: havenSeedStore,
   );
 
-  await migrateLegacyWalletsToGroups(sharedPreferences);
+
+  if (loadWallet) {
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
+  }
+
   await setup(
     contactSource: contactSource,
     ordersSource: ordersSource,

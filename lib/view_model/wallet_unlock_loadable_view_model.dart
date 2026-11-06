@@ -1,11 +1,13 @@
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/wallet_loading_service.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/view_model/wallet_unlock_view_model.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart";
 
-part 'wallet_unlock_loadable_view_model.g.dart';
+part "wallet_unlock_loadable_view_model.g.dart";
 
 class WalletUnlockLoadableViewModel = WalletUnlockLoadableViewModelBase
     with _$WalletUnlockLoadableViewModel;
@@ -41,7 +43,13 @@ abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel w
   Future<void> unlock() async {
     try {
       state = InitialExecutionState();
-      final walletInfo = _appStore.wallet!.walletInfo;
+
+      // TODO(wallet-id): name + type is ambiguous for UUID wallets; pass the wallet id instead.
+      final walletInfo = await WalletInfo.get(walletName, walletType);
+      if (walletInfo == null) {
+        throw WalletNotFoundException(name: walletName, type: walletType);
+      }
+
       final wallet = await _walletLoadingService.load(walletInfo, password: password);
       _appStore.changeCurrentWallet(wallet);
       success();

@@ -850,7 +850,7 @@ class WalletInfo {
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null,
         json["showSeedBackupReminder"] == 1,
-        json['groupId'] as String?);
+        json["groupId"] as String?,);
     info.network = json['network'] as String?;
     info.isReady = (json['isReady'] as int? ?? 1) == 1;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
@@ -901,7 +901,9 @@ class WalletInfo {
   }
 
   static Future<WalletInfo?> getById(String id) async {
-    final list = await selectList('id = ?', [id]);
+
+    final list = await selectList("id = ?", [id]);
+
     if (list.isEmpty) {
       return null;
     }

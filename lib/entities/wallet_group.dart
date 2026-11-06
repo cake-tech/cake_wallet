@@ -10,7 +10,7 @@ class WalletGroup {
         this.canManageNetworks = false,
       }) : wallets = List.unmodifiable(wallets);
 
-
+  /// Primary identifier for the group: the wallets' `groupId` (the `walletGroup` row id).
   final String groupKey;
   final List<WalletInfo> wallets;
   final String? groupName;

@@ -844,7 +844,6 @@ Future<void> setup({
 
   WalletListViewModel _buildWalletListViewModel() => WalletListViewModel(
     getIt.get<AppStore>(),
-    getIt.get<WalletLoadingService>(),
     getIt.get<WalletGroupService>(),
     getIt.get<KeyService>(),
     (type) => getIt.get<WalletService>(param1: type),
@@ -870,7 +869,6 @@ Future<void> setup({
   ),);
 
   getIt.registerFactory<WalletEditPage>(WalletEditPage.new,);
-
   getIt.registerFactory<NanoAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {

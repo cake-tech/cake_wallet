@@ -126,7 +126,7 @@ class WowneroWalletService extends WalletService<
   @override
   Future<bool> isWalletExit(WalletInfo walletInfo) async {
     try {
-      final path = await pathForWalletOf(walletInfo);
+      final path = await walletFilePathOf(walletInfo);
       return wownero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
@@ -203,7 +203,8 @@ class WowneroWalletService extends WalletService<
 
   @override
   Future<void> remove(WalletInfo walletInfo) async {
-    final path = await pathForWalletOf(walletInfo);
+
+    final path = await walletFilePathOf(walletInfo);
 
     if (openedWalletsByPath[path] != null) {
       printV("closing wallet");

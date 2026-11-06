@@ -1,18 +1,18 @@
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/balance.dart';
+import "package:bip39/bip39.dart" as bip39;
+import "package:cw_core/balance.dart";
+import "package:cw_core/encryption_file_utils.dart";
 import "package:cw_core/imported_nft.dart";
-import 'package:cw_core/spl_token.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_solana/solana_mnemonics.dart';
-import 'package:cw_solana/solana_wallet.dart';
-import 'package:cw_solana/solana_wallet_creation_credentials.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:cw_core/spl_token.dart";
+import "package:cw_core/transaction_history.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_solana/solana_mnemonics.dart";
+import "package:cw_solana/solana_wallet.dart";
+import "package:cw_solana/solana_wallet_creation_credentials.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 class SolanaWalletService extends WalletService<
     SolanaNewWalletCredentials,
@@ -79,6 +79,7 @@ class SolanaWalletService extends WalletService<
     }
   }
 
+  // TODO(wallet-id): tokens/NFTs (and Solana sync prefs) are keyed by wallet name; re-key by walletInfo.id.
   @override
   Future<void> remove(WalletInfo walletInfo) async {
     final prefs = await SharedPreferences.getInstance();

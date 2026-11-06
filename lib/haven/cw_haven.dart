@@ -1,7 +1,5 @@
-import 'dart:io';
-
 import 'package:cw_core/balance.dart';
-import 'package:cw_core/pathForWallet.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -25,16 +23,11 @@ class HavenWalletService extends WalletService {
   }
 
   @override
-  Future<bool> isWalletExit(WalletInfo walletInfo) => throw UnimplementedError();
+  Future<bool> isWalletExit(WalletInfo walletInfo) => throw UnsupportedWalletTypeException(getType());
 
   @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>> openWallet(
-      WalletInfo walletInfo, String password) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) {
+      WalletInfo walletInfo, String password,) {
     throw UnimplementedError();
   }
 

@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:io';
-import 'dart:isolate';
 
 import 'package:cw_core/amount/money.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -214,12 +212,14 @@ abstract class MoneroWalletBase
   Future<void> close({bool shouldCleanup = false}) async {
     if (isHardwareWallet) {
       disableLedgerExchange();
-      final walletPath = await pathForWalletOf(walletInfo);
-      if (openedWalletsByPath[walletPath] != null) {
+
+      final currentWalletPath = await walletFilePathOf(walletInfo);
+      if (openedWalletsByPath[currentWalletPath] != null) {
         printV("closing wallet");
         final wmaddr = wmPtr.ffiAddress();
-        final waddr = openedWalletsByPath[walletPath]!.ffiAddress();
-        openedWalletsByPath.remove(walletPath);
+        final waddr = openedWalletsByPath[currentWalletPath]!.ffiAddress();
+        openedWalletsByPath.remove(currentWalletPath);
+
         closeWalletAwaitIfShould(wmaddr, waddr);
         if (currentWallet?.ffiAddress() == waddr) {
           currentWallet = null;
@@ -551,89 +551,6 @@ abstract class MoneroWalletBase
       printV(e);
     }
   }
-
-  // @override
-  // Future<void> renameWalletFiles(String newWalletName) async {
-  //   final currentWalletDirPath = walletInfo.dirPath;
-  //   if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
-  //     // NOTE: this is realistically only required on windows.
-  //     // That's why we await it only on that platform - other platforms actually understand
-  //     // the concept of a file properly...
-  //     printV("closing wallet");
-  //     final wmaddr = wmPtr.ffiAddress();
-  //     final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.ffiAddress();
-  //     openedWalletsByPath.remove("$currentWalletDirPath/$name");
-  //     if (Platform.isWindows) {
-  //       await Isolate.run(() {
-  //         monero.WalletManager_closeWallet(
-  //             Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-  //         monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-  //       });
-  //     } else {
-  //       unawaited(Isolate.run(() {
-  //         monero.WalletManager_closeWallet(
-  //             Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-  //         monero.WalletManager_errorString(Pointer.fromAddress(wmaddr));
-  //       }));
-  //     }
-  //     printV("wallet closed");
-  //   }
-  //   try {
-  //     // -- rename the waller folder --
-  //     final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
-  //     final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
-  //
-  //     // Create new directory if it doesn't exist
-  //     await Directory(newWalletDirPath).create(recursive: true);
-  //
-  //     // -- use new waller folder to copy files with old names still --
-  //     final currentWalletPath = currentWalletDir.path + '/$name';
-  //
-  //     final currentCacheFile = File(currentWalletPath);
-  //     final currentKeysFile = File('$currentWalletPath.keys');
-  //     final currentAddressListFile = File('$currentWalletPath.address.txt');
-  //     final backgroundSyncFile = File('$currentWalletPath.background');
-  //
-  //     if (currentCacheFile.existsSync()) {
-  //       await currentCacheFile.copy("${newWalletDirPath}/$newWalletName");
-  //     }
-  //     if (currentKeysFile.existsSync()) {
-  //       await currentKeysFile.copy("${newWalletDirPath}/$newWalletName.keys");
-  //     }
-  //     if (currentAddressListFile.existsSync()) {
-  //       await currentAddressListFile.copy("${newWalletDirPath}/$newWalletName.address.txt");
-  //     }
-  //     if (backgroundSyncFile.existsSync()) {
-  //       await backgroundSyncFile.copy("${newWalletDirPath}/$newWalletName.background");
-  //     }
-  //
-  //     await currentWalletDir.delete(recursive: true);
-  //
-  //     await backupWalletFiles(newWalletName);
-  //   } catch (e) {
-  //     final currentWalletPath = await pathForWallet(name: name, type: type);
-  //
-  //     final currentCacheFile = File(currentWalletPath);
-  //     final currentKeysFile = File('$currentWalletPath.keys');
-  //     final currentAddressListFile = File('$currentWalletPath.address.txt');
-  //
-  //     final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-  //
-  //     // Copies current wallet files into new wallet name's dir and files
-  //     if (currentCacheFile.existsSync()) {
-  //       await currentCacheFile.copy(newWalletPath);
-  //     }
-  //     if (currentKeysFile.existsSync()) {
-  //       await currentKeysFile.copy('$newWalletPath.keys');
-  //     }
-  //     if (currentAddressListFile.existsSync()) {
-  //       await currentAddressListFile.copy('$newWalletPath.address.txt');
-  //     }
-  //
-  //     // Delete old name's dir and files
-  //     await Directory(currentWalletDirPath).delete(recursive: true);
-  //   }
-  // }
 
   @override
   Future<void> changePassword(String password) async => monero_wallet.setPasswordSync(password);

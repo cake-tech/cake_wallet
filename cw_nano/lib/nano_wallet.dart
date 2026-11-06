@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/amount/money.dart';
@@ -23,6 +22,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
+import 'package:cw_nano/nano_mnemonic.dart';
 import "package:cw_nano/nano_exceptions.dart";
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
@@ -126,7 +126,7 @@ abstract class NanoWalletBase
       if (_derivationType == DerivationType.nano) {
         _hexSeed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
       } else {
-        _hexSeed = await NanoDerivations.hdMnemonicListToSeed(_mnemonic.split(' '));
+        _hexSeed = await NanoMnemomics.hdMnemonicToSeed(_mnemonic);
       }
     }
 
@@ -327,8 +327,9 @@ abstract class NanoWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo))) {
+    if (!await WalletKeysFile.hasKeysFile(walletInfo)) {
       await saveKeysFile(_password, _encryptionFileUtils);
+      //TODO(nano): saveKeysFile is not awaited, double check if this is correct
       saveKeysFile(_password, _encryptionFileUtils, true);
     }
 
@@ -394,13 +395,12 @@ abstract class NanoWalletBase
       });
 
   static Future<NanoWallet> open({
-    required String name,
     required String password,
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
     final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
-    final path = await pathForWalletOf(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
 
     Map<String, dynamic>? data = null;
     try {
@@ -446,12 +446,14 @@ abstract class NanoWalletBase
         derivationInfo.derivationType = DerivationType.bip39;
       }
     }
+    // TODO(nano): save is not awaited here, double check if this is correct
     derivationInfo.save();
 
     return NanoWallet(
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
       password: password,
+      // TODO(nano): hex-seed wallets (restored from a 64/128-char seed) have no mnemonic
       mnemonic: keysData.mnemonic!,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,

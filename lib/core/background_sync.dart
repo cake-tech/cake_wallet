@@ -116,18 +116,8 @@ class BackgroundSync {
         .where((element) => ![WalletType.haven, WalletType.decred].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
-      // TODO(wallet-id-refactor): WalletListItem only carries name/type, not a
-      // WalletInfo or id, so this falls back to a name+type lookup — which can
-      // silently pick the wrong wallet if two ever share a name (same class of
-      // ambiguous-match risk removed everywhere else in this refactor). Real
-      // fix is upstream: WalletListItem should carry WalletInfo (or its id)
-      // directly, presumably already available wherever it's built from
-      // WalletInfo.getAll() in WalletListViewModel.
-      final walletInfo = await WalletInfo.get(moneroWallets[i].name, moneroWallets[i].type);
-      if (walletInfo == null) {
-        printV("Wallet not found: ${moneroWallets[i].name}");
-        continue;
-      }
+      final walletInfo = await WalletInfo.getById(moneroWallets[i].key);
+      if (walletInfo == null) continue;
       final wallet = await walletLoadingService.load(walletInfo, isBackground: true);
       int syncedTicks = 0;
       final keyService = getIt.get<KeyService>();
@@ -171,8 +161,7 @@ class BackgroundSync {
             syncedTicks = 0;
             printV("WALLET $i SYNCED");
             try {
-              await wallet.stopBackgroundSync(
-                  await keyService.getWalletPasswordForWallet(walletInfo),);
+              await wallet.stopBackgroundSync(await keyService.getWalletPasswordForWallet(wallet.walletInfo));
             } catch (e) {
               printV("error stopping sync: $e");
             }
@@ -235,7 +224,7 @@ class BackgroundSync {
             "${wallet.currency.fullName} in ${wallet.name}: TX: ${tx.date} ${tx.amount} ${tx.direction}");
       }
       wallet.id;
-      await wallet.stopBackgroundSync(await keyService.getWalletPasswordForWallet(walletInfo));
+      await wallet.stopBackgroundSync(await keyService.getWalletPasswordForWallet(wallet.walletInfo));
       await wallet.close(shouldCleanup: true);
     }
   }

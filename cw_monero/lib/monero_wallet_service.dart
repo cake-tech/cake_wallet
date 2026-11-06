@@ -1,28 +1,28 @@
-import 'dart:async';
-import 'dart:ffi';
-import 'dart:io';
-import 'dart:isolate';
+import "dart:async";
+import "dart:ffi";
+import "dart:io";
+import "dart:isolate";
 
-import 'package:cw_core/get_height_by_date.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:cw_core/monero_wallet_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/wallet_manager.dart' as monero_wallet_manager;
-import 'package:cw_monero/api/wallet_manager.dart';
-import 'package:cw_monero/bip39_seed.dart';
-import 'package:cw_monero/ledger.dart';
-import 'package:cw_monero/monero_wallet.dart';
-import 'package:cw_monero/trezor.dart';
-import 'package:hive/hive.dart';
-import 'package:monero/monero.dart' as monero;
-import 'package:polyseed/polyseed.dart';
+import "package:cw_core/get_height_by_date.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/monero_wallet_utils.dart";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_monero/api/account_list.dart";
+import "package:cw_monero/api/wallet_manager.dart" as monero_wallet_manager;
+import "package:cw_monero/api/wallet_manager.dart";
+import "package:cw_monero/bip39_seed.dart";
+import "package:cw_monero/ledger.dart";
+import "package:cw_monero/monero_wallet.dart";
+import "package:cw_monero/trezor.dart";
+import "package:hive/hive.dart";
+import "package:monero/monero.dart" as monero;
+import "package:polyseed/polyseed.dart";
 
 enum MoneroSeedType { polyseed, legacy, bip39 }
 
@@ -163,7 +163,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<bool> isWalletExit(WalletInfo walletInfo) async {
     try {
-      final path = await pathForWalletOf(walletInfo);
+      final path = await walletFilePathOf(walletInfo);
       return monero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
@@ -213,7 +213,8 @@ class MoneroWalletService extends WalletService<
 
   @override
   Future<void> remove(WalletInfo walletInfo) async {
-    final path = await pathForWalletOf(walletInfo);
+
+    final path = await walletFilePathOf(walletInfo);
 
     if (openedWalletsByPath[path] != null) {
       printV("closing wallet");
@@ -520,7 +521,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<String> getSeeds(WalletInfo walletInfo, String password) async {
     try {
-      final path = await pathForWalletOf(walletInfo);
+      final path = await walletFilePathOf(walletInfo);
 
       if (walletFilesExist(path)) await repairOldAndroidWallet(walletInfo);
 

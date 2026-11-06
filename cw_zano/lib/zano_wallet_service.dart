@@ -1,18 +1,15 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:collection/collection.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_credentials.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_zano/zano_wallet.dart';
-import 'package:cw_zano/zano_wallet_api.dart';
-import 'package:hive/hive.dart';
-import 'package:monero/zano.dart' as zano;
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_credentials.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_zano/zano_wallet.dart";
+import "package:cw_zano/zano_wallet_api.dart";
+import "package:monero/zano.dart" as zano;
 
 class ZanoNewWalletCredentials extends WalletCredentials {
   ZanoNewWalletCredentials({
@@ -80,7 +77,7 @@ class ZanoWalletService extends WalletService<
 
   @override
   Future<bool> isWalletExit(WalletInfo walletInfo) async {
-    final path = await pathForWalletOf(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
     return zano.PlainWallet_isWalletExist(path);
   }
 
@@ -109,16 +106,10 @@ class ZanoWalletService extends WalletService<
 
   @override
   Future<void> remove(WalletInfo walletInfo) async {
-    // Close the native handle first; the cache is keyed by the wallet file path
-    // that open() used (<type>/<uuid>/<uuid>).
-    await ZanoWalletApi.closeCachedWallet(await pathForWalletOf(walletInfo));
+    // Close the native handle first; the cache is keyed by the wallet file path open() used.
+    await ZanoWalletApi.closeCachedWallet(await walletFilePathOf(walletInfo));
     await super.remove(walletInfo);
   }
-
-  /// Renaming is a group-level, DB-only operation now; wallet files, id and
-  /// name never change.
-  @override
-  Future<void> rename(WalletInfo currentWalletInfo, String password, String newName) async {}
 
   @override
   Future<ZanoWallet> restoreFromKeys(ZanoRestoreWalletFromKeysCredentials credentials,
