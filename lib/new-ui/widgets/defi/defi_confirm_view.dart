@@ -47,7 +47,9 @@ class DefiConfirmView extends StatelessWidget {
     required this.terms,
     required this.swiperText,
     required this.onConfirmed,
+    this.bottomText,
     this.note,
+    this.attribution,
     super.key,
   });
 
@@ -61,7 +63,9 @@ class DefiConfirmView extends StatelessWidget {
   final Widget terms;
   final String swiperText;
   final VoidCallback onConfirmed;
+  final String? bottomText;
   final String? note;
+  final Widget? attribution;
 
   @override
   Widget build(BuildContext context) => PopScope(
@@ -80,6 +84,7 @@ class DefiConfirmView extends StatelessWidget {
                   children: [
                     ModalTopBar(
                       title: title,
+                      bottomText: bottomText,
                       leadingIcon: const Icon(Icons.close),
                       leadingSemanticLabel: S.of(context).close,
                       onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
@@ -125,6 +130,7 @@ class DefiConfirmView extends StatelessWidget {
                                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                                 ),
                               ),
+                            if (attribution != null) attribution!,
                           ],
                         ),
                       ),

@@ -25,6 +25,8 @@ import 'package:cake_wallet/core/csv_export_service.dart';
 import "package:cake_wallet/core/everstake/ethereum_transaction_validator.dart";
 import "package:cake_wallet/core/everstake/everstake_service.dart";
 import 'package:cake_wallet/core/key_service.dart';
+import "package:cake_wallet/core/morpho/morpho_service.dart";
+import "package:cake_wallet/core/morpho/morpho_vault.dart";
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
@@ -77,6 +79,7 @@ import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/morpho/morpho_bloc.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -293,6 +296,8 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trezor_connect/trezor_connect.dart';
+import "package:web3dart/crypto.dart";
+import "package:web3dart/web3dart.dart";
 
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
@@ -603,6 +608,23 @@ Future<void> setup({
       fiatConversionStore: getIt.get<FiatConversionStore>(),
     ),
   );
+
+  getIt.registerFactory<MorphoBloc>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
+    return MorphoBloc(
+      wallet: wallet,
+      settingsStore: getIt.get<SettingsStore>(),
+      evm: evm!,
+      vault: MorphoVault(
+        (to, data) => evm!.getWeb3Client(wallet)!.callRaw(
+              sender: EthereumAddress.fromHex(wallet.walletAddresses.address),
+              contract: EthereumAddress.fromHex(to),
+              data: hexToBytes(data),
+            ),
+      ),
+      service: MorphoService(),
+    );
+  });
 
   getIt.registerFactory<AuthService>(
     () => AuthService(
