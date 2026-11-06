@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
@@ -14,6 +13,26 @@ import 'package:url_launcher/url_launcher.dart';
 const changelogIconLocation = "assets/new-ui/changelog/icons";
 const changelogTextLocation = "assets/new-ui/changelog/text";
 
+/// The suffix `tool/translate_changelog.dart` gives a translation, for an app language code
+/// (`SettingsStore.languageCode`): `pt_BR` reads the `pt` file and Chinese is written as `zh-cn`.
+String changelogLanguage(String appLanguageCode) {
+  final language = appLanguageCode.split("_").first;
+  return language == "zh" ? "zh-cn" : language;
+}
+
+/// Bundled assets aren't files on disk, so look the translation up in the asset bundle.
+Future<List<dynamic>> loadChangelogJson(String fileName, String appLanguageCode) async {
+  final language = changelogLanguage(appLanguageCode);
+  String raw;
+  try {
+    raw = await rootBundle.loadString("$changelogTextLocation/${fileName}_$language.json");
+  } on FlutterError {
+    // No translation bundled for this language (Monero.com ships English only)
+    raw = await rootBundle.loadString("$changelogTextLocation/${fileName}_en.json");
+  }
+  return jsonDecode(raw) as List<dynamic>;
+}
+
 class ChangelogItem {
   final String iconFilename;
   final String title;
@@ -23,9 +42,12 @@ class ChangelogItem {
 }
 
 class ChangelogModal extends StatefulWidget {
-  const ChangelogModal({super.key, required this.version});
+  const ChangelogModal({required this.version, required this.languageCode, super.key});
 
   final String version;
+
+  /// The app's language (`SettingsStore.languageCode`), which the rest of the modal is shown in
+  final String languageCode;
 
   @override
   State<ChangelogModal> createState() => _ChangelogModalState();
@@ -42,16 +64,7 @@ class _ChangelogModalState extends State<ChangelogModal> {
 
   void loadChangelog() async {
     final fileName = isMoneroOnly ? "monerocom_changelog" : "changelog";
-    String lang = WidgetsBinding.instance.platformDispatcher.locale.languageCode;
-    if (lang == "und" ||
-        lang.isEmpty ||
-        !(await File("$changelogTextLocation/${fileName}_$lang.json").exists())) {
-      lang = "en";
-    }
-
-    final List<dynamic> changelog =
-        jsonDecode(await rootBundle.loadString("$changelogTextLocation/${fileName}_$lang.json"))
-            as List<dynamic>;
+    final changelog = await loadChangelogJson(fileName, widget.languageCode);
 
     for (final item in changelog) {
       final itemMap = item as Map<String, dynamic>;
