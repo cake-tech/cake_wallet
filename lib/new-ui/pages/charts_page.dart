@@ -81,7 +81,7 @@ class ChartsPage extends StatelessWidget implements PageOpenListener {
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: [
                 SliverPadding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                  padding: EdgeInsets.only(top: MediaQuery.viewPaddingOf(context).top),
                   sliver: CupertinoSliverRefreshControl(
                     refreshTriggerPullDistance: 160,
                     refreshIndicatorExtent: 90,
