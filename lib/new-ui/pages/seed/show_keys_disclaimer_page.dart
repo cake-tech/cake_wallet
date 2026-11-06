@@ -44,12 +44,7 @@ class ShowKeysDisclaimerPage extends StatelessWidget {
         footer: StackedButtons(
           primaryKey: const ValueKey("show_keys_disclaimer_page_button_key"),
           primaryText: S.of(context).show_recovery_phrase_and_keys,
-          onPrimary: () => authService.authenticateAction(
-            context,
-            route: Routes.showKeys,
-            conditionToDetermineIfToUse2FA:
-                settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-          ),
+          onPrimary: () => Navigator.of(context).pushNamed(Routes.showKeys,),
           secondaryKey: const ValueKey("show_keys_disclaimer_page_back_button_key"),
           secondaryText: S.of(context).seed_alert_back,
           onSecondary: () => Navigator.of(context).pop(),
