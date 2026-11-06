@@ -15,16 +15,24 @@ class WalletFlows {
   final AuthFlows _authFlows;
   final NewDashboardRobot _dashboardRobot;
 
-  Future<void> _expandWalletGroups({int maxGroups = 10}) async {
+  /// Opens the groups so the wallet row with [name] is on screen. Groups toggle, and the group
+  /// holding the current wallet starts open, so a tap that hides [name] is undone right away.
+  Future<void> _revealWallet(String name, {int maxGroups = 10}) async {
+    final nameFinder = find.text(name);
+
     for (int index = 0; index < maxGroups; index++) {
       final tile = find.byKey(ValueKey("group_wallets_expansion_tile_widget_$index"));
+      if (!tester.any(tile)) return;
 
-      if (!tester.any(tile)) {
-        return;
-      }
-
+      final before = nameFinder.evaluate().length;
       await tester.tap(tile.first, warnIfMissed: false);
-      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      if (nameFinder.evaluate().length < before) {
+        // That tap closed a group that was showing the wallet; open it again.
+        await tester.tap(tile.first, warnIfMissed: false);
+        await tester.pump(const Duration(milliseconds: 400));
+      }
     }
   }
 
@@ -32,8 +40,8 @@ class WalletFlows {
     await _dashboardRobot.openWalletsTab();
 
     // A group can carry the same name as one of its wallets (single-wallet groups are named
-    // after their wallet), so always open the groups and tap the wallet row, not the header.
-    await _expandWalletGroups();
+    // after their wallet), so open the groups and tap the wallet row, not the header.
+    await _revealWallet(name);
 
     final walletFinder = find.text(name);
     await _dashboardRobot.pumpUntilFound(walletFinder);
