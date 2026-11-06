@@ -1,6 +1,7 @@
 import "dart:typed_data";
 
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:web3dart/crypto.dart";
 import "package:web3dart/web3dart.dart";
@@ -25,6 +26,7 @@ class MorphoVault {
     contractAddress: _usdcAddress,
     decimal: _usdcDecimals,
     tag: "ETH",
+    iconPath: CryptoCurrency.usdc.iconPath,
   );
 
   static final _usdc = _contract(_usdcAddress, "ERC20", '''
@@ -141,10 +143,12 @@ class MorphoVault {
 
   static final _zeroAddress = EthereumAddress.fromHex("0x0000000000000000000000000000000000000000");
 
+  static final _maxUint256 =
+      BigInt.parse("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", radix: 16);
+
   final EthCall _ethCall;
 
-  ContractCall usdcApproveCall(Money assets) =>
-      _buildCall(_usdc, "approve", [_vault.address, _requireUsdc(assets)]);
+  ContractCall usdcApproveCall() => _buildCall(_usdc, "approve", [_vault.address, _maxUint256]);
 
   ContractCall depositCall(Money assets, String owner) =>
       _buildCall(_vault, "deposit", [_requireUsdc(assets), EthereumAddress.fromHex(owner)]);

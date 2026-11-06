@@ -1,15 +1,21 @@
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
+import "package:cake_wallet/core/morpho/morpho_exceptions.dart";
 import "package:cake_wallet/core/morpho/morpho_service.dart";
 import "package:cake_wallet/core/morpho/morpho_vault.dart";
+import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/exceptions.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:meta/meta.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 part "morpho_event.dart";
 part "morpho_state.dart";
@@ -40,7 +46,7 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
     add(const YieldDataRequested());
   }
 
-  static const _apyTimeout = Duration(seconds: 10);
+  static const _apiTimeout = Duration(seconds: 10);
   static const _receiptPollInterval = Duration(seconds: 3);
 
   final WalletBase _wallet;
@@ -50,12 +56,16 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
   final MorphoService _service;
   final String _address;
 
+  String get walletName => _wallet.name;
+
+  String get address => _address;
+
   Future<void> _onYieldDataRequested(Emitter<MorphoState> emit) async {
     emit(MorphoLoading(state.data));
     try {
       emit(MorphoReady(await _loadData()));
     } catch (error) {
-      emit(MorphoFailure(state.data, error));
+      emit(MorphoFailure(state.data, _errorMessage(error)));
     }
   }
 
@@ -77,7 +87,7 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
       };
       emit(MorphoPrepared(data, operation));
     } catch (error) {
-      emit(MorphoFailure(data, error));
+      emit(MorphoFailure(data, _errorMessage(error)));
     }
   }
 
@@ -92,38 +102,47 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
         _checkNetwork();
         await operation.transaction.commit();
         emit(MorphoConfirming(data, operation));
+        await _updateBackgroundSyncTrigger();
         await _waitForReceipt(operation.transactionHash, emit);
+        Future.delayed(const Duration(seconds: 4), _updateWallet);
         if (operation.action == MorphoAction.approve) {
           emit(MorphoPrepared(data, await _signDeposit(operation.amount)));
         } else {
           emit(MorphoConfirmed(await _refreshedData(data), operation));
         }
       } catch (error) {
-        emit(MorphoFailure(data, error));
+        emit(MorphoFailure(data, _errorMessage(error)));
       }
     }
   }
 
   Future<MorphoData> _loadData() async {
     _checkNetwork();
-    final (shares, availableLiquidity, apy) = await (
+    final apy = _optional(_service.getApy());
+    final (shares, walletBalance, availableLiquidity) = await (
       _vault.getShareBalance(_address),
+      _vault.getUsdcBalance(_address),
       _vault.getAvailableLiquidity(),
-      _loadApy(),
+    ).wait;
+    final (positionValue, earned) = await (
+      _vault.previewRedeem(shares),
+      shares > BigInt.zero ? _optional(_service.getEarned(_address)) : Future<Money?>.value(),
     ).wait;
     return MorphoData(
       shares: shares,
-      positionValue: await _vault.previewRedeem(shares),
+      positionValue: positionValue,
+      walletBalance: walletBalance,
       availableLiquidity: availableLiquidity,
-      apy: apy,
+      apy: await apy,
+      earned: earned,
     );
   }
 
-  Future<double?> _loadApy() async {
+  Future<T?> _optional<T>(Future<T> request) async {
     try {
-      return await _service.getApy().timeout(_apyTimeout);
+      return await request.timeout(_apiTimeout);
     } catch (error) {
-      printV("Morpho APY unavailable: $error");
+      printV("Optional Morpho request failed: $error");
       return null;
     }
   }
@@ -132,7 +151,7 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
     try {
       return await _loadData();
     } catch (error) {
-      printV("Stablecoin yield refresh failed: $error");
+      printV("Morpho refresh failed: ${error.runtimeType}");
       return previous;
     }
   }
@@ -140,15 +159,15 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
   Future<MorphoOperation> _prepareDeposit(Money amount) async {
     _checkNetwork();
     if (amount.sign <= 0) {
-      throw MorphoError.nonPositiveAmount;
+      throw const MorphoNonPositiveAmountException();
     }
     final (balance, allowance) =
         await (_vault.getUsdcBalance(_address), _vault.getUsdcAllowance(_address)).wait;
     if (amount > balance) {
-      throw MorphoError.exceedsBalance;
+      throw const MorphoInsufficientBalanceException();
     }
     if (allowance < amount) {
-      return _sign(MorphoAction.approve, amount, _vault.usdcApproveCall(amount));
+      return _sign(MorphoAction.approve, amount, _vault.usdcApproveCall());
     }
     return _signDeposit(amount);
   }
@@ -158,11 +177,11 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
 
   Future<MorphoOperation> _prepareWithdraw(Money amount, MorphoData data) {
     if (amount.sign <= 0) {
-      throw MorphoError.nonPositiveAmount;
+      throw const MorphoNonPositiveAmountException();
     }
     final withdrawable = data.withdrawableNow;
     if (withdrawable != null && amount > withdrawable) {
-      throw MorphoError.exceedsWithdrawable;
+      throw const MorphoExceedsWithdrawableException();
     }
     if (amount == data.positionValue) {
       return _sign(
@@ -193,9 +212,29 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
       useBlinkProtection: _settingsStore.useBlinkProtection,
     );
     if (transaction.fee.isZero) {
-      throw MorphoError.feeEstimateFailed;
+      throw TransactionNoFeeException();
     }
     return MorphoOperation(action: action, amount: amount, transaction: transaction);
+  }
+
+  Future<void> _updateBackgroundSyncTrigger() async {
+    try {
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.setString(
+        PreferencesKey.backgroundSyncLastTrigger(_wallet.name),
+        DateTime.now().add(const Duration(minutes: 1)).toIso8601String(),
+      );
+    } catch (error) {
+      printV("Failed to update background sync after Morpho transaction: $error");
+    }
+  }
+
+  Future<void> _updateWallet() async {
+    try {
+      await Future.wait([_wallet.updateTransactionsHistory(), _wallet.updateBalance()!]);
+    } catch (error) {
+      printV("Failed to update wallet after Morpho transaction: ${error.runtimeType}");
+    }
   }
 
   Future<void> _waitForReceipt(String transactionHash, Emitter<MorphoState> emit) async {
@@ -207,7 +246,7 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
         case true:
           return;
         case false:
-          throw MorphoError.transactionFailed;
+          throw const MorphoTransactionFailedException();
         case null:
           await Future<void>.delayed(_receiptPollInterval);
       }
@@ -217,7 +256,23 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
 
   void _checkNetwork() {
     if (_wallet.chainId != MorphoVault.chainId) {
-      throw MorphoError.networkMismatch;
+      throw const MorphoMainnetRequiredException();
     }
+  }
+
+  String _errorMessage(Object error) {
+    printV("Morpho error: ${error.runtimeType}");
+    return switch (error) {
+      MorphoNonPositiveAmountException() => S.current.error_text_input_below_minimum_limit,
+      MorphoInsufficientBalanceException() ||
+      MorphoExceedsWithdrawableException() =>
+        S.current.error_text_input_above_maximum_limit,
+      MorphoMainnetRequiredException() => S.current.yield_mainnet_only,
+      MorphoTransactionFailedException() => S.current.transaction_reverted,
+      TransactionNoFeeException() => S.current.tx_zero_fee_exception,
+      ParallelWaitError() => S.current.load_failed,
+      CakeException(:final message) => message,
+      _ => S.current.please_try_again_later,
+    };
   }
 }

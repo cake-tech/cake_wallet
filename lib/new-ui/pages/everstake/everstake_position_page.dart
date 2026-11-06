@@ -6,8 +6,8 @@ import "package:cake_wallet/new-ui/pages/everstake/everstake_confirm_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import "package:cake_wallet/new-ui/widgets/defi/defi_position_view.dart";
+import "package:cake_wallet/new-ui/widgets/defi/defi_provider_logo.dart";
 import "package:cake_wallet/new-ui/widgets/defi/defi_rows.dart";
-import "package:cake_wallet/new-ui/widgets/everstake/everstake_logo.dart";
 import "package:cake_wallet/new-ui/widgets/everstake/everstake_rows.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:flutter/cupertino.dart";
@@ -61,7 +61,7 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
 
             return DefiPositionView(
               name: "Everstake",
-              logo: const EverstakeLogo(),
+              logo: const DefiProviderLogo("assets/images/everstake.png"),
               amount: data.positionAmount,
               fiatRate: fiatRate,
               sections: {

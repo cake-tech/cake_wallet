@@ -3,11 +3,11 @@ import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/exchange_rate.dart";
-import "package:cw_core/amount/money_double.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:mobx/mobx.dart" show ReactionDisposer, reaction;
 
-// TODO: build this from FiatConversionStore once the swap refactor (cw-1556) lands
+// TODO(lapatric): move _rate into FiatConversionStore once the swap refactor (cw-1556) lands
 class FiatRateCubit extends Cubit<ExchangeRate?> {
   FiatRateCubit({
     required CryptoCurrency currency,
@@ -44,7 +44,15 @@ class FiatRateCubit extends Cubit<ExchangeRate?> {
       return null;
     }
 
-    return ExchangeRate(base: currency, quote: price.toMoney(settingsStore.fiatCurrency));
+    return ExchangeRate(
+      base: currency,
+      quote: Money.parse(_plainDecimal(price), settingsStore.fiatCurrency, strictParsing: false),
+    );
+  }
+
+  static String _plainDecimal(double value) {
+    final source = value.toString();
+    return source.contains("e") ? value.toStringAsFixed(20) : source;
   }
 
   @override

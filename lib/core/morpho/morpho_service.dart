@@ -2,6 +2,7 @@ import "dart:convert";
 
 import "package:cake_wallet/core/morpho/morpho_exceptions.dart";
 import "package:cake_wallet/core/morpho/morpho_vault.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 class MorphoService {
@@ -21,5 +22,20 @@ class MorphoService {
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     final data = body["data"] as Map<String, dynamic>;
     return (data["apy"] as num?)?.toDouble();
+  }
+
+  Future<Money> getEarned(String address) async {
+    final uri = Uri.https(
+      _apiHost,
+      "/v0/vaults-v2/${MorphoVault.chainId}:${MorphoVault.vaultAddress}"
+      "/users/$address/position/performance",
+    );
+    final response = await ProxyWrapper().get(clearnetUri: uri);
+    if (response.statusCode != 200) {
+      throw MorphoApiException("${response.statusCode}: ${response.body}");
+    }
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final data = body["data"] as Map<String, dynamic>;
+    return Money(BigInt.parse(data["net_earnings_assets"] as String), MorphoVault.usdcToken);
   }
 }
