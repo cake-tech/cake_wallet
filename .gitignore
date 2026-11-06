@@ -88,6 +88,11 @@ cw_monero/cw_monero/android/.cxx/
 
 android/key.properties
 android/app/key.jks
+# Signing secrets: keystore passwords and any stray keystore/cert material
+android/app/*.pwd
+*.keystore
+*.jks
+*.p12
 
 **/tool/.secrets-prod.json
 **/tool/.secrets-test.json
