@@ -427,8 +427,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
 
   @computed
+  bool get canSendWithoutSync => [...electrumWalletTypes, ...evmWalletTypes, WalletType.solana, WalletType.tron].contains(wallet.type);
+
+  @computed
   bool get isReadyForSend =>
-      wallet.syncStatus is SyncedSyncStatus ||
+      canSendWithoutSync || wallet.syncStatus is SyncedSyncStatus ||
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
