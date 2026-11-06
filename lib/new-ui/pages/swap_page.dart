@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/core/amount_validator.dart";
@@ -237,6 +239,27 @@ class _NewSwapPageState extends State<NewSwapPage> {
           depositKey,
         ),
       ));
+
+      _disposers.add(
+        reaction(
+          (_) => widget.exchangeViewModel.wallet,
+          (wallet) {
+            widget.exchangeViewModel.unspentCoinsListViewModel.updateWallet(wallet);
+            _refreshDepositAvailableAmount();
+          },
+        ),
+      );
+
+      _disposers.add(
+        reaction(
+          (_) => widget.exchangeViewModel.status is SyncedSyncStatus,
+          (isSynced) {
+            if (isSynced) {
+              _refreshDepositAvailableAmount();
+            }
+          },
+        ),
+      );
 
       _disposers.add(reaction(
         (_) => widget.exchangeViewModel.receiveCurrency,
@@ -507,6 +530,13 @@ class _NewSwapPageState extends State<NewSwapPage> {
         address:
             isCurrentTypeWallet ? exchangeViewModel.wallet.walletAddresses.addressForExchange : "",
       );
+    }
+  }
+
+  // Only while the amount is shown: for Lightning the refresh keeps polling for a balance.
+  void _refreshDepositAvailableAmount() {
+    if (widget.exchangeViewModel.hasAllAmount) {
+      unawaited(widget.exchangeViewModel.updateDepositAvailableAmount());
     }
   }
 

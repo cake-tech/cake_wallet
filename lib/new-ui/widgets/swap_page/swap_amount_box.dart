@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/core/amount_validator.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -12,6 +14,7 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
+import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -703,26 +706,29 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         widget.exchangeViewModel.isSendFromExternal = true;
         askForRefundAddress();
       } else {
-        widget.exchangeViewModel.isSendFromExternal = false;
-        switchToDepositWallet(res.walletInfo!.name);
+        await switchToDepositWallet(res.walletInfo!);
       }
     }
   }
 
-  void switchToDepositWallet(String walletName) async {
-    final walletType = cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.depositCurrency);
-    if (walletType == null) {
-      return;
-    }
-    final wallet = await WalletInfo.get(walletName, walletType);
-    if (wallet == null) {
-      return;
-    }
+  Future<void> switchToDepositWallet(WalletInfo wallet) async {
     final isLoadedWallet = wallet.name == widget.exchangeViewModel.wallet.name &&
         wallet.type == widget.exchangeViewModel.wallet.type;
     if (!isLoadedWallet) {
+      if (widget.walletSwitcherViewModel.isProcessing) {
+        return;
+      }
+
       widget.walletSwitcherViewModel.selectWallet(wallet);
-      await widget.walletSwitcherViewModel.switchToSelectedWallet();
+      final switched = await widget.walletSwitcherViewModel.switchToSelectedWallet();
+      if (!switched) {
+        if (mounted) {
+          unawaited(
+            showBar<void>(context, S.of(context).wallet_list_failed_to_load(wallet.name, "")),
+          );
+        }
+        return;
+      }
     }
 
     if (!mounted) {
@@ -737,6 +743,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     widget.exchangeViewModel.isSendFromExternal = !canSendDeposit;
     widget.exchangeViewModel.depositAddress = address;
     addressController.text = _normalizeAddressFormat(address);
+    if (!canSendDeposit) {
+      askForRefundAddress();
+    }
   }
 
   void askForRefundAddress() async {
