@@ -23,7 +23,7 @@ class WalletFlows {
         return;
       }
 
-      await tester.tap(tile, warnIfMissed: false);
+      await tester.tap(tile.first, warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 300));
     }
   }
