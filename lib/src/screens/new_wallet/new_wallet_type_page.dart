@@ -182,7 +182,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                           imageUrl: getCryptoCurrencyIconForWalletListItem(item),
                                         ),
                                         const SizedBox(width: 12),
-                                        Text(walletTypeToDisplayName(item)),
+                                        Semantics(
+                                          button: true,
+                                          child: Text(walletTypeToDisplayName(item)),
+                                        ),
                                         const SizedBox(width: 4),
                                         Text(
                                           walletTypeToDisplayTicker(item),
