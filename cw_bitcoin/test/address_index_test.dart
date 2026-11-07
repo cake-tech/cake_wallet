@@ -191,11 +191,13 @@ void main() {
     });
   });
 
+  // Every standard receive record here is used, so "new address" has no free address within the
+  // gap to hand out and derives one; new_receive_address_test.dart covers handing one out.
   group("generateNewAddress", () {
     test("ignores legacy records that derive different keys", () async {
       final _Addresses addresses = await _addresses(
         [
-          ..._range(0, 22, type: P2pkhAddressType.p2pkh),
+          ..._range(0, 22, type: P2pkhAddressType.p2pkh, isUsed: true),
           ..._range(0, 22, type: P2pkhAddressType.p2pkh, isLegacyDerivation: true),
         ],
         addressPageType: P2pkhAddressType.p2pkh,
@@ -213,8 +215,8 @@ void main() {
     test("counts legacy records that derive the same keys", () async {
       final _Addresses addresses = await _addresses(
         [
-          ..._range(0, 3),
-          ..._range(0, 5, isLegacyDerivation: true),
+          ..._range(0, 3, isUsed: true),
+          ..._range(0, 5, isLegacyDerivation: true, isUsed: true),
         ],
         legacyIsSameChain: true,
       );
@@ -223,7 +225,8 @@ void main() {
     });
 
     test("fills a hole left on the branch", () async {
-      final _Addresses addresses = await _addresses([..._range(0, 22), _record(44)]);
+      final _Addresses addresses =
+          await _addresses([..._range(0, 22, isUsed: true), _record(44, isUsed: true)]);
 
       expect(addresses.generateNewAddress().index, 22);
       await Future<void>.delayed(Duration.zero);
@@ -232,7 +235,7 @@ void main() {
 
     test("ignores change records and other address types", () async {
       final _Addresses addresses = await _addresses([
-        ..._range(0, 2),
+        ..._range(0, 2, isUsed: true),
         ..._range(0, 10, isHidden: true),
         ..._range(0, 10, type: P2pkhAddressType.p2pkh),
       ]);
@@ -242,7 +245,7 @@ void main() {
 
     test("ignores records of other accounts", () async {
       final _Addresses addresses = await _addresses([
-        ..._range(0, 2),
+        ..._range(0, 2, isUsed: true),
         ..._range(0, 10, accountIndex: 1),
       ]);
 
