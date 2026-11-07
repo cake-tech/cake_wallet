@@ -1139,22 +1139,34 @@ Future<void> setup({
             : null,
       ));
 
-  getIt.registerFactory<DFXBuyProvider>(() => DFXBuyProvider(
-        wallet: getIt<AppStore>().wallet!,
-        hardwareWalletVM: getIt<AppStore>().wallet!.isHardwareWallet
-            ? getIt<HardwareWalletViewModel>(param1: getIt<AppStore>().wallet!.hardwareWalletType!)
-            : null,
-      ));
+  getIt.registerFactory<DFXBuyProvider>(
+    () => DFXBuyProvider(
+      wallet: getIt<AppStore>().wallet!,
+      hardwareWalletVM: getIt<AppStore>().wallet!.isHardwareWallet
+          ? getIt<HardwareWalletViewModel>(param1: getIt<AppStore>().wallet!.hardwareWalletType)
+          : null,
+    ),
+  );
 
-  getIt.registerFactory<MoonPayProvider>(() => MoonPayProvider(
-        appStore: getIt.get<AppStore>(),
-        wallet: getIt.get<AppStore>().wallet!,
-        isTestEnvironment: kDebugMode || kProfileMode,
-      ));
+  getIt.registerFactory<MoonPayProvider>(
+    () => MoonPayProvider(
+      appStore: getIt.get<AppStore>(),
+      wallet: getIt.get<AppStore>().wallet!,
+      isTestEnvironment: kDebugMode || kProfileMode,
+      hardwareWalletVM: getIt<AppStore>().wallet!.isHardwareWallet
+          ? getIt<HardwareWalletViewModel>(param1: getIt<AppStore>().wallet!.hardwareWalletType)
+          : null,
+    ),
+  );
 
-  getIt.registerFactory<OnRamperBuyProvider>(() => OnRamperBuyProvider(
-        wallet: getIt.get<AppStore>().wallet!,
-      ));
+  getIt.registerFactory<OnRamperBuyProvider>(
+    () => OnRamperBuyProvider(
+      wallet: getIt.get<AppStore>().wallet!,
+      hardwareWalletVM: getIt<AppStore>().wallet!.isHardwareWallet
+          ? getIt<HardwareWalletViewModel>(param1: getIt<AppStore>().wallet!.hardwareWalletType)
+          : null,
+    ),
+  );
 
   getIt.registerFactory<MeldBuyProvider>(() => MeldBuyProvider(
         wallet: getIt.get<AppStore>().wallet!,

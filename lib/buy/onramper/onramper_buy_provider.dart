@@ -7,12 +7,12 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
+import "package:cake_wallet/core/madeleine_auth.dart";
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -26,20 +26,22 @@ class OnramperSignatureException implements Exception {
 }
 
 class OnRamperBuyProvider extends BuyProvider {
-  OnRamperBuyProvider({required WalletBase wallet, bool isTestEnvironment = false})
-      : super(
-            wallet: wallet,
-            isTestEnvironment: isTestEnvironment,
-            hardwareWalletVM: null,
-            supportedCryptoList: supportedCryptoToFiatPairs(
-                notSupportedCrypto: _notSupportedCrypto, notSupportedFiat: _notSupportedFiat),
-            supportedFiatList: supportedFiatToCryptoPairs(
-                notSupportedFiat: _notSupportedFiat, notSupportedCrypto: _notSupportedCrypto));
+  OnRamperBuyProvider({
+    required super.wallet,
+    super.hardwareWalletVM,
+    super.isTestEnvironment = false,
+  }) : super(
+          supportedCryptoList: supportedCryptoToFiatPairs(
+            notSupportedCrypto: _notSupportedCrypto,
+            notSupportedFiat: _notSupportedFiat,
+          ),
+          supportedFiatList: supportedFiatToCryptoPairs(
+            notSupportedFiat: _notSupportedFiat,
+            notSupportedCrypto: _notSupportedCrypto,
+          ),
+        );
 
-  static const _baseUrl = 'buy.onramper.com';
-  static const _stagingBaseUrl = 'buy.onramper.dev';
   static const _baseApiUrl = 'api.onramper.com';
-  static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
   static const quotes = '/quotes';
   static const paymentTypes = '/payment-types';
   static const supported = '/supported';
@@ -52,8 +54,6 @@ class OnRamperBuyProvider extends BuyProvider {
   String? recommendedPaymentType;
 
   String get _apiKey => secrets.onramperApiKey;
-
-  String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
 
   @override
   String get title => 'Onramper';
@@ -70,32 +70,37 @@ class OnRamperBuyProvider extends BuyProvider {
   @override
   bool get isAggregator => true;
 
-  /// Asks the exchange helper to sign the widget URL fields (Onramper Signature V2).
-  /// Returns the extra query parameters to append to the widget URL: the `sigV2*` params and the
-  /// `endUserIpHash` the helper bound the session to (it is part of the signature).
-  Future<Map<String, String>> getOnramperSignatureParams(Map<String, String> fields) async {
-    final uri = Uri.https(_cIdBaseUrl, "/api/onramper/v2");
+  Future<String> getOnramperSignedWidgetUrl(Map<String, String> fields) async {
+    try {
+      final originalUri = Uri.https("", "", fields);
+      final headers = await MadeleineAuth(useSandbox: isTestEnvironment).getFullHeaders(
+        method: "POST",
+        path: "/api/onramper",
+        wallet: wallet,
+        headers: {"Content-Type": "application/json"},
+      );
 
-    final response = await ProxyWrapper().post(
-      clearnetUri: uri,
-      headers: {"Content-Type": "application/json", "x-api-key": _exchangeHelperApiKey},
-      body: json.encode({"fields": fields}),
-      // The helper binds the URL to the IP it sees; browsers open it over IPv6 when they can.
-      preferIPv6: true,
-    );
+      final uri = Uri.https(MadeleineAuth.baseUrl, "/api/onramper");
 
-    if (response.statusCode != 200) {
-      throw OnramperSignatureException(
-          "Provider currently unavailable. Status: ${response.statusCode} ${response.body}");
+      final response = await ProxyWrapper().post(
+        clearnetUri: uri,
+        headers: headers,
+        body: json.encode({"query": originalUri.query}),
+        // The helper binds the URL to the IP it sees; browsers open it over IPv6 when they can.
+        preferIPv6: true,
+      );
+
+      if (response.statusCode == 200) {
+        printV(jsonDecode(response.body) as Map<String, dynamic>);
+        return (jsonDecode(response.body) as Map<String, dynamic>)["widgetUrl"] as String;
+      } else {
+        throw BuySellProviderResponseException(
+            "Provider currently unavailable. Status: ${response.statusCode} ${response.body}");
+      }
+    } catch (e) {
+      printV(e);
+      rethrow;
     }
-
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    final signature = body["signature"] as Map<String, dynamic>;
-
-    return {
-      ...signature.map((key, value) => MapEntry(key, value as String)),
-      "endUserIpHash": body["endUserIpHash"] as String,
-    };
   }
 
   Future<String?> getRecommendedPaymentType(bool isBuyAction) async {
@@ -274,23 +279,23 @@ class OnRamperBuyProvider extends BuyProvider {
     }
   }
 
-  Future<void>? launchProvider(
-      {required BuildContext context,
-      required Quote quote,
-      required double amount,
-      required bool isBuyAction,
-      required String cryptoCurrencyAddress,
-      String? countryCode}) async {
-    final actionType = isBuyAction ? 'buy' : 'sell';
+  @override
+  Future<void>? launchProvider({
+    required BuildContext context,
+    required Quote quote,
+    required double amount,
+    required bool isBuyAction,
+    required String cryptoCurrencyAddress,
+    String? countryCode,
+  }) async {
+    final actionType = isBuyAction ? "buy" : "sell";
 
-    final primaryColor = getColorStr(
-      Theme.of(context).colorScheme.primary,
-    );
+    final primaryColor = getColorStr(Theme.of(context).colorScheme.primary);
     final secondaryColor = getColorStr(Theme.of(context).colorScheme.surface);
     final primaryTextColor = getColorStr(Theme.of(context).colorScheme.onSurface);
     final secondaryTextColor = getColorStr(Theme.of(context).colorScheme.onSurfaceVariant);
     final containerColor = getColorStr(Theme.of(context).colorScheme.surface);
-    var cardColor = getColorStr(Theme.of(context).colorScheme.surfaceContainer);
+    final cardColor = getColorStr(Theme.of(context).colorScheme.surfaceContainer);
 
     final defaultCrypto =
         quote.cryptoCurrency.title + _getNormalizeNetwork(quote.cryptoCurrency).toLowerCase();
@@ -300,34 +305,38 @@ class OnRamperBuyProvider extends BuyProvider {
         : normalizePaymentMethod(quote.paymentType);
 
     final networkWallets =
-        '${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title).toLowerCase()}:$cryptoCurrencyAddress';
+        "${_tagToNetwork(quote.cryptoCurrency.tag ?? quote.cryptoCurrency.title).toLowerCase()}:$cryptoCurrencyAddress";
 
-    final signedFields = {"apiKey": _apiKey, "networkWallets": networkWallets};
-    final signatureParams = await getOnramperSignatureParams(signedFields);
+    if (wallet.isHardwareWallet &&
+        !(await hardwareWalletVM!.ensureDeviceConnection(context, wallet))) {
+      return;
+    }
 
-    final uri = Uri.https(isTestEnvironment ? _stagingBaseUrl : _baseUrl, '', {
-      ...signedFields,
-      'txnType': actionType,
-      'txnFiat': quote.fiatCurrency.name,
-      'txnCrypto': defaultCrypto,
-      'txnAmount': amount.toString(),
-      'skipTransactionScreen': "true",
-      if (paymentMethod != null) 'txnPaymentMethod': paymentMethod,
-      'txnOnramp': quote.rampId,
-      'supportSwap': "false",
-      'primaryColor': primaryColor,
-      'secondaryColor': secondaryColor,
-      'containerColor': containerColor,
-      'primaryTextColor': primaryTextColor,
-      'secondaryTextColor': secondaryTextColor,
-      'cardColor': cardColor,
-      ...signatureParams,
+    final widgetUrl = await getOnramperSignedWidgetUrl({
+      "apiKey": _apiKey,
+      "networkWallets": networkWallets,
+      "txnType": actionType,
+      "txnFiat": quote.fiatCurrency.name,
+      "txnCrypto": defaultCrypto,
+      "txnAmount": amount.toString(),
+      "skipTransactionScreen": "true",
+      if (paymentMethod != null) "txnPaymentMethod": paymentMethod,
+      "txnOnramp": quote.rampId!,
+      "supportSwap": "false",
+      "primaryColor": primaryColor,
+      "secondaryColor": secondaryColor,
+      "containerColor": containerColor,
+      "primaryTextColor": primaryTextColor,
+      "secondaryTextColor": secondaryTextColor,
+      "cardColor": cardColor,
     });
+
+    final uri = Uri.parse(widgetUrl);
 
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      throw BuySellLaunchException('Could not launch URL ${uri.toString()}');
+      throw BuySellLaunchException("Could not launch URL $uri");
     }
   }
 
