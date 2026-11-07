@@ -84,6 +84,14 @@ class CreateAssociatedTokenAccountException extends CakeException {
       : super("Error creating associated token account for receipient address. " + errorMessage);
 }
 
+/// The recipient is not a wallet (a token account of another token, a token mint, or an account
+/// owned by a program), so tokens sent to it could never be moved again.
+class RecipientNotAWalletException extends CakeException {
+  RecipientNotAWalletException(this.address) : super("$address is not a wallet address.");
+
+  final String address;
+}
+
 class SignSPLTokenTransactionRentException extends CakeException {
   SignSPLTokenTransactionRentException()
       : super("Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance.");

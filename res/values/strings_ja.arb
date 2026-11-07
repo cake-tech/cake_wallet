@@ -1226,6 +1226,7 @@
   "solana_create_associated_token_account_exception": "受信アドレスの関連トークンアカウントの作成中にエラーが発生しました。",
   "solana_invalid_data_message": "トークンに関連付けられたトークンアカウントの解析中にエラーが発生しました。受信アドレスを確認して、もう一度お試しください。",
   "solana_no_associated_token_account_exception": "このアドレスに紐づく関連トークンアカウントがありません。",
+  "solana_recipient_not_a_wallet": "このアドレスはウォレットではありません。それはトークン アカウント、トークン アドレス、またはマルチシグの設定アドレスなどのプログラム アカウントである可能性があり、それに送信されたトークンが失われる可能性があります。受信者にウォレットまたはボールトのアドレスを尋ねます。",
   "solana_sign_native_transaction_rent_exception": "トランザクションを完了できません。トランザクション後にレンタル用のSOLが不足しています。SOL残高を追加するか、送信するSOLの量を減らしてください。",
   "solana_sign_spl_token_transaction_rent_exception": "トランザクションを完了できません。取引後にレンタル用のSOLが不足しています。SOL残高を追加してください。",
   "solana_unrecognized_token_program_exception": "このトークンは認識できないトークン プログラムを使用しているため、トランザクションは作成されませんでした。ノードが間違ったデータを返している可能性があります。別のノードに切り替えてみてください。",
