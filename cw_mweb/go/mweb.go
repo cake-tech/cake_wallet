@@ -2,15 +2,22 @@ package main
 
 import (
 	"C"
+	"sync"
 	"unsafe"
 
 	"github.com/ltcmweb/mwebd"
 )
 
-var server *mwebd.Server
+var (
+	server   *mwebd.Server
+	serverMu sync.Mutex
+)
 
 //export StartServer
 func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char, errMsg **C.char) C.int {
+	serverMu.Lock()
+	defer serverMu.Unlock()
+
 	if server != nil {
 		server.Stop()
 	}
@@ -25,8 +32,8 @@ func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char, errMsg **C.cha
 		return 0
 	}
 
-// 	err = server.StartUnix(goDataDir + "/mwebd.sock")
-    start, err := server.Start(0)
+	// 	err = server.StartUnix(goDataDir + "/mwebd.sock")
+	start, err := server.Start(0)
 	if err != nil {
 		*errMsg = C.CString(err.Error())
 		return 0
@@ -37,6 +44,9 @@ func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char, errMsg **C.cha
 
 //export StopServer
 func StopServer() {
+	serverMu.Lock()
+	defer serverMu.Unlock()
+
 	if server == nil {
 		return
 	}
