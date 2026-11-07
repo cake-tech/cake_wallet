@@ -1,0 +1,655 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_keys_file.dart';
+import 'package:cw_minotari/minotari_balance.dart';
+import 'package:cw_minotari/minotari_ffi.dart';
+import 'package:cw_minotari/minotari_transaction_history.dart';
+import 'package:cw_minotari/minotari_transaction_info.dart';
+import 'package:cw_minotari/minotari_transaction_priority.dart';
+import 'package:cw_minotari/minotari_wallet_addresses.dart';
+import 'package:cw_minotari/pending_minotari_transaction.dart';
+import 'package:cw_minotari/src/rust/api/base_node.dart';
+import 'package:cw_minotari/src/rust/api/network.dart';
+import 'package:cw_minotari/src/rust/api/scanner.dart';
+import 'package:cw_minotari/src/rust/api/transactions.dart';
+import 'package:cw_core/transaction_direction.dart';
+import 'package:mobx/mobx.dart';
+
+part 'minotari_wallet.g.dart';
+
+class MinotariWallet = MinotariWalletBase with _$MinotariWallet;
+
+abstract class MinotariWalletBase
+    extends WalletBase<MinotariBalance, MinotariTransactionHistory, MinotariTransactionInfo>
+    with Store, WalletKeysFile {
+  MinotariWalletBase(
+    WalletInfo walletInfo,
+    DerivationInfo derivationInfo, {
+    String? mnemonic,
+    required String password,
+    required this.encryptionFileUtils,
+    this.passphrase,
+    this.viewPrivateKeyHex,
+    this.spendPublicKeyHex,
+  })  : _mnemonic = mnemonic,
+        _password = password,
+        balance = ObservableMap.of({
+          CryptoCurrency.xtm: MinotariBalance(
+            available: 0,
+            pendingIncoming: 0,
+            pendingOutgoing: 0,
+          )
+        }),
+        _isTransactionUpdating = false,
+        walletAddresses = MinotariWalletAddresses(walletInfo),
+        syncStatus = NotConnectedSyncStatus(),
+        super(walletInfo, derivationInfo) {
+    transactionHistory = MinotariTransactionHistory();
+  }
+
+  MinotariFfi? _ffi;
+  bool _isTransactionUpdating;
+  StreamSubscription<ScanEventDto>? _scannerSubscription;
+  Node? _currentNode;
+  int _chainTipHeight = 0;
+  int _initialSyncHeight = 0;
+
+  /// Cached fee estimate from the last updateEstimatedFeesParams call
+  FeeEstimate? _cachedFeeEstimate;
+
+  final String _password;
+  final String? _mnemonic;
+  final EncryptionFileUtils encryptionFileUtils;
+
+  @override
+  MinotariWalletAddresses walletAddresses;
+
+  @override
+  @observable
+  SyncStatus syncStatus;
+
+  @override
+  @observable
+  ObservableMap<CryptoCurrency, MinotariBalance> balance;
+
+  @override
+  String? get seed => _mnemonic;
+
+  /// password - for encrypting/decrypting the .keys file
+  @override
+  String get password => _password;
+
+  /// BIP39 passphrase used for seed derivation
+  @override
+  final String? passphrase;
+
+  final String? viewPrivateKeyHex;
+  final String? spendPublicKeyHex;
+
+  @override
+  WalletKeysData get walletKeysData => WalletKeysData(
+    mnemonic: _mnemonic,
+    passphrase: passphrase,
+    scanSecret: viewPrivateKeyHex,
+    spendPubkey: spendPublicKeyHex,
+  );
+
+  @override
+  Object get keys => {};
+
+  String get address => walletAddresses.address;
+
+  Future<void> init() async {
+    try {
+      final dbPath = '${await pathForWalletTypeDir(type: walletInfo.type)}/wallet.db';
+      _ffi = MinotariFfi(dataPath: dbPath, walletName: walletInfo.name);
+
+      // Get the network from wallet info (defaults to mainnet if not set)
+     final network = TariNetwork.values.firstWhere(
+       (n) => n.name == walletInfo.network,
+       orElse: () => TariNetwork.mainNet,
+     );
+
+      // Open the existing wallet database with the correct network
+      await _ffi?.open(network);
+
+      // Get the wallet address from the Rust layer (it's persisted there)
+      final address = await _ffi?.getAddress(passphrase: passphrase ?? '');
+      if (address != null && address.isNotEmpty) {
+        walletAddresses.setAddress(address);
+      } else {
+        printV('Warning: Could not retrieve wallet address from FFI');
+      }
+
+      await updateBalance();
+      await updateTransactions();
+    } catch (e) {
+      printV('Error initializing Minotari wallet: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> connectToNode({required Node node}) async {
+    try {
+      syncStatus = ConnectingSyncStatus();
+
+      // Store the node for later use
+      _currentNode = node;
+
+      // Test connection by fetching balance
+      await updateBalance();
+
+      syncStatus = ConnectedSyncStatus();
+    } catch (e) {
+      syncStatus = FailedSyncStatus();
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> startSync() async {
+    try {
+      syncStatus = AttemptingSyncStatus();
+
+      // Cancel any existing scanner subscription
+      await _scannerSubscription?.cancel();
+
+      // Get the node URL (with protocol) from current node
+      if (_currentNode == null) {
+        throw Exception('No node connected. Call connectToNode first.');
+      }
+
+      final nodeUrl = _currentNode!.uri.toString();
+
+      // Fetch chain tip height for progress calculation
+      try {
+        final tipInfo = await getTipInfo(baseUrl: nodeUrl);
+        if (tipInfo != null) {
+          _chainTipHeight = tipInfo.bestBlockHeight.toInt();
+        }
+      } catch (e) {
+        printV('Error fetching chain tip: $e');
+      }
+
+      // Start the scanner stream
+      final scanStream = _ffi?.startScan(
+        baseNodeAddress: nodeUrl,
+        passphrase: passphrase ?? '',
+        continuous: false, // One-time sync
+      );
+
+      if (scanStream == null) {
+        throw Exception('Scanner not initialized');
+      }
+
+      // Listen to scan events
+      _scannerSubscription = scanStream.listen(
+        (event) {
+          try {
+            _handleScanEvent(event);
+          } catch (e) {
+            printV('Error handling scan event: $e');
+            syncStatus = FailedSyncStatus();
+          }
+        },
+        onError: (error) {
+          printV('Scanner stream error: $error');
+          syncStatus = FailedSyncStatus();
+        },
+        onDone: () async {
+          // Scan completed, update balance and transactions
+          try {
+            await updateBalance();
+            await updateTransactions();
+            syncStatus = SyncedSyncStatus();
+          } catch (e) {
+            printV('Error updating after scan: $e');
+            syncStatus = FailedSyncStatus();
+          }
+        },
+        cancelOnError: true, // Stop listening after an error
+      );
+
+      syncStatus = SyncronizingSyncStatus();
+    } catch (e) {
+      printV('Error starting sync: $e');
+      syncStatus = FailedSyncStatus();
+      // Don't rethrow - we've already set FailedSyncStatus
+    }
+  }
+
+  /// Handle scan events from the scanner stream
+  void _handleScanEvent(ScanEventDto event) {
+    event.when(
+      status: (status) {
+        status.when(
+          started: (accountId, fromHeight) {
+            printV('Scan started from height: $fromHeight');
+            _initialSyncHeight = fromHeight.toInt();
+            syncStatus = SyncronizingSyncStatus();
+          },
+          progress: (accountId, currentHeight, blocksScanned) {
+            printV('Scan progress: height $currentHeight, scanned $blocksScanned blocks');
+            final currentHeightInt = currentHeight.toInt();
+
+            // Refresh chain tip height
+            if (_currentNode != null) {
+              getTipInfo(baseUrl: _currentNode!.uri.toString()).then((tipInfo) {
+                if (tipInfo != null) {
+                  _chainTipHeight = tipInfo.bestBlockHeight.toInt();
+                }
+              }).catchError((e) {
+                printV('Error refreshing chain tip: $e');
+              });
+            }
+
+            if (_chainTipHeight > 0 && _chainTipHeight >= currentHeightInt) {
+              syncStatus = SyncingSyncStatus.fromHeightValues(
+                _chainTipHeight,
+                _initialSyncHeight,
+                currentHeightInt,
+              );
+            } else {
+              syncStatus = SyncronizingSyncStatus();
+            }
+          },
+          completed: (accountId, finalHeight, totalBlocksScanned) {
+            printV('Scan completed at height $finalHeight, total blocks: $totalBlocksScanned');
+          },
+          paused: (accountId, lastScannedHeight, reason) {
+            printV('Scan paused at height $lastScannedHeight: $reason');
+          },
+          waiting: (accountId, resumeInSeconds) {
+            printV('Scanner waiting, resume in $resumeInSeconds seconds');
+          },
+          moreBlocksAvailable: (accountId, lastScannedHeight) {
+            printV('More blocks available after height $lastScannedHeight');
+          },
+        );
+      },
+      transactionsReady: (dto) {
+        printV('Transactions ready: ${dto.transactions.length} transactions');
+        // Update transactions immediately when discovered (fire-and-forget)
+        _processNewTransactions(dto.transactions).catchError((e) {
+          printV('Error processing new transactions: $e');
+        });
+      },
+      transactionsUpdated: (dto) {
+        printV('Transactions updated: ${dto.updatedTransactions.length} transactions');
+        // Update existing transactions (fire-and-forget)
+        _processNewTransactions(dto.updatedTransactions).catchError((e) {
+          printV('Error processing updated transactions: $e');
+        });
+      },
+      error: (errorMessage) {
+        printV('Scanner error: $errorMessage');
+        syncStatus = FailedSyncStatus();
+      },
+    );
+  }
+
+  @override
+  Future<PendingTransaction> createTransaction(Object credentials) async {
+    final creds = credentials as MinotariTransactionCredentials;
+
+    // Validate we have seed words
+    final mnemonic = _mnemonic;
+    if (mnemonic == null || mnemonic.isEmpty) {
+      throw Exception('Wallet seed not available. Cannot create transaction.');
+    }
+
+    // Validate we have a connected node
+    final currentNode = _currentNode;
+    if (currentNode == null) {
+      throw Exception('No node connected. Call connectToNode first.');
+    }
+
+    // Validate FFI is initialized
+    final ffi = _ffi;
+    if (ffi == null) {
+      throw Exception('Wallet not initialized.');
+    }
+
+    // Get the first output (Minotari doesn't support multiple outputs yet)
+    if (creds.outputs.isEmpty) {
+      throw Exception('No outputs specified for transaction.');
+    }
+
+    final output = creds.outputs.first;
+    final recipientAddress = output.isParsedAddress
+        ? output.extractedAddress ?? output.address
+        : output.address;
+
+    // Calculate amount - handle sendAll and nullable formattedCryptoAmount
+    final int amount;
+    if (output.sendAll) {
+      amount = balance[CryptoCurrency.xtm]?.available ?? 0;
+    } else {
+      final formattedAmount = output.formattedCryptoAmount;
+      if (formattedAmount == null || formattedAmount <= 0) {
+        throw Exception('Invalid amount specified.');
+      }
+      amount = formattedAmount;
+    }
+
+    if (amount <= 0) {
+      throw Exception('Invalid amount: $amount');
+    }
+
+    if (recipientAddress.isEmpty) {
+      throw Exception('Recipient address is empty.');
+    }
+
+    // Prepare seed words as list
+    final seedWords = mnemonic.split(' ').where((w) => w.isNotEmpty).toList();
+    if (seedWords.length != 24) {
+      throw Exception('Invalid seed: expected 24 words, got ${seedWords.length}');
+    }
+
+    final nodeUrl = currentNode.uri.toString();
+
+    // Use the cached fee estimate, or 0 if not available
+    // The actual fee will be calculated by the Rust layer during transaction construction
+    final fee = _cachedFeeEstimate?.estimatedFee.toInt() ?? 0;
+
+    // Get note/payment ID if provided
+    final note = output.note;
+    final paymentId = (note != null && note.isNotEmpty) ? note : null;
+
+    // Create the send transaction callback
+    Future<String> sendTransactionCallback() async {
+      final completer = Completer<String>();
+
+      final stream = ffi.sendTransaction(
+        seedWords: seedWords,
+        passphrase: passphrase ?? '',
+        recipientAddress: recipientAddress,
+        amount: BigInt.from(amount),
+        baseNodeUrl: nodeUrl,
+        paymentId: paymentId,
+      );
+
+      stream.listen(
+        (event) {
+          printV('Send transaction stage: ${event.stage.name} - ${event.details}');
+
+          if (event.stage == TransactionStage.completed) {
+            // The details field contains the transaction ID on completion
+            if (!completer.isCompleted) {
+              completer.complete(event.details);
+            }
+          }
+        },
+        onError: (Object error) {
+          printV('Send transaction error: $error');
+          if (!completer.isCompleted) {
+            completer.completeError(error);
+          }
+        },
+        onDone: () {
+          // If stream completes without reaching 'completed' stage, something went wrong
+          if (!completer.isCompleted) {
+            completer.completeError(Exception('Transaction stream ended unexpectedly'));
+          }
+        },
+        cancelOnError: true,
+      );
+
+      // Wait for transaction to complete
+      final txId = await completer.future;
+
+      // Update balance and transactions after send
+      await updateBalance();
+      await updateTransactions();
+
+      return txId;
+    }
+
+    return PendingMinotariTransaction(
+      amount: amount,
+      fee: fee,
+      recipientAddress: recipientAddress,
+      sendTransaction: sendTransactionCallback,
+    );
+  }
+
+  @override
+  Future<void> save() async {
+    // Wallet state is saved automatically by the Rust layer
+    // Save the keys file (mnemonic and passphrase)
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+      await saveKeysFile(password, encryptionFileUtils);
+      saveKeysFile(password, encryptionFileUtils, true); // backup
+    }
+  }
+
+  @override
+  Future<void> renameWalletFiles(String newWalletName) async {
+    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+
+    final newWalletPath = await pathForWallet(name: newWalletName, type: walletInfo.type);
+
+    printV('renameWalletFiles from \"${walletInfo.name}\" (in ${currentWalletPath} ) to \"$newWalletName\"');
+    final typeDir = await pathForWalletTypeDir(type: walletInfo.type);
+    final ffi = MinotariFfi(dataPath: '$typeDir/wallet.db', walletName: walletInfo.name);
+    await ffi.rename(newWalletName: newWalletName);
+
+    final currentKeysFile = File('$currentWalletPath.keys');
+    if (currentKeysFile.existsSync()) {
+      await currentKeysFile.copy('$newWalletPath.keys');
+    }
+
+    final currentKeysBackupFile = File('$currentWalletPath.keys.backup');
+    if (currentKeysBackupFile.existsSync()) {
+      await currentKeysBackupFile.copy('$newWalletPath.keys.backup');
+    }
+
+    await Directory(currentDirPath).delete(recursive: true);
+  }
+
+  @override
+  Future<void> changePassword(String password) async {
+    // Minotari wallets don't use passwords in the traditional sense
+    // The mnemonic is the key
+  }
+
+  @override
+  Future<void> rescan({required int height}) async {
+    await startSync();
+  }
+
+  @override
+  Future<void> close({bool shouldCleanup = false}) async {
+    await _scannerSubscription?.cancel();
+    _scannerSubscription = null;
+    await _ffi?.stopScan();
+    await _ffi?.dispose();
+  }
+
+  @override
+  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+    return _cachedFeeEstimate?.estimatedFee.toInt() ?? 0;
+  }
+
+  @override
+  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {
+    if (_currentNode == null || _ffi == null) {
+      printV('[Minotari Fee] Cannot estimate fee: no node connected or wallet not initialized');
+      return;
+    }
+
+    try {
+      final feePriority = _mapPriorityToFeePriority(priority);
+      final nodeUrl = _currentNode!.uri.toString();
+
+      printV('[Minotari Fee] Requesting fee estimate: amount=0, priority=${feePriority.name}, nodeUrl=$nodeUrl');
+
+      _cachedFeeEstimate = await _ffi!.estimateFee(
+        amount: BigInt.zero, // TODO it's always zero because we don't know the amount here
+        priority: feePriority,
+        baseNodeUrl: nodeUrl,
+      );
+
+      if (_cachedFeeEstimate != null) {
+        printV('[Minotari Fee] Fee estimate received: '
+            'estimatedFee=${_cachedFeeEstimate!.estimatedFee}, '
+            'feePerGram=${_cachedFeeEstimate!.feePerGram}, '
+            'inputCount=${_cachedFeeEstimate!.inputCount}, '
+            'totalAmountRequired=${_cachedFeeEstimate!.totalAmountRequired}');
+      } else {
+        printV('[Minotari Fee] Fee estimate returned null');
+      }
+    } catch (e) {
+      printV('[Minotari Fee] Error estimating fee: $e');
+    }
+  }
+
+  /// Map Dart TransactionPriority to Rust FeePriority enum
+  FeePriority _mapPriorityToFeePriority(TransactionPriority? priority) {
+    if (priority is MinotariTransactionPriority) {
+      switch (priority) {
+        case MinotariTransactionPriority.slow:
+          return FeePriority.slow;
+        case MinotariTransactionPriority.medium:
+          return FeePriority.medium;
+        case MinotariTransactionPriority.fast:
+          return FeePriority.fast;
+      }
+    }
+    // Default to medium priority
+    return FeePriority.medium;
+  }
+
+  /// Get the cached fee estimate (for display purposes)
+  FeeEstimate? get cachedFeeEstimate => _cachedFeeEstimate;
+
+  @override
+  Future<bool> checkNodeHealth() async {
+    // TODO Stub implementation - always return true
+    return true;
+  }
+
+  @override
+  Future<Map<String, MinotariTransactionInfo>> fetchTransactions() async {
+    final txDtos = await _ffi?.getTransactions();
+    if (txDtos == null) return {};
+
+    final result = <String, MinotariTransactionInfo>{};
+    for (final txDto in txDtos) {
+      result[txDto.id] = _dtoToTransactionInfo(txDto);
+    }
+    return result;
+  }
+
+  @override
+  Future<String> signMessage(String message, {String? address}) async {
+    // TODO Stub implementation
+    throw UnimplementedError('signMessage not yet implemented');
+  }
+
+  @override
+  Future<bool> verifyMessage(String message, String signature, {String? address}) async {
+    // TODO Stub implementation
+    return false;
+  }
+
+  Future<void> updateBalance() async {
+    try {
+      final balanceData = await _ffi?.getBalance();
+      if (balanceData != null) {
+        balance[CryptoCurrency.xtm] = MinotariBalance(
+          available: balanceData['available'] as int,
+          pendingIncoming: balanceData['pendingIncoming'] as int,
+          pendingOutgoing: balanceData['pendingOutgoing'] as int,
+        );
+      }
+    } catch (e) {
+      printV('Error updating balance: $e');
+    }
+  }
+
+  Future<void> updateTransactions() async {
+    try {
+      if (_isTransactionUpdating) return;
+
+      _isTransactionUpdating = true;
+
+      final transactions = await fetchTransactions();
+      transactionHistory.transactions.addAll(transactions);
+      await transactionHistory.save();
+
+      _isTransactionUpdating = false;
+    } catch (e) {
+      _isTransactionUpdating = false;
+      printV('Error updating transactions: $e');
+    }
+  }
+
+  MinotariTransactionInfo _dtoToTransactionInfo(DisplayedTransactionDto txDto) {
+    final direction = txDto.direction == DisplayedTransactionDirection.incoming
+        ? TransactionDirection.incoming
+        : TransactionDirection.outgoing;
+
+    final isPending = txDto.status != DisplayedTransactionStatus.confirmed;
+    final date = DateTime.tryParse(txDto.blockchain.timestamp) ?? DateTime.now();
+    final fee = txDto.fee?.amount.toInt();
+
+    final txInfo = MinotariTransactionInfo(
+      id: txDto.id,
+      amount: txDto.amount.toInt(),
+      date: date,
+      direction: direction,
+      isPending: isPending,
+      fee: fee,
+      height: txDto.blockchain.blockHeight.toInt(),
+      confirmations: txDto.blockchain.confirmations.toInt(),
+      payrefs: txDto.payrefs,
+    );
+
+    txInfo.additionalInfo['source'] = txDto.source.name;
+    txInfo.additionalInfo['status'] = txDto.status.name;
+    txInfo.additionalInfo['amountDisplay'] = txDto.amountDisplay;
+
+    if (txDto.message != null && txDto.message!.isNotEmpty) {
+      txInfo.additionalInfo['message'] = txDto.message!;
+    }
+
+    if (txDto.fee != null) {
+      txInfo.additionalInfo['feeDisplay'] = txDto.fee!.amountDisplay;
+    }
+
+    if (txDto.counterparty != null) {
+      txInfo.additionalInfo['counterpartyAddress'] = txDto.counterparty!.address;
+      txInfo.additionalInfo['counterpartyEmoji'] = txDto.counterparty!.addressEmoji;
+    }
+
+    return txInfo;
+  }
+
+  /// Process new transactions from the FFI layer (used by stream event handlers)
+  Future<void> _processNewTransactions(List<dynamic> transactions) async {
+    for (final txDynamic in transactions) {
+      try {
+        final txDto = txDynamic as DisplayedTransactionDto;
+        transactionHistory.transactions[txDto.id] = _dtoToTransactionInfo(txDto);
+      } catch (e) {
+        printV('Error processing transaction: $e');
+      }
+    }
+
+    await transactionHistory.save();
+  }
+}
