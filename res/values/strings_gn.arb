@@ -1229,6 +1229,7 @@
   "solana_no_associated_token_account_exception": "Ndaipóri associated token account ko kundaharapépe.",
   "solana_sign_native_transaction_rent_exception": "Ndaikatúi oñemohu'ã pe transacción. Ndaipóri SOL hembýva pe renta-rã pe transacción rire. Embohetave ne SOL saldo térã emomichĩ pe SOL remondóva.",
   "solana_sign_spl_token_transaction_rent_exception": "Ndaikatúi oñemohu'ã pe transacción. Ndaipóri SOL hembýva pe renta-rã pe transacción rire. Embohetave ne SOL saldo.",
+  "solana_unrecognized_token_program_exception": "Ko token oipuru peteĩ programa token ndojehechakuaáiva, upévare ndojejapói pe transacción. Ikatu ne nodo ombojevy dato vai, eñeha’ã eñemoambue ambue nodo-pe.",
   "sort_by": "Mohenda hag̃ua",
   "spend_key_private": "Clave de gasto (privada)",
   "spend_key_public": "Mba’eñemi hag̃ua (público)",

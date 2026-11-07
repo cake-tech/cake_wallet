@@ -1227,6 +1227,7 @@
   "solana_no_associated_token_account_exception": "Bu adres için ilişkili token hesabı yok.",
   "solana_sign_native_transaction_rent_exception": "İşlem tamamlanamıyor. İşlemden sonra kira için yeterli SOL kalmıyor. Lütfen SOL bakiyenizi artırın veya gönderdiğiniz SOL miktarını azaltın.",
   "solana_sign_spl_token_transaction_rent_exception": "İşlem tamamlanamıyor. İşlemden sonra kira için yeterli SOL kalmıyor. Lütfen SOL bakiyenizi artırın.",
+  "solana_unrecognized_token_program_exception": "Bu token tanınmayan bir token programı kullandığından işlem oluşturulmadı. Düğümünüz yanlış veri döndürüyor olabilir, başka bir düğüme geçmeyi deneyin.",
   "sort_by": "Sırala",
   "spend_key_private": "Harcama anahtarı (gizli)",
   "spend_key_public": "Harcama anahtarı (açık)",

@@ -1227,6 +1227,7 @@
   "solana_no_associated_token_account_exception": "Pro tuto adresu neexistuje přidružený tokenový účet.",
   "solana_sign_native_transaction_rent_exception": "Transakci nelze dokončit. Po transakci nezůstane dostatek SOL na rent. Doplňte prosím zůstatek SOL nebo snižte množství SOL, které odesíláte.",
   "solana_sign_spl_token_transaction_rent_exception": "Transakci nelze dokončit. Po transakci nezbude dostatek SOL na rent. Doplňte prosím svůj zůstatek SOL.",
+  "solana_unrecognized_token_program_exception": "Tento token používá nerozpoznaný program tokenů, takže transakce nebyla vytvořena. Váš uzel možná vrací nesprávná data, zkuste přejít na jiný uzel.",
   "sort_by": "Seřadit podle",
   "spend_key_private": "Klíč pro utrácení (soukromý)",
   "spend_key_public": "Klíč pro utrácení (veřejný)",

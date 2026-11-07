@@ -1229,6 +1229,7 @@
   "solana_no_associated_token_account_exception": "Babu asusun token mai alaƙa da wannan adireshin.",
   "solana_sign_native_transaction_rent_exception": "Ba za a iya kammala ma'amalar ba. Ba a bar isasshen SOL don biyan kuɗin rent bayan ma'amalar ba. Da fatan za a ƙara SOL a ma'auninka ko a rage adadin SOL da kake aikawa.",
   "solana_sign_spl_token_transaction_rent_exception": "Ba za a iya kammala ma'amala ba. Ba a bar isasshen SOL don biyan kuɗin rent bayan ma'amalar ba. Da fatan za ka ƙara SOL a ma'auninka.",
+  "solana_unrecognized_token_program_exception": "Wannan token yana amfani da shirin token da ba a gane shi ba, don haka ba a ƙirƙiri ma'amala ba. Mai yiwuwa kumburin ku yana dawo da bayanan da ba daidai ba, gwada canzawa zuwa wani kumburi.",
   "sort_by": "Tsara ta",
   "spend_key_private": "Maɓallin kashewa (na sirri)",
   "spend_key_public": "Maɓallin kashewa (na jama'a)",

@@ -1228,6 +1228,7 @@
   "solana_no_associated_token_account_exception": "No hay una cuenta de tokens asociada para esta dirección.",
   "solana_sign_native_transaction_rent_exception": "La transacción no se puede completar. No queda suficiente SOL para el alquiler (rent) después de la transacción. Por favor, recarga tu saldo de SOL o reduce la cantidad de SOL que estás enviando.",
   "solana_sign_spl_token_transaction_rent_exception": "La transacción no se puede completar. No queda suficiente SOL para la renta después de la transacción. Por favor, recarga tu saldo de SOL.",
+  "solana_unrecognized_token_program_exception": "Este token utiliza un programa de token no reconocido, por lo que no se creó la transacción. Es posible que su nodo esté devolviendo datos incorrectos; intente cambiar a otro nodo.",
   "sort_by": "Ordenar por",
   "spend_key_private": "Clave de gasto (privada)",
   "spend_key_public": "Clave de gasto (pública)",

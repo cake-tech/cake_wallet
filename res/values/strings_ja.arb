@@ -1228,6 +1228,7 @@
   "solana_no_associated_token_account_exception": "このアドレスに紐づく関連トークンアカウントがありません。",
   "solana_sign_native_transaction_rent_exception": "トランザクションを完了できません。トランザクション後にレンタル用のSOLが不足しています。SOL残高を追加するか、送信するSOLの量を減らしてください。",
   "solana_sign_spl_token_transaction_rent_exception": "トランザクションを完了できません。取引後にレンタル用のSOLが不足しています。SOL残高を追加してください。",
+  "solana_unrecognized_token_program_exception": "このトークンは認識できないトークン プログラムを使用しているため、トランザクションは作成されませんでした。ノードが間違ったデータを返している可能性があります。別のノードに切り替えてみてください。",
   "sort_by": "並び替え",
   "spend_key_private": "スペンドキー（秘密）",
   "spend_key_public": "スペンドキー（公開）",
