@@ -139,6 +139,10 @@ abstract class NFTSendViewModelBase with Store {
           "${S.current.added_message_for_ata_error}";
     }
 
+    if (error is UnrecognizedTokenProgramException) {
+      return S.current.solana_unrecognized_token_program_exception;
+    }
+
     printV("NFT send failed: ${error.toString()}");
 
     return error.toString();

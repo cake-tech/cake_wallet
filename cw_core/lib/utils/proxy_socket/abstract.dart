@@ -16,28 +16,68 @@ class ProxyAddress {
 }
 
 abstract class ProxySocket {
+  // [connectionTimeout] only covers DNS + TCP; these bound the whole connect, including the SOCKS
+  // and TLS handshakes, which otherwise can wait forever. Tor needs time to build a circuit.
+  static const clearnetConnectDeadline = Duration(seconds: 20);
+  static const torConnectDeadline = Duration(seconds: 60);
+
   static Future<ProxySocket> connect(bool sslEnabled, ProxyAddress address,
-      {Duration? connectionTimeout}) async {
+      {Duration? connectionTimeout}) {
     if (CakeTor.instance!.started) {
-      var socksSocket = await SOCKSSocket.create(
-        proxyHost: InternetAddress.loopbackIPv4.address,
-        proxyPort: CakeTor.instance!.port,
-        sslEnabled: sslEnabled,
+      SOCKSSocket? socksSocket;
+      Future<ProxySocket> open() async {
+        final socket = socksSocket = await SOCKSSocket.create(
+          proxyHost: InternetAddress.loopbackIPv4.address,
+          proxyPort: CakeTor.instance!.port,
+          sslEnabled: sslEnabled,
+        );
+        try {
+          await socket.connect();
+          await socket.connectTo(address.host, address.port);
+        } catch (_) {
+          // On a failure reply the library leaves its connection to Tor open.
+          unawaited(socket.close().catchError((_) {}));
+          rethrow;
+        }
+        return ProxySocketSocks(socket);
+      }
+
+      // Closing the SOCKS socket also fails a handshake that is still waiting on Tor.
+      return _withDeadline(
+        open(),
+        torConnectDeadline,
+        onTimeout: () => unawaited(socksSocket?.close().catchError((_) {})),
       );
-      await socksSocket.connect();
-      await socksSocket.connectTo(address.host, address.port);
-      return ProxySocketSocks(socksSocket);
     }
     if (sslEnabled == false) {
-      return ProxySocketInsecure(
-          await Socket.connect(address.host, address.port, timeout: connectionTimeout));
+      return _withDeadline(
+        Socket.connect(address.host, address.port, timeout: connectionTimeout)
+            .then(ProxySocketInsecure.new),
+        clearnetConnectDeadline,
+      );
     } else {
-      return ProxySocketSecure(await SecureSocket.connect(
-        address.host,
-        address.port,
-        timeout: connectionTimeout,
-        onBadCertificate: (_) => true,
-      ));
+      return _withDeadline(
+        SecureSocket.connect(
+          address.host,
+          address.port,
+          timeout: connectionTimeout,
+          onBadCertificate: (_) => true,
+        ).then(ProxySocketSecure.new),
+        clearnetConnectDeadline,
+      );
+    }
+  }
+
+  /// Fails with a [TimeoutException] once [deadline] passes; a socket that still connects after
+  /// that is destroyed instead of leaking.
+  static Future<ProxySocket> _withDeadline(Future<ProxySocket> pending, Duration deadline,
+      {void Function()? onTimeout}) async {
+    try {
+      return await pending.timeout(deadline);
+    } on TimeoutException {
+      onTimeout?.call();
+      unawaited(pending.then((socket) => socket.destroy(), onError: (_) {}));
+      rethrow;
     }
   }
 

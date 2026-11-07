@@ -405,7 +405,7 @@ class CWBitcoin extends Bitcoin {
       if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
       } else if (dType == DerivationType.bip39) {
-        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
       for (DerivationInfo dInfo in electrum_derivations[dType]!) {
@@ -554,7 +554,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   HardwareWalletService getBitboxHardwareWalletService(
-      bitbox.BitboxManager manager, bool isBitcoin) {
+      bitbox.BitboxConnection manager, bool isBitcoin) {
     if (isBitcoin) return BitcoinBitboxService(manager);
     return LitecoinBitboxService(manager);
   }
