@@ -39,15 +39,9 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
         _validator = validator,
         _address = wallet.walletAddresses.address,
         super(const EverstakeLoading(null)) {
-    // one handler so droppable() ignores events while another is in flight
-    on<EverstakeEvent>(
-      (event, emit) => switch (event) {
-        StakingDataRequested() => _onStakingDataRequested(emit),
-        TransactionRequested() => _onTransactionRequested(event, emit),
-        TransactionConfirmed() => _onTransactionConfirmed(event, emit),
-      },
-      transformer: droppable(),
-    );
+    on<StakingDataRequested>(_onStakingDataRequested, transformer: restartable());
+    on<TransactionRequested>(_onTransactionRequested, transformer: droppable());
+    on<TransactionConfirmed>(_onTransactionConfirmed, transformer: droppable());
 
     add(const StakingDataRequested());
 
@@ -84,13 +78,22 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     return super.close();
   }
 
-  Future<void> _onStakingDataRequested(Emitter<EverstakeState> emit) async {
+  Future<void> _onStakingDataRequested(
+    StakingDataRequested event,
+    Emitter<EverstakeState> emit,
+  ) async {
+    if (state.isTransacting) {
+      return;
+    }
     emit(EverstakeLoading(state.data));
+    EverstakeState next;
     try {
-      final data = await _loadData();
-      emit(EverstakeReady(data));
+      next = EverstakeReady(await _loadData());
     } catch (error) {
-      emit(EverstakeFailure(state.data, _errorMessage(error)));
+      next = EverstakeFailure(state.data, _errorMessage(error));
+    }
+    if (state is EverstakeLoading) {
+      emit(next);
     }
   }
 
@@ -99,7 +102,7 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     Emitter<EverstakeState> emit,
   ) async {
     final data = state.data;
-    if (data == null) {
+    if (data == null || state.isTransacting) {
       return;
     }
 
