@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/core/morpho/morpho_service.dart";
 import "package:cake_wallet/core/morpho/morpho_vault.dart";
 import "package:cake_wallet/evm/evm.dart";
@@ -197,5 +199,64 @@ void main() {
         ),
       );
     });
+  });
+
+  group("keeps reloads out of a transaction's way", () {
+    test("still prepares a deposit requested during a reload, and keeps it", () async {
+      final bloc = await loadedBloc();
+      final reload = Completer<BigInt>();
+      when(() => vault.getShareBalance(any())).thenAnswer((_) => reload.future);
+      final loading = bloc.stream.firstWhere((state) => state is MorphoLoading);
+      bloc.add(const YieldDataRequested());
+      await loading;
+
+      final review = await settled(bloc, DepositRequested(_usdc("100")));
+      expect(review, isA<MorphoPrepared>());
+
+      reload.complete(_shares);
+      await pumpEventQueue();
+      expect(bloc.state, same(review));
+    });
+
+    test("doesn't reload while a transaction waits for its receipt", () async {
+      when(() => vault.getUsdcAllowance(any())).thenAnswer((_) async => _usdc("100"));
+      final receipt = Completer<bool?>();
+      when(() => evm.getTransactionReceipt(any(), any())).thenAnswer((_) => receipt.future);
+      final bloc = await loadedBloc();
+      final review = await settled(bloc, DepositRequested(_usdc("100")));
+      final confirming = bloc.stream.firstWhere((state) => state is MorphoConfirming);
+      bloc.add(TransactionConfirmed((review as MorphoPrepared).operation));
+      await confirming;
+
+      bloc.add(const YieldDataRequested());
+      await pumpEventQueue();
+
+      expect(bloc.state, isA<MorphoConfirming>());
+
+      final confirmed = bloc.stream.firstWhere((state) => state is MorphoConfirmed);
+      receipt.complete(true);
+      await confirmed;
+    });
+  });
+
+  test("ignores a new request while a transaction is being sent", () async {
+    when(() => vault.getUsdcAllowance(any())).thenAnswer((_) async => _usdc("100"));
+    final broadcast = Completer<void>();
+    when(() => signed.commit()).thenAnswer((_) => broadcast.future);
+    final bloc = await loadedBloc();
+    final review = await settled(bloc, DepositRequested(_usdc("100"))) as MorphoPrepared;
+    final submitting = bloc.stream.firstWhere((state) => state is MorphoSubmitting);
+    bloc.add(TransactionConfirmed(review.operation));
+    await submitting;
+
+    bloc.add(DepositRequested(_usdc("50")));
+    await pumpEventQueue();
+
+    expect(bloc.state, isA<MorphoSubmitting>());
+
+    final confirmed = bloc.stream.firstWhere((state) => state is MorphoConfirmed);
+    broadcast.complete();
+    await confirmed;
+    verifySigned(_deposit);
   });
 }

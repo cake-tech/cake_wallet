@@ -49,8 +49,6 @@ class _MorphoAmountPageState extends State<MorphoAmountPage> {
                 _preparingTransaction = false;
                 _prepareTransactionError = error;
               });
-            case MorphoReady():
-              setState(() => _preparingTransaction = false);
             default:
               break;
           }
@@ -101,7 +99,7 @@ class _MorphoAmountPageState extends State<MorphoAmountPage> {
           ? settings.shouldRequireTOTP2FAForSendsToNonContact
           : settings.shouldRequireTOTP2FAForSendsToInternalWallets,
       onAuthSuccess: (authenticated) {
-        if (!authenticated || !mounted) {
+        if (!authenticated || !mounted || context.read<MorphoBloc>().state.isTransacting) {
           return;
         }
         setState(() {

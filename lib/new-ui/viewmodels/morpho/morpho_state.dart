@@ -53,6 +53,9 @@ sealed class MorphoState {
   MorphoData? get data;
 
   bool get isBusy => false;
+
+  bool get isTransacting =>
+      this is MorphoPreparing || this is MorphoSubmitting || this is MorphoConfirming;
 }
 
 sealed class MorphoStateWithData extends MorphoState {

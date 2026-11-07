@@ -34,14 +34,9 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
         _service = service,
         _address = wallet.walletAddresses.address,
         super(const MorphoLoading(null)) {
-    on<MorphoEvent>(
-      (event, emit) => switch (event) {
-        YieldDataRequested() => _onYieldDataRequested(emit),
-        TransactionRequested() => _onTransactionRequested(event, emit),
-        TransactionConfirmed() => _onTransactionConfirmed(event, emit),
-      },
-      transformer: droppable(),
-    );
+    on<YieldDataRequested>(_onYieldDataRequested, transformer: restartable());
+    on<TransactionRequested>(_onTransactionRequested, transformer: droppable());
+    on<TransactionConfirmed>(_onTransactionConfirmed, transformer: droppable());
 
     add(const YieldDataRequested());
   }
@@ -60,12 +55,22 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
 
   String get address => _address;
 
-  Future<void> _onYieldDataRequested(Emitter<MorphoState> emit) async {
+  Future<void> _onYieldDataRequested(
+    YieldDataRequested event,
+    Emitter<MorphoState> emit,
+  ) async {
+    if (state.isTransacting) {
+      return;
+    }
     emit(MorphoLoading(state.data));
+    MorphoState next;
     try {
-      emit(MorphoReady(await _loadData()));
+      next = MorphoReady(await _loadData());
     } catch (error) {
-      emit(MorphoFailure(state.data, _errorMessage(error)));
+      next = MorphoFailure(state.data, _errorMessage(error));
+    }
+    if (state is MorphoLoading) {
+      emit(next);
     }
   }
 
@@ -74,7 +79,7 @@ class MorphoBloc extends Bloc<MorphoEvent, MorphoState> {
     Emitter<MorphoState> emit,
   ) async {
     final data = state.data;
-    if (data == null) {
+    if (data == null || state.isTransacting) {
       return;
     }
 
