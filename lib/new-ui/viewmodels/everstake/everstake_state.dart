@@ -72,6 +72,8 @@ sealed class EverstakeState {
   EverstakeData? get data;
 
   bool get isBusy => false;
+
+  bool get isTransacting => this is EverstakePreparing || this is EverstakeSubmitting;
 }
 
 sealed class EverstakeStateWithData extends EverstakeState {

@@ -47,8 +47,6 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
                 _preparingClaim = false;
                 _claimError = error;
               });
-            case EverstakeReady():
-              setState(() => _preparingClaim = false);
             default:
               break;
           }
@@ -119,7 +117,7 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
       conditionToDetermineIfToUse2FA:
           widget.authService.settingsStore.shouldRequireTOTP2FAForSendsToInternalWallets,
       onAuthSuccess: (authenticated) {
-        if (!authenticated || !mounted) {
+        if (!authenticated || !mounted || context.read<EverstakeBloc>().state.isTransacting) {
           return;
         }
         setState(() {

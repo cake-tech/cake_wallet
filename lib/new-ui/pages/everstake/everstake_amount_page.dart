@@ -49,8 +49,6 @@ class _EverstakeAmountPageState extends State<EverstakeAmountPage> {
                 _preparingTransaction = false;
                 _prepareTransactionError = error;
               });
-            case EverstakeReady():
-              setState(() => _preparingTransaction = false);
             default:
               break;
           }
@@ -108,7 +106,7 @@ class _EverstakeAmountPageState extends State<EverstakeAmountPage> {
           ? settings.shouldRequireTOTP2FAForSendsToNonContact
           : settings.shouldRequireTOTP2FAForSendsToInternalWallets,
       onAuthSuccess: (authenticated) {
-        if (!authenticated || !mounted) {
+        if (!authenticated || !mounted || context.read<EverstakeBloc>().state.isTransacting) {
           return;
         }
         setState(() {

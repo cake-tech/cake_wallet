@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/core/everstake/ethereum_transaction_validator.dart";
 import "package:cake_wallet/core/everstake/everstake_service.dart";
 import "package:cake_wallet/core/everstake/exceptions.dart";
@@ -357,6 +359,41 @@ void main() {
       expect(bloc.state, same(review));
       verify(() => service.getEthereumUserBalances(_staker)).called(1);
     });
+
+    test("still prepares a stake requested during the reload, and keeps it", () async {
+      final bloc = await loadedBloc();
+      final reload = Completer<EverstakeEthereumUserBalances>();
+      when(() => service.getEthereumUserBalances(any())).thenAnswer((_) => reload.future);
+      final loading = bloc.stream.firstWhere((state) => state is EverstakeLoading);
+      runInAction(() => walletBalances[CryptoCurrency.eth] = _Balance(_eth("0.5")));
+      await loading;
+
+      final review = await prepared(bloc, StakeRequested(_eth("0.1")));
+      expect(review, isA<EverstakePrepared>());
+
+      reload.complete(_balances());
+      await pumpEventQueue();
+      expect(bloc.state, same(review));
+    });
+
+    test("doesn't reload while a transaction is being sent", () async {
+      final broadcast = Completer<void>();
+      when(() => signed.commit()).thenAnswer((_) => broadcast.future);
+      final bloc = await loadedBloc();
+      final review = await prepared(bloc, StakeRequested(_eth("0.1"))) as EverstakePrepared;
+      final submitting = bloc.stream.firstWhere((state) => state is EverstakeSubmitting);
+      bloc.add(TransactionConfirmed(review.operation));
+      await submitting;
+
+      runInAction(() => walletBalances[CryptoCurrency.eth] = _Balance(_eth("0.5")));
+      await pumpEventQueue();
+
+      expect(bloc.state, isA<EverstakeSubmitting>());
+
+      final submitted = bloc.stream.firstWhere((state) => state is EverstakeSubmitted);
+      broadcast.complete();
+      await submitted;
+    });
   });
 
   test("submits only the reviewed transaction and records it as pending", () async {
@@ -379,6 +416,31 @@ void main() {
     );
     verify(() => signed.commit()).called(1);
     verify(() => history.addOne(any())).called(1);
+  });
+
+  test("ignores a new request while a transaction is being sent", () async {
+    final broadcast = Completer<void>();
+    when(() => signed.commit()).thenAnswer((_) => broadcast.future);
+    final bloc = await loadedBloc();
+    final review = await prepared(bloc, StakeRequested(_eth("0.1"))) as EverstakePrepared;
+    final submitting = bloc.stream.firstWhere((state) => state is EverstakeSubmitting);
+    bloc.add(TransactionConfirmed(review.operation));
+    await submitting;
+
+    bloc.add(StakeRequested(_eth("0.05")));
+    await pumpEventQueue();
+
+    expect(bloc.state, isA<EverstakeSubmitting>());
+
+    final submitted = bloc.stream.firstWhere((state) => state is EverstakeSubmitted);
+    broadcast.complete();
+    await submitted;
+    verify(
+      () => service.prepareEthereumStake(
+        address: any(named: "address"),
+        amount: any(named: "amount"),
+      ),
+    ).called(1);
   });
 
   test("prepares an active unstake with its instant payout estimate", () async {
