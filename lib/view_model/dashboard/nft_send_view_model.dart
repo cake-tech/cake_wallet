@@ -134,6 +134,10 @@ abstract class NFTSendViewModelBase with Store {
       return S.current.solana_sign_spl_token_transaction_rent_exception;
     }
 
+    if (error is RecipientNotAWalletException) {
+      return S.current.solana_recipient_not_a_wallet;
+    }
+
     if (error is CreateAssociatedTokenAccountException) {
       return "${S.current.solana_create_associated_token_account_exception} "
           "${S.current.added_message_for_ata_error}";

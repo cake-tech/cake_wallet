@@ -1226,6 +1226,7 @@
   "solana_create_associated_token_account_exception": "Error al crear la cuenta de token asociada para la dirección del destinatario.",
   "solana_invalid_data_message": "Error al analizar la cuenta de token asociada para el token. Por favor, confirme la dirección de recepción y vuelva a intentarlo.",
   "solana_no_associated_token_account_exception": "No hay una cuenta de tokens asociada para esta dirección.",
+  "solana_recipient_not_a_wallet": "Esta dirección no es una billetera. Puede ser una cuenta token, una dirección token o una cuenta de programa, como la dirección de configuración de una firma múltiple, y los tokens enviados podrían perderse. Pídale al destinatario su dirección de billetera o bóveda.",
   "solana_sign_native_transaction_rent_exception": "La transacción no se puede completar. No queda suficiente SOL para el alquiler (rent) después de la transacción. Por favor, recarga tu saldo de SOL o reduce la cantidad de SOL que estás enviando.",
   "solana_sign_spl_token_transaction_rent_exception": "La transacción no se puede completar. No queda suficiente SOL para la renta después de la transacción. Por favor, recarga tu saldo de SOL.",
   "solana_unrecognized_token_program_exception": "Este token utiliza un programa de token no reconocido, por lo que no se creó la transacción. Es posible que su nodo esté devolviendo datos incorrectos; intente cambiar a otro nodo.",

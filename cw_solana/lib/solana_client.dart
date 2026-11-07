@@ -13,6 +13,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_balance.dart';
 import 'package:cw_solana/solana_exceptions.dart';
+import "package:cw_solana/solana_recipient_check.dart";
 import 'package:cw_solana/solana_transaction_model.dart';
 import 'package:cw_core/spl_token.dart';
 import 'package:on_chain/solana/solana.dart';
@@ -1875,54 +1876,53 @@ class SolanaWalletClient {
       );
     }
 
-    final ProgramDerivedAddress associatedRecipientAccount;
+    final SolAddress recipientTokenAccount;
     bool shouldCreateRecipientAccount = false;
 
     try {
-      final recipientOwner = SolAddress(destinationAddress);
-      final isOffCurveRecipient = !recipientOwner.isOnCurve;
+      final recipient = SolAddress(destinationAddress);
 
-      if (isOffCurveRecipient) {
-        final destinationInfo = await _provider!.request(
-          SolanaRPCGetAccountInfo(account: recipientOwner, commitment: Commitment.confirmed),
-        );
+      switch (await _classifyRecipient(recipient, mintAddress, senderTokenProgramId)) {
+        case SolanaRecipientKind.notAWallet:
+          throw SolanaRecipientNotAWalletException(destinationAddress);
 
-        final destinationOwnerProgram = destinationInfo?.owner.address;
-        if (destinationOwnerProgram == SPLTokenProgramConst.tokenProgramId.address ||
-            destinationOwnerProgram == SPLTokenProgramConst.token2022ProgramId.address) {
-          throw SolanaCreateAssociatedTokenAccountException(
-            "Recipient $destinationAddress is a token account, not a wallet address",
+        case SolanaRecipientKind.tokenAccountForMint:
+          // The user pasted the recipient's token account for this token: pay into it directly.
+          recipientTokenAccount = recipient;
+
+        case SolanaRecipientKind.wallet:
+          final recipientPDA = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
+            mint: mintAddress,
+            owner: recipient,
+            tokenProgramId: senderTokenProgramId,
+            // PDAs (e.g. a Squads vault) are off-curve; _classifyRecipient has vetted them.
+            allowOwnerOffCurve: !recipient.isOnCurve,
           );
-        }
+
+          SolanaAccountInfo? recipientInfo;
+          try {
+            recipientInfo = await _provider!.request(
+              SolanaRPCGetAccountInfo(
+                account: recipientPDA.address,
+                commitment: Commitment.confirmed,
+              ),
+            );
+          } catch (_) {
+            recipientInfo = null;
+          }
+
+          if (recipientInfo != null &&
+              recipientInfo.owner.address != senderTokenProgramId.address) {
+            throw SolanaCreateAssociatedTokenAccountException(
+              "Recipient token account is owned by ${recipientInfo.owner.address}",
+            );
+          }
+
+          shouldCreateRecipientAccount = recipientInfo == null;
+          recipientTokenAccount = recipientPDA.address;
       }
-
-      final recipientPDA = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
-        mint: mintAddress,
-        owner: recipientOwner,
-        tokenProgramId: senderTokenProgramId,
-        allowOwnerOffCurve: isOffCurveRecipient,
-      );
-
-      SolanaAccountInfo? recipientInfo;
-      try {
-        recipientInfo = await _provider!.request(
-          SolanaRPCGetAccountInfo(
-            account: recipientPDA.address,
-            commitment: Commitment.confirmed,
-          ),
-        );
-      } catch (_) {
-        recipientInfo = null;
-      }
-
-      if (recipientInfo != null && recipientInfo.owner.address != senderTokenProgramId.address) {
-        throw SolanaCreateAssociatedTokenAccountException(
-          "Recipient token account is owned by ${recipientInfo.owner.address}",
-        );
-      }
-
-      shouldCreateRecipientAccount = recipientInfo == null;
-      associatedRecipientAccount = recipientPDA;
+    } on SolanaRecipientNotAWalletException {
+      rethrow;
     } on SolanaCreateAssociatedTokenAccountException {
       rethrow;
     } catch (e) {
@@ -1933,7 +1933,7 @@ class SolanaWalletClient {
     final transferInstructions = _createTransferCheckedInstruction(
       tokenProgramId: senderTokenProgramId,
       source: associatedSenderAccount.address,
-      destination: associatedRecipientAccount.address,
+      destination: recipientTokenAccount,
       mint: mintAddress,
       owner: ownerPrivateKey.publicKey().toAddress(),
       amount: inputAmount.amount,
@@ -1944,7 +1944,7 @@ class SolanaWalletClient {
       if (shouldCreateRecipientAccount)
         AssociatedTokenAccountProgram.associatedTokenAccountIdempotent(
           payer: ownerPrivateKey.publicKey().toAddress(),
-          associatedToken: associatedRecipientAccount.address,
+          associatedToken: recipientTokenAccount,
           owner: SolAddress(destinationAddress),
           mint: mintAddress,
           tokenProgramId: senderTokenProgramId,
@@ -2023,6 +2023,37 @@ class SolanaWalletClient {
       fee: fee,
       additionalCost: shouldCreateRecipientAccount ? accountCreationCost : null,
     );
+  }
+
+  /// Looks up the address the user typed (one `getAccountInfo`) so tokens are never sent where
+  /// nothing could move them again. See [SolanaRecipientCheck.classify] for the decision.
+  Future<SolanaRecipientKind> _classifyRecipient(
+    SolAddress recipient,
+    SolAddress mint,
+    SolAddress tokenProgramId,
+  ) async {
+    final SolanaAccountInfo? info;
+    try {
+      info = await _provider!.request(
+        SolanaRPCGetAccountInfo(
+          account: recipient,
+          commitment: Commitment.confirmed,
+          dataSlice: const RPCDataSliceConfig(
+            offset: 0,
+            length: SolanaRecipientCheck.dataSliceLength,
+          ),
+        ),
+      );
+    } catch (e) {
+      // Lookup failed: an on-curve address keeps today's behaviour (pay its ATA); an off-curve
+      // one can't be vetted, so the send fails instead of guessing.
+      if (recipient.isOnCurve) {
+        return SolanaRecipientKind.wallet;
+      }
+      rethrow;
+    }
+
+    return SolanaRecipientCheck.classify(info: info, mint: mint, tokenProgramId: tokenProgramId);
   }
 
   Future<String> _signTransactionInternal({
