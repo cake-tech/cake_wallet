@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/standard_list_card.dart';
 import 'package:cake_wallet/src/widgets/standard_list_status_row.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class StandardListRow extends StatelessWidget {
@@ -9,6 +10,7 @@ class StandardListRow extends StatelessWidget {
     this.subtitle,
     this.onTap,
     this.decoration,
+    this.testId,
     super.key,
   });
 
@@ -17,12 +19,13 @@ class StandardListRow extends StatelessWidget {
   final bool isSelected;
   final void Function(BuildContext context)? onTap;
   final Decoration? decoration;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
-    return Container(
+    return TestId.merge(testId ?? TestId.fromKey(key), child: Container(
       height: 56,
       padding: EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
@@ -44,6 +47,7 @@ class StandardListRow extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

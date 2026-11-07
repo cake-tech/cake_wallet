@@ -1,3 +1,4 @@
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 
@@ -11,6 +12,7 @@ class NewPrimaryButton extends StatelessWidget {
     this.isLoading = false,
     this.borderColor = Colors.transparent,
     this.disabled = false,
+    this.testId,
     super.key,
   });
 
@@ -22,11 +24,12 @@ class NewPrimaryButton extends StatelessWidget {
   final Color textColor;
   final Color borderColor;
   final String text;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) => SizedBox(
         height: 52,
-        child: TextButton(
+        child: TestId.merge(testId ?? TestId.fromKey(key), child: TextButton(
           onPressed: disabled ? null : onPressed,
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(
@@ -57,6 +60,7 @@ class NewPrimaryButton extends StatelessWidget {
                     ],
                   ),
           ),
+        ),
         ),
       );
 }

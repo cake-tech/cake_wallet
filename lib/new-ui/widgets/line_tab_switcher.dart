@@ -8,11 +8,13 @@ class LineTabSwitcher extends StatefulWidget {
     required this.tabs,
     required this.onTabChange,
     required this.selectedTab,
+    this.testId,
   });
 
   final List<String> tabs;
   final void Function(int index) onTabChange;
   final int selectedTab;
+  final String? testId;
 
   @override
   State<LineTabSwitcher> createState() => _LineTabSwitcherState();
@@ -97,6 +99,7 @@ class _LineTabSwitcherState extends State<LineTabSwitcher> {
               // that also carries the selected state of this tab.
               return MergeSemantics(
                 child: Semantics(
+                  identifier: "${widget.testId ?? "line_tab_switcher"}_${index}_key",
                   button: true,
                   selected: widget.selectedTab == index,
                   inMutuallyExclusiveGroup: true,

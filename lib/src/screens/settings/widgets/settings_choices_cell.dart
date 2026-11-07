@@ -1,14 +1,16 @@
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/material.dart';
 
 class SettingsChoicesCell extends StatelessWidget {
   const SettingsChoicesCell(this.choicesListItem,
-      {this.useGenericColor = true, this.padding, Key? key})
+      {this.useGenericColor = true, this.padding, this.testId, Key? key})
       : super(key: key);
 
   final ChoicesListItem<dynamic> choicesListItem;
   final bool useGenericColor;
   final EdgeInsets? padding;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +73,7 @@ class SettingsChoicesCell extends StatelessWidget {
                         children: items.map((dynamic e) {
                           final isSelected = choicesListItem.selectedItem == e;
                           return Expanded(
-                            child: GestureDetector(
+                            child: TestId.merge(testId == null ? null : "${testId}_${items.indexOf(e)}_key", child: GestureDetector(
                               onTap: () => choicesListItem.onItemSelected.call(e),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -91,6 +93,7 @@ class SettingsChoicesCell extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                            ),
                             ),
                           );
                         }).toList(),
