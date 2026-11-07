@@ -532,9 +532,11 @@ abstract class TronWalletBase
               ? TransactionDirection.outgoing
               : TransactionDirection.incoming,
           blockTime: transactionModel.date,
-          fee: transactionModel.fee != null
-              ? Money.fromInt(transactionModel.fee!, currency)
-              : saved?.fee,
+          // The TRC20 index has no real fee (its model reports 0), so keep the saved TRX row's.
+          fee: saved?.fee ??
+              (transactionModel.fee != null
+                  ? Money.fromInt(transactionModel.fee!, currency)
+                  : null),
           to: transactionModel.to,
           from: transactionModel.from,
           isPending: false,
