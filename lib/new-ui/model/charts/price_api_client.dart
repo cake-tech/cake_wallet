@@ -55,8 +55,12 @@ class PriceRequest {
 class PriceApiClient {
   static Future<Map<String, dynamic>?> _getJson(Uri uri) async {
     try {
-      final resp =
-          await ProxyWrapper().get(headers: {"x-api-key": secrets.fiatApiKey}, clearnetUri: uri);
+      final isOnion = uri.host == priceApiHostOnion;
+      final resp = await ProxyWrapper().get(
+        headers: {"x-api-key": secrets.fiatApiKey},
+        clearnetUri: isOnion ? null : uri,
+        onionUri: isOnion ? uri : null,
+      );
       if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
         printV("server returned code: ${resp.statusCode}\nuri: ${uri}\nresp body: ${resp.body}");
         return null;
