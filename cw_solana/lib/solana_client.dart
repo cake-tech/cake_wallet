@@ -1859,10 +1859,28 @@ class SolanaWalletClient {
     bool shouldCreateRecipientAccount = false;
 
     try {
+      final recipientOwner = SolAddress(destinationAddress);
+      final isOffCurveRecipient = !recipientOwner.isOnCurve;
+
+      if (isOffCurveRecipient) {
+        final destinationInfo = await _provider!.request(
+          SolanaRPCGetAccountInfo(account: recipientOwner, commitment: Commitment.confirmed),
+        );
+
+        final destinationOwnerProgram = destinationInfo?.owner.address;
+        if (destinationOwnerProgram == SPLTokenProgramConst.tokenProgramId.address ||
+            destinationOwnerProgram == SPLTokenProgramConst.token2022ProgramId.address) {
+          throw SolanaCreateAssociatedTokenAccountException(
+            "Recipient $destinationAddress is a token account, not a wallet address",
+          );
+        }
+      }
+
       final recipientPDA = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
         mint: mintAddress,
-        owner: SolAddress(destinationAddress),
+        owner: recipientOwner,
         tokenProgramId: senderTokenProgramId,
+        allowOwnerOffCurve: isOffCurveRecipient,
       );
 
       SolanaAccountInfo? recipientInfo;
