@@ -286,7 +286,6 @@ class TokenUtilities {
         title == "avax" ||
         title == "avalanche" ||
         tag == "polygon" ||
-        tag == "bsc" ||
         tag == "avalanche";
   }
 

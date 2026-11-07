@@ -8,6 +8,7 @@ import 'package:cake_wallet/utils/address_formatter.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currencies_with_memo.dart";
 import 'package:cw_core/payment_uris.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -185,7 +186,9 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                               spacing: 8,
                               children: [
                                 Text(
-                                  S.of(context).destination_tag,
+                                  memoLabelTypeFor(widget.from) == MemoLabelType.destinationTag
+                                      ? S.of(context).destination_tag
+                                      : S.of(context).memo,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       fontSize: 14,

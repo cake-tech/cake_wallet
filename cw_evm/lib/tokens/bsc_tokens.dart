@@ -34,6 +34,13 @@ class BSCTokens {
         enabled: true,
       ),
       Erc20Token(
+        name: "World Liberty Financial USD",
+        symbol: "USD1",
+        contractAddress: "0x8d0d000ee44948fc98c9b98a4fa4921476f08b0d",
+        decimal: 18,
+        enabled: false,
+      ),
+      Erc20Token(
         name: "PancakeSwap Token",
         symbol: "CAKE",
         contractAddress: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",

@@ -11,6 +11,7 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
@@ -118,6 +119,9 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       required bool isReceiveAmount}) async {
     try {
       if (amount == 0) return 0.0;
+      if (_isExcluded(from) || _isExcluded(to)) {
+        return 0.0;
+      }
 
       final params = <String, String>{
         'ticker_from': _normalizeCurrency(from),
@@ -224,6 +228,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required bool isFixedRateMode,
     required bool isSendAll,
   }) async {
+    if (_isExcluded(request.fromCurrency) || _isExcluded(request.toCurrency)) {
+      throw BadCurrencyPairException(
+        "Not supported by Trocador",
+        request.fromCurrency,
+        request.toCurrency,
+      );
+    }
+
     final params = {
       'ticker_from': _normalizeCurrency(request.fromCurrency),
       'ticker_to': _normalizeCurrency(request.toCurrency),
@@ -478,6 +490,13 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     return filteredProvidersList;
   }
 
+  // partners may pay out bridged USDT.e (NEAR), legacy USDT (OP) or another USDD (ETH)
+  bool _isExcluded(CryptoCurrency currency) {
+    final title = currency.title.toUpperCase();
+    return (title == "USDT" && (currency.tag == "NEAR" || currency.tag == "OP")) ||
+        (title == "USDD" && currency.tag == "ETH");
+  }
+
   String _networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.eth:
@@ -492,6 +511,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'Mainnet';
       case CryptoCurrency.arb:
         return 'Mainnet';
+      case CryptoCurrency.usdcOp:
+        return "Optimism";
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : 'Mainnet';
     }
@@ -503,8 +524,12 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'zec';
       case CryptoCurrency.usdcEPoly:
         return 'usdce';
+      case CryptoCurrency.usdcApt:
+        return "usdcapt";
       default:
-        return currency.title.toLowerCase();
+        final ticker = currency.title.toLowerCase();
+        // Trocador's /coin lookup is case-sensitive
+        return ticker == "usds" || ticker == "eurc" ? ticker.toUpperCase() : ticker;
     }
   }
 
@@ -522,6 +547,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         return 'Lightning';
       case 'BSC':
         return 'BEP20';
+      case "APT":
+        return "APTOS";
       default:
         return tag.toLowerCase();
     }
@@ -534,6 +561,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
       'BEP20' => 'BSC',
       'LIGHTNING' => 'LN',
       'MATIC' => 'POL',
+      "APTOS" => "APT",
+      "OPTIMISM" => "OP",
       _ => network,
     };
   }
