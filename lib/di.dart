@@ -73,6 +73,7 @@ import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/restore_wallet/seed_settings_cubit.dart";
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
@@ -262,7 +263,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_switcher_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_loadable_view_model.dart';
@@ -991,6 +991,9 @@ Future<void> setup({
   getIt.registerFactory<SeedSettingsViewModel>(
       () => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
 
+  getIt.registerFactory<SeedSettingsCubit>(
+      () => SeedSettingsCubit(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));
+
   getIt.registerFactory(() => DevMoneroBackgroundSync(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => DevSharedPreferences());
@@ -1304,21 +1307,6 @@ Future<void> setup({
   getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet!));
 
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
-
-  getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, Map<String, dynamic>?>(
-      (type, additionalParams) {
-    final restoredWallet = additionalParams?['restoredWallet'] as RestoredWallet?;
-    final hardwareWalletType = additionalParams?['hardwareWalletType'] as HardwareWalletType?;
-
-    return WalletRestoreViewModel(getIt.get<AppStore>(),
-        getIt.get<WalletCreationService>(param1: type), getIt.get<SeedSettingsViewModel>(),
-        type: type, restoredWallet: restoredWallet, hardwareWalletType: hardwareWalletType);
-  });
-
-  getIt.registerFactoryParam<WalletRestorePage, WalletType, Map<String, dynamic>?>(
-      (type, additionalParams) => WalletRestorePage(
-          getIt.get<WalletRestoreViewModel>(param1: type, param2: additionalParams),
-          getIt.get<SeedSettingsViewModel>()));
 
   getIt.registerFactoryParam<WalletRestoreChooseDerivationViewModel, List<DerivationInfo>, void>(
       (derivations, _) => WalletRestoreChooseDerivationViewModel(derivationInfos: derivations));
