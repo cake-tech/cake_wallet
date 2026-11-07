@@ -36,10 +36,15 @@ class AssetsTopBar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            LineTabSwitcher(
-              tabs: tabs.map((item) => item.title).toList(),
-              onTabChange: onTabChange,
-              selectedTab: selectedTab,
+            Flexible(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: LineTabSwitcher(
+                  tabs: tabs.map((item) => item.title).toList(),
+                  onTabChange: onTabChange,
+                  selectedTab: selectedTab,
+                ),
+              ),
             ),
             AnimatedSwitcher(
               duration: Duration(milliseconds: 300),
