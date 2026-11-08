@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
-import 'dart:math' show Random;
+import 'dart:math' show Random, min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
@@ -2482,7 +2482,7 @@ abstract class ElectrumWalletBase
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash);
-      if (bundle.originalTransaction.txId() != tx.txHash) return null;
+      if (_parseRawTransaction(bundle.hex)?.txId != tx.txHash) return null;
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2493,6 +2493,9 @@ abstract class ElectrumWalletBase
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
     final bundle = await getTransactionExpanded(hash: txId);
+    if (_parseRawTransaction(bundle.hex)?.txId != txId) {
+      throw RbfException("Transaction does not match $txId");
+    }
     final outputs = bundle.originalTransaction.outputs;
 
     final ownAddresses = walletAddresses.allAddresses.map((addr) => addr.address).toSet();
@@ -2515,7 +2518,8 @@ abstract class ElectrumWalletBase
     for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
-      if (inputTransaction == null) {
+      if (inputTransaction == null ||
+          _parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
         throw RbfException("Missing input transaction for fee calculation");
       }
       final vout = input.txIndex;
@@ -2534,7 +2538,7 @@ abstract class ElectrumWalletBase
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
       final bundle = await getTransactionExpanded(hash: hash);
-      if (bundle.originalTransaction.txId() != hash) {
+      if (_parseRawTransaction(bundle.hex)?.txId != hash) {
         throw RbfException("Transaction does not match $hash");
       }
 
@@ -2549,7 +2553,8 @@ abstract class ElectrumWalletBase
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
-        if (inputTransaction == null || inputTransaction.txId() != input.txId) {
+        if (inputTransaction == null ||
+            _parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
           throw RbfException("Missing input transaction for replace-by-fee");
         }
         final vout = input.txIndex;
@@ -2579,6 +2584,10 @@ abstract class ElectrumWalletBase
                 UtxoAddressDetails(publicKey: privkey.getPublic().toHex(), address: btcAddress),
           ),
         );
+      }
+
+      if (!_isSignedByOwnKey(bundle, utxos)) {
+        throw RbfException("Transaction is not signed by this wallet");
       }
 
       // Add original outputs
@@ -2842,6 +2851,7 @@ abstract class ElectrumWalletBase
 
     final original = BtcTransaction.fromRaw(transactionHex);
     final ins = <BtcTransaction?>[];
+    final insHex = <String?>[];
 
     for (final vin in original.inputs) {
       try {
@@ -2856,8 +2866,10 @@ abstract class ElectrumWalletBase
         }
 
         ins.add(inputTransactionHex.isEmpty ? null : BtcTransaction.fromRaw(inputTransactionHex));
+        insHex.add(inputTransactionHex);
       } catch (_) {
         ins.add(null);
+        insHex.add(null);
       }
     }
 
@@ -2866,6 +2878,8 @@ abstract class ElectrumWalletBase
       ins: ins,
       time: time,
       confirmations: confirmations ?? 0,
+      hex: transactionHex,
+      insHex: insHex,
     );
   }
 
@@ -5163,6 +5177,89 @@ class PublicKeyWithDerivationPath {
 
   final String derivationPath;
   final String publicKey;
+}
+
+({String txId, List<List<List<int>>> witnesses})? _parseRawTransaction(String? hex) {
+  try {
+    final raw = BytesUtils.fromHexString(hex!);
+    final isSegwit = raw[4] == 0 && raw[5] == 1;
+    var cursor = isSegwit ? 6 : 4;
+    final bodyStart = cursor;
+    int readVarint() {
+      final value = IntUtils.decodeVarint(raw.sublist(cursor, min(cursor + 9, raw.length)));
+      cursor += value.item2;
+      return value.item1;
+    }
+
+    final inputCount = readVarint();
+    for (var i = 0; i < inputCount; i++) {
+      cursor += 36;
+      final scriptLength = readVarint();
+      cursor += scriptLength + 4;
+    }
+    final outputCount = readVarint();
+    for (var i = 0; i < outputCount; i++) {
+      cursor += 8;
+      final scriptLength = readVarint();
+      cursor += scriptLength;
+    }
+    final body = raw.sublist(bodyStart, cursor);
+
+    final witnesses = <List<List<int>>>[];
+    for (var i = 0; isSegwit && i < inputCount; i++) {
+      final stack = <List<int>>[];
+      final itemCount = readVarint();
+      for (var j = 0; j < itemCount; j++) {
+        final length = readVarint();
+        stack.add(raw.sublist(cursor, cursor + length));
+        cursor += length;
+      }
+      witnesses.add(stack);
+    }
+    if (cursor + 4 != raw.length) return null;
+
+    final hash = QuickCrypto.sha256DoubleHash([...raw.sublist(0, 4), ...body, ...raw.sublist(cursor)]);
+    return (txId: BytesUtils.toHexString(hash.reversed.toList()), witnesses: witnesses);
+  } catch (_) {
+    return null;
+  }
+}
+
+bool _isSignedByOwnKey(ElectrumTransactionBundle bundle, List<UtxoWithAddress> utxos) {
+  final tx = bundle.originalTransaction;
+  final witnesses = _parseRawTransaction(bundle.hex)?.witnesses;
+  if (witnesses == null) return false;
+
+  final scriptPubKeys = utxos.map((utxo) => utxo.ownerDetails.address.toScriptPubKey()).toList();
+  final amounts = utxos.map((utxo) => utxo.utxo.value).toList();
+  for (var i = 0; i < utxos.length; i++) {
+    try {
+      final utxo = utxos[i].utxo;
+      final publicKey = utxos[i].public();
+      if (utxo.isP2tr()) {
+        final signature = witnesses[i].first;
+        final sighash =
+            signature.length == 65 ? signature.last : BitcoinOpCodeConst.TAPROOT_SIGHASH_ALL;
+        if (sighash > BitcoinOpCodeConst.SIGHASH_ALL) continue;
+        final digest = tx.getTransactionTaprootDigset(
+            txIndex: i, scriptPubKeys: scriptPubKeys, amounts: amounts, sighash: sighash);
+        if (publicKey.verifySchnorrTransactionSignature(digest, signature)) return true;
+      } else {
+        final signature = utxo.isSegwit()
+            ? witnesses[i][witnesses[i].length - 2]
+            : BytesUtils.fromHexString(tx.inputs[i].scriptSig.script.first as String);
+        if (signature.last != BitcoinOpCodeConst.SIGHASH_ALL) continue;
+        final script = utxo.scriptType == SegwitAddresType.p2wsh
+            ? publicKey.toP2wshRedeemScript()
+            : publicKey.toP2pkhAddress().toScriptPubKey();
+        final digest = utxo.isSegwit()
+            ? tx.getTransactionSegwitDigit(txInIndex: i, script: script, amount: utxo.value)
+            : tx.getTransactionDigest(txInIndex: i, script: script);
+        if (publicKey.verifyTransaactionSignature(digest, signature)) return true;
+      }
+    } catch (_) {}
+  }
+  return false;
 }
 
 BitcoinAddressType _getScriptType(BitcoinBaseAddress type) {

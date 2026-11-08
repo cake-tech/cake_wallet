@@ -1,4 +1,4 @@
-import 'package:cw_core/lnurl.dart';
+import "package:cw_core/lnurl.dart";
 
 String getLnurlOfLightningAddress(String lightningAddress) {
   final parts = lightningAddress.split("@");

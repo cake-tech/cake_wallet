@@ -81,8 +81,12 @@ class SelectNetworkPage extends StatelessWidget {
                           onTap: () {
                             final nav = Navigator.of(context);
                             onSelected(variant);
-                            if (nav.canPop()) nav.pop();
-                            if (nav.canPop()) nav.pop();
+                            if (nav.canPop()) {
+                              nav.pop();
+                            }
+                            if (nav.canPop()) {
+                              nav.pop(variant);
+                            }
                           },
                         ),
                     ],
