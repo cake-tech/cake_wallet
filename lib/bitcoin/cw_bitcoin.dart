@@ -759,8 +759,11 @@ class CWBitcoin extends Bitcoin {
   String? getUnusedSegwitAddress(Object wallet) {
     try {
       final electrumWallet = wallet as ElectrumWallet;
-      final segwitAddress = electrumWallet.walletAddresses.allAddresses
-          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      final walletAddresses = electrumWallet.walletAddresses;
+      final segwitAddress = walletAddresses.allAddresses.firstWhere(
+        (element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh
+          && element.accountIndex == walletAddresses.currentAccountIndex,
+      );
       return segwitAddress.address;
     } catch (_) {
       return null;

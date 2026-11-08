@@ -514,7 +514,11 @@ abstract class ElectrumWalletBase
     walletAddresses.currentAccountIndex = accountIndex;
 
     final currentPageType = walletAddresses.addressPageType;
-    await walletAddresses.setAddressType(currentPageType);
+    await walletAddresses.setAddressType(
+      accountIndex != 0 && currentPageType == SilentPaymentsAddresType.p2sp
+          ? SegwitAddresType.p2wpkh
+          : currentPageType,
+    );
 
     // For extra accounts, we only prepare SegwitAddresType.p2wpkh type.
     if (isNewAccount) {
@@ -4203,7 +4207,7 @@ abstract class ElectrumWalletBase
 
     return all.where((tx) {
 
-      if (tx.additionalInfo["isLightning"] == true) return accountIndex == 0;
+      if (tx.additionalInfo["isLightning"] == true) return true;
       if (tx.isReceivedSilentPayment) return accountIndex == 0;
 
       // Locally created transactions store the account index explicitly,

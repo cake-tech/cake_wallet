@@ -3,6 +3,7 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
+import "package:cw_bitcoin/lightning/lightning_addres_type.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
 import "package:cw_core/db/sqlite.dart";
@@ -268,6 +269,29 @@ void main() {
 
       expect(address.index, 3);
       expect(address.isHidden, isTrue);
+      expect(
+        address.address,
+        generateP2WPKHAddress(hd: _p2wpkhChangeHd, index: 3, network: BitcoinNetwork.mainnet),
+      );
+    });
+
+    test("creates SegWit change addresses of the current account on the Lightning page", () async {
+      final _Addresses addresses = await _addresses(
+        [
+          ..._range(0, 30),
+          ..._range(0, 3, isHidden: true, isUsed: true),
+          ..._range(0, 5, isHidden: true, accountIndex: 1),
+        ],
+        addressPageType: LightningAddressType.p2l,
+      );
+      expect(addresses.addressPageType, LightningAddressType.p2l);
+
+      final BitcoinAddressRecord address = await addresses.getChangeAddress();
+
+      expect(address.type, SegwitAddresType.p2wpkh);
+      expect(address.accountIndex, 0);
+      expect(address.isHidden, isTrue);
+      expect(address.index, 3);
       expect(
         address.address,
         generateP2WPKHAddress(hd: _p2wpkhChangeHd, index: 3, network: BitcoinNetwork.mainnet),

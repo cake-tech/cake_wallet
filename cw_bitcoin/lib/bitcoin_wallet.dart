@@ -725,8 +725,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final isExtraAccount = currentAccountIndex > 0;
 
     if (option == BitcoinReceivePageOption.lightning) {
-      // Lightning is tied to the primary account only
-      return !isExtraAccount && hasLightningSupport && isLightningInitialized;
+      return hasLightningSupport && isLightningInitialized;
     }
 
     if (option == BitcoinReceivePageOption.silent_payments) {
