@@ -13,6 +13,7 @@ class MorphoYieldByAssetSheet extends StatelessWidget {
   static Future<void> show({required BuildContext context, required double? apy}) =>
       showModalBottomSheet<void>(
         context: context,
+        useRootNavigator: true,
         isScrollControlled: true,
         useSafeArea: true,
         backgroundColor: Colors.transparent,
