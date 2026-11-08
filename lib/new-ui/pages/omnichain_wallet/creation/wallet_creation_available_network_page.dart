@@ -360,7 +360,7 @@ class OmniChainNetworksList extends StatelessWidget {
               ...types.map(
                     (type) => ListItemCheckbox(
                   keyValue: "new_wallet_${type.name}_button_key",
-                  iconPath: getCryptoCurrencyIconForWalletListItem(type),
+                  iconPath: getNetworkIconForWalletListItem(type),
                   label: walletTypeToString(type),
                   subtitle:
                   walletTypeToDescription(type).isEmpty ? null : walletTypeToDescription(type),

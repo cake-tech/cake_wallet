@@ -175,8 +175,7 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                             (type) => ListItemCheckbox(
                                               keyValue: "ecosystem_${type.name}_button_key",
                                               label: walletTypeToString(type),
-                                              iconPath:
-                                                  getCryptoCurrencyIconForWalletListItem(type),
+                                              iconPath: getNetworkIconForWalletListItem(type),
                                               value: state.selectedWallet?.type == type ||
                                                   (state.selectedWallet == null && type == current),
                                               onChanged: (_) {
@@ -198,8 +197,7 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                             ListItemCheckbox(
                                               keyValue: "current_network_button_key",
                                               label: walletTypeToString(current),
-                                              iconPath:
-                                                  getCryptoCurrencyIconForWalletListItem(current),
+                                              iconPath: getNetworkIconForWalletListItem(current),
                                               value: state.selectedWallet == null,
                                               onChanged: (_) {},
                                             )
@@ -219,8 +217,7 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                           (info) => ListItemCheckbox(
                                             keyValue: "other_networks_${info.type.name}_button_key",
                                             label: walletTypeToString(info.type),
-                                            iconPath:
-                                                getCryptoCurrencyIconForWalletListItem(info.type),
+                                            iconPath: getNetworkIconForWalletListItem(info.type),
                                             value: state.selectedWallet?.type == info.type,
                                             onChanged: (_) {
                                               if (state.isLoading) return;

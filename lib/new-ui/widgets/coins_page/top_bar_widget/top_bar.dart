@@ -127,10 +127,7 @@ class _TopBarState extends State<TopBar> {
         final isHeavySyncing = syncBar.showsFullBar;
 
         final Widget leading = ChainIcon(
-          iconPath: getCryptoCurrencyIconForWalletListItem(dashboardViewModel.wallet.type),
-          dashboardViewModel: dashboardViewModel,
-          isSyncHeavy: dashboardViewModel.isSyncHeavy,
-          showSyncedMessage: showSyncedMessage,
+          iconPath: getNetworkIconForWalletListItem(dashboardViewModel.wallet.type),
           openChainSelection: widget.openChainSelection,
         );
 

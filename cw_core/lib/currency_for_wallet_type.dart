@@ -123,6 +123,11 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
   return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
 }
 
+String getNetworkIconForWalletListItem(WalletType type) {
+  if (type == WalletType.none) return "";
+  return "assets/new-ui/network_icons/${type.name.toLowerCase()}.svg";
+}
+
 String? symbolIconPathForWalletType(WalletType type) {
   const prefix = "assets/new-ui/card_icons/symbol_icons";
   switch (type) {
