@@ -48,7 +48,7 @@ class ClickableLinksText extends StatelessWidget {
             style: linkStyle,
             recognizer: TapGestureRecognizer()
               ..onTap = () {
-                launchUrl(Uri.parse(url));
+                launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
               },
           ),
         );

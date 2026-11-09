@@ -34,6 +34,8 @@ class TestWallets {
         return secrets.arbitrumTestWalletSeeds;
       case WalletType.bsc:
         return secrets.bscTestWalletSeeds;
+      case WalletType.robinhood:
+        return secrets.robinhoodTestWalletSeeds;
       case WalletType.tron:
         return secrets.tronTestWalletSeeds;
       case WalletType.nano:
@@ -75,6 +77,8 @@ class TestWallets {
         return secrets.arbitrumTestWalletReceiveAddress;
       case WalletType.bsc:
         return secrets.bscTestWalletReceiveAddress;
+      case WalletType.robinhood:
+        return secrets.robinhoodTestWalletReceiveAddress;
       case WalletType.solana:
         return secrets.solanaTestWalletReceiveAddress;
       case WalletType.tron:

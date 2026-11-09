@@ -1,0 +1,10 @@
+[
+  {
+    "title": "Faster Launch",
+    "description": "The app opens quicker and switches wallets faster, especially on older phones or with many wallets"
+  },
+  {
+    "title": "Bug fixes & improvements",
+    "description": "Stronger 2FA and backup protections, more reliable wallet deletion, steadier price charts over Tor and more"
+  }
+]

@@ -5,15 +5,17 @@ import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
+import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/cake_hive.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:bitcoin_base/src/crypto/keypair/sign_utils.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
@@ -28,6 +30,7 @@ import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/unknown_derivation.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/litecoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/output_ordering.dart';
@@ -115,8 +118,10 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
+      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
+      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
+      accountIndexes: [currentAccountIndex],
+      currentAccountIndex: currentAccountIndex,
       legacyMainHd: mainHd,
       legacySideHd: sideHd,
       network: network,
@@ -203,10 +208,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(
-          mnemonic,
-          passphrase: passphrase ?? "",
-        );
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? "");
         break;
       case DerivationType.electrum:
       default:
@@ -278,16 +280,17 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     final derivationInfo = await walletInfo.getDerivationInfo();
     // set the default if not present:
-    derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
     if (derivationInfo.derivationType == DerivationType.unknown) {
-      if (snp?.derivationPath == electrum_path || snp?.derivationType == DerivationType.electrum) {
-        derivationInfo.derivationPath = electrum_path;
-        derivationInfo.derivationType = DerivationType.electrum;
-      } else {
-        derivationInfo.derivationPath = segwit_path;
-        derivationInfo.derivationType = DerivationType.bip39;
-      }
+      resolveUnknownDerivation(
+        derivationInfo,
+        walletType: walletInfo.type,
+        mnemonic: keysData.mnemonic,
+        snapshotPath: snp?.derivationPath,
+        snapshotType: snp?.derivationType,
+      );
+    } else {
+      derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     }
 
     Uint8List? seedBytes = null;
@@ -297,10 +300,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     if (mnemonic != null) {
       switch (derivationInfo.derivationType) {
         case DerivationType.bip39:
-          seedBytes = await bip39.mnemonicToSeed(
-            mnemonic,
-            passphrase: passphrase ?? "",
-          );
+          seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? "");
           break;
         case DerivationType.electrum:
         default:
@@ -648,7 +648,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await _utxoStream?.cancel();
     ResponseStream<Utxo>? responseStream = await CwMweb.utxos(req);
     if (responseStream == null) {
-      throw Exception("failed to get utxos stream!");
+      throw ElectrumResponseException("failed to get utxos stream!");
     }
     _utxoStream = responseStream.listen(
       (Utxo sUtxo) async {
@@ -1026,7 +1026,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     bool isMweb = spendsMweb || paysToMweb;
 
     if (isMweb && !mwebEnabled) {
-      throw Exception("MWEB is not enabled! can't calculate fee without starting the mweb server!");
+      throw ArgumentError("MWEB is not enabled! can't calculate fee without starting the mweb server!");
       // TODO: likely the change address is mweb and just not updated
     }
 
@@ -1220,7 +1220,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
           int confirmations = coin.confirmations ?? 0;
           if (confirmations < 6) {
-            throw Exception(
+            throw TransactionGenerationException(
                 "A transaction input is an MWEB peg-out and has less than 6 confirmations, please try again later.");
           }
         }
@@ -1283,7 +1283,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(s);
       if (e.toString().contains("commit failed")) {
         printV(e);
-        throw Exception("Transaction commit failed (no peers responded), please try again.");
+        throw TransactionSendingException("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
     }
@@ -1319,7 +1319,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    if (urCodes.isEmpty) throw ScanValueException("No QR code got scanned");
     bool isUr = urCodes.any((str) {
       return str.startsWith("ur:psbt/");
     });
@@ -1365,6 +1365,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final tx = PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: 0,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.fromInt(resp.fee.toInt(), currency),
@@ -1384,7 +1385,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       printV(s);
       if (e.toString().contains("commit failed")) {
         printV(e);
-        throw Exception("Transaction commit failed (no peers responded), please try again.");
+        throw TransactionSendingException("Transaction commit failed (no peers responded), please try again.");
       }
       rethrow;
     }

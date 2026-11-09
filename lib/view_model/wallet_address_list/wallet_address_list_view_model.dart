@@ -1,5 +1,6 @@
 import "dart:core";
 import "dart:developer" as dev;
+import "dart:math";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
@@ -86,7 +87,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       );
 
   void setTokenCurrency(Currency curr) {
-    if (curr == wallet.currency || curr == CryptoCurrency.btcln) {
+    if (curr == CryptoCurrency.btcln) {
+      tokenCurrency = null;
+      selectedCurrency = CryptoCurrency.btcln;
+      return;
+    }
+    if (curr == wallet.currency) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;
       return;
@@ -557,6 +563,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             "assets/images/usdt_wallet_icon.svg",
             "assets/images/more_tokens.svg",
           ];
+        case 4663:
+          return [
+            "assets/new-ui/crypto_full_icons/robinhood.svg",
+            "assets/images/usdg_icon.png",
+            "assets/images/more_tokens.svg",
+          ];
         default:
           return [
             "assets/new-ui/crypto_full_icons/ethereum.svg",
@@ -760,7 +772,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     try {
-      final crypto = (double.parse(_amount.replaceAll(",", ".")) / fiatRate).toStringAsFixed(8);
+      final crypto = (double.parse(_amount.replaceAll(",", ".")) / fiatRate)
+          .toStringAsFixed(min(cryptoCurrency.decimals, 8));
       if (_amount != crypto) {
         _amount = crypto;
       }

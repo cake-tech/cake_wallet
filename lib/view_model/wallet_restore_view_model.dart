@@ -20,6 +20,7 @@ import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -54,6 +55,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.decred:
       case WalletType.bitcoin:
       case WalletType.litecoin:
@@ -97,6 +99,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.base,
     WalletType.arbitrum,
     WalletType.bsc,
+    WalletType.robinhood,
     WalletType.nano,
     WalletType.banano,
     WalletType.solana,
@@ -179,6 +182,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           return evm!.createEVMRestoreWalletFromSeedCredentials(
             name: name,
             mnemonic: seed,
@@ -288,6 +292,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           return evm!.createEVMRestoreWalletFromPrivateKey(
             name: name,
             password: password,
@@ -332,7 +337,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       }
     }
 
-    throw Exception('Unexpected type: ${type.toString()}');
+    throw BadWalletTypeException('Unexpected type: ${type.toString()}', type);
   }
 
   Future<List<DerivationInfo>> getDerivationInfo(dynamic credentials) async {
