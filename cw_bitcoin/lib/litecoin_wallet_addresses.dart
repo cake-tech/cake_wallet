@@ -70,8 +70,16 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
               List.filled(32, 0);
 
   @override
+  bool get isMwebActive => mwebEnabled && super.isMwebActive;
+
+  @override
   Future<void> init({List<int> accountIndexes = const []}) async {
-    if (!isHardwareWallet) await initMwebAddresses();
+    if (isMwebActive) {
+      await initMwebAddresses();
+    } else if (addressPageType == SegwitAddresType.mweb) {
+      // the receive page doesn't offer MWEB while it's off (see receivePageOptions)
+      await setAddressType(SegwitAddresType.p2wpkh);
+    }
     await super.init(accountIndexes: accountIndexes);
   }
 
@@ -110,8 +118,8 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       while (mwebAddrs.length <= (index + 1)) {
         final addresses = CwMweb.addresses(scan, spend, mwebAddrs.length, mwebAddrs.length + 50);
         printV("generated up to index ${mwebAddrs.length}");
-        // sleep for a bit to avoid making the main thread unresponsive:
-        await Future.delayed(Duration(milliseconds: 200));
+        // yield between batches so the main thread stays responsive (frames can run):
+        await Future.delayed(Duration.zero);
         mwebAddrs.addAll(addresses!);
       }
     } catch (_) {}
@@ -143,6 +151,19 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
       await ensureMwebAddressUpToIndexExists(20);
       return;
     }
+  }
+
+  /// Turning MWEB on derives the MWEB addresses [init] skipped while it was off. Turning it off
+  /// moves the receive page back to a regular address.
+  Future<void> setMwebEnabled(bool enabled) async {
+    mwebEnabled = enabled;
+    if (isMwebActive) {
+      await initMwebAddresses();
+      await generateInitialMwebAddresses();
+    } else if (addressPageType == SegwitAddresType.mweb) {
+      await setAddressType(SegwitAddresType.p2wpkh);
+    }
+    await updateAddressesInBox();
   }
 
   @override
@@ -281,7 +302,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
 
   @override
   List<ReceivePageOption> get receivePageOptions {
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows || isHardwareWallet) {
+    if (!isMwebActive) {
       return [
         ...BitcoinReceivePageOption.allLitecoin
             .where((element) => element != BitcoinReceivePageOption.mweb),

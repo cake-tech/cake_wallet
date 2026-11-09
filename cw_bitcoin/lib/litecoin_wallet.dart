@@ -1419,7 +1419,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     alwaysScan = enabled;
     mwebEnabled = enabled;
-    (walletAddresses as LitecoinWalletAddresses).mwebEnabled = enabled;
+    await (walletAddresses as LitecoinWalletAddresses).setMwebEnabled(enabled);
     await save();
     try {
       await stopSync();
