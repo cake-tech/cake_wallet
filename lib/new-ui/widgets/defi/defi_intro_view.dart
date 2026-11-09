@@ -13,6 +13,7 @@ class DefiIntroView extends StatelessWidget {
     required this.details,
     required this.terms,
     required this.onContinue,
+    this.attribution,
     super.key,
   });
 
@@ -21,6 +22,7 @@ class DefiIntroView extends StatelessWidget {
   final List<ListItem> details;
   final Widget terms;
   final VoidCallback onContinue;
+  final Widget? attribution;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +63,10 @@ class DefiIntroView extends StatelessWidget {
                         ),
                         const SizedBox(height: 32),
                         NewListSections(sections: {"details": details}),
+                        if (attribution != null) ...[
+                          const SizedBox(height: 24),
+                          attribution!,
+                        ],
                       ],
                     ),
                   ),

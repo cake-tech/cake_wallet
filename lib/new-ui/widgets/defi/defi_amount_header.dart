@@ -23,7 +23,7 @@ class DefiAmountHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final fiat = fiatRate?.convert(amount);
     final headline = fiat ?? amount;
-    final headlineStyle = theme.textTheme.displayMedium;
+    final headlineStyle = theme.textTheme.displayLarge;
     final cryptoStyle = TextStyle(
       fontSize: 18,
       fontWeight: FontWeight.w600,
