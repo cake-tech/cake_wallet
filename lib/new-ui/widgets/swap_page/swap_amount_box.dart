@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:cake_wallet/core/amount_validator.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -11,7 +13,9 @@ import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_moda
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
+import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
+import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -146,8 +150,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     final chainIconPath = (widget.currency is CryptoCurrency)
         ? _getCurrencyChainIconPath(widget.currency as CryptoCurrency)
         : null;
-
-    final colors = Theme.of(context).colorScheme;
 
     if (widget.sourceSelectorMode) {
       return SwapSourceSelector(
@@ -494,7 +496,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => widget.onPushPasteButton?.call(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).paste,
                           ),
                           ModernButton.svg(
@@ -502,7 +504,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             onPressed: () => _presentQRScanner(context),
                             size: 36,
                             iconSize: 20,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                             semanticLabel: S.of(context).scan,
                           ),
                         ],
@@ -559,28 +561,15 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     return address;
   }
 
-  void _presentCurrencyPicker() {
-    final rawCurrencies = widget.isReceiverCard
-        ? widget.exchangeViewModel.receiveCurrencies
-        : widget.exchangeViewModel.depositCurrencies;
-    final currencies = rawCurrencies.whereType<CryptoCurrency>().toList();
+  Future<void> _presentCurrencyPicker() async {
+    final currencies = _pickableAssets(
+      widget.isReceiverCard
+          ? widget.exchangeViewModel.receiveCurrencies
+          : widget.exchangeViewModel.depositCurrencies,
+    );
     final restrictToCurrentBalances = !widget.isReceiverCard &&
         widget.balanceByAsset != null &&
         widget.balanceByAsset!.isNotEmpty;
-    if (!restrictToCurrentBalances) {
-      appendEvmDefaultTokens(currencies);
-    }
-    if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
-      currencies.sort((a, b) {
-        if (a == CryptoCurrency.btcln) {
-          return -1;
-        }
-        if (b == CryptoCurrency.btcln) {
-          return 1;
-        }
-        return 0;
-      });
-    }
 
     List<CryptoCurrency> items = currencies;
     if (restrictToCurrentBalances) {
@@ -595,27 +584,77 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       items = items.where((c) => cryptoCurrencyOrTokenToWalletType(c) == network).toList();
     }
 
-    if (items.length <= 1) {
-      return;
-    }
-
     final selected = widget.isReceiverCard
         ? widget.exchangeViewModel.receiveCurrency
         : widget.exchangeViewModel.depositCurrency;
 
-    CurrencyPickerSheet.show(
+    CryptoCurrency? otherAsset;
+    final otherAssets = _canSendFromOtherSource
+        ? CurrencyPickerArgs(
+            items: _pickableAssets(widget.exchangeViewModel.depositCurrencies),
+            selected: selected,
+            recentsSource: RecentsSource.trades,
+            onSelected: (currency) {
+              widget.onCurrencySelected(currency);
+              otherAsset = currency;
+            },
+            symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
+          )
+        : null;
+
+    if (items.length <= 1 && otherAssets == null) {
+      return;
+    }
+
+    await CurrencyPickerSheet.show(
       context: context,
-      args: CurrencyPickerArgs(
-        items: items,
-        selected: selected,
-        filterByNetwork: widget.filteredNetwork,
-        balanceByAsset: widget.balanceByAsset,
-        useSingleNetworkLayout: widget.useSingleNetworkLayout,
-        recentsSource: RecentsSource.trades,
-        onSelected: widget.onCurrencySelected,
-        symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
-      ),
+      args: otherAssets != null && widget.exchangeViewModel.isSendFromExternal
+          ? otherAssets
+          : CurrencyPickerArgs(
+              items: items,
+              selected: selected,
+              filterByNetwork: widget.filteredNetwork,
+              balanceByAsset: widget.balanceByAsset,
+              useSingleNetworkLayout: widget.useSingleNetworkLayout,
+              recentsSource: RecentsSource.trades,
+              onSelected: widget.onCurrencySelected,
+              symbolResolver: widget.exchangeViewModel.amountParsingProxy.getCryptoSymbol,
+              walletName: widget.walletName,
+              otherAssets: otherAssets,
+            ),
     );
+
+    if (otherAsset == null || !mounted) {
+      return;
+    }
+    await _promptSourceWallet();
+  }
+
+  bool get _canSendFromOtherSource => !widget.isReceiverCard && !widget.sourceSelectorMode;
+
+  List<CryptoCurrency> _pickableAssets(List<Currency> currencies) {
+    final assets = currencies.whereType<CryptoCurrency>().toList();
+    appendEvmDefaultTokens(assets);
+    if (widget.exchangeViewModel.wallet.type == WalletType.bitcoin) {
+      assets.sort((a, b) {
+        if (a == CryptoCurrency.btcln) {
+          return -1;
+        }
+        if (b == CryptoCurrency.btcln) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    return assets;
+  }
+
+  Future<void> _promptSourceWallet() async {
+    final wallets = await widget.exchangeViewModel.depositWallets;
+    if (!mounted || wallets.isEmpty) {
+      return;
+    }
+    await _presentWalletPicker();
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {
@@ -634,11 +673,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
     try {
       final uri = Uri.parse(code);
-      widget.exchangeViewModel.receiveAddress = uri.path;
+      widget.exchangeViewModel.receiveAddress = PaymentRequest.fromUri(uri).address;
     } catch (_) {}
   }
 
-  void _presentWalletPicker() async {
+  Future<void> _presentWalletPicker() async {
     final res = await showMaterialModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -668,25 +707,46 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         widget.exchangeViewModel.isSendFromExternal = true;
         askForRefundAddress();
       } else {
-        widget.exchangeViewModel.isSendFromExternal = false;
-        switchToDepositWallet(res.walletInfo!.name);
+        await switchToDepositWallet(res.walletInfo!);
       }
     }
   }
 
-  void switchToDepositWallet(String walletName) async {
-    final walletType = cryptoCurrencyOrTokenToWalletType(widget.exchangeViewModel.depositCurrency);
-    if (walletType == null) {
+  Future<void> switchToDepositWallet(WalletInfo wallet) async {
+    final isLoadedWallet = wallet.name == widget.exchangeViewModel.wallet.name &&
+        wallet.type == widget.exchangeViewModel.wallet.type;
+    if (!isLoadedWallet) {
+      if (widget.walletSwitcherViewModel.isProcessing) {
+        return;
+      }
+
+      widget.walletSwitcherViewModel.selectWallet(wallet);
+      final switched = await widget.walletSwitcherViewModel.switchToSelectedWallet();
+      if (!switched) {
+        if (mounted) {
+          unawaited(
+            showBar<void>(context, S.of(context).wallet_list_failed_to_load(wallet.name, "")),
+          );
+        }
+        return;
+      }
+    }
+
+    if (!mounted) {
       return;
     }
-    final wallet = await WalletInfo.get(walletName, walletType);
-    if (wallet == null) {
-      return;
+
+    final canSendDeposit = widget.exchangeViewModel.useSameWalletAddress(
+      widget.exchangeViewModel.depositCurrency,
+    );
+    final address =
+        canSendDeposit ? widget.exchangeViewModel.wallet.walletAddresses.addressForExchange : "";
+    widget.exchangeViewModel.isSendFromExternal = !canSendDeposit;
+    widget.exchangeViewModel.depositAddress = address;
+    addressController.text = _normalizeAddressFormat(address);
+    if (!canSendDeposit) {
+      askForRefundAddress();
     }
-    widget.exchangeViewModel.depositAddress = wallet.address;
-    addressController.text = _normalizeAddressFormat(wallet.address);
-    widget.walletSwitcherViewModel.selectWallet(wallet);
-    await widget.walletSwitcherViewModel.switchToSelectedWallet();
   }
 
   void askForRefundAddress() async {

@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/enumerable_item.dart';
@@ -26,7 +27,7 @@ class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
       case 3:
         return displayableBalance;
       default:
-        throw Exception('Unexpected token: $raw for BalanceDisplayMode deserialize');
+        throw DeserializeException('Unexpected token: $raw for BalanceDisplayMode deserialize');
     }
   }
 

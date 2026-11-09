@@ -30,7 +30,6 @@ pushd scripts
     ./prepare_torch.sh
     ./prepare_zcash.sh
     ./prepare_reown.sh
-    ./build_bitbox_flutter.sh
     pushd android
       ./build_mwebd.sh
     popd

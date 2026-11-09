@@ -3,8 +3,13 @@ import 'dart:isolate';
 
 import 'package:basic_utils/basic_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:dnssec_proof/dnssec_proof.dart';
+
+class Bip353FetchException extends CakeException {
+  const Bip353FetchException(super.message);
+}
 
 class Bip353Record {
   Bip353Record({
@@ -59,13 +64,13 @@ class Bip353Record {
       );
       final proof = await fetchDnsProof(bip353Name);
       if (proof == null) {
-        throw Exception('DNSSEC proof not found');
+        throw Bip353FetchException('DNSSEC proof not found');
       }
 
       if (txtRecords == null) return null;
 
       final assetName = CryptoCurrency.fromString(asset).fullName;
-      if (assetName == null) throw Exception('Invalid asset name');
+      if (assetName == null) throw Bip353FetchException('Invalid asset name');
       final formattedAssetName = assetName.toLowerCase().replaceAll(' ', '') + ':';
 
       for (final record in txtRecords) {

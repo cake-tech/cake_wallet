@@ -612,7 +612,10 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
                                                   // Without fee priorities the row does nothing,
-                                                  // so it must not be announced as interactive.
+                                                  // so it must not be announced as interactive or
+                                                  // show a tappable arrow.
+                                                  showArrow: widget
+                                                      .sendViewModel.feesViewModel.hasFeesPriority,
                                                   onTap: widget.sendViewModel.feesViewModel
                                                           .hasFeesPriority
                                                       ? () =>
@@ -930,7 +933,7 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (!widget.mode.popOnConfirmation && Navigator.canPop(context)) {
+          if (!widget.mode.popOnConfirmation && mounted && Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
           }
           showModalBottomSheet(
@@ -990,7 +993,7 @@ class _NewSendPageState extends State<NewSendPage> {
     final balanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
-          amount: "${r.availableBalance} ${r.asset.title}",
+          amount: "${r.availableBalance} ${r.formattedAssetTitle}",
           fiat: isFiatDisabled ? null : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),

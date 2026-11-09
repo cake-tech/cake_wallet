@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -46,7 +47,7 @@ class _PerformanceDebugState extends State<PerformanceDebug> {
     WalletType.monero => ProfilableWallet.monero,
     WalletType.wownero => ProfilableWallet.wownero,
     WalletType.zano => ProfilableWallet.zano,
-    _ => throw Exception("Unknown wallet type"),
+    _ => throw BadWalletTypeException("Unknown wallet type",dashboardViewModel.wallet.type),
   };
   final precalc = 1700298;
 

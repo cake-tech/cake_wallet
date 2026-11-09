@@ -97,7 +97,7 @@ class ScanPageNetworkList extends StatelessWidget {
                         subtitle: S.of(context).wc_desc,
                         trailingWidget: _externalLinkIcon(context),
                         onTap: () {
-                          launchUrl(Uri.https("walletconnect.com"));
+                          launchUrl(Uri.https("walletconnect.com"), mode: LaunchMode.externalApplication);
                         }),
                     ListItemRegularRow(
                         iconPath: "assets/new-ui/ocp_min.svg",
@@ -106,7 +106,7 @@ class ScanPageNetworkList extends StatelessWidget {
                         subtitle: S.of(context).ocp_desc,
                         trailingWidget: _externalLinkIcon(context),
                         onTap: () {
-                          launchUrl(Uri.https("opencryptopay.io"));
+                          launchUrl(Uri.https("opencryptopay.io"), mode: LaunchMode.externalApplication);
                         })
                   ]
                 })

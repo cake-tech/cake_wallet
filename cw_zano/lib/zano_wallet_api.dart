@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/zano_asset.dart';
@@ -458,6 +459,13 @@ mixin ZanoWalletApi {
 
   static Map<String, CreateWalletResult> openWalletCache = {};
 
+  static Future<void> closeCachedWallet(String path) async {
+    final cached = openWalletCache.remove(path);
+    if (cached != null) {
+      await _closeWallet(cached.walletId);
+    }
+  }
+
   Future<TransferResult> transfer(
       List<Destination> destinations, BigInt fee, String comment) async {
     final params = TransferParams(
@@ -498,18 +506,18 @@ mixin ZanoWalletApi {
 
       if (responseData['error'] != null) {
         printV('ZANO sign_message error: ${responseData['error']}');
-        throw Exception('Zano sign_message failed: ${responseData['error']}');
+        throw MessageSignException('Zano sign_message failed: ${responseData['error']}');
       }
 
       final result = responseData['result'] as Map<String, dynamic>?;
       if (result == null) {
-        throw Exception('Invalid response from sign_message');
+        throw MessageSignException('Invalid response from sign_message');
       }
 
       final signature = result['sig'] as String?;
 
       if (signature == null) {
-        throw Exception('No signature in response');
+        throw MessageSignException('No signature in response');
       }
 
       return signature;
