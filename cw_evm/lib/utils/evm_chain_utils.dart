@@ -8,8 +8,11 @@ class EVMChainUtils {
     radix: 16,
   );
 
-  /// Whether [privateKey] is a 32-byte hex secp256k1 private key (optionally 0x-prefixed)
-  /// that [EthPrivateKey.fromHex] accepts and that lies in the valid scalar range.
+  /// Whether [privateKey] restores a usable wallet. It accepts exactly what wallets have
+  /// always been restored from, any even-length hex (optionally 0x-prefixed) that
+  /// [EthPrivateKey.fromHex] parses, so a key that restored on an earlier version still
+  /// restores here. It rejects hex that does not parse and keys that are zero modulo the
+  /// secp256k1 order, which have no key pair and could never sign anything.
   static bool isValidPrivateKey(String privateKey) {
     final EthPrivateKey key;
     try {
@@ -18,9 +21,7 @@ class EVMChainUtils {
       return false;
     }
 
-    return key.privateKey.length == 32 &&
-        key.privateKeyInt > BigInt.zero &&
-        key.privateKeyInt < _secp256k1Order;
+    return key.privateKeyInt % _secp256k1Order != BigInt.zero;
   }
 
   static int getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) =>

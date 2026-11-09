@@ -262,7 +262,7 @@ class EVMChainWalletService extends WalletService<
     bool? isTestnet,
   }) async {
     if (!EVMChainUtils.isValidPrivateKey(credentials.privateKey)) {
-      throw const BadKeysException("Invalid private key. Expected a 32-byte hex private key.");
+      throw const BadKeysException("Invalid private key. Expected a hex-encoded private key.");
     }
 
     final walletInfo = credentials.walletInfo!;
