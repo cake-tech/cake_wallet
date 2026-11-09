@@ -1,4 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/block_explorer_settings.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
@@ -192,6 +194,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         height = await bitcoin!.getHeightByDate(
           date: date,
           bitcoinMempoolAPIEnabled: await widget.bitcoinMempoolAPIEnabled,
+          mempoolApiBase: getIt.get<BlockExplorerSettings>().mempoolApiUrl,
         );
       } else {
         if (widget.walletType == WalletType.decred) {

@@ -92,6 +92,7 @@ class Routes {
   static const privacyPage = '/privacy_page';
   static const trocadorProvidersPage = '/trocador_providers_page';
   static const domainLookupsPage = '/domain_lookups_page';
+  static const blockExplorers = '/block_explorers';
   static const displaySettingsPage = '/display_settings_page';
   static const otherSettingsPage = '/other_settings_page';
   static const advancedPrivacySettings = '/advanced_privacy_settings';
