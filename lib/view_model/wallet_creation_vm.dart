@@ -1,3 +1,5 @@
+import "dart:io";
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -129,7 +131,13 @@ abstract class WalletCreationVMBase with Store {
       );
 
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
-      final wallet = await process(credentials);
+      final WalletBase wallet;
+      try {
+        wallet = await process(credentials);
+      } catch (_) {
+        await _removeWalletInfoWithoutWalletFile(credentials.walletInfo!, dirPath);
+        rethrow;
+      }
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
@@ -148,6 +156,29 @@ abstract class WalletCreationVMBase with Store {
         message = e.message;
       }
       state = FailureState(message);
+    }
+  }
+
+  /// A failed [process] can leave the WalletInfo row that the wallet's `init()` saved
+  /// without any wallet file on disk, so the wallet shows up in the list but can never be
+  /// opened. Drop that row unless a wallet file exists in [dirPath]. The file check is the
+  /// one `_validateWalletInfoBoxData` uses, so a row is only removed when the startup
+  /// validation would not re-create it either.
+  Future<void> _removeWalletInfoWithoutWalletFile(WalletInfo walletInfo, String dirPath) async {
+    try {
+      final dir = Directory(dirPath);
+      final hasWalletFile = dir.existsSync() &&
+          dir
+              .listSync()
+              .any((entity) => entity.path.contains("${walletInfo.name}/${walletInfo.name}"));
+
+      if (hasWalletFile) {
+        return;
+      }
+
+      await WalletInfo.delete(walletInfo);
+    } catch (e) {
+      printV("Failed to remove the WalletInfo of the failed wallet creation: $e");
     }
   }
 

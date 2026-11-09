@@ -1,8 +1,28 @@
 import "package:cw_evm/evm_chain_transaction_priority.dart";
-import "package:web3dart/web3dart.dart" show EtherAmount, EtherUnit;
+import "package:web3dart/web3dart.dart" show EtherAmount, EtherUnit, EthPrivateKey;
 
 /// Utility class for chain-specific EVM chain operations
 class EVMChainUtils {
+  static final BigInt _secp256k1Order = BigInt.parse(
+    "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141",
+    radix: 16,
+  );
+
+  /// Whether [privateKey] is a 32-byte hex secp256k1 private key (optionally 0x-prefixed)
+  /// that [EthPrivateKey.fromHex] accepts and that lies in the valid scalar range.
+  static bool isValidPrivateKey(String privateKey) {
+    final EthPrivateKey key;
+    try {
+      key = EthPrivateKey.fromHex(privateKey);
+    } catch (_) {
+      return false;
+    }
+
+    return key.privateKey.length == 32 &&
+        key.privateKeyInt > BigInt.zero &&
+        key.privateKeyInt < _secp256k1Order;
+  }
+
   static int getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) =>
       switch (chainId) {
         1 => _ethereumPriorityFee(priority),
