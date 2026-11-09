@@ -57,6 +57,7 @@ done
 
 rm "$TMP/dart/dart/pubspec.yaml"
 rm -rf lib/src/rust
+mkdir -p lib/src
 mv "$TMP/dart/dart" lib/src/rust
 
 for platform in "$@"; do

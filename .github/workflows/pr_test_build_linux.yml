@@ -353,6 +353,9 @@ jobs:
       - name: Extract native dependencies
         run: ./scripts/linux/docker/build.sh --extract
 
+      - name: Test prepare_minotari.sh
+        run: ./scripts/ci/test_prepare_minotari.sh
+
       - name: Prepare Minotari
         run: ./scripts/prepare_minotari.sh linux
 

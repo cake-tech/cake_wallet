@@ -47,7 +47,7 @@ cw_minotari/
 ### Prerequisites
 
 - Flutter SDK 3.32+
-- `curl`, `unzip` and `sha256sum`
+- `curl`, `unzip`, `sha256sum` and `git`
 - For iOS/macOS: Xcode 15+, CocoaPods
 
 No Rust toolchain is needed: the native libraries and Dart bindings come prebuilt
@@ -75,7 +75,9 @@ This script:
 | Linux | `linux/lib/librust_lib_flutter_rust_wallet.so` (host architecture) |
 | Windows | `windows/lib/rust_lib_flutter_rust_wallet.dll` |
 
-Each platform's `build_all.sh` (and `cakewallet.bat` on Windows) runs it, as do the CI workflows.
+For Cake Wallet it is run by the platforms' `build_all.sh`, `scripts/linux/build_cake_release.sh`,
+`cakewallet.bat` (Windows), the build guides in `docs/builds/` and the CI workflows.
+`scripts/ci/test_prepare_minotari.sh` tests its verification offline.
 
 ### 2. Bump the pinned cw_tari_wallet version
 
@@ -128,13 +130,8 @@ Validation pattern: `[123Hdf][234678][1-9A-HJ-NP-Za-km-z]{45,448}`
 
 ### Network Configuration
 
-| Network | Use Case |
-|---------|----------|
-| `mainNet` | Production (default) |
-| `stageNet` | Staging |
-
-The release libraries are built for the mainnet network group, so only `mainNet` and
-`stageNet` are accepted at runtime.
+Wallets use `mainNet`. Testnet wallets map to `esmeralda`, which the release libraries
+(built for the mainnet network group) reject, so testnet Minotari wallets don't work yet.
 
 ### Blockchain Sync
 
@@ -226,7 +223,7 @@ Uses first payment reference (payref) from transaction for lookup.
 
 - Wallet creation with 24-word mnemonic generation
 - Wallet restoration from mnemonic
-- Network selection (mainnet/stagenet) with persistence
+- Mainnet wallets (testnet wallets are not supported by the release libraries)
 - Blockchain synchronization via scanner
 - Balance updates (available, pending incoming, pending outgoing)
 - Transaction history with full details
