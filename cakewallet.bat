@@ -1,5 +1,5 @@
 @echo off
-set cw_win_app_config=--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --dogecoin --base --arbitrum --bsc --robinhood
+set cw_win_app_config=--monero --bitcoin --ethereum --polygon --nano --bitcoinCash --solana --tron --dogecoin --base --arbitrum --bsc --robinhood --minotari
 set cw_root=%cd%
 set cw_archive_name=Cake Wallet.zip
 set cw_archive_path=%cw_root%\%cw_archive_name%
@@ -11,6 +11,7 @@ if [%~1]==[] (set tools_root=C:\Program Files\Microsoft Visual Studio\2022\Commu
 cd scripts
 bash.exe gen_android_manifest.sh
 cd /d %cw_root%
+bash.exe scripts/prepare_minotari.sh windows || exit /b 1
 echo === Generating pubspec.yaml ===
 copy /Y pubspec_description.yaml pubspec.yaml > nul
 call flutter pub get > nul
@@ -24,7 +25,7 @@ IF NOT EXIST "%secrets_file_path%" (
 ) ELSE (echo === Using previously/already generated secrets file: %secrets_file_path% ===)
 
 echo === Generating mobx models ===
-for /d %%i in (cw_core cw_monero cw_bitcoin cw_evm cw_nano cw_bitcoin_cash cw_solana cw_tron cw_zcash.) do (
+for /d %%i in (cw_core cw_monero cw_bitcoin cw_evm cw_nano cw_bitcoin_cash cw_solana cw_tron cw_zcash cw_minotari.) do (
     cd %%i
     call flutter pub get > nul
     call dart run build_runner build --delete-conflicting-outputs > nul

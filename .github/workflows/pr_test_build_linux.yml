@@ -272,6 +272,9 @@ jobs:
       - name: Extract native dependencies
         run: ./scripts/linux/docker/build.sh --extract
 
+      - name: Prepare Minotari
+        run: ./scripts/prepare_minotari.sh linux
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/linux
@@ -349,6 +352,9 @@ jobs:
 
       - name: Extract native dependencies
         run: ./scripts/linux/docker/build.sh --extract
+
+      - name: Prepare Minotari
+        run: ./scripts/prepare_minotari.sh linux
 
       - name: Execute Build and Setup Commands
         run: |
