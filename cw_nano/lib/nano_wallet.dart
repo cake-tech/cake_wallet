@@ -23,6 +23,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_nano/nano_balance.dart';
 import 'package:cw_nano/nano_client.dart';
+import 'package:cw_nano/nano_mnemonic.dart';
 import "package:cw_nano/nano_exceptions.dart";
 import 'package:cw_nano/nano_transaction_credentials.dart';
 import 'package:cw_nano/nano_transaction_history.dart';
@@ -126,7 +127,7 @@ abstract class NanoWalletBase
       if (_derivationType == DerivationType.nano) {
         _hexSeed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
       } else {
-        _hexSeed = await NanoDerivations.hdMnemonicListToSeed(_mnemonic.split(' '));
+        _hexSeed = await NanoMnemomics.hdMnemonicToSeed(_mnemonic);
       }
     }
 

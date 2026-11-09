@@ -363,7 +363,7 @@ class CWEVM extends EVM {
       EVMChainLedgerService(connection);
 
   @override
-  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager) =>
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxConnection manager) =>
       EVMChainBitboxService(manager);
 
   @override

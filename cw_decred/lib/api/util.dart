@@ -27,13 +27,13 @@ PayloadResult executePayloadFn({
   if (jsonStr == null) throw DecredPayloadExecutionException("no json return from wallet library");
   final decoded = json.decode(jsonStr);
 
-  final err = decoded["error"] ?? "";
+  final err = decoded["error"] as String? ?? "";
   if (!skipErrorCheck && (err as String? ?? "").isNotEmpty) {
-    throw DecredPayloadExecutionException(err as String);
+    throw DecredPayloadExecutionException(err);
   }
 
-  final payload = decoded["payload"] ?? "";
-  final errCode = decoded["errorcode"] ?? -1;
+  final payload = decoded["payload"] as String? ?? "";
+  final errCode = decoded["errorcode"] as int? ?? -1;
   return new PayloadResult(payload, err, errCode);
 }
 
