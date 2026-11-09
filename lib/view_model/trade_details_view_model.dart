@@ -110,9 +110,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://track.ninerealms.com/${trade.id}';
       case ExchangeProviderDescription.swapTrade:
         return 'https://swaptrade.io/send/${trade.id}';
-      // TODO: WhyNot has no public order tracker yet; letsexchange.io is closed
-      // case ExchangeProviderDescription.whyNot:
-      //   return 'https://letsexchange.io/?transactionId=${trade.id}';
+      case ExchangeProviderDescription.whyNot:
+        return "https://receipt.whynot.exchange/${trade.id}";
       case ExchangeProviderDescription.stealthEx:
         return 'https://stealthex.io/exchange/?id=${trade.id}';
       case ExchangeProviderDescription.chainflip:
