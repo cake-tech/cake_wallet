@@ -37,6 +37,7 @@ import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
+import "package:cake_wallet/exchange/utils/deposit_wallet_utils.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -459,20 +460,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   Future<List<WalletInfo>> get depositWallets async {
-    WalletType? type;
-    type = cryptoCurrencyOrTokenToWalletType(depositCurrency);
+    final currency = depositCurrency;
+    final type = depositWalletType(currency);
     if (type == null) {
-      try {
-        type =
-            cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(depositCurrency.tag ?? ""));
-      } catch (_) {}
+      return [];
     }
 
-    if (type != null) {
-      return await WalletInfo.selectList("type = ?", [type.index]);
-    }
-
-    return await WalletInfo.getAll();
+    final wallets = await WalletInfo.selectList("type = ?", [type.index]);
+    return wallets.where((wallet) => canFundDeposit(wallet, currency)).toList();
   }
 
   @action
