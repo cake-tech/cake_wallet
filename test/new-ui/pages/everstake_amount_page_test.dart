@@ -1,9 +1,8 @@
 import "dart:async";
 
 import "package:cake_wallet/core/auth_service.dart";
-import "package:cake_wallet/core/everstake/ethereum_transaction_validator.dart";
+import "package:cake_wallet/core/everstake/ethereum_pool.dart";
 import "package:cake_wallet/core/everstake/everstake_service.dart";
-import "package:cake_wallet/core/everstake/exceptions.dart";
 import "package:cake_wallet/core/everstake/models.dart";
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
@@ -29,6 +28,7 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mobx/mobx.dart" show ObservableMap;
 import "package:mocktail/mocktail.dart";
+import "package:web3dart/json_rpc.dart";
 
 class _MockWallet extends Mock
     implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
@@ -71,6 +71,8 @@ void main() {
   late _MockEverstakeService service;
   late _MockAuthService authService;
   late _MockSettingsStore settingsStore;
+  late List<EverstakeEthereumCall> ethCalls;
+  late EverstakeEthereumPool pool;
   late EverstakeBloc bloc;
 
   final usdRate = ExchangeRate(
@@ -79,7 +81,6 @@ void main() {
   );
 
   setUpAll(() {
-    registerFallbackValue(_eth("0"));
     registerFallbackValue(_FakeBuildContext());
   });
 
@@ -107,6 +108,7 @@ void main() {
     final addresses = _MockWalletAddresses();
     when(() => wallet.walletAddresses).thenReturn(addresses);
     when(() => addresses.address).thenReturn(_staker);
+    when(() => wallet.chainId).thenReturn(1);
     when(() => wallet.balance)
         .thenReturn(ObservableMap.of({CryptoCurrency.eth: _Balance(_eth("1"))}));
 
@@ -135,12 +137,18 @@ void main() {
     );
     when(() => service.getEthereumTotalRewards(any())).thenAnswer((_) async => _eth("0.003"));
 
+    ethCalls = [];
+    // Stops the flow before signing; only the requested amount matters here.
+    pool = EverstakeEthereumPool((call) {
+      ethCalls.add(call);
+      return Future.error(const RPCError(3, "execution reverted", null));
+    });
     bloc = EverstakeBloc(
       wallet: wallet,
       settingsStore: settingsStore,
       evm: _MockEVM(),
       service: service,
-      validator: EverstakeEthereumTransactionValidator(),
+      pool: pool,
     );
   });
 
@@ -170,13 +178,6 @@ void main() {
   }
 
   testWidgets("stakes the ETH a fiat amount buys", (tester) async {
-    // Stops the flow before signing; only the requested amount matters here.
-    when(
-      () => service.prepareEthereumStake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-      ),
-    ).thenThrow(const EverstakeResponseException("unavailable", 503));
     await openAmountPage(tester, EverstakeAmountMode.deposit);
 
     await tester.enterText(find.byType(TextFormField), "100");
@@ -186,20 +187,10 @@ void main() {
     await tester.tap(find.text("Continue"));
     await tester.pump();
 
-    verify(
-      () => service.prepareEthereumStake(address: _staker, amount: _eth("0.05")),
-    ).called(1);
+    expect(ethCalls, [pool.stakeCall(_eth("0.05"))]);
   });
 
   testWidgets("All withdraws the exact stake rather than its rounded fiat value", (tester) async {
-    // Stops the flow before signing; only the requested amount matters here.
-    when(
-      () => service.simulateEthereumUnstake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-        allowedInterchangeNum: any(named: "allowedInterchangeNum"),
-      ),
-    ).thenThrow(const EverstakeResponseException("unavailable", 503));
     await openAmountPage(tester, EverstakeAmountMode.withdraw);
 
     await tester.tap(find.text("All"));
@@ -211,25 +202,11 @@ void main() {
     // All re-reads the stake first, and the bloc runs outside the fake async zone
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
 
-    verify(
-      () => service.simulateEthereumUnstake(
-        address: _staker,
-        amount: _eth("0.123456789012345678"),
-        allowedInterchangeNum: 5,
-      ),
-    ).called(1);
+    expect(ethCalls, [pool.unstakeCall(_eth("0.123456789012345678"))]);
   });
 
   testWidgets("All withdraws the stake as it is at Continue, not when the page opened",
       (tester) async {
-    // Stops the flow before signing; only the requested amount matters here.
-    when(
-      () => service.simulateEthereumUnstake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-        allowedInterchangeNum: any(named: "allowedInterchangeNum"),
-      ),
-    ).thenThrow(const EverstakeResponseException("unavailable", 503));
     await openAmountPage(tester, EverstakeAmountMode.withdraw);
     when(() => service.getEthereumUserBalances(any())).thenAnswer(
       (_) async => EverstakeEthereumUserBalances.fromJson({
@@ -245,23 +222,10 @@ void main() {
     await tester.pump();
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
 
-    verify(
-      () => service.simulateEthereumUnstake(
-        address: _staker,
-        amount: _eth("0.123456789012345999"),
-        allowedInterchangeNum: 5,
-      ),
-    ).called(1);
+    expect(ethCalls, [pool.unstakeCall(_eth("0.123456789012345999"))]);
   });
 
   testWidgets("All on a pending stake withdraws that pending stake", (tester) async {
-    // Stops the flow before signing; only the requested part matters here.
-    when(
-      () => service.prepareEthereumUnstakePending(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-      ),
-    ).thenThrow(const EverstakeResponseException("unavailable", 503));
     when(() => service.getEthereumUserBalances(any())).thenAnswer(
       (_) async => EverstakeEthereumUserBalances.fromJson({
         "pendingBalanceOf": "0.05",
@@ -279,9 +243,7 @@ void main() {
     await tester.pump();
     await tester.runAsync(() => Future<void>.delayed(Duration.zero));
 
-    verify(
-      () => service.prepareEthereumUnstakePending(address: _staker, amount: _eth("0.05")),
-    ).called(1);
+    expect(ethCalls, [pool.unstakePendingCall(_eth("0.05"))]);
   });
 
   testWidgets("asks for 2FA before a deposit and stakes nothing without it", (tester) async {
@@ -301,11 +263,6 @@ void main() {
         conditionToDetermineIfToUse2FA: true,
       ),
     ).called(1);
-    verifyNever(
-      () => service.prepareEthereumStake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-      ),
-    );
+    expect(ethCalls, isEmpty);
   });
 }

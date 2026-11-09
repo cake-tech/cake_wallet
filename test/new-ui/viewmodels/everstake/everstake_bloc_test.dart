@@ -1,6 +1,6 @@
 import "dart:async";
 
-import "package:cake_wallet/core/everstake/ethereum_transaction_validator.dart";
+import "package:cake_wallet/core/everstake/ethereum_pool.dart";
 import "package:cake_wallet/core/everstake/everstake_service.dart";
 import "package:cake_wallet/core/everstake/exceptions.dart";
 import "package:cake_wallet/core/everstake/models.dart";
@@ -22,6 +22,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:mobx/mobx.dart" show ObservableMap, runInAction;
 import "package:mocktail/mocktail.dart";
 import "package:shared_preferences/shared_preferences.dart";
+import "package:web3dart/json_rpc.dart";
 
 class _MockWallet extends Mock
     implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
@@ -44,17 +45,11 @@ class _Balance extends Balance {
   _Balance(Money available) : super(available, Money.zero(available.currency));
 }
 
-// A stake built by wallet-sdk-api.everstake.com for a real mainnet staker.
 const _staker = "0x15273714bdfed50e922c4cdd35ed50291780b392";
-const _stake = <String, dynamic>{
-  "from": _staker,
-  "to": "0xD523794C879D9eC028960a231F866758e405bE34",
-  "value": 0.12345678901234568,
-  "gasLimit": 479948,
-  "data": "0x3a29dbae0000000000000000000000000000000000000000000000000000000000000000",
-};
 
 Money _eth(String amount) => Money.parse(amount, CryptoCurrency.eth);
+
+String _uint256(Money amount) => "0x${amount.amount.toRadixString(16).padLeft(64, "0")}";
 
 EverstakeEthereumUserBalances _balances({
   String pending = "0",
@@ -82,9 +77,9 @@ void main() {
   late _MockEverstakeService service;
   late _MockPendingTransaction signed;
   late _MockTransactionHistory history;
+  late Future<String> Function(EverstakeEthereumCall call) ethCall;
 
   setUpAll(() {
-    expect(EverstakeService.source, "0", reason: "_stake encodes source 0, re-capture it");
     S.current = const S();
     registerFallbackValue(_eth("0"));
     registerFallbackValue(_MockWallet());
@@ -137,17 +132,7 @@ void main() {
     when(() => service.getEthereumApr()).thenAnswer((_) async => 0.026);
     when(() => service.getEthereumValidatorQueue()).thenAnswer((_) async => _queue);
     when(() => service.getEthereumTotalRewards(any())).thenAnswer((_) async => _eth("0"));
-    when(
-      () => service.prepareEthereumStake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-      ),
-    ).thenAnswer(
-      (invocation) async => EverstakeEthereumTransaction.fromJson(
-        _stake,
-        value: invocation.namedArguments[#amount] as Money,
-      ),
-    );
+    ethCall = (_) async => _uint256(_eth("0"));
 
     signed = _MockPendingTransaction();
     when(() => signed.fee).thenReturn(_eth("0.002"));
@@ -162,6 +147,7 @@ void main() {
         any(),
         any(),
         useBlinkProtection: any(named: "useBlinkProtection"),
+        gasReserve: any(named: "gasReserve"),
       ),
     ).thenAnswer((_) async => signed);
   });
@@ -177,7 +163,7 @@ void main() {
       settingsStore: settingsStore,
       evm: evm,
       service: service,
-      validator: EverstakeEthereumTransactionValidator(),
+      pool: EverstakeEthereumPool((call) => ethCall(call)),
     );
     addTearDown(bloc.close);
     await bloc.stream.firstWhere((state) => state is EverstakeReady);
@@ -224,9 +210,17 @@ void main() {
   });
 
   group("max deposit", () {
-    test("holds back twice the fee of staking the whole balance", () async {
-      when(() => evm.estimateRawCallDataTransactionFee(any(), any(), any(), _eth("1"), any()))
-          .thenAnswer((_) async => _eth("0.003"));
+    test("holds back twice the fee of staking the whole balance with the gas reserve", () async {
+      when(
+        () => evm.estimateRawCallDataTransactionFee(
+          any(),
+          "0xd523794c879d9ec028960a231f866758e405be34",
+          "0x3a29dbae0000000000000000000000000000000000000000000000000000000000000000",
+          _eth("1"),
+          any(),
+          gasReserve: 220000,
+        ),
+      ).thenAnswer((_) async => _eth("0.003"));
       final bloc = await loadedBloc();
 
       final state = await prepared(bloc, const MaxStakeRequested());
@@ -237,6 +231,17 @@ void main() {
             .having((s) => s.operation.action, "action", EverstakeAction.stake)
             .having((s) => s.operation.amount, "amount", _eth("0.994")),
       );
+      verify(
+        () => evm.createRawCallDataTransaction(
+          wallet,
+          "0xd523794c879d9ec028960a231f866758e405be34",
+          "0x3a29dbae0000000000000000000000000000000000000000000000000000000000000000",
+          _eth("0.994"),
+          null,
+          useBlinkProtection: true,
+          gasReserve: 220000,
+        ),
+      ).called(1);
     });
 
     test("refuses a balance below the minimum stake", () async {
@@ -249,12 +254,6 @@ void main() {
         state,
         isA<EverstakeFailure>()
             .having((s) => s.error, "error", S.current.error_text_input_below_minimum_limit),
-      );
-      verifyNever(
-        () => service.prepareEthereumStake(
-          address: any(named: "address"),
-          amount: any(named: "amount"),
-        ),
       );
     });
   });
@@ -271,26 +270,15 @@ void main() {
     );
   });
 
-  test("never signs a stake Everstake built for another contract", () async {
-    when(
-      () => service.prepareEthereumStake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-      ),
-    ).thenAnswer(
-      (invocation) async => EverstakeEthereumTransaction.fromJson(
-        {..._stake, "to": "0x000000000000000000000000000000000000dEaD"},
-        value: invocation.namedArguments[#amount] as Money,
-      ),
-    );
+  test("never signs a transaction the contract would reject", () async {
+    ethCall = (_) => Future.error(const RPCError(3, "execution reverted", null));
     final bloc = await loadedBloc();
 
     final state = await prepared(bloc, StakeRequested(_eth("0.1")));
 
     expect(
       state,
-      isA<EverstakeFailure>()
-          .having((s) => s.error, "error", S.current.provider_error("Everstake")),
+      isA<EverstakeFailure>().having((s) => s.error, "error", S.current.please_try_again_later),
     );
     verifyNever(
       () => evm.createRawCallDataTransaction(
@@ -300,6 +288,7 @@ void main() {
         any(),
         any(),
         useBlinkProtection: any(named: "useBlinkProtection"),
+        gasReserve: any(named: "gasReserve"),
       ),
     );
   });
@@ -317,6 +306,27 @@ void main() {
       isA<EverstakeFailure>()
           .having((s) => s.error, "error", S.current.error_text_input_above_maximum_limit),
     );
+  });
+
+  test("withdraws only the requested part of a pending stake", () async {
+    when(() => service.getEthereumUserBalances(any()))
+        .thenAnswer((_) async => _balances(pending: "0.05"));
+    final bloc = await loadedBloc();
+
+    final state = await prepared(bloc, PendingUnstakeRequested(_eth("0.03")));
+
+    expect(state, isA<EverstakePrepared>());
+    verify(
+      () => evm.createRawCallDataTransaction(
+        wallet,
+        "0xd523794c879d9ec028960a231f866758e405be34",
+        "0xed0723d4000000000000000000000000000000000000000000000000006a94d74f430000",
+        _eth("0"),
+        null,
+        useBlinkProtection: true,
+        gasReserve: 220000,
+      ),
+    ).called(1);
   });
 
   test("reports the minimum remaining pending stake", () async {
@@ -436,9 +446,14 @@ void main() {
     broadcast.complete();
     await submitted;
     verify(
-      () => service.prepareEthereumStake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
+      () => evm.createRawCallDataTransaction(
+        any(),
+        any(),
+        any(),
+        any(),
+        any(),
+        useBlinkProtection: any(named: "useBlinkProtection"),
+        gasReserve: any(named: "gasReserve"),
       ),
     ).called(1);
   });
@@ -446,31 +461,9 @@ void main() {
   test("prepares an active unstake with its instant payout estimate", () async {
     final amount = _eth("0.5");
     final instantAmount = _eth("0.2");
-    final transaction = EverstakeEthereumTransaction.fromJson(
-      {
-        "from": _staker,
-        "to": "0xD523794C879D9eC028960a231F866758e405bE34",
-        "data":
-            "0x76ec871c00000000000000000000000000000000000000000000000006f05b59d3b2000000000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000000",
-      },
-      value: _eth("0"),
-    );
     when(() => service.getEthereumUserBalances(any()))
         .thenAnswer((_) async => _balances(autocompound: "1"));
-    when(
-      () => service.simulateEthereumUnstake(
-        address: _staker,
-        amount: amount,
-        allowedInterchangeNum: 5,
-      ),
-    ).thenAnswer((_) async => instantAmount);
-    when(
-      () => service.prepareEthereumUnstake(
-        address: _staker,
-        amount: amount,
-        allowedInterchangeNum: 5,
-      ),
-    ).thenAnswer((_) async => transaction);
+    ethCall = (_) async => _uint256(instantAmount);
     final bloc = await loadedBloc();
 
     final state = await prepared(bloc, UnstakeRequested(amount));
@@ -485,11 +478,12 @@ void main() {
     verify(
       () => evm.createRawCallDataTransaction(
         wallet,
-        transaction.to,
-        transaction.data,
+        "0xd523794c879d9ec028960a231f866758e405be34",
+        "0x76ec871c00000000000000000000000000000000000000000000000006f05b59d3b2000000000000000000000000000000000000000000000000000000000000000000050000000000000000000000000000000000000000000000000000000000000000",
         _eth("0"),
         null,
         useBlinkProtection: true,
+        gasReserve: 220000,
       ),
     ).called(1);
   });
@@ -505,10 +499,14 @@ void main() {
 
     expect(state, isA<EverstakeFailure>());
     verifyNever(
-      () => service.simulateEthereumUnstake(
-        address: any(named: "address"),
-        amount: any(named: "amount"),
-        allowedInterchangeNum: any(named: "allowedInterchangeNum"),
+      () => evm.createRawCallDataTransaction(
+        any(),
+        any(),
+        any(),
+        any(),
+        any(),
+        useBlinkProtection: any(named: "useBlinkProtection"),
+        gasReserve: any(named: "gasReserve"),
       ),
     );
   });
@@ -520,16 +518,6 @@ void main() {
         "readyForClaim": "0.5",
       }),
     );
-    when(() => service.prepareEthereumClaimWithdrawRequest(_staker)).thenAnswer(
-      (_) async => EverstakeEthereumTransaction.fromJson(
-        {
-          "from": _staker,
-          "to": "0x7a7f0b3c23C23a31cFcb0c44709be70d4D545c6e",
-          "data": "0x33986ffa",
-        },
-        value: _eth("0"),
-      ),
-    );
     final bloc = await loadedBloc();
 
     final state = await prepared(bloc, const WithdrawalClaimRequested());
@@ -540,6 +528,17 @@ void main() {
           .having((s) => s.operation.action, "action", EverstakeAction.claimWithdrawal)
           .having((s) => s.operation.amount, "amount", _eth("0.5")),
     );
+    verify(
+      () => evm.createRawCallDataTransaction(
+        wallet,
+        "0x7a7f0b3c23c23a31cfcb0c44709be70d4d545c6e",
+        "0x33986ffa",
+        _eth("0"),
+        null,
+        useBlinkProtection: true,
+        gasReserve: 220000,
+      ),
+    ).called(1);
   });
 
   test("selects pending stake for withdrawal before active stake", () {

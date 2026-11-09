@@ -22,7 +22,7 @@ import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/csv_export_service.dart';
-import "package:cake_wallet/core/everstake/ethereum_transaction_validator.dart";
+import "package:cake_wallet/core/everstake/ethereum_pool.dart";
 import "package:cake_wallet/core/everstake/everstake_service.dart";
 import 'package:cake_wallet/core/key_service.dart';
 import "package:cake_wallet/core/morpho/morpho_service.dart";
@@ -591,15 +591,26 @@ Future<void> setup({
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
 
-  getIt.registerFactory<EverstakeBloc>(
-    () => EverstakeBloc(
-      wallet: getIt.get<AppStore>().wallet!,
+  getIt.registerFactory<EverstakeBloc>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
+    return EverstakeBloc(
+      wallet: wallet,
       settingsStore: getIt.get<SettingsStore>(),
       evm: evm!,
       service: EverstakeService(),
-      validator: EverstakeEthereumTransactionValidator(),
-    ),
-  );
+      pool: EverstakeEthereumPool(
+        (call) => evm!.getWeb3Client(wallet)!.makeRPCCall<String>("eth_call", [
+          {
+            "from": wallet.walletAddresses.address,
+            "to": call.to,
+            "data": call.data,
+            "value": "0x${call.value.amount.toRadixString(16)}",
+          },
+          "latest",
+        ]),
+      ),
+    );
+  });
 
   getIt.registerFactoryParam<FiatRateCubit, CryptoCurrency, void>(
     (currency, _) => FiatRateCubit(

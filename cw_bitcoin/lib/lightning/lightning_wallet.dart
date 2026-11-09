@@ -1,18 +1,18 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
+import "dart:async";
+import "dart:io";
+import "dart:typed_data";
 
-import 'package:breez_sdk_spark_flutter/breez_sdk_spark.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/electrum_transaction_info.dart';
-import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency.dart';
+import "package:breez_sdk_spark_flutter/breez_sdk_spark.dart";
+import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
+import "package:cw_bitcoin/electrum_transaction_info.dart";
+import "package:cw_bitcoin/lightning/pending_lightning_transaction.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cw_core/transaction_direction.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_type.dart";
 
 bool _breezSdkSparkLibUninitialized = true;
 Stream<LogEntry>? _logStream;
@@ -38,7 +38,7 @@ class LightningWallet {
 
   String? cachedAddress;
 
-  static int MAX_RETRIES = 10;
+  static int maxRetries = 10;
 
   static bool get isAvailable => Platform.isIOS || Platform.isAndroid || Platform.isMacOS;
 
@@ -60,7 +60,10 @@ class LightningWallet {
         if (!logFile.existsSync()) {
           logFile.createSync(recursive: true);
         }
-        logFile.writeAsStringSync("[${logEntry.level}] ${logEntry.line}\n", mode: FileMode.append);
+        logFile.writeAsStringSync(
+          "${DateTime.now().toUtc().toIso8601String()} [${logEntry.level}] ${logEntry.line}\n",
+          mode: FileMode.append,
+        );
       } catch (e) {
         // Silently fail or use printV(e) so it doesn't crash the app
         printV("Failed to write to log: $e");
@@ -70,7 +73,10 @@ class LightningWallet {
         if (!logFile.existsSync()) {
           logFile.createSync(recursive: true);
         }
-        logFile.writeAsStringSync("[ERROR] $e\n", mode: FileMode.append);
+        logFile.writeAsStringSync(
+          "${DateTime.now().toUtc().toIso8601String()} [ERROR] $e\n",
+          mode: FileMode.append,
+        );
       } catch (err) {
         printV("Failed to write error to log: $err");
       }
@@ -122,16 +128,16 @@ class LightningWallet {
   }
 
   Future<void> close() async {
-    _eventSubscription?.cancel();
+    unawaited(_eventSubscription?.cancel());
     try {
       await _sdk?.disconnect();
     } catch (_) {}
-    _logSubscription?.cancel();
+    unawaited(_logSubscription?.cancel());
   }
 
   Future<String?> getAddress() async {
     var retries = 0;
-    while (retries < MAX_RETRIES) {
+    while (retries < maxRetries) {
       try {
         final address = (await sdk.getLightningAddress())?.lightningAddress;
 
@@ -148,7 +154,9 @@ class LightningWallet {
   }
 
   Future<String> getDepositAddress() async => (await sdk.receivePayment(
-        request: const ReceivePaymentRequest(paymentMethod: ReceivePaymentMethod.bitcoinAddress()),
+        request: const ReceivePaymentRequest(
+          paymentMethod: ReceivePaymentMethod.bitcoinAddress(newAddress: true),
+        ),
       ))
           .paymentRequest;
 
@@ -244,7 +252,7 @@ class LightningWallet {
               return res.payment.id;
             } on SdkError_SparkError catch (e) {
               if (e.field0.contains("AlreadyExists")) {
-                throw TransactionSendingException("Invoice already paid");
+                throw const TransactionSendingException("Invoice already paid");
               }
               rethrow;
             }
@@ -314,7 +322,7 @@ class LightningWallet {
         }
 
         return PendingLightningTransaction(
-          id: "", // ToDo: Find out where to get it
+          id: "",
           amount: Money(prepareResponse.amount, currency),
           fee: Money(fee, currency),
           commitOverride: () async {
@@ -440,7 +448,8 @@ class LightningWallet {
       } else if (sdkEvent is SdkEvent_ClaimedDeposits) {
         onBalanceChangedEvent();
         onUpdateDepositTransactionEvent(
-            sdkEvent.claimedDeposits.map(_getElectrumTransactionInfoFromDepositInfo).toList());
+          sdkEvent.claimedDeposits.map(_getElectrumTransactionInfoFromDepositInfo).toList(),
+        );
       } else if (sdkEvent is SdkEvent_UnclaimedDeposits) {
         final unclaimedDeposits = <String, ElectrumTransactionInfo>{};
 
@@ -464,8 +473,8 @@ class LightningWallet {
     }
 
     String? preimage;
-    if (payment.details != null && payment.details is PaymentDetails_Lightning) {
-      preimage = (payment.details as PaymentDetails_Lightning).htlcDetails.preimage;
+    if (payment.details case final PaymentDetails_Lightning details) {
+      preimage = details.htlcDetails.preimage;
     }
 
     return ElectrumTransactionInfo(

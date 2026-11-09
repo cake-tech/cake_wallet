@@ -36,16 +36,3 @@ class EverstakeEthereumValidatorQueue {
   final Duration activationTime;
   final Duration withdrawalTime;
 }
-
-class EverstakeEthereumTransaction {
-  // The API rounds value through a JavaScript number; retain the exact requested ETH value.
-  EverstakeEthereumTransaction.fromJson(Map<String, dynamic> json, {required this.value})
-      : from = json["from"] as String,
-        to = json["to"] as String,
-        data = json["data"] as String;
-
-  final String from;
-  final String to;
-  final Money value;
-  final String data;
-}
