@@ -127,6 +127,10 @@ class ResetViewModel {
         settingsStore.useBscScan = SettingsStoreBase.defaultUseBscScan;
         evm!.updateScanProviderUsageState(wallet, settingsStore.useBscScan);
         break;
+      case WalletType.robinhood:
+        settingsStore.useRobinhoodScan = SettingsStoreBase.defaultUseRobinhoodScan;
+        evm!.updateScanProviderUsageState(wallet, settingsStore.useRobinhoodScan);
+        break;
       case WalletType.tron:
         settingsStore.useTronGrid = SettingsStoreBase.defaultUseTronGrid;
         tron!.updateTronGridUsageState(wallet, settingsStore.useTronGrid);

@@ -19,15 +19,14 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class ChartModal extends StatelessWidget {
-  const ChartModal({required this.currency, required this.isFavorite, super.key});
+  const ChartModal({required this.bloc, required this.currency, required this.isFavorite, super.key});
 
   final CryptoCurrency currency;
   final bool isFavorite;
+  final ChartsBloc bloc;
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-        create: (context) => getIt.get<ChartsBloc>()..add(Init()),
-        child: Container(
+  Widget build(BuildContext context) => Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
@@ -43,6 +42,7 @@ class ChartModal extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 18, left: 18),
                 ),
                 ChartHeader(
+                  bloc: bloc,
                   currency: currency,
                   chartHeight: 220,
                   chartPadding: 32,
@@ -115,13 +115,15 @@ class ChartModal extends StatelessWidget {
                         imageUrl: "assets/new-ui/favorite.svg",
                         colorFilter: ColorFilter.mode(
                           isFavorite
-                              ? Theme.of(context).colorScheme.onSurface
+                              ? Colors.white
                               : Theme.of(context).colorScheme.primary,
                           BlendMode.srcIn,
                         ),
                       ),
                       gradientColors:
-                          isFavorite ? [const Color(0xFFDF2626), const Color(0xFF980F0F)] : null,
+                          isFavorite ? Theme.of(context).brightness == Brightness.dark
+                            ? [const Color(0xFFDF2626), const Color(0xFF980F0F)]
+                            : [const Color(0xFFEB5050), const Color(0xFFB22B2B)] : null,
                       label: S.of(context).favorite,
                       action: () {
                         Navigator.of(context).pop(true);
@@ -135,9 +137,8 @@ class ChartModal extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      );
-
+        );
+        
   void openBuySellPage(BuildContext context, BuySellPageMode mode) {
     Navigator.of(context).pop();
     final page = getIt.get<NewBuySellAmountPage>(

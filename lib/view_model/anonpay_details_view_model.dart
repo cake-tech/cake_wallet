@@ -74,6 +74,6 @@ abstract class AnonpayDetailsViewModelBase with Store {
     items.add(TrackTradeListItem(
         title: S.current.track,
         value: invoiceDetail.clearnetStatusUrl,
-        onTap: () => launchUrlString(invoiceDetail.clearnetStatusUrl)));
+        onTap: () => launchUrlString(invoiceDetail.clearnetStatusUrl, mode: LaunchMode.externalApplication)));
   }
 }

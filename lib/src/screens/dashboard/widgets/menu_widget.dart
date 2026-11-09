@@ -1,7 +1,9 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/setting_action_button.dart';
 import 'package:cake_wallet/src/widgets/setting_actions.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:flutter/material.dart';
+import "package:flutter_svg/svg.dart";
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -36,6 +38,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.baseIcon = Image.asset('assets/new-ui/crypto_full_icons/base.svg'),
         this.arbitrumIcon = Image.asset('assets/new-ui/crypto_full_icons/arbitrum.svg'),
         this.bscIcon = Image.asset('assets/new-ui/crypto_full_icons/bnb.svg'),
+        this.robinhoodIcon = SvgPicture.asset("assets/new-ui/crypto_full_icons/robinhood.svg"),
         this.solanaIcon = Image.asset('assets/new-ui/crypto_full_icons/solana.svg'),
         this.tronIcon = Image.asset('assets/new-ui/crypto_full_icons/tron.svg'),
         this.wowneroIcon = Image.asset('assets/new-ui/crypto_full_icons/wownero.svg'),
@@ -67,6 +70,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image baseIcon;
   Image arbitrumIcon;
   Image bscIcon;
+  Widget robinhoodIcon;
   Image solanaIcon;
   Image tronIcon;
   Image wowneroIcon;
@@ -261,6 +265,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return arbitrumIcon;
       case WalletType.bsc:
         return bscIcon;
+      case WalletType.robinhood:
+        return robinhoodIcon;
       case WalletType.tron:
         return tronIcon;
       case WalletType.wownero:
@@ -274,7 +280,7 @@ class MenuWidgetState extends State<MenuWidget> {
       case WalletType.zcash:
         return zcashIcon;
       default:
-        throw Exception('No icon for ${type.toString()}');
+        throw BadWalletTypeException('No icon for ${type.toString()}',type);
     }
   }
 }

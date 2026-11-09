@@ -33,6 +33,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
@@ -59,6 +60,7 @@ abstract class SettingsStoreBase with Store {
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShowAddressBookPopupEnabled,
+      required bool initialShowCiBuildOverlay,
       required SyncStatusDisplayMode initialSyncStatusDisplayMode,
       required FiatCurrency initialFiatCurrency,
       required BalanceDisplayMode initialBalanceDisplayMode,
@@ -119,6 +121,7 @@ abstract class SettingsStoreBase with Store {
       required this.useBaseScan,
       required this.useArbiScan,
       required this.useBscScan,
+      required this.useRobinhoodScan,
       required this.usePolygonScan,
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
@@ -151,6 +154,7 @@ abstract class SettingsStoreBase with Store {
       required this.hasEnabledMwebBefore,
       required this.mwebNodeUri,
       required this.mwebAdDismissed,
+      required this.accountsHomePromoDismissed,
       required this.balanceHideCounter,
       required this.zcashMigrationModalViewed,
       required bool initialEnableAutomaticNodeSwitching,
@@ -199,6 +203,7 @@ abstract class SettingsStoreBase with Store {
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
+        showCiBuildOverlay = initialShowCiBuildOverlay,
         syncStatusDisplayMode = initialSyncStatusDisplayMode,
         exchangeStatus = initialExchangeStatus,
         pinCodeLength = initialPinLength,
@@ -310,6 +315,9 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => mwebAdDismissed,
         (val) => sharedPreferences.setBool(PreferencesKey.mwebAdDismissed, val));
 
+    reaction((_) => accountsHomePromoDismissed,
+        (val) => sharedPreferences.setBool(PreferencesKey.accountsHomePromoDismissed, val));
+
     priority.observe((change) {
       final String? key;
       switch (change.key) {
@@ -359,6 +367,7 @@ abstract class SettingsStoreBase with Store {
         case WalletType.solana:
         case WalletType.tron:
         case WalletType.arbitrum:
+        case WalletType.robinhood:
         case null:
           key = null;
           break;
@@ -460,6 +469,10 @@ abstract class SettingsStoreBase with Store {
             sharedPreferences.setBool(PreferencesKey.showAddressBookPopupEnabled, value));
 
     reaction(
+        (_) => showCiBuildOverlay,
+        (bool value) => sharedPreferences.setBool(PreferencesKey.showCiBuildOverlay, value));
+
+    reaction(
         (_) => syncStatusDisplayMode,
         (SyncStatusDisplayMode value) =>
             sharedPreferences.setString(PreferencesKey.syncStatusDisplayMode, value.toJson()));
@@ -533,6 +546,11 @@ abstract class SettingsStoreBase with Store {
 
     reaction((_) => useBscScan,
         (bool useBscScan) => _sharedPreferences.setBool(PreferencesKey.useBscScan, useBscScan));
+
+    reaction(
+        (_) => useRobinhoodScan,
+        (bool useRobinhoodScan) =>
+            _sharedPreferences.setBool(PreferencesKey.useRobinhoodScan, useRobinhoodScan));
 
     reaction((_) => useTronGrid,
         (bool useTronGrid) => _sharedPreferences.setBool(PreferencesKey.useTronGrid, useTronGrid));
@@ -842,6 +860,7 @@ abstract class SettingsStoreBase with Store {
   static const defaultUseBaseScan = true;
   static const defaultUseArbiScan = true;
   static const defaultUseBscScan = true;
+  static const defaultUseRobinhoodScan = true;
   static const defaultLookupsENS = true;
 
   static const defaultUseTronGrid = true;
@@ -869,6 +888,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool showAddressBookPopupEnabled;
+
+  @observable
+  bool showCiBuildOverlay;
 
   @observable
   SyncStatusDisplayMode syncStatusDisplayMode;
@@ -1018,6 +1040,9 @@ abstract class SettingsStoreBase with Store {
   bool useBscScan;
 
   @observable
+  bool useRobinhoodScan;
+
+  @observable
   bool useTronGrid;
 
   @observable
@@ -1136,6 +1161,9 @@ abstract class SettingsStoreBase with Store {
   bool mwebAdDismissed;
 
   @observable
+  bool accountsHomePromoDismissed;
+
+  @observable
   bool zcashMigrationModalViewed;
 
   final SecureStorage _secureStorage;
@@ -1157,15 +1185,15 @@ abstract class SettingsStoreBase with Store {
         }
       }
 
-      throw Exception('No node found for EVM wallet type with chainId: $chainId');
+      throw NodeLookupException('No node found for EVM wallet type with chainId: $chainId');
     }
 
     final node = nodes[walletType];
     if (node == null) {
-      throw Exception('No node found for wallet type: ${walletType.toString()}');
+      throw NodeLookupException('No node found for wallet type: ${walletType.toString()}');
     }
     if (node.type != walletType) {
-      throw Exception("Node is not valid for $walletType (found: ${node.type}");
+      throw NodeLookupException("Node is not valid for $walletType (found: ${node.type}");
     }
 
     return node;
@@ -1183,6 +1211,8 @@ abstract class SettingsStoreBase with Store {
         return PreferencesKey.currentArbitrumNodeIdKey;
       case 56:
         return PreferencesKey.currentBscNodeIdKey;
+      case 4663:
+        return PreferencesKey.currentRobinhoodNodeIdKey;
       default:
         // Default to Ethereum for unknown chainIds
         return PreferencesKey.currentEthereumNodeIdKey;
@@ -1193,7 +1223,7 @@ abstract class SettingsStoreBase with Store {
     final node = powNodes[walletType];
 
     if (node == null) {
-      throw Exception('No pow node found for wallet type: ${walletType.toString()}');
+      throw NodeLookupException('No pow node found for wallet type: ${walletType.toString()}');
     }
 
     return node;
@@ -1225,6 +1255,12 @@ abstract class SettingsStoreBase with Store {
 
   Future<void> setShouldShowReceiveWarning(bool value) async =>
       _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
+
+  bool isEducationDismissed(String educationId) =>
+      _sharedPreferences.getBool(PreferencesKey.educationDismissed(educationId)) ?? false;
+
+  Future<void> dismissEducation(String educationId) =>
+      _sharedPreferences.setBool(PreferencesKey.educationDismissed(educationId), true);
 
   static Future<SettingsStore> load(
       {required bool isBitcoinBuyEnabled,
@@ -1358,6 +1394,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
+    final showCiBuildOverlay = sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? true;
     final forceDecentralizedExchanges =
         await sharedPreferences.getBool(PreferencesKey.forceDecentralizedExchanges) ?? false;
     final decentralizedExchangesPromptDismissed =
@@ -1388,6 +1425,8 @@ abstract class SettingsStoreBase with Store {
     final useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? defaultUseBaseScan;
     final useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? defaultUseArbiScan;
     final useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? defaultUseBscScan;
+    final useRobinhoodScan =
+        sharedPreferences.getBool(PreferencesKey.useRobinhoodScan) ?? defaultUseRobinhoodScan;
     final useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? defaultUseTronGrid;
     final useMempoolFeeAPI =
         sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? defaultUseMempoolFeeAPI;
@@ -1468,6 +1507,7 @@ abstract class SettingsStoreBase with Store {
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
+    final robinhoodNodeId = sharedPreferences.getInt(PreferencesKey.currentRobinhoodNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final nanoPowNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoPowNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
@@ -1521,6 +1561,8 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.uriRaw == zcashDefaultNodeUri);
     final bscNode = nodeSource.firstWhereOrNull((e) => e.id == bscNodeId) ??
         nodeSource.firstWhereOrNull((e) => e.uriRaw == bscDefaultNodeUri);
+    final robinhoodNode = nodeSource.firstWhereOrNull((e) => e.id == robinhoodNodeId) ??
+        nodeSource.firstWhereOrNull((e) => e.uriRaw == robinhoodDefaultNodeUri);
 
     final packageInfo = await PackageInfo.fromPlatform();
     final deviceName = await _getDeviceName() ?? '';
@@ -1589,6 +1631,10 @@ abstract class SettingsStoreBase with Store {
       nodes[WalletType.bsc] = bscNode;
     }
 
+    if (robinhoodNode != null) {
+      nodes[WalletType.robinhood] = robinhoodNode;
+    }
+
     if (bitcoinCashElectrumServer != null) {
       nodes[WalletType.bitcoinCash] = bitcoinCashElectrumServer;
     }
@@ -1637,107 +1683,74 @@ abstract class SettingsStoreBase with Store {
     final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? defaultBuiltinTor;
 
     // migrated to secure:
-    final timeOutDuration = await SecureKey.getInt(
-      secureStorage: secureStorage,
-      sharedPreferences: sharedPreferences,
-      key: SecureKey.pinTimeOutDuration,
-    );
+    Future<bool> secureBool(String key) async =>
+        await SecureKey.getBool(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: key,
+        ) ??
+        false;
+    Future<int?> secureInt(String key) => SecureKey.getInt(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: key,
+        );
+
+    // Independent reads, so they go to secure storage concurrently instead of one by one
+    final List<Future<Object?> Function()> secureReads = [
+      () => secureInt(SecureKey.pinTimeOutDuration),
+      () => secureBool(SecureKey.allowBiometricalAuthenticationKey),
+      () => secureBool(SecureKey.enableDuressPin),
+      () => secureInt(SecureKey.selectedCake2FAPreset),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAccessingWallet),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToNonContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAddingContacts),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForCreatingNewWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
+      () => secureBool(SecureKey.useTOTP2FA),
+      () => SecureKey.getString(
+        secureStorage: secureStorage,
+        sharedPreferences: sharedPreferences,
+        key: SecureKey.totpSecretKey,
+      ),
+    ];
+
+    final [
+      timeOutDuration as int?,
+      allowBiometricalAuthentication as bool,
+      enableDuressPin as bool,
+      selectedCake2FAPresetRaw as int?,
+      shouldRequireTOTP2FAForAccessingWallet as bool,
+      shouldRequireTOTP2FAForSendsToContact as bool,
+      shouldRequireTOTP2FAForSendsToNonContact as bool,
+      shouldRequireTOTP2FAForSendsToInternalWallets as bool,
+      shouldRequireTOTP2FAForExchangesToInternalWallets as bool,
+      shouldRequireTOTP2FAForExchangesToExternalWallets as bool,
+      shouldRequireTOTP2FAForAddingContacts as bool,
+      shouldRequireTOTP2FAForCreatingNewWallets as bool,
+      shouldRequireTOTP2FAForAllSecurityAndBackupSettings as bool,
+      useTOTP2FA as bool,
+      totpSecretKeyRaw as String?,
+    ] = Platform.isWindows
+        ? [for (final read in secureReads) await read()]
+        : await Future.wait(secureReads.map((read) => read()));
 
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
-
-    final allowBiometricalAuthentication = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.allowBiometricalAuthenticationKey,
-        ) ??
-        false;
-
-    final enableDuressPin = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.enableDuressPin,
-        ) ??
-        false;
-
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
-        raw: await SecureKey.getInt(
-              secureStorage: secureStorage,
-              sharedPreferences: sharedPreferences,
-              key: SecureKey.selectedCake2FAPreset,
-            ) ??
-            Cake2FAPresetsOptions.normal.raw);
-
-    final shouldRequireTOTP2FAForAccessingWallet = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToContact = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToNonContact = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToInternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForExchangesToInternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForExchangesToExternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForAddingContacts = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForCreatingNewWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        ) ??
-        false;
-    final useTOTP2FA = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.useTOTP2FA,
-        ) ??
-        false;
-    final totpSecretKey = await SecureKey.getString(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.totpSecretKey,
-        ) ??
-        '';
+        raw: selectedCake2FAPresetRaw ?? Cake2FAPresetsOptions.normal.raw);
+    final totpSecretKey = totpSecretKeyRaw ?? '';
 
     final mwebAdDismissed =
         await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
+
+    final accountsHomePromoDismissed =
+        sharedPreferences.getBool(PreferencesKey.accountsHomePromoDismissed) ?? false;
 
     final balanceHideCounter =
         await sharedPreferences.getInt(PreferencesKey.balanceHideCounter) ?? 0;
@@ -1747,6 +1760,7 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
+      initialShowCiBuildOverlay: showCiBuildOverlay,
       initialSyncStatusDisplayMode: syncStatusDisplayMode,
       nodes: nodes,
       powNodes: powNodes,
@@ -1790,6 +1804,7 @@ abstract class SettingsStoreBase with Store {
       useBaseScan: useBaseScan,
       useArbiScan: useArbiScan,
       useBscScan: useBscScan,
+      useRobinhoodScan: useRobinhoodScan,
       useTronGrid: useTronGrid,
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
@@ -1860,6 +1875,7 @@ abstract class SettingsStoreBase with Store {
       shouldShowRepWarning: shouldShowRepWarning,
       initialBuiltinTor: builtinTor,
       mwebAdDismissed: mwebAdDismissed,
+      accountsHomePromoDismissed: accountsHomePromoDismissed,
       balanceHideCounter: balanceHideCounter,
       zcashMigrationModalViewed: zcashMigrationModalViewed
     );
@@ -1995,6 +2011,8 @@ abstract class SettingsStoreBase with Store {
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
+    showCiBuildOverlay =
+        sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? showCiBuildOverlay;
     syncStatusDisplayMode = SyncStatusDisplayModeExtension.fromString(
         sharedPreferences.getString(PreferencesKey.syncStatusDisplayMode) ??
             SyncStatusDisplayMode.blocksRemaining.name);
@@ -2036,6 +2054,8 @@ abstract class SettingsStoreBase with Store {
     useBaseScan = sharedPreferences.getBool(PreferencesKey.useBaseScan) ?? defaultUseBaseScan;
     useArbiScan = sharedPreferences.getBool(PreferencesKey.useArbiScan) ?? defaultUseArbiScan;
     useBscScan = sharedPreferences.getBool(PreferencesKey.useBscScan) ?? defaultUseBscScan;
+    useRobinhoodScan =
+        sharedPreferences.getBool(PreferencesKey.useRobinhoodScan) ?? defaultUseRobinhoodScan;
     useTronGrid = sharedPreferences.getBool(PreferencesKey.useTronGrid) ?? defaultUseTronGrid;
     useMempoolFeeAPI =
         sharedPreferences.getBool(PreferencesKey.useMempoolFeeAPI) ?? defaultUseMempoolFeeAPI;
@@ -2089,6 +2109,7 @@ abstract class SettingsStoreBase with Store {
     final baseNodeId = sharedPreferences.getInt(PreferencesKey.currentBaseNodeIdKey);
     final arbitrumNodeId = sharedPreferences.getInt(PreferencesKey.currentArbitrumNodeIdKey);
     final bscNodeId = sharedPreferences.getInt(PreferencesKey.currentBscNodeIdKey);
+    final robinhoodNodeId = sharedPreferences.getInt(PreferencesKey.currentRobinhoodNodeIdKey);
     final nanoNodeId = sharedPreferences.getInt(PreferencesKey.currentNanoNodeIdKey);
     final solanaNodeId = sharedPreferences.getInt(PreferencesKey.currentSolanaNodeIdKey);
     final tronNodeId = sharedPreferences.getInt(PreferencesKey.currentTronNodeIdKey);
@@ -2106,6 +2127,7 @@ abstract class SettingsStoreBase with Store {
     final baseNode = await Node.get(baseNodeId ?? -1);
     final arbitrumNode = await Node.get(arbitrumNodeId ?? -1);
     final bscNode = await Node.get(bscNodeId ?? -1);
+    final robinhoodNode = await Node.get(robinhoodNodeId ?? -1);
     final bitcoinCashNode = await Node.get(bitcoinCashElectrumServerId ?? -1);
     final nanoNode = await Node.get(nanoNodeId ?? -1);
     final solanaNode = await Node.get(solanaNodeId ?? -1);
@@ -2150,6 +2172,10 @@ abstract class SettingsStoreBase with Store {
 
     if (bscNode != null) {
       nodes[WalletType.bsc] = bscNode;
+    }
+
+    if (robinhoodNode != null) {
+      nodes[WalletType.robinhood] = robinhoodNode;
     }
 
     if (bitcoinCashNode != null) {
@@ -2334,6 +2360,7 @@ abstract class SettingsStoreBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         final chainId = evm!.getChainIdByWalletType(node.type);
         final preferenceKey = _getEVMNodePreferenceKey(chainId);
         await _sharedPreferences.setInt(preferenceKey, node.id);
@@ -2506,6 +2533,7 @@ abstract class SettingsStoreBase with Store {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.arbitrum:
+      case WalletType.robinhood:
         return null;
     }
   }

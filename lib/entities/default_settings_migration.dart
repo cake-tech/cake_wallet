@@ -56,6 +56,7 @@ const dogecoinDefaultNodeUri = 'dogecoin.stackwallet.com:50022';
 const baseDefaultNodeUri = 'base-rpc.publicnode.com';
 const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
+const robinhoodDefaultNodeUri = "robinhood-rpc.publicnode.com";
 const zcashDefaultNodeUri = 'zec.rocks:443';
 
 Future<void> defaultSettingsMigration(
@@ -652,6 +653,12 @@ Future<void> defaultSettingsMigration(
           break;
         case 72:
           await createDefaultChartsData();
+          await addWalletNodeList(type: WalletType.robinhood);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.robinhood,
+            currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
+          );
           break;
         default:
           break;
@@ -825,6 +832,7 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
 Future<void> _validateWalletInfoBoxData() async {
   try {
     final root = await getAppDir();
+    final existingIds = (await WalletInfo.getAll()).map((info) => info.id).toSet();
 
     for (var type in WalletType.values) {
       if (type == WalletType.none) {
@@ -864,9 +872,8 @@ Future<void> _validateWalletInfoBoxData() async {
         }
 
         final id = prefix + '_' + name;
-        final exist = (await WalletInfo.getAll()).any((el) => el.id == id);
 
-        if (exist) {
+        if (existingIds.contains(id)) {
           continue;
         }
 
@@ -884,6 +891,7 @@ Future<void> _validateWalletInfoBoxData() async {
         );
 
         await walletInfo.save();
+        existingIds.add(id);
       }
     }
   } catch (_) {}
