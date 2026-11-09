@@ -21,6 +21,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_message_sign.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -4275,13 +4276,16 @@ abstract class ElectrumWalletBase
 
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
-    final addressRecord = address != null
+    final requested = address != null && address.trim().isNotEmpty;
+    final addressRecord = requested
         ? walletAddresses.allAddresses.firstWhereOrNull((addr) => addr.address == address)
         : null;
 
-    if (addressRecord != null && addressRecord.type == SegwitAddresType.p2tr) {
-      throw UnsupportedError("Cannot sign message with Taproot address");
-    }
+    assertCanSignBitcoinMessage(
+      address: address,
+      heldByWallet: addressRecord != null,
+      isTaproot: addressRecord?.type == SegwitAddresType.p2tr,
+    );
 
     final hd = addressRecord != null
         ? _hdForAddressRecord(record: addressRecord).childKey(Bip32KeyIndex(addressRecord.index))
