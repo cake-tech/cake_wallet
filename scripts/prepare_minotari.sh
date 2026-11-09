@@ -17,6 +17,9 @@ URL="$REPO/releases/download/$CW_TARI_WALLET_TAG"
 
 die() { echo "error: $*" >&2; exit 1; }
 
+[ $# -gt 0 ] || die "usage: $0 <android|ios|macos|linux|windows>..."
+for tool in curl unzip sha256sum git; do command -v "$tool" >/dev/null || die "$tool is required"; done
+
 [[ "$CW_TARI_WALLET_SUMS_SHA256" =~ ^[0-9a-f]{64}$ ]] || die "CW_TARI_WALLET_SUMS_SHA256 is not a sha256 digest"
 
 assets=(dart)

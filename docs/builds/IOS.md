@@ -106,6 +106,12 @@ Build the necessary libraries and their dependencies:
 
 NOTE: This step will take quite a while, so be sure you grab a cup of coffee or a good book!
 
+For Cake Wallet, also fetch the prebuilt Minotari library (needs `curl`, `unzip`, `sha256sum` and `git`, which macOS ships with):
+
+```zsh
+../prepare_minotari.sh ios
+```
+
 Then run the configuration script to setup app name, app icon, etc:
 
 ```zsh
