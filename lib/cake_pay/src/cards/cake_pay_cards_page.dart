@@ -1,5 +1,6 @@
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import "package:cake_wallet/cake_pay/src/widgets/cake_pay_maintenance_widget.dart";
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_search_bar_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/user_card_item.dart';
 import 'package:cake_wallet/entities/country.dart';
@@ -456,7 +457,11 @@ class _ShopTabState extends State<_ShopTab> {
               return const _Loading();
             }
 
-            if (vendors.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
+            if (vendors.isEmpty) {
+              return viewModel.searchString.isEmpty
+                  ? const CakePayMaintenanceWidget()
+                  : Center(child: Text(S.of(context).no_cards_found));
+            }
 
             final loadingMore = viewModel.isLoadingNextPage;
             final showThumb = vendors.length > 3;
