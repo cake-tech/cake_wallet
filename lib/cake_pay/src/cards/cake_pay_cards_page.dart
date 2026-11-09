@@ -453,15 +453,16 @@ class _ShopTabState extends State<_ShopTab> {
           child: Observer(builder: (_) {
             final vendors = viewModel.cakePayVendors;
 
-            if (viewModel.vendorsState is! CakePayVendorLoadedState) {
+            if (viewModel.isUnderMaintenance == true) {
+              return const CakePayMaintenanceWidget();
+            }
+
+            if (viewModel.isUnderMaintenance == null ||
+                viewModel.vendorsState is! CakePayVendorLoadedState) {
               return const _Loading();
             }
 
-            if (vendors.isEmpty) {
-              return viewModel.searchString.isEmpty
-                  ? const CakePayMaintenanceWidget()
-                  : Center(child: Text(S.of(context).no_cards_found));
-            }
+            if (vendors.isEmpty) return Center(child: Text(S.of(context).no_cards_found));
 
             final loadingMore = viewModel.isLoadingNextPage;
             final showThumb = vendors.length > 3;
