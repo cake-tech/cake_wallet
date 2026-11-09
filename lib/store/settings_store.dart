@@ -314,10 +314,8 @@ abstract class SettingsStoreBase with Store {
       final String? key;
       switch (change.key) {
         case WalletType.monero:
-          key = PreferencesKey.moneroTransactionPriority;
-          break;
         case WalletType.wownero:
-          key = PreferencesKey.wowneroTransactionPriority;
+          key = PreferencesKey.moneroTransactionPriority;
           break;
         case WalletType.bitcoin:
           key = PreferencesKey.bitcoinTransactionPriority;
