@@ -41,14 +41,14 @@ class EvmTrezorCredentials extends CredentialsWithKnownAddress {
 
     TrezorEthereumTransaction tx;
     if (isEIP1559) {
-      final chainId = data[0][0];
-      final nonce = bytesToHex(data[1], include0x: true);
-      final maxPriorityFeePerGas = bytesToHex(data[2], include0x: true);
-      final maxFeePerGas = bytesToHex(data[3], include0x: true);
-      final maxGas = bytesToHex(data[4], include0x: true);
-      final to = bytesToHex(data[5], include0x: true);
-      final value = bytesToHex(data[6], include0x: true);
-      final txData = bytesToHex(data[7], include0x: true);
+      final chainId = data[0][0] as int;
+      final nonce = bytesToHex(data[1] as List<int>, include0x: true);
+      final maxPriorityFeePerGas = bytesToHex(data[2] as List<int>, include0x: true);
+      final maxFeePerGas = bytesToHex(data[3] as List<int>, include0x: true);
+      final maxGas = bytesToHex(data[4] as List<int>, include0x: true);
+      final to = bytesToHex(data[5] as List<int>, include0x: true);
+      final value = bytesToHex(data[6] as List<int>, include0x: true);
+      final txData = bytesToHex(data[7] as List<int>, include0x: true);
 
       tx = TrezorEthereumTransaction(
         to: to,
@@ -61,12 +61,12 @@ class EvmTrezorCredentials extends CredentialsWithKnownAddress {
         data: txData,
       );
     } else {
-      final nonce = bytesToHex(data[0]);
-      final gasPrice = bytesToHex(data[1]);
-      final maxGas = bytesToHex(data[2]);
-      final to = bytesToHex(data[3]);
-      final value = bytesToHex(data[4]);
-      final txData = bytesToHex(data[5]);
+      final nonce = bytesToHex(data[0] as List<int>);
+      final gasPrice = bytesToHex(data[1] as List<int>);
+      final maxGas = bytesToHex(data[2] as List<int>);
+      final to = bytesToHex(data[3] as List<int>);
+      final value = bytesToHex(data[4] as List<int>);
+      final txData = bytesToHex(data[5] as List<int>);
       tx = TrezorEthereumTransaction(
         to: to,
         value: value,

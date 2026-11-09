@@ -98,6 +98,15 @@ import Flutter
                     }
 
                     result(nil)
+
+                case "keychain_read_status":
+                    guard let args = call.arguments as? Dictionary<String, Any>,
+                          let key = args["key"] as? String else {
+                        result(nil)
+                        return
+                    }
+
+                    result(keychainReadStatus(key: key))
                 default:
                     result(FlutterMethodNotImplemented)
                 }
@@ -111,6 +120,11 @@ private func keyWindow() -> UIWindow? {
         .compactMap { $0 as? UIWindowScene }
         .flatMap { $0.windows }
         .first { $0.isKeyWindow }
+}
+
+override var window: UIWindow? {
+    get { super.window ?? keyWindow() }
+    set { super.window = newValue }
 }
 
 private func makeSecure() {
@@ -127,4 +141,19 @@ private func makeSecure() {
     }
 }
 
+}
+
+// OSStatus of the exact query flutter_secure_storage's iOS `read` runs (cake-tech fork ca897a08:
+// no service or access group, synchronizable false, returning data). The plugin discards this
+// status and reports every failure as nil. Only the status leaves this function, never the data.
+private func keychainReadStatus(key: String) -> Int {
+    let query: [CFString: Any] = [
+        kSecClass: kSecClassGenericPassword,
+        kSecAttrAccount: key,
+        kSecAttrSynchronizable: false,
+        kSecReturnData: true,
+    ]
+
+    var ref: AnyObject?
+    return Int(SecItemCopyMatching(query as CFDictionary, &ref))
 }

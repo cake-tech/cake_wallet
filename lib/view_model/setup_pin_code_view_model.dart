@@ -83,6 +83,7 @@ class SetupPinCodeViewModel {
     }
 
     await _authService.setPassword(repeatedPinCode);
+    _authService.saveLastAuthTime();
     _settingsStore.pinCodeLength = pinCodeLength;
   }
 }

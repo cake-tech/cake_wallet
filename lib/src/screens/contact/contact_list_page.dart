@@ -213,7 +213,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
             return generateRaw(context, contact);
           } else {
             final activeContact = groupContacts.firstWhere(
-              (contact) => contact.name.contains('Active'),
+              (contact) => contact is WalletContact && contact.isActive,
               orElse: () => groupContacts[0],
             );
 
