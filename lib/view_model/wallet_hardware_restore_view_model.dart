@@ -9,6 +9,8 @@ import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_mode
 import 'package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cake_wallet/zcash/zcash.dart";
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -52,7 +54,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
   @action
   Future<void> getNextAvailableAccounts(int limit) async {
     try {
-      final service = await hardwareWalletVM.getHardwareWalletService(type);
+      final service = hardwareWalletVM.getHardwareWalletService(type);
       final accounts = await service.getAvailableAccounts(index: _nextIndex, limit: limit);
 
       availableAccounts.addAll(accounts);
@@ -82,6 +84,13 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           hwAccountData: selectedAccount!,
         );
         break;
+      case WalletType.zcash:
+        credentials = zcash!.createZcashHardwareWalletCredentials(
+          name: name,
+          hardwareWalletService: hardwareWalletVM.getHardwareWalletService(type),
+          height: _options["height"] as int? ?? 0,
+        );
+        break;
       case WalletType.monero:
         final password = walletPassword ?? generateWalletPassword();
 
@@ -93,7 +102,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
           passphrase: _options['passphrase'] as String?,
         );
       default:
-        throw Exception('Unexpected type: ${type.toString()}');
+        throw BadWalletTypeException('Unexpected type: ${type.toString()}', type);
     }
 
     credentials.hardwareWalletType = hardwareWalletVM.hardwareWalletType;

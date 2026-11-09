@@ -9,6 +9,6 @@ abstract class EnumerableItem<T> {
 }
 
 mixin Serializable<T> on EnumerableItem<T> {
-  static Serializable deserialize<T>({required T raw}) => throw Exception('Unimplemented');
+  static Serializable deserialize<T>({required T raw}) => throw UnimplementedError();
   T serialize() => raw;
 }
