@@ -326,7 +326,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     final headers = {'Authorization': apiKey, 'Content-Type': 'application/json'};
 
     final uri = Uri.parse('$_baseUrl$_exchangesPath/$id');

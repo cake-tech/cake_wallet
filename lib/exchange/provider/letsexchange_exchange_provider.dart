@@ -330,7 +330,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',

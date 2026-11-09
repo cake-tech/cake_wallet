@@ -242,7 +242,10 @@ abstract class ExchangeTradeViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      final updatedTrade = await _provider!.findTradeById(id: trade.id);
+      final updatedTrade = await _provider!.findTradeById(
+        id: trade.id,
+        extraId: trade.extraId ?? trade.memo,
+      );
 
       trade.mergeFindTradeByIdResult(updatedTrade);
       await trade.save();

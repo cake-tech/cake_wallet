@@ -303,7 +303,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     try {
       final params = <String, dynamic>{};
       var body = <String, dynamic>{

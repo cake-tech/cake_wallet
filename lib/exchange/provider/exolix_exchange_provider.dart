@@ -321,7 +321,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     final findTradeByIdPath = '$transactionsPath/$id';
     final uri = Uri.https(apiBaseUrl, findTradeByIdPath);
     final response = await ProxyWrapper().get(clearnetUri: uri);

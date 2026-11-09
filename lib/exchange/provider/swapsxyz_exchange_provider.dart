@@ -445,7 +445,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     if (id.isEmpty) {
       throw ArgumentError('Trade id is empty');
     }

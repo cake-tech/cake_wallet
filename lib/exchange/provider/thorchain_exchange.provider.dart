@@ -198,7 +198,7 @@ class ThorChainExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     if (id.isEmpty) throw ArgumentError('Trade id is empty');
     final formattedId = id.startsWith('0x') ? id.substring(2) : id;
     final uri = Uri.https(_baseNodeURL, '$_txInfoPath$formattedId');

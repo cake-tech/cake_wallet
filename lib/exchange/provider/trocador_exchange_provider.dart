@@ -398,7 +398,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     final uri = await _getUri(tradePath, {'id': id});
     return ProxyWrapper()
         .get(clearnetUri: uri, headers: {'API-Key': apiKey}).then((response) async {

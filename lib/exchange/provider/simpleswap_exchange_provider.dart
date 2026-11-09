@@ -291,7 +291,7 @@ class SimpleSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     final params = {'api_key': apiKey, 'id': id};
     final uri = Uri.https(apiAuthority, getExchangePath, params);
     final response = await ProxyWrapper().get(clearnetUri: uri);

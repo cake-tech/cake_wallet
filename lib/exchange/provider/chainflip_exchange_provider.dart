@@ -265,7 +265,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     try {
       final channelParts = id.split('-');
       final network = channelParts[1];
