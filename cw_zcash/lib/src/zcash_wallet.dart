@@ -1044,6 +1044,8 @@ abstract class ZcashWalletBase
   @action
   Future<void> rescan({required final int height}) async {
     syncStatus = StartingScanSyncStatus(height);
+    final rotationAccountId =
+        await ZcashTaddressRotation.getRotationAccountForMainAccount(accountId);
     try {
       await zkool_sync.cancelSync(c: c);
       isSyncing = false;
@@ -1075,6 +1077,14 @@ abstract class ZcashWalletBase
           }
 
           await zkool_account.resetSync(id: accountId, c: coin);
+          if (rotationAccountId != null) {
+            await ZcashTaddressRotation.rewindForRescan(
+              mainAccountId: accountId,
+              accountId: rotationAccountId,
+              height: height,
+              coin: coin,
+            );
+          }
         },
       );
 
