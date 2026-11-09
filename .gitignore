@@ -152,6 +152,7 @@ lib/base/base.dart
 lib/arbitrum/arbitrum.dart
 lib/evm/evm.dart
 lib/zcash/zcash.dart
+lib/minotari/minotari.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json
 ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png
