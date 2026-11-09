@@ -23,10 +23,16 @@ class CakePayMaintenanceWidget extends StatelessWidget {
               children: [
                 SizedBox.square(
                   dimension: 75,
-                  child: Center(child: SvgPicture.asset("assets/images/cake_pay_logo.svg")),
+                  child: Center(
+                    child: SvgPicture.asset(
+                      "assets/images/cake_pay_logo.svg",
+                      excludeFromSemantics: true,
+                    ),
+                  ),
                 ),
                 SvgPicture.asset(
                   "assets/images/warning.svg",
+                  excludeFromSemantics: true,
                   colorFilter: ColorFilter.mode(colorScheme.onSurfaceVariant, BlendMode.srcIn),
                 ),
               ],
