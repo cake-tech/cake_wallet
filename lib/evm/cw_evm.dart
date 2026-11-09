@@ -306,6 +306,7 @@ class CWEVM extends EVM {
     bool useBlinkProtection = true,
     String? sourceTokenAddress,
     BigInt? sourceTokenAmount,
+    int gasReserve = 0,
   }) =>
       (wallet as EVMChainWallet).createCallDataTransaction(
         to,
@@ -315,6 +316,7 @@ class CWEVM extends EVM {
         sourceTokenAddress,
         sourceTokenAmount,
         useBlinkProtection: useBlinkProtection,
+        gasReserve: gasReserve,
       );
 
   @override
@@ -323,8 +325,9 @@ class CWEVM extends EVM {
     String to,
     String dataHex,
     Money valueWei,
-    TransactionPriority? priority,
-  ) async {
+    TransactionPriority? priority, {
+    int gasReserve = 0,
+  }) async {
     final evmWallet = wallet as EVMChainWallet;
     final gas = await evmWallet.calculateActualEstimatedFeeForCreateTransaction(
       amount: valueWei,
@@ -333,7 +336,7 @@ class CWEVM extends EVM {
       contractAddress: null,
       data: hexToBytes(dataHex),
     );
-    return Money.fromInt(gas.estimatedGasFee, evmWallet.currency);
+    return Money.fromInt(gas.feeWithReserve(gasReserve), evmWallet.currency);
   }
 
   @override

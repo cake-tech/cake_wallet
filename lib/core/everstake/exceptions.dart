@@ -8,10 +8,6 @@ class EverstakeResponseException extends ServerResponseException with ResponseCo
   final int code;
 }
 
-class EverstakeTransactionMismatchException extends CakeException {
-  const EverstakeTransactionMismatchException(super.message);
-}
-
 class EverstakeNonPositiveAmountException extends TransactionGenerationException {
   const EverstakeNonPositiveAmountException() : super("Amount must be greater than zero");
 }

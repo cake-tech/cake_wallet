@@ -1574,7 +1574,8 @@ abstract class EVM {
     TransactionPriority? priority,
     {bool useBlinkProtection = true,
     String? sourceTokenAddress,
-    BigInt? sourceTokenAmount}
+    BigInt? sourceTokenAmount,
+    int gasReserve = 0}
   );
   
   Future<Money> estimateRawCallDataTransactionFee(
@@ -1583,6 +1584,7 @@ abstract class EVM {
     String dataHex,
     Money valueWei,
     TransactionPriority? priority,
+    {int gasReserve = 0}
   );
 
   // Hardware wallet methods

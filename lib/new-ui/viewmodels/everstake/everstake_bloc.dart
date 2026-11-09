@@ -2,7 +2,7 @@ import "dart:async";
 
 import "package:bloc/bloc.dart";
 import "package:bloc_concurrency/bloc_concurrency.dart";
-import "package:cake_wallet/core/everstake/ethereum_transaction_validator.dart";
+import "package:cake_wallet/core/everstake/ethereum_pool.dart";
 import "package:cake_wallet/core/everstake/everstake_service.dart";
 import "package:cake_wallet/core/everstake/exceptions.dart";
 import "package:cake_wallet/core/everstake/models.dart";
@@ -13,6 +13,7 @@ import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/exceptions.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_direction.dart";
 import "package:cw_core/transaction_priority.dart";
@@ -31,12 +32,12 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     required SettingsStore settingsStore,
     required EVM evm,
     required EverstakeService service,
-    required EverstakeEthereumTransactionValidator validator,
+    required EverstakeEthereumPool pool,
   })  : _wallet = wallet,
         _settingsStore = settingsStore,
         _evm = evm,
         _service = service,
-        _validator = validator,
+        _pool = pool,
         _address = wallet.walletAddresses.address,
         super(const EverstakeLoading(null)) {
     on<StakingDataRequested>(_onStakingDataRequested, transformer: restartable());
@@ -52,13 +53,12 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     });
   }
 
-  static const _allowedInterchangeNum = 5;
   static const _mainnetChainId = 1;
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final EVM _evm;
   final EverstakeService _service;
-  final EverstakeEthereumTransactionValidator _validator;
+  final EverstakeEthereumPool _pool;
   final String _address;
   late final ReactionDisposer _walletBalanceReaction;
 
@@ -208,6 +208,7 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     Emitter<EverstakeState> emit,
   ) async {
     emit(EverstakePreparing(data));
+    _checkMainnet();
     // max unstake reads fresh to leave no dust from compounding
     final balances = event is MaxUnstakeRequested
         ? await _service.getEthereumUserBalances(_address)
@@ -235,8 +236,7 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
       throw const EverstakeNonPositiveAmountException();
     }
 
-    final EverstakeEthereumTransaction transaction;
-    Money? instantUnstakeAmount;
+    final EverstakeEthereumCall call;
     switch (action) {
       case EverstakeAction.stake:
         if (amount < data.minStakeAmount) {
@@ -245,28 +245,12 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
         if (amount > _walletBalance) {
           throw const EverstakeInsufficientBalanceException();
         }
-        transaction = await _prepareStake(amount);
+        call = _pool.stakeCall(amount);
       case EverstakeAction.unstake:
         if (amount > balances.autocompoundBalance) {
           throw const EverstakeInsufficientBalanceException();
         }
-        instantUnstakeAmount = await _service.simulateEthereumUnstake(
-          address: _address,
-          amount: amount,
-          allowedInterchangeNum: _allowedInterchangeNum,
-        );
-        transaction = await _service.prepareEthereumUnstake(
-          address: _address,
-          amount: amount,
-          allowedInterchangeNum: _allowedInterchangeNum,
-        );
-        _validator.validateUnstake(
-          transaction,
-          address: _address,
-          amount: amount,
-          allowedInterchangeNum: _allowedInterchangeNum,
-          source: EverstakeService.source,
-        );
+        call = _pool.unstakeCall(amount);
       case EverstakeAction.unstakePending:
         final remainder = balances.pendingBalance - amount;
         if (remainder.isNegative) {
@@ -275,41 +259,15 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
         if (!remainder.isZero && remainder < data.minStakeAmount) {
           throw EverstakeRemainderBelowMinimumException(data.minStakeAmount);
         }
-        transaction =
-            await _service.prepareEthereumUnstakePending(address: _address, amount: amount);
-        _validator.validateUnstakePending(transaction, address: _address, amount: amount);
+        call = _pool.unstakePendingCall(amount);
       case EverstakeAction.claimWithdrawal:
         if (!data.canClaimWithdrawal) {
           throw const EverstakeWithdrawalNotReadyException();
         }
-        transaction = await _service.prepareEthereumClaimWithdrawRequest(_address);
-        _validator.validateClaimWithdrawRequest(transaction, address: _address);
+        call = _pool.claimWithdrawRequestCall();
     }
 
-    final pending = await _signOnMainnet(transaction);
-
-    emit(
-      EverstakePrepared(
-        data,
-        EverstakeOperation(
-          action: action,
-          amount: amount,
-          transaction: pending,
-          instantUnstakeAmount: instantUnstakeAmount,
-        ),
-      ),
-    );
-  }
-
-  Future<EverstakeEthereumTransaction> _prepareStake(Money amount) async {
-    final transaction = await _service.prepareEthereumStake(address: _address, amount: amount);
-    _validator.validateStake(
-      transaction,
-      address: _address,
-      amount: amount,
-      source: EverstakeService.source,
-    );
-    return transaction;
+    emit(EverstakePrepared(data, await _signOnMainnet(action, amount, call)));
   }
 
   Future<Money> _maxStakeAmount(EverstakeData data) async {
@@ -317,32 +275,48 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     if (balance < data.minStakeAmount) {
       throw const EverstakeBelowMinimumException();
     }
-    _checkMainnet();
-    final stake = await _prepareStake(data.minStakeAmount);
+    final stake = _pool.stakeCall(balance);
     final fee = _checkFee(
       await _evm.estimateRawCallDataTransactionFee(
         _wallet,
         stake.to,
         stake.data,
-        balance,
+        stake.value,
         _priority,
+        gasReserve: EverstakeEthereumPool.gasReserve,
       ),
     );
     return balance - fee * BigInt.two; // add some buffer
   }
 
-  Future<PendingTransaction> _signOnMainnet(EverstakeEthereumTransaction transaction) async {
+  Future<EverstakeOperation> _signOnMainnet(
+    EverstakeAction action,
+    Money amount,
+    EverstakeEthereumCall call,
+  ) async {
+    final result = await _pool.dryRun(call);
     _checkMainnet();
+    if (isClosed) {
+      throw StateError("Closed before signing");
+    }
+    final instantUnstakeAmount =
+        action == EverstakeAction.unstake ? _pool.instantUnstakeAmount(result) : null;
     final pending = await _evm.createRawCallDataTransaction(
       _wallet,
-      transaction.to,
-      transaction.data,
-      transaction.value,
+      call.to,
+      call.data,
+      call.value,
       _priority,
       useBlinkProtection: _settingsStore.useBlinkProtection,
+      gasReserve: EverstakeEthereumPool.gasReserve,
     );
     _checkFee(pending.fee);
-    return pending;
+    return EverstakeOperation(
+      action: action,
+      amount: amount,
+      transaction: pending,
+      instantUnstakeAmount: instantUnstakeAmount,
+    );
   }
 
   void _checkMainnet() {
@@ -358,25 +332,26 @@ class EverstakeBloc extends Bloc<EverstakeEvent, EverstakeState> {
     return fee;
   }
 
-  String _errorMessage(Object error) => switch (error) {
-        EverstakeNonPositiveAmountException() ||
-        EverstakeBelowMinimumException() =>
-          S.current.error_text_input_below_minimum_limit,
-        EverstakeInsufficientBalanceException() => S.current.error_text_input_above_maximum_limit,
-        EverstakeRemainderBelowMinimumException(:final minimum) =>
-          S.current.staking_remainder_below_minimum(
-            minimum.toLocalStringWithSymbol(
-              locale: _settingsStore.languageCode,
-            ),
+  String _errorMessage(Object error) {
+    printV("Everstake error: ${error.runtimeType}");
+    return switch (error) {
+      EverstakeNonPositiveAmountException() ||
+      EverstakeBelowMinimumException() =>
+        S.current.error_text_input_below_minimum_limit,
+      EverstakeInsufficientBalanceException() => S.current.error_text_input_above_maximum_limit,
+      EverstakeRemainderBelowMinimumException(:final minimum) =>
+        S.current.staking_remainder_below_minimum(
+          minimum.toLocalStringWithSymbol(
+            locale: _settingsStore.languageCode,
           ),
-        EverstakeWithdrawalNotReadyException() => S.current.staking_withdrawal_not_ready,
-        EverstakeMainnetRequiredException() => S.current.staking_mainnet_only,
-        EverstakeResponseException() ||
-        EverstakeTransactionMismatchException() ||
-        TimeoutException() =>
-          S.current.provider_error("Everstake"),
-        TransactionNoFeeException() => S.current.tx_zero_fee_exception,
-        ParallelWaitError() => S.current.load_failed,
-        _ => error.toString(),
-      };
+        ),
+      EverstakeWithdrawalNotReadyException() => S.current.staking_withdrawal_not_ready,
+      EverstakeMainnetRequiredException() => S.current.staking_mainnet_only,
+      EverstakeResponseException() || TimeoutException() => S.current.provider_error("Everstake"),
+      TransactionNoFeeException() => S.current.tx_zero_fee_exception,
+      ParallelWaitError() => S.current.load_failed,
+      CakeException(:final message) => message,
+      _ => S.current.please_try_again_later,
+    };
+  }
 }
