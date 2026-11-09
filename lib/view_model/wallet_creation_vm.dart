@@ -135,7 +135,7 @@ abstract class WalletCreationVMBase with Store {
       try {
         wallet = await process(credentials);
       } catch (_) {
-        await _removeWalletInfoWithoutWalletFile(credentials.walletInfo!, dirPath);
+        await _removeWalletInfoOfEmptyWalletDir(credentials.walletInfo!, dirPath);
         rethrow;
       }
 
@@ -161,18 +161,12 @@ abstract class WalletCreationVMBase with Store {
 
   /// A failed [process] can leave the WalletInfo row that the wallet's `init()` saved
   /// without any wallet file on disk, so the wallet shows up in the list but can never be
-  /// opened. Drop that row unless a wallet file exists in [dirPath]. The file check is the
-  /// one `_validateWalletInfoBoxData` uses, so a row is only removed when the startup
-  /// validation would not re-create it either.
-  Future<void> _removeWalletInfoWithoutWalletFile(WalletInfo walletInfo, String dirPath) async {
+  /// opened. Drop that row when nothing was written to [dirPath]. Anything in the directory
+  /// means the coin got as far as writing its files, and then the row is kept as before.
+  Future<void> _removeWalletInfoOfEmptyWalletDir(WalletInfo walletInfo, String dirPath) async {
     try {
       final dir = Directory(dirPath);
-      final hasWalletFile = dir.existsSync() &&
-          dir
-              .listSync()
-              .any((entity) => entity.path.contains("${walletInfo.name}/${walletInfo.name}"));
-
-      if (hasWalletFile) {
+      if (dir.existsSync() && dir.listSync().isNotEmpty) {
         return;
       }
 
