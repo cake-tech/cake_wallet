@@ -17,6 +17,19 @@ URL="$REPO/releases/download/$CW_TARI_WALLET_TAG"
 
 die() { echo "error: $*" >&2; exit 1; }
 
+# Each platform's library folder carries a stamp of the release it came from, so
+# folders left on an older release (the bindings are always replaced) get removed.
+STAMP="$CW_TARI_WALLET_TAG $CW_TARI_WALLET_SHA"
+lib_dir() {
+  case "$1" in
+    android) echo android/src/main/jniLibs ;;
+    ios) echo ios/Frameworks ;;
+    macos) echo macos/Frameworks ;;
+    linux) echo linux/lib ;;
+    windows) echo windows/lib ;;
+  esac
+}
+
 [ $# -gt 0 ] || die "usage: $0 <android|ios|macos|linux|windows>..."
 for tool in curl unzip sha256sum git; do command -v "$tool" >/dev/null || die "$tool is required"; done
 
@@ -117,6 +130,16 @@ EOF
       mv "$TMP/windows" windows/lib
       ;;
   esac
+  # Dotfile beside the libraries, not inside a framework, so no build packages it.
+  echo "$STAMP" > "$(lib_dir "$platform")/.cw_tari_wallet"
+done
+
+for platform in android ios macos linux windows; do
+  dir="$(lib_dir "$platform")"
+  if [ -d "$dir" ] && [ "$(cat "$dir/.cw_tari_wallet" 2>/dev/null)" != "$STAMP" ]; then
+    rm -rf "$dir"
+    echo "removed stale $platform libs; re-run prepare_minotari.sh $platform"
+  fi
 done
 
 echo "Minotari prepared for: dart $*"

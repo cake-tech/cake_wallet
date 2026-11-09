@@ -41,7 +41,7 @@ mkdir "$T/scripts"
 
 prepare() { # <pinned SHA256SUMS digest> <platform>...
   sed -e "s|^REPO=.*|REPO=\"file://$T/upstream\"|" \
-      -e "s|^CW_TARI_WALLET_SHA=.*|CW_TARI_WALLET_SHA=\"$SHA\"|" \
+      -e "s|^CW_TARI_WALLET_SHA=.*|CW_TARI_WALLET_SHA=\"${PIN_SHA:-$SHA}\"|" \
       -e "s|^CW_TARI_WALLET_SUMS_SHA256=.*|CW_TARI_WALLET_SUMS_SHA256=\"$1\"|" \
       "$PREPARE" > "$T/scripts/prepare_minotari.sh"
   shift
@@ -50,25 +50,28 @@ prepare() { # <pinned SHA256SUMS digest> <platform>...
 
 state() { (cd "$T/cw_minotari" && find . | sort && find . -type f -exec sha256sum {} + | sort); }
 
-expect_fail() { # <name> <digest> <platform>...
-  local name="$1" before
-  shift
+expect_fail() { # <name> <expected error> <digest> <platform>...
+  local name="$1" error="$2" before
+  shift 2
   before="$(state)"
   if prepare "$@" > "$T/log" 2>&1; then cat "$T/log"; echo "FAIL: $name succeeded" >&2; exit 1; fi
+  grep -qF -- "$error" "$T/log" || { cat "$T/log"; echo "FAIL: $name did not fail with: $error" >&2; exit 1; }
   [ "$(state)" = "$before" ] || { echo "FAIL: $name changed cw_minotari" >&2; exit 1; }
-  echo "ok: $name fails ($(tail -n1 "$T/log"))"
+  echo "ok: $name fails ($error)"
 }
 
 restore() { rm -rf "$DIST" && cp -R "$T/good" "$DIST"; }
 
-expect_fail "wrong pinned digest" "$(printf '%064d' 0)" android
+expect_fail "wrong pinned digest" "SHA256SUMS: FAILED" "$(printf '%064d' 0)" android
+
+PIN_SHA="$(printf '%040d' 0)" expect_fail "tag not at pinned commit" "$TAG points at '$SHA'" "$GOOD" android
 
 echo tampered >> "$DIST/cw_tari_wallet-$TAG-android.zip"
-expect_fail "tampered zip" "$GOOD" android
+expect_fail "tampered zip" "cw_tari_wallet-$TAG-android.zip: FAILED" "$GOOD" android
 restore
 
 grep -v -- "-android.zip" "$T/good/SHA256SUMS" > "$DIST/SHA256SUMS"
-expect_fail "zip missing from SHA256SUMS" "$(sha256sum "$DIST/SHA256SUMS" | cut -d' ' -f1)" android
+expect_fail "zip missing from SHA256SUMS" "cw_tari_wallet-$TAG-android.zip is not listed in SHA256SUMS" "$(sha256sum "$DIST/SHA256SUMS" | cut -d' ' -f1)" android
 restore
 
 [ ! -e "$T/cw_minotari/lib/src" ] || { echo "FAIL: checkout already has lib/src" >&2; exit 1; }
@@ -83,3 +86,14 @@ for f in lib/src/rust/frb_generated.dart \
 done
 [ ! -e lib/src/rust/pubspec.yaml ] || { echo "FAIL: bindings pubspec.yaml installed" >&2; exit 1; }
 echo "ok: good bundle installs into a clean checkout"
+
+# A later run for one platform removes other platforms' folders left on another release.
+echo "v0.0.0 old" > ios/Frameworks/.cw_tari_wallet
+rm linux/lib/.cw_tari_wallet
+prepare "$GOOD" android > "$T/log" 2>&1 || { cat "$T/log"; echo "FAIL: android-only run" >&2; exit 1; }
+for p in ios linux; do
+  grep -qF "removed stale $p libs" "$T/log" || { cat "$T/log"; echo "FAIL: stale $p not reported" >&2; exit 1; }
+done
+[ ! -e ios/Frameworks ] && [ ! -e linux/lib ] && [ -f windows/lib/$LIB.dll ] && [ -f android/src/main/jniLibs/arm64-v8a/lib$LIB.so ] \
+  || { echo "FAIL: stale folders not removed, or current ones removed" >&2; exit 1; }
+echo "ok: stale platform folders are removed"
