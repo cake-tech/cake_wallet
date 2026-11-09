@@ -1,4 +1,5 @@
 import 'package:cw_core/enumerable_item.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 
 class Cake2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> {
   const Cake2FAPresetsOptions({required String super.title, required int super.raw});
@@ -19,7 +20,7 @@ class Cake2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> {
       case 3:
         return Cake2FAPresetsOptions.none;
       default:
-        throw Exception(
+        throw DeserializeException(
           'Incorrect Cake 2FA Preset $raw  for Cake2FAPresetOptions deserialize',
         );
     }

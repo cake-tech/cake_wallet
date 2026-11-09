@@ -476,6 +476,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return "https://arbiscan.io/tx/${txId}";
       case WalletType.bsc:
         return "https://bscscan.com/tx/${txId}";
+      case WalletType.robinhood:
+        return "https://robinhoodchain.blockscout.com/tx/${txId}";
       case WalletType.polygon:
         return "https://polygonscan.com/tx/${txId}";
       case WalletType.nano:
@@ -504,7 +506,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   String get explorerDescription => S.current.view_transaction_on + Uri.parse(_explorerUrl).host;
 
   void launchExplorer() {
-    launchUrl(Uri.parse(_explorerUrl));
+    launchUrl(Uri.parse(_explorerUrl), mode: LaunchMode.externalApplication);
   }
 
   void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {

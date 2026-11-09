@@ -16,6 +16,7 @@ const Map<WalletType, String> nodePreferenceKeys = {
   WalletType.base: PreferencesKey.currentBaseNodeIdKey,
   WalletType.arbitrum: PreferencesKey.currentArbitrumNodeIdKey,
   WalletType.bsc: PreferencesKey.currentBscNodeIdKey,
+  WalletType.robinhood: PreferencesKey.currentRobinhoodNodeIdKey,
   WalletType.nano: PreferencesKey.currentNanoNodeIdKey,
   WalletType.decred: PreferencesKey.currentDecredNodeIdKey,
   WalletType.bitcoinCash: PreferencesKey.currentBitcoinCashNodeIdKey,
