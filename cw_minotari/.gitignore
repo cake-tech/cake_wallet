@@ -41,3 +41,4 @@ macos/External/
 
 # Generated Rust/Flutter bridge code
 lib/src/rust/
+rust/

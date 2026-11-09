@@ -61,9 +61,10 @@ from a pinned [cw_tari_wallet release](https://github.com/tari-project/cw_tari_w
 ```
 
 This script:
+- Checks that the pinned tag still points at the pinned commit
 - Downloads `SHA256SUMS` of the pinned release and checks it against the pinned digest
 - Downloads `cw_tari_wallet-<tag>-<platform>.zip` and `cw_tari_wallet-<tag>-dart.zip`, and fails
-  if either does not match `SHA256SUMS`
+  if either does not match `SHA256SUMS`; nothing in `cw_minotari` is replaced until every zip is verified
 - Unpacks the Dart bindings into `lib/src/rust/` and the libraries into:
 
 | Platform | Output |

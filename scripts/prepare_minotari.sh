@@ -12,27 +12,46 @@ CW_TARI_WALLET_SHA="7d8d1c4d57f55c1c3a0a9cc67aed354e0c411214"
 CW_TARI_WALLET_SUMS_SHA256="PENDING-v0.2.0-release-SHA256SUMS-digest"
 
 LIB=rust_lib_flutter_rust_wallet
-URL="https://github.com/tari-project/cw_tari_wallet/releases/download/$CW_TARI_WALLET_TAG"
+REPO="https://github.com/tari-project/cw_tari_wallet"
+URL="$REPO/releases/download/$CW_TARI_WALLET_TAG"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+[[ "$CW_TARI_WALLET_SUMS_SHA256" =~ ^[0-9a-f]{64}$ ]] || die "CW_TARI_WALLET_SUMS_SHA256 is not a sha256 digest"
+
+assets=(dart)
+for platform in "$@"; do
+  case "$platform" in
+    android | ios | macos | windows) assets+=("$platform") ;;
+    linux) assets+=("linux-$(uname -m)") ;;
+    *) die "unknown platform: $platform (expected android, ios, macos, linux or windows)" ;;
+  esac
+done
 
 cd "$(dirname "$0")/../cw_minotari"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 echo "Preparing cw_tari_wallet $CW_TARI_WALLET_TAG ($CW_TARI_WALLET_SHA)"
+# An annotated tag lists the tag object, then its peeled commit; a lightweight tag only the commit.
+tag_sha="$(git ls-remote "$REPO.git" "refs/tags/$CW_TARI_WALLET_TAG" "refs/tags/$CW_TARI_WALLET_TAG^{}" | tail -n1 | cut -f1)"
+[ "$tag_sha" = "$CW_TARI_WALLET_SHA" ] || die "$CW_TARI_WALLET_TAG points at '$tag_sha', expected $CW_TARI_WALLET_SHA"
+
 curl -fsSL -o "$TMP/SHA256SUMS" "$URL/SHA256SUMS"
-(cd "$TMP" && echo "$CW_TARI_WALLET_SUMS_SHA256  SHA256SUMS" | sha256sum -c -)
+# --strict: without it, macOS sha256sum accepts malformed or empty input.
+(cd "$TMP" && echo "$CW_TARI_WALLET_SUMS_SHA256  SHA256SUMS" | sha256sum -c --strict -)
 
-# unpack <asset> <dir>: downloads cw_tari_wallet-<tag>-<asset>.zip, checks it
-# against SHA256SUMS and extracts it into <dir>.
-unpack() {
-  local zip="cw_tari_wallet-$CW_TARI_WALLET_TAG-$1.zip"
+# Everything is downloaded and verified before cw_minotari is touched.
+for asset in "${assets[@]}"; do
+  zip="cw_tari_wallet-$CW_TARI_WALLET_TAG-$asset.zip"
+  line="$(awk -v f="$zip" '$2 == f' "$TMP/SHA256SUMS")"
+  [ -n "$line" ] || die "$zip is not listed in SHA256SUMS"
   curl -fsSL -o "$TMP/$zip" "$URL/$zip"
-  (cd "$TMP" && awk -v f="$zip" '$2 == f' SHA256SUMS | sha256sum -c -)
-  mkdir -p "$2"
-  unzip -q -o "$TMP/$zip" -d "$2"
-}
+  (cd "$TMP" && echo "$line" | sha256sum -c --strict -)
+  mkdir -p "$TMP/$asset"
+  unzip -q -o "$TMP/$zip" -d "$TMP/$asset"
+done
 
-unpack dart "$TMP/dart"
 rm "$TMP/dart/dart/pubspec.yaml"
 rm -rf lib/src/rust
 mv "$TMP/dart/dart" lib/src/rust
@@ -41,18 +60,16 @@ for platform in "$@"; do
   case "$platform" in
     android)
       rm -rf android/src/main/jniLibs
-      unpack android android/src/main
+      mv "$TMP/android/jniLibs" android/src/main/jniLibs
       ;;
     ios)
       rm -rf ios/Frameworks
-      unpack ios ios/Frameworks
+      mv "$TMP/ios" ios/Frameworks
       ;;
     macos)
       # FRB opens <lib>.framework/<lib> on macOS, so the bundle's dylib is wrapped
       # in a versioned framework that CocoaPods embeds and Xcode re-signs.
-      rm -rf macos/Frameworks
-      unpack macos "$TMP/macos"
-      fw="macos/Frameworks/$LIB.framework"
+      fw="$TMP/$LIB.framework"
       mkdir -p "$fw/Versions/A/Resources"
       mv "$TMP/macos/lib$LIB.dylib" "$fw/Versions/A/$LIB"
       install_name_tool -id "@rpath/$LIB.framework/Versions/A/$LIB" "$fw/Versions/A/$LIB"
@@ -83,18 +100,17 @@ EOF
       ln -s Versions/Current/Resources "$fw/Resources"
       # install_name_tool invalidated the bundle's ad hoc signature.
       codesign --force --sign - "$fw"
+      rm -rf macos/Frameworks
+      mkdir -p macos/Frameworks
+      mv "$fw" macos/Frameworks/
       ;;
     linux)
       rm -rf linux/lib
-      unpack "linux-$(uname -m)" linux/lib
+      mv "$TMP/linux-$(uname -m)" linux/lib
       ;;
     windows)
       rm -rf windows/lib
-      unpack windows windows/lib
-      ;;
-    *)
-      echo "unknown platform: $platform (expected android, ios, macos, linux or windows)" >&2
-      exit 1
+      mv "$TMP/windows" windows/lib
       ;;
   esac
 done
