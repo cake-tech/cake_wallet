@@ -33,9 +33,11 @@ build/
 android/.externalNativeBuild/
 android/.cxx/
 android/src/main/jniLibs/
+macos/Frameworks/
+linux/lib/
+windows/lib/
 ios/External/
 macos/External/
 
 # Generated Rust/Flutter bridge code
 lib/src/rust/
-rust/

@@ -43,3 +43,9 @@ flutter:
         pluginClass: CwMinotariPlugin
       ios:
         pluginClass: CwMinotariPlugin
+      macos:
+        ffiPlugin: true
+      linux:
+        ffiPlugin: true
+      windows:
+        ffiPlugin: true

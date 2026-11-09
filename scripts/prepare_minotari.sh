@@ -1,136 +1,102 @@
-# Intended to be sourced from any POSIX-like shell:
-#   . scripts/prepare_minotari.sh [--update]
+#!/bin/bash
+# Downloads the pinned cw_tari_wallet release bundle, verifies it, and unpacks the
+# native libraries for the given platforms plus the FRB Dart bindings into cw_minotari.
+# Usage: scripts/prepare_minotari.sh <android|ios|macos|linux|windows>...
 
-#######################################
-# Safety
-#######################################
+set -euo pipefail
 
-set -u
+# To bump: set the tag and the commit it points at, then the sha256 of that
+# release's SHA256SUMS asset (`sha256sum SHA256SUMS`). The digest pins every zip.
+CW_TARI_WALLET_TAG="v0.2.0"
+CW_TARI_WALLET_SHA="7d8d1c4d57f55c1c3a0a9cc67aed354e0c411214"
+CW_TARI_WALLET_SUMS_SHA256="PENDING-v0.2.0-release-SHA256SUMS-digest"
 
-#######################################
-# Parse arguments (portable)
-#######################################
+LIB=rust_lib_flutter_rust_wallet
+URL="https://github.com/tari-project/cw_tari_wallet/releases/download/$CW_TARI_WALLET_TAG"
 
-UPDATE_CW=0
+cd "$(dirname "$0")/../cw_minotari"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
 
-for arg in "$@"; do
-  case "$arg" in
-    --update)
-      UPDATE_CW=1
+echo "Preparing cw_tari_wallet $CW_TARI_WALLET_TAG ($CW_TARI_WALLET_SHA)"
+curl -fsSL -o "$TMP/SHA256SUMS" "$URL/SHA256SUMS"
+(cd "$TMP" && echo "$CW_TARI_WALLET_SUMS_SHA256  SHA256SUMS" | sha256sum -c -)
+
+# unpack <asset> <dir>: downloads cw_tari_wallet-<tag>-<asset>.zip, checks it
+# against SHA256SUMS and extracts it into <dir>.
+unpack() {
+  local zip="cw_tari_wallet-$CW_TARI_WALLET_TAG-$1.zip"
+  curl -fsSL -o "$TMP/$zip" "$URL/$zip"
+  (cd "$TMP" && awk -v f="$zip" '$2 == f' SHA256SUMS | sha256sum -c -)
+  mkdir -p "$2"
+  unzip -q -o "$TMP/$zip" -d "$2"
+}
+
+unpack dart "$TMP/dart"
+rm "$TMP/dart/dart/pubspec.yaml"
+rm -rf lib/src/rust
+mv "$TMP/dart/dart" lib/src/rust
+
+for platform in "$@"; do
+  case "$platform" in
+    android)
+      rm -rf android/src/main/jniLibs
+      unpack android android/src/main
+      ;;
+    ios)
+      rm -rf ios/Frameworks
+      unpack ios ios/Frameworks
+      ;;
+    macos)
+      # FRB opens <lib>.framework/<lib> on macOS, so the bundle's dylib is wrapped
+      # in a versioned framework that CocoaPods embeds and Xcode re-signs.
+      rm -rf macos/Frameworks
+      unpack macos "$TMP/macos"
+      fw="macos/Frameworks/$LIB.framework"
+      mkdir -p "$fw/Versions/A/Resources"
+      mv "$TMP/macos/lib$LIB.dylib" "$fw/Versions/A/$LIB"
+      install_name_tool -id "@rpath/$LIB.framework/Versions/A/$LIB" "$fw/Versions/A/$LIB"
+      cat > "$fw/Versions/A/Resources/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>$LIB</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.cakewallet.minotari</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>$LIB</string>
+    <key>CFBundlePackageType</key>
+    <string>FMWK</string>
+    <key>CFBundleShortVersionString</key>
+    <string>${CW_TARI_WALLET_TAG#v}</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+</dict>
+</plist>
+EOF
+      ln -s A "$fw/Versions/Current"
+      ln -s "Versions/Current/$LIB" "$fw/$LIB"
+      ln -s Versions/Current/Resources "$fw/Resources"
+      # install_name_tool invalidated the bundle's ad hoc signature.
+      codesign --force --sign - "$fw"
+      ;;
+    linux)
+      rm -rf linux/lib
+      unpack "linux-$(uname -m)" linux/lib
+      ;;
+    windows)
+      rm -rf windows/lib
+      unpack windows windows/lib
+      ;;
+    *)
+      echo "unknown platform: $platform (expected android, ios, macos, linux or windows)" >&2
+      exit 1
       ;;
   esac
 done
 
-#######################################
-# Resolve script directory (portable)
-#######################################
-
-SCRIPT_PATH="$0"
-case "$SCRIPT_PATH" in
-  /*) ;;
-  *) SCRIPT_PATH="$(pwd)/$SCRIPT_PATH" ;;
-esac
-
-SCRIPTS_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
-
-#######################################
-# Paths
-#######################################
-
-# sibling: ./cw_minotari/rust
-PROJECT_ROOT="$(cd "$SCRIPTS_DIR/.." && pwd)"
-CW_PARENT_DIR="$PROJECT_ROOT/cw_minotari"
-CW_RUST_DIR="$CW_PARENT_DIR/rust"
-CW_REPO_URL="https://github.com/tari-project/cw_tari_wallet.git"
-
-
-#######################################
-# cw_tari_wallet setup
-#######################################
-
-mkdir -p "$CW_PARENT_DIR"
-
-if [ "$UPDATE_CW" -eq 1 ] && [ -d "$CW_RUST_DIR" ]; then
-  echo "🔄 --update specified: removing cw_minotari/rust"
-  rm -rf "$CW_RUST_DIR"
-fi
-
-if [ ! -d "$CW_RUST_DIR" ]; then
-  git clone "$CW_REPO_URL" "$CW_RUST_DIR"
-fi
-
-#######################################
-# Build Rust code
-#######################################
-
-(
-  cd "$CW_RUST_DIR" || exit 1
-  cargo build
-)
-
-#######################################
-# Flutter Rust Bridge codegen
-#######################################
-
-(
-  cd "$CW_PARENT_DIR" || exit 0
-  echo "⚙️  Running flutter_rust_bridge_codegen generate"
-
-  if ! flutter_rust_bridge_codegen generate; then
-    echo "⚠️  flutter_rust_bridge_codegen failed."
-  fi
-)
-
-#######################################
-# Build Android .so libraries
-#######################################
-
-# Only build Android libraries if ANDROID_HOME is set
-if [ -n "${ANDROID_HOME:-}" ] && [ -n "${ANDROID_NDK_VERSION:-}" ]; then
-  echo "📱 Building Android .so libraries..."
-  (
-    cd "$SCRIPTS_DIR/android" || exit 1
-    if [ -f "build_minotari.sh" ]; then
-      ./build_minotari.sh
-    else
-      echo "⚠️  build_minotari.sh not found, skipping Android build"
-    fi
-  )
-else
-  echo "⏭️  Skipping Android build (ANDROID_HOME or ANDROID_NDK_VERSION not set)"
-fi
-
-#######################################
-# Build iOS xcframework
-#######################################
-
-# Only build iOS libraries is xcodebuild is installed
-if command -v xcodebuild &> /dev/null; then
-  echo "🍎 Building iOS xcframework..."
-  (
-    cd "$SCRIPTS_DIR/ios" || exit 1
-    if [ -f "build_minotari.sh" ]; then
-      if ./build_minotari.sh; then
-        echo "✅ iOS xcframework prepared"
-      else
-        echo "⚠️  iOS build failed"
-      fi
-    else
-      echo "⚠️  build_minotari.sh not found, skipping iOS build"
-    fi
-  )
-else
-  echo "⏭️  Skipping iOS build (xcodebuild not installed)"
-fi
-
-#######################################
-# Done
-#######################################
-
-echo "✅ Minotari prepared"
-if [ "$UPDATE_CW" -eq 1 ]; then
-  echo "✅ cw_tari_wallet refreshed, codegen run, and built"
-else
-  echo "✅ cw_tari_wallet codegen run and built"
-fi
-echo "DATABASE_URL remains exported in this shell"
+echo "Minotari prepared for: dart $*"

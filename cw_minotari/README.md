@@ -24,10 +24,12 @@ cw_minotari/
 │   ├── minotari_transaction_*.dart    # Transaction models
 │   ├── minotari_wallet_addresses.dart # Address management
 │   ├── pending_minotari_transaction.dart  # Pending TX
-│   └── src/rust/api/              # Auto-generated FFI bindings
-├── rust/                          # Rust submodule (cw_tari_wallet)
-├── android/                       # Android plugin + native libs
-└── ios/                           # iOS plugin + framework config
+│   └── src/rust/                  # FRB bindings from the cw_tari_wallet release
+├── android/                       # Android plugin + jniLibs
+├── ios/                           # iOS plugin + xcframework
+├── macos/                         # macOS FFI plugin (podspec) + framework
+├── linux/                         # Linux FFI plugin (CMake) + .so
+└── windows/                       # Windows FFI plugin (CMake) + .dll
 ```
 
 ### Key Components
@@ -45,46 +47,48 @@ cw_minotari/
 ### Prerequisites
 
 - Flutter SDK 3.32+
-- Rust toolchain (stable + nightly)
-- For Android: NDK r28+, `ANDROID_HOME` and `ANDROID_NDK_VERSION` env vars
-- For iOS: Xcode 15+, CocoaPods
+- `curl`, `unzip` and `sha256sum`
+- For iOS/macOS: Xcode 15+, CocoaPods
 
-### 1. Initialize Rust Submodule
+No Rust toolchain is needed: the native libraries and Dart bindings come prebuilt
+from a pinned [cw_tari_wallet release](https://github.com/tari-project/cw_tari_wallet/releases).
+
+### 1. Fetch the native libraries and bindings
 
 ```bash
-# From cake_wallet root
-./scripts/prepare_minotari.sh
+# From cake_wallet root; any of android ios macos linux windows
+./scripts/prepare_minotari.sh android ios
 ```
 
 This script:
-- Clones `cw_tari_wallet` to `cw_minotari/rust/`
-- Runs `cargo build`
-- Generates Dart FFI bindings via `flutter_rust_bridge_codegen`
-- Builds native libraries (if platform tools available)
+- Downloads `SHA256SUMS` of the pinned release and checks it against the pinned digest
+- Downloads `cw_tari_wallet-<tag>-<platform>.zip` and `cw_tari_wallet-<tag>-dart.zip`, and fails
+  if either does not match `SHA256SUMS`
+- Unpacks the Dart bindings into `lib/src/rust/` and the libraries into:
 
-To update Rust dependencies:
+| Platform | Output |
+|----------|--------|
+| Android | `android/src/main/jniLibs/{arm64-v8a,armeabi-v7a,x86_64}/librust_lib_flutter_rust_wallet.so` |
+| iOS | `ios/Frameworks/rust_lib_flutter_rust_wallet.xcframework` |
+| macOS | `macos/Frameworks/rust_lib_flutter_rust_wallet.framework` (wraps the release dylib) |
+| Linux | `linux/lib/librust_lib_flutter_rust_wallet.so` (host architecture) |
+| Windows | `windows/lib/rust_lib_flutter_rust_wallet.dll` |
+
+Each platform's `build_all.sh` (and `cakewallet.bat` on Windows) runs it, as do the CI workflows.
+
+### 2. Bump the pinned cw_tari_wallet version
+
+Edit the top of `scripts/prepare_minotari.sh`:
+
 ```bash
-./scripts/prepare_minotari.sh --update
+CW_TARI_WALLET_TAG="v0.2.0"                     # release tag
+CW_TARI_WALLET_SHA="7d8d1c4d..."                # commit the tag points at
+CW_TARI_WALLET_SUMS_SHA256="..."                # sha256sum of the release's SHA256SUMS
 ```
 
-### 2. Build Native Libraries 
-NOTE: Don't need to call separately if you ran `prepare_minotari.sh`.
-
-**Android:**
-```bash
-./scripts/android/build_minotari.sh
-```
-
-Output: `cw_minotari/android/src/main/jniLibs/{abi}/librust_lib_flutter_rust_wallet.so`
-
-Architectures: `arm64-v8a`, `armeabi-v7a`, `x86_64`
-
-**iOS:**
-```bash
-./scripts/ios/build_minotari.sh
-```
-
-Output: `cw_minotari/ios/Frameworks/rust_lib_flutter_rust_wallet.xcframework`
+Get the digest with `gh release download <tag> -R tari-project/cw_tari_wallet -p SHA256SUMS && sha256sum SHA256SUMS`,
+then rerun `prepare_minotari.sh`. The Dart bindings always come from the same release, so they
+match the libraries.
 
 ### 3. Configure Build
 
@@ -126,12 +130,10 @@ Validation pattern: `[123Hdf][234678][1-9A-HJ-NP-Za-km-z]{45,448}`
 | Network | Use Case |
 |---------|----------|
 | `mainNet` | Production (default) |
-| `esmeralda` | Testnet |
-| `nextNet` | Development |
+| `stageNet` | Staging |
 
-Network persisted in `WalletInfo.network` field.
-
-Note: it's now hardcoded as `mainNet`.
+The release libraries are built for the mainnet network group, so only `mainNet` and
+`stageNet` are accepted at runtime.
 
 ### Blockchain Sync
 
@@ -184,11 +186,8 @@ Note: Fee doesn't depend on amount, so we request estimate for 0 amount value.
 - `mobx` - Reactive state management
 - `flutter_rust_bridge: 2.11.1` - FFI code generation
 
-### Rust (cw_tari_wallet)
-- `minotari-wallet` - Tari wallet library fork
-- `tari_common`, `tari_crypto` - Tari protocol
-- `tokio` - Async runtime
-- `r2d2_sqlite` - Connection pooling
+### Native (cw_tari_wallet)
+- Prebuilt `rust_lib_flutter_rust_wallet` from the pinned release (bundles its own SQLite, uses rustls)
 
 ## Proxy Layer
 
@@ -226,7 +225,7 @@ Uses first payment reference (payref) from transaction for lookup.
 
 - Wallet creation with 24-word mnemonic generation
 - Wallet restoration from mnemonic
-- Network selection (mainnet/esmeralda/nextnet) with persistence
+- Network selection (mainnet/stagenet) with persistence
 - Blockchain synchronization via scanner
 - Balance updates (available, pending incoming, pending outgoing)
 - Transaction history with full details
@@ -235,8 +234,7 @@ Uses first payment reference (payref) from transaction for lookup.
 - Fee estimation with priority levels
 - Transaction sending
 - Mnemonic storage and backup (.keys file)
-- Android native libraries (arm64, armv7, x86_64)
-- iOS build configuration
+- Prebuilt native libraries for Android (arm64, armv7, x86_64), iOS, macOS, Linux (x86_64, aarch64) and Windows
 
 ## Known Limitations
 
