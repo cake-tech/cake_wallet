@@ -25,9 +25,6 @@ git config --global --add safe.directory '*'
 pushd scripts/android
     ./build_torch.sh # optional: this will fail on case-insensitive fs and will add extra few hours to the build process, without this embedded tor will not work.
     ./build_reown_deps.sh
-    pushd ..
-        ./build_bitbox_flutter.sh
-    popd
     source ./app_env.sh cakewallet
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
     ./app_config.sh

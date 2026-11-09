@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
@@ -14,7 +14,9 @@ import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/unknown_derivation.dart';
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
@@ -30,6 +32,7 @@ import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -128,8 +131,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
+      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
+      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
+      accountIndexes: [currentAccountIndex],
+      currentAccountIndex: currentAccountIndex,
       legacyMainHd: mainHd,
       legacySideHd: sideHd,
       network: networkParam ?? network,
@@ -157,9 +162,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
+        lightningWallet?.close();
         lightningWallet = null;
       }
     });
@@ -197,10 +204,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(
-          mnemonic,
-          passphrase: passphrase ?? "",
-        );
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? "");
         break;
       case DerivationType.electrum:
       default:
@@ -278,16 +282,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final derivationInfo = await walletInfo.getDerivationInfo();
 
     // set the default if not present:
-    derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
     if (derivationInfo.derivationType == DerivationType.unknown) {
-      if (snp?.derivationPath == electrum_path || snp?.derivationType == DerivationType.electrum) {
-        derivationInfo.derivationPath = electrum_path;
-        derivationInfo.derivationType = DerivationType.electrum;
-      } else {
-        derivationInfo.derivationPath = segwit_path;
-        derivationInfo.derivationType = DerivationType.bip39;
-      }
+      resolveUnknownDerivation(
+        derivationInfo,
+        walletType: walletInfo.type,
+        mnemonic: keysData.mnemonic,
+        snapshotPath: snp?.derivationPath,
+        snapshotType: snp?.derivationType,
+      );
+    } else {
+      derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     }
     await derivationInfo.save();
 
@@ -302,10 +307,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           break;
         case DerivationType.bip39:
         default:
-          seedBytes = await bip39.mnemonicToSeed(
-            mnemonic,
-            passphrase: passphrase ?? '',
-          );
+          seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
           break;
       }
     }
@@ -423,7 +425,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
 
   @override
-  bool get hasLightningSupport => lightningWallet?.sdk != null;
+  bool get hasLightningSupport => seed != null && LightningWallet.isAvailable;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
@@ -612,10 +614,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return tx;
   }
 
-  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) => unspentCoins
-      .where((e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
-      .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
-      .toList();
+  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) =>
+      unspentCoinsForCurrentAccount
+          .where(
+              (e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
+          .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
+          .toList();
 
   Future<void> commitPsbt(String finalizedPsbt) {
     final psbt = PsbtV2()..deserializeV0(base64.decode(finalizedPsbt));
@@ -625,6 +629,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: currentAccountIndex,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.zero(currency),
@@ -657,7 +662,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    if (urCodes.isEmpty) throw ScanValueException("No QR code got scanned");
     bool isUr = urCodes.any((str) {
       return str.startsWith("ur:psbt/");
     });
@@ -683,6 +688,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return PendingBitcoinTransaction(
         btcTx,
         type,
+        accountIndex: currentAccountIndex,
         electrumClient: electrumClient,
         amount: Money.zero(currency),
         fee: Money.zero(currency),
@@ -716,12 +722,24 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   bool receiveOptionAvailable(ReceivePageOption option) {
-    if(option == BitcoinReceivePageOption.lightning) {
-      return hasLightningSupport;
+    final isExtraAccount = currentAccountIndex > 0;
+
+    if (option == BitcoinReceivePageOption.lightning) {
+      // Lightning is tied to the primary account only
+      return !isExtraAccount && hasLightningSupport && isLightningInitialized;
     }
 
-    if(option == BitcoinReceivePageOption.silent_payments) {
-      return hasSilentPaymentsScanning;
+    if (option == BitcoinReceivePageOption.silent_payments) {
+      // Silent payments are tied to the primary account only
+      return !isExtraAccount && hasSilentPaymentsScanning;
+    }
+
+    // Restrict extra Bitcoin accounts (accountIndex > 0) to the allowed address types
+    if (isExtraAccount && option is BitcoinReceivePageOption) {
+      final addressType = option.toType();
+      if (!EXTRA_ACCOUNT_ADDRESS_TYPES.contains(addressType)) {
+        return false;
+      }
     }
 
     return true;

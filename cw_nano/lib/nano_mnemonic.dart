@@ -1,5 +1,9 @@
 import 'package:bip39/bip39.dart' as bip39;
+import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/utils/bip39_seed.dart";
+import "package:hex/hex.dart";
 import 'package:nanodart/nanodart.dart';
+import "package:nanoutil/nanoutil.dart" show NanoDerivations;
 
 class NanoMnemonicIsIncorrectException implements Exception {
   @override
@@ -11,7 +15,7 @@ class NanoMnemomics {
   /// Converts a nano seed to a 24-word mnemonic word list
   static List<String> seedToMnemonic(String seed) {
     if (!NanoSeeds.isValidSeed(seed)) {
-      throw Exception('Invalid Seed');
+      throw BadMnemonicException('Invalid Seed');
     }
     String words = bip39.entropyToMnemonic(seed);
     return words.split(' ');
@@ -20,10 +24,18 @@ class NanoMnemomics {
   /// Convert a 24-word mnemonic word list to a nano seed
   static String mnemonicListToSeed(List<String> words) {
     if (words.length != 24) {
-      throw Exception('Expected a 24-word list, got a ${words.length} list');
+      throw BadMnemonicException('Expected a 24-word list, got a ${words.length} list');
     }
     return bip39.mnemonicToEntropy(words.join(' ')).toUpperCase();
   }
+
+  /// BIP39 seed (hex) of an HD mnemonic, same as [NanoDerivations.hdMnemonicListToSeed] but through
+  /// [bip39MnemonicToSeed]. Non-ASCII input keeps the nanoutil path, which UTF-8 encodes where
+  /// [bip39MnemonicToSeed] takes code units.
+  static Future<String> hdMnemonicToSeed(String mnemonic) async =>
+      mnemonic.codeUnits.every((unit) => unit < 0x80)
+          ? HEX.encode(bip39MnemonicToSeed(mnemonic))
+          : await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
 
   /// Validate a mnemonic word list
   static bool validateMnemonic(List<String> words) {

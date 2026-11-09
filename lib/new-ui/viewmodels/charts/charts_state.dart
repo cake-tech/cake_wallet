@@ -9,6 +9,10 @@ final class ChartsInitial extends ChartsState {
   const ChartsInitial();
 }
 
+final class ChartsDisabled extends ChartsState {
+  const ChartsDisabled();
+}
+
 abstract final class ChartsStateWithData extends ChartsState {
   const ChartsStateWithData({
     required this.pinnedCurrency,

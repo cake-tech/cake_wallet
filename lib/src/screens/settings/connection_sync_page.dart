@@ -93,6 +93,14 @@ class ConnectionSyncPage extends BasePage {
                             onChanged: (val) {
                               _connectionSyncViewModel.setUseBaseScan(val);
                             }),
+                      if (_connectionSyncViewModel.canUseRobinhoodScan)
+                        ListItemToggle(
+                            keyValue: "can_use_robinhoodscan",
+                            label: S.of(context).robinhoodscan_history,
+                            value: _connectionSyncViewModel.useRobinhoodScan,
+                            onChanged: (val) {
+                              _connectionSyncViewModel.setUseRobinhoodScan(val);
+                            }),
                       if (_connectionSyncViewModel.canUseArbiScan)
                         ListItemToggle(
                             keyValue: "can_use_arbiscan",
