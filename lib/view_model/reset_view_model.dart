@@ -39,7 +39,7 @@ class ResetViewModel {
       return;
     }
 
-    await BalanceCardStyleSettings.deleteByWalletInfoId(
+    await BalanceCardStyleSettings.deleteVisibleByWalletInfoId(
       wallet.walletInfo.internalId,
     );
   }

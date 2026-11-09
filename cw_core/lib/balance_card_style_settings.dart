@@ -118,9 +118,9 @@ class BalanceCardStyleSettings {
     return fromJson(json.first);
   }
 
-  static Future<int> deleteByWalletInfoId(int walletInfoId) => db!.delete(
+  static Future<int> deleteVisibleByWalletInfoId(int walletInfoId) => db!.delete(
         tableName,
-        where: "walletInfoId = ?",
+        where: "walletInfoId = ? AND hidden IS NOT 1",
         whereArgs: [walletInfoId],
       );
 
