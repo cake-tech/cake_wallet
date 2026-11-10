@@ -33,7 +33,7 @@ abstract class WalletKeysViewModelBase with Store {
         _title = _getInitialTitle(_appStore.wallet!) {
     _populateKeysItems();
 
-    reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
+    _walletReaction = reaction((_) => _appStore.wallet, (WalletBase? _wallet) {
       _populateKeysItems();
     });
 
@@ -103,12 +103,25 @@ abstract class WalletKeysViewModelBase with Store {
 
   AppStore get appStore => _appStore;
 
-  /// Minotari wallets do not keep the mnemonic; it lives here only while this page does.
+  late final ReactionDisposer _walletReaction;
+  bool _isDisposed = false;
+
+  /// Minotari wallets do not keep the mnemonic; it lives here only until [dispose].
   String? _minotariSeed;
 
   late final Future<void> seedLoaded = _wallet.type == WalletType.minotari
-      ? minotari!.getSeed(_wallet).then((seed) => _minotariSeed = seed)
+      ? minotari!.getSeed(_wallet).then((seed) {
+          if (!_isDisposed) _minotariSeed = seed;
+        })
       : Future.value();
+
+  /// Ends the app-store reaction (which would otherwise keep this view model, and the
+  /// seed, alive) and drops the on-demand seed.
+  void dispose() {
+    _isDisposed = true;
+    _walletReaction();
+    _minotariSeed = null;
+  }
 
   String? get _seed => _wallet.seed ?? _minotariSeed;
 

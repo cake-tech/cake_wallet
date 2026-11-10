@@ -37,21 +37,41 @@ class WalletKeysPage extends BasePage {
               content: S.of(context).do_not_share_warning_text.toUpperCase(),
             ),
           ),
-          Expanded(
-            child: FutureBuilder<void>(
-              future: walletKeysViewModel.seedLoaded,
-              builder: (context, snapshot) => snapshot.connectionState != ConnectionState.done
-                  ? const Center(child: CircularProgressIndicator())
-                  // Reopening the page loads the seed again.
-                  : snapshot.hasError
-                      ? Center(child: Text('${snapshot.error}', textAlign: TextAlign.center))
-                      : WalletKeysPageBody(walletKeysViewModel: walletKeysViewModel),
-            ),
-          ),
+          Expanded(child: _WalletKeysSeedLoader(walletKeysViewModel)),
         ],
       ),
     );
   }
+}
+
+/// Shows the keys once the seed has loaded, and disposes the view model when the page closes,
+/// even if that happens while the seed is still loading.
+class _WalletKeysSeedLoader extends StatefulWidget {
+  const _WalletKeysSeedLoader(this.walletKeysViewModel);
+
+  final WalletKeysViewModel walletKeysViewModel;
+
+  @override
+  State<_WalletKeysSeedLoader> createState() => _WalletKeysSeedLoaderState();
+}
+
+class _WalletKeysSeedLoaderState extends State<_WalletKeysSeedLoader> {
+  @override
+  void dispose() {
+    widget.walletKeysViewModel.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<void>(
+        future: widget.walletKeysViewModel.seedLoaded,
+        builder: (context, snapshot) => snapshot.connectionState != ConnectionState.done
+            ? const Center(child: CircularProgressIndicator())
+            // Reopening the page loads the seed again.
+            : snapshot.hasError
+                ? Center(child: Text('${snapshot.error}', textAlign: TextAlign.center))
+                : WalletKeysPageBody(walletKeysViewModel: widget.walletKeysViewModel),
+      );
 }
 
 class WalletKeysPageBody extends StatefulWidget {
