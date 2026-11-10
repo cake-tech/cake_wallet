@@ -1919,6 +1919,7 @@ abstract class Minotari {
   Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs);
 
   Future<int> getHeightByDate({required DateTime date});
+  bool isScanning(Object wallet);
   Future<String?> getSeed(Object wallet);
   Future<String?> getSpendPrivateKey(Object wallet);
 

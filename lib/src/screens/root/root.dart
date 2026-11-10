@@ -17,6 +17,7 @@ import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/view_model/link_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/socket_health_logger.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -180,10 +181,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           bitcoin!.stopPayjoinSessions(widget.appStore.wallet!);
         }
 
-        // Minotari scans continuously; don't keep polling the node in the background.
-        if (widget.appStore.wallet?.type == WalletType.minotari) {
-          _pausedMinotariWallet = widget.appStore.wallet;
-          _pausedMinotariWallet!.stopSync();
+        // Minotari scans continuously; don't keep polling the node in the background. Only a
+        // running scan is remembered: resume must not start a failed or connecting wallet.
+        final pausing = widget.appStore.wallet;
+        if (pausing?.type == WalletType.minotari && minotari!.isScanning(pausing!)) {
+          _pausedMinotariWallet = pausing;
+          pausing.stopSync();
         }
 
         widget.tradeMonitor.stopTradeMonitoring();

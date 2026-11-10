@@ -54,6 +54,18 @@ String randomMinotariPassphrase() {
   return List.generate(32, (_) => allowedChars[random.nextInt(allowedChars.length)]).join();
 }
 
+/// Runs [work] once everything already in [queue] has run. A failure is logged and goes no
+/// further, so it can't block later work or fail whoever awaits it (a send that has already
+/// broadcast must not report failure because a history refresh did).
+Future<void> runAfterMinotariQueue(Future<void> queue, FutureOr<void> Function() work) =>
+    queue.then((_) async {
+      try {
+        await work();
+      } catch (e) {
+        printV('Error updating Minotari transactions: $e');
+      }
+    });
+
 /// Writes [data] to the .keys file at [keysPath] and to its backup, each through a temp file
 /// and a rename, so a failure or crash leaves every file either as it was or complete.
 /// Errors propagate.
@@ -181,9 +193,12 @@ abstract class MinotariWalletBase
   int _scanStartHeight = 0;
   bool _scanCaughtUp = false;
 
-  /// Set while the app wants this wallet scanning, so a foreground scan another engine
-  /// replaced (Android background sync) is started again.
+  /// Set while this wallet's scan runs and the app wants it, so a foreground scan another
+  /// engine replaced (Android background sync) is started again. Cleared when the scan is
+  /// stopped or fails.
   bool _keepScanning = false;
+
+  bool get isScanning => _keepScanning;
 
   /// The latest quote per priority: a send screen asking again for the same amount within
   /// [_feeQuoteLifetime] costs no node call, and nothing is quoted unless one asks.
@@ -332,11 +347,13 @@ abstract class MinotariWalletBase
         onError: (Object error) {
           if (_scanHandle != handle) return;
           printV('Minotari scan failed: $error');
+          _keepScanning = false;
           syncStatus = FailedSyncStatus();
         },
       );
     } catch (e) {
       printV('Minotari scan could not start: $e');
+      _keepScanning = false;
       syncStatus = FailedSyncStatus();
     }
   }
@@ -367,6 +384,7 @@ abstract class MinotariWalletBase
         return;
       case ScanEventDto_Error(:final field0):
         printV('Minotari scan error: $field0');
+        _keepScanning = false;
       default:
         break;
     }
@@ -391,6 +409,9 @@ abstract class MinotariWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
+    if (!canSend()) {
+      throw TransactionGenerationException('This wallet is view only and cannot send.');
+    }
     final creds = credentials as MinotariTransactionCredentials;
     final ffi = _requireFfi;
     final nodeUrl = _nodeUrl;
@@ -425,7 +446,8 @@ abstract class MinotariWalletBase
       }
       if (!broadcasted) throw Exception('Transaction stream ended before the broadcast.');
 
-      // Recorded as pending; the scanner's TransactionsUpdated confirms it.
+      // Recorded as pending; the scanner's TransactionsUpdated confirms it. Neither refresh
+      // throws, so a failed refresh can't report a broadcast send as failed.
       await updateBalance();
       await updateTransactions();
     }
@@ -605,16 +627,13 @@ abstract class MinotariWalletBase
 
   /// Replaces the history with the database's. Reloads queue behind a running one, so the
   /// last caller always sees a reload that started after its request.
-  Future<void> updateTransactions() => _transactionsReload = _transactionsReload.then((_) async {
-        try {
-          final transactions = await fetchTransactions();
-          runInAction(() {
-            transactionHistory.transactions.clear();
-            transactionHistory.transactions.addAll(transactions);
-          });
-        } catch (e) {
-          printV('Error updating transactions: $e');
-        }
+  Future<void> updateTransactions() =>
+      _transactionsReload = runAfterMinotariQueue(_transactionsReload, () async {
+        final transactions = await fetchTransactions();
+        runInAction(() {
+          transactionHistory.transactions.clear();
+          transactionHistory.transactions.addAll(transactions);
+        });
       });
 
   MinotariTransactionInfo _dtoToTransactionInfo(DisplayedTransactionDto txDto) {
@@ -660,10 +679,13 @@ abstract class MinotariWalletBase
 
   /// Queued behind a running full reload, so its older snapshot can't overwrite these.
   void _processNewTransactions(List<DisplayedTransactionDto> transactions) {
-    _transactionsReload = _transactionsReload.then((_) => runInAction(() {
-          for (final txDto in transactions) {
-            transactionHistory.transactions[txDto.id] = _dtoToTransactionInfo(txDto);
-          }
-        }));
+    _transactionsReload = runAfterMinotariQueue(
+      _transactionsReload,
+      () => runInAction(() {
+        for (final txDto in transactions) {
+          transactionHistory.transactions[txDto.id] = _dtoToTransactionInfo(txDto);
+        }
+      }),
+    );
   }
 }

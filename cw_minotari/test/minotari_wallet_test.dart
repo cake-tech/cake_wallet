@@ -6,6 +6,7 @@ import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
@@ -196,6 +197,48 @@ void main() {
       );
       expect(File('$toPath.keys.backup').readAsStringSync(), 'leftover');
       expect(File('$toPath.keys').existsSync(), isFalse);
+    });
+  });
+
+  group('runAfterMinotariQueue', () {
+    test('a failure neither fails the caller nor blocks later work', () async {
+      final ran = <String>[];
+      var queue = Future<void>.value();
+      queue = runAfterMinotariQueue(queue, () => throw StateError('db gone'));
+      final failed = queue;
+      queue = runAfterMinotariQueue(queue, () => ran.add('later'));
+
+      await expectLater(failed, completes);
+      await queue;
+      expect(ran, ['later']);
+    });
+
+    test('runs work in order', () async {
+      final ran = <int>[];
+      var queue = Future<void>.value();
+      queue = runAfterMinotariQueue(queue, () async {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        ran.add(1);
+      });
+      queue = runAfterMinotariQueue(queue, () => ran.add(2));
+
+      await queue;
+      expect(ran, [1, 2]);
+    });
+  });
+
+  group('minotariKeysRecoveryText', () {
+    test('a spendable import lists both private keys', () {
+      final text = minotariKeysRecoveryText(
+          WalletKeysData(scanSecret: 'aa', privateKey: 'bb', spendPubkey: 'cc'));
+
+      expect(text, 'view_key: aa\nspend_key: bb');
+    });
+
+    test('a watch-only import lists the view key and spend public key', () {
+      final text = minotariKeysRecoveryText(WalletKeysData(scanSecret: 'aa', spendPubkey: 'cc'));
+
+      expect(text, 'view_key: aa\nspend_pubkey: cc');
     });
   });
 }

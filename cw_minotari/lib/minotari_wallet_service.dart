@@ -38,6 +38,16 @@ Future<List<File>> copyMinotariKeysFiles({
   return copies;
 }
 
+/// What restores a wallet imported from keys, labelled like the keys page's QR fields:
+/// the view and spend private keys, or for a watch-only wallet the spend public key.
+String minotariKeysRecoveryText(WalletKeysData keysData) => [
+      'view_key: ${keysData.scanSecret}',
+      if (keysData.privateKey != null)
+        'spend_key: ${keysData.privateKey}'
+      else
+        'spend_pubkey: ${keysData.spendPubkey}',
+    ].join('\n');
+
 class MinotariWalletService extends WalletService<
     MinotariNewWalletCredentials,
     MinotariRestoreWalletFromSeedCredentials,
@@ -256,8 +266,8 @@ class MinotariWalletService extends WalletService<
     try {
       final keysData =
           await WalletKeysFile.readKeysFile(name, type, password, _encryptionFileUtils);
-      // Imported from keys: no mnemonic; a spendable one's spend private key recovers it.
-      if (keysData.scanSecret != null) return keysData.privateKey ?? '';
+      // Imported from keys: no mnemonic, the keys restore it.
+      if (keysData.scanSecret != null) return minotariKeysRecoveryText(keysData);
       final ffi = await _ffiFor(name);
       return (await ffi.seedWords(passphrase: keysData.passphrase ?? '')).join(' ');
     } catch (_) {

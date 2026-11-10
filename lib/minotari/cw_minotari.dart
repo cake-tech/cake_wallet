@@ -91,6 +91,9 @@ class CWMinotari extends Minotari {
   Future<int> getHeightByDate({required DateTime date}) => minotariHeightByDate(date);
 
   @override
+  bool isScanning(Object wallet) => (wallet as MinotariWallet).isScanning;
+
+  @override
   Future<String?> getSeed(Object wallet) => (wallet as MinotariWallet).loadSeed();
 
   @override
