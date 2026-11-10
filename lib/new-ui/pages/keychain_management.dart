@@ -282,13 +282,13 @@ if(!item.isRestored)CakeImageWidget(imageUrl: "assets/new-ui/not_restored.svg",w
             fontWeight: FontWeight.w500,
           ),
           child: KeychainWalletNotRestoredContent(
-            onViewRecoveryPhrase: item.seed == null
+            onViewRecoveryPhrase: item.keychainInfo == null
                 ? null
                 : () {
               Navigator.of(dialogContext).pop();
                   Navigator.of(context).pushNamed(
               Routes.seed,
-              arguments: WalletSeedPageParams(isNewWalletCreated: false, seedOverride: item.seed),
+              arguments: WalletSeedPageParams(isNewWalletCreated: false, keychainInfo: item.keychainInfo),
             );
                 },
           ),

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/seed_detail_boxes.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
 import 'package:cake_wallet/utils/clipboard_util.dart';
@@ -87,6 +88,15 @@ class WalletSeedPage extends BasePage {
                               ),
                         ),
                         SizedBox(height: 24),
+                        if (walletSeedViewModel.blockHeight case final blockHeight?) ...[
+                          BlockHeightBox(height: blockHeight.toString()),
+                          SizedBox(height: 20),
+                        ],
+                        if (walletSeedViewModel.passphrase case final passphrase?
+                            when passphrase.isNotEmpty) ...[
+                          PassphraseBox(passphrase: passphrase),
+                          SizedBox(height: 20),
+                        ],
                         Expanded(
                           child: SeedPhraseGridWidget(
                             list: walletSeedViewModel.seedSplit,
@@ -119,7 +129,7 @@ class WalletSeedPage extends BasePage {
                           ),
                         ),
                       ),
-                      if (!walletSeedViewModel.isSeedOverridden)
+                      if (!walletSeedViewModel.isFromKeychain)
                         Flexible(
                           child: Container(
                             padding: EdgeInsets.only(left: 8.0, top: 8.0),

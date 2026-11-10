@@ -8,24 +8,30 @@ import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';
+import "package:cw_keychain/cw_keychain.dart";
 
 part 'wallet_seed_view_model.g.dart';
 
 class WalletSeedPageParams {
-  WalletSeedPageParams({required this.isNewWalletCreated, this.seedOverride});
+  WalletSeedPageParams({required this.isNewWalletCreated, this.keychainInfo});
 
   final bool isNewWalletCreated;
-  final String? seedOverride;
+  final KeychainDataV1? keychainInfo;
 }
 
 class WalletSeedViewModel = WalletSeedViewModelBase with _$WalletSeedViewModel;
 
 abstract class WalletSeedViewModelBase with Store {
   WalletSeedViewModelBase(WalletBase wallet, {WalletSeedPageParams? params})
-      : name = wallet.name,
-        seed = params?.seedOverride ?? wallet.seed!,
-        isSeedOverridden = params?.seedOverride != null,
-        walletType = wallet.type,
+      : name = params?.keychainInfo?.name ?? wallet.name,
+        seed = params?.keychainInfo?.seed ?? wallet.seed!,
+        passphrase = params?.keychainInfo?.passphrase,
+        blockHeight = params?.keychainInfo?.blockHeight,
+        isFromKeychain = params?.keychainInfo != null,
+        walletType = switch (params?.keychainInfo) {
+          final info? => deserializeFromInt(info.walletTypeRaw),
+          null => wallet.type,
+        },
         _walletInfo = wallet.walletInfo,
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
@@ -34,7 +40,11 @@ abstract class WalletSeedViewModelBase with Store {
 
   final WalletInfo _walletInfo;
 
-  final bool isSeedOverridden;
+  final bool isFromKeychain;
+
+  final String? passphrase;
+
+  final int? blockHeight;
 
   @observable
   String name;

@@ -6,22 +6,22 @@ class KeychainManagementItem {
       required this.type,
       required this.dateSaved,
       required this.isRestored,
-      this.seed});
+      this.keychainInfo});
 
   final String name;
   final WalletType type;
   final DateTime? dateSaved;
   final bool isRestored;
-  final String? seed;
+  final KeychainDataV1? keychainInfo;
 
   bool get isBackedUp => dateSaved != null;
 
 
   @override
-  bool operator ==(Object other) => other is KeychainManagementItem && other.name == name && other.type == type && other.dateSaved ==dateSaved && other.isRestored == isRestored && other.seed == seed;
+  bool operator ==(Object other) => other is KeychainManagementItem && other.name == name && other.type == type && other.dateSaved ==dateSaved && other.isRestored == isRestored && other.keychainInfo == keychainInfo;
 
   @override
-  int get hashCode => name.hashCode ^ type.hashCode ^ dateSaved.hashCode ^ isRestored.hashCode ^ seed.hashCode;
+  int get hashCode => name.hashCode ^ type.hashCode ^ dateSaved.hashCode ^ isRestored.hashCode ^ keychainInfo.hashCode;
 
 }
 
@@ -58,7 +58,7 @@ final class KeychainManagementLoaded extends KeychainManagementState {
           type: deserializeFromInt(wallet.walletTypeRaw),
           dateSaved: DateTime.fromMillisecondsSinceEpoch(wallet.creationTime),
           isRestored: _localWallets.any((item) => item.name == wallet.name),
-          seed: wallet.seed));
+          keychainInfo: wallet));
     }
 
     for (final wallet in _localWallets) {
