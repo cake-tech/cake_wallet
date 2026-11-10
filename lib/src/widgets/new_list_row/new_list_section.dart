@@ -16,12 +16,12 @@ import 'package:flutter/material.dart';
 class NewListSections extends StatelessWidget {
   const NewListSections(
       {super.key,
-      required this.sections,
-      this.controllers = const {},
-      this.tapHandlers = const {},
-      this.getCheckboxValue,
-      this.updateCheckboxValue,
-      this.showHeader = false});
+        required this.sections,
+        this.controllers = const {},
+        this.tapHandlers = const {},
+        this.getCheckboxValue,
+        this.updateCheckboxValue,
+        this.showHeader = false});
 
   final Map<String, List<ListItem>> sections;
   final Map<String, TextEditingController> controllers;
@@ -71,8 +71,8 @@ class NewListSections extends StatelessWidget {
       final controller = controllers[item.keyValue];
 
       assert(
-          controller != null,
-          'No controller provided for key ${item.keyValue}. '
+      controller != null,
+      'No controller provided for key ${item.keyValue}. '
           'Please provide a TextEditingController for this key.');
 
       return ListItemTextFieldWidget(
@@ -90,6 +90,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemRegularRow) {
       return ListItemRegularRowWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         subtitle: item.subtitle,
@@ -104,6 +105,7 @@ class NewListSections extends StatelessWidget {
         isLastInSection: isLast,
         showArrow: item.showArrow,
         truncateTrailingText: item.truncateTrailingText,
+        truncateLabel: item.truncateLabel,
         foregroundColor: item.foregroundColor,
         copyableText: item.copyableText,
         trailingIconSize: item.trailingIconSize,
@@ -118,9 +120,12 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemToggle) {
       return ListItemToggleWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
+        subtitle: item.subtitle,
         leadingEndWidget: item.leadingEndWidget,
+        iconPath: item.iconPath,
         value: item.value,
         onChanged: item.onChanged,
         isFirstInSection: isFirst,
@@ -130,6 +135,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemCheckbox) {
       return ListItemCheckboxWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         subtitle: item.subtitle,
@@ -146,6 +152,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemDropdown) {
       return ListItemDropdownWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         trailingText: item.trailingText,
@@ -157,6 +164,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemSelector) {
       return ListItemSelectorWidget(
+        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         options: item.options,

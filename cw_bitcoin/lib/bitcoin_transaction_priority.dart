@@ -1,3 +1,4 @@
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 
@@ -28,7 +29,7 @@ class BitcoinTransactionPriority extends TransactionPriority {
         return custom;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for BitcoinTransactionPriority deserialize');
         }
         return medium;
     }
@@ -88,7 +89,7 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
         return fast;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for LitecoinTransactionPriority deserialize');
         }
         return medium;
     }
@@ -141,7 +142,7 @@ class BitcoinCashTransactionPriority extends BitcoinTransactionPriority {
         return fast;
       default:
         if (kDebugMode) {
-          throw Exception('Unexpected token: $raw for BitcoinCashTransactionPriority deserialize');
+          throw DeserializeException('Unexpected token: $raw for BitcoinCashTransactionPriority deserialize');
         }
         return medium;
     }

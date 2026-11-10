@@ -1,4 +1,9 @@
 import 'package:cw_core/enumerable_item.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
+
+class BuyProviderDeserializeException extends DeserializeException {
+  BuyProviderDeserializeException(super.message);
+}
 
 class BuyProviderDescription extends EnumerableItem<int> with Serializable<int> {
   const BuyProviderDescription({required String title, required int raw, required this.image})
@@ -16,7 +21,7 @@ class BuyProviderDescription extends EnumerableItem<int> with Serializable<int> 
       case 1:
         return moonPay;
       default:
-        throw Exception('Incorrect token $raw  for BuyProviderDescription deserialize');
+        throw BuyProviderDeserializeException('Incorrect token $raw  for BuyProviderDescription deserialize');
     }
   }
 }

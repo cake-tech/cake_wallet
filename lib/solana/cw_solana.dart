@@ -207,7 +207,7 @@ class CWSolana extends Solana {
     final solanaProvider = solanaWallet.solanaProvider;
 
     if (solanaProvider == null) {
-      throw Exception('Solana provider not available');
+      throw TransactionGenerationException('Solana provider not available');
     }
 
     final unsignedTransactionBytes = base64.decode(base64Transaction);
@@ -222,11 +222,11 @@ class CWSolana extends Solana {
     Future<String> sendTx() async {
       try {
         if (signedTransactionBase64.isEmpty) {
-          throw Exception('Invalid transaction: transaction is empty');
+          throw TransactionSendingException('Invalid transaction: transaction is empty');
         }
 
         if (requestId.isEmpty) {
-          throw Exception('Invalid requestId: requestId is empty');
+          throw TransactionSendingException('Invalid requestId: requestId is empty');
         }
 
         final jupiterProvider = JupiterExchangeProvider();
@@ -247,7 +247,7 @@ class CWSolana extends Solana {
             if (signature == null ||
                 signature.isEmpty ||
                 signature == '1111111111111111111111111111111111111111111111111111111111111111') {
-              throw Exception(
+              throw ExchangeProviderResponseException(
                 'Invalid transaction signature received from Jupiter. '
                 'Status: $status',
               );
@@ -264,22 +264,22 @@ class CWSolana extends Solana {
                 errorMessage: errorMessage,
               );
             } else {
-              throw Exception(userFriendlyError);
+              throw ExchangeProviderResponseException(userFriendlyError);
             }
           case 'Pending':
           case 'Processing':
-            throw Exception(
+            throw ExchangeProviderResponseException(
               'Jupiter swap is still processing. Please wait and try checking the transaction status.',
             );
           default:
-            throw Exception(
+            throw ExchangeProviderResponseException(
               'Jupiter swap returned unknown status: $status. Error: $errorMessage. Code: $errorCode',
             );
         }
       } on JupiterSwapFailedException {
         rethrow;
       } catch (e) {
-        throw Exception('Failed to execute Jupiter swap: $e');
+        throw TradeNotCreatedException(ExchangeProviderDescription.jupiter, description: 'Failed to execute Jupiter swap: $e');
       }
     }
 

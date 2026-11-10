@@ -14,17 +14,13 @@ dependencies:
   mobx: ^2.6.0
   bip39: ^1.0.6
   mutex: ^3.1.0
-
   path: any
-  flat_buffers: any
   zkool:
-    # path: ../../zkool2
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
-
-  path_provider: any
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
   sqflite_common_ffi: any
+
 dependency_overrides:
   decimal: ^2.3.3
 

@@ -1,18 +1,26 @@
 [
   {
-    "title": "Trezor natively for Bitcoin",
-    "description": "Pair your device and sign Bitcoin transactions right in the app"
+    "title": "Zcash on Ledger",
+    "description": "Connect your Ledger to receive, shield and send ZEC"
   },
   {
-    "title": "Solana and NFTs Improvements",
-    "description": "Send your Solana NFTs, keep imported ones saved, and see at a glance which ones this wallet holds"
+    "title": "Ready for Zcash NU7",
+    "description": "Your ZEC sends and shielding keep working through the NU7 network upgrade"
   },
   {
-    "title": "Monero sync improvements",
-    "description": "Sync progress keeps moving while your wallet warms up, so you always know where it stands"
+    "title": "BitBox02 Nova on iOS",
+    "description": "Use your BitBox02 Nova on iPhone and iPad over Bluetooth, with a pairing code check for a secure connection"
   },
   {
-    "title": "Bug fixes",
-    "description": "Contact syncing, node selection, Cake Pay sign-in and more, all squashed"
+    "title": "Faster Launch",
+    "description": "The app opens quicker, and wallets load and switch faster, especially on older phones or with many wallets"
+  },
+  {
+    "title": "BTC Map",
+    "description": "Find places to spend sats wherever you are, right from the Apps tab"
+  },
+  {
+    "title": "Bug fixes & improvements",
+    "description": "Stronger 2FA and backup protections, no more Bitcoin and Litecoin wallets stuck on Connecting, MoonPay on Arbitrum and more"
   }
 ]
