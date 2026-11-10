@@ -44,30 +44,6 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
 
   static TradeState deserialize({required String raw}) {
     switch (raw) {
-      case '1':
-        return unpaid;
-      case '2':
-        return paidUnconfirmed;
-      case '3':
-        return sending;
-      case '4':
-        return confirmed;
-      case '5':
-      case '6':
-        return exchanging;
-      case '7':
-        return sending;
-      case '8':
-        return complete;
-      case '9':
-        return expired;
-      case '10':
-        return underpaid;
-      case '11':
-        return failed;
-    }
-
-    switch (raw) {
       case 'NOT_FOUND':
         return notFound;
       case 'pending':

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -185,7 +186,7 @@ class KryptonimBuyProvider extends BuyProvider {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception('Could not launch URL');
+        throw BuySellLaunchException('Could not launch URL');
       }
     } catch (e) {
       await showPopUp<void>(

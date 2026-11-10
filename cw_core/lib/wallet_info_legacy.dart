@@ -248,7 +248,9 @@ class WalletInfo extends HiveObject {
       id: 0,
       derivationType:
           derivationInfo?.derivationType ?? derivationType ?? newWi.DerivationType.unknown,
-      derivationPath: derivationInfo?.derivationPath ?? derivationPath ?? '',
+      // No path stays null, not '': wallet open fills a missing path with the wallet type's
+      // default, while '' would derive from the master key itself.
+      derivationPath: derivationInfo?.derivationPath ?? derivationPath,
     );
     final derivationInfoId = await di.save();
     final walletInfo = newWi.WalletInfo(
@@ -271,10 +273,12 @@ class WalletInfo extends HiveObject {
         hashedWalletIdentifier,
         isNonSeedWallet,
         0,
+        0,
         addressPageType,
         false,
         true,
-        null)
+        null,
+        false)
       ..network = network;
     final wiId = await walletInfo.save();
     for (final address in usedAddresses ?? <String>[]) {

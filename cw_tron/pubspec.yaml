@@ -13,8 +13,6 @@ dependencies:
     sdk: flutter
   cw_core:
     path: ../cw_core
-  cw_evm:
-    path: ../cw_evm
   on_chain:
     git:
       url: https://github.com/cake-tech/on_chain.git
@@ -25,7 +23,7 @@ dependencies:
       ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
   mobx: ^2.3.0+1
   bip39: ^1.0.6
-  hive: ^2.2.3
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

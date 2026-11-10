@@ -10,6 +10,11 @@
   isOfficial: true
   label: "Cake Wallet Electrs"
 -
+  uri: cakebtc5pihzt3byjclxfumiwvtxj72auarshrsvmaatmwmr7dj6zyid.onion:50001
+  useSSL: false
+  isOfficial: true
+  label: "Cake Wallet (Tor)"
+-
   uri: fulcrum.sethforprivacy.com:50002
   useSSL: true
   isEnabledForAutoSwitching: true

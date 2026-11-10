@@ -15,6 +15,10 @@ String chainNameForCurrency(CryptoCurrency c) {
   return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
 }
 
+String assetNameForCurrency(CryptoCurrency c) => c == CryptoCurrency.btcln
+    ? (CryptoCurrency.btc.fullName ?? CryptoCurrency.btc.title)
+    : (c.fullName ?? c.title);
+
 final Set<String> _stablecoinSymbols = {
   for (final c in CryptoCurrency.all)
     if (c.groups.contains(CurrencyGroups.stablecoin)) c.title.toUpperCase(),
@@ -24,6 +28,9 @@ bool isTrustedStablecoin(CryptoCurrency c) =>
     (c.groups.contains(CurrencyGroups.stablecoin) ||
         _stablecoinSymbols.contains(c.title.toUpperCase())) &&
     !c.isPotentialScam;
+
+bool hasBuiltInStablecoinSymbol(CryptoCurrency c) =>
+    _stablecoinSymbols.contains(c.title.toUpperCase());
 
 const _kEvmDefaultTokenNatives = <CryptoCurrency>[
   CryptoCurrency.baseEth,
@@ -100,9 +107,10 @@ CurrencyPickerBalance? balanceForAsset(
   }
 
   final title = asset.title.toUpperCase();
+  final tag = asset.tag?.toUpperCase();
   CurrencyPickerBalance? byTitle;
   for (final entry in balances.entries) {
-    if (entry.key.title.toUpperCase() == title) {
+    if (entry.key.title.toUpperCase() == title && entry.key.tag?.toUpperCase() == tag) {
       if (byTitle != null) {
         return null;
       }
@@ -118,20 +126,26 @@ class CurrencyPickerArgs {
   const CurrencyPickerArgs({
     this.selected,
     required this.items,
+    this.showStablesHeader = true,
     this.balanceByAsset,
     this.filterByNetwork,
     required this.onSelected,
     required this.symbolResolver,
     this.recentsSource = RecentsSource.none,
     this.useSingleNetworkLayout = false,
+    this.walletName,
+    this.otherAssets,
   });
 
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
+  final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final RecentsSource recentsSource;
   final bool useSingleNetworkLayout;
+  final String? walletName;
+  final CurrencyPickerArgs? otherAssets;
 }

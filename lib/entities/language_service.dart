@@ -1,6 +1,14 @@
 import 'package:cake_wallet/generated/locales.dart';
 import 'package:devicelocale/devicelocale.dart';
+import "package:flutter/widgets.dart";
 import 'package:intl/intl.dart';
+
+// Flutter's Material delegates match on the language subtag, so "pt_BR" must be split into two
+Locale localeFromLanguageCode(String code) {
+  final parts = code.split("_");
+
+  return parts.length == 2 ? Locale(parts[0], parts[1]) : Locale(code);
+}
 
 class LanguageService {
   static const Map<String, String> supportedLocales = {
@@ -85,12 +93,16 @@ class LanguageService {
 
   static Future<String> localeDetection() async {
     try {
-      var locale = await Devicelocale.currentLocale ?? '';
-      locale = Intl.shortLocale(locale);
-
+      final locale = Intl.canonicalizedLocale(await Devicelocale.currentLocale ?? "");
       if (list.keys.contains(locale)) {
         return locale;
       }
+
+      final language = Intl.shortLocale(locale);
+      if (list.keys.contains(language)) {
+        return language;
+      }
+
       return LanguageService.defaultLocale;
     } catch (_) {
       return LanguageService.defaultLocale;

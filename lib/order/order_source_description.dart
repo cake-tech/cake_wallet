@@ -1,4 +1,6 @@
 import 'package:cw_core/enumerable_item.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
+
 
 class OrderSourceDescription extends EnumerableItem<int> with Serializable<int> {
   const OrderSourceDescription({required String title, required int raw})
@@ -14,7 +16,7 @@ class OrderSourceDescription extends EnumerableItem<int> with Serializable<int> 
       case 1:
         return order;
       default:
-        throw Exception('Invalid OrderSourceDescription raw value: $raw');
+        throw DeserializeException('Invalid OrderSourceDescription raw value: $raw');
     }
   }
 }

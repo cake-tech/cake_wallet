@@ -67,7 +67,10 @@ extension MaxDecimals on String {
       return [parts.first.withLocalSeperator(locale), ...parts.sublist(1)].join(" ");
     }
 
-    final formater = NumberFormat("#,###", locale);
+    final formater = NumberFormat(
+      "#,###",
+      Intl.verifiedLocale(locale, NumberFormat.localeExists, onFailure: (_) => "en"),
+    );
     final parts = replaceAll(",", "").split(".");
     if (parts.first.contains("< 0")) parts.first = "0";
 

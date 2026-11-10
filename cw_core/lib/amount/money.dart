@@ -1,6 +1,7 @@
 import "dart:math";
 
 import "package:cw_core/amount/utils.dart";
+import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/format_fixed.dart";
@@ -56,6 +57,14 @@ class Money implements Comparable<Money> {
     } catch (_) {
       return null;
     }
+  }
+
+  static Money? trySafeParse(source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit
+        ? BigInt.tryParse(source.toString())
+        : tryParseFixed(source.toString().withDecimals(currency.decimals), currency.decimals);
+
+    return amount != null ? Money(amount, currency) : null;
   }
 
   final BigInt amount;
@@ -183,9 +192,7 @@ class Money implements Comparable<Money> {
   ///
   /// The result is again [Money].
   Money operator /(BigInt other) {
-    if (other == BigInt.zero) {
-      throw Exception("Division by zero.");
-    }
+    if (other == BigInt.zero) throw ArgumentError('Division by zero.');
 
     final neg = (amount.isNegative) ^ (other.isNegative);
     final A = amount.abs();
@@ -207,7 +214,9 @@ class Money implements Comparable<Money> {
   /// If just [currency] is provided and the decimals missmatch
   /// the amount will be transformed to keep its canonical representation
   Money copyWith({BigInt? amount, Currency? currency, int? decimals}) {
-    if (currency != null && amount == null && decimals == null &&
+    if (currency != null &&
+        amount == null &&
+        decimals == null &&
         currency.decimals != this.decimals) {
       return Money(
         _transformAmount(this.amount, this.decimals, currency.decimals),
@@ -221,7 +230,8 @@ class Money implements Comparable<Money> {
 
   void _assertSameCurrency(Money other, [String? message]) {
     if (currency != other.currency) {
-      throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
+      throw ArgumentError(message ??
+          "Cannot operate with money values in different currencies. $currency - ${other.currency}");
     }
   }
 
@@ -280,19 +290,40 @@ class Money implements Comparable<Money> {
     return withSymbolPrefix ? "$symbol $amount" : "$amount $symbol";
   }
 
+  /// [meaningfulDecimals]: for non-zero values below 1, show that many digits
+  /// after the leading fraction zeros (e.g. 0.00001234 -> 0.000012 for 2),
+  /// up to 12 fraction digits, when that is more than would be shown otherwise.
+  /// Can't be combined with [useBaseUnit]; with [fractionalDigits] it only ever
+  /// shows more digits than [fractionalDigits] would, never fewer.
   String toStringWithPrecision({
     int? fractionalDigits,
     bool trimZeros = true,
     bool useBaseUnit = false,
-  }) =>
-      formatFixed(
-        decimals != currency.decimals
-            ? _transformAmount(amount, decimals, currency.decimals)
-            : amount,
-        useBaseUnit ? 0 : currency.decimals,
-        fractionalDigits: fractionalDigits,
-        trimZeros: trimZeros,
-      );
+    int? meaningfulDecimals,
+  }) {
+    if (meaningfulDecimals != null && useBaseUnit) {
+      throw ArgumentError("meaningfulDecimals can't be used together with useBaseUnit");
+    }
+    if (meaningfulDecimals != null && !isZero) {
+      final digits = amount.abs().toString().length;
+      if (digits <= decimals) {
+        final meaningfulDigits = min(decimals - digits + meaningfulDecimals, 12);
+        if (meaningfulDigits > min(fractionalDigits ?? currency.decimals, currency.decimals)) {
+          return formatFixed(amount, decimals,
+              fractionalDigits: meaningfulDigits, trimZeros: trimZeros);
+        }
+      }
+    }
+
+    return formatFixed(
+      decimals != currency.decimals
+          ? _transformAmount(amount, decimals, currency.decimals)
+          : amount,
+      useBaseUnit ? 0 : currency.decimals,
+      fractionalDigits: fractionalDigits,
+      trimZeros: trimZeros,
+    );
+  }
 
   // To Override the symbol with the ticker of the base unit
   String getSymbol({required bool useBaseUnit}) {
@@ -301,4 +332,7 @@ class Money implements Comparable<Money> {
     }
     return currency.symbol;
   }
+
+  /// new [Money] with absolute value of this instance
+  Money abs() => copyWith(amount: amount.abs());
 }
