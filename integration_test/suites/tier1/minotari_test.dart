@@ -3,14 +3,12 @@ import "package:cake_wallet/core/new_wallet_arguments.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/minotari/minotari.dart";
 import "package:cake_wallet/store/app_store.dart";
-import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/restore/restore_mode.dart";
 import "package:cake_wallet/view_model/wallet_creation_vm.dart";
 import "package:cake_wallet/view_model/wallet_new_vm.dart";
 import "package:cake_wallet/view_model/wallet_restore_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/node.dart";
 import "package:cw_core/output_info.dart";
 import "package:cw_core/sync_status.dart";
 import "package:cw_core/transaction_direction.dart";
@@ -24,40 +22,33 @@ import "../../core/app_launcher.dart";
 import "../../core/test_config.dart";
 import "../../core/test_wallets.dart";
 
-/// Host of a stagenet base node RPC, e.g. `--dart-define=MINOTARI_STAGENET_NODE=<host>`.
-const _stagenetNode = String.fromEnvironment("MINOTARI_STAGENET_NODE");
-
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  integrationTest("Minotari stagenet wallet flows", (tester) async {
-    if (minotari == null ||
-        TestWallets.seedFor(WalletType.minotari).trim().isEmpty ||
-        _stagenetNode.isEmpty) {
-      tester.printToConsole("Minotari stagenet secrets or MINOTARI_STAGENET_NODE missing, skipped");
+  // Mainnet against the default node. Only the spending flows need funds.
+  integrationTest("Minotari wallet flows", (tester) async {
+    if (minotari == null || TestWallets.seedFor(WalletType.minotari).trim().isEmpty) {
+      tester.printToConsole("Minotari test wallet secrets missing, skipped");
       return;
     }
 
     await AppLauncher(tester).launchApp(testKey: "minotari_test_app_key");
 
     final appStore = getIt.get<AppStore>();
-    getIt.get<SettingsStore>().nodes[WalletType.minotari] =
-        Node(uri: _stagenetNode, type: WalletType.minotari, useSSL: true);
-
-    tester.printToConsole("Create a stagenet wallet");
+    tester.printToConsole("Create a wallet");
     final newWalletVM =
         getIt.get<WalletNewVM>(param1: NewWalletArguments(type: WalletType.minotari));
-    newWalletVM.toggleUseTestnet(true);
     await newWalletVM.create();
     _expectCreated(newWalletVM);
-    expect(appStore.wallet!.walletInfo.network, "stageNet");
+    expect(appStore.wallet!.walletInfo.network, "mainNet");
 
     tester.printToConsole("Restore from seed and check the receive address");
     await _restore(WalletRestoreMode.seed, {
       "name": "minotari_seed_restore",
       "seed": TestWallets.seedFor(WalletType.minotari),
     });
-    expect(appStore.wallet!.walletAddresses.address, TestWallets.minotariReceiveAddress);
+    expect(appStore.wallet!.walletAddresses.address,
+        TestWallets.receiveAddressFor(WalletType.minotari));
 
     tester.printToConsole("Restore from spend and view keys");
     final restoreHeight = int.parse(TestWallets.minotariRestoreHeight);
@@ -68,7 +59,7 @@ void main() {
       "height": restoreHeight,
     });
     final wallet = appStore.wallet!;
-    expect(wallet.walletAddresses.address, TestWallets.minotariReceiveAddress);
+    expect(wallet.walletAddresses.address, TestWallets.receiveAddressFor(WalletType.minotari));
     expect(wallet.canSend(), isTrue);
 
     tester.printToConsole("Sign and verify a message");
@@ -111,14 +102,13 @@ void main() {
     final reopened = await getIt
         .get<WalletService>(param1: WalletType.minotari)
         .openWallet(wallet.name, newPassword);
-    expect(reopened.walletAddresses.address, TestWallets.minotariReceiveAddress);
+    expect(reopened.walletAddresses.address, TestWallets.receiveAddressFor(WalletType.minotari));
     await reopened.close();
   });
 }
 
 Future<void> _restore(WalletRestoreMode mode, Map<String, dynamic> options) async {
   final restoreVM = getIt.get<WalletRestoreViewModel>(param1: WalletType.minotari);
-  restoreVM.toggleUseTestnet(true);
   restoreVM.mode = mode;
   await restoreVM.create(options: options);
   _expectCreated(restoreVM);

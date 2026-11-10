@@ -93,10 +93,6 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
 
-  /// Minotari's test network is stagenet.
-  bool get hasTestnetOption =>
-      [WalletType.bitcoin, WalletType.decred, WalletType.minotari].contains(type);
-
   bool get hasPassphraseOption => [
         WalletType.bitcoin,
         WalletType.litecoin,

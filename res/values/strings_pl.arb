@@ -960,8 +960,6 @@
   "reset": "Resetuj",
   "reset_filters": "Zresetuj filtry",
   "reset_password": "Zresetuj hasło",
-  "restart_required_to_create_wallet": "W tej sesji Minotari działa już w innej sieci. Otwórz portfel innej monety, uruchom ponownie aplikację, a następnie utwórz lub przywróć ten portfel.",
-  "restart_required_to_open_wallet": "Ten portfel znajduje się w innej sieci Minotari niż ta, z której korzystasz. Uruchom ponownie aplikację, aby ją otworzyć.",
   "restore": "Przywróć",
   "restore_active_seed": "Aktywny seed",
   "restore_address": "Adres",

@@ -54,12 +54,6 @@ class WalletOpenException extends CakeException {
   const WalletOpenException(super.message);
 }
 
-/// The wallet needs a process-wide setting (such as its network) other than the one this
-/// app session is locked to; only an app restart lets it open.
-class RestartRequiredException extends WalletOpenException {
-  const RestartRequiredException(super.message);
-}
-
 class WalletExistsException extends CakeException {
   const WalletExistsException(super.message);
 }

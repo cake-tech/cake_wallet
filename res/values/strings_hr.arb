@@ -960,8 +960,6 @@
   "reset": "Poništi",
   "reset_filters": "Poništi filtre",
   "reset_password": "Ponovno postavi lozinku",
-  "restart_required_to_create_wallet": "Minotari već radi na drugoj mreži u ovoj sesiji. Otvorite novčanik drugog novčića, ponovno pokrenite aplikaciju, zatim izradite ili vratite ovaj novčanik.",
-  "restart_required_to_open_wallet": "Ovaj se novčanik nalazi na drugoj Minotari mreži od one koja se koristi. Ponovno pokrenite aplikaciju da biste je otvorili.",
   "restore": "Vrati",
   "restore_active_seed": "Aktivna seed fraza",
   "restore_address": "Adresa",

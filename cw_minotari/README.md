@@ -134,11 +134,10 @@ Validation pattern: `[123Hdf][234678][1-9A-HJ-NP-Za-km-z]{45,448}`
 
 ### Network Configuration
 
-Each wallet stores its network in `WalletInfo.network` and passes it to cw on create, restore
-and open. The create and restore flows offer **Use Testnet** under advanced settings: off is
-`mainNet`, on is `stageNet` (the release libraries are built for the mainnet network group,
-which has no `esmeralda`). cw locks the process to the network of its first wallet call, so
-opening a wallet on the other network asks for an app restart.
+Minotari in Cake is **mainnet only**. Tari runs no public stagenet base node, and the release
+libraries are built for the mainnet network group, which rejects `esmeralda`. Create and restore
+don't offer a testnet switch, every wallet stores `mainNet` in `WalletInfo.network`, and a wallet
+with any other network refuses to open.
 
 ### Blockchain Sync
 
@@ -213,7 +212,7 @@ Uses first payment reference (payref) from transaction for lookup.
 
 - Wallet creation with 24-word mnemonic generation
 - Wallet restoration from mnemonic
-- Mainnet and stagenet wallets
+- Mainnet wallets (the only network supported)
 - Blockchain synchronization via scanner
 - Balance updates (available, pending incoming, pending outgoing)
 - Transaction history with full details
@@ -223,7 +222,7 @@ Uses first payment reference (payref) from transaction for lookup.
 - Transaction sending (multiple recipients, send-all)
 - Message signing and verification
 - Restore from keys (spendable, or watch-only with the spend public key)
-- Password change
+- Password change (re-encrypts the .keys files; the random database passphrase is kept)
 - Seed words kept in the wallet database and read on demand for the seed page
 - Prebuilt native libraries for Android (arm64, armv7, x86_64), iOS, macOS, Linux (x86_64, aarch64) and Windows
 

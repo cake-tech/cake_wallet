@@ -87,11 +87,8 @@ class CWMinotari extends Minotari {
   Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs) =>
       MinotariTransactionCredentials(outputs);
 
-  // shortcut: estimates with mainnet block timing because the height picker does not know the
-  // wallet's network; stagenet restores start from that height. Upgrade when it does.
   @override
-  Future<int> getHeightByDate({required DateTime date}) =>
-      minotariHeightByDate(date, network: TariNetwork.mainNet);
+  Future<int> getHeightByDate({required DateTime date}) => minotariHeightByDate(date);
 
   @override
   Future<int> getCurrentHeight(Object wallet) => (wallet as MinotariWallet).currentHeight();

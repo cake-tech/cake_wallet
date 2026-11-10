@@ -309,7 +309,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   },
                 ),
               ),
-            if (widget.privacySettingsViewModel.hasTestnetOption)
+            if (widget.privacySettingsViewModel.type == WalletType.bitcoin ||
+                widget.privacySettingsViewModel.type == WalletType.decred)
               Builder(builder: (_) {
                 final val = testnetValue ?? false;
                 return SettingsSwitcherCell(

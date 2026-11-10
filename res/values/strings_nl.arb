@@ -960,8 +960,6 @@
   "reset": "Reset",
   "reset_filters": "Filters opnieuw instellen",
   "reset_password": "Wachtwoord resetten",
-  "restart_required_to_create_wallet": "Minotari draait in deze sessie al op een ander netwerk. Open een portemonnee van een andere munt, start de app opnieuw en maak of herstel vervolgens deze portemonnee.",
-  "restart_required_to_open_wallet": "Deze portemonnee bevindt zich op een ander Minotari-netwerk dan het netwerk dat in gebruik is. Start de app opnieuw om deze te openen.",
   "restore": "Herstellen",
   "restore_active_seed": "Actief seed",
   "restore_address": "Adres",

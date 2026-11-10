@@ -960,8 +960,6 @@
   "reset": "재설정",
   "reset_filters": "필터 재설정",
   "reset_password": "비밀번호 재설정",
-  "restart_required_to_create_wallet": "Minotari는 이미 이 세션의 다른 네트워크에서 실행되고 있습니다. 다른 코인의 지갑을 열고 앱을 다시 시작한 후 이 지갑을 생성하거나 복원하세요.",
-  "restart_required_to_open_wallet": "이 지갑은 사용 중인 Minotari 네트워크와 다른 Minotari 네트워크에 있습니다. 앱을 다시 시작하여 엽니다.",
   "restore": "복원",
   "restore_active_seed": "활성 시드",
   "restore_address": "주소",

@@ -960,8 +960,6 @@
   "reset": "รีเซ็ต",
   "reset_filters": "รีเซ็ตตัวกรอง",
   "reset_password": "รีเซ็ตรหัสผ่าน",
-  "restart_required_to_create_wallet": "Minotari ทำงานบนเครือข่ายอื่นแล้วในเซสชันนี้ เปิดกระเป๋าเงินของเหรียญอื่น รีสตาร์ทแอป จากนั้นสร้างหรือกู้คืนกระเป๋าเงินนี้",
-  "restart_required_to_open_wallet": "กระเป๋าเงินนี้อยู่ในเครือข่าย Minotari อื่นที่ไม่ใช่เครือข่ายที่ใช้งานอยู่ รีสตาร์ทแอปเพื่อเปิด",
   "restore": "กู้คืน",
   "restore_active_seed": "Seed ที่ใช้งานอยู่",
   "restore_address": "ที่อยู่",

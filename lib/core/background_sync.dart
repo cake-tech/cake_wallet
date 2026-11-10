@@ -11,11 +11,9 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
-import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -117,15 +115,8 @@ class BackgroundSync {
         .where((element) => ![WalletType.haven, WalletType.decred].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
-      final WalletBase wallet;
-      try {
-        wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name,
-            isBackground: true);
-      } on RestartRequiredException {
-        // A Minotari wallet on another network than the one this run is locked to.
-        printV("${moneroWallets[i].name} skipped: needs another network");
-        continue;
-      }
+      final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name,
+          isBackground: true);
       int syncedTicks = 0;
       final keyService = getIt.get<KeyService>();
 

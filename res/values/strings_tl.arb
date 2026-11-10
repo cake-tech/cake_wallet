@@ -960,8 +960,6 @@
   "reset": "I-reset",
   "reset_filters": "I-reset ang Mga Filter",
   "reset_password": "I-reset ang Password",
-  "restart_required_to_create_wallet": "Tumatakbo na ang Minotari sa ibang network sa session na ito. Magbukas ng wallet ng isa pang barya, i-restart ang app, pagkatapos ay gawin o i-restore ang wallet na ito.",
-  "restart_required_to_open_wallet": "Ang wallet na ito ay nasa ibang Minotari network kaysa sa ginagamit. I-restart ang app para buksan ito.",
   "restore": "I-restore",
   "restore_active_seed": "Aktibong seed",
   "restore_address": "Address",

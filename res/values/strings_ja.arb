@@ -961,8 +961,6 @@
   "reset": "リセット",
   "reset_filters": "フィルターをリセットする",
   "reset_password": "パスワードをリセット",
-  "restart_required_to_create_wallet": "このセッションでは、Minotari がすでに別のネットワーク上で実行されています。別のコインのウォレットを開き、アプリを再起動してから、このウォレットを作成または復元します。",
-  "restart_required_to_open_wallet": "このウォレットは、使用中のネットワークとは別の Minotari ネットワーク上にあります。アプリを再起動して開きます。",
   "restore": "復元",
   "restore_active_seed": "アクティブなシード",
   "restore_address": "アドレス",

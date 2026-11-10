@@ -961,8 +961,6 @@
   "reset": "Tun ṣe",
   "reset_filters": "Tun awọn Ajọ",
   "reset_password": "Tun Ọ̀rọ̀ Aṣínà Ṣe",
-  "restart_required_to_create_wallet": "Minotari ti ṣiṣẹ tẹlẹ lori nẹtiwọki miiran ni igba yii. Ṣii apamọwọ owo miiran, tun bẹrẹ app, lẹhinna ṣẹda tabi mu pada apamọwọ yii pada.",
-  "restart_required_to_open_wallet": "Apamọwọ yii wa lori nẹtiwọọki Minotari ti o yatọ ju eyiti a lo. Tun app bẹrẹ lati ṣii.",
   "restore": "Mu pada",
   "restore_active_seed": "Irúgbìn tó ń ṣiṣẹ́",
   "restore_address": "Àdírẹ́sì",

@@ -89,6 +89,8 @@ class TestWallets {
         return secrets.nanoTestWalletReceiveAddress;
       case WalletType.wownero:
         return secrets.wowneroTestWalletReceiveAddress;
+      case WalletType.minotari:
+        return secrets.minotariTestWalletReceiveAddress;
       case WalletType.zano:
       case WalletType.decred:
       case WalletType.dogecoin:
@@ -96,8 +98,6 @@ class TestWallets {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
-      // The Minotari test wallet is on stagenet; the generic flows restore on mainnet.
-      case WalletType.minotari:
         return "";
     }
   }
@@ -108,9 +108,7 @@ class TestWallets {
 
   static String get zcashRestoreHeight => secrets.zcashTestWalletRestoreHeight;
 
-  // Stagenet: the Minotari secrets must never hold a funded mainnet wallet.
-  static String get minotariReceiveAddress => secrets.minotariTestWalletReceiveAddress;
-
+  // From CI secrets only, never committed: the spending flows need a funded mainnet wallet.
   static String get minotariViewKey => secrets.minotariTestWalletViewKey;
 
   static String get minotariSpendKey => secrets.minotariTestWalletSpendKey;

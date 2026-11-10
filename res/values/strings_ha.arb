@@ -962,8 +962,6 @@
   "reset": "Sake saita",
   "reset_filters": "Sake saitin tacewa",
   "reset_password": "Sake saita kalmar sirri",
-  "restart_required_to_create_wallet": "Minotari ya riga ya gudana akan wata hanyar sadarwa a wannan zaman. Bude walat ɗin wani tsabar kudin, sake kunna app ɗin, sannan ƙirƙira ko mayar da wannan wallet ɗin.",
-  "restart_required_to_open_wallet": "Wannan walat ɗin yana kan hanyar sadarwa ta Minotari daban fiye da wadda ake amfani da ita. Sake kunna app ɗin don buɗe shi.",
   "restore": "Mayar",
   "restore_active_seed": "Seed mai aiki",
   "restore_address": "Adireshi",

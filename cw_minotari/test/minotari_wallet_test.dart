@@ -7,7 +7,6 @@ import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
-import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -105,19 +104,6 @@ void main() {
     test('rejects a zero amount and no outputs', () {
       expect(() => minotariRecipients([_output()]), throwsA(isA<TransactionGenerationException>()));
       expect(() => minotariRecipients([]), throwsA(isA<TransactionGenerationException>()));
-    });
-  });
-
-  group('network', () {
-    test('testnet is stagenet, otherwise mainnet', () {
-      expect(minotariNetworkFor(isTestnet: true), TariNetwork.stageNet);
-      expect(minotariNetworkFor(isTestnet: false), TariNetwork.mainNet);
-      expect(minotariNetworkFor(), TariNetwork.mainNet);
-    });
-
-    test('the stored network name round-trips; none is mainnet', () {
-      expect(minotariNetworkFromName(TariNetwork.stageNet.name), TariNetwork.stageNet);
-      expect(minotariNetworkFromName(null), TariNetwork.mainNet);
     });
   });
 

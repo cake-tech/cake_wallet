@@ -962,8 +962,6 @@
   "reset": "Redefinir",
   "reset_filters": "Redefinir filtros",
   "reset_password": "Redefinir senha",
-  "restart_required_to_create_wallet": "O Minotari já roda em outra rede nesta sessão. Abra uma carteira de outra moeda, reinicie o aplicativo e crie ou restaure esta carteira.",
-  "restart_required_to_open_wallet": "Esta carteira está em uma rede Minotari diferente daquela em uso. Reinicie o aplicativo para abri-lo.",
   "restore": "Restaurar",
   "restore_active_seed": "Seed ativa",
   "restore_address": "Endereço",

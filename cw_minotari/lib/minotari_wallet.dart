@@ -33,24 +33,15 @@ import 'package:mobx/mobx.dart';
 
 part 'minotari_wallet.g.dart';
 
-/// The Tari network stored in [WalletInfo.network]; wallets without one are mainnet.
-TariNetwork minotariNetworkFromName(String? name) =>
-    TariNetwork.values.firstWhere((n) => n.name == name, orElse: () => TariNetwork.mainNet);
-
-/// The create/restore "testnet" choice: Cake ships the mainnet-group bundle, whose only
-/// test network is stagenet.
-TariNetwork minotariNetworkFor({bool? isTestnet}) =>
-    isTestnet == true ? TariNetwork.stageNet : TariNetwork.mainNet;
-
 /// cw's offline estimate assumes the target block time and runs high (about 17 days of
 /// blocks by September 2026, growing), so a restore or rescan starts 30 days of blocks earlier.
 const _heightEstimateMarginBlocks = 30 * 24 * 30;
 
 /// A safe restore or rescan start for [date], without asking a node.
-Future<int> minotariHeightByDate(DateTime date, {required TariNetwork network}) async {
+Future<int> minotariHeightByDate(DateTime date) async {
   await MinotariFfi.ensureRustLibInitialized();
   final estimate = estimateHeightAtTime(
-    network: network,
+    network: MinotariFfi.network,
     epochSecs: BigInt.from(date.millisecondsSinceEpoch ~/ 1000),
   ).toInt();
   return max(0, estimate - _heightEstimateMarginBlocks);
@@ -242,11 +233,13 @@ abstract class MinotariWalletBase
   }
 
   Future<void> init() async {
-    final network = minotariNetworkFromName(walletInfo.network);
-    await MinotariFfi.ensureProcessNetwork(network);
+    // Every Minotari wallet is mainnet; refuse anything else rather than open it as mainnet.
+    if (walletInfo.network != MinotariFfi.network.name) {
+      throw WalletOpenException('Minotari supports mainnet only, not ${walletInfo.network}.');
+    }
 
     final dbPath = '${await pathForWalletTypeDir(type: walletInfo.type)}/wallet.db';
-    final ffi = MinotariFfi(dataPath: dbPath, walletName: walletInfo.name, network: network);
+    final ffi = MinotariFfi(dataPath: dbPath, walletName: walletInfo.name);
     await ffi.unlock(passphrase: _dbPassphrase);
     try {
       walletAddresses.setAddress(await ffi.getAddress());
@@ -415,11 +408,7 @@ abstract class MinotariWalletBase
     final newWalletPath = await pathForWallet(name: newWalletName, type: walletInfo.type);
 
     final typeDir = await pathForWalletTypeDir(type: walletInfo.type);
-    final ffi = MinotariFfi(
-      dataPath: '$typeDir/wallet.db',
-      walletName: walletInfo.name,
-      network: minotariNetworkFromName(walletInfo.network),
-    );
+    final ffi = MinotariFfi(dataPath: '$typeDir/wallet.db', walletName: walletInfo.name);
     await ffi.rename(newWalletName: newWalletName);
 
     final currentKeysFile = File('$currentWalletPath.keys');
@@ -436,7 +425,8 @@ abstract class MinotariWalletBase
   }
 
   /// Re-encrypts the .keys files under [password]. The database passphrase is random and
-  /// stored only in those files, so it stays: the files and the database never disagree.
+  /// stored only in those files, so it is not rotated: rotating would leave a window where the
+  /// database and the files disagree and the wallet can't be unlocked.
   @override
   Future<void> changePassword(String password) async {
     await writeKeysFiles(password);

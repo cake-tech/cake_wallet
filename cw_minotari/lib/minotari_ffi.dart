@@ -1,4 +1,3 @@
-import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_minotari/src/rust/api/wallet.dart' as wallet;
 import 'package:cw_minotari/src/rust/api/balance.dart' as balance;
 import 'package:cw_minotari/src/rust/api/address.dart' as address;
@@ -24,27 +23,18 @@ export 'package:cw_minotari/src/rust/api/fee.dart'
 class MinotariFfi {
   final String walletName;
   final String dataPath;
-  final TariNetwork network;
+  // Mainnet only: Tari has no public stagenet node, and the release bundle (mainnet network
+  // group) rejects esmeralda.
+  static const network = TariNetwork.mainNet;
 
   static bool _rustLibInitialized = false;
 
-  MinotariFfi({required this.dataPath, required this.walletName, required this.network});
+  MinotariFfi({required this.dataPath, required this.walletName});
 
   static Future<void> ensureRustLibInitialized() async {
     if (!_rustLibInitialized) {
       await RustLib.init();
       _rustLibInitialized = true;
-    }
-  }
-
-  /// cw locks the process to the network of its first wallet call; another network
-  /// needs an app restart.
-  static Future<void> ensureProcessNetwork(TariNetwork network) async {
-    await ensureRustLibInitialized();
-    final processNetwork = currentNetwork();
-    if (processNetwork != null && processNetwork != network) {
-      throw RestartRequiredException('Minotari runs on ${processNetwork.name} in this session; '
-          'a ${network.name} wallet needs an app restart.');
     }
   }
 

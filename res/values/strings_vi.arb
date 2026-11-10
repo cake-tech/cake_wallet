@@ -961,8 +961,6 @@
   "reset": "Đặt lại",
   "reset_filters": "Đặt lại bộ lọc",
   "reset_password": "Đặt lại mật khẩu",
-  "restart_required_to_create_wallet": "Minotari đã chạy trên mạng khác trong phiên này. Mở ví của một loại tiền khác, khởi động lại ứng dụng, sau đó tạo hoặc khôi phục ví này.",
-  "restart_required_to_open_wallet": "Ví này nằm trên mạng Minotari khác với mạng đang sử dụng. Khởi động lại ứng dụng để mở nó.",
   "restore": "Khôi phục",
   "restore_active_seed": "Seed đang hoạt động",
   "restore_address": "Địa chỉ",

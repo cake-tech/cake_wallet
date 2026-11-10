@@ -11,7 +11,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/src/rust/api/height.dart' show birthdayFromHeight;
-import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/api/wallet.dart' show WalletCreationDetails;
 
 /// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
@@ -27,22 +26,19 @@ class MinotariWalletService extends WalletService<
   @override
   WalletType getType() => WalletType.minotari;
 
-  /// Checks the network before anything is created: cw can't add a wallet on another one.
-  Future<MinotariFfi> _ffiFor(String walletName, TariNetwork network) async {
-    await MinotariFfi.ensureProcessNetwork(network);
+  Future<MinotariFfi> _ffiFor(String walletName) async {
     final dbPath = '${await pathForWalletTypeDir(type: getType())}/wallet.db';
-    return MinotariFfi(dataPath: dbPath, walletName: walletName, network: network);
+    return MinotariFfi(dataPath: dbPath, walletName: walletName);
   }
 
   /// Adds the account with [addAccount], writes its .keys files and opens it. Without its
   /// .keys files nothing can unlock the account, so it is deleted if they can't be written.
   Future<MinotariWallet> _addWallet(
     WalletCredentials credentials,
-    TariNetwork network,
     Future<WalletCreationDetails> Function(MinotariFfi ffi, String passphrase) addAccount, {
     bool keepKeys = false,
   }) async {
-    final ffi = await _ffiFor(credentials.name, network);
+    final ffi = await _ffiFor(credentials.name);
     // A create that died before writing the .keys files left an account nothing can
     // unlock; Cake has no wallet of this name, so remove it to free the name.
     if (!await WalletKeysFile.hasKeysFile(credentials.name, getType())) {
@@ -69,7 +65,7 @@ class MinotariWalletService extends WalletService<
       rethrow;
     }
 
-    walletInfo.network = network.name;
+    walletInfo.network = MinotariFfi.network.name;
     await walletInfo.save();
     await wallet.init();
     return wallet;
@@ -82,7 +78,6 @@ class MinotariWalletService extends WalletService<
   }) async {
     return _addWallet(
       credentials,
-      minotariNetworkFor(isTestnet: isTestnet),
       (ffi, passphrase) => ffi.create(passphrase: passphrase),
     );
   }
@@ -124,11 +119,7 @@ class MinotariWalletService extends WalletService<
 
     // Locks the wallet for every holder and stops its scans before deleting it.
     final typeDir = await pathForWalletTypeDir(type: getType());
-    await MinotariFfi(
-      dataPath: '$typeDir/wallet.db',
-      walletName: wallet,
-      network: minotariNetworkFromName(walletInfo.network),
-    ).delete();
+    await MinotariFfi(dataPath: '$typeDir/wallet.db', walletName: wallet).delete();
 
     final path = await pathForWalletDir(name: wallet, type: getType());
     final dir = Directory(path);
@@ -172,14 +163,13 @@ class MinotariWalletService extends WalletService<
     MinotariRestoreWalletFromKeysCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final network = minotariNetworkFor(isTestnet: isTestnet);
     final spendPrivateKeyHex = credentials.spendPrivateKeyHex;
     final isWatchOnly = spendPrivateKeyHex == null || spendPrivateKeyHex.isEmpty;
     credentials.walletInfo!.isWatchOnly = isWatchOnly;
 
-    return _addWallet(credentials, network, keepKeys: true, (ffi, passphrase) {
-      final birthday =
-          birthdayFromHeight(network: network, height: BigInt.from(credentials.height ?? 0));
+    return _addWallet(credentials, keepKeys: true, (ffi, passphrase) {
+      final birthday = birthdayFromHeight(
+          network: MinotariFfi.network, height: BigInt.from(credentials.height ?? 0));
       return isWatchOnly
           ? ffi.importViewOnly(
               viewPrivateKeyHex: credentials.viewPrivateKeyHex,
@@ -203,7 +193,6 @@ class MinotariWalletService extends WalletService<
   }) async {
     return _addWallet(
       credentials,
-      minotariNetworkFor(isTestnet: isTestnet),
       (ffi, passphrase) => ffi.restore(credentials.mnemonic, passphrase: passphrase),
     );
   }

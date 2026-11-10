@@ -1006,8 +1006,6 @@
   "reset": "Zurücksetzen",
   "reset_filters": "Filter zurücksetzen",
   "reset_password": "Passwort zurücksetzen",
-  "restart_required_to_create_wallet": "Minotari läuft in dieser Sitzung bereits in einem anderen Netzwerk. Öffnen Sie ein Wallet einer anderen Münze, starten Sie die App neu und erstellen oder stellen Sie dann dieses Wallet wieder her.",
-  "restart_required_to_open_wallet": "Dieses Wallet befindet sich in einem anderen Minotari-Netzwerk als das verwendete. Starten Sie die App neu, um sie zu öffnen.",
   "restore": "Wiederherstellen",
   "restore_active_seed": "Aktiver Seed",
   "restore_address": "Adresse",
