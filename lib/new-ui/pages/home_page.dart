@@ -53,7 +53,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   late final ReactionDisposer _walletReaction;
   late final ReactionDisposer _migrationReaction;
   late final ReactionDisposer _keyImageSyncReaction;
-  static final Set<String> _keyImageSyncPrompted = {};
+  static final Set<String> _pendingKeyImageSync = {};
 
   @override
   void initState() {
@@ -82,21 +82,26 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
     });
 
     _keyImageSyncReaction =
-        reaction((_) => widget.dashboardViewModel.status, _promptKeyImageSync);
+        reaction((_) => widget.dashboardViewModel.status, _onSyncStatusChange);
   }
 
-  void _promptKeyImageSync(SyncStatus status) {
+  void _onSyncStatusChange(SyncStatus status) {
     final wallet = widget.dashboardViewModel.wallet;
-    if (status is! SyncedSyncStatus ||
-        wallet.type != WalletType.monero ||
-        wallet.hardwareWalletType != HardwareWalletType.trezor ||
-        _keyImageSyncPrompted.contains(wallet.id) ||
-        !(ModalRoute.of(context)?.isCurrent ?? false) ||
-        !monero!.hasUnknownKeyImages(wallet)) {
+    if (status is SyncedSyncStatus &&
+        wallet.walletInfo.isRecovery &&
+        wallet.type == WalletType.monero &&
+        wallet.hardwareWalletType == HardwareWalletType.trezor &&
+        monero!.hasUnknownKeyImages(wallet)) {
+      _pendingKeyImageSync.add(wallet.id);
+    }
+    _promptKeyImageSync();
+  }
+
+  void _promptKeyImageSync() {
+    if (!(ModalRoute.of(context)?.isCurrent ?? false) ||
+        !_pendingKeyImageSync.remove(widget.dashboardViewModel.wallet.id)) {
       return;
     }
-
-    _keyImageSyncPrompted.add(wallet.id);
     Navigator.of(context).pushNamed(Routes.syncKeyImagesDevices);
   }
 
@@ -116,7 +121,10 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   }
 
   @override
-  void didPopNext() => widget.dashboardViewModel.loadSeedBackupReminder();
+  void didPopNext() {
+    widget.dashboardViewModel.loadSeedBackupReminder();
+    _promptKeyImageSync();
+  }
 
   @override
   Widget build(BuildContext context) => Container(
