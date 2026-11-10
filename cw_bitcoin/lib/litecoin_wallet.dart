@@ -1410,7 +1410,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     await super.close(shouldCleanup: shouldCleanup);
   }
 
-  Future<void> setMwebEnabled(bool enabled) async {
+  Future<void> setMwebEnabled(bool enabled, {bool restartSync = true}) async {
     if (mwebEnabled == enabled &&
         alwaysScan == enabled &&
         (walletAddresses as LitecoinWalletAddresses).mwebEnabled == enabled) {
@@ -1424,7 +1424,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     try {
       await stopSync();
     } catch (_) {}
-    await startSync();
+    if (restartSync) {
+      await startSync();
+    }
   }
 
   Future<StatusResponse> getStatusRequest() async {

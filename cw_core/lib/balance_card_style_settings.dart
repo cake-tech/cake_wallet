@@ -118,6 +118,12 @@ class BalanceCardStyleSettings {
     return fromJson(json.first);
   }
 
+  static Future<int> deleteVisibleByWalletInfoId(int walletInfoId) => db!.delete(
+        tableName,
+        where: "walletInfoId = ? AND hidden IS NOT 1",
+        whereArgs: [walletInfoId],
+      );
+
   static Future<List<BalanceCardStyleSettings>> getAll(int walletInfoId) async {
     final json = await db!.query(
       tableName,

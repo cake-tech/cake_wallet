@@ -620,15 +620,14 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> setScanningActive(Object wallet, bool active) async {
-    final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.setSilentPaymentsScanning(active);
-  }
+  Future<void> setScanningActive(Object wallet, bool active) =>
+      (wallet as ElectrumWallet).setSilentPaymentsScanning(active);
 
+  @override
   Future<void> setIsAlwaysScanningSP(Object wallet, bool active) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     bitcoinWallet.alwaysScan = active;
-    bitcoinWallet.save();
+    await bitcoinWallet.save();
   }
 
   @computed
@@ -684,9 +683,9 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> setMwebEnabled(Object wallet, bool enabled) async {
+  Future<void> setMwebEnabled(Object wallet, bool enabled, {bool restartSync = true}) async {
     final litecoinWallet = wallet as LitecoinWallet;
-    litecoinWallet.setMwebEnabled(enabled);
+    await litecoinWallet.setMwebEnabled(enabled, restartSync: restartSync);
   }
 
   @override

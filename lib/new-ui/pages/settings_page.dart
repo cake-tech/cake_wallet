@@ -209,6 +209,11 @@ class SettingsPageSectionsResolver {
           strings.about,
           Routes.aboutPage,
         ),
+        SettingsListItem(
+          "assets/new-ui/settings_row_icons/reset.svg",
+          strings.reset,
+          Routes.resetPage,
+        ),
       ];
 }
 
