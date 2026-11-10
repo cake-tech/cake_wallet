@@ -53,6 +53,24 @@ void main() {
     );
   });
 
+  test('opens a same-host popup outside the webview', () {
+    final decision = decideSupportChatPopup(
+      request: Uri.parse('https://app.chatwoot.com/rails/active_storage/blobs/redirect/abc/file.png'),
+      allowedHost: chatHost,
+    );
+
+    expect(decision, SupportChatNavigation.openOutside);
+  });
+
+  test('still drops a javascript popup', () {
+    final decision = decideSupportChatPopup(
+      request: Uri.parse('javascript:alert(1)'),
+      allowedHost: chatHost,
+    );
+
+    expect(decision, SupportChatNavigation.cancel);
+  });
+
   test('drops non-http schemes instead of navigating to them', () {
     final decision = decideSupportChatNavigation(
       request: Uri.parse('javascript:alert(1)'),

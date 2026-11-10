@@ -26,3 +26,25 @@ SupportChatNavigation decideSupportChatNavigation({
   }
   return SupportChatNavigation.openOutside;
 }
+
+/// `onCreateWindow` cannot keep a page inside this webview: returning false
+/// drops the navigation. http(s) targets that would have stayed on the chat
+/// host, such as a file attachment, open in the system browser instead.
+SupportChatNavigation decideSupportChatPopup({
+  required Uri? request,
+  required String allowedHost,
+}) {
+  final decision = decideSupportChatNavigation(
+    request: request,
+    isMainFrame: true,
+    allowedHost: allowedHost,
+  );
+  if (decision != SupportChatNavigation.allow || request == null) {
+    return decision;
+  }
+  final scheme = request.scheme.toLowerCase();
+  if (scheme == 'http' || scheme == 'https') {
+    return SupportChatNavigation.openOutside;
+  }
+  return decision;
+}

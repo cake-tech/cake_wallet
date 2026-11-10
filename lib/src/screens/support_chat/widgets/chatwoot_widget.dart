@@ -67,7 +67,14 @@ class ChatwootWidgetState extends State<ChatwootWidget> {
           );
         },
         onCreateWindow: (controller, createWindowAction) async {
-          await _policyFor(createWindowAction.request.url, isMainFrame: true);
+          final url = createWindowAction.request.url;
+          final decision = decideSupportChatPopup(
+            request: url,
+            allowedHost: _allowedHost,
+          );
+          if (decision == SupportChatNavigation.openOutside && url != null) {
+            await launchUrl(url, mode: LaunchMode.externalApplication);
+          }
           return false;
         },
         onWebViewCreated: (InAppWebViewController controller) {
