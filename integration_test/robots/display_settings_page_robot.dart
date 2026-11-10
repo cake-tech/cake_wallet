@@ -1,12 +1,11 @@
 import "package:cake_wallet/entities/fiat_currency.dart";
-import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
-import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_row.dart";
 import "package:cake_wallet/src/screens/settings/display_settings_page.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
+import "fiat_currency_picker_robot.dart";
 
 class DisplaySettingsPageRobot extends BaseRobot {
   DisplaySettingsPageRobot(super.tester);
@@ -35,24 +34,8 @@ class DisplaySettingsPageRobot extends BaseRobot {
     await pumpUntilFound(find.byType(FiatCurrencyPickerSheet));
   }
 
-  Future<void> chooseFiatCurrency(FiatCurrency currency) async {
-    final searchField = find.descendant(
-      of: find.byType(CurrencyPickerSearchField),
-      matching: find.byType(TextFormField),
-    );
-
-    await tester.enterText(searchField, currency.fullName);
-
-    final row = find.byWidgetPredicate(
-      (widget) => widget is FiatCurrencyRow && widget.currency == currency,
-    );
-
-    await pumpUntilFound(row);
-
-    await tester.tap(row.first);
-
-    await pumpUntilGone(find.byType(FiatCurrencyPickerSheet));
-  }
+  Future<void> chooseFiatCurrency(FiatCurrency currency) =>
+      FiatCurrencyPickerRobot(tester).choose(currency);
 
   void expectFiatCurrencyShown(FiatCurrency currency) {
     expect(
