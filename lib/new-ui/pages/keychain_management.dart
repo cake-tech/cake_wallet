@@ -44,8 +44,9 @@ class KeychainManagementPage extends StatelessWidget {
                 leadingSemanticLabel: S.of(context).seed_alert_back,
               ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: SingleChildScrollView(
+                  controller: ModalScrollController.of(context),
+                  padding: EdgeInsets.fromLTRB(18, 0, 18, MediaQuery.paddingOf(context).bottom + 18),
                   child: Column(
                     spacing: 24,
                     children: [
