@@ -88,9 +88,9 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   void _onSyncStatusChange(SyncStatus status) {
     final wallet = widget.dashboardViewModel.wallet;
     if (status is SyncedSyncStatus &&
-        wallet.walletInfo.isRecovery &&
         wallet.type == WalletType.monero &&
         wallet.hardwareWalletType == HardwareWalletType.trezor &&
+        monero!.consumeKeyImageSyncRequest(wallet) &&
         monero!.hasUnknownKeyImages(wallet)) {
       _pendingKeyImageSync.add(wallet.id);
     }

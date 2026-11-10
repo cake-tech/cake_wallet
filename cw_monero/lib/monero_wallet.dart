@@ -396,6 +396,8 @@ abstract class MoneroWalletBase
 
   MoneroTrezorService? trezorService;
 
+  bool keyImageSyncRequested = false;
+
   Trezor _getTrezor() => Trezor(trezorService ?? (throw HardwareWalletNotConnectedException("Trezor not connected")));
 
   Future<void> syncTrezor() async {
@@ -990,6 +992,7 @@ abstract class MoneroWalletBase
         }
 
         if (walletInfo.isRecovery) {
+          keyImageSyncRequested = true;
           await setAsRecovered();
         }
       } else {

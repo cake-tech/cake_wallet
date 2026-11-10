@@ -457,6 +457,8 @@ abstract class Monero {
   
   bool hasUnknownKeyImages(Object wallet);
 
+  bool consumeKeyImageSyncRequest(Object wallet);
+
   bool importKeyImagesUR(Object wallet, String ur);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials({
