@@ -5,6 +5,7 @@ import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
+import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
@@ -30,6 +31,7 @@ import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/nft_view_model.dart";
 import "package:cw_core/unspent_coin_type.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -50,6 +52,8 @@ class NewHomePage extends StatefulWidget {
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
   late final ReactionDisposer _walletReaction;
   late final ReactionDisposer _migrationReaction;
+  late final ReactionDisposer _keyImageSyncReaction;
+  static final Set<String> _keyImageSyncPrompted = {};
 
   @override
   void initState() {
@@ -76,6 +80,24 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
         );
       }
     });
+
+    _keyImageSyncReaction =
+        reaction((_) => widget.dashboardViewModel.status, _promptKeyImageSync);
+  }
+
+  void _promptKeyImageSync(SyncStatus status) {
+    final wallet = widget.dashboardViewModel.wallet;
+    if (status is! SyncedSyncStatus ||
+        wallet.type != WalletType.monero ||
+        wallet.hardwareWalletType != HardwareWalletType.trezor ||
+        _keyImageSyncPrompted.contains(wallet.id) ||
+        !(ModalRoute.of(context)?.isCurrent ?? false) ||
+        !monero!.hasUnknownKeyImages(wallet)) {
+      return;
+    }
+
+    _keyImageSyncPrompted.add(wallet.id);
+    Navigator.of(context).pushNamed(Routes.syncKeyImagesDevices);
   }
 
   @override
@@ -88,6 +110,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   void dispose() {
     _walletReaction();
     _migrationReaction();
+    _keyImageSyncReaction();
     routeObserver.unsubscribe(this);
     super.dispose();
   }

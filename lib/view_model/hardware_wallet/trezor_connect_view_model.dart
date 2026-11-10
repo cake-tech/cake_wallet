@@ -449,15 +449,15 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     }
   }
 
-  Future<bool> syncKeyImages(WalletBase wallet) async {
+  Future<String?> syncKeyImages(WalletBase wallet) async {
     if (wallet.type == WalletType.monero) {
       try {
         await monero!.syncTrezor(wallet);
-      } catch (_) {
-        return false;
+      } catch (e) {
+        return e.toString();
       }
     }
-    return true;
+    return null;
   }
 
   @override
