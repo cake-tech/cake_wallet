@@ -91,10 +91,11 @@ class CWMinotari extends Minotari {
   Future<int> getHeightByDate({required DateTime date}) => minotariHeightByDate(date);
 
   @override
-  Future<int> getCurrentHeight(Object wallet) => (wallet as MinotariWallet).currentHeight();
+  Future<String?> getSeed(Object wallet) => (wallet as MinotariWallet).loadSeed();
 
   @override
-  Future<String?> getSeed(Object wallet) => (wallet as MinotariWallet).loadSeed();
+  Future<String?> getSpendPrivateKey(Object wallet) =>
+      (wallet as MinotariWallet).loadSpendPrivateKey();
 
   @override
   Map<String, String> getKeys(Object wallet) {

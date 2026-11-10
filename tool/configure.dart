@@ -1919,8 +1919,8 @@ abstract class Minotari {
   Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs);
 
   Future<int> getHeightByDate({required DateTime date});
-  Future<int> getCurrentHeight(Object wallet);
   Future<String?> getSeed(Object wallet);
+  Future<String?> getSpendPrivateKey(Object wallet);
 
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);

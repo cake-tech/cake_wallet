@@ -63,6 +63,7 @@ class MinotariWalletService extends WalletService<
     WalletCredentials credentials,
     Future<WalletCreationDetails> Function(MinotariFfi ffi, String passphrase) addAccount, {
     bool keepKeys = false,
+    String? spendPrivateKeyHex,
   }) async {
     final ffi = await _ffiFor(credentials.name);
     if (await ffi.exists()) {
@@ -72,6 +73,8 @@ class MinotariWalletService extends WalletService<
 
     final passphrase = randomMinotariPassphrase();
     final details = await addAccount(ffi, passphrase);
+    // The seed is read on demand later; drop cw's copy now (zeroized on drop).
+    details.seedWords?.dispose();
 
     final walletInfo = credentials.walletInfo!;
     final wallet = MinotariWallet(
@@ -84,7 +87,7 @@ class MinotariWalletService extends WalletService<
       spendPublicKeyHex: keepKeys ? details.spendPublicKeyHex : null,
     );
     try {
-      await wallet.writeKeysFiles(credentials.password!);
+      await wallet.writeKeysFiles(credentials.password!, spendPrivateKeyHex: spendPrivateKeyHex);
     } catch (_) {
       await ffi.delete();
       rethrow;
@@ -207,7 +210,9 @@ class MinotariWalletService extends WalletService<
     final isWatchOnly = spendPrivateKeyHex == null || spendPrivateKeyHex.isEmpty;
     credentials.walletInfo!.isWatchOnly = isWatchOnly;
 
-    return _addWallet(credentials, keepKeys: true, (ffi, passphrase) {
+    return _addWallet(credentials,
+        keepKeys: true,
+        spendPrivateKeyHex: isWatchOnly ? null : spendPrivateKeyHex, (ffi, passphrase) {
       final birthday = birthdayFromHeight(
           network: MinotariFfi.network, height: BigInt.from(credentials.height ?? 0));
       return isWatchOnly
@@ -251,7 +256,8 @@ class MinotariWalletService extends WalletService<
     try {
       final keysData =
           await WalletKeysFile.readKeysFile(name, type, password, _encryptionFileUtils);
-      if (keysData.scanSecret != null) return '';
+      // Imported from keys: no mnemonic; a spendable one's spend private key recovers it.
+      if (keysData.scanSecret != null) return keysData.privateKey ?? '';
       final ffi = await _ffiFor(name);
       return (await ffi.seedWords(passphrase: keysData.passphrase ?? '')).join(' ');
     } catch (_) {

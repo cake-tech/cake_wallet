@@ -85,7 +85,9 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   final TextEditingController privateKeyController;
   final TextEditingController? passwordTextEditingController;
   final TextEditingController? repeatedPasswordTextEditingController;
-  bool isViewOnly = false;
+  // A QR with only the public spend key restores a watch-only wallet.
+  late bool isViewOnly = (widget.restoredWallet?.spendKey ?? '').isEmpty &&
+      (widget.restoredWallet?.spendPubkey ?? '').isNotEmpty;
   void Function()? passwordListener;
   void Function()? repeatedPasswordListener;
 

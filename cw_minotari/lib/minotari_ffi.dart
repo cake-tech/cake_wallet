@@ -127,18 +127,16 @@ class MinotariFfi {
     await wallet.deleteWallet(walletName: walletName);
   }
 
-  Future<void> changePassphrase({required String oldPassphrase, required String newPassphrase}) =>
-      wallet.changePassphrase(
-        walletName: walletName,
-        oldPassphrase: oldPassphrase,
-        newPassphrase: newPassphrase,
-      );
-
   /// Reads the mnemonic for the seed page; the caller must not keep it longer than needed.
   Future<List<String>> seedWords({required String passphrase}) async {
     await _useDatabase();
     final handle = await wallet.getSeedWords(walletName: walletName, password: passphrase);
-    return wallet.revealSeedWords(handle: handle);
+    try {
+      return await wallet.revealSeedWords(handle: handle);
+    } finally {
+      // cw zeroizes the words only when the handle is dropped.
+      handle.dispose();
+    }
   }
 
   Future<String> getAddress() => address.getAddress(walletName: walletName, network: network);

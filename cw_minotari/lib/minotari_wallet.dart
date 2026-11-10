@@ -191,6 +191,9 @@ abstract class MinotariWalletBase
       _feeQuotes = {};
   static const _feeQuoteLifetime = Duration(minutes: 1);
 
+  /// The latest quote request per priority; an older one finishing later is not cached.
+  final Map<TransactionPriority, int> _feeQuoteRequests = {};
+
   String _password;
   String _dbPassphrase;
   final EncryptionFileUtils encryptionFileUtils;
@@ -439,19 +442,38 @@ abstract class MinotariWalletBase
   Future<void> save() async {}
 
   /// Writes the .keys files under [password]; errors propagate.
-  Future<void> writeKeysFiles(String password) async => writeMinotariKeysFiles(
+  ///
+  /// [spendPrivateKeyHex] is kept only for wallets imported from a spend private key: cw has
+  /// no way to export it, so the .keys file is the user's only backup of it.
+  Future<void> writeKeysFiles(String password, {String? spendPrivateKeyHex}) async =>
+      writeMinotariKeysFiles(
         encryptionFileUtils,
         keysPath: await makeKeysFilePath(),
         password: password,
-        data: walletKeysData.toJSON(),
+        data: WalletKeysData(
+          privateKey: spendPrivateKeyHex,
+          passphrase: _dbPassphrase,
+          scanSecret: viewPrivateKeyHex,
+          spendPubkey: spendPublicKeyHex,
+        ).toJSON(),
       );
+
+  /// The spend private key of a wallet imported from it, read from the .keys file for the
+  /// keys page; the wallet never keeps it.
+  Future<String?> loadSpendPrivateKey() async => (await WalletKeysFile.readKeysFile(
+        walletInfo.name,
+        walletInfo.type,
+        _password,
+        encryptionFileUtils,
+      ))
+          .privateKey;
 
   /// Re-encrypts the .keys files under [password]. The database passphrase is random and
   /// stored only in those files, so it is not rotated: rotating would leave a window where the
   /// database and the files disagree and the wallet can't be unlocked.
   @override
   Future<void> changePassword(String password) async {
-    await writeKeysFiles(password);
+    await writeKeysFiles(password, spendPrivateKeyHex: await loadSpendPrivateKey());
     _password = password;
   }
 
@@ -486,6 +508,8 @@ abstract class MinotariWalletBase
       return quote.fee;
     }
 
+    final request = (_feeQuoteRequests[priority] ?? 0) + 1;
+    _feeQuoteRequests[priority] = request;
     try {
       final int fee;
       if (sendAll) {
@@ -500,8 +524,10 @@ abstract class MinotariWalletBase
             .estimatedFee
             .toInt();
       }
-      _feeQuotes[priority] =
-          (amount: requested, sendAll: sendAll, fee: fee, quotedAt: DateTime.now());
+      if (_feeQuoteRequests[priority] == request) {
+        _feeQuotes[priority] =
+            (amount: requested, sendAll: sendAll, fee: fee, quotedAt: DateTime.now());
+      }
       return fee;
     } catch (e) {
       printV('Minotari fee estimate failed: $e');
@@ -521,13 +547,6 @@ abstract class MinotariWalletBase
     if (node == null) return false;
     await MinotariFfi.ensureRustLibInitialized();
     return base_node.checkNodeHealth(baseUrl: node.uri.toString());
-  }
-
-  /// The node's chain tip height.
-  Future<int> currentHeight() async {
-    final tip = await base_node.getTipInfo(baseUrl: _nodeUrl);
-    if (tip == null) throw Exception('The node reports no chain tip yet.');
-    return tip.bestBlockHeight.toInt();
   }
 
   /// The mnemonic, read from the wallet database for the seed page; null for wallets
