@@ -363,7 +363,7 @@ class WalletListBodyState extends State<WalletListBody> {
                 ),
                 Container(
                   height: 240,
-                  width: MediaQuery.of(context).size.width,
+                  width: MediaQuery.sizeOf(context).width,
                   margin: EdgeInsets.only(bottom: 24),
                   padding: EdgeInsets.only(left: 16, right: 16),
                   child: Column(

@@ -97,7 +97,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery.sizeOf(context).height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -114,7 +114,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 slivers: [
                   SliverPadding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                    padding: EdgeInsets.only(top: MediaQuery.viewPaddingOf(context).top),
                     sliver: CupertinoSliverRefreshControl(
                       refreshTriggerPullDistance: 160,
                       refreshIndicatorExtent: 90,
@@ -254,7 +254,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                   )
                 ]),
             Container(
-              height: (MediaQuery.of(context).padding.top),
+              height: (MediaQuery.viewPaddingOf(context).top),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,

@@ -180,7 +180,7 @@ class _TopBarState extends State<TopBar> {
 
   //FIXME remove after this gets fixed flutter-side
   double _additionalTopPadding(BuildContext context) {
-    if (Platform.isIOS && MediaQuery.of(context).viewPadding.top < 12) {
+    if (Platform.isIOS && MediaQuery.viewPaddingOf(context).top < 12) {
       return 24;
     }
 
