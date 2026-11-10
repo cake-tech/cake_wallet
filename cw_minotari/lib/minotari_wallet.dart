@@ -26,7 +26,6 @@ import 'package:cw_minotari/minotari_wallet_addresses.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
 import 'package:cw_minotari/src/rust/api/base_node.dart' as base_node;
 import 'package:cw_minotari/src/rust/api/height.dart' show estimateHeightAtTime;
-import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
 import 'package:cw_minotari/src/rust/api/transactions.dart';
 import 'package:mobx/mobx.dart';
@@ -168,10 +167,10 @@ abstract class MinotariWalletBase
   ScanHandle? _scanHandle;
   int _scanStartHeight = 0;
 
-  /// Fee quotes for one output by (priority, amount), refreshed whenever the scan catches up.
-  /// Observable, so the send screen's fee re-renders when a quote arrives.
-  final ObservableMap<(TransactionPriority, int), int> _feeQuotes = ObservableMap();
-  final Set<(TransactionPriority, int)> _feeQuotesInFlight = {};
+  /// The latest quote per priority: a send screen asking again for the same amount within
+  /// [_feeQuoteLifetime] costs no node call, and nothing is quoted unless one asks.
+  final Map<TransactionPriority, ({int amount, int fee, DateTime quotedAt})> _feeQuotes = {};
+  static const _feeQuoteLifetime = Duration(minutes: 1);
 
   String _password;
   String _dbPassphrase;
@@ -256,6 +255,10 @@ abstract class MinotariWalletBase
 
   @override
   Future<void> connectToNode({required Node node}) async {
+    // The old node's scan would otherwise keep reporting synced over a failed connection;
+    // forgetting its handle keeps its late Cancelled from overwriting the status set here.
+    await stopSync();
+    _scanHandle = null;
     syncStatus = ConnectingSyncStatus();
     _currentNode = node;
 
@@ -312,9 +315,6 @@ abstract class MinotariWalletBase
         if (_reloadTransactionsWhenSynced) {
           _reloadTransactionsWhenSynced = false;
           unawaited(updateTransactions());
-        }
-        for (final key in _feeQuotes.keys.toList()) {
-          unawaited(_quoteFee(key));
         }
       case ScanEventDto_TransactionsReady(:final field0):
         _processNewTransactions(field0.transactions);
@@ -401,29 +401,6 @@ abstract class MinotariWalletBase
         data: walletKeysData.toJSON(),
       );
 
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
-    final newWalletPath = await pathForWallet(name: newWalletName, type: walletInfo.type);
-
-    final typeDir = await pathForWalletTypeDir(type: walletInfo.type);
-    final ffi = MinotariFfi(dataPath: '$typeDir/wallet.db', walletName: walletInfo.name);
-    await ffi.rename(newWalletName: newWalletName);
-
-    final currentKeysFile = File('$currentWalletPath.keys');
-    if (currentKeysFile.existsSync()) {
-      await currentKeysFile.copy('$newWalletPath.keys');
-    }
-
-    final currentKeysBackupFile = File('$currentWalletPath.keys.backup');
-    if (currentKeysBackupFile.existsSync()) {
-      await currentKeysBackupFile.copy('$newWalletPath.keys.backup');
-    }
-
-    await Directory(currentDirPath).delete(recursive: true);
-  }
-
   /// Re-encrypts the .keys files under [password]. The database passphrase is random and
   /// stored only in those files, so it is not rotated: rotating would leave a window where the
   /// database and the files disagree and the wallet can't be unlocked.
@@ -442,29 +419,34 @@ abstract class MinotariWalletBase
     }
   }
 
-  /// The quote for one output of [amount]; 0 until it arrives. Reading the observable cache
-  /// lets the send screen's fee re-render when the quote comes in.
+  /// The latest quote for one output of [amount], or 0; [estimatedFeeFor] fetches it.
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    final key = (priority, amount ?? 0);
-    final fee = _feeQuotes[key];
-    if (fee == null) unawaited(_quoteFee(key));
-    return fee ?? 0;
+    final quote = _feeQuotes[priority];
+    return quote != null && quote.amount == (amount ?? 0) ? quote.fee : 0;
   }
 
-  /// An amount covering the whole balance is quoted as a send-all.
-  Future<void> _quoteFee((TransactionPriority, int) key) async {
+  /// Asks the node for the fee of one output of [amount]; an amount covering the whole
+  /// balance is quoted as a send-all.
+  @override
+  Future<int> estimatedFeeFor(TransactionPriority priority, int? amount) async {
     final ffi = _ffi;
-    if (ffi == null || _currentNode == null || !_feeQuotesInFlight.add(key)) return;
+    final quote = _feeQuotes[priority];
+    final requested = amount ?? 0;
+    if (ffi == null || _currentNode == null) return 0;
+    if (quote != null &&
+        quote.amount == requested &&
+        DateTime.now().difference(quote.quotedAt) < _feeQuoteLifetime) {
+      return quote.fee;
+    }
 
-    final (priority, amount) = key;
     try {
       final int fee;
-      if (amount > 0 && amount >= balance[CryptoCurrency.xtm]!.available.amount.toInt()) {
+      if (requested > 0 && requested >= balance[CryptoCurrency.xtm]!.available.amount.toInt()) {
         fee = (await ffi.estimateSendAllFee(recipientAddress: address)).fee.toInt();
       } else {
         fee = (await ffi.estimateFee(
-          amount: BigInt.from(amount),
+          amount: BigInt.from(requested),
           numOutputs: 1,
           priority: _feePriority(priority),
           baseNodeUrl: _nodeUrl,
@@ -472,11 +454,11 @@ abstract class MinotariWalletBase
             .estimatedFee
             .toInt();
       }
-      runInAction(() => _feeQuotes[key] = fee);
+      _feeQuotes[priority] = (amount: requested, fee: fee, quotedAt: DateTime.now());
+      return fee;
     } catch (e) {
       printV('Minotari fee estimate failed: $e');
-    } finally {
-      _feeQuotesInFlight.remove(key);
+      return calculateEstimatedFee(priority, amount);
     }
   }
 
@@ -502,14 +484,10 @@ abstract class MinotariWalletBase
   }
 
   /// The mnemonic, read from the wallet database for the seed page; null for wallets
-  /// imported from keys.
+  /// imported from keys (only those keep their keys in the .keys file).
   Future<String?> loadSeed() async {
-    try {
-      return (await _requireFfi.seedWords(passphrase: _dbPassphrase)).join(' ');
-    } catch (e) {
-      printV('Minotari seed unavailable: $e');
-      return null;
-    }
+    if (viewPrivateKeyHex != null) return null;
+    return (await _requireFfi.seedWords(passphrase: _dbPassphrase)).join(' ');
   }
 
   static const _transactionsPageSize = 100;
@@ -614,9 +592,12 @@ abstract class MinotariWalletBase
     return txInfo;
   }
 
+  /// Queued behind a running full reload, so its older snapshot can't overwrite these.
   void _processNewTransactions(List<DisplayedTransactionDto> transactions) {
-    for (final txDto in transactions) {
-      transactionHistory.transactions[txDto.id] = _dtoToTransactionInfo(txDto);
-    }
+    _transactionsReload = _transactionsReload.then((_) => runInAction(() {
+          for (final txDto in transactions) {
+            transactionHistory.transactions[txDto.id] = _dtoToTransactionInfo(txDto);
+          }
+        }));
   }
 }

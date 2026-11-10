@@ -111,11 +111,9 @@ class MinotariFfi {
     await wallet.renameWallet(currentWalletName: walletName, newWalletName: newWalletName);
   }
 
-  Future<void> deleteIfPresent() async {
+  Future<bool> exists() async {
     await _useDatabase();
-    if ((await wallet.listWallets()).contains(walletName)) {
-      await wallet.deleteWallet(walletName: walletName);
-    }
+    return (await wallet.listWallets()).contains(walletName);
   }
 
   Future<void> delete() async {

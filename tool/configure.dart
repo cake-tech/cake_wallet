@@ -1878,7 +1878,6 @@ import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
-import 'package:cw_minotari/src/rust/api/network.dart';
 """;
   const minotariCwPart = "part 'cw_minotari.dart';";
   const minotariContent = """

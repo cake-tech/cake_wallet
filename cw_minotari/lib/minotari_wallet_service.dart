@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -33,16 +34,19 @@ class MinotariWalletService extends WalletService<
 
   /// Adds the account with [addAccount], writes its .keys files and opens it. Without its
   /// .keys files nothing can unlock the account, so it is deleted if they can't be written.
+  ///
+  /// An account already under this name is never deleted: after a crash a half-created
+  /// account can't be told from a real one whose .keys files went missing, and the database
+  /// may hold the only copy of its seed. The name is refused instead.
   Future<MinotariWallet> _addWallet(
     WalletCredentials credentials,
     Future<WalletCreationDetails> Function(MinotariFfi ffi, String passphrase) addAccount, {
     bool keepKeys = false,
   }) async {
     final ffi = await _ffiFor(credentials.name);
-    // A create that died before writing the .keys files left an account nothing can
-    // unlock; Cake has no wallet of this name, so remove it to free the name.
-    if (!await WalletKeysFile.hasKeysFile(credentials.name, getType())) {
-      await ffi.deleteIfPresent();
+    if (await ffi.exists()) {
+      throw WalletExistsException(
+          'The Minotari wallet database already has a wallet named "${credentials.name}".');
     }
 
     final passphrase = randomMinotariPassphrase();
@@ -75,7 +79,7 @@ class MinotariWalletService extends WalletService<
   Future<WalletBase> create(
     MinotariNewWalletCredentials credentials, {
     bool? isTestnet,
-  }) async {
+  }) {
     return _addWallet(
       credentials,
       (ffi, passphrase) => ffi.create(passphrase: passphrase),
@@ -139,21 +143,31 @@ class MinotariWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
 
-    // Renaming needs no database session, so no passphrase.
-    final currentWallet = MinotariWallet(
-      currentWalletInfo,
-      await currentWalletInfo.getDerivationInfo(),
-      password: password,
-      dbPassphrase: '',
-      encryptionFileUtils: _encryptionFileUtils,
-    );
-
-    await currentWallet.renameWalletFiles(newName);
+    // The .keys files are copied before the account is renamed, so the account is never under
+    // a name without them; a failed rename removes the copies.
+    final currentPath = await pathForWallet(name: currentName, type: getType());
+    final newPath = await pathForWallet(name: newName, type: getType());
+    final copies = <File>[];
+    try {
+      for (final suffix in ['.keys', '.keys.backup']) {
+        final keysFile = File('$currentPath$suffix');
+        if (keysFile.existsSync()) copies.add(await keysFile.copy('$newPath$suffix'));
+      }
+      await (await _ffiFor(currentName)).rename(newWalletName: newName);
+    } catch (_) {
+      for (final copy in copies) {
+        await copy.delete();
+      }
+      rethrow;
+    }
 
     currentWalletInfo.id = WalletBase.idFor(newName, getType());
     currentWalletInfo.name = newName;
-
     await currentWalletInfo.save();
+
+    await Directory(await pathForWalletDir(name: currentName, type: getType())).delete(
+      recursive: true,
+    );
   }
 
   /// A spend private key restores a spendable wallet; without it the wallet is
@@ -162,7 +176,7 @@ class MinotariWalletService extends WalletService<
   Future<WalletBase> restoreFromKeys(
     MinotariRestoreWalletFromKeysCredentials credentials, {
     bool? isTestnet,
-  }) async {
+  }) {
     final spendPrivateKeyHex = credentials.spendPrivateKeyHex;
     final isWatchOnly = spendPrivateKeyHex == null || spendPrivateKeyHex.isEmpty;
     credentials.walletInfo!.isWatchOnly = isWatchOnly;
@@ -190,7 +204,7 @@ class MinotariWalletService extends WalletService<
   Future<WalletBase> restoreFromSeed(
     MinotariRestoreWalletFromSeedCredentials credentials, {
     bool? isTestnet,
-  }) async {
+  }) {
     return _addWallet(
       credentials,
       (ffi, passphrase) => ffi.restore(credentials.mnemonic, passphrase: passphrase),
