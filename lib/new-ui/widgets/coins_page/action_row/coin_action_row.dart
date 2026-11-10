@@ -28,10 +28,15 @@ import 'coin_action_button.dart';
 
 class CoinActionRow extends StatelessWidget {
   const CoinActionRow(
-      {super.key, this.lightningMode = false, this.showSwap = true, required this.walletType});
+      {super.key,
+      this.lightningMode = false,
+      this.showSwap = true,
+      this.showSend = true,
+      required this.walletType});
 
   final bool lightningMode;
   final bool showSwap;
+  final bool showSend;
   final WalletType walletType;
 
   @override
@@ -43,39 +48,40 @@ class CoinActionRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: MediaQuery.of(context).size.width * 0.05,
         children: [
-          CoinActionButton(
-            key: ValueKey("home_page_send_button_key"),
-            icon: CakeImageWidget(
-              imageUrl: "assets/new-ui/send.svg",
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcIn,
+          if (showSend)
+            CoinActionButton(
+              key: ValueKey("home_page_send_button_key"),
+              icon: CakeImageWidget(
+                imageUrl: "assets/new-ui/send.svg",
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
               ),
-            ),
-            label: S.of(context).send,
-            action: () {
-                final sendPage = getIt.get<NewSendPage>(
-                  param1: SendPageParams(
-                    unspentCoinType:
-                        lightningMode ? UnspentCoinType.lightning : UnspentCoinType.nonMweb,
-                  ),
-                );
+              label: S.of(context).send,
+              action: () {
+                  final sendPage = getIt.get<NewSendPage>(
+                    param1: SendPageParams(
+                      unspentCoinType:
+                          lightningMode ? UnspentCoinType.lightning : UnspentCoinType.nonMweb,
+                    ),
+                  );
 
-                CupertinoScaffold.showCupertinoModalBottomSheet(
-                  context: context,
-                  isDismissible: true,
-                  barrierColor: Colors.black.withAlpha(60),
-                  builder: (context) {
-                    return Material(
-                      child: ModalNavigator(
-                        rootPage: sendPage,
-                        parentContext: context,
-                      ),
-                    );
-                  },
-                );
-            },
-          ),
+                  CupertinoScaffold.showCupertinoModalBottomSheet(
+                    context: context,
+                    isDismissible: true,
+                    barrierColor: Colors.black.withAlpha(60),
+                    builder: (context) {
+                      return Material(
+                        child: ModalNavigator(
+                          rootPage: sendPage,
+                          parentContext: context,
+                        ),
+                      );
+                    },
+                  );
+              },
+            ),
           CoinActionButton(
             key: ValueKey("home_page_receive_button_key"),
             icon: CakeImageWidget(

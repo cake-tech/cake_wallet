@@ -430,6 +430,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<NewDashboard>());
 
     case Routes.send:
+      // Watch-only wallets can't send; links and cards must not open the send page for them.
+      if (!getIt.get<AppStore>().wallet!.canSend()) {
+        return MaterialPageRoute<void>(
+            builder: (_) => Scaffold(body: Center(child: Text(S.current.watching))));
+      }
       final args = settings.arguments as Map<String, dynamic>?;
       final initialPaymentRequest = args?['paymentRequest'] as PaymentRequest?;
       final initialRawInput = args?["rawLink"] as String?;

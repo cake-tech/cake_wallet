@@ -259,6 +259,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   String? checkIfCanSend(Trade? trade, WalletBase wallet) {
+    if (!wallet.canSend()) return 'This wallet is view only and cannot send.';
     if (trade == null) return 'Trade is null';
 
     final tradeFrom = trade.from;
