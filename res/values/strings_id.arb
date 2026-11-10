@@ -1228,6 +1228,7 @@
   "solana_create_associated_token_account_exception": "Kesalahan saat membuat akun token terkait untuk alamat penerima.",
   "solana_invalid_data_message": "Terjadi kesalahan saat mengurai akun token terkait untuk token. Silakan konfirmasi alamat penerima dan coba lagi.",
   "solana_no_associated_token_account_exception": "Tidak ada akun token terkait untuk alamat ini.",
+  "solana_recipient_not_a_wallet": "Alamat ini bukan dompet. Ini mungkin akun token, alamat token, atau akun program seperti alamat pengaturan multisig, dan token yang dikirimkan ke sana bisa hilang. Tanyakan kepada penerima alamat dompet atau brankasnya.",
   "solana_sign_native_transaction_rent_exception": "Transaksi tidak dapat diselesaikan. Saldo SOL tidak mencukupi untuk biaya sewa (rent) setelah transaksi. Mohon isi ulang saldo SOL Anda atau kurangi jumlah SOL yang Anda kirim.",
   "solana_sign_spl_token_transaction_rent_exception": "Transaksi tidak dapat diselesaikan. SOL tidak cukup tersisa untuk biaya sewa (rent) setelah transaksi. Silakan isi ulang saldo SOL Anda.",
   "solana_unrecognized_token_program_exception": "Token ini menggunakan program token yang tidak dikenal, sehingga transaksi tidak dibuat. Node Anda mungkin mengembalikan data yang salah, coba beralih ke node lain.",

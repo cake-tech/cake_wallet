@@ -28,6 +28,10 @@ class SolanaCreateAssociatedTokenAccountException extends CreateAssociatedTokenA
   SolanaCreateAssociatedTokenAccountException(super.errorMessage);
 }
 
+class SolanaRecipientNotAWalletException extends RecipientNotAWalletException {
+  SolanaRecipientNotAWalletException(super.address);
+}
+
 class SolanaSignSPLTokenTransactionRentException extends SignSPLTokenTransactionRentException {}
 
 class SolanaNotAnNFTException extends NotAnNFTException {}

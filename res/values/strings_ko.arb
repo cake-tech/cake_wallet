@@ -1225,6 +1225,7 @@
   "solana_create_associated_token_account_exception": "수신자 주소에 대한 연관 토큰 계정을 생성하는 중 오류가 발생했습니다.",
   "solana_invalid_data_message": "토큰의 연관 토큰 계정을 파싱하는 중 오류가 발생했습니다. 수신 주소를 확인한 후 다시 시도해 주세요.",
   "solana_no_associated_token_account_exception": "이 주소에 연결된 토큰 계정이 없습니다.",
+  "solana_recipient_not_a_wallet": "이 주소는 지갑이 아닙니다. 토큰 계정, 토큰 주소 또는 다중서명 설정 주소와 같은 프로그램 계정일 수 있으며, 여기에 전송된 토큰이 손실될 수 있습니다. 수령인에게 지갑이나 금고 주소를 물어보세요.",
   "solana_sign_native_transaction_rent_exception": "트랜잭션을 완료할 수 없습니다. 트랜잭션 후 렌트에 필요한 SOL이 부족합니다. SOL 잔액을 충전하거나 전송할 SOL 금액을 줄여 주세요.",
   "solana_sign_spl_token_transaction_rent_exception": "트랜잭션을 완료할 수 없습니다. 트랜잭션 후 렌트 비용을 위해 남아 있는 SOL이 부족합니다. SOL 잔액을 충전해 주세요.",
   "solana_unrecognized_token_program_exception": "해당 토큰은 인식할 수 없는 토큰 프로그램을 사용하고 있어 거래가 생성되지 않았습니다. 노드가 잘못된 데이터를 반환할 수 있습니다. 다른 노드로 전환해 보세요.",

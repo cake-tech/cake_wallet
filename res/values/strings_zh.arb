@@ -1225,6 +1225,7 @@
   "solana_create_associated_token_account_exception": "为接收方地址创建关联代币账户时出错。",
   "solana_invalid_data_message": "解析该代币的关联代币账户时出错。请确认接收地址并重试。",
   "solana_no_associated_token_account_exception": "该地址没有关联的代币账户。",
+  "solana_recipient_not_a_wallet": "该地址不是钱包。它可能是令牌帐户、令牌地址或程序帐户（例如多重签名的设置地址），发送到它的令牌可能会丢失。询问收件人的钱包或金库地址。",
   "solana_sign_native_transaction_rent_exception": "交易无法完成。交易后剩余的 SOL 不足以支付租金。请为 SOL 余额充值，或减少发送的 SOL 数量。",
   "solana_sign_spl_token_transaction_rent_exception": "交易无法完成。交易后剩余的 SOL 不足以支付租金。请补充 SOL 余额。",
   "solana_unrecognized_token_program_exception": "该代币使用了无法识别的代币程序，因此未创建交易。您的节点可能返回错误数据，请尝试切换到另一个节点。",

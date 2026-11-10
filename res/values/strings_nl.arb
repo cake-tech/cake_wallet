@@ -1225,6 +1225,7 @@
   "solana_create_associated_token_account_exception": "Fout bij het maken van een geassocieerd tokenaccount voor ontvangingsadres.",
   "solana_invalid_data_message": "Fout bij het parseren van geassocieerd tokenaccount voor token. Bevestig het ontvangstadres en probeer het opnieuw.",
   "solana_no_associated_token_account_exception": "Er is geen geassocieerd tokenaccount voor dit adres.",
+  "solana_recipient_not_a_wallet": "Dit adres is geen portemonnee. Het kan een token-account, een token-adres of een programma-account zijn, zoals het instellingenadres van een multisig, en tokens die ernaar worden verzonden, kunnen verloren gaan. Vraag de ontvanger naar het adres van zijn portemonnee of kluis.",
   "solana_sign_native_transaction_rent_exception": "Transactie kan niet worden voltooid. Onvoldoende SOL over voor rent na de transactie. Vul je SOL-saldo aan of verminder de hoeveelheid SOL die je verzendt.",
   "solana_sign_spl_token_transaction_rent_exception": "Transactie kan niet worden voltooid. Onvoldoende SOL over voor rent na de transactie. Vul je SOL-saldo aan.",
   "solana_unrecognized_token_program_exception": "Dit token maakt gebruik van een niet-herkend tokenprogramma, dus de transactie is niet gemaakt. Uw knooppunt retourneert mogelijk verkeerde gegevens. Probeer over te schakelen naar een ander knooppunt.",

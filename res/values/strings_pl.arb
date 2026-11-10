@@ -1225,6 +1225,7 @@
   "solana_create_associated_token_account_exception": "Błąd podczas tworzenia powiązanego konta tokena dla adresu odbiorcy.",
   "solana_invalid_data_message": "Błąd podczas analizowania powiązanego konta tokena. Prosimy o potwierdzenie adresu odbioru i spróbowanie ponownie.",
   "solana_no_associated_token_account_exception": "Nie ma powiązanego konta tokenów dla tego adresu.",
+  "solana_recipient_not_a_wallet": "Ten adres nie jest portfelem. Może to być konto tokenowe, adres tokena lub konto programu takie jak adres ustawień multisiga i przesłane na nie tokeny mogą zostać utracone. Poproś odbiorcę o adres portfela lub skarbca.",
   "solana_sign_native_transaction_rent_exception": "Transakcja nie może zostać zrealizowana. Po transakcji pozostanie niewystarczająca ilość SOL na opłatę rent. Doładuj saldo SOL lub zmniejsz ilość wysyłanego SOL.",
   "solana_sign_spl_token_transaction_rent_exception": "Transakcja nie może zostać zrealizowana. Po jej wykonaniu pozostanie niewystarczająca ilość SOL na opłatę za rent. Proszę doładować saldo SOL.",
   "solana_unrecognized_token_program_exception": "Ten token korzysta z nierozpoznanego programu tokena, więc transakcja nie została utworzona. Twój węzeł może zwracać błędne dane. Spróbuj przełączyć się na inny węzeł.",

@@ -1227,6 +1227,7 @@
   "solana_create_associated_token_account_exception": "Jejavy oñemoheñói aja pe associated token account pe ohupytýva kundaharapépe.",
   "solana_invalid_data_message": "Jejavy eñemoñe'ẽ hag̃ua pe cuenta token asociada hag̃ua pe token-pe. Ikatúpiko ehechajey pe dirección de recepción ha eñeha'ã jey.",
   "solana_no_associated_token_account_exception": "Ndaipóri associated token account ko kundaharapépe.",
+  "solana_recipient_not_a_wallet": "Ko dirección ndaha’éi peteĩ billetera. Ikatu ha’e peteĩ cuenta token, peteĩ dirección token térã peteĩ cuenta programa rehegua ha’eháicha peteĩ dirección multisig ñembohekorã, ha umi token oñemondova’ekue chupe ikatu okañy. Eporandu pe recipiente-pe idirección billetera térã bóveda rehegua.",
   "solana_sign_native_transaction_rent_exception": "Ndaikatúi oñemohu'ã pe transacción. Ndaipóri SOL hembýva pe renta-rã pe transacción rire. Embohetave ne SOL saldo térã emomichĩ pe SOL remondóva.",
   "solana_sign_spl_token_transaction_rent_exception": "Ndaikatúi oñemohu'ã pe transacción. Ndaipóri SOL hembýva pe renta-rã pe transacción rire. Embohetave ne SOL saldo.",
   "solana_unrecognized_token_program_exception": "Ko token oipuru peteĩ programa token ndojehechakuaáiva, upévare ndojejapói pe transacción. Ikatu ne nodo ombojevy dato vai, eñeha’ã eñemoambue ambue nodo-pe.",
