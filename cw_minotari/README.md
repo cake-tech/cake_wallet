@@ -93,6 +93,10 @@ Get the digest with `gh release download <tag> -R tari-project/cw_tari_wallet -p
 then rerun `prepare_minotari.sh`. The Dart bindings always come from the same release, so they
 match the libraries.
 
+Every `prepare_minotari.sh` run replaces `lib/src/rust`, deleting the generated
+`scanner.freezed.dart`; run `./model_generator.sh` (or `dart run build_runner build` in
+`cw_minotari`) afterwards.
+
 ### 3. Configure Build
 
 ```bash

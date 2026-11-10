@@ -106,7 +106,7 @@ for platform in "$@"; do
     <key>CFBundlePackageType</key>
     <string>FMWK</string>
     <key>CFBundleShortVersionString</key>
-    <string>${CW_TARI_WALLET_TAG#v}</string>
+    <string>1.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
 </dict>
