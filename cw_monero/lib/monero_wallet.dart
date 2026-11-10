@@ -649,11 +649,16 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> rescan({required int height}) async {
+    _listener?.stop();
+    final heightBeforeRescan = monero_wallet.getCurrentHeight();
     walletInfo.restoreHeight = height;
-    walletInfo.isRecovery = true;
     monero_wallet.setRefreshFromBlockHeight(height: height);
     setupBackgroundSync(password, currentWallet!);
     monero_wallet.rescanBlockchainAsync();
+    for (var i = 0; i < 300 && monero_wallet.getCurrentHeight() >= heightBeforeRescan; i++) {
+      await Future.delayed(const Duration(milliseconds: 200));
+    }
+    walletInfo.isRecovery = true;
     await startSync();
     _askForUpdateBalance();
     walletAddresses.accountList.update();
