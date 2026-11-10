@@ -222,6 +222,21 @@ Uses first payment reference (payref) from transaction for lookup.
 - Seed words kept in the wallet database and read on demand for the seed page
 - Prebuilt native libraries for Android (arm64, armv7, x86_64), iOS, macOS, Linux (x86_64, aarch64) and Windows
 
+## Security model (data at rest)
+
+- **Keys are encrypted.** The seed and private keys live in the shared `wallet.db`, encrypted
+  with Argon2id + XChaCha20-Poly1305 under a random per-wallet passphrase. That passphrase
+  (and the spend private key of a wallet imported from keys) is kept only in the wallet's
+  `.keys` / `.keys.backup` files, which Cake encrypts with the wallet password.
+- **Everything else is not.** Transaction history, outputs, amounts and payment references
+  are stored **unencrypted** in one SQLite file, `wallets/minotari/wallet.db`, shared by every
+  Tari wallet on the device, the same as Zcash. Anyone who can read the app's files can see
+  the activity of every Tari wallet on the device, but cannot spend from them.
+- **Backups are encrypted.** Cake's app backups encrypt the whole archive, `wallet.db`
+  included, with the backup password. The database is checkpointed before it is copied.
+- **Logs.** The Rust library logs only to a rotating file under `<app dir>/minotari/logs`
+  (at Info, with credentials in node URLs redacted), never to logcat or os_log.
+
 ## Known Limitations
 
 1. **Hardware wallets:** Not supported

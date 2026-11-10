@@ -1,3 +1,5 @@
+import 'package:cw_core/root_dir.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_minotari/src/rust/api/wallet.dart' as wallet;
 import 'package:cw_minotari/src/rust/api/balance.dart' as balance;
 import 'package:cw_minotari/src/rust/api/address.dart' as address;
@@ -7,6 +9,7 @@ import 'package:cw_minotari/src/rust/api/scanner.dart' as scanner;
 import 'package:cw_minotari/src/rust/api/signing.dart' as signing;
 import 'package:cw_minotari/src/rust/api/transactions.dart' as transactions;
 import 'package:cw_minotari/src/rust/api/send_transaction.dart' as send_tx;
+import 'package:cw_minotari/src/rust/api/logger.dart' as logger;
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/frb_generated.dart';
 
@@ -35,6 +38,13 @@ class MinotariFfi {
     if (!_rustLibInitialized) {
       await RustLib.init();
       _rustLibInitialized = true;
+      // Rust logs go only to a rotating file (<app dir>/minotari/logs). A second engine in
+      // the same process (Android background sync) gets Ok without a second logger.
+      try {
+        logger.initLogger(basePath: '${(await getAppDir()).path}/minotari');
+      } catch (e) {
+        printV('Minotari logger not started: $e');
+      }
     }
   }
 

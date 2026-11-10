@@ -16,6 +16,7 @@ import 'package:cw_core/db/sqlite.dart';
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 
@@ -374,6 +375,22 @@ class BackupServiceV3 extends $BackupService {
     }
   }
 
+  /// Lets every wallet type that has wallets make its files consistent before they are
+  /// copied. One that fails or hangs is logged and the backup goes ahead, as before.
+  Future<void> _prepareWalletsForBackup() async {
+    final types = (await WalletInfo.getAll()).map((info) => info.type).toSet();
+    for (final type in types) {
+      try {
+        await getIt
+            .get<WalletService>(param1: type)
+            .prepareForBackup()
+            .timeout(const Duration(seconds: 10));
+      } catch (e) {
+        printV('Preparing $type wallets for backup failed: $e');
+      }
+    }
+  }
+
   Future<File> exportBackupFileV3(String password, {String nonce = secrets.backupSalt}) async {
     final metadata = BackupMetadata(
       version: BackupVersion.v3,
@@ -418,7 +435,7 @@ class BackupServiceV3 extends $BackupService {
             : null;
     await pausedMinotari?.stopSync();
     try {
-      await minotari?.checkpointDatabase();
+      await _prepareWalletsForBackup();
       zipEncoder.create(archivePath);
       outer:
       for (var entity in fileEntities) {

@@ -276,7 +276,8 @@ class MinotariWalletService extends WalletService<
   }
 
   /// Makes wallet.db consistent before an app backup copies it; nothing to do without one.
-  static Future<void> checkpointDatabase() async {
+  @override
+  Future<void> prepareForBackup() async {
     final dbPath = '${await pathForWalletTypeDir(type: WalletType.minotari)}/wallet.db';
     if (!File(dbPath).existsSync()) return;
     // The checkpoint doesn't depend on the wallet; any name will do.

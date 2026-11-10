@@ -33,6 +33,11 @@ abstract class WalletService<N extends WalletCredentials, RFS extends WalletCred
 
   Future<void> remove(String wallet);
 
+  /// Called before an app backup copies the wallet files, whether or not a wallet of this
+  /// type is open. Coins with a database in WAL mode (e.g. SQLite) flush it here so the
+  /// copied files are consistent. A failure is logged and the backup goes ahead.
+  Future<void> prepareForBackup() async {}
+
   Future<void> rename(String currentName, String password, String newName) async {
     if (currentName == newName) {
       return;

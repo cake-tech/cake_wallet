@@ -124,7 +124,13 @@ class LightningWallet {
       _sdk = await connect(request: connectRequest);
 
       _eventStream ??= sdk.addEventListener().asBroadcastStream();
-      _logStream ??= initLogging().asBroadcastStream();
+      // Breez's own crates at info, everything else (hyper, h2, reqwest, other coins' Rust
+      // libraries in the same process) only from warn. Targets as in the Breez SDK's
+      // DEFAULT_FILTER (crates/breez-sdk/core/src/logger.rs).
+      _logStream ??= initLogging(
+        logFilter: 'warn,breez_sdk_spark=info,breez_sdk_common=info,breez_sdk_spark_flutter=info,'
+            'spark=info,spark_wallet=info,flashnet=info,platform_utils=info',
+      ).asBroadcastStream();
 
       try {
         final logFile = File("$appPath/lightning.log")..createSync();
