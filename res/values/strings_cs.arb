@@ -695,7 +695,6 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Těžba",
-  "minotari_node_no_socks": "Uzly Minotari zatím nemohou používat proxy SOCKS.",
   "minotari_node_requires_ssl": "Uzly Minotari musí používat SSL (https).",
   "minotari_tor_unsupported": "Minotari zatím nemůže používat Tor, takže se nesynchronizuje ani neodesílá, když je vestavěný Tor zapnutý. Vypnutí vestavěného Tor ovlivní všechny peněženky.",
   "mint_address": "Adresa ražby",

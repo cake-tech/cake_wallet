@@ -696,7 +696,6 @@
   "min_amount": "Kere ju: ${value}",
   "min_value": "Kéré jù: ${value} ${currency}",
   "mining": "Iwakusa",
-  "minotari_node_no_socks": "Awọn apa Minotari ko le lo aṣoju SOCKS sibẹsibẹ.",
   "minotari_node_requires_ssl": "Awọn apa Minotari gbọdọ lo SSL (https).",
   "minotari_tor_unsupported": "Minotari ko le lo Tor sibẹsibẹ, nitorina ko muṣiṣẹpọ tabi firanṣẹ lakoko ti Tor ti a ṣe sinu wa ni titan. Yipada Tor ti a ṣe sinu rẹ yoo kan gbogbo awọn apamọwọ.",
   "mint_address": "Àdírẹ́sì Mint",

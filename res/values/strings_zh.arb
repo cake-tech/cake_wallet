@@ -695,7 +695,6 @@
   "min_amount": "最小值：${value}",
   "min_value": "最小值：${value} ${currency}",
   "mining": "挖矿",
-  "minotari_node_no_socks": "Minotari 节点尚不能使用 SOCKS 代理。",
   "minotari_node_requires_ssl": "Minotari 节点必须使用 SSL (https)。",
   "minotari_tor_unsupported": "Minotari 尚无法使用 Tor，因此当内置 Tor 开启时，它不会同步或发送。关闭内置 Tor 会影响所有钱包。",
   "mint_address": "铸币地址",

@@ -696,7 +696,6 @@
   "min_amount": "最小: ${value}",
   "min_value": "最小: ${value} ${currency}",
   "mining": "マイニング",
-  "minotari_node_no_socks": "Minotari ノードはまだ SOCKS プロキシを使用できません。",
   "minotari_node_requires_ssl": "Minotari ノードは SSL (https) を使用する必要があります。",
   "minotari_tor_unsupported": "Minotari はまだ Tor を使用できないため、内蔵 Tor がオンになっている間は同期や送信ができません。組み込みの Tor をオフにすると、すべてのウォレットに影響します。",
   "mint_address": "ミントアドレス",

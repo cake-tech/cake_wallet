@@ -695,7 +695,6 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Rudarenje",
-  "minotari_node_no_socks": "Minotari čvorovi još ne mogu koristiti SOCKS proxy.",
   "minotari_node_requires_ssl": "Minotari čvorovi moraju koristiti SSL (https).",
   "minotari_tor_unsupported": "Minotari još ne može koristiti Tor, pa se ne sinkronizira niti šalje dok je ugrađeni Tor uključen. Isključivanje ugrađenog Tor-a utječe na sve novčanike.",
   "mint_address": "Adresa mintanja",

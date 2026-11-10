@@ -695,7 +695,6 @@
   "min_amount": "Мін.: ${value}",
   "min_value": "Мін: ${value} ${currency}",
   "mining": "Майнінг",
-  "minotari_node_no_socks": "Вузли Minotari ще не можуть використовувати проксі SOCKS.",
   "minotari_node_requires_ssl": "Вузли Minotari повинні використовувати SSL (https).",
   "minotari_tor_unsupported": "Minotari ще не може використовувати Tor, тому він не синхронізується та не надсилає, поки вбудований Tor увімкнено. Вимкнення вбудованого Tor впливає на всі гаманці.",
   "mint_address": "Адреса мінту",

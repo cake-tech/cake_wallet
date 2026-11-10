@@ -695,7 +695,6 @@
   "min_amount": "کم از کم: ${value}",
   "min_value": "کم از کم: ${value} ${currency}",
   "mining": "مائننگ",
-  "minotari_node_no_socks": "Minotari نوڈس ابھی تک SOCKS پراکسی استعمال نہیں کر سکتے ہیں۔",
   "minotari_node_requires_ssl": "Minotari نوڈس کو SSL (https) استعمال کرنا چاہیے۔",
   "minotari_tor_unsupported": "Minotari ابھی تک Tor کا استعمال نہیں کر سکتا، اس لیے بلٹ ان Tor آن ہونے پر یہ مطابقت پذیر یا بھیج نہیں سکتا۔ بلٹ ان Tor کو آف کرنے سے تمام بٹوے متاثر ہوتے ہیں۔",
   "mint_address": "منٹ ایڈریس",

@@ -303,8 +303,9 @@ abstract class MinotariWalletBase
     return ffi;
   }
 
-  /// Every node call goes through here; `started` is the Tor signal ProxyWrapper routes by.
-  String get _nodeUrl => minotariNodeUrl(_currentNode, torOn: CakeTor.instance?.started == true);
+  /// Every node call goes through here. Tor counts once the user turns it on, not only once
+  /// it runs: while it starts, or after it failed to, nothing may go out over clearnet.
+  String get _nodeUrl => minotariNodeUrl(_currentNode, torOn: CakeTor.requestedOrStarted);
 
   Future<void> init() async {
     // Every Minotari wallet is mainnet; refuse anything else rather than open it as mainnet.
@@ -338,7 +339,7 @@ abstract class MinotariWalletBase
     _currentNode = node;
 
     // With Tor on, say why rather than just failing.
-    if (CakeTor.instance?.started == true) {
+    if (CakeTor.requestedOrStarted) {
       syncStatus =
           FailedSyncStatus(cause: const TorUnsupportedException('Minotari cannot use Tor yet.'));
       return;

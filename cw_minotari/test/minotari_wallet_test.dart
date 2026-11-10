@@ -5,6 +5,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/node.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -268,6 +269,15 @@ void main() {
 
     test('an SSL node gives its https URL', () {
       expect(minotariNodeUrl(node(ssl: true), torOn: false), 'https://rpc.tari.com');
+    });
+
+    test('with Tor turned on but not (yet, or ever) running nothing is sent', () {
+      addTearDown(() => CakeTor.requested = false);
+      CakeTor.requested = true;
+
+      expect(CakeTor.instance?.started, isNot(true));
+      expect(() => minotariNodeUrl(node(ssl: true), torOn: CakeTor.requestedOrStarted),
+          throwsA(isA<TorUnsupportedException>()));
     });
 
     test('with Tor running nothing is sent', () {

@@ -695,7 +695,6 @@
   "min_amount": "Mafi ƙanƙanta: ${value}",
   "min_value": "Mafi ƙanƙanta: ${value} ${currency}",
   "mining": "Hakar ma'adinai",
-  "minotari_node_no_socks": "Ƙungiyoyin Minotari ba za su iya amfani da wakili na SOCKS ba tukuna.",
   "minotari_node_requires_ssl": "Dole ne nodes na Minotari suyi amfani da SSL (https).",
   "minotari_tor_unsupported": "Minotari ba zai iya amfani da Tor ba tukuna, don haka baya aiki tare ko aikawa yayin ginannen Tor yana kunne. Kashe ginannen Tor yana shafar duk wallet.",
   "mint_address": "Adireshin Mint",

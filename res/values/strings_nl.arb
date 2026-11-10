@@ -695,7 +695,6 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Mining",
-  "minotari_node_no_socks": "Minotari-knooppunten kunnen nog geen SOCKS-proxy gebruiken.",
   "minotari_node_requires_ssl": "Minotari-knooppunten moeten SSL (https) gebruiken.",
   "minotari_tor_unsupported": "Minotari kan Tor nog niet gebruiken, dus het synchroniseert of verzendt niet terwijl de ingebouwde Tor is ingeschakeld. Het uitschakelen van de ingebouwde Tor heeft gevolgen voor alle portemonnees.",
   "mint_address": "Mint adres",

@@ -695,7 +695,6 @@
   "min_amount": "الحد الأدنى: ${value}",
   "min_value": "الحد الأدنى: ${value} ${currency}",
   "mining": "التعدين",
-  "minotari_node_no_socks": "لا تستطيع عقد Minotari استخدام بروكسي SOCKS حتى الآن.",
   "minotari_node_requires_ssl": "يجب أن تستخدم عقد Minotari SSL (https).",
   "minotari_tor_unsupported": "لا يستطيع Minotari استخدام Tor حتى الآن، لذلك لا تتم مزامنته أو إرساله أثناء تشغيل Tor المدمج. يؤثر إيقاف تشغيل Tor المدمج على جميع المحافظ.",
   "mint_address": "عنوان السكّ",

@@ -696,7 +696,6 @@
   "min_amount": "Tối thiểu: ${value}",
   "min_value": "Tối thiểu: ${value} ${currency}",
   "mining": "Đào",
-  "minotari_node_no_socks": "Các nút Minotari chưa thể sử dụng proxy SOCKS.",
   "minotari_node_requires_ssl": "Các nút Minotari phải sử dụng SSL (https).",
   "minotari_tor_unsupported": "Minotari chưa thể sử dụng Tor nên nó không đồng bộ hóa hoặc gửi khi Tor tích hợp được bật. Việc tắt Tor tích hợp sẽ ảnh hưởng đến tất cả các ví.",
   "mint_address": "Địa chỉ mint",

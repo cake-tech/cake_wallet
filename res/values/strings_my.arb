@@ -695,7 +695,6 @@
   "min_amount": "အနည်းဆုံး: ${value}",
   "min_value": "အနည်းဆုံး: ${value} ${currency}",
   "mining": "မိုင်းနင်း",
-  "minotari_node_no_socks": "Minotari nodes များသည် SOCKS proxy ကို အသုံးမပြုနိုင်သေးပါ။",
   "minotari_node_requires_ssl": "Minotari nodes များသည် SSL (https) ကို အသုံးပြုရပါမည်။",
   "minotari_tor_unsupported": "Minotari သည် Tor ကို အသုံးမပြုနိုင်သေးသောကြောင့် တပ်ဆင်ထားသည့် Tor ကိုဖွင့်ထားစဉ်တွင် ထပ်တူပြုခြင်း သို့မဟုတ် ပေးပို့ခြင်းမပြုပါ။ Built-in Tor ပိတ်ခြင်းသည် ပိုက်ဆံအိတ်အားလုံးအပေါ် သက်ရောက်မှုရှိသည်။",
   "mint_address": "Mint လိပ်စာ",

@@ -695,7 +695,6 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Mining",
-  "minotari_node_no_socks": "Node Minotari belum dapat menggunakan proksi SOCKS.",
   "minotari_node_requires_ssl": "Node Minotari harus menggunakan SSL (https).",
   "minotari_tor_unsupported": "Minotari belum bisa menggunakan Tor, sehingga tidak menyinkronkan atau mengirim saat Tor bawaan aktif. Mematikan Tor bawaan akan mempengaruhi semua dompet.",
   "mint_address": "Alamat Mint",

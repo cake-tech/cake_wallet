@@ -696,7 +696,6 @@
   "min_amount": "Michĩvéva: ${value}",
   "min_value": "Michĩ: ${value} ${currency}",
   "mining": "Minería",
-  "minotari_node_no_socks": "Umi nodo Minotari ndaikatúi gueteri oipuru peteĩ proxy SOCKS.",
   "minotari_node_requires_ssl": "Umi nodo minotari oipuruvaꞌerã SSL (https).",
   "minotari_tor_unsupported": "Minotari ndaikatúi gueteri oipuru Tor, upévare noñembojoajúi térã nomondói Tor incorporado oĩ aja. Oñembogue ramo Tor incorporado oityvyro opaite billetera.",
   "mint_address": "Mint Kundaharape",

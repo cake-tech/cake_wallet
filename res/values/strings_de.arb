@@ -739,7 +739,6 @@
   "min_amount": "Min.: ${value}",
   "min_value": "Min.: ${value} ${currency}",
   "mining": "Mining",
-  "minotari_node_no_socks": "Minotari-Knoten können noch keinen SOCKS-Proxy verwenden.",
   "minotari_node_requires_ssl": "Minotari-Knoten müssen SSL (https) verwenden.",
   "minotari_tor_unsupported": "Minotari can't use Tor yet, so it doesn't sync or send while built-in Tor is on. Das Ausschalten des integrierten Tor wirkt sich auf alle Wallets aus.",
   "mint_address": "Mint-Adresse",

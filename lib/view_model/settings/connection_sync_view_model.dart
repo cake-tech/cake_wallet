@@ -13,6 +13,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -328,7 +329,10 @@ abstract class ConnectionSyncViewModelBase with Store {
       unawaited(stopMinotari
           .then((_) => ensureTorStarted(context: context.mounted ? context : null))
           .catchError((Object e, StackTrace s) {
-        if (isMinotari) _wallet.syncStatus = FailedSyncStatus();
+        if (isMinotari) {
+          _wallet.syncStatus = FailedSyncStatus(
+              cause: const TorUnsupportedException('Minotari cannot use Tor yet.'));
+        }
         Error.throwWithStackTrace(e, s);
       }).then((_) async {
         if (_settingsStore.currentBuiltinTor == false) return;

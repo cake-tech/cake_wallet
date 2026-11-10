@@ -695,7 +695,6 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min.: ${value} ${currency}",
   "mining": "Wydobywanie",
-  "minotari_node_no_socks": "Węzły Minotari nie mogą jeszcze korzystać z serwera proxy SOCKS.",
   "minotari_node_requires_ssl": "Węzły Minotari muszą korzystać z protokołu SSL (https).",
   "minotari_tor_unsupported": "Minotari nie może jeszcze używać Tora, więc nie synchronizuje ani nie wysyła, gdy wbudowany Tor jest włączony. Wyłączenie wbudowanego Tora wpływa na wszystkie portfele.",
   "mint_address": "Adres mintu",

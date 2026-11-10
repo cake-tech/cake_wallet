@@ -470,6 +470,10 @@ abstract class TransactionDetailsViewModelBase with Store {
       return formattedPendingStatus;
     }
 
+    if (wallet.type == WalletType.minotari && isMinotariFailedTransaction(transactionInfo)) {
+      return " (${minotariTransactionStatus(transactionInfo)})";
+    }
+
     return transactionInfo.isPending ? S.current.pending : "";
   }
 

@@ -260,10 +260,9 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       state = FailureState(S.current.minotari_node_requires_ssl);
       return;
     }
-    if (walletType == WalletType.minotari && socksProxyAddress.isNotEmpty) {
-      state = FailureState(S.current.minotari_node_no_socks);
-      return;
-    }
+    // The form has no proxy section for Minotari, so a proxy left on an older node is dropped
+    // here; the wallet would refuse a proxied node.
+    if (walletType == WalletType.minotari) socksProxyAddress = '';
     editingNode ??= Node();
     editingNode!.type = walletType;
     editingNode!.label = label;

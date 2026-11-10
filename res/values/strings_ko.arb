@@ -695,7 +695,6 @@
   "min_amount": "최소: ${value}",
   "min_value": "최소: ${value} ${currency}",
   "mining": "채굴",
-  "minotari_node_no_socks": "Minotari 노드는 아직 SOCKS 프록시를 사용할 수 없습니다.",
   "minotari_node_requires_ssl": "Minotari 노드는 SSL(https)을 사용해야 합니다.",
   "minotari_tor_unsupported": "미노타리는 아직 Tor를 사용할 수 없기 때문에 내장된 Tor가 켜져 있는 동안에는 동기화나 전송이 되지 않습니다. 내장 Tor를 끄면 모든 지갑에 영향을 미칩니다.",
   "mint_address": "민트 주소",

@@ -695,7 +695,6 @@
   "min_amount": "Mín.: ${value}",
   "min_value": "Mín.: ${value} ${currency}",
   "mining": "Minería",
-  "minotari_node_no_socks": "Los nodos Minotari aún no pueden usar un proxy SOCKS.",
   "minotari_node_requires_ssl": "Los nodos Minotari deben utilizar SSL (https).",
   "minotari_tor_unsupported": "Minotari aún no puede usar Tor, por lo que no se sincroniza ni envía mientras el Tor integrado está activado. Desactivar Tor integrado afecta a todas las billeteras.",
   "mint_address": "Dirección de acuñación",

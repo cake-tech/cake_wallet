@@ -695,7 +695,6 @@
   "min_amount": "Նվազագույնը՝ ${value}",
   "min_value": "Նվազագույնը՝ ${value} ${currency}",
   "mining": "Մայնինգ",
-  "minotari_node_no_socks": "Minotari հանգույցները դեռ չեն կարող օգտագործել SOCKS պրոքսի:",
   "minotari_node_requires_ssl": "Minotari հանգույցները պետք է օգտագործեն SSL (https):",
   "minotari_tor_unsupported": "Minotari-ն դեռ չի կարող օգտագործել Tor-ը, ուստի այն չի համաժամացվում կամ ուղարկվում, երբ ներկառուցված Tor-ը միացված է: Ներկառուցված Tor-ն անջատելը ազդում է բոլոր դրամապանակների վրա:",
   "mint_address": "Մինթի հասցե",

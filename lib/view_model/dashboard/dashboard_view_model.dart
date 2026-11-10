@@ -56,6 +56,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -1604,7 +1605,10 @@ abstract class DashboardViewModelBase with Store {
       unawaited(stopMinotari
           .then((_) => ensureTorStarted(context: context.mounted ? context : null))
           .catchError((Object e, StackTrace s) {
-        if (isMinotari) wallet.syncStatus = FailedSyncStatus();
+        if (isMinotari) {
+          wallet.syncStatus = FailedSyncStatus(
+              cause: const TorUnsupportedException('Minotari cannot use Tor yet.'));
+        }
         Error.throwWithStackTrace(e, s);
       }).then((_) async {
         if (settingsStore.currentBuiltinTor == false)

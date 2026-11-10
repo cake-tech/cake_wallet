@@ -695,7 +695,6 @@
   "min_amount": "حداقل: ${value}",
   "min_value": "حداقل: ${value} ${currency}",
   "mining": "ماینینگ",
-  "minotari_node_no_socks": "گره های Minotari هنوز نمی توانند از پروکسی SOCKS استفاده کنند.",
   "minotari_node_requires_ssl": "گره های Minotari باید از SSL (https) استفاده کنند.",
   "minotari_tor_unsupported": "Minotari هنوز نمی‌تواند از Tor استفاده کند، بنابراین وقتی Tor داخلی روشن است، همگام‌سازی یا ارسال نمی‌شود. خاموش کردن Tor تعبیه شده بر همه کیف پول ها تأثیر می گذارد.",
   "mint_address": "آدرس ضرب",

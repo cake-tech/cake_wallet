@@ -695,7 +695,6 @@
   "min_amount": "ขั้นต่ำ: ${value}",
   "min_value": "ขั้นต่ำ: ${value} ${currency}",
   "mining": "การขุดเหรียญ",
-  "minotari_node_no_socks": "โหนด Minotari ยังไม่สามารถใช้พร็อกซี SOCKS ได้",
   "minotari_node_requires_ssl": "โหนด Minotari ต้องใช้ SSL (https)",
   "minotari_tor_unsupported": "Minotari ยังไม่สามารถใช้ Tor ได้ ดังนั้นจึงไม่สามารถซิงค์หรือส่งในขณะที่ Tor ในตัวเปิดอยู่ การปิด Tor ในตัวจะส่งผลต่อกระเป๋าเงินทั้งหมด",
   "mint_address": "ที่อยู่ Mint",

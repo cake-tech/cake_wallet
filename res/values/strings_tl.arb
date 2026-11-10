@@ -695,7 +695,6 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Pagmimina",
-  "minotari_node_no_socks": "Ang mga Minotari node ay hindi pa makakagamit ng SOCKS proxy.",
   "minotari_node_requires_ssl": "Dapat gumamit ng SSL (https) ang mga Minotari node.",
   "minotari_tor_unsupported": "Hindi pa magagamit ng Minotari ang Tor, kaya hindi ito nagsi-sync o nagpapadala habang naka-on ang built-in na Tor. Ang pag-off ng built-in na Tor ay makakaapekto sa lahat ng wallet.",
   "mint_address": "Mint Address",

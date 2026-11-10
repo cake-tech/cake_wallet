@@ -695,7 +695,6 @@
   "min_amount": "Min : ${value}",
   "min_value": "Min. : ${value} ${currency}",
   "mining": "Minage",
-  "minotari_node_no_socks": "Les nœuds Minotari ne peuvent pas encore utiliser de proxy SOCKS.",
   "minotari_node_requires_ssl": "Les nœuds Minotari doivent utiliser SSL (https).",
   "minotari_tor_unsupported": "Minotari ne peut pas encore utiliser Tor, donc il ne se synchronise ni n'envoie lorsque Tor intégré est activé. La désactivation de Tor intégré affecte tous les portefeuilles.",
   "mint_address": "Adresse de mint",

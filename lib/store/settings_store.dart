@@ -44,6 +44,7 @@ import 'package:cake_wallet/view_model/settings/sync_mode.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/set_app_secure_native.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
@@ -509,7 +510,10 @@ abstract class SettingsStoreBase with Store {
       sharedPreferences.setBool(PreferencesKey.syncAllKey, syncAll);
     });
 
+    // Wallets that can't use Tor (Minotari) read the setting from cw_core.
+    CakeTor.requested = currentBuiltinTor;
     reaction((_) => currentBuiltinTor, (bool builtinTor) {
+      CakeTor.requested = builtinTor;
       sharedPreferences.setBool(PreferencesKey.builtinTorKey, builtinTor);
     });
 
