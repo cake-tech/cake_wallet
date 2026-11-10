@@ -316,6 +316,7 @@ class _NewSendPageState extends State<NewSendPage> {
       controller.dispose();
     }
     _addressFocusNode.dispose();
+    widget.sendViewModel.dispose();
     super.dispose();
   }
 

@@ -2,8 +2,6 @@ import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
-import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
@@ -50,7 +48,7 @@ abstract class OutputBase with Store {
         estimatedFee = Money.zero(cryptoCurrencyHandler()),
         parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
     // Only on becoming synced: wallets that re-report synced (Minotari, every block poll)
-    // would otherwise refetch the fee for every Output ever created, and these never end.
+    // would otherwise refetch the fee for every live Output each time.
     _syncedReaction = reaction(
       (_) => _wallet.syncStatus is SyncedSyncStatus,
       (bool isSynced) {

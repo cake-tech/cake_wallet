@@ -210,6 +210,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return results.isEmpty ? null : results.first;
   }
 
+  /// Ends the outputs' fee reactions; call when the send screen closes.
+  void dispose() {
+    for (final output in outputs) {
+      output.dispose();
+    }
+  }
+
   @action
   void clearOutputs() {
     for (final output in outputs) {

@@ -208,6 +208,7 @@ abstract class MinotariWalletBase
 
   /// The latest quote request per priority; an older one finishing later is not cached.
   final Map<TransactionPriority, int> _feeQuoteRequests = {};
+  final Map<(TransactionPriority, int, bool), Future<int>> _feeQuotesInFlight = {};
 
   String _password;
   String _dbPassphrase;
@@ -530,31 +531,36 @@ abstract class MinotariWalletBase
       return quote.fee;
     }
 
-    final request = (_feeQuoteRequests[priority] ?? 0) + 1;
-    _feeQuoteRequests[priority] = request;
-    try {
-      final int fee;
-      if (sendAll) {
-        fee = (await ffi.estimateSendAllFee(recipientAddress: address)).fee.toInt();
-      } else {
-        fee = (await ffi.estimateFee(
-          amount: BigInt.from(requested),
-          numOutputs: 1,
-          priority: _feePriority(priority),
-          baseNodeUrl: _nodeUrl,
-        ))
-            .estimatedFee
-            .toInt();
-      }
-      if (_feeQuoteRequests[priority] == request) {
-        _feeQuotes[priority] =
-            (amount: requested, sendAll: sendAll, fee: fee, quotedAt: DateTime.now());
-      }
-      return fee;
-    } catch (e) {
+    // Identical requests at once (one per send-screen output) share a single node call.
+    final key = (priority, requested, sendAll);
+    return _feeQuotesInFlight[key] ??=
+        _fetchFeeQuote(ffi, priority, requested, sendAll).catchError((Object e) {
       printV('Minotari fee estimate failed: $e');
       return calculateEstimatedFee(priority, amount);
+    }).whenComplete(() => _feeQuotesInFlight.remove(key));
+  }
+
+  Future<int> _fetchFeeQuote(
+      MinotariFfi ffi, TransactionPriority priority, int amount, bool sendAll) async {
+    final request = (_feeQuoteRequests[priority] ?? 0) + 1;
+    _feeQuoteRequests[priority] = request;
+    final int fee;
+    if (sendAll) {
+      fee = (await ffi.estimateSendAllFee(recipientAddress: address)).fee.toInt();
+    } else {
+      fee = (await ffi.estimateFee(
+        amount: BigInt.from(amount),
+        numOutputs: 1,
+        priority: _feePriority(priority),
+        baseNodeUrl: _nodeUrl,
+      ))
+          .estimatedFee
+          .toInt();
     }
+    if (_feeQuoteRequests[priority] == request) {
+      _feeQuotes[priority] = (amount: amount, sendAll: sendAll, fee: fee, quotedAt: DateTime.now());
+    }
+    return fee;
   }
 
   FeePriority _feePriority(TransactionPriority? priority) => switch (priority) {

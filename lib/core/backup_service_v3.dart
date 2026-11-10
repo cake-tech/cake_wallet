@@ -410,8 +410,12 @@ class BackupServiceV3 extends $BackupService {
     // nothing writes it between the checkpoint and the end of the copy, then restart it.
     // shortcut: a scan Android background sync runs in its own engine isn't stopped; upgrade
     // to a cw snapshot (VACUUM INTO / SQLite backup API) once cw_tari_wallet offers one.
+    // Only a running scan is stopped and restarted, as on app pause.
     final openWallet = getIt.get<AppStore>().wallet;
-    final pausedMinotari = openWallet?.type == WalletType.minotari ? openWallet : null;
+    final pausedMinotari =
+        openWallet?.type == WalletType.minotari && minotari!.isScanning(openWallet!)
+            ? openWallet
+            : null;
     await pausedMinotari?.stopSync();
     try {
       await minotari?.checkpointDatabase();
