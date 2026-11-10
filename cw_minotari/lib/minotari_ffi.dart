@@ -143,24 +143,32 @@ class MinotariFfi {
 
   Future<balance.AccountBalanceDto> getBalance() => balance.getBalance(walletName: walletName);
 
+  static const backgroundScanDeadline = Duration(seconds: 240);
+
   scanner.ScanHandle createScanHandle() => scanner.createScanHandle(walletName: walletName);
 
-  /// Continuous scan with [handle]; with [fromHeight] the wallet is rolled back and
-  /// rescanned from there.
+  /// Scan with [handle]; with [fromHeight] the wallet is rolled back and rescanned from
+  /// there. A foreground scan is continuous. A background scan (an Android background sync
+  /// slot) is one pass on one thread that stops by [backgroundScanDeadline], well inside the
+  /// slot's 10-minute limit so other wallets get a turn; the next slot resumes where it stopped.
   Stream<scanner.ScanEventDto> scan({
     required scanner.ScanHandle handle,
     required String baseNodeUrl,
     required scanner.ScanPriority priority,
     int? fromHeight,
   }) {
+    final background = priority == scanner.ScanPriority.background;
     final config = scanner.ScanConfiguration(
       walletName: walletName,
       baseUrl: baseNodeUrl,
       batchSize: BigInt.from(25),
-      continuous: true,
+      continuous: !background,
       pollIntervalSeconds: BigInt.from(60),
       requiredConfirmations: BigInt.from(3),
       priority: priority,
+      processingThreads: background ? 1 : null,
+      eventBuffer: background ? 256 : null,
+      deadlineSeconds: background ? BigInt.from(backgroundScanDeadline.inSeconds) : null,
     );
 
     if (fromHeight == null) return scanner.startScan(handle: handle, config: config);

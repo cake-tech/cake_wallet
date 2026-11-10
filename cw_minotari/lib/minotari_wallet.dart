@@ -159,6 +159,11 @@ List<SendRecipient> minotariRecipients(List<OutputInfo> outputs) {
   }).toList();
 }
 
+/// Whether cw refused a background scan because the app is scanning the wallet itself.
+/// Matches cw's error text, which is part of its frozen API.
+bool minotariForegroundScanActive(Object error) =>
+    error.toString().contains('A foreground scan of this wallet is already running');
+
 /// Blocks a caught-up scan may trail the tip by and still count as synced.
 const _syncedTipGap = 2;
 
@@ -167,11 +172,14 @@ const _syncedTipGap = 2;
 /// A scan is first synced when it has caught up (Waiting or Completed); after that
 /// ([caughtUp]) it stays synced while it trails the tip by at most [_syncedTipGap] blocks.
 /// A scan that was stopped or replaced leaves the wallet not connected rather than synced
-/// or failed.
+/// or failed. A [background] sync slot instead ends paused when it was stopped or ran out
+/// of time, and handled by the foreground when the app took the wallet over (or already
+/// had it), so the background loop moves on without retrying or calling it synced.
 SyncStatus? minotariSyncStatusFor(
   ScanEventDto event, {
   required int startHeight,
   required bool caughtUp,
+  bool background = false,
 }) =>
     switch (event) {
       ScanEventDto_Started() => SyncronizingSyncStatus(),
@@ -181,6 +189,11 @@ SyncStatus? minotariSyncStatusFor(
       ScanEventDto_Progress(:final currentHeight, :final tipHeight) =>
         SyncingSyncStatus.fromHeightValues(tipHeight.toInt(), startHeight, currentHeight.toInt()),
       ScanEventDto_Waiting() || ScanEventDto_Completed() => SyncedSyncStatus(),
+      ScanEventDto_Cancelled() || ScanEventDto_BudgetExhausted() when background =>
+        PausedSyncStatus(),
+      ScanEventDto_Superseded() when background => HandledByForegroundSyncStatus(),
+      ScanEventDto_Error(:final field0) when background && minotariForegroundScanActive(field0) =>
+        HandledByForegroundSyncStatus(),
       ScanEventDto_Cancelled() ||
       ScanEventDto_Superseded() ||
       ScanEventDto_BudgetExhausted() =>
@@ -357,8 +370,9 @@ abstract class MinotariWalletBase
   @override
   Future<void> startSync() => _scan();
 
-  /// Background priority: it never replaces the app's own scan (cw refuses it, which ends
-  /// as [FailedSyncStatus]), and a foreground scan replaces it.
+  /// One budgeted pass at background priority. It never replaces the app's own scan (cw
+  /// refuses it) and the app's scan replaces it; both end as [HandledByForegroundSyncStatus].
+  /// The DB session was opened when the wallet loaded; [close] stops this scan and locks it.
   @override
   Future<void> startBackgroundSync() => _scan(priority: ScanPriority.background);
 
@@ -394,7 +408,9 @@ abstract class MinotariWalletBase
           if (_scanHandle != handle) return;
           printV('Minotari scan failed: $error');
           _keepScanning = false;
-          syncStatus = FailedSyncStatus();
+          syncStatus = priority == ScanPriority.background && minotariForegroundScanActive(error)
+              ? HandledByForegroundSyncStatus()
+              : FailedSyncStatus();
         },
       );
     } catch (e) {
@@ -439,6 +455,7 @@ abstract class MinotariWalletBase
       event,
       startHeight: _scanStartHeight,
       caughtUp: _scanCaughtUp,
+      background: _scanPriority == ScanPriority.background,
     );
     // Re-reporting synced would make every listener (the send screen's fee) run again.
     if (status != null && !(status is SyncedSyncStatus && syncStatus is SyncedSyncStatus)) {

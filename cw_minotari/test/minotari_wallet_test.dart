@@ -91,6 +91,45 @@ void main() {
       expect(statusFor(const ScanEventDto.error('transport error')), isA<FailedSyncStatus>());
     });
 
+    test('a background slot pauses when stopped or out of time, never synced', () {
+      SyncStatus? background(ScanEventDto event) =>
+          minotariSyncStatusFor(event, startHeight: 100, caughtUp: false, background: true);
+
+      expect(background(const ScanEventDto.cancelled()), isA<PausedSyncStatus>());
+      expect(
+          background(ScanEventDto.budgetExhausted(
+              accountId: 1, lastScannedHeight: BigInt.from(150), tipHeight: BigInt.from(200))),
+          isA<PausedSyncStatus>());
+      expect(
+          background(ScanEventDto.completed(
+              accountId: 1, finalHeight: BigInt.one, totalBlocksScanned: BigInt.one)),
+          isA<SyncedSyncStatus>());
+      expect(background(progress(199, 200)), isA<SyncingSyncStatus>());
+    });
+
+    test('a background slot hands over to the app, other errors fail', () {
+      SyncStatus? background(ScanEventDto event) =>
+          minotariSyncStatusFor(event, startHeight: 100, caughtUp: false, background: true);
+
+      expect(background(const ScanEventDto.superseded()), isA<HandledByForegroundSyncStatus>());
+      expect(
+          background(const ScanEventDto.error(
+              'Scan error: A foreground scan of this wallet is already running')),
+          isA<HandledByForegroundSyncStatus>());
+      expect(background(const ScanEventDto.error('transport error')), isA<FailedSyncStatus>());
+    });
+
+    test('the app never gets the background-only statuses', () {
+      for (final event in [
+        const ScanEventDto.superseded(),
+        const ScanEventDto.cancelled(),
+        const ScanEventDto.error('A foreground scan of this wallet is already running'),
+      ]) {
+        expect(statusFor(event),
+            isNot(anyOf(isA<PausedSyncStatus>(), isA<HandledByForegroundSyncStatus>())));
+      }
+    });
+
     test('blocks and transaction events leave the status alone', () {
       expect(
           statusFor(ScanEventDto.moreBlocksAvailable(accountId: 1, lastScannedHeight: BigInt.one)),

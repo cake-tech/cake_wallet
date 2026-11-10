@@ -127,8 +127,13 @@ class BackgroundSync {
         await Future.delayed(const Duration(seconds: 1));
         final syncStatus = wallet.syncStatus;
         final progress = syncStatus.progress();
-        // A failed wallet (e.g. Minotari refusing a background scan while the app scans it)
-        // is skipped after the same grace period instead of looping forever.
+        // Done for this slot without being synced: the wallet's time budget ran out (the next
+        // slot resumes) or the app is syncing it. Don't reconnect or count it as stuck.
+        if (syncStatus is PausedSyncStatus || syncStatus is HandledByForegroundSyncStatus) {
+          printV("${wallet.name} $syncStatus");
+          break inner;
+        }
+        // A failed wallet is skipped after the same grace period instead of looping forever.
         if (syncStatus is ConnectedSyncStatus ||
             syncStatus is AttemptingSyncStatus ||
             syncStatus is NotConnectedSyncStatus ||

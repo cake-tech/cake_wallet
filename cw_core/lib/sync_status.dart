@@ -233,6 +233,26 @@ class SyncronizingSyncStatus extends SyncStatus {
   String toString() => 'Synchronizing';
 }
 
+/// A background sync slot stopped before the tip (its time budget ran out, or it was
+/// stopped); the next slot resumes from where it got to. Never shown in the app.
+class PausedSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+
+  @override
+  String toString() => 'Paused';
+}
+
+/// A background sync slot gave the wallet to the app, which is syncing it itself.
+/// Never shown in the app.
+class HandledByForegroundSyncStatus extends SyncStatus {
+  @override
+  double progress() => 0.0;
+
+  @override
+  String toString() => 'Handled by foreground';
+}
+
 class NotConnectedSyncStatus extends SyncStatus {
   const NotConnectedSyncStatus();
 
