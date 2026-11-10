@@ -22,15 +22,26 @@ const _notConnected =
     "The Ledger is not connected. Make sure it is unlocked and nearby, then try again.";
 
 class ZcashLedgerService extends ZcashHardwareWalletService {
-  ZcashLedgerService(this.connection, {this.network = ZcashNetwork.mainnet, zkool_coin.Coin? coin})
-    : super(coin);
+  ZcashLedgerService(
+    this.connection, {
+    this.network = ZcashNetwork.mainnet,
+    zkool_coin.Coin? coin,
+    this.account,
+  }) : super(coin);
 
   final LedgerConnection connection;
   final ZcashNetwork network;
 
+  /// zkool database account id used when the device signs.
+  final int? account;
+
   @override
-  ZcashLedgerService withCoin(zkool_coin.Coin coin) =>
-      ZcashLedgerService(connection, network: network, coin: coin);
+  ZcashLedgerService withCoin(zkool_coin.Coin coin, {int? account}) => ZcashLedgerService(
+    connection,
+    network: network,
+    coin: coin,
+    account: account ?? this.account,
+  );
 
   /// Ironwood/v6 signing shipped in app-zcash 3.9.2.
   static const (int, int, int) minAppVersion = (3, 9, 2);
@@ -127,9 +138,13 @@ class ZcashLedgerService extends ZcashHardwareWalletService {
     final zkool_pay.PcztPackage package,
     final zkool_coin.Coin coin,
   ) async* {
+    final accountId = account;
+    if (accountId == null) {
+      throw const ZcashLedgerException("Zcash account not set, please contact support");
+    }
     lastTransportError = null;
     yield* zkool_ledger
-        .ledgerSignTransaction(package: package, c: coin, exchange: exchange)
+        .ledgerSignTransaction(package: package, account: accountId, c: coin, exchange: exchange)
         .handleError((final Object e) => throw _withTransportCause(e));
   }
 
