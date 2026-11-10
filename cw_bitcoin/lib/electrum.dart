@@ -41,6 +41,7 @@ class ElectrumClient {
 
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 5);
+  static const deadSocketTimeout = Duration(seconds: 60);
 
   bool get isConnected => socket != null && socket?.isClosed == false;
   ProxySocket? socket;
@@ -52,6 +53,7 @@ class ElectrumClient {
   Timer? _aliveTimer;
   // Bytes of a reply whose terminating newline hasn't arrived yet.
   final BytesBuilder _pending = BytesBuilder(copy: false);
+  DateTime _lastReceivedAt = DateTime.now();
   // See callWithTimeout's comment on this method: electrs-tweaks's reply
   // never carries a matching id, so this is how _methodHandler finds the
   // right pending task for a one-shot blockchain.tweaks.subscribe call.
@@ -114,6 +116,7 @@ class ElectrumClient {
     }
 
     socket = newSocket;
+    _lastReceivedAt = DateTime.now();
 
     // use ping to determine actual connection status since we could've just not timed out yet:
     // _setConnectionStatus(ConnectionStatus.connected);
@@ -162,6 +165,8 @@ class ElectrumClient {
   // arrives and each line is decoded once. A line that fails to decode or
   // handle only loses itself; nothing is carried into the next reply.
   void _onData(Uint8List chunk) {
+    _lastReceivedAt = DateTime.now();
+
     var start = 0;
     var newline = chunk.indexOf(0x0A, start);
 
@@ -213,11 +218,25 @@ class ElectrumClient {
         _setConnectionStatus(ConnectionStatus.connected);
       }
     } catch (_) {
-      // a slow ping reply just means it's busy, not dead. Only treat
-      // this as a real disconnect once the socket itself is actually gone.
-      if (identical(socket, pinged) && !isConnected) {
-        _setConnectionStatus(ConnectionStatus.disconnected);
+      if (!identical(socket, pinged)) {
+        return;
       }
+
+      // A slow ping reply alone just means the server is busy, not dead -
+      // unless the socket is gone, or nothing at all has arrived on it for
+      // deadSocketTimeout.
+      final silentFor = DateTime.now().difference(_lastReceivedAt);
+      if (isConnected && silentFor < deadSocketTimeout) {
+        return;
+      }
+
+      if (isConnected) {
+        printV("ping: nothing received for ${silentFor.inSeconds}s, dropping the socket");
+        socket = null;
+        _pending.clear();
+        pinged.destroy();
+      }
+      _setConnectionStatus(ConnectionStatus.disconnected);
     } finally {
       _pingInFlight = false;
     }
@@ -257,23 +276,22 @@ class ElectrumClient {
     }
   }
 
+  /// Throws when no history came back (timeout, no socket, error reply):
+  /// address discovery must not mistake a failed lookup for an unused address.
   Future<List<Map<String, dynamic>>> getHistory(String scriptHash) async {
-    try {
-      final result = await call(method: 'blockchain.scripthash.get_history', params: [scriptHash]);
-      if (result is List) {
-        return result.map((dynamic val) {
-          if (val is Map<String, dynamic>) {
-            return val;
-          }
+    final result = await call(method: 'blockchain.scripthash.get_history', params: [scriptHash]);
 
-          return <String, dynamic>{};
-        }).toList();
+    if (result is! List) {
+      throw ElectrumResponseException("get_history returned no history for $scriptHash");
+    }
+
+    return result.map((dynamic val) {
+      if (val is Map<String, dynamic>) {
+        return val;
       }
 
-      return [];
-    } catch (e) {
-      return [];
-    }
+      return <String, dynamic>{};
+    }).toList();
   }
 
   Future<List<Map<String, dynamic>>?> getListUnspent(String scriptHash) async {

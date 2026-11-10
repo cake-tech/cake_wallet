@@ -93,7 +93,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: 4e41f96f4838139895c65c3f49109d05af5d46aa
+      ref: 91ce18feb4349c1cfff1cf0098c13a21f36c058c
   pointycastle: 3.7.4
   ffi: 2.1.0
   intl: any

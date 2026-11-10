@@ -21,6 +21,7 @@ class SilentPaymentsScanner {
   }
 
   static const int _silentPaymentsActivationHeight = 823807;
+  static const int silentPaymentsActivationHeight = _silentPaymentsActivationHeight;
 
   static const String defaultScanServerHost = "172.104.252.163";
   static const int defaultScanServerPort = 50003;
@@ -339,20 +340,6 @@ class SilentPaymentsScanner {
     _hasDeferredGaps = hasDeferredGaps;
 
     _receiveStream = receivePort.listen((var message) async {
-      if (message is ScanWorkerReady) {
-        final worker = _scanWorkers.firstWhereOrNull((w) => w.workerIndex == message.workerIndex);
-        worker?.commandPort = message.commandPort;
-        return;
-      }
-
-      if (message is WorkerStopped) {
-        final worker = _scanWorkers.firstWhereOrNull((w) => w.workerIndex == message.workerIndex);
-        if (worker != null && !worker.stoppedCompleter.isCompleted) {
-          worker.stoppedCompleter.complete();
-        }
-        return;
-      }
-
       if (message is Map<String, ElectrumTransactionInfo>) {
         for (final map in message.entries) {
           final txid = map.key;
@@ -540,7 +527,7 @@ class SilentPaymentsScanner {
     return SyncingSyncStatus(blocksLeft, ptc);
   }
 
-  /// Cooperatively stops every current scan worker (ADR-0010) and clears
+  /// Flushes the checkpoint, kills every current scan worker and clears
   /// [_scanWorkers]. Safe to call when there are none running.
   Future<void> stopScanWorkers() async {
     _checkpointFlushTimer?.cancel();

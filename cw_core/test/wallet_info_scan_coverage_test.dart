@@ -75,7 +75,7 @@ void main() {
     wallet = (await WalletInfo.selectList("walletInfoId = ?", [walletId])).single;
     expect(wallet.backfillTargetHeight, 900000, reason: "a set target must survive a reload");
 
-    // What _flushCheckpoint does on backfill completion (ADR-0004): clear
+    // What _flushCheckpoint does on backfill completion: clear
     // the target and persist restoreHeight in the same save() call.
     wallet.backfillTargetHeight = null;
     wallet.restoreHeight = 900000;
@@ -197,7 +197,7 @@ void main() {
 
     test("markCovered never merges across historical modes", () async {
       // This exercises the DB path deliberately, not just the pure
-      // functions — ADR-0013's whole point is that a historically-covered
+      // functions — the whole point is that a historically-covered
       // and non-historically-covered range at the same heights must NOT
       // collapse into one row.
       await initDb();

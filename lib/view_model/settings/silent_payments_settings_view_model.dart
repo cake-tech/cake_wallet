@@ -37,8 +37,17 @@ abstract class SilentPaymentsSettingsViewModelBase with Store {
     _settingsStore.silentPaymentsCardDisplay = value;
   }
 
+  // Enabling always-scan on a wallet that never saved a scan height requires
+  // the user to pick a start height first, so it doesn't scan from genesis.
+  bool get needsStartHeightChoice => bitcoin!.needsSilentPaymentsStartHeight(_wallet);
+
+  // [blocksBack] null means "since Silent Payments activation".
   @action
-  void setSilentPaymentsAlwaysScan(bool value) {
+  Future<void> setSilentPaymentsAlwaysScan(bool value, {int? blocksBack, bool startChosen = false}) async {
+    if (value && startChosen) {
+      await bitcoin!.setSilentPaymentsStartHeight(_wallet, blocksBack: blocksBack);
+    }
+
     bitcoin!.setIsAlwaysScanningSP(_wallet, value);
     bitcoin!.setScanningActive(_wallet, value);
   }

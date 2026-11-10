@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
-import 'dart:math' show Random;
+import 'dart:math' show Random, max;
 import 'dart:typed_data';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
@@ -614,10 +614,6 @@ abstract class ElectrumWalletBase
 
   int _consecutiveNullBalanceFetches = 0;
   static const int _nullBalanceFetchTolerance = 20;
-
-  int _lastKnownRegularConfirmed = 0;
-  int _lastKnownRegularUnconfirmed = 0;
-  int _lastKnownRegularFrozen = 0;
   DateTime? _syncStartedAt;
 
   static const Duration maxSyncDuration = Duration(minutes: 2);
@@ -627,6 +623,23 @@ abstract class ElectrumWalletBase
   Future<bool> checkIfMempoolAPIIsEnabled() async {
     bool isMempoolAPIEnabled = (await sharedPrefs.future).getBool("use_mempool_fee_api") ?? true;
     return isMempoolAPIEnabled;
+  }
+
+  /// True when no scan height was ever saved, so scanning would start from genesis.
+  bool get needsSilentPaymentsStartHeight => walletInfo.restoreHeight == 0;
+
+  /// Sets where scanning starts: [blocksBack] before the chain tip, or the
+  /// Silent Payments activation height when null.
+  Future<void> setSilentPaymentsStartHeight({int? blocksBack}) async {
+    var height = SilentPaymentsScanner.silentPaymentsActivationHeight;
+
+    if (blocksBack != null) {
+      final tip = await getUpdatedChainTip();
+      if (tip > 0) height = max(height, tip - blocksBack);
+    }
+
+    walletInfo.restoreHeight = height;
+    await walletInfo.save();
   }
 
   @action
@@ -4063,12 +4076,15 @@ abstract class ElectrumWalletBase
         syncStatus = LostConnectionSyncStatus();
       }
 
-      return ElectrumBalance(
-        confirmed: Money.fromInt(_lastKnownRegularConfirmed + spConfirmed, currency),
-        unconfirmed: Money.fromInt(_lastKnownRegularUnconfirmed, currency),
-        frozen: Money.fromInt(
-            _lastKnownRegularFrozen + regularFrozenFromUnspentInfo + spFrozen, currency),
-      );
+      // Keep the stored balance, like the other failed-fetch paths above.
+      // Rebuilding it from this fetch would drop the regular funds (there
+      // are none in it) and count the frozen coins twice.
+      return balance[currency] ??
+          ElectrumBalance(
+            confirmed: Money.zero(currency),
+            unconfirmed: Money.zero(currency),
+            frozen: Money.zero(currency),
+          );
     }
     _consecutiveNullBalanceFetches = 0;
 
@@ -4092,9 +4108,6 @@ abstract class ElectrumWalletBase
         walletAddresses.clearLockIfMatches(addressRecord.type, addressRecord.address);
       }
     }
-    _lastKnownRegularConfirmed = regularConfirmed;
-    _lastKnownRegularUnconfirmed = regularUnconfirmed;
-    _lastKnownRegularFrozen = regularFrozenFromUnspentInfo;
 
     final totalConfirmed = regularConfirmed + spConfirmed;
     final totalUnconfirmed = regularUnconfirmed;
@@ -4480,11 +4493,11 @@ abstract class ElectrumWalletBase
         await Future.delayed(backoff);
 
         // A closed wallet must not reopen its client, and a connect started
-        // meanwhile (e.g. a node switch) must not be raced.
-        if (electrumClient.isConnected ||
-            node == null ||
-            _isClosed ||
-            syncStatus is! NotConnectedSyncStatus) {
+        // meanwhile (e.g. a node switch) must not be raced. Goes by the
+        // wallet's status, not isConnected: a LostConnection from failed
+        // fetches means the socket still open is not answering, so it is
+        // redialled too.
+        if (node == null || _isClosed || syncStatus is! NotConnectedSyncStatus) {
           break;
         }
 

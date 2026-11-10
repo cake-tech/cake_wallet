@@ -44,6 +44,36 @@ class _SilentPaymentsSettingsPageState extends State<SilentPaymentsSettingsPage>
     if (valid) _silentPaymentsSettingsViewModel.setScanServer(value);
   }
 
+  // ~144 blocks per day.
+  static const _blocksPerMonth = 144 * 30;
+
+  Future<_StartHeightChoice?> _pickStartHeight(BuildContext context) {
+    final options = <_StartHeightChoice>[
+      _StartHeightChoice(S.current.silent_payments_start_last_month, _blocksPerMonth),
+      _StartHeightChoice(S.current.silent_payments_start_last_6_months, _blocksPerMonth * 6),
+      _StartHeightChoice(S.current.silent_payments_start_last_year, _blocksPerMonth * 12),
+      _StartHeightChoice(S.current.silent_payments_start_activation, null),
+    ];
+
+    return showDialog<_StartHeightChoice>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: Text(S.current.silent_payments_start_height_title),
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            child: Text(S.current.silent_payments_start_height_description),
+          ),
+          for (final option in options)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(dialogContext).pop(option),
+              child: Text(option.label),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -66,7 +96,19 @@ class _SilentPaymentsSettingsPageState extends State<SilentPaymentsSettingsPage>
                       SettingsSwitcherCell(
                         title: S.current.silent_payments_always_scan,
                         value: _silentPaymentsSettingsViewModel.silentPaymentsAlwaysScan,
-                        onValueChange: (_, bool value) {
+                        onValueChange: (_, bool value) async {
+                          if (value && _silentPaymentsSettingsViewModel.needsStartHeightChoice) {
+                            final choice = await _pickStartHeight(context);
+                            if (choice == null) return;
+
+                            await _silentPaymentsSettingsViewModel.setSilentPaymentsAlwaysScan(
+                              true,
+                              blocksBack: choice.blocksBack,
+                              startChosen: true,
+                            );
+                            return;
+                          }
+
                           _silentPaymentsSettingsViewModel.setSilentPaymentsAlwaysScan(value);
                         },
                       ),
@@ -153,4 +195,11 @@ class _SilentPaymentsSettingsPageState extends State<SilentPaymentsSettingsPage>
       ),
     );
   }
+}
+
+class _StartHeightChoice {
+  const _StartHeightChoice(this.label, this.blocksBack);
+
+  final String label;
+  final int? blocksBack;
 }

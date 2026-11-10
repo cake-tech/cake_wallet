@@ -631,6 +631,14 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.save();
   }
 
+  @override
+  bool needsSilentPaymentsStartHeight(Object wallet) =>
+      (wallet as ElectrumWallet).needsSilentPaymentsStartHeight;
+
+  @override
+  Future<void> setSilentPaymentsStartHeight(Object wallet, {int? blocksBack}) =>
+      (wallet as ElectrumWallet).setSilentPaymentsStartHeight(blocksBack: blocksBack);
+
   @computed
   bool getIsAlwaysScanningSP(Object wallet) => (wallet as ElectrumWallet).alwaysScan ?? false;
 
