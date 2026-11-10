@@ -133,8 +133,6 @@ abstract class FeesViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.banano &&
       wallet.type != WalletType.solana &&
       wallet.type != WalletType.tron &&
-      // cw builds every Minotari send at one fixed fee rate.
-      wallet.type != WalletType.minotari &&
       wallet.chainId != 42161 &&
       wallet.chainId != 4663;
 

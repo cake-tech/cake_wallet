@@ -19,7 +19,9 @@ class PendingMinotariTransaction with PendingTransaction {
 
   final Future<void> Function() send;
 
-  /// cw builds every send at a fixed fee rate, so only a send-all's quote is exact.
+  /// A send is built at its quote's rate, but the quote sizes a plain output and picks inputs at
+  /// the Fast rate, so the paid fee can differ slightly (a payment id, another input). A
+  /// send-all's quote is exact.
   @override
   final bool isFeeEstimate;
 

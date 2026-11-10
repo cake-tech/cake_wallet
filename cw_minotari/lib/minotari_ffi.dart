@@ -193,13 +193,15 @@ class MinotariFfi {
   }) =>
       transactions.getTransactions(walletName: walletName, limit: limit, offset: offset);
 
-  /// Sends to [recipients], or sweeps the wallet to the single recipient when [sendAll].
+  /// Sends to [recipients], or sweeps the wallet to the single recipient when [sendAll], at
+  /// [feePerGram] µT per gram (the rate of the quote the user confirmed).
   Stream<send_tx.SendTransactionEvent> sendTransaction({
     required List<send_tx.SendRecipient> recipients,
     required bool sendAll,
     required String baseNodeUrl,
+    required BigInt feePerGram,
   }) =>
-      send_tx.sendTransaction(
+      send_tx.sendTransactionAtFee(
         details: send_tx.MultiSendTransactionDetails(
           network: network,
           baseUrl: baseNodeUrl,
@@ -207,6 +209,7 @@ class MinotariFfi {
           recipients: recipients,
           sendAll: sendAll,
         ),
+        feePerGram: feePerGram,
       );
 
   /// Gives up a send the node keeps refusing and releases its inputs; returns cw's note on
@@ -232,11 +235,15 @@ class MinotariFfi {
         walletName: walletName,
       );
 
-  Future<fee.SendAllFeeEstimate> estimateSendAllFee({required String recipientAddress}) =>
-      fee.estimateSendAllFee(
+  Future<fee.SendAllFeeEstimate> estimateSendAllFee({
+    required String recipientAddress,
+    required BigInt feePerGram,
+  }) =>
+      fee.estimateSendAllFeeAt(
         walletName: walletName,
         recipientAddress: recipientAddress,
         network: network,
+        feePerGram: feePerGram,
       );
 
   Future<String> signMessage(String message) =>

@@ -481,10 +481,16 @@ abstract class MinotariWalletBase
     final recipients = minotariRecipients(creds.outputs);
     final sendAll = creds.outputs.first.sendAll;
 
+    // The send is built at exactly the rate quoted for the chosen priority.
     final int amount;
     final int fee;
+    final BigInt feePerGram;
     if (sendAll) {
-      final quote = await ffi.estimateSendAllFee(recipientAddress: recipients.single.address);
+      feePerGram = await _feePerGram(ffi, creds.priority);
+      final quote = await ffi.estimateSendAllFee(
+        recipientAddress: recipients.single.address,
+        feePerGram: feePerGram,
+      );
       amount = quote.amountAfterFee.toInt();
       fee = quote.fee.toInt();
     } else {
@@ -496,6 +502,7 @@ abstract class MinotariWalletBase
         baseNodeUrl: nodeUrl,
       );
       fee = quote.estimatedFee.toInt();
+      feePerGram = quote.feePerGram;
     }
 
     Future<void> send() async {
@@ -505,6 +512,7 @@ abstract class MinotariWalletBase
         sendAll: sendAll,
         // Checked again at broadcast: Tor may have been turned on since the quote.
         baseNodeUrl: _nodeUrl,
+        feePerGram: feePerGram,
       )) {
         if (event.stage == TransactionStage.broadcasted) broadcasted = true;
       }
@@ -610,7 +618,10 @@ abstract class MinotariWalletBase
     _feeQuoteRequests[priority] = request;
     final int fee;
     if (sendAll) {
-      fee = (await ffi.estimateSendAllFee(recipientAddress: address)).fee.toInt();
+      final feePerGram = await _feePerGram(ffi, priority);
+      fee = (await ffi.estimateSendAllFee(recipientAddress: address, feePerGram: feePerGram))
+          .fee
+          .toInt();
     } else {
       fee = (await ffi.estimateFee(
         amount: BigInt.from(amount),
@@ -626,6 +637,18 @@ abstract class MinotariWalletBase
     }
     return fee;
   }
+
+  /// The node's fee per gram for [priority], as cw caps it.
+  // shortcut: cw exposes the rate only on a fee estimate, so this quotes 1 µT (any spendable
+  // output covers it); upgrade if cw gains a rate-only call.
+  Future<BigInt> _feePerGram(MinotariFfi ffi, TransactionPriority? priority) async =>
+      (await ffi.estimateFee(
+        amount: BigInt.one,
+        numOutputs: 1,
+        priority: _feePriority(priority),
+        baseNodeUrl: _nodeUrl,
+      ))
+          .feePerGram;
 
   FeePriority _feePriority(TransactionPriority? priority) => switch (priority) {
         MinotariTransactionPriority.slow => FeePriority.slow,
