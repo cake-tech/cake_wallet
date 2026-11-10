@@ -40,9 +40,12 @@ class WalletKeysPage extends BasePage {
           Expanded(
             child: FutureBuilder<void>(
               future: walletKeysViewModel.seedLoaded,
-              builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
-                  ? WalletKeysPageBody(walletKeysViewModel: walletKeysViewModel)
-                  : const Center(child: CircularProgressIndicator()),
+              builder: (context, snapshot) => snapshot.connectionState != ConnectionState.done
+                  ? const Center(child: CircularProgressIndicator())
+                  // Reopening the page loads the seed again.
+                  : snapshot.hasError
+                      ? Center(child: Text('${snapshot.error}', textAlign: TextAlign.center))
+                      : WalletKeysPageBody(walletKeysViewModel: walletKeysViewModel),
             ),
           ),
         ],

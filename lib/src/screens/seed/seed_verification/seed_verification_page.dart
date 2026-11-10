@@ -2,6 +2,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_step_view.dart';
 import 'package:cake_wallet/src/screens/seed/seed_verification/seed_verification_success_view.dart';
+import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/widgets/gradient_background.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +31,8 @@ class SeedVerificationPage extends BasePage {
         return Padding(
           padding: const EdgeInsets.all(16.0),
           // Minotari loads its seed after the page opens; don't count that wait as verified.
-          child: walletSeedViewModel.seed.isEmpty
-              ? const Center(child: CircularProgressIndicator())
+          child: !walletSeedViewModel.hasSeed
+              ? SeedLoadState(walletSeedViewModel)
               : walletSeedViewModel.isVerificationComplete ||
                       walletSeedViewModel.verificationIndices.isEmpty
                   ? SeedVerificationSuccessView(

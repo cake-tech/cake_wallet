@@ -33,6 +33,7 @@ class WalletSeedPage extends BasePage {
         ? GestureDetector(
             key: ValueKey('wallet_seed_page_copy_seeds_button_key'),
             onTap: () {
+              if (!walletSeedViewModel.hasSeed) return;
               ClipboardUtil.setSensitiveDataToClipboard(
                 ClipboardData(text: walletSeedViewModel.seed),
               );
@@ -88,9 +89,9 @@ class WalletSeedPage extends BasePage {
                         ),
                         SizedBox(height: 24),
                         Expanded(
-                          child: SeedPhraseGridWidget(
-                            list: walletSeedViewModel.seedSplit,
-                          ),
+                          child: walletSeedViewModel.hasSeed
+                              ? SeedPhraseGridWidget(list: walletSeedViewModel.seedSplit)
+                              : SeedLoadState(walletSeedViewModel),
                         ),
                       ],
                     ),
@@ -98,48 +99,52 @@ class WalletSeedPage extends BasePage {
                 );
               },
             ),
-            Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Flexible(
-                        child: Container(
-                          padding: EdgeInsets.only(right: 8.0, top: 8.0),
-                          child: PrimaryButton(
-                            key: ValueKey('wallet_seed_page_save_seeds_button_key'),
-                            onPressed: () {
-                              _shareSeed(context);
-                            },
-                            text: S.of(context).save,
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        child: Container(
-                          padding: EdgeInsets.only(left: 8.0, top: 8.0),
-                          child: PrimaryButton(
-                            key: ValueKey('wallet_seed_page_verify_seed_button_key'),
-                            onPressed: () => Navigator.pushNamed(
-                              context,
-                              Routes.walletSeedVerificationPage,
-                              arguments: isNewWalletCreated,
+            Observer(
+              builder: (_) => Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.only(right: 8.0, top: 8.0),
+                            child: PrimaryButton(
+                              key: ValueKey('wallet_seed_page_save_seeds_button_key'),
+                              isDisabled: !walletSeedViewModel.hasSeed,
+                              onPressed: () {
+                                _shareSeed(context);
+                              },
+                              text: S.of(context).save,
+                              color: Theme.of(context).colorScheme.surfaceContainer,
+                              textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                             ),
-                            text: S.current.verify_phrase,
-                            color: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.onPrimary,
                           ),
                         ),
-                      ),
-                    ],
+                        Flexible(
+                          child: Container(
+                            padding: EdgeInsets.only(left: 8.0, top: 8.0),
+                            child: PrimaryButton(
+                              key: ValueKey('wallet_seed_page_verify_seed_button_key'),
+                              isDisabled: !walletSeedViewModel.hasSeed,
+                              onPressed: () => Navigator.pushNamed(
+                                context,
+                                Routes.walletSeedVerificationPage,
+                                arguments: isNewWalletCreated,
+                              ),
+                              text: S.current.verify_phrase,
+                              color: Theme.of(context).colorScheme.primary,
+                              textColor: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 16),
-              ],
+                  SizedBox(height: 16),
+                ],
+              ),
             )
           ],
         ),
@@ -172,4 +177,32 @@ class WalletSeedPage extends BasePage {
         break;
     }
   }
+}
+
+/// Shown while a seed that loads after the page opens (Minotari) is on its way, or why it
+/// failed with a retry.
+class SeedLoadState extends StatelessWidget {
+  const SeedLoadState(this.walletSeedViewModel);
+
+  final WalletSeedViewModel walletSeedViewModel;
+
+  @override
+  Widget build(BuildContext context) => Observer(builder: (_) {
+        final error = walletSeedViewModel.seedLoadError.value;
+        if (error == null) return const Center(child: CircularProgressIndicator());
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(error, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            PrimaryButton(
+              onPressed: walletSeedViewModel.loadMinotariSeed,
+              text: S.of(context).try_again,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ],
+        );
+      });
 }
