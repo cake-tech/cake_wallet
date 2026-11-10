@@ -148,7 +148,7 @@ abstract class WalletCreationVMBase with Store {
         message = e.message;
       }
       if (e is RestartRequiredException) {
-        message = S.current.restart_required_to_open_wallet;
+        message = S.current.restart_required_to_create_wallet;
       }
       state = FailureState(message);
     }

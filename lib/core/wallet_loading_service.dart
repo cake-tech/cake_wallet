@@ -76,8 +76,14 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
-      // Not corrupted: the wallet opens after an app restart.
-      if (error is RestartRequiredException) rethrow;
+      // Not corrupted: make it the current wallet so it opens after the app restarts.
+      if (error is RestartRequiredException) {
+        if (!isBackground) {
+          await sharedPreferences.setString(PreferencesKey.currentWalletName, name);
+          await sharedPreferences.setInt(PreferencesKey.currentWalletType, serializeToInt(type));
+        }
+        rethrow;
+      }
 
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
 
