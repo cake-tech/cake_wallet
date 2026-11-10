@@ -133,7 +133,7 @@ class EthereumTokens {
         contractAddress: "0xf3e4872e6a4cf365888d93b6146a2baa7348f1a4",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/slvx.webp",
+        iconPath: "assets/images/stocks/ishares_blackrock.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(

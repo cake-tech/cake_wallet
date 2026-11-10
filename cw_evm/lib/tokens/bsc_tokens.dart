@@ -246,7 +246,7 @@ class BSCTokens {
         contractAddress: "0xbe82f76637dba2c114c41df856c2c51e522e2cb8",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/ewyx.webp",
+        iconPath: "assets/images/stocks/ishares.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(

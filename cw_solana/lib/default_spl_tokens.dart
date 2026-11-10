@@ -335,7 +335,7 @@ class DefaultSPLTokens {
       decimal: 8,
       mint: "iemgx",
       enabled: false,
-      iconPath: "assets/images/stocks/iemgx.webp",
+      iconPath: "assets/images/stocks/ishares_blackrock.webp",
       groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
@@ -475,7 +475,7 @@ class DefaultSPLTokens {
       decimal: 8,
       mint: "ewgx",
       enabled: false,
-      iconPath: "assets/images/stocks/ewgx.webp",
+      iconPath: "assets/images/stocks/ishares.webp",
       groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
@@ -485,7 +485,7 @@ class DefaultSPLTokens {
       decimal: 8,
       mint: "soxxx",
       enabled: false,
-      iconPath: "assets/images/stocks/soxxx.webp",
+      iconPath: "assets/images/stocks/ishares.webp",
       groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
@@ -495,7 +495,7 @@ class DefaultSPLTokens {
       decimal: 8,
       mint: "slvx",
       enabled: false,
-      iconPath: "assets/images/stocks/slvx.webp",
+      iconPath: "assets/images/stocks/ishares_blackrock.webp",
       groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(
