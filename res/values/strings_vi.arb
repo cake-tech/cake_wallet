@@ -1,6 +1,6 @@
 {
   "abandon_send": "Từ bỏ gửi",
-  "abandon_send_confirmation": "Từ bỏ việc gửi này và giải phóng tiền của nó? Chỉ làm điều này nếu nút tiếp tục từ chối nó. Nút vẫn có thể khai thác nó, vì vậy đừng trả tiền cho cùng một người nhận cho đến khi nó hiển thị là bị từ chối.",
+  "abandon_send_confirmation": "Điều này giải phóng số tiền gửi mà nút liên tục từ chối. Nó có thể vẫn được khai thác sau này. Trước khi thanh toán lại cho cùng một người nhận, hãy đợi cho đến khi một số lần đồng bộ hóa sau đó vẫn hiển thị số tiền đó là bị từ chối và gửi lại số tiền tương tự để sử dụng lại số tiền đã phát hành.",
   "about": "Giới thiệu",
   "about_cake_pay": "Cake Pay cho phép bạn dễ dàng mua thẻ quà tặng bằng tài sản ảo, có thể sử dụng ngay lập tức tại hơn 150.000 nhà bán lẻ.",
   "about_litecoin_privacy": "Giới thiệu về quyền riêng tư của Litecoin",

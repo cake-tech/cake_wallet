@@ -1,6 +1,6 @@
 {
   "abandon_send": "Senden abbrechen",
-  "abandon_send_confirmation": "Diesen Versand aufgeben und die Gelder freigeben? Tun Sie dies nur, wenn der Knoten dies weiterhin ablehnt. Ein Knoten kann es immer noch abbauen, zahlen Sie also nicht erneut an denselben Empfänger, bis es als abgelehnt angezeigt wird.",
+  "abandon_send_confirmation": "Dadurch werden die Mittel für eine Sendung freigegeben, die der Knoten immer wieder ablehnt. Möglicherweise wird es später noch abgebaut. Bevor Sie denselben Empfänger erneut bezahlen, warten Sie, bis mehrere spätere Synchronisierungen ihn immer noch als abgelehnt anzeigen, und senden Sie den gleichen Betrag erneut, damit die freigegebenen Beträge wiederverwendet werden.",
   "about": "Über",
   "about_cake_pay": "Mit Cake Pay können Sie ganz einfach Geschenkkarten mit virtuellen Vermögenswerten kaufen, die Sie sofort bei über 150.000 Händlern ausgeben können.",
   "about_litecoin_privacy": "Über den Litecoin-Datenschutz",

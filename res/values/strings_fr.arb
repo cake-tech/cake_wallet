@@ -1,6 +1,6 @@
 {
   "abandon_send": "Abandonner l'envoi",
-  "abandon_send_confirmation": "Abandonner cet envoi et libérer ses fonds ? Ne faites cela que si le nœud continue de le refuser. Un nœud peut toujours l'exploiter, alors ne payez plus le même destinataire jusqu'à ce qu'il apparaisse comme rejeté.",
+  "abandon_send_confirmation": "Cela libère les fonds d'un envoi que le nœud continue de refuser. Il se peut qu'il soit encore exploité plus tard. Avant de payer à nouveau le même destinataire, attendez que plusieurs synchronisations ultérieures l'affichent toujours comme rejeté et renvoyez le même montant afin qu'il réutilise les fonds débloqués.",
   "about": "À propos",
   "about_cake_pay": "Cake Pay vous permet d’acheter facilement des cartes-cadeaux avec des actifs virtuels, utilisables instantanément chez plus de 150 000 commerçants.",
   "about_litecoin_privacy": "À propos de la confidentialité de Litecoin",

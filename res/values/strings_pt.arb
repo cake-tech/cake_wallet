@@ -1,6 +1,6 @@
 {
   "abandon_send": "Abandonar envio",
-  "abandon_send_confirmation": "Abandonar este envio e liberar seus fundos? Faça isso apenas se o nó continuar recusando. Um nó ainda pode minerá-lo, portanto, não pague novamente ao mesmo destinatário até que ele seja rejeitado.",
+  "abandon_send_confirmation": "Isso libera os fundos de um envio que o nó continua recusando. Ainda pode ser extraído mais tarde. Antes de pagar novamente ao mesmo destinatário, espere até que várias sincronizações posteriores ainda o mostrem como rejeitado e reenvie o mesmo valor para reutilizar os fundos liberados.",
   "about": "Sobre",
   "about_cake_pay": "O Cake Pay permite que você compre facilmente cartões-presente com ativos virtuais, utilizáveis instantaneamente em mais de 150.000 estabelecimentos.",
   "about_litecoin_privacy": "Sobre a privacidade do Litecoin",

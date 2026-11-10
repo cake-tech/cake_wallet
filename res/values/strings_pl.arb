@@ -1,6 +1,6 @@
 {
   "abandon_send": "Porzuć wysyłanie",
-  "abandon_send_confirmation": "Porzucić tę wysyłkę i uwolnić jej środki? Zrób to tylko wtedy, gdy węzeł ciągle odmawia. Węzeł może nadal go wydobywać, więc nie płać ponownie temu samemu odbiorcy, dopóki nie zostanie wyświetlony komunikat o odrzuceniu.",
+  "abandon_send_confirmation": "Spowoduje to zwolnienie środków z wysyłki, której węzeł ciągle odmawia. Może być nadal wydobywany później. Zanim ponownie zapłacisz temu samemu odbiorcy, poczekaj, aż kilka późniejszych synchronizacji nadal pokaże go jako odrzucony, i wyślij ponownie tę samą kwotę, aby ponownie wykorzystał uwolnione środki.",
   "about": "O aplikacji",
   "about_cake_pay": "Cake Pay umożliwia łatwe kupowanie kart podarunkowych za pomocą aktywów wirtualnych, które można natychmiast wykorzystać u ponad 150 000 sprzedawców.",
   "about_litecoin_privacy": "O prywatności Litecoin",

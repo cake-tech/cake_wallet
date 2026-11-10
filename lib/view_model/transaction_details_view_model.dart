@@ -708,12 +708,13 @@ abstract class TransactionDetailsViewModelBase with Store {
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee);
 
   /// A Minotari send the node never accepted keeps its inputs locked; cw can give it up
-  /// once it has stalled (it says so if it hasn't yet).
+  /// once it has stalled (it says so if it hasn't yet). Only cw's `pending` sends qualify:
+  /// unconfirmed, rejected, cancelled or reorganized ones can't be abandoned.
   bool get canAbandonSend =>
       wallet.type == WalletType.minotari &&
       wallet.canSend() &&
       transactionInfo.direction == TransactionDirection.outgoing &&
-      transactionInfo.isPending;
+      transactionInfo.additionalInfo['status'] == 'pending';
 
   /// Returns cw's note on what abandoning does not do.
   Future<String> abandonSend() => minotari!.abandonSend(wallet, transactionInfo.id);

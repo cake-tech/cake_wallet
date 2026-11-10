@@ -1,6 +1,6 @@
 {
   "abandon_send": "Iwanan ang pagpapadala",
-  "abandon_send_confirmation": "Iwanan ang pagpapadalang ito at palayain ang mga pondo nito? Gawin lamang ito kung patuloy itong tinatanggihan ng node. Maaaring minahin pa rin ito ng isang node, kaya huwag nang magbayad muli sa parehong tatanggap hanggang sa makita itong tinanggihan.",
+  "abandon_send_confirmation": "Inilalabas nito ang mga pondo ng isang ipadala na patuloy na tinatanggihan ng node. Baka mamaya mamimina pa. Bago magbayad muli sa parehong tatanggap, maghintay hanggang sa ilang mga pag-sync sa ibang pagkakataon ay ipakita pa rin ito bilang tinanggihan, at muling ipadala ang parehong halaga upang magamit muli ang inilabas na mga pondo.",
   "about": "Tungkol",
   "about_cake_pay": "Binibigyang-daan ka ng Cake Pay na madaling bumili ng mga gift card gamit ang mga virtual asset, na magagamit kaagad sa mahigit 150,000 merchant.",
   "about_litecoin_privacy": "Tungkol sa Privacy ng Litecoin",

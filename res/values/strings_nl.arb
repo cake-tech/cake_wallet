@@ -1,6 +1,6 @@
 {
   "abandon_send": "Verzenden verlaten",
-  "abandon_send_confirmation": "Deze verzending verlaten en het geld ervan vrijgeven? Doe dit alleen als de node dit blijft weigeren. Een knooppunt kan het nog steeds minen, dus betaal dezelfde ontvanger niet opnieuw totdat het als afgewezen wordt weergegeven.",
+  "abandon_send_confirmation": "Hierdoor komt het geld vrij van een verzending die het knooppunt blijft weigeren. Het kan later nog steeds worden gedolven. Voordat u dezelfde ontvanger opnieuw betaalt, wacht u totdat bij verschillende latere synchronisaties deze nog steeds als afgewezen wordt weergegeven, en verzendt u hetzelfde bedrag opnieuw, zodat het vrijgegeven geld opnieuw wordt gebruikt.",
   "about": "Over",
   "about_cake_pay": "Met Cake Pay kun je eenvoudig cadeaubonnen kopen met crypto, die direct besteedbaar zijn bij meer dan 150.000 winkels.",
   "about_litecoin_privacy": "Over Litecoin-privacy",

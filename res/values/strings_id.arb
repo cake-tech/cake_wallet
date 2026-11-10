@@ -1,6 +1,6 @@
 {
   "abandon_send": "Abaikan pengiriman",
-  "abandon_send_confirmation": "Abaikan pengiriman ini dan bebaskan dananya? Lakukan ini hanya jika node terus menolaknya. Sebuah node mungkin masih menambangnya, jadi jangan membayar lagi kepada penerima yang sama sampai node tersebut terlihat ditolak.",
+  "abandon_send_confirmation": "Ini melepaskan dana pengiriman yang terus ditolak oleh node. Mungkin masih bisa ditambang nanti. Sebelum membayar lagi ke penerima yang sama, tunggu hingga beberapa sinkronisasi berikutnya masih menunjukkan penolakan, dan kirim ulang jumlah yang sama sehingga dana yang telah dikeluarkan dapat digunakan kembali.",
   "about": "Tentang",
   "about_cake_pay": "Cake Pay memungkinkan Anda membeli kartu hadiah dengan mudah menggunakan aset virtual, yang dapat langsung digunakan di lebih dari 150.000 merchant.",
   "about_litecoin_privacy": "Tentang Privasi Litecoin",

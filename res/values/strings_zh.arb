@@ -1,6 +1,6 @@
 {
   "abandon_send": "放弃发送",
-  "abandon_send_confirmation": "放弃这次发送并释放其资金？仅当节点持续拒绝时才执行此操作。节点可能仍然会挖掘它，因此不要再次向同一个接收者付款，直到它显示为拒绝为止。",
+  "abandon_send_confirmation": "这会释放节点一直拒绝的发送资金。 It may still be mined later.在再次向同一收件人付款之前，请等到以后的几次同步仍显示其被拒绝，然后重新发送相同的金额，以便重新使用已释放的资金。",
   "about": "关于",
   "about_cake_pay": "Cake Pay 让您轻松使用加密资产购买礼品卡，可立即在超过 150,000 家商户消费。",
   "about_litecoin_privacy": "关于 Litecoin 隐私",

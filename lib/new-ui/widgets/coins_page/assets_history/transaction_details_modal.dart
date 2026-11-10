@@ -188,7 +188,8 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                           trailingIconSize: 8,
                                         ),
                                       ],
-                                      if (widget.transactionDetailsViewModel.canAbandonSend)
+                                      if (widget.transactionDetailsViewModel.canAbandonSend &&
+                                          !_abandoned)
                                         "abandon": [
                                           ListItemRegularRow(
                                             keyValue: "abandon send",
@@ -231,8 +232,24 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
         ),
       );
 
+  /// Taps are ignored while an abandon runs (cw stops the scan and checks the passphrase).
+  bool _abandoning = false;
+
+  /// This sheet keeps the transaction as it was; an abandoned send is now rejected.
+  bool _abandoned = false;
+
   /// Asks first: an abandoned send can still be mined, so paying again risks paying twice.
   Future<void> _abandonSend() async {
+    if (_abandoning) return;
+    _abandoning = true;
+    try {
+      await _confirmAndAbandon();
+    } finally {
+      _abandoning = false;
+    }
+  }
+
+  Future<void> _confirmAndAbandon() async {
     final confirmed = await showPopUp<bool>(
       context: context,
       builder: (dialogContext) => AlertWithTwoActions(
@@ -249,6 +266,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
     String result;
     try {
       result = await widget.transactionDetailsViewModel.abandonSend();
+      if (mounted) setState(() => _abandoned = true);
     } catch (e) {
       result = e.toString();
     }

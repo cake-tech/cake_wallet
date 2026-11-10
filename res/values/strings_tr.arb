@@ -1,6 +1,6 @@
 {
   "abandon_send": "Göndermeyi bırak",
-  "abandon_send_confirmation": "Bu gönderimden vazgeçilip fonları serbest bırakılsın mı? Bunu yalnızca düğüm reddetmeye devam ederse yapın. Bir düğüm yine de onu kazabilir, bu nedenle reddedilmiş olarak görünene kadar aynı alıcıya tekrar ödeme yapmayın.",
+  "abandon_send_confirmation": "Bu, düğümün sürekli reddetmeye devam ettiği bir gönderimin fonunu serbest bırakır. Daha sonra da mayınlı olabilir. Aynı alıcıya tekrar ödeme yapmadan önce, daha sonraki birkaç senkronizasyonda bunun hala reddedilmiş olarak görünmesini bekleyin ve serbest bırakılan parayı yeniden kullanması için aynı tutarı yeniden gönderin.",
   "about": "Hakkında",
   "about_cake_pay": "Cake Pay, sanal varlıklarla hediye kartlarını kolayca satın almanıza ve 150.000'den fazla işyerinde anında harcamanıza olanak tanır.",
   "about_litecoin_privacy": "Litecoin Gizliliği Hakkında",

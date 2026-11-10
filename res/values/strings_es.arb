@@ -1,6 +1,6 @@
 {
   "abandon_send": "Abandonar enviar",
-  "abandon_send_confirmation": "¿Abandonar este envío y liberar sus fondos? Haga esto solo si el nodo sigue rechazándolo. Un nodo aún puede extraerlo, así que no vuelva a pagarle al mismo destinatario hasta que se muestre como rechazado.",
+  "abandon_send_confirmation": "Esto libera los fondos de un envío que el nodo sigue rechazando. Es posible que todavía se extraiga más tarde. Antes de volver a pagarle al mismo destinatario, espere hasta que varias sincronizaciones posteriores todavía lo muestren como rechazado y vuelva a enviar la misma cantidad para que reutilice los fondos liberados.",
   "about": "Acerca de",
   "about_cake_pay": "Cake Pay te permite comprar fácilmente tarjetas de regalo con activos virtuales, utilizables al instante en más de 150.000 comercios.",
   "about_litecoin_privacy": "Acerca de la privacidad de Litecoin",

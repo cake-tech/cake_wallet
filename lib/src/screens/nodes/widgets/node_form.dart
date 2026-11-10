@@ -76,9 +76,14 @@ class NodeFormState extends State<NodeForm> {
                     keyValue: vm.nodeAddressUIKey,
                     label: S.current.node_address,
                     initialValue: vm.address,
-                    validator: vm.walletType == WalletType.decred
-                        ? NodeAddressValidatorDecredBlankException()
-                        : NodeAddressValidator(),
+                    validator: switch (vm.walletType) {
+                      WalletType.decred => NodeAddressValidatorDecredBlankException(),
+                      // Minotari node traffic carries the wallet's own transactions.
+                      WalletType.minotari => (value) => vm.useSSL
+                          ? NodeAddressValidator()(value)
+                          : S.current.minotari_node_requires_ssl,
+                      _ => NodeAddressValidator(),
+                    },
                   ),
                   if (vm.hasPathSupport)
                     ListItemTextField(

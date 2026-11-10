@@ -1,6 +1,6 @@
 {
   "abandon_send": "Odustani od slanja",
-  "abandon_send_confirmation": "Odustati od ovog slanja i osloboditi sredstva? Učinite to samo ako ga čvor stalno odbija. Čvor ga i dalje može rudariti, stoga nemojte ponovno plaćati istom primatelju dok se ne prikaže kao odbijeno.",
+  "abandon_send_confirmation": "Time se oslobađaju sredstva za slanje koje čvor stalno odbija. Kasnije se još može iskopati. Prije nego što ponovno platite istom primatelju, pričekajte dok nekoliko kasnijih sinkronizacija još uvijek ne pokaže da je odbijen i ponovno pošaljite isti iznos tako da ponovno iskoristi oslobođena sredstva.",
   "about": "O aplikaciji",
   "about_cake_pay": "Cake Pay vam omogućuje jednostavnu kupnju darovnih kartica virtualnom imovinom, koje se mogu odmah potrošiti kod više od 150 000 trgovaca.",
   "about_litecoin_privacy": "O privatnosti Litecoina",

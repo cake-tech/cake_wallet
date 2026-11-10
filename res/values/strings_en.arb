@@ -1,6 +1,6 @@
 {
   "abandon_send": "Abandon send",
-  "abandon_send_confirmation": "Abandon this send and free its funds? Only do this if the node keeps refusing it. A node may still mine it, so don't pay the same recipient again until it shows as rejected.",
+  "abandon_send_confirmation": "This releases the funds of a send the node keeps refusing. It may still be mined later. Before paying the same recipient again, wait until several later syncs still show it as rejected, and resend the same amount so it reuses the released funds.",
   "about": "About",
   "about_cake_pay": "Cake Pay allows you to easily buy gift cards with virtual assets, spendable instantly at over 150,000 merchants.",
   "about_litecoin_privacy": "About Litecoin Privacy",
