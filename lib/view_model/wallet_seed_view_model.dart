@@ -1,6 +1,7 @@
 import "dart:async";
 import 'dart:math';
 
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/wallet_info.dart";
@@ -16,12 +17,22 @@ class WalletSeedViewModel = WalletSeedViewModelBase with _$WalletSeedViewModel;
 abstract class WalletSeedViewModelBase with Store {
   WalletSeedViewModelBase(WalletBase wallet)
       : name = wallet.name,
-        seed = wallet.seed!,
+        seed = wallet.seed ?? '',
         walletType = wallet.type,
         _walletInfo = wallet.walletInfo,
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
-    setupSeedVerification();
+    if (wallet.type == WalletType.minotari) {
+      _loadMinotariSeed(wallet);
+    } else {
+      setupSeedVerification();
+    }
+  }
+
+  /// Minotari wallets do not keep the mnemonic; it lives here only while this page does.
+  Future<void> _loadMinotariSeed(WalletBase wallet) async {
+    seed = await minotari!.getSeed(wallet) ?? '';
+    if (seed.isNotEmpty) setupSeedVerification();
   }
 
   final WalletInfo _walletInfo;

@@ -38,8 +38,11 @@ class WalletKeysPage extends BasePage {
             ),
           ),
           Expanded(
-            child: WalletKeysPageBody(
-              walletKeysViewModel: walletKeysViewModel,
+            child: FutureBuilder<void>(
+              future: walletKeysViewModel.seedLoaded,
+              builder: (context, snapshot) => snapshot.connectionState == ConnectionState.done
+                  ? WalletKeysPageBody(walletKeysViewModel: walletKeysViewModel)
+                  : const Center(child: CircularProgressIndicator()),
             ),
           ),
         ],

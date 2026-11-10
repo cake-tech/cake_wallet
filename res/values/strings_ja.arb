@@ -961,6 +961,7 @@
   "reset": "リセット",
   "reset_filters": "フィルターをリセットする",
   "reset_password": "パスワードをリセット",
+  "restart_required_to_open_wallet": "このウォレットは、すでに開かれているウォレットとは異なるネットワーク上にあります。アプリを再起動して開きます。",
   "restore": "復元",
   "restore_active_seed": "アクティブなシード",
   "restore_address": "アドレス",

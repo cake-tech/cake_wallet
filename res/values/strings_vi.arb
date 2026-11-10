@@ -961,6 +961,7 @@
   "reset": "Đặt lại",
   "reset_filters": "Đặt lại bộ lọc",
   "reset_password": "Đặt lại mật khẩu",
+  "restart_required_to_open_wallet": "Ví này nằm trên một mạng khác với ví đã được mở. Khởi động lại ứng dụng để mở nó.",
   "restore": "Khôi phục",
   "restore_active_seed": "Seed đang hoạt động",
   "restore_address": "Địa chỉ",

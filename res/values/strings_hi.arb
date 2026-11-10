@@ -962,6 +962,7 @@
   "reset": "रीसेट",
   "reset_filters": "फ़िल्टर रीसेट करें",
   "reset_password": "पासवर्ड रीसेट करें",
+  "restart_required_to_open_wallet": "यह वॉलेट पहले से खोले गए वॉलेट से भिन्न नेटवर्क पर है। इसे खोलने के लिए ऐप को पुनरारंभ करें।",
   "restore": "पुनर्स्थापित करें",
   "restore_active_seed": "सक्रिय सीड",
   "restore_address": "पता",

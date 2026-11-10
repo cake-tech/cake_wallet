@@ -9,7 +9,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -132,8 +131,7 @@ abstract class OutputBase with Store {
   Future<void> calculateEstimatedFee() async {
     try {
       final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
-      // TODO check why fee isn't triggered for Minotari without this
-      if (isEVMCompatibleChain(_wallet.type) || _wallet.type == WalletType.minotari) {
+      if (isEVMCompatibleChain(_wallet.type)) {
         await _wallet.updateEstimatedFeesParams(priority);
       }
 
@@ -153,6 +151,7 @@ abstract class OutputBase with Store {
         case WalletType.dogecoin:
         case WalletType.decred:
         case WalletType.zano:
+        case WalletType.minotari:
           estimatedFee = Money.fromInt(fee, walletTypeToCryptoCurrency(_wallet.type));
           break;
         case WalletType.bitcoin:
@@ -210,10 +209,6 @@ abstract class OutputBase with Store {
           break;
 
         /// end EVMs
-
-        case WalletType.minotari:
-          estimatedFee = minotari!.getMinotariEstimatedFee(_wallet)?.toString() ?? '0.0';
-          break;
 
         case WalletType.haven:
         case WalletType.nano:

@@ -31,6 +31,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -538,6 +539,18 @@ class WalletListBodyState extends State<WalletListBody> {
             }
             await widget.onWalletLoaded.call(context);
           }
+        } on RestartRequiredException {
+          unawaited(hideProgressText());
+          if (!mounted) return;
+          await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) => AlertWithOneAction(
+              alertTitle: S.of(context).error,
+              alertContent: S.of(context).restart_required_to_open_wallet,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop(),
+            ),
+          );
         } catch (e) {
           await ExceptionHandler.resetLastPopupDate();
           final err = e.toString();

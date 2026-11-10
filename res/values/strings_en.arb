@@ -1007,6 +1007,7 @@
   "reset": "Reset",
   "reset_filters": "Reset Filters",
   "reset_password": "Reset Password",
+  "restart_required_to_open_wallet": "This wallet is on a different network than the wallet already opened. Restart the app to open it.",
   "restore": "Restore",
   "restore_active_seed": "Active seed",
   "restore_address": "Address",

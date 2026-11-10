@@ -960,6 +960,7 @@
   "reset": "重置",
   "reset_filters": "重置过滤器",
   "reset_password": "重置密码",
+  "restart_required_to_open_wallet": "该钱包与已打开的钱包位于不同的网络上。重新启动应用程序以将其打开。",
   "restore": "恢复",
   "restore_active_seed": "当前助记词",
   "restore_address": "地址",

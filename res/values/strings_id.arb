@@ -962,6 +962,7 @@
   "reset": "Atur Ulang",
   "reset_filters": "Setel Ulang Filter",
   "reset_password": "Setel Ulang Kata Sandi",
+  "restart_required_to_open_wallet": "Dompet ini berada di jaringan yang berbeda dari dompet yang sudah dibuka. Mulai ulang aplikasi untuk membukanya.",
   "restore": "Pulihkan",
   "restore_active_seed": "Seed aktif",
   "restore_address": "Alamat",

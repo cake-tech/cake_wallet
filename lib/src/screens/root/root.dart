@@ -179,6 +179,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           bitcoin!.stopPayjoinSessions(widget.appStore.wallet!);
         }
 
+        // Minotari scans continuously; don't keep polling the node in the background.
+        if (widget.appStore.wallet?.type == WalletType.minotari) {
+          widget.appStore.wallet!.stopSync();
+        }
+
         widget.tradeMonitor.stopTradeMonitoring();
 
         break;
@@ -196,6 +201,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
         if (widget.appStore.wallet?.type == WalletType.bitcoin &&
             widget.appStore.settingsStore.usePayjoin) {
           bitcoin!.resumePayjoinSessions(widget.appStore.wallet!);
+        }
+
+        if (widget.appStore.wallet?.type == WalletType.minotari) {
+          widget.appStore.wallet!.startSync();
         }
 
         widget.tradeMonitor.resumeTradeMonitoring();

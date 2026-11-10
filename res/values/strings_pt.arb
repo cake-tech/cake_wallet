@@ -962,6 +962,7 @@
   "reset": "Redefinir",
   "reset_filters": "Redefinir filtros",
   "reset_password": "Redefinir senha",
+  "restart_required_to_open_wallet": "Esta carteira está em uma rede diferente da carteira já aberta. Reinicie o aplicativo para abri-lo.",
   "restore": "Restaurar",
   "restore_active_seed": "Seed ativa",
   "restore_address": "Endereço",

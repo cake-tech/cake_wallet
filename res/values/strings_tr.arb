@@ -960,6 +960,7 @@
   "reset": "Sıfırla",
   "reset_filters": "Filtreleri Sıfırla",
   "reset_password": "Parolayı Sıfırla",
+  "restart_required_to_open_wallet": "Bu cüzdan, halihazırda açılmış olan cüzdandan farklı bir ağ üzerindedir. Açmak için uygulamayı yeniden başlatın.",
   "restore": "Geri Yükle",
   "restore_active_seed": "Aktif seed",
   "restore_address": "Adres",

@@ -960,6 +960,7 @@
   "reset": "I-reset",
   "reset_filters": "I-reset ang Mga Filter",
   "reset_password": "I-reset ang Password",
+  "restart_required_to_open_wallet": "Ang wallet na ito ay nasa ibang network kaysa sa wallet na nabuksan na. I-restart ang app para buksan ito.",
   "restore": "I-restore",
   "restore_active_seed": "Aktibong seed",
   "restore_address": "Address",

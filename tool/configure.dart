@@ -1874,11 +1874,11 @@ import 'package:cw_core/wallet_service.dart';
 
 """;
   const minotariCWHeaders = """
-import 'package:cw_minotari/minotari_amount_format.dart';
 import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/pending_minotari_transaction.dart';
+import 'package:cw_minotari/src/rust/api/network.dart';
 """;
   const minotariCwPart = "part 'cw_minotari.dart';";
   const minotariContent = """
@@ -1888,7 +1888,6 @@ abstract class Minotari {
   WalletCredentials createMinotariNewWalletCredentials({
     required String name,
     String? password,
-    String? passphrase,
     WalletInfo? walletInfo,
   });
 
@@ -1897,7 +1896,6 @@ abstract class Minotari {
     required String password,
     required String mnemonic,
     required int height,
-    String? passphrase,
     WalletInfo? walletInfo,
   });
 
@@ -1905,32 +1903,28 @@ abstract class Minotari {
     required String name,
     required String password,
     required String viewPrivateKeyHex,
-    required String spendPublicKeyHex,
-    required int birthday,
-    String? passphrase,
+    String? spendPrivateKeyHex,
+    String? spendPublicKeyHex,
+    required int height,
     WalletInfo? walletInfo,
   });
-
-  double? getMinotariEstimatedFee(Object wallet);
 
   List<TransactionPriority> getTransactionPriorities();
   TransactionPriority deserializeMinotariTransactionPriority({required int raw});
   TransactionPriority getMinotariTransactionPriorityMedium();
   TransactionPriority getMinotariTransactionPrioritySlow();
 
-  Object createMinotariTransactionCredentials(List<Output> outputs);
+  Object createMinotariTransactionCredentials(List<Output> outputs,
+      {TransactionPriority? priority});
 
   Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs);
 
-  int getHeightByDate({required DateTime date});
-  Future<int> getCurrentHeight();
+  Future<int> getHeightByDate({required DateTime date});
+  Future<int> getCurrentHeight(Object wallet);
+  Future<String?> getSeed(Object wallet);
 
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
-
-  String formatterMinotariAmountToString({required int amount});
-  double formatterMinotariAmountToDouble({required int amount});
-  int formatterMinotariParseAmount({required String amount});
 }
 
   """;

@@ -1006,6 +1006,7 @@
   "reset": "Zurücksetzen",
   "reset_filters": "Filter zurücksetzen",
   "reset_password": "Passwort zurücksetzen",
+  "restart_required_to_open_wallet": "Dieses Wallet befindet sich in einem anderen Netzwerk als das bereits geöffnete Wallet. Starten Sie die App neu, um sie zu öffnen.",
   "restore": "Wiederherstellen",
   "restore_active_seed": "Aktiver Seed",
   "restore_address": "Adresse",

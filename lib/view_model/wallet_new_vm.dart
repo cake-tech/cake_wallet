@@ -163,7 +163,6 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return minotari!.createMinotariNewWalletCredentials(
           name: name,
           password: walletPassword,
-          passphrase: passphrase,
         );
       case WalletType.none:
       case WalletType.haven:

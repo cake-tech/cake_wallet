@@ -960,6 +960,7 @@
   "reset": "إعادة ضبط",
   "reset_filters": "إعادة تعيين المرشحات",
   "reset_password": "إعادة تعيين كلمة المرور",
+  "restart_required_to_open_wallet": "هذه المحفظة موجودة على شبكة مختلفة عن تلك التي تم فتحها بالفعل. أعد تشغيل التطبيق لفتحه.",
   "restore": "استعادة",
   "restore_active_seed": "العبارة السرية النشطة",
   "restore_address": "العنوان",

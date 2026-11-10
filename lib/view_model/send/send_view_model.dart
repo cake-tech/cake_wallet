@@ -1399,7 +1399,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // priority: priority,
         );
       case WalletType.minotari:
-        return minotari!.createMinotariTransactionCredentials(outputs);
+        return minotari!.createMinotariTransactionCredentials(outputs, priority: priority);
       default:
         throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for send', wallet.type);
     }

@@ -103,7 +103,16 @@ abstract class WalletKeysViewModelBase with Store {
 
   AppStore get appStore => _appStore;
 
-  String get seed => _wallet.seed != null ? _wallet.seed! : '';
+  /// Minotari wallets do not keep the mnemonic; it lives here only while this page does.
+  String? _minotariSeed;
+
+  late final Future<void> seedLoaded = _wallet.type == WalletType.minotari
+      ? minotari!.getSeed(_wallet).then((seed) => _minotariSeed = seed)
+      : Future.value();
+
+  String? get _seed => _wallet.seed ?? _minotariSeed;
+
+  String get seed => _seed ?? '';
 
   bool get isLegacySeedOnly =>
       [WalletType.monero, WalletType.wownero].contains(_wallet.type) &&
@@ -376,9 +385,9 @@ abstract class WalletKeysViewModelBase with Store {
   Future<Map<String, String>> get _queryParams async {
     final restoreHeightResult = await restoreHeight;
     return {
-      if (_wallet.seed != null) 'seed': _wallet.seed!,
-      if (_wallet.seed == null && _wallet.hexSeed != null) 'hexSeed': _wallet.hexSeed!,
-      if (_wallet.seed == null && _wallet.privateKey != null) 'private_key': _wallet.privateKey!,
+      if (_seed != null) 'seed': _seed!,
+      if (_seed == null && _wallet.hexSeed != null) 'hexSeed': _wallet.hexSeed!,
+      if (_seed == null && _wallet.privateKey != null) 'private_key': _wallet.privateKey!,
       if (restoreHeightResult != null) ...{'height': restoreHeightResult},
       if (_wallet.passphrase != null) 'passphrase': _wallet.passphrase!
     };

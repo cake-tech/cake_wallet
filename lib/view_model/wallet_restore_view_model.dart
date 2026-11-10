@@ -119,7 +119,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreMode mode;
 
   @computed
-  bool get passphraseAvailable => mode == WalletRestoreMode.seed;
+  // Minotari cipher seeds have no passphrase.
+  bool get passphraseAvailable => mode == WalletRestoreMode.seed && type != WalletType.minotari;
 
   @observable
   bool hasPassphrase;
@@ -241,11 +242,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           );
         case WalletType.minotari:
           return minotari!.createMinotariRestoreWalletFromSeedCredentials(
-              name: name,
-              password: password,
-              mnemonic: seed,
-              height: height,
-              passphrase: passphrase,
+            name: name,
+            password: password,
+            mnemonic: seed,
+            height: height,
           );
         case WalletType.none:
         case WalletType.haven:
@@ -347,8 +347,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             password: password,
             viewPrivateKeyHex: viewKey!,
-            spendPublicKeyHex: spendPubkey!,
-            birthday: height,
+            spendPrivateKeyHex: spendKey,
+            spendPublicKeyHex: spendPubkey,
+            height: height,
           );
         default:
           break;

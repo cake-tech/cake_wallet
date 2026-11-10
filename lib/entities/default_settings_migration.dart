@@ -545,9 +545,8 @@ Future<void> defaultSettingsMigration(
               PreferencesKey.syncStatusDisplayMode, SyncStatusDisplayMode.blocksRemaining.name);
           break;
         case 57:
-          await addWalletNodeList(nodes: nodes, type: WalletType.minotari);
+          await addWalletNodeList(type: WalletType.minotari);
           await _changeDefaultNode(
-            nodes: nodes,
             sharedPreferences: sharedPreferences,
             type: WalletType.minotari,
             currentNodePreferenceKey: PreferencesKey.currentMinotariNodeIdKey,

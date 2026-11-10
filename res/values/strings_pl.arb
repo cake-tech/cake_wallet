@@ -960,6 +960,7 @@
   "reset": "Resetuj",
   "reset_filters": "Zresetuj filtry",
   "reset_password": "Zresetuj hasło",
+  "restart_required_to_open_wallet": "Ten portfel znajduje się w innej sieci niż portfel już otwarty. Uruchom ponownie aplikację, aby ją otworzyć.",
   "restore": "Przywróć",
   "restore_active_seed": "Aktywny seed",
   "restore_address": "Adres",

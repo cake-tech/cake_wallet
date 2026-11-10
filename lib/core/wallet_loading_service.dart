@@ -76,6 +76,9 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
+      // Not corrupted: the wallet opens after an app restart.
+      if (error is RestartRequiredException) rethrow;
+
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
 
       if (error is WalletDeprecationException) {

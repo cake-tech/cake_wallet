@@ -134,41 +134,26 @@ Validation pattern: `[123Hdf][234678][1-9A-HJ-NP-Za-km-z]{45,448}`
 
 ### Network Configuration
 
-Wallets use `mainNet`. Testnet wallets map to `esmeralda`, which the release libraries
-(built for the mainnet network group) reject, so testnet Minotari wallets don't work yet.
+Each wallet stores its network in `WalletInfo.network` and passes it to cw on create, restore
+and open. The create and restore flows offer **Use Testnet** under advanced settings: off is
+`mainNet`, on is `stageNet` (the release libraries are built for the mainnet network group,
+which has no `esmeralda`). cw locks the process to the network of its first wallet call, so
+opening a wallet on the other network asks for an app restart.
 
 ### Blockchain Sync
 
-Uses streaming scanner (not polling):
-
-```dart
-final stream = _ffi.startScan(
-  baseNodeAddress: nodeUrl,
-  passphrase: passphrase,
-  continuous: false,  // One-time sync
-  batchSize: 1000,
-  pollIntervalSeconds: 5,
-);
-```
-
-Events: `ScanProgress`, `TransactionDiscovered`, `ScanComplete`, `ScanError`
+`startSync` starts a continuous scan with its own scan handle (`create_scan_handle` +
+`start_scan`); `rescan` rolls back and scans from a height. Progress events carry the chain
+tip and drive `SyncingSyncStatus`; the wallet is synced only once the scan has caught up
+(`Waiting`) or completed. `stopSync`, `close` and the app going to the background stop only
+that handle's scan; it resumes in the foreground.
 
 ### Transaction Sending
 
-Streaming transaction flow:
-
-```dart
-final stream = _ffi.sendTransaction(
-  seedWords: mnemonic,
-  passphrase: passphrase,
-  recipientAddress: address,
-  amount: BigInt.from(amountMicroTari),
-  baseNodeUrl: nodeUrl,
-  paymentId: optionalPaymentId,
-);
-```
-
-Stages: `Preparing`, `Broadcasting`, `Confirming`, `Completed`
+`createTransaction` sends to every output in one transaction (each output's note becomes its
+payment ID). Send-all sweeps the wallet to a single recipient and cannot be combined with other
+outputs. The send needs no seed words: it signs with the wallet's unlocked key session. The
+pending transaction is shown once the stream reaches `Broadcasted`; the scanner confirms it.
 
 ### Fee Estimation
 
@@ -177,9 +162,8 @@ Three priority levels:
 - `MinotariTransactionPriority.medium` (raw: 1, default)
 - `MinotariTransactionPriority.fast` (raw: 2)
 
-Fee calculated by Rust library based on transaction size and priority.
-
-Note: Fee doesn't depend on amount, so we request estimate for 0 amount value.
+The wallet refreshes its fee quotes whenever the scan catches up. The confirmation shows the
+fee quoted for the real amount and number of outputs, or the send-all quote.
 
 ## Dependencies
 
@@ -227,24 +211,24 @@ Uses first payment reference (payref) from transaction for lookup.
 
 - Wallet creation with 24-word mnemonic generation
 - Wallet restoration from mnemonic
-- Mainnet wallets (testnet wallets are not supported by the release libraries)
+- Mainnet and stagenet wallets
 - Blockchain synchronization via scanner
 - Balance updates (available, pending incoming, pending outgoing)
 - Transaction history with full details
 - Address generation and display
 - Address validation (RFC-0155 compliant)
 - Fee estimation with priority levels
-- Transaction sending
-- Mnemonic storage and backup (.keys file)
+- Transaction sending (multiple recipients, send-all)
+- Message signing and verification
+- Restore from keys (spendable, or watch-only with the spend public key)
+- Password change
+- Seed words kept in the wallet database and read on demand for the seed page
 - Prebuilt native libraries for Android (arm64, armv7, x86_64), iOS, macOS, Linux (x86_64, aarch64) and Windows
 
 ## Known Limitations
 
-1. **Sync progress:** Shows "Synchronizing" without percentage (chain tip not exposed by scanner)
-2. **Message signing:** Not implemented (requires Rust FFI extension)
-3. **Hardware wallets:** Not supported
-4. **Keys-based restore:** Not supported (mnemonic only)
-5. **Buy/sell providers:** No providers currently support XTM
+1. **Hardware wallets:** Not supported
+2. **Buy/sell providers:** No providers currently support XTM
 
 ## Resources
 

@@ -960,6 +960,7 @@
   "reset": "Poništi",
   "reset_filters": "Poništi filtre",
   "reset_password": "Ponovno postavi lozinku",
+  "restart_required_to_open_wallet": "Ovaj novčanik je na drugoj mreži nego novčanik koji je već otvoren. Ponovno pokrenite aplikaciju da biste je otvorili.",
   "restore": "Vrati",
   "restore_active_seed": "Aktivna seed fraza",
   "restore_address": "Adresa",

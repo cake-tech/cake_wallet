@@ -960,6 +960,7 @@
   "reset": "รีเซ็ต",
   "reset_filters": "รีเซ็ตตัวกรอง",
   "reset_password": "รีเซ็ตรหัสผ่าน",
+  "restart_required_to_open_wallet": "กระเป๋าเงินนี้อยู่ในเครือข่ายอื่นที่ไม่ใช่กระเป๋าเงินที่เปิดไว้แล้ว รีสตาร์ทแอปเพื่อเปิด",
   "restore": "กู้คืน",
   "restore_active_seed": "Seed ที่ใช้งานอยู่",
   "restore_address": "ที่อยู่",

@@ -961,6 +961,7 @@
   "reset": "Сброс",
   "reset_filters": "Сбросить фильтры",
   "reset_password": "Сброс пароля",
+  "restart_required_to_open_wallet": "Этот кошелек находится в другой сети, чем уже открытый кошелек. Перезапустите приложение, чтобы открыть его.",
   "restore": "Восстановить",
   "restore_active_seed": "Активная seed-фраза",
   "restore_address": "Адрес",

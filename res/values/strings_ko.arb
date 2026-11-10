@@ -960,6 +960,7 @@
   "reset": "재설정",
   "reset_filters": "필터 재설정",
   "reset_password": "비밀번호 재설정",
+  "restart_required_to_open_wallet": "이 지갑은 이미 개설된 지갑과 다른 네트워크에 있습니다. 앱을 다시 시작하여 엽니다.",
   "restore": "복원",
   "restore_active_seed": "활성 시드",
   "restore_address": "주소",

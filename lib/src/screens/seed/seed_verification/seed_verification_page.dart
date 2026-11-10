@@ -29,19 +29,22 @@ class SeedVerificationPage extends BasePage {
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
-          child: walletSeedViewModel.isVerificationComplete ||
-                  walletSeedViewModel.verificationIndices.isEmpty
-              ? SeedVerificationSuccessView(
-                  key: ValueKey('seed_verification_success_view_page'),
-                  walletSeedViewModel: walletSeedViewModel,
-                  isNewWalletCreated: isNewWalletCreated,
-                  currentTheme: currentTheme,
-                )
-              : SeedVerificationStepView(
-                  key: ValueKey('seed_verification_step_view_page'),
-                  walletSeedViewModel: walletSeedViewModel,
-                  questionTextColor: titleColor(context),
-                ),
+          // Minotari loads its seed after the page opens; don't count that wait as verified.
+          child: walletSeedViewModel.seed.isEmpty
+              ? const Center(child: CircularProgressIndicator())
+              : walletSeedViewModel.isVerificationComplete ||
+                      walletSeedViewModel.verificationIndices.isEmpty
+                  ? SeedVerificationSuccessView(
+                      key: ValueKey('seed_verification_success_view_page'),
+                      walletSeedViewModel: walletSeedViewModel,
+                      isNewWalletCreated: isNewWalletCreated,
+                      currentTheme: currentTheme,
+                    )
+                  : SeedVerificationStepView(
+                      key: ValueKey('seed_verification_step_view_page'),
+                      walletSeedViewModel: walletSeedViewModel,
+                      questionTextColor: titleColor(context),
+                    ),
         );
       },
     );

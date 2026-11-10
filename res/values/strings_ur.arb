@@ -962,6 +962,7 @@
   "reset": "ری سیٹ کریں",
   "reset_filters": "فلٹرز کو دوبارہ ترتیب دیں۔",
   "reset_password": "پاس ورڈ ری سیٹ کریں",
+  "restart_required_to_open_wallet": "یہ بٹوہ پہلے سے کھولے گئے بٹوے سے مختلف نیٹ ورک پر ہے۔ اسے کھولنے کے لیے ایپ کو دوبارہ شروع کریں۔",
   "restore": "بحال کریں",
   "restore_active_seed": "فعال سیڈ",
   "restore_address": "ایڈریس",

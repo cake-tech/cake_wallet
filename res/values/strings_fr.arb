@@ -960,6 +960,7 @@
   "reset": "Réinitialiser",
   "reset_filters": "Réinitialiser les filtres",
   "reset_password": "Réinitialiser le mot de passe",
+  "restart_required_to_open_wallet": "Ce portefeuille est sur un réseau différent du portefeuille déjà ouvert. Redémarrez l'application pour l'ouvrir.",
   "restore": "Restaurer",
   "restore_active_seed": "Phrase de récupération active",
   "restore_address": "Adresse",

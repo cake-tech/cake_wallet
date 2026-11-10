@@ -960,6 +960,7 @@
   "reset": "Reset",
   "reset_filters": "Filters opnieuw instellen",
   "reset_password": "Wachtwoord resetten",
+  "restart_required_to_open_wallet": "Deze portemonnee bevindt zich op een ander netwerk dan de portemonnee die al is geopend. Start de app opnieuw om deze te openen.",
   "restore": "Herstellen",
   "restore_active_seed": "Actief seed",
   "restore_address": "Adres",

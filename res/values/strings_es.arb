@@ -961,6 +961,7 @@
   "reset": "Restablecer",
   "reset_filters": "Restablecer filtros",
   "reset_password": "Restablecer contraseña",
+  "restart_required_to_open_wallet": "Esta billetera está en una red diferente a la billetera ya abierta. Reinicie la aplicación para abrirla.",
   "restore": "Restaurar",
   "restore_active_seed": "Semilla activa",
   "restore_address": "Dirección",

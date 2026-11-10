@@ -960,6 +960,7 @@
   "reset": "Resetovat",
   "reset_filters": "Resetovat filtry",
   "reset_password": "Obnovit heslo",
+  "restart_required_to_open_wallet": "Tato peněženka je v jiné síti než již otevřená peněženka. Chcete-li aplikaci otevřít, restartujte ji.",
   "restore": "Obnovit",
   "restore_active_seed": "Aktivní seed fráze",
   "restore_address": "Adresa",

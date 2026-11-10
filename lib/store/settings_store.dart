@@ -2303,7 +2303,7 @@ abstract class SettingsStoreBase with Store {
         await _sharedPreferences.setInt(PreferencesKey.currentDogecoinNodeIdKey, node.id);
         break;
       case WalletType.minotari:
-        await _sharedPreferences.setInt(PreferencesKey.currentMinotariNodeIdKey, node.key as int);
+        await _sharedPreferences.setInt(PreferencesKey.currentMinotariNodeIdKey, node.id);
         break;
       case WalletType.zcash:
         await _sharedPreferences.setInt(PreferencesKey.currentZcashNodeIdKey, node.id);
