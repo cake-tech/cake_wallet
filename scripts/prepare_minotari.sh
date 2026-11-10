@@ -6,7 +6,9 @@
 set -euo pipefail
 
 # To bump: set the tag and the commit it points at, then the sha256 of that
-# release's SHA256SUMS asset (`sha256sum SHA256SUMS`). The digest pins every zip.
+# release's SHA256SUMS asset. The digest pins every zip:
+#   gh release download <tag> -R tari-project/cw_tari_wallet -p SHA256SUMS && sha256sum SHA256SUMS
+# Each run replaces cw_minotari/lib/src/rust; run ./model_generator.sh afterwards.
 CW_TARI_WALLET_TAG="v0.2.0"
 CW_TARI_WALLET_SHA="7d8d1c4d57f55c1c3a0a9cc67aed354e0c411214"
 CW_TARI_WALLET_SUMS_SHA256="PENDING-v0.2.0-release-SHA256SUMS-digest"
