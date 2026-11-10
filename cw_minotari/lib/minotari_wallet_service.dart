@@ -150,11 +150,6 @@ class MinotariWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw Exception('Wallet not found');
-    }
-
     // Locks the wallet for every holder and stops its scans before deleting it. Without an
     // account (a create that never finished) the files and WalletInfo still go.
     final ffi = await _ffiFor(wallet);
@@ -167,12 +162,21 @@ class MinotariWalletService extends WalletService<
       await dir.delete(recursive: true);
     }
 
-    await WalletInfo.delete(walletInfo);
+    // The files are already gone; a missing WalletInfo must not make the delete look failed.
+    final walletInfo = await WalletInfo.get(wallet, getType());
+    if (walletInfo == null) {
+      printV('[MinotariWalletService] No WalletInfo for deleted wallet "$wallet"');
+    } else {
+      await WalletInfo.delete(walletInfo);
+    }
     printV('[MinotariWalletService] Deleted wallet "$wallet"');
   }
 
   @override
   Future<void> rename(String currentName, String password, String newName) async {
+    // The old directory is deleted at the end; with the same name that is the wallet's own.
+    if (currentName == newName) return;
+
     final currentWalletInfo = await WalletInfo.get(currentName, getType());
     if (currentWalletInfo == null) {
       throw Exception('Wallet not found');
@@ -180,6 +184,9 @@ class MinotariWalletService extends WalletService<
 
     final typeDir = await pathForWalletTypeDir(type: getType());
     final newPath = '$typeDir/$newName/$newName';
+    if (Directory('$typeDir/$newName').existsSync()) {
+      throw WalletExistsException('A Minotari wallet directory named "$newName" already exists.');
+    }
     if (await (await _ffiFor(newName)).exists()) {
       throw WalletExistsException(
           'The Minotari wallet database already has a wallet named "$newName".');
