@@ -15,21 +15,21 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
-class LetsExchangeExchangeProvider extends ExchangeProvider {
-  LetsExchangeExchangeProvider();
+class WhyNotExchangeProvider extends ExchangeProvider {
+  WhyNotExchangeProvider();
 
-  static const apiKey = secrets.letsExchangeBearerToken;
-  static const _baseUrl = 'api.letsexchange.io';
+  static const apiKey = secrets.whyNotBearerToken;
+  static const _baseUrl = 'api.y-not.io';
   static const _infoPath = '/api/v1/info';
   static const _infoRevertPath = '/api/v1/info-revert';
   static const _createTransactionPath = '/api/v1/transaction';
   static const _createTransactionRevertPath = '/api/v1/transaction-revert';
   static const _getTransactionPath = '/api/v1/transaction';
 
-  static const _affiliateId = secrets.letsExchangeAffiliateId;
+  static const _affiliateId = secrets.whyNotAffiliateId;
 
   @override
-  String get title => 'LetsExchange';
+  String get title => 'WhyNot';
 
   @override
   bool get isAvailable => true;
@@ -41,7 +41,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   bool get supportsFixedRate => true;
 
   @override
-  ExchangeProviderDescription get description => ExchangeProviderDescription.letsExchange;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.whyNot;
 
   @override
   Future<bool> checkIsAvailable() async => true;
@@ -51,18 +51,21 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       {required CryptoCurrency from,
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
-    final networkFrom = _getNetworkType(from);
-    final networkTo = _getNetworkType(to);
+    final curFrom = isFixedRateMode ? to : from;
+    final curTo = isFixedRateMode ? from : to;
+
+    final networkFrom = _getNetworkType(curFrom);
+    final networkTo = _getNetworkType(curTo);
 
     try {
       final params = {
-        'from': from.title,
-        'to': to.title,
+        'from': curFrom.title,
+        'to': curTo.title,
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'amount': '1',
         'affiliate_id': _affiliateId,
-        'float': isFixedRateMode ? 'false' : 'true',
+        'float': !isFixedRateMode,
       };
 
       final responseJSON = await _getInfo(params, isFixedRateMode);
@@ -92,7 +95,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         if (networkTo != null) 'network_to': networkTo,
         'amount': amount.toString(),
         'affiliate_id': _affiliateId,
-        'float': isFixedRateMode ? 'false' : 'true',
+        'float': !isFixedRateMode,
       };
 
       final responseJSON = await _getInfo(params, isFixedRateMode);
@@ -160,11 +163,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         if (networkTo != null) 'network_to': networkTo,
         'amount': isFixedRateMode ? request.toAmount.toString() : request.fromAmount.toString(),
         'affiliate_id': _affiliateId,
-        'float': isFixedRateMode ? 'false' : 'true',
+        'float': !isFixedRateMode,
       };
 
       final responseInfoJSON = await _getInfo(params, isFixedRateMode);
-      final rateId = responseInfoJSON['rate_id'] as String;
+      final rateId = responseInfoJSON['rate_id'] as String?;
 
       final withdrawalAddress = _normalizeBchAddress(request.toAddress);
       final returnAddress = _normalizeBchAddress(request.refundAddress);
@@ -177,11 +180,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         if (isFixedRateMode) 'withdrawal_amount': request.toAmount.toString(),
         'withdrawal_extra_id': request.toAddressExtraId,
         'return': returnAddress,
-        'rate_id': rateId,
+        if (rateId != null) 'rate_id': rateId,
         if (networkFrom != null) 'network_from': networkFrom,
         if (networkTo != null) 'network_to': networkTo,
         'affiliate_id': _affiliateId,
-        'float': isFixedRateMode ? 'false' : 'true',
+        'float': !isFixedRateMode,
       };
 
       final headers = {
@@ -202,7 +205,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
         ExchangeProviderLogger.logError(
           provider: description,
           function: 'createTrade',
-          error: Exception('LetsExchange create trade failed: ${response.body}'),
+          error: Exception('WhyNot create trade failed: ${response.body}'),
           stackTrace: StackTrace.current,
           requestData: {
             'from': request.fromCurrency.title,
@@ -219,7 +222,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
             'url': uri.toString(),
           },
         );
-        throw TradeNotCreatedException(description, description: 'LetsExchange create trade failed: ${response.body}');
+        throw TradeNotCreatedException(description, description: 'WhyNot create trade failed: ${response.body}');
       }
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final id = responseJSON['transaction_id'] as String;
@@ -227,14 +230,10 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       final to = responseJSON['coin_to'] as String;
       final payoutAddress = responseJSON['withdrawal'] as String;
       final depositAddress = responseJSON['deposit'] as String;
-      final refundAddress = responseJSON['return'] as String;
+      final refundAddress = responseJSON['return'] as String?;
       final depositAmount = responseJSON['deposit_amount'] as String;
       final receiveAmount = responseJSON['withdrawal_amount'] as String;
       final status = responseJSON['status'] as String;
-
-      // We ignore the created_at from response and use DateTime.now() instead
-      final createdAtString = responseJSON['created_at'] as String;
-      final expiredAtTimestamp = responseJSON['expired_at'] as int;
       final extraId = responseJSON['deposit_extra_id'] as String?;
 
       final createdAt = DateTime.now();
@@ -281,8 +280,6 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
           'depositAmount': depositAmount,
           'receiveAmount': receiveAmount,
           'status': status,
-          'createdAt': createdAtString,
-          'expiredAt': expiredAtTimestamp,
           'extraId': extraId,
           'statusCode': response.statusCode,
         },
@@ -341,7 +338,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: url, headers: headers);
 
     if (response.statusCode != 200) {
-      throw ExchangeProviderResponseCodeException('LetsExchange fetch trade failed: ${response.body}', response.statusCode);
+      throw ExchangeProviderResponseCodeException('WhyNot fetch trade failed: ${response.body}', response.statusCode);
     }
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
@@ -361,7 +358,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     final payoutAddress = responseJSON['withdrawal'] as String;
     final depositAddress = responseJSON['deposit'] as String;
-    final refundAddress = responseJSON['return'] as String;
+    final refundAddress = responseJSON['return'] as String?;
     final depositAmount = responseJSON['deposit_amount'] as String;
     final receiveAmount = responseJSON['withdrawal_amount'] as String;
     final status = responseJSON['status'] as String;
@@ -384,7 +381,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     );
   }
 
-  Future<Map<String, dynamic>> _getInfo(Map<String, String> params, bool isFixedRateMode) async {
+  Future<Map<String, dynamic>> _getInfo(Map<String, Object> params, bool isFixedRateMode) async {
     final headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -400,11 +397,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       );
 
       if (response.statusCode != 200) {
-        throw ExchangeProviderResponseCodeException('LetsExchange fetch info failed: ${response.body}', response.statusCode);
+        throw ExchangeProviderResponseCodeException('WhyNot fetch info failed: ${response.body}', response.statusCode);
       }
       return json.decode(response.body) as Map<String, dynamic>;
     } catch (e) {
-      throw ExchangeProviderResponseException('LetsExchange failed to fetch info ${e.toString()}');
+      throw ExchangeProviderResponseException('WhyNot failed to fetch info ${e.toString()}');
     }
   }
 
