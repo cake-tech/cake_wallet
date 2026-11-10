@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -30,7 +31,7 @@ import 'package:hex/hex.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:on_chain/solana/solana.dart' hide Store;
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 part 'solana_wallet.g.dart';
@@ -182,7 +183,7 @@ abstract class SolanaWalletBase
     assert(mnemonic != null || privateKey != null);
 
     if (mnemonic != null) {
-      final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+      final seed = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
 
       // Derive a Solana private key from the seed
       final bip44 = Bip44.fromSeed(seed, Bip44Coins.solana);
@@ -222,7 +223,7 @@ abstract class SolanaWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("Solana Node connection failed");
+        throw ConnectionException("Solana Node connection failed");
       }
 
       _setTransactionUpdateTimer();
@@ -311,8 +312,9 @@ abstract class SolanaWalletBase
             .toList(growable: false);
 
     if (matches.isEmpty) {
-      throw Exception(
-        "Currency ${requestedCurrency.title} ${requestedCurrency.tag} is not accessible in the wallet, try to enable it first.",
+      throw BadCurrencyException(
+        "Currency ${requestedCurrency.title} ${requestedCurrency
+            .tag} is not accessible in the wallet, try to enable it first.", requestedCurrency,
       );
     }
 

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cake_wallet/view_model/wallet_account_list/account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cw_core/balance_card_layout.dart';
 import 'package:cw_core/balance_card_style_settings.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -36,7 +37,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase
   @observable
   String label;
 
-  final MoneroAccountList _moneroAccountList;
+  final MoneroAccountList? _moneroAccountList;
   final WowneroAccountList? _wowneroAccountList;
   final AccountListItem? _accountListItem;
   final WalletBase _wallet;
@@ -51,13 +52,22 @@ abstract class MoneroAccountEditOrCreateViewModelBase
     return ret.isNotEmpty ? ret : CardDesign.allGradients;
   }
 
-  Future<void> _saveRandomCardDesign() async {
+  Future<void> _saveRandomCardDesign(int accountIndex) async {
     final gradients = await _getUsableCardGradients();
+
+    final accountIndices = _wallet.type == WalletType.monero
+        ? _moneroAccountList!.accounts.map((account) => account.id).toList()
+        : _wowneroAccountList!.accounts.map((account) => account.id).toList();
+
+    final layout = BalanceCardLayout.resolve(
+      accountIndices: accountIndices,
+      settings: await BalanceCardStyleSettings.getAll(_wallet.walletInfo.internalId),
+    );
 
     await BalanceCardStyleSettings.fromCardDesign(
             walletInfoId: _wallet.walletInfo.internalId,
-            accountIndex: _moneroAccountList.accounts.length,
-            cardOrder: _moneroAccountList.accounts.length,
+            accountIndex: accountIndex,
+            cardOrder: layout.visible.length,
             design: CardDesign.specialDesignsForCurrencies[_wallet.currency]!
                 .withGradient(gradients[Random().nextInt(gradients.length)]))
         .insert();
@@ -67,7 +77,11 @@ abstract class MoneroAccountEditOrCreateViewModelBase
     try {
       state = IsExecutingState();
 
-      if (!isEdit) await _saveRandomCardDesign();
+      if (!isEdit) {
+        await _saveRandomCardDesign(_wallet.type == WalletType.monero
+            ? _moneroAccountList!.accounts.length
+            : _wowneroAccountList!.accounts.length);
+      }
 
       if (_wallet.type == WalletType.monero) {
         await saveMonero();
@@ -84,13 +98,13 @@ abstract class MoneroAccountEditOrCreateViewModelBase
 
   Future<void> saveMonero() async {
     if (_accountListItem != null) {
-      await _moneroAccountList.setLabelAccount(
+      await _moneroAccountList!.setLabelAccount(
         _wallet,
         accountIndex: _accountListItem.id,
         label: label,
       );
     } else {
-      await _moneroAccountList.addAccount(
+      await _moneroAccountList!.addAccount(
         _wallet,
         label: label,
       );
