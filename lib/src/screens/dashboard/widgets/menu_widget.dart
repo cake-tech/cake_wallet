@@ -46,7 +46,7 @@ class MenuWidgetState extends State<MenuWidget> {
         this.decredIcon = Image.asset('assets/new-ui/crypto_full_icons/decred.svg'),
         this.dogecoinIcon = Image.asset('assets/new-ui/crypto_full_icons/dogecoin.svg'),
         this.zcashIcon = Image.asset('assets/new-ui/crypto_full_icons/zcash.svg'),
-        this.minotariIcon = Image.asset('assets/images/crypto/minotari.webp');
+        this.minotariIcon = Image.asset('assets/new-ui/crypto_full_icons/minotari.svg');
 
   final largeScreen = 731;
 

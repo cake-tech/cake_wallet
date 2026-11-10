@@ -995,7 +995,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       fullName: 'Minotari',
       raw: 112,
       name: 'xtm',
-      iconPath: 'assets/images/crypto/minotari.webp',
+      iconPath: 'assets/new-ui/crypto_full_icons/minotari.svg',
       decimals: 6);
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap = [
