@@ -106,12 +106,13 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     final walletGroups = List<WalletGroup>.from(_walletManager.walletGroups);
 
     // Iterate through the wallet groups to filter and categorize wallets
-    for (var group in walletGroups) {
+    for (final group in walletGroups) {
       // Handle group wallet filtering
       bool shouldExcludeGroup = false;
-      for (final wallet in group.wallets) {
+      final _wallets = List<WalletInfo>.from(group.wallets);
+      for (final wallet in _wallets) {
         // Check for non-BIP39 wallet types
-        bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
+        final bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
 
         // Check for nano derivation type
         final di = await wallet.getDerivationInfo();

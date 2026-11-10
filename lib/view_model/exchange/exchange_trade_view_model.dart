@@ -18,6 +18,7 @@ import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart'
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/whynot_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -73,6 +74,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.swapTrade:
         _provider = SwapTradeExchangeProvider();
+        break;
+      case ExchangeProviderDescription.whyNot:
+        _provider = WhyNotExchangeProvider();
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
@@ -278,7 +282,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isTokenBelongingToWallet(CryptoCurrency.arbEth) ||
         _isTokenBelongingToWallet(CryptoCurrency.trx) ||
         _isTokenBelongingToWallet(CryptoCurrency.sol) ||
-        _isTokenBelongingToWallet(CryptoCurrency.bnb);
+        _isTokenBelongingToWallet(CryptoCurrency.bnb) ||
+        _isTokenBelongingToWallet(CryptoCurrency.robEth);
 
     if (!canSend) {
       return 'Wallet currency ${wallet.currency.title} does not match trade from currency ${tradeFrom.title} or is not a supported token for this wallet.';
@@ -347,6 +352,7 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return _createERC681URI(fromCurrency, inputAddress, amount, uriWalletType);
       case WalletType.solana:
         final mintAddress = TokenUtilities.findSolanaTokenMint(fromCurrency);

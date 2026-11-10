@@ -52,7 +52,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
             Container(
               decoration: BoxDecoration(
                 color: widget.hasPicker
-                    ? Theme.of(context).colorScheme.surfaceContainerHigh
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
                     : Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(18),
               ),
@@ -139,7 +139,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 bottomRight: Radius.circular(18),
                               ),
                               color: widget.hasPicker
-                                  ? Theme.of(context).colorScheme.surfaceContainerHigh
+                                  ? Theme.of(context).colorScheme.surfaceContainerHighest
                                   : Theme.of(context).colorScheme.surfaceContainer,
                             ),
                             child: Padding(

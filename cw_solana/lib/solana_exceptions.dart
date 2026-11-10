@@ -39,6 +39,10 @@ class SolanaNoAssociatedTokenAccountException extends NoAssociatedTokenAccountEx
   final String mint;
 }
 
+class SolanaUnrecognizedTokenProgramException extends UnrecognizedTokenProgramException {
+  SolanaUnrecognizedTokenProgramException(super.programId);
+}
+
 class SolanaAmbiguousTokenSymbolException extends AmbiguousTokenSymbolException {
   SolanaAmbiguousTokenSymbolException(super.symbol);
 }

@@ -1,8 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/info_chip.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
@@ -103,7 +101,7 @@ class DEuroSavingsPage extends BasePage {
                           InfoChip(
                             label: S.of(context).website,
                             icon: CupertinoIcons.globe,
-                            onPressed: () => launchUrlString("https://deuro.com/"),
+                            onPressed: () => launchUrlString("https://deuro.com/", mode: LaunchMode.externalApplication),
                           )
                         ],
                       ),
@@ -175,19 +173,8 @@ class DEuroSavingsPage extends BasePage {
 
   Future<void> _requireHardwareWallet(BuildContext context) async {
     if (_dEuroViewModel.wallet.isHardwareWallet) {
-      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected(_dEuroViewModel.wallet.type)) {
-        await Navigator.of(context).pushNamed(Routes.connectDevices,
-            arguments: ConnectDevicePageParams(
-              walletType: _dEuroViewModel.wallet.type,
-              hardwareWalletType: _dEuroViewModel.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (context, _) {
-                _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
-                Navigator.of(context).pop();
-              },
-            ));
-      } else {
-        _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
-      }
+      await _dEuroViewModel.hardwareWalletViewModel!
+          .ensureDeviceConnection(context, _dEuroViewModel.wallet);
     }
   }
 
@@ -331,7 +318,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_balance,
         content: S.of(context).deuro_savings_balance_tooltip,
         key: 'savings_tooltip',
-        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq", mode: LaunchMode.externalApplication),
       );
 
   void _onInterestTooltipPressed(BuildContext context) => _showTooltip(
@@ -339,7 +326,7 @@ class DEuroSavingsPage extends BasePage {
         title: S.of(context).deuro_savings_collect_interest,
         content: S.of(context).deuro_savings_collect_interest_tooltip,
         key: 'interest_tooltip',
-        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq"),
+        onLearnMorePressed: () => launchUrlString("https://deuro.com/#faq", mode: LaunchMode.externalApplication),
       );
 
   void _showTooltip(
@@ -387,7 +374,7 @@ class DEuroSavingsPage extends BasePage {
         onRightActionButtonPressed: () => Navigator.of(bottomSheetContext).pop(),
         doubleActionLeftButtonText: S.of(context).learn_more,
         leftActionButtonKey: ValueKey('deuro_page_tooltip_dialog_welcome_learn_more_button_key'),
-        onLeftActionButtonPressed: () => launchUrlString("https://deuro.com/what-is-deuro.html"),
+        onLeftActionButtonPressed: () => launchUrlString("https://deuro.com/what-is-deuro.html", mode: LaunchMode.externalApplication),
         showDisclaimerText: _dEuroViewModel.isFistTime,
       ),
     );

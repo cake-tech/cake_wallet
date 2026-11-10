@@ -42,7 +42,7 @@ class SeedPhraseGridWidget extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: Theme.of(context).colorScheme.surfaceContainerHigh),
+              color: Theme.of(context).colorScheme.surfaceContainer),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

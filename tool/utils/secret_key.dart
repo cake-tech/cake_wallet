@@ -59,6 +59,7 @@ class SecretKey {
     SecretKey('baseTestWalletSeeds', () => ''),
     SecretKey('arbitrumTestWalletSeeds', () => ''),
     SecretKey('bscTestWalletSeeds', () => ''),
+    SecretKey("robinhoodTestWalletSeeds", () => ""),
     SecretKey('solanaTestWalletSeeds', () => ''),
     SecretKey('solanaTestWalletSeeds2', () => ''),
     SecretKey('tronTestWalletSeeds', () => ''),
@@ -77,6 +78,7 @@ class SecretKey {
     SecretKey('baseTestWalletReceiveAddress', () => ''),
     SecretKey('arbitrumTestWalletReceiveAddress', () => ''),
     SecretKey('bscTestWalletReceiveAddress', () => ''),
+    SecretKey("robinhoodTestWalletReceiveAddress", () => ""),
     SecretKey('solanaTestWalletReceiveAddress', () => ''),
     SecretKey('tronTestWalletReceiveAddress', () => ''),
     SecretKey('nanoTestWalletReceiveAddress', () => ''),
@@ -87,8 +89,8 @@ class SecretKey {
     SecretKey('zcashTestWalletReceiveAddress', () => ''),
     SecretKey('etherScanApiKey', () => ''),
     SecretKey('polygonScanApiKey', () => ''),
-    SecretKey('letsExchangeBearerToken', () => ''),
-    SecretKey('letsExchangeAffiliateId', () => ''),
+    SecretKey('whyNotBearerToken', () => ''),
+    SecretKey('whyNotAffiliateId', () => ''),
     SecretKey('stealthExBearerToken', () => ''),
     SecretKey('stealthExAdditionalFeePercent', () => ''),
     SecretKey('moneroTestWalletBlockHeight', () => ''),
@@ -112,6 +114,7 @@ class SecretKey {
     SecretKey('moralisApiKey', () => ''),
     SecretKey('nowNodesApiKey', () => ''),
     SecretKey('blinkApiKey', () => ''),
+    SecretKey('alchemyApiKey', () => ''),
   ];
 
   static final solanaSecrets = [

@@ -200,7 +200,8 @@ class Quote extends SelectableOption {
   }
 
   factory Quote.fromMoonPayJson(
-      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType) {
+      Map<String, dynamic> json, bool isBuyAction, PaymentType paymentType,
+      {String? customPaymentMethodType}) {
     final rate = isBuyAction
         ? json['quoteCurrencyPrice'] as double? ?? 0.0
         : json['baseCurrencyPrice'] as double? ?? 0.0;
@@ -226,6 +227,7 @@ class Quote extends SelectableOption {
       transactionFee: transactionFee,
       payout: _toDouble(json['quoteCurrencyAmount']) ?? 0.0,
       paymentType: paymentType,
+      customPaymentMethodType: customPaymentMethodType,
       recommendations: [],
       quoteId: json['signature'] as String? ?? '',
       provider: ProvidersHelper.getProviderByType(ProviderType.moonpay),
