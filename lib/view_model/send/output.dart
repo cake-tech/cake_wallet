@@ -49,14 +49,20 @@ abstract class OutputBase with Store {
         extractedAddress = '',
         estimatedFee = Money.zero(cryptoCurrencyHandler()),
         parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
-    autorun((_) {
-      final status = _wallet.syncStatus;
-      if (status is! SyncedSyncStatus) {
-        return;
-      }
-      calculateEstimatedFee();
-    });
+    // Only on becoming synced: wallets that re-report synced (Minotari, every block poll)
+    // would otherwise refetch the fee for every Output ever created, and these never end.
+    _syncedReaction = reaction(
+      (_) => _wallet.syncStatus is SyncedSyncStatus,
+      (bool isSynced) {
+        if (isSynced) calculateEstimatedFee();
+      },
+      fireImmediately: true,
+    );
   }
+
+  late final ReactionDisposer _syncedReaction;
+
+  void dispose() => _syncedReaction();
 
   Key key;
 
@@ -140,6 +146,7 @@ abstract class OutputBase with Store {
         fee = await _wallet.estimatedFeeFor(
           _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId)!,
           cryptoAmountMoney.amount.toInt(),
+          sendAll: sendAll,
         );
       }
 

@@ -185,7 +185,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   void removeOutput(Output output) {
-    if (isBatchSending) outputs.remove(output);
+    if (isBatchSending && outputs.remove(output)) output.dispose();
   }
 
   Future<ParsedAddress?> resolveAddressForOutput(Output output) async {
@@ -212,6 +212,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   void clearOutputs() {
+    for (final output in outputs) {
+      output.dispose();
+    }
     outputs.clear();
     addOutput();
   }
