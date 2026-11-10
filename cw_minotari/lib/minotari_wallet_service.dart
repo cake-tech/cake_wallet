@@ -12,6 +12,7 @@ import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/src/rust/api/height.dart' show birthdayFromHeight;
 import 'package:cw_minotari/src/rust/api/network.dart';
+import 'package:cw_minotari/src/rust/api/wallet.dart' show WalletCreationDetails;
 
 /// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
 final _encryptionFileUtils = encryptionFileUtilsFor(true);
@@ -26,35 +27,51 @@ class MinotariWalletService extends WalletService<
   @override
   WalletType getType() => WalletType.minotari;
 
+  /// Checks the network before anything is created: cw can't add a wallet on another one.
   Future<MinotariFfi> _ffiFor(String walletName, TariNetwork network) async {
     await MinotariFfi.ensureProcessNetwork(network);
     final dbPath = '${await pathForWalletTypeDir(type: getType())}/wallet.db';
     return MinotariFfi(dataPath: dbPath, walletName: walletName, network: network);
   }
 
-  /// Opens a wallet just added to the database and writes its .keys file.
-  Future<MinotariWallet> _openNew(
+  /// Adds the account with [addAccount], writes its .keys files and opens it. Without its
+  /// .keys files nothing can unlock the account, so it is deleted if they can't be written.
+  Future<MinotariWallet> _addWallet(
     WalletCredentials credentials,
-    TariNetwork network, {
-    required String dbPassphrase,
-    String? viewPrivateKeyHex,
-    String? spendPublicKeyHex,
+    TariNetwork network,
+    Future<WalletCreationDetails> Function(MinotariFfi ffi, String passphrase) addAccount, {
+    bool keepKeys = false,
   }) async {
-    final walletInfo = credentials.walletInfo!;
-    walletInfo.network = network.name;
-    await walletInfo.save();
+    final ffi = await _ffiFor(credentials.name, network);
+    // A create that died before writing the .keys files left an account nothing can
+    // unlock; Cake has no wallet of this name, so remove it to free the name.
+    if (!await WalletKeysFile.hasKeysFile(credentials.name, getType())) {
+      await ffi.deleteIfPresent();
+    }
 
+    final passphrase = randomMinotariPassphrase();
+    final details = await addAccount(ffi, passphrase);
+
+    final walletInfo = credentials.walletInfo!;
     final wallet = MinotariWallet(
       walletInfo,
       await walletInfo.getDerivationInfo(),
       password: credentials.password!,
-      dbPassphrase: dbPassphrase,
+      dbPassphrase: passphrase,
       encryptionFileUtils: _encryptionFileUtils,
-      viewPrivateKeyHex: viewPrivateKeyHex,
-      spendPublicKeyHex: spendPublicKeyHex,
+      viewPrivateKeyHex: keepKeys ? details.viewPrivateKeyHex : null,
+      spendPublicKeyHex: keepKeys ? details.spendPublicKeyHex : null,
     );
+    try {
+      await wallet.writeKeysFiles(credentials.password!);
+    } catch (_) {
+      await ffi.delete();
+      rethrow;
+    }
+
+    walletInfo.network = network.name;
+    await walletInfo.save();
     await wallet.init();
-    await wallet.save();
     return wallet;
   }
 
@@ -63,10 +80,11 @@ class MinotariWalletService extends WalletService<
     MinotariNewWalletCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final network = minotariNetworkFor(isTestnet: isTestnet);
-    final passphrase = randomMinotariPassphrase();
-    await (await _ffiFor(credentials.name, network)).create(passphrase: passphrase);
-    return _openNew(credentials, network, dbPassphrase: passphrase);
+    return _addWallet(
+      credentials,
+      minotariNetworkFor(isTestnet: isTestnet),
+      (ffi, passphrase) => ffi.create(passphrase: passphrase),
+    );
   }
 
   @override
@@ -155,35 +173,27 @@ class MinotariWalletService extends WalletService<
     bool? isTestnet,
   }) async {
     final network = minotariNetworkFor(isTestnet: isTestnet);
-    final passphrase = randomMinotariPassphrase();
-    final ffi = await _ffiFor(credentials.name, network);
-    final birthday =
-        birthdayFromHeight(network: network, height: BigInt.from(credentials.height ?? 0));
     final spendPrivateKeyHex = credentials.spendPrivateKeyHex;
     final isWatchOnly = spendPrivateKeyHex == null || spendPrivateKeyHex.isEmpty;
-
-    final details = isWatchOnly
-        ? await ffi.importViewOnly(
-            viewPrivateKeyHex: credentials.viewPrivateKeyHex,
-            spendPublicKeyHex: credentials.spendPublicKeyHex ?? '',
-            birthday: birthday,
-            passphrase: passphrase,
-          )
-        : await ffi.importFromKeys(
-            viewPrivateKeyHex: credentials.viewPrivateKeyHex,
-            spendPrivateKeyHex: spendPrivateKeyHex,
-            birthday: birthday,
-            passphrase: passphrase,
-          );
-
     credentials.walletInfo!.isWatchOnly = isWatchOnly;
-    return _openNew(
-      credentials,
-      network,
-      dbPassphrase: passphrase,
-      viewPrivateKeyHex: details.viewPrivateKeyHex,
-      spendPublicKeyHex: details.spendPublicKeyHex,
-    );
+
+    return _addWallet(credentials, network, keepKeys: true, (ffi, passphrase) {
+      final birthday =
+          birthdayFromHeight(network: network, height: BigInt.from(credentials.height ?? 0));
+      return isWatchOnly
+          ? ffi.importViewOnly(
+              viewPrivateKeyHex: credentials.viewPrivateKeyHex,
+              spendPublicKeyHex: credentials.spendPublicKeyHex ?? '',
+              birthday: birthday,
+              passphrase: passphrase,
+            )
+          : ffi.importFromKeys(
+              viewPrivateKeyHex: credentials.viewPrivateKeyHex,
+              spendPrivateKeyHex: spendPrivateKeyHex,
+              birthday: birthday,
+              passphrase: passphrase,
+            );
+    });
   }
 
   @override
@@ -191,11 +201,11 @@ class MinotariWalletService extends WalletService<
     MinotariRestoreWalletFromSeedCredentials credentials, {
     bool? isTestnet,
   }) async {
-    final network = minotariNetworkFor(isTestnet: isTestnet);
-    final passphrase = randomMinotariPassphrase();
-    await (await _ffiFor(credentials.name, network))
-        .restore(credentials.mnemonic, passphrase: passphrase);
-    return _openNew(credentials, network, dbPassphrase: passphrase);
+    return _addWallet(
+      credentials,
+      minotariNetworkFor(isTestnet: isTestnet),
+      (ffi, passphrase) => ffi.restore(credentials.mnemonic, passphrase: passphrase),
+    );
   }
 
   @override

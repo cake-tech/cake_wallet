@@ -44,7 +44,7 @@ class MinotariFfi {
     final processNetwork = currentNetwork();
     if (processNetwork != null && processNetwork != network) {
       throw RestartRequiredException('Minotari runs on ${processNetwork.name} in this session; '
-          'restart the app to use a ${network.name} wallet.');
+          'a ${network.name} wallet needs an app restart.');
     }
   }
 
@@ -119,6 +119,13 @@ class MinotariFfi {
   Future<void> rename({required String newWalletName}) async {
     await _useDatabase();
     await wallet.renameWallet(currentWalletName: walletName, newWalletName: newWalletName);
+  }
+
+  Future<void> deleteIfPresent() async {
+    await _useDatabase();
+    if ((await wallet.listWallets()).contains(walletName)) {
+      await wallet.deleteWallet(walletName: walletName);
+    }
   }
 
   Future<void> delete() async {
@@ -204,14 +211,10 @@ class MinotariFfi {
         walletName: walletName,
       );
 
-  Future<fee.SendAllFeeEstimate> estimateSendAllFee({
-    required String recipientAddress,
-    String? paymentId,
-  }) =>
+  Future<fee.SendAllFeeEstimate> estimateSendAllFee({required String recipientAddress}) =>
       fee.estimateSendAllFee(
         walletName: walletName,
         recipientAddress: recipientAddress,
-        paymentId: paymentId,
         network: network,
       );
 

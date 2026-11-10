@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/sync_status.dart';
@@ -16,6 +19,23 @@ OutputInfo _output({String address = 'addr', int amount = 0, bool sendAll = fals
       cryptoAmount: Money.fromInt(amount, CryptoCurrency.xtm),
       note: note,
     );
+
+/// Writes plain text, failing on the path given in [failOn].
+class _FakeEncryptionFileUtils extends EncryptionFileUtils {
+  _FakeEncryptionFileUtils({this.failOn});
+
+  final String? failOn;
+
+  @override
+  Future<void> write({required String path, required String password, required String data}) {
+    if (path == failOn) throw const FileSystemException('disk full');
+    return File(path).writeAsString(data);
+  }
+
+  @override
+  Future<String> read({required String path, required String password}) =>
+      File(path).readAsString();
+}
 
 void main() {
   group('minotariSyncStatusFor', () {
@@ -58,7 +78,7 @@ void main() {
   });
 
   group('minotariRecipients', () {
-    test('maps every output, with its note as payment id', () {
+    test('maps every output and never sends the private note', () {
       final recipients = minotariRecipients([
         _output(address: 'a', amount: 1000, note: 'invoice 7'),
         _output(address: 'b', amount: 2000),
@@ -66,7 +86,7 @@ void main() {
 
       expect(recipients.map((r) => r.address), ['a', 'b']);
       expect(recipients.map((r) => r.amount), [BigInt.from(1000), BigInt.from(2000)]);
-      expect(recipients.map((r) => r.paymentId), ['invoice 7', null]);
+      expect(recipients.map((r) => r.paymentId), [null, null]);
     });
 
     test('send-all pays one recipient and passes no amount', () {
@@ -98,6 +118,43 @@ void main() {
     test('the stored network name round-trips; none is mainnet', () {
       expect(minotariNetworkFromName(TariNetwork.stageNet.name), TariNetwork.stageNet);
       expect(minotariNetworkFromName(null), TariNetwork.mainNet);
+    });
+  });
+
+  group('writeMinotariKeysFiles', () {
+    late Directory dir;
+    late String keysPath;
+
+    setUp(() {
+      dir = Directory.systemTemp.createTempSync('minotari_keys');
+      keysPath = '${dir.path}/wallet.keys';
+      File(keysPath).writeAsStringSync('old');
+      File('$keysPath.backup').writeAsStringSync('old');
+    });
+
+    tearDown(() => dir.deleteSync(recursive: true));
+
+    List<String> files() => dir.listSync().map((f) => f.path.split('/').last).toList()..sort();
+
+    test('replaces both files and leaves no temp files', () async {
+      await writeMinotariKeysFiles(_FakeEncryptionFileUtils(),
+          keysPath: keysPath, password: 'pw', data: 'new');
+
+      expect(File(keysPath).readAsStringSync(), 'new');
+      expect(File('$keysPath.backup').readAsStringSync(), 'new');
+      expect(files(), ['wallet.keys', 'wallet.keys.backup']);
+    });
+
+    test('a failed write keeps both originals and removes the temp files', () async {
+      final writer = _FakeEncryptionFileUtils(failOn: '$keysPath.backup.tmp');
+
+      await expectLater(
+        writeMinotariKeysFiles(writer, keysPath: keysPath, password: 'pw', data: 'new'),
+        throwsA(isA<FileSystemException>()),
+      );
+      expect(File(keysPath).readAsStringSync(), 'old');
+      expect(File('$keysPath.backup').readAsStringSync(), 'old');
+      expect(files(), ['wallet.keys', 'wallet.keys.backup']);
     });
   });
 }

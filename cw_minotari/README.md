@@ -150,8 +150,8 @@ that handle's scan; it resumes in the foreground.
 
 ### Transaction Sending
 
-`createTransaction` sends to every output in one transaction (each output's note becomes its
-payment ID). Send-all sweeps the wallet to a single recipient and cannot be combined with other
+`createTransaction` sends to every output in one transaction. Cake's private note is never
+sent; an address that carries a payment ID sends it itself. Send-all sweeps the wallet to a single recipient and cannot be combined with other
 outputs. The send needs no seed words: it signs with the wallet's unlocked key session. The
 pending transaction is shown once the stream reaches `Broadcasted`; the scanner confirms it.
 
@@ -162,8 +162,10 @@ Three priority levels:
 - `MinotariTransactionPriority.medium` (raw: 1, default)
 - `MinotariTransactionPriority.fast` (raw: 2)
 
-The wallet refreshes its fee quotes whenever the scan catches up. The confirmation shows the
-fee quoted for the real amount and number of outputs, or the send-all quote.
+The send screen quotes each output's amount (an amount covering the balance as a send-all); the
+quotes are observable, so the fee re-renders when one arrives, and they refresh whenever the
+scan catches up. The confirmation shows the fee quoted for the real amount and number of
+outputs, or the send-all quote.
 
 ## Dependencies
 

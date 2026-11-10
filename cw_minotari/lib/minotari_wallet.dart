@@ -64,6 +64,32 @@ String randomMinotariPassphrase() {
   return List.generate(32, (_) => allowedChars[random.nextInt(allowedChars.length)]).join();
 }
 
+/// Writes [data] to the .keys file at [keysPath] and to its backup, each through a temp file
+/// and a rename, so a failure or crash leaves every file either as it was or complete.
+/// Errors propagate.
+Future<void> writeMinotariKeysFiles(
+  EncryptionFileUtils encryptionFileUtils, {
+  required String keysPath,
+  required String password,
+  required String data,
+}) async {
+  final paths = [keysPath, '$keysPath.backup'];
+  try {
+    for (final path in paths) {
+      await encryptionFileUtils.write(path: '$path.tmp', password: password, data: data);
+    }
+  } catch (_) {
+    for (final path in paths) {
+      final temp = File('$path.tmp');
+      if (temp.existsSync()) await temp.delete();
+    }
+    rethrow;
+  }
+  for (final path in paths) {
+    await File('$path.tmp').rename(path);
+  }
+}
+
 /// One cw recipient per output. A send-all pays its single recipient everything, so it
 /// cannot be combined with other outputs.
 List<SendRecipient> minotariRecipients(List<OutputInfo> outputs) {
@@ -86,12 +112,8 @@ List<SendRecipient> minotariRecipients(List<OutputInfo> outputs) {
       throw TransactionGenerationException('Invalid amount specified.');
     }
 
-    final note = output.note;
-    return SendRecipient(
-      address: address,
-      amount: amount,
-      paymentId: note != null && note.isNotEmpty ? note : null,
-    );
+    // No payment id: Cake's note is private, and an address that carries one sends it itself.
+    return SendRecipient(address: address, amount: amount);
   }).toList();
 }
 
@@ -139,7 +161,6 @@ abstract class MinotariWalletBase
             pendingOutgoing: 0,
           )
         }),
-        _isTransactionUpdating = false,
         walletAddresses = MinotariWalletAddresses(walletInfo),
         syncStatus = NotConnectedSyncStatus(),
         super(walletInfo, derivationInfo) {
@@ -148,16 +169,18 @@ abstract class MinotariWalletBase
 
   MinotariFfi? _ffi;
   bool _isUnlocked = false;
-  bool _isTransactionUpdating;
+  Future<void> _transactionsReload = Future.value();
+  bool _reloadTransactionsWhenSynced = false;
   Node? _currentNode;
 
   /// The scan this wallet started last; events of earlier scans are ignored.
   ScanHandle? _scanHandle;
   int _scanStartHeight = 0;
 
-  /// Fee quotes per priority for [_feeQuoteAmount], refreshed whenever the scan catches up.
-  final Map<TransactionPriority, int> _estimatedFees = {};
-  int? _feeQuoteAmount;
+  /// Fee quotes for one output by (priority, amount), refreshed whenever the scan catches up.
+  /// Observable, so the send screen's fee re-renders when a quote arrives.
+  final ObservableMap<(TransactionPriority, int), int> _feeQuotes = ObservableMap();
+  final Set<(TransactionPriority, int)> _feeQuotesInFlight = {};
 
   String _password;
   String _dbPassphrase;
@@ -256,7 +279,11 @@ abstract class MinotariWalletBase
   Future<void> startSync() => _scan();
 
   @override
-  Future<void> rescan({required int height}) => _scan(fromHeight: height);
+  Future<void> rescan({required int height}) {
+    // The rescan rolls the history back; reload all of it once the scan has caught up.
+    _reloadTransactionsWhenSynced = true;
+    return _scan(fromHeight: height);
+  }
 
   /// Starts a continuous scan, replacing this wallet's previous one. Errors (including
   /// transport errors) end as [FailedSyncStatus]; the connection check reconnects and
@@ -289,8 +316,12 @@ abstract class MinotariWalletBase
         _scanStartHeight = fromHeight.toInt();
       case ScanEventDto_Waiting() || ScanEventDto_Completed():
         unawaited(updateBalance());
-        for (final priority in MinotariTransactionPriority.all) {
-          unawaited(updateEstimatedFeesParams(priority));
+        if (_reloadTransactionsWhenSynced) {
+          _reloadTransactionsWhenSynced = false;
+          unawaited(updateTransactions());
+        }
+        for (final key in _feeQuotes.keys.toList()) {
+          unawaited(_quoteFee(key));
         }
       case ScanEventDto_TransactionsReady(:final field0):
         _processNewTransactions(field0.transactions);
@@ -299,7 +330,6 @@ abstract class MinotariWalletBase
         _processNewTransactions(field0.updatedTransactions);
         unawaited(updateBalance());
       case ScanEventDto_ReorgDetected():
-        transactionHistory.clear();
         unawaited(updateTransactions());
         unawaited(updateBalance());
       case ScanEventDto_Error(:final field0):
@@ -329,10 +359,7 @@ abstract class MinotariWalletBase
     final int amount;
     final int fee;
     if (sendAll) {
-      final quote = await ffi.estimateSendAllFee(
-        recipientAddress: recipients.single.address,
-        paymentId: recipients.single.paymentId,
-      );
+      final quote = await ffi.estimateSendAllFee(recipientAddress: recipients.single.address);
       amount = quote.amountAfterFee.toInt();
       fee = quote.fee.toInt();
     } else {
@@ -369,14 +396,17 @@ abstract class MinotariWalletBase
     );
   }
 
+  // Wallet state lives in the cw database; the .keys files are written by [writeKeysFiles].
   @override
-  Future<void> save() async {
-    // Wallet state is saved by the Rust layer; the .keys file holds the database passphrase.
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
-      await saveKeysFile(password, encryptionFileUtils);
-      await saveKeysFile(password, encryptionFileUtils, true);
-    }
-  }
+  Future<void> save() async {}
+
+  /// Writes the .keys files under [password]; errors propagate.
+  Future<void> writeKeysFiles(String password) async => writeMinotariKeysFiles(
+        encryptionFileUtils,
+        keysPath: await makeKeysFilePath(),
+        password: password,
+        data: walletKeysData.toJSON(),
+      );
 
   @override
   Future<void> renameWalletFiles(String newWalletName) async {
@@ -405,35 +435,11 @@ abstract class MinotariWalletBase
     await Directory(currentDirPath).delete(recursive: true);
   }
 
-  /// Re-encrypts the wallet database under a fresh passphrase and the .keys files under
-  /// [password]. Nothing changes if the database step fails; if writing the .keys files
-  /// fails the database goes back to the old passphrase.
+  /// Re-encrypts the .keys files under [password]. The database passphrase is random and
+  /// stored only in those files, so it stays: the files and the database never disagree.
   @override
   Future<void> changePassword(String password) async {
-    final ffi = _requireFfi;
-    final oldPassphrase = _dbPassphrase;
-    final newPassphrase = randomMinotariPassphrase();
-    await ffi.changePassphrase(oldPassphrase: oldPassphrase, newPassphrase: newPassphrase);
-
-    final keysPath = await makeKeysFilePath();
-    final data = WalletKeysData(
-      passphrase: newPassphrase,
-      scanSecret: viewPrivateKeyHex,
-      spendPubkey: spendPublicKeyHex,
-    ).toJSON();
-    try {
-      // The backup first: it is only read when the main file cannot be.
-      await encryptionFileUtils.write(path: '$keysPath.backup', password: password, data: data);
-      await encryptionFileUtils.write(path: keysPath, password: password, data: data);
-    } catch (_) {
-      await ffi.changePassphrase(oldPassphrase: newPassphrase, newPassphrase: oldPassphrase);
-      rethrow;
-    } finally {
-      // change_passphrase stops this wallet's scan.
-      if (_currentNode != null) unawaited(startSync());
-    }
-
-    _dbPassphrase = newPassphrase;
+    await writeKeysFiles(password);
     _password = password;
   }
 
@@ -446,38 +452,41 @@ abstract class MinotariWalletBase
     }
   }
 
+  /// The quote for one output of [amount]; 0 until it arrives. Reading the observable cache
+  /// lets the send screen's fee re-render when the quote comes in.
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
-    if (amount != _feeQuoteAmount) {
-      _feeQuoteAmount = amount;
-      unawaited(updateEstimatedFeesParams(priority));
-    }
-    return _estimatedFees[priority] ?? 0;
+    final key = (priority, amount ?? 0);
+    final fee = _feeQuotes[key];
+    if (fee == null) unawaited(_quoteFee(key));
+    return fee ?? 0;
   }
 
-  /// Quotes [priority] for the last amount asked of [calculateEstimatedFee]; an amount
-  /// covering the whole balance is quoted as a send-all.
-  @override
-  Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {
+  /// An amount covering the whole balance is quoted as a send-all.
+  Future<void> _quoteFee((TransactionPriority, int) key) async {
     final ffi = _ffi;
-    if (ffi == null || _currentNode == null || priority == null) return;
+    if (ffi == null || _currentNode == null || !_feeQuotesInFlight.add(key)) return;
 
-    final amount = _feeQuoteAmount ?? 0;
+    final (priority, amount) = key;
     try {
+      final int fee;
       if (amount > 0 && amount >= balance[CryptoCurrency.xtm]!.available.amount.toInt()) {
-        final quote = await ffi.estimateSendAllFee(recipientAddress: address);
-        _estimatedFees[priority] = quote.fee.toInt();
+        fee = (await ffi.estimateSendAllFee(recipientAddress: address)).fee.toInt();
       } else {
-        final quote = await ffi.estimateFee(
+        fee = (await ffi.estimateFee(
           amount: BigInt.from(amount),
           numOutputs: 1,
           priority: _feePriority(priority),
           baseNodeUrl: _nodeUrl,
-        );
-        _estimatedFees[priority] = quote.estimatedFee.toInt();
+        ))
+            .estimatedFee
+            .toInt();
       }
+      runInAction(() => _feeQuotes[key] = fee);
     } catch (e) {
       printV('Minotari fee estimate failed: $e');
+    } finally {
+      _feeQuotesInFlight.remove(key);
     }
   }
 
@@ -513,12 +522,22 @@ abstract class MinotariWalletBase
     }
   }
 
+  static const _transactionsPageSize = 100;
+
+  /// The whole history, read page by page.
   @override
   Future<Map<String, MinotariTransactionInfo>> fetchTransactions() async {
-    final txDtos = await _ffi?.getTransactions();
-    if (txDtos == null) return {};
+    final ffi = _ffi;
+    if (ffi == null) return {};
 
-    return {for (final txDto in txDtos) txDto.id: _dtoToTransactionInfo(txDto)};
+    final result = <String, MinotariTransactionInfo>{};
+    for (var offset = 0;; offset += _transactionsPageSize) {
+      final page = await ffi.getTransactions(limit: _transactionsPageSize, offset: offset);
+      for (final txDto in page) {
+        result[txDto.id] = _dtoToTransactionInfo(txDto);
+      }
+      if (page.length < _transactionsPageSize) return result;
+    }
   }
 
   @override
@@ -550,22 +569,19 @@ abstract class MinotariWalletBase
     }
   }
 
-  Future<void> updateTransactions() async {
-    try {
-      if (_isTransactionUpdating) return;
-
-      _isTransactionUpdating = true;
-
-      final transactions = await fetchTransactions();
-      transactionHistory.transactions.addAll(transactions);
-      await transactionHistory.save();
-
-      _isTransactionUpdating = false;
-    } catch (e) {
-      _isTransactionUpdating = false;
-      printV('Error updating transactions: $e');
-    }
-  }
+  /// Replaces the history with the database's. Reloads queue behind a running one, so the
+  /// last caller always sees a reload that started after its request.
+  Future<void> updateTransactions() => _transactionsReload = _transactionsReload.then((_) async {
+        try {
+          final transactions = await fetchTransactions();
+          runInAction(() {
+            transactionHistory.transactions.clear();
+            transactionHistory.transactions.addAll(transactions);
+          });
+        } catch (e) {
+          printV('Error updating transactions: $e');
+        }
+      });
 
   MinotariTransactionInfo _dtoToTransactionInfo(DisplayedTransactionDto txDto) {
     final direction = txDto.direction == DisplayedTransactionDirection.incoming
