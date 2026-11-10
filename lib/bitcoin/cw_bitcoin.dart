@@ -683,12 +683,10 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<void> setMwebEnabled(Object wallet, bool enabled) =>
-      (wallet as LitecoinWallet).setMwebEnabled(enabled);
-
-  @override
-  Future<void> setMwebNodeUri(Object wallet, String uri) =>
-      (wallet as LitecoinWallet).setMwebNodeUri(uri);
+  Future<void> setMwebEnabled(Object wallet, bool enabled, {bool restartSync = true}) async {
+    final litecoinWallet = wallet as LitecoinWallet;
+    await litecoinWallet.setMwebEnabled(enabled, restartSync: restartSync);
+  }
 
   @override
   bool getMwebEnabled(Object wallet) {

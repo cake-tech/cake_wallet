@@ -52,12 +52,17 @@ class ResetViewModel {
 
     final settingsStore = _appStore.settingsStore;
     final wasBuiltinTorEnabled = settingsStore.currentBuiltinTor;
+    final wasMwebEnabled = wallet.type == WalletType.litecoin && bitcoin!.getMwebEnabled(wallet);
 
     if (wallet.type == WalletType.litecoin) {
-      await bitcoin!.setMwebEnabled(wallet, SettingsStoreBase.defaultMwebAlwaysScan);
+      // Sync the app-wide setting to this wallet first, as only a change updates the dashboard.
+      settingsStore.mwebAlwaysScan = wasMwebEnabled;
+      await bitcoin!.setMwebEnabled(
+        wallet,
+        SettingsStoreBase.defaultMwebAlwaysScan,
+        restartSync: false,
+      );
       settingsStore.mwebAlwaysScan = SettingsStoreBase.defaultMwebAlwaysScan;
-
-      await bitcoin!.setMwebNodeUri(wallet, SettingsStoreBase.defaultMwebNodeUri);
       settingsStore.mwebNodeUri = SettingsStoreBase.defaultMwebNodeUri;
     }
 
@@ -70,7 +75,7 @@ class ResetViewModel {
 
     settingsStore.currentBuiltinTor = SettingsStoreBase.defaultBuiltinTor;
     await ensureTorStopped(context: null);
-    await _resetCurrentNodesToDefault(wallet, reconnect: wasBuiltinTorEnabled);
+    await _resetCurrentNodesToDefault(wallet, reconnect: wasBuiltinTorEnabled || wasMwebEnabled);
 
     settingsStore.exchangeStatus = SettingsStoreBase.defaultExchangeStatus;
     settingsStore.disableAutomaticExchangeStatusUpdates =
@@ -188,7 +193,7 @@ class ResetViewModel {
       }
     }
 
-    // reconnect after disabling Tor even if the node hasn't changed.
+    // reconnect after disabling Tor or MWEB even if the node hasn't changed.
     if (reconnect) {
       final chainId = isEVMCompatibleChain(walletType) ? evm!.getSelectedChainId(wallet) : null;
       await wallet.connectToNode(

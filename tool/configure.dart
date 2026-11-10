@@ -287,8 +287,7 @@ abstract class Bitcoin {
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
   bool txIsMweb(TransactionInfo txInfo);
-  Future<void> setMwebEnabled(Object wallet, bool enabled);
-  Future<void> setMwebNodeUri(Object wallet, String uri);
+  Future<void> setMwebEnabled(Object wallet, bool enabled, {bool restartSync = true});
   bool getMwebEnabled(Object wallet);
   String? getUnusedMwebAddress(Object wallet);
   String? getUnusedSegwitAddress(Object wallet);
