@@ -133,8 +133,12 @@ abstract class OutputBase with Store {
   @observable
   Money estimatedFee;
 
+  /// Fee requests finish out of order; only the latest one may set [estimatedFee].
+  int _feeRequest = 0;
+
   @action
   Future<void> calculateEstimatedFee() async {
+    final request = ++_feeRequest;
     try {
       final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
       if (isEVMCompatibleChain(_wallet.type)) {
@@ -149,6 +153,7 @@ abstract class OutputBase with Store {
           sendAll: sendAll,
         );
       }
+      if (request != _feeRequest) return;
 
       switch (_wallet.type) {
         case WalletType.monero:

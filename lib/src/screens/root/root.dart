@@ -66,6 +66,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   Stream<bool> get isInactive => _isInactiveController.stream;
   StreamController<bool> _isInactiveController;
   bool _isInactive;
+  WalletBase? _pausedMinotariWallet;
   bool _postFrameCallback;
   bool _requestAuth;
 
@@ -181,7 +182,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         // Minotari scans continuously; don't keep polling the node in the background.
         if (widget.appStore.wallet?.type == WalletType.minotari) {
-          widget.appStore.wallet!.stopSync();
+          _pausedMinotariWallet = widget.appStore.wallet;
+          _pausedMinotariWallet!.stopSync();
         }
 
         widget.tradeMonitor.stopTradeMonitoring();
@@ -203,9 +205,13 @@ class RootState extends State<Root> with WidgetsBindingObserver {
           bitcoin!.resumePayjoinSessions(widget.appStore.wallet!);
         }
 
-        if (widget.appStore.wallet?.type == WalletType.minotari) {
-          widget.appStore.wallet!.startSync();
+        // Only a scan the pause stopped: resumed also fires without a pause (Face ID, the
+        // app switcher), and restarting a running scan would start it over.
+        if (_pausedMinotariWallet != null &&
+            identical(_pausedMinotariWallet, widget.appStore.wallet)) {
+          _pausedMinotariWallet!.startSync();
         }
+        _pausedMinotariWallet = null;
 
         widget.tradeMonitor.resumeTradeMonitoring();
 

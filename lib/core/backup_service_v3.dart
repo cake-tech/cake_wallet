@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
 import 'package:cake_wallet/core/backup_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/minotari/minotari.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
 import 'package:cake_wallet/utils/package_info.dart';
@@ -403,35 +406,45 @@ class BackupServiceV3 extends $BackupService {
     }
 
     tmpDir.createSync();
-    // Minotari's wallet.db (the only copy of its seeds) must be consistent in the copy.
-    await minotari?.checkpointDatabase();
-    zipEncoder.create(archivePath);
-    outer:
-    for (var entity in fileEntities) {
-      if (entity.path == archivePath || entity.path == tmpDir.path) {
-        continue;
-      }
-      for (var ignore in $BackupService.ignoreFiles) {
-        final filename = entity.absolute.path;
-        if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
-          printV("ignoring backup file: $filename");
-          continue outer;
+    // Minotari's wallet.db holds the only copy of its seeds: stop the open wallet's scan so
+    // nothing writes it between the checkpoint and the end of the copy, then restart it.
+    // shortcut: a scan Android background sync runs in its own engine isn't stopped; upgrade
+    // to a cw snapshot (VACUUM INTO / SQLite backup API) once cw_tari_wallet offers one.
+    final openWallet = getIt.get<AppStore>().wallet;
+    final pausedMinotari = openWallet?.type == WalletType.minotari ? openWallet : null;
+    await pausedMinotari?.stopSync();
+    try {
+      await minotari?.checkpointDatabase();
+      zipEncoder.create(archivePath);
+      outer:
+      for (var entity in fileEntities) {
+        if (entity.path == archivePath || entity.path == tmpDir.path) {
+          continue;
+        }
+        for (var ignore in $BackupService.ignoreFiles) {
+          final filename = entity.absolute.path;
+          if (filename.endsWith(ignore) && !filename.contains("wallets/")) {
+            printV("ignoring backup file: $filename");
+            continue outer;
+          }
+        }
+
+        if (entity.statSync().type == FileSystemEntityType.directory) {
+          await zipEncoder.addDirectory(Directory(entity.path));
+        } else {
+          await zipEncoder.addFile(File(entity.path));
         }
       }
-
-      if (entity.statSync().type == FileSystemEntityType.directory) {
-        await zipEncoder.addDirectory(Directory(entity.path));
-      } else {
-        await zipEncoder.addFile(File(entity.path));
-      }
+      await keychainDumpFile.writeAsBytes(keychainDump.toList());
+      await preferencesDumpFile.writeAsString(preferencesDump);
+      await transactionDescriptionDumpFile.writeAsString(transactionDescriptionDump);
+      await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
+      await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
+      await zipEncoder.addFile(transactionDescriptionDumpFile, '~_transaction_descriptions_dump');
+      await zipEncoder.close();
+    } finally {
+      if (pausedMinotari != null) unawaited(pausedMinotari.startSync());
     }
-    await keychainDumpFile.writeAsBytes(keychainDump.toList());
-    await preferencesDumpFile.writeAsString(preferencesDump);
-    await transactionDescriptionDumpFile.writeAsString(transactionDescriptionDump);
-    await zipEncoder.addFile(preferencesDumpFile, '~_preferences_dump');
-    await zipEncoder.addFile(keychainDumpFile, '~_keychain_dump');
-    await zipEncoder.addFile(transactionDescriptionDumpFile, '~_transaction_descriptions_dump');
-    await zipEncoder.close();
 
     final dataBinUnencrypted = File(archivePath);
 
