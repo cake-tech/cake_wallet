@@ -36,11 +36,14 @@ abstract class WalletSeedViewModelBase with Store {
 
   bool get hasSeed => seed.isNotEmpty;
 
+  bool _isDisposed = false;
+
   /// Minotari wallets do not keep the mnemonic; it lives here only while this page does.
   Future<void> loadMinotariSeed() async {
     runInAction(() => seedLoadError.value = null);
     try {
       final loaded = await minotari!.getSeed(_wallet) ?? '';
+      if (_isDisposed) return;
       runInAction(() => seed = loaded);
       if (loaded.isNotEmpty) setupSeedVerification();
     } catch (e) {
@@ -49,6 +52,16 @@ abstract class WalletSeedViewModelBase with Store {
   }
 
   final WalletInfo _walletInfo;
+
+  /// Drops the seed and the verification word options when the page closes.
+  void dispose() {
+    _isDisposed = true;
+    runInAction(() {
+      seed = '';
+      currentOptions.clear();
+      verificationIndices.clear();
+    });
+  }
 
   @observable
   String name;

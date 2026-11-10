@@ -26,7 +26,7 @@ class SeedVerificationPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return Observer(
+    return ClearSeedOnDispose(walletSeedViewModel, child: Observer(
       builder: (context) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -48,6 +48,6 @@ class SeedVerificationPage extends BasePage {
                     ),
         );
       },
-    );
+    ));
   }
 }
