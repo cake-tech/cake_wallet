@@ -137,7 +137,7 @@ abstract class OutputBase with Store {
 
       int fee = 0;
       if (_settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId) != null) {
-        fee = _wallet.calculateEstimatedFee(
+        fee = await _wallet.estimatedFeeFor(
           _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId)!,
           cryptoAmountMoney.amount.toInt(),
         );

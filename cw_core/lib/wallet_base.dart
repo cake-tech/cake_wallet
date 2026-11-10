@@ -94,6 +94,11 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
 
   int calculateEstimatedFee(TransactionPriority priority, int? amount);
 
+  /// The fee for [amount]. Wallets that must ask a node for it override this; the rest
+  /// compute it with [calculateEstimatedFee].
+  Future<int> estimatedFeeFor(TransactionPriority priority, int? amount) async =>
+      calculateEstimatedFee(priority, amount);
+
   Future<void> updateEstimatedFeesParams(TransactionPriority? priority) async {}
 
   // void fetchTransactionsAsync(
