@@ -346,6 +346,11 @@ class _NewSendPageState extends State<NewSendPage> {
   @override
   Widget build(BuildContext context) => Observer(
         builder: (_) {
+          // Every way in (Send, Scan, payment links, asset details, cards) builds this page;
+          // a watch-only wallet gets a notice instead of a form it can't use.
+          if (!widget.sendViewModel.wallet.canSend()) {
+            return SafeArea(child: Center(child: Text(S.of(context).watching)));
+          }
           final output = widget.sendViewModel.outputs[_selectedOutput];
           final recipientChain = widget.sendViewModel.isEVMWallet
               ? evm!.getChainInfoByChainId(_currentEvmChainIdOrMainnet())
