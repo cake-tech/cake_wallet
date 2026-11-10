@@ -5,6 +5,7 @@ import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/view_model/settings/address_types_settings_view_model.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class AddressTypesSettingsPage extends StatelessWidget {
   const AddressTypesSettingsPage({super.key, required this.addressTypesSettingsViewModel});
@@ -25,6 +26,7 @@ class AddressTypesSettingsPage extends StatelessWidget {
           ),
           Expanded(
             child: SingleChildScrollView(
+              controller: ModalScrollController.of(context),
               padding: const EdgeInsets.fromLTRB(18, 0, 18, 32),
               child: Observer(
                 builder: (_) => NewListSections(
