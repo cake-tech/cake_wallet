@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tra
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -61,12 +62,29 @@ class HistorySection extends StatelessWidget {
                     sliver: SliverToBoxAdapter(
                       child: (dashboardViewModel.status is SyncingSyncStatus)
                           ? SizedBox.shrink()
-                          : Center(
-                              child: Text(S.of(context).transactions_will_appear_here,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                          : SizedBox(
+                              height: 216,
+                              child: Opacity(
+                                opacity: 0.5,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 10,
+                                  children: [
+                                    CakeImageWidget(
+                                      imageUrl: "assets/new-ui/history.svg",
+                                      width: 40,
+                                      height: 40,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                    Text(S.of(context).transactions_will_appear_here,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                  ],
+                                ),
+                              ),
                             ),
                     ),
                   )

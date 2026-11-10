@@ -118,10 +118,9 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
           ),
         if (tabs.length == 1)
           Observer(
-            builder: (_) => HistoryTopBar(
-              onTap: () => openHistoryModal(context),
-              roundedBottom: widget.dashboardViewModel.itemsShort.isEmpty,
-            ),
+            builder: (_) => widget.dashboardViewModel.itemsShort.isEmpty
+                ? const SliverToBoxAdapter()
+                : HistoryTopBar(onTap: () => openHistoryModal(context)),
           ),
         tabs[_selectedTab].content
       ],
