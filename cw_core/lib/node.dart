@@ -545,10 +545,10 @@ class Node {
     }
   }
 
-  /// The Tari base node HTTP API answers `GET /get_tip_info`. Minotari can't use built-in Tor
-  /// yet, so with Tor on the node is not reported usable.
+  /// The Tari base node HTTP API answers `GET /get_tip_info`. Like the wallet, the probe
+  /// refuses what Minotari won't use: Tor (it can't yet), a SOCKS proxy, or a non-SSL node.
   Future<bool> requestMinotariNode() async {
-    if (CakeTor.instance?.started == true) return false;
+    if (CakeTor.instance?.started == true || useSocksProxy || !isSSL) return false;
     try {
       final response = await ProxyWrapper()
           .get(clearnetUri: uri.replace(path: '${uri.path}/get_tip_info'.replaceAll('//', '/')))

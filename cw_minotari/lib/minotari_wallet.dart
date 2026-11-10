@@ -67,11 +67,13 @@ String randomMinotariPassphrase() {
 
 /// The base URL for a Minotari node call. cw's HTTP client can't use the app's built-in Tor,
 /// so with Tor running ([torOn]) nothing is sent rather than leak it over clearnet; and node
-/// traffic, which carries the wallet's own transactions, must be TLS.
+/// traffic, which carries the wallet's own transactions, must be TLS and direct.
 String minotariNodeUrl(Node? node, {required bool torOn}) {
   if (node == null) throw Exception('No node connected. Call connectToNode first.');
-  if (torOn) throw TorUnsupportedException('Minotari cannot use Tor yet; turn off built-in Tor.');
+  if (torOn) throw const TorUnsupportedException('Minotari cannot use Tor yet.');
   if (!node.isSSL) throw Exception('Minotari nodes must use SSL (https).');
+  // cw's HTTP client has no proxy: a node's SOCKS proxy would be silently bypassed.
+  if (node.useSocksProxy) throw Exception('Minotari nodes cannot use a SOCKS proxy yet.');
   return node.uri.toString();
 }
 
@@ -335,6 +337,13 @@ abstract class MinotariWalletBase
     syncStatus = ConnectingSyncStatus();
     _currentNode = node;
 
+    // With Tor on, say why rather than just failing.
+    if (CakeTor.instance?.started == true) {
+      syncStatus =
+          FailedSyncStatus(cause: const TorUnsupportedException('Minotari cannot use Tor yet.'));
+      return;
+    }
+
     // Never throws: an unreachable node or a transport error is just unhealthy.
     if (!await checkNodeHealth()) {
       syncStatus = FailedSyncStatus();
@@ -390,7 +399,7 @@ abstract class MinotariWalletBase
     } catch (e) {
       printV('Minotari scan could not start: $e');
       _keepScanning = false;
-      syncStatus = FailedSyncStatus();
+      syncStatus = FailedSyncStatus(cause: e);
     }
   }
 
@@ -702,7 +711,13 @@ abstract class MinotariWalletBase
         ? TransactionDirection.incoming
         : TransactionDirection.outgoing;
 
-    final isPending = txDto.status != DisplayedTransactionStatus.confirmed;
+    // Only sends still on their way; a rejected (or abandoned), cancelled or reorganized one
+    // is not pending, and shows its own status instead.
+    final isPending = const {
+      DisplayedTransactionStatus.pending,
+      DisplayedTransactionStatus.unconfirmed,
+      DisplayedTransactionStatus.locked,
+    }.contains(txDto.status);
     final date = DateTime.tryParse(txDto.blockchain.timestamp) ?? DateTime.now();
     final fee = txDto.fee?.amount;
 

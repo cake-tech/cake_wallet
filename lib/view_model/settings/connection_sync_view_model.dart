@@ -13,6 +13,7 @@ import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -320,7 +321,16 @@ abstract class ConnectionSyncViewModelBase with Store {
     }
     _settingsStore.currentBuiltinTor = value;
     if (value) {
-      unawaited(ensureTorStarted(context: context).then((_) async {
+      // Minotari can't use Tor: its scan stops before Tor starts, and stays stopped (Failed)
+      // if Tor fails to start, so nothing more leaves over clearnet.
+      final isMinotari = _wallet.type == WalletType.minotari;
+      final stopMinotari = isMinotari ? _wallet.stopSync() : Future<void>.value();
+      unawaited(stopMinotari
+          .then((_) => ensureTorStarted(context: context.mounted ? context : null))
+          .catchError((Object e, StackTrace s) {
+        if (isMinotari) _wallet.syncStatus = FailedSyncStatus();
+        Error.throwWithStackTrace(e, s);
+      }).then((_) async {
         if (_settingsStore.currentBuiltinTor == false) return;
         int? chainId;
         if (isEVMCompatibleChain(_wallet.type)) {

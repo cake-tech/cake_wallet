@@ -139,24 +139,26 @@ class NodeFormState extends State<NodeForm> {
                         onChanged: (value) => vm.isEnabledForAutoSwitching = value),
                 ],
               },
-              "proxy": [
-                ListItemCheckbox(
-                  keyValue: vm.useSocksProxyUIKey,
-                  label: 'Use SOCKS Proxy',
-                  value: vm.useSocksProxy,
-                  onChanged: (value) {
-                    vm.socksProxyAddress = '';
-                    vm.useSocksProxy = value;
-                  },
-                ),
-                if (vm.useSocksProxy)
-                  ListItemTextField(
-                    keyValue: vm.socksProxyAddressUIKey,
-                    label: 'host:port',
-                    initialValue: vm.socksProxyAddress,
-                    validator: SocksProxyNodeAddressValidator(),
+              // cw (Minotari) has no proxy support; a proxy here would be silently bypassed.
+              if (vm.walletType != WalletType.minotari)
+                "proxy": [
+                  ListItemCheckbox(
+                    keyValue: vm.useSocksProxyUIKey,
+                    label: 'Use SOCKS Proxy',
+                    value: vm.useSocksProxy,
+                    onChanged: (value) {
+                      vm.socksProxyAddress = '';
+                      vm.useSocksProxy = value;
+                    },
                   ),
-              ]
+                  if (vm.useSocksProxy)
+                    ListItemTextField(
+                      keyValue: vm.socksProxyAddressUIKey,
+                      label: 'host:port',
+                      initialValue: vm.socksProxyAddress,
+                      validator: SocksProxyNodeAddressValidator(),
+                    ),
+                ]
             },
             controllers: _controllers,
             getCheckboxValue: vm.getCheckboxValue,

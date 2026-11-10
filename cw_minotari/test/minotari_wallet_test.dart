@@ -279,6 +279,11 @@ void main() {
       expect(() => minotariNodeUrl(node(ssl: false), torOn: false), throwsException);
     });
 
+    test('a node behind a SOCKS proxy is refused (cw would bypass it)', () {
+      final proxied = node(ssl: true)..socksProxyAddress = '127.0.0.1:9050';
+      expect(() => minotariNodeUrl(proxied, torOn: false), throwsException);
+    });
+
     test('no node is refused', () {
       expect(() => minotariNodeUrl(null, torOn: false), throwsException);
     });

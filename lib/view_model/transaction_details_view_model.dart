@@ -16,6 +16,7 @@ import "package:cake_wallet/src/screens/transaction_details/transaction_details_
 import "package:cake_wallet/src/screens/transaction_details/transaction_expandable_list_item.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/tron/tron.dart";
+import "package:cake_wallet/view_model/dashboard/minotari_transaction_status.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:collection/collection.dart";
@@ -132,7 +133,7 @@ class TxDetailRowDefinition {
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_status_key",
       title: "Status",
-      valueGetter: (vm) => _minotariInfo(vm, "status"),
+      valueGetter: (vm) => minotariTransactionStatus(vm.transactionInfo),
       applicable: (vm) => _hasMinotariInfo(vm, "status"),
     ),
     TxDetailRowDefinition(
@@ -715,6 +716,10 @@ abstract class TransactionDetailsViewModelBase with Store {
       wallet.canSend() &&
       transactionInfo.direction == TransactionDirection.outgoing &&
       transactionInfo.additionalInfo['status'] == 'pending';
+
+  /// The send's 2FA rule (contact, own wallet or other) applies to abandoning it too.
+  bool get abandonNeeds2FA => sendViewModel.checkThroughChecksToDisplayTOTP(
+      transactionInfo.additionalInfo['counterpartyAddress'] as String? ?? '');
 
   /// Returns cw's note on what abandoning does not do.
   Future<String> abandonSend() => minotari!.abandonSend(wallet, transactionInfo.id);

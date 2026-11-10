@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/view_model/dashboard/minotari_transaction_status.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
@@ -1596,7 +1597,16 @@ abstract class DashboardViewModelBase with Store {
     }
     settingsStore.currentBuiltinTor = value;
     if (value) {
-      unawaited(ensureTorStarted(context: context).then((_) async {
+      // Minotari can't use Tor: its scan stops before Tor starts, and stays stopped (Failed)
+      // if Tor fails to start, so nothing more leaves over clearnet.
+      final isMinotari = wallet.type == WalletType.minotari;
+      final stopMinotari = isMinotari ? wallet.stopSync() : Future<void>.value();
+      unawaited(stopMinotari
+          .then((_) => ensureTorStarted(context: context.mounted ? context : null))
+          .catchError((Object e, StackTrace s) {
+        if (isMinotari) wallet.syncStatus = FailedSyncStatus();
+        Error.throwWithStackTrace(e, s);
+      }).then((_) async {
         if (settingsStore.currentBuiltinTor == false)
           return; // return when tor got disabled in the meantime;
         int? chainId;
@@ -1718,6 +1728,10 @@ abstract class DashboardViewModelBase with Store {
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {
       if (tx.isReplaced == true) return ' (replaced)';
+    }
+
+    if (wallet.type == WalletType.minotari && isMinotariFailedTransaction(tx)) {
+      return ' (${minotariTransactionStatus(tx)})';
     }
 
     if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')

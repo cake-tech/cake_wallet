@@ -254,9 +254,14 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> save({bool saveAsCurrent = false}) async {
-    // Minotari node traffic carries the wallet's own transactions; it must be TLS.
+    // Minotari node traffic carries the wallet's own transactions; it must be TLS, and cw
+    // has no proxy support, so a SOCKS proxy would be silently bypassed.
     if (walletType == WalletType.minotari && !useSSL) {
       state = FailureState(S.current.minotari_node_requires_ssl);
+      return;
+    }
+    if (walletType == WalletType.minotari && socksProxyAddress.isNotEmpty) {
+      state = FailureState(S.current.minotari_node_no_socks);
       return;
     }
     editingNode ??= Node();

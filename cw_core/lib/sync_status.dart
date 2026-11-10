@@ -261,7 +261,11 @@ class AttemptingScanSyncStatus extends SyncStatus {
 
 class FailedSyncStatus extends NotConnectedSyncStatus {
   String? error;
-  FailedSyncStatus({this.error});
+
+  /// Why it failed, for the app to explain it in the user's language.
+  final Object? cause;
+
+  FailedSyncStatus({this.error, this.cause});
 
   @override
   String toString() => error ?? super.toString();
