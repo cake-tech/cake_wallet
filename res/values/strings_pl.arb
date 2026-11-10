@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Porzuć wysyłanie",
+  "abandon_send_confirmation": "Porzucić tę wysyłkę i uwolnić jej środki? Zrób to tylko wtedy, gdy węzeł ciągle odmawia. Węzeł może nadal go wydobywać, więc nie płać ponownie temu samemu odbiorcy, dopóki nie zostanie wyświetlony komunikat o odrzuceniu.",
   "about": "O aplikacji",
   "about_cake_pay": "Cake Pay umożliwia łatwe kupowanie kart podarunkowych za pomocą aktywów wirtualnych, które można natychmiast wykorzystać u ponad 150 000 sprzedawców.",
   "about_litecoin_privacy": "O prywatności Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Wystąpił błąd podczas podpisywania transakcji",
   "establishing_tor_connection": "Nawiązywanie połączenia z siecią Tor",
   "estimated": "Szacowane",
+  "estimated_fee": "Szacunkowa opłata",
   "estimated_new_fee": "Szacowana nowa opłata",
   "estimated_receive_amount": "Szacowana kwota do otrzymania",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min.: ${value} ${currency}",
   "mining": "Wydobywanie",
+  "minotari_node_requires_ssl": "Węzły Minotari muszą korzystać z protokołu SSL (https).",
+  "minotari_tor_unsupported": "Minotari nie może jeszcze używać Tora. Wyłącz wbudowanego Tora, aby synchronizować i wysyłać Minotari.",
   "mint_address": "Adres mintu",
   "minutes_to_pin_code": "${minute} minut",
   "mm": "MM",

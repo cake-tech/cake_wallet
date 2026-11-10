@@ -1,4 +1,6 @@
 {
+  "abandon_send": "ละทิ้งการส่ง",
+  "abandon_send_confirmation": "ละทิ้งการส่งนี้และปลดปล่อยเงินของมันใช่ไหม ทำเช่นนี้เฉพาะในกรณีที่โหนดยังคงปฏิเสธอยู่ โหนดอาจยังคงขุดมันได้ ดังนั้นอย่าจ่ายเงินให้ผู้รับคนเดิมอีกจนกว่าจะแสดงว่าถูกปฏิเสธ",
   "about": "เกี่ยวกับ",
   "about_cake_pay": "Cake Pay ช่วยให้คุณสามารถซื้อบัตรของขวัญได้อย่างง่ายดายด้วยสินทรัพย์ดิจิทัล และนำไปใช้จ่ายได้ทันทีที่ร้านค้ามากกว่า 150,000 แห่ง",
   "about_litecoin_privacy": "เกี่ยวกับความเป็นส่วนตัวของ Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "เกิดข้อผิดพลาดขณะลงนามธุรกรรม",
   "establishing_tor_connection": "กำลังสร้างการเชื่อมต่อ Tor",
   "estimated": "โดยประมาณ",
+  "estimated_fee": "ค่าธรรมเนียมโดยประมาณ",
   "estimated_new_fee": "ค่าธรรมเนียมใหม่โดยประมาณ",
   "estimated_receive_amount": "จำนวนที่คาดว่าจะได้รับ",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "ขั้นต่ำ: ${value}",
   "min_value": "ขั้นต่ำ: ${value} ${currency}",
   "mining": "การขุดเหรียญ",
+  "minotari_node_requires_ssl": "โหนด Minotari ต้องใช้ SSL (https)",
+  "minotari_tor_unsupported": "มิโนทาริยังใช้ Tor ไม่ได้ ปิด Tor ในตัวเพื่อซิงค์และส่ง Minotari",
   "mint_address": "ที่อยู่ Mint",
   "minutes_to_pin_code": "${minute} นาที",
   "mm": "MM",

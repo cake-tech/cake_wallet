@@ -1,4 +1,6 @@
 {
+  "abandon_send": "စွန့်လွှတ်လိုက်ပါ။",
+  "abandon_send_confirmation": "ဤပေးပို့မှုကို စွန့်လွှတ်ပြီး ၎င်း၏ရန်ပုံငွေများကို အခမဲ့ရယူလိုပါသလား။ Node သည် ၎င်းကို ဆက်လက်ငြင်းဆိုနေပါက ၎င်းကိုလုပ်ပါ။ node တစ်ခုသည် ၎င်းကို တူးဖော်နေဆဲဖြစ်နိုင်သောကြောင့် ၎င်းကို ငြင်းပယ်ထားသည့်အတိုင်း မပြမချင်း တူညီသောလက်ခံသူကို ထပ်မံမပေးချေပါနှင့်။",
   "about": "အကြောင်းအရာ",
   "about_cake_pay": "Cake Pay သည် virtual assets ဖြင့် လက်ဆောင်ကတ်များကို အလွယ်တကူ ဝယ်ယူနိုင်စေပြီး ကုန်သည် 150,000 ကျော်တွင် ချက်ချင်း အသုံးပြုနိုင်ပါသည်။",
   "about_litecoin_privacy": "Litecoin ကိုယ်ရေးလုံခြုံရေးအကြောင်း",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "ငွေပေးငွေယူကို လက်မှတ်ထိုးနေစဉ် အမှားအယွင်းတစ်ခု ဖြစ်ပေါ်ခဲ့သည်။",
   "establishing_tor_connection": "Tor ချိတ်ဆက်မှုကို တည်ဆောက်နေသည်",
   "estimated": "ခန့်မှန်းထားသော",
+  "estimated_fee": "ခန့်မှန်းကြေး",
   "estimated_new_fee": "ခန့်မှန်းထားသော အခကြေးငွေအသစ်",
   "estimated_receive_amount": "ခန့်မှန်းလက်ခံရရှိမည့်ပမာဏ",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "အနည်းဆုံး: ${value}",
   "min_value": "အနည်းဆုံး: ${value} ${currency}",
   "mining": "မိုင်းနင်း",
+  "minotari_node_requires_ssl": "Minotari nodes များသည် SSL (https) ကို အသုံးပြုရပါမည်။",
+  "minotari_tor_unsupported": "Minotari သည် Tor ကို အသုံးမပြုနိုင်သေးပါ။ Minotari ကို စင့်ခ်လုပ်ပြီး ပေးပို့ရန် Built-in Tor ကို ပိတ်ပါ။",
   "mint_address": "Mint လိပ်စာ",
   "minutes_to_pin_code": "${minute} မိနစ်",
   "mm": "MM",

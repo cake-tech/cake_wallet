@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Opustit odeslání",
+  "abandon_send_confirmation": "Opustit toto odeslání a uvolnit jeho prostředky? Udělejte to pouze v případě, že to uzel stále odmítá. Uzel jej může stále těžit, takže neplaťte znovu stejnému příjemci, dokud se nezobrazí jako odmítnutý.",
   "about": "O aplikaci",
   "about_cake_pay": "Cake Pay vám umožňuje snadno nakupovat dárkové karty za virtuální aktiva, které lze okamžitě uplatnit u více než 150 000 obchodníků.",
   "about_litecoin_privacy": "O soukromí Litecoinu",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Při podepisování transakce došlo k chybě",
   "establishing_tor_connection": "Navazování připojení k síti Tor",
   "estimated": "Odhadované",
+  "estimated_fee": "Odhadovaný poplatek",
   "estimated_new_fee": "Odhadovaný nový poplatek",
   "estimated_receive_amount": "Odhadovaná přijímaná částka",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Těžba",
+  "minotari_node_requires_ssl": "Uzly Minotari musí používat SSL (https).",
+  "minotari_tor_unsupported": "Minotari zatím nemůže používat Tor. Vypněte vestavěný Tor pro synchronizaci a odeslání Minotari.",
   "mint_address": "Adresa ražby",
   "minutes_to_pin_code": "${minute} minut",
   "mm": "MM",

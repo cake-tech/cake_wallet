@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Abandonar envio",
+  "abandon_send_confirmation": "Abandonar este envio e liberar seus fundos? Faça isso apenas se o nó continuar recusando. Um nó ainda pode minerá-lo, portanto, não pague novamente ao mesmo destinatário até que ele seja rejeitado.",
   "about": "Sobre",
   "about_cake_pay": "O Cake Pay permite que você compre facilmente cartões-presente com ativos virtuais, utilizáveis instantaneamente em mais de 150.000 estabelecimentos.",
   "about_litecoin_privacy": "Sobre a privacidade do Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Ocorreu um erro ao assinar a transação",
   "establishing_tor_connection": "Estabelecendo conexão Tor",
   "estimated": "Estimado",
+  "estimated_fee": "Taxa estimada",
   "estimated_new_fee": "Nova taxa estimada",
   "estimated_receive_amount": "Quantidade estimada a receber",
   "eta": "ETA",
@@ -693,6 +696,8 @@
   "min_amount": "Mín: ${value}",
   "min_value": "Mín.: ${value} ${currency}",
   "mining": "Mineração",
+  "minotari_node_requires_ssl": "Os nós Minotari devem usar SSL (https).",
+  "minotari_tor_unsupported": "Minotari ainda não pode usar o Tor. Desative o Tor integrado para sincronizar e enviar Minotari.",
   "mint_address": "Endereço de mint",
   "minutes_to_pin_code": "${minute} minutos",
   "mm": "MM",

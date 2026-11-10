@@ -1,4 +1,6 @@
 {
+  "abandon_send": "A watsar da aika",
+  "abandon_send_confirmation": "A watsar da wannan aika kuma ku 'yantar da kuɗin sa? Yi haka kawai idan kumburin ya ci gaba da ƙi shi. Kumburi na iya kasancewa nawa, don haka kar a sake biyan mai karɓa ɗaya har sai ya nuna kamar yadda aka ƙi.",
   "about": "Game da",
   "about_cake_pay": "Cake Pay yana ba ka damar siyan katunan kyauta cikin sauƙi da kadarorin kama-da-wane, kuma ana iya amfani da su nan take a wuraren kasuwanci sama da 150,000.",
   "about_litecoin_privacy": "Game da Sirrin Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "An sami kuskure yayin sanya hannu kan ma'amala",
   "establishing_tor_connection": "Ana kafa haɗin Tor",
   "estimated": "Kimantacce",
+  "estimated_fee": "Ƙimar kuɗi",
   "estimated_new_fee": "Kudin da aka kiyasta na sabo",
   "estimated_receive_amount": "Kiyasin adadin da za a karɓa",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Mafi ƙanƙanta: ${value}",
   "min_value": "Mafi ƙanƙanta: ${value} ${currency}",
   "mining": "Hakar ma'adinai",
+  "minotari_node_requires_ssl": "Dole ne nodes na Minotari suyi amfani da SSL (https).",
+  "minotari_tor_unsupported": "Minotari ba zai iya amfani da Tor ba tukuna. Kashe ginanniyar Tor don aiki tare da aika Minotari.",
   "mint_address": "Adireshin Mint",
   "minutes_to_pin_code": "${minute} mintuna",
   "mm": "MM",

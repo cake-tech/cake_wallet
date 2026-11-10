@@ -191,6 +191,15 @@ class MinotariFfi {
         ),
       );
 
+  /// Gives up a send the node keeps refusing and releases its inputs; returns cw's note on
+  /// what abandoning does not do.
+  Future<String> abandonSend({required String passphrase, required String transactionId}) =>
+      send_tx.abandonSend(
+        walletName: walletName,
+        passphrase: passphrase,
+        transactionId: transactionId,
+      );
+
   Future<fee.FeeEstimate> estimateFee({
     required BigInt amount,
     required int numOutputs,

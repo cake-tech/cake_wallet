@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Abandonner l'envoi",
+  "abandon_send_confirmation": "Abandonner cet envoi et libérer ses fonds ? Ne faites cela que si le nœud continue de le refuser. Un nœud peut toujours l'exploiter, alors ne payez plus le même destinataire jusqu'à ce qu'il apparaisse comme rejeté.",
   "about": "À propos",
   "about_cake_pay": "Cake Pay vous permet d’acheter facilement des cartes-cadeaux avec des actifs virtuels, utilisables instantanément chez plus de 150 000 commerçants.",
   "about_litecoin_privacy": "À propos de la confidentialité de Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Une erreur s'est produite lors de la signature de la transaction",
   "establishing_tor_connection": "Établissement de la connexion Tor",
   "estimated": "Estimé",
+  "estimated_fee": "Frais estimés",
   "estimated_new_fee": "Nouveaux frais estimés",
   "estimated_receive_amount": "Montant estimé à recevoir",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min : ${value}",
   "min_value": "Min. : ${value} ${currency}",
   "mining": "Minage",
+  "minotari_node_requires_ssl": "Les nœuds Minotari doivent utiliser SSL (https).",
+  "minotari_tor_unsupported": "Minotari ne peut pas encore utiliser Tor. Désactivez Tor intégré pour synchroniser et envoyer Minotari.",
   "mint_address": "Adresse de mint",
   "minutes_to_pin_code": "${minute} minutes",
   "mm": "MM",

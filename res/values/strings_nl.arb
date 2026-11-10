@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Verzenden verlaten",
+  "abandon_send_confirmation": "Deze verzending verlaten en het geld ervan vrijgeven? Doe dit alleen als de node dit blijft weigeren. Een knooppunt kan het nog steeds minen, dus betaal dezelfde ontvanger niet opnieuw totdat het als afgewezen wordt weergegeven.",
   "about": "Over",
   "about_cake_pay": "Met Cake Pay kun je eenvoudig cadeaubonnen kopen met crypto, die direct besteedbaar zijn bij meer dan 150.000 winkels.",
   "about_litecoin_privacy": "Over Litecoin-privacy",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Er is een fout opgetreden tijdens het ondertekenen van de transactie",
   "establishing_tor_connection": "Tor-verbinding wordt opgezet",
   "estimated": "Geschat",
+  "estimated_fee": "Geschatte vergoeding",
   "estimated_new_fee": "Geschatte nieuwe kosten",
   "estimated_receive_amount": "Geschat ontvangen bedrag",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Mining",
+  "minotari_node_requires_ssl": "Minotari-knooppunten moeten SSL (https) gebruiken.",
+  "minotari_tor_unsupported": "Minotari kan Tor nog niet gebruiken. Schakel de ingebouwde Tor uit om Minotari te synchroniseren en te verzenden.",
   "mint_address": "Mint adres",
   "minutes_to_pin_code": "${minute} minuten",
   "mm": "MM",

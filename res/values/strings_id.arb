@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Abaikan pengiriman",
+  "abandon_send_confirmation": "Abaikan pengiriman ini dan bebaskan dananya? Lakukan ini hanya jika node terus menolaknya. Sebuah node mungkin masih menambangnya, jadi jangan membayar lagi kepada penerima yang sama sampai node tersebut terlihat ditolak.",
   "about": "Tentang",
   "about_cake_pay": "Cake Pay memungkinkan Anda membeli kartu hadiah dengan mudah menggunakan aset virtual, yang dapat langsung digunakan di lebih dari 150.000 merchant.",
   "about_litecoin_privacy": "Tentang Privasi Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Terjadi kesalahan saat menandatangani transaksi",
   "establishing_tor_connection": "Membangun koneksi Tor",
   "estimated": "Perkiraan",
+  "estimated_fee": "Perkiraan biaya",
   "estimated_new_fee": "Perkiraan biaya baru",
   "estimated_receive_amount": "Perkiraan jumlah yang diterima",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Mining",
+  "minotari_node_requires_ssl": "Node Minotari harus menggunakan SSL (https).",
+  "minotari_tor_unsupported": "Minotari belum bisa menggunakan Tor. Matikan Tor bawaan untuk menyinkronkan dan mengirim Minotari.",
   "mint_address": "Alamat Mint",
   "minutes_to_pin_code": "${minute} menit",
   "mm": "MM",

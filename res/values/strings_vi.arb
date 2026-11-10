@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Từ bỏ gửi",
+  "abandon_send_confirmation": "Từ bỏ việc gửi này và giải phóng tiền của nó? Chỉ làm điều này nếu nút tiếp tục từ chối nó. Nút vẫn có thể khai thác nó, vì vậy đừng trả tiền cho cùng một người nhận cho đến khi nó hiển thị là bị từ chối.",
   "about": "Giới thiệu",
   "about_cake_pay": "Cake Pay cho phép bạn dễ dàng mua thẻ quà tặng bằng tài sản ảo, có thể sử dụng ngay lập tức tại hơn 150.000 nhà bán lẻ.",
   "about_litecoin_privacy": "Giới thiệu về quyền riêng tư của Litecoin",
@@ -471,6 +473,7 @@
   "errorSigningTransaction": "Đã xảy ra lỗi khi ký giao dịch",
   "establishing_tor_connection": "Đang thiết lập kết nối Tor",
   "estimated": "Ước tính",
+  "estimated_fee": "Phí ước tính",
   "estimated_new_fee": "Phí mới ước tính",
   "estimated_receive_amount": "Số lượng nhận ước tính",
   "eta": "ETA",
@@ -693,6 +696,8 @@
   "min_amount": "Tối thiểu: ${value}",
   "min_value": "Tối thiểu: ${value} ${currency}",
   "mining": "Đào",
+  "minotari_node_requires_ssl": "Các nút Minotari phải sử dụng SSL (https).",
+  "minotari_tor_unsupported": "Minotari chưa thể sử dụng Tor. Tắt Tor tích hợp để đồng bộ và gửi Minotari.",
   "mint_address": "Địa chỉ mint",
   "minutes_to_pin_code": "${minute} phút",
   "mm": "MM",

@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Abandon send",
+  "abandon_send_confirmation": "Abandon this send and free its funds? Only do this if the node keeps refusing it. A node may still mine it, so don't pay the same recipient again until it shows as rejected.",
   "about": "About",
   "about_cake_pay": "Cake Pay allows you to easily buy gift cards with virtual assets, spendable instantly at over 150,000 merchants.",
   "about_litecoin_privacy": "About Litecoin Privacy",
@@ -507,6 +509,7 @@
   "errorSigningTransaction": "An error has occurred while signing transaction",
   "establishing_tor_connection": "Establishing Tor connection",
   "estimated": "Estimated",
+  "estimated_fee": "Estimated fee",
   "estimated_new_fee": "Estimated new fee",
   "estimated_receive_amount": "Estimated receive amount",
   "eta": "ETA",
@@ -736,6 +739,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Mining",
+  "minotari_node_requires_ssl": "Minotari nodes must use SSL (https).",
+  "minotari_tor_unsupported": "Minotari can't use Tor yet. Turn off built-in Tor to sync and send Minotari.",
   "mint_address": "Mint Address",
   "minutes_to_pin_code": "${minute} minutes",
   "mm": "MM",

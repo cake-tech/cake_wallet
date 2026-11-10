@@ -241,4 +241,22 @@ void main() {
       expect(text, 'view_key: aa\nspend_pubkey: cc');
     });
   });
+
+  group('minotariSafeStartHeight', () {
+    // (offline estimate, height a mainnet node reported) on 2026-01-01 and 2026-09-01: the
+    // estimate leads by about 2,000 and 12,240 blocks.
+    const samples = [(172622, 170622), (347579, 335339)];
+
+    test('starts at or before the real block, with at least twice the lead to spare', () {
+      for (final (estimate, real) in samples) {
+        final lead = estimate - real;
+        expect(minotariSafeStartHeight(estimate), lessThanOrEqualTo(estimate - 2 * lead));
+      }
+    });
+
+    test('never goes below zero', () {
+      expect(minotariSafeStartHeight(0), 0);
+      expect(minotariSafeStartHeight(500), 0);
+    });
+  });
 }

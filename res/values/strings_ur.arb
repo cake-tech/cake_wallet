@@ -1,4 +1,6 @@
 {
+  "abandon_send": "بھیجنا چھوڑ دیں۔",
+  "abandon_send_confirmation": "اس بھیجنے کو چھوڑ دیں اور اس کے فنڈز کو آزاد کریں؟ یہ صرف اس صورت میں کریں جب نوڈ اس سے انکار کرتا رہے۔ ایک نوڈ اب بھی اسے میرا کر سکتا ہے، لہذا اسی وصول کنندہ کو دوبارہ ادائیگی نہ کریں جب تک کہ یہ مسترد شدہ ظاہر نہ ہو۔",
   "about": "کے بارے میں",
   "about_cake_pay": "Cake Pay آپ کو ورچوئل اثاثوں کے ذریعے گفٹ کارڈز آسانی سے خریدنے کی سہولت دیتا ہے، جنہیں 150,000 سے زائد تاجروں پر فوراً خرچ کیا جا سکتا ہے۔",
   "about_litecoin_privacy": "Litecoin کی رازداری کے بارے میں",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "ٹرانزیکشن پر دستخط کرتے وقت ایک خرابی پیش آ گئی ہے",
   "establishing_tor_connection": "Tor کنکشن قائم کیا جا رہا ہے",
   "estimated": "تخمینی",
+  "estimated_fee": "تخمینی فیس",
   "estimated_new_fee": "تخمینی نئی فیس",
   "estimated_receive_amount": "تخمینی وصولی کی مقدار",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "کم از کم: ${value}",
   "min_value": "کم از کم: ${value} ${currency}",
   "mining": "مائننگ",
+  "minotari_node_requires_ssl": "Minotari نوڈس کو SSL (https) استعمال کرنا چاہیے۔",
+  "minotari_tor_unsupported": "Minotari ابھی تک Tor استعمال نہیں کر سکتا۔ مطابقت پذیری اور Minotari بھیجنے کے لیے بلٹ ان Tor کو بند کریں۔",
   "mint_address": "منٹ ایڈریس",
   "minutes_to_pin_code": "${minute} منٹ",
   "mm": "MM",

@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Отказ от изпращане",
+  "abandon_send_confirmation": "Да се ​​откаже от това изпращане и да се освободят средствата му? Направете това само ако възелът продължава да го отказва. Възел все още може да го копае, така че не плащайте отново на същия получател, докато не се покаже като отхвърлен.",
   "about": "Относно",
   "about_cake_pay": "Cake Pay Ви позволява лесно да купувате подаръчни карти с виртуални активи, които могат да се използват незабавно при над 150 000 търговци.",
   "about_litecoin_privacy": "Относно поверителността на Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Възникна грешка при подписване на транзакцията",
   "establishing_tor_connection": "Установяване на Tor връзка",
   "estimated": "Приблизително",
+  "estimated_fee": "Приблизителна такса",
   "estimated_new_fee": "Очаквана нова такса",
   "estimated_receive_amount": "Очаквана сума за получаване",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Мин: ${value}",
   "min_value": "Мин: ${value} ${currency}",
   "mining": "Копаене",
+  "minotari_node_requires_ssl": "Възлите на Minotari трябва да използват SSL (https).",
+  "minotari_tor_unsupported": "Minotari все още не може да използва Tor. Изключете вградения Tor, за да синхронизирате и изпратите Minotari.",
   "mint_address": "Mint адрес",
   "minutes_to_pin_code": "${minute} минути",
   "mm": "MM",

@@ -1,4 +1,6 @@
 {
+  "abandon_send": "انصراف از ارسال",
+  "abandon_send_confirmation": "این ارسال را رها کنید و وجوه آن را آزاد کنید؟ فقط در صورتی این کار را انجام دهید که گره مدام آن را رد کند. ممکن است یک گره همچنان آن را استخراج کند، بنابراین تا زمانی که رد شده نشان داده نشود، دوباره به همان گیرنده پرداخت نکنید.",
   "about": "درباره",
   "about_cake_pay": "Cake Pay به شما امکان می‌دهد به‌راحتی با دارایی‌های مجازی گیفت‌کارت بخرید که بلافاصله در بیش از ۱۵۰٬۰۰۰ فروشگاه قابل استفاده است.",
   "about_litecoin_privacy": "درباره حریم خصوصی لایت‌کوین",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "هنگام امضای تراکنش خطایی رخ داده است",
   "establishing_tor_connection": "در حال برقراری اتصال Tor",
   "estimated": "تخمینی",
+  "estimated_fee": "هزینه تخمینی",
   "estimated_new_fee": "کارمزد جدید تخمینی",
   "estimated_receive_amount": "مقدار تخمینی دریافت",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "حداقل: ${value}",
   "min_value": "حداقل: ${value} ${currency}",
   "mining": "ماینینگ",
+  "minotari_node_requires_ssl": "گره های Minotari باید از SSL (https) استفاده کنند.",
+  "minotari_tor_unsupported": "Minotari هنوز نمی تواند از Tor استفاده کند. Tor داخلی را برای همگام سازی و ارسال Minotari خاموش کنید.",
   "mint_address": "آدرس ضرب",
   "minutes_to_pin_code": "${minute} دقیقه",
   "mm": "MM",

@@ -1561,6 +1561,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   ) {
     String errorMessage = error.toString();
 
+    if (error is TorUnsupportedException) return S.current.minotari_tor_unsupported;
+
     if (walletType == WalletType.solana) {
       if (errorMessage.contains('insufficient lamports')) {
         double solValueNeeded = 0.0;

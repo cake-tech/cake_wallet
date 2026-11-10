@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Odustani od slanja",
+  "abandon_send_confirmation": "Odustati od ovog slanja i osloboditi sredstva? Učinite to samo ako ga čvor stalno odbija. Čvor ga i dalje može rudariti, stoga nemojte ponovno plaćati istom primatelju dok se ne prikaže kao odbijeno.",
   "about": "O aplikaciji",
   "about_cake_pay": "Cake Pay vam omogućuje jednostavnu kupnju darovnih kartica virtualnom imovinom, koje se mogu odmah potrošiti kod više od 150 000 trgovaca.",
   "about_litecoin_privacy": "O privatnosti Litecoina",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "Došlo je do pogreške prilikom potpisivanja transakcije",
   "establishing_tor_connection": "Uspostavljanje Tor veze",
   "estimated": "Procijenjeno",
+  "estimated_fee": "Procijenjena naknada",
   "estimated_new_fee": "Procijenjena nova naknada",
   "estimated_receive_amount": "Procijenjeni iznos za primanje",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Rudarenje",
+  "minotari_node_requires_ssl": "Minotari čvorovi moraju koristiti SSL (https).",
+  "minotari_tor_unsupported": "Minotari još ne može koristiti Tor. Isključite ugrađeni Tor za sinkronizaciju i slanje Minotarija.",
   "mint_address": "Adresa mintanja",
   "minutes_to_pin_code": "${minute} minuta",
   "mm": "MM",

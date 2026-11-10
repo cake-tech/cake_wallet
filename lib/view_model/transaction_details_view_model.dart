@@ -4,6 +4,7 @@ import "package:cake_wallet/entities/priority_for_wallet_type.dart";
 import "package:cake_wallet/entities/transaction_description.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/minotari/minotari.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/solana/solana.dart";
@@ -705,4 +706,15 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void replaceByFee(String newFee) => sendViewModel.replaceByFee(transactionInfo, newFee);
+
+  /// A Minotari send the node never accepted keeps its inputs locked; cw can give it up
+  /// once it has stalled (it says so if it hasn't yet).
+  bool get canAbandonSend =>
+      wallet.type == WalletType.minotari &&
+      wallet.canSend() &&
+      transactionInfo.direction == TransactionDirection.outgoing &&
+      transactionInfo.isPending;
+
+  /// Returns cw's note on what abandoning does not do.
+  Future<String> abandonSend() => minotari!.abandonSend(wallet, transactionInfo.id);
 }

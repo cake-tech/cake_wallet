@@ -1,4 +1,6 @@
 {
+  "abandon_send": "送信を放棄する",
+  "abandon_send_confirmation": "この送信を放棄して資金を解放しますか?これは、ノードが拒否し続ける場合にのみ実行してください。ノードはまだそれをマイニングしている可能性があるため、拒否されたと表示されるまで同じ受信者に再度支払わないでください。",
   "about": "情報",
   "about_cake_pay": "Cake Payを使用すると、仮想資産でギフトカードを簡単に購入でき、150,000を超える加盟店ですぐに利用できます。",
   "about_litecoin_privacy": "Litecoinのプライバシーについて",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "トランザクションの署名中にエラーが発生しました",
   "establishing_tor_connection": "Tor接続を確立しています",
   "estimated": "推定",
+  "estimated_fee": "料金の目安",
   "estimated_new_fee": "推定される新しい手数料",
   "estimated_receive_amount": "推定受取額",
   "eta": "ETA",
@@ -693,6 +696,8 @@
   "min_amount": "最小: ${value}",
   "min_value": "最小: ${value} ${currency}",
   "mining": "マイニング",
+  "minotari_node_requires_ssl": "Minotari ノードは SSL (https) を使用する必要があります。",
+  "minotari_tor_unsupported": "ミノタリはまだTorを使えません。 Minotari を同期して送信するには、内蔵 Tor をオフにします。",
   "mint_address": "ミントアドレス",
   "minutes_to_pin_code": "${minute} 分",
   "mm": "MM",

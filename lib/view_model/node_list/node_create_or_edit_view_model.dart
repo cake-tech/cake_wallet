@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -253,6 +254,11 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> save({bool saveAsCurrent = false}) async {
+    // Minotari node traffic carries the wallet's own transactions; it must be TLS.
+    if (walletType == WalletType.minotari && !useSSL) {
+      state = FailureState(S.current.minotari_node_requires_ssl);
+      return;
+    }
     editingNode ??= Node();
     editingNode!.type = walletType;
     editingNode!.label = label;

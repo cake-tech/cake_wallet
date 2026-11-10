@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Senden abbrechen",
+  "abandon_send_confirmation": "Diesen Versand aufgeben und die Gelder freigeben? Tun Sie dies nur, wenn der Knoten dies weiterhin ablehnt. Ein Knoten kann es immer noch abbauen, zahlen Sie also nicht erneut an denselben Empfänger, bis es als abgelehnt angezeigt wird.",
   "about": "Über",
   "about_cake_pay": "Mit Cake Pay können Sie ganz einfach Geschenkkarten mit virtuellen Vermögenswerten kaufen, die Sie sofort bei über 150.000 Händlern ausgeben können.",
   "about_litecoin_privacy": "Über den Litecoin-Datenschutz",
@@ -507,6 +509,7 @@
   "errorSigningTransaction": "Beim Signieren der Transaktion ist ein Fehler aufgetreten",
   "establishing_tor_connection": "Tor-Verbindung wird hergestellt",
   "estimated": "Geschätzt",
+  "estimated_fee": "Geschätzte Gebühr",
   "estimated_new_fee": "Geschätzte neue Gebühr",
   "estimated_receive_amount": "Geschätzter Empfangsbetrag",
   "eta": "ETA",
@@ -736,6 +739,8 @@
   "min_amount": "Min.: ${value}",
   "min_value": "Min.: ${value} ${currency}",
   "mining": "Mining",
+  "minotari_node_requires_ssl": "Minotari-Knoten müssen SSL (https) verwenden.",
+  "minotari_tor_unsupported": "Minotari kann Tor noch nicht verwenden. Schalten Sie das integrierte Tor aus, um Minotari zu synchronisieren und zu senden.",
   "mint_address": "Mint-Adresse",
   "minutes_to_pin_code": "${minute} Minuten",
   "mm": "MM",

@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Abandono omondo",
+  "abandon_send_confirmation": "¿Oheja ko omondo ha omosãsõ fondo orekóva? Péva ejapo mante pe nodo ombotove meméramo. Peteĩ nodo ikatu gueteri omina, upévare ani repagapa jey peteĩchagua ohupytysévape ohechauka peve oñembotoveháicha.",
   "about": "Marandu",
   "about_cake_pay": "Cake Pay omoneĩ ndéve reñogua hag̃ua tarjetas de regalo activos virtual reheve, ha ikatu reiporu pya’e hag̃ua hetave 150.000 comerciante-pe.",
   "about_litecoin_privacy": "Litecoin ñemigua rehegua",
@@ -472,6 +474,7 @@
   "errorSigningTransaction": "Oiko jejavy oñemboheraguapývo pe transacción.",
   "establishing_tor_connection": "Oñemboheko hína Tor jeikeha",
   "estimated": "Jehaipyre",
+  "estimated_fee": "Cuota ojeestimáva",
   "estimated_new_fee": "Mba’erepy pyahu jehaipyre",
   "estimated_receive_amount": "Mbohetapy ñemog̃uahẽ hag̃ua jehaipyre",
   "eta": "ETA",
@@ -693,6 +696,8 @@
   "min_amount": "Michĩvéva: ${value}",
   "min_value": "Michĩ: ${value} ${currency}",
   "mining": "Minería",
+  "minotari_node_requires_ssl": "Umi nodo minotari oipuruvaꞌerã SSL (https).",
+  "minotari_tor_unsupported": "Minotari ndaikatúi gueteri oipuru Tor. Embogue Tor incorporado embojoaju ha emondo hag̃ua Minotari.",
   "mint_address": "Mint Kundaharape",
   "minutes_to_pin_code": "${minute} aravo'i",
   "mm": "MM",

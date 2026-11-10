@@ -54,6 +54,12 @@ class WalletOpenException extends CakeException {
   const WalletOpenException(super.message);
 }
 
+/// The wallet's network calls can't go through the app's built-in Tor, so it refuses to make
+/// them while Tor is on rather than leak them over clearnet.
+class TorUnsupportedException extends CakeException {
+  const TorUnsupportedException(super.message);
+}
+
 class WalletExistsException extends CakeException {
   const WalletExistsException(super.message);
 }

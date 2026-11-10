@@ -14,6 +14,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -32,9 +33,19 @@ import 'package:mobx/mobx.dart';
 
 part 'minotari_wallet.g.dart';
 
-/// cw's offline estimate assumes the target block time and runs high (about 17 days of
-/// blocks by September 2026, growing), so a restore or rescan starts 30 days of blocks earlier.
-const _heightEstimateMarginBlocks = 30 * 24 * 30;
+/// Blocks per day at Tari's 2-minute target block time.
+const _blocksPerDay = 720;
+
+/// A start height at or below the real height of the block whose offline [estimate] is given.
+///
+/// cw's offline estimate counts target-time blocks since genesis (so [estimate] / 720 is days
+/// since genesis). Real blocks run slower, so it runs high, and the lead grows: about 2,000
+/// blocks on 2026-01-01 and 12,240 on 2026-09-01, roughly 42 more a day.
+// shortcut: the margin extrapolates that growth: 2 days plus 84 blocks per day since genesis
+// (twice the growth rate), which stays at least twice the lead while blocks keep that pace.
+// Revisit if block times change or cw's estimate gets a newer anchor.
+int minotariSafeStartHeight(int estimate) =>
+    max(0, estimate - (2 * _blocksPerDay + estimate * 84 ~/ _blocksPerDay));
 
 /// A safe restore or rescan start for [date], without asking a node.
 Future<int> minotariHeightByDate(DateTime date) async {
@@ -43,7 +54,7 @@ Future<int> minotariHeightByDate(DateTime date) async {
     network: MinotariFfi.network,
     epochSecs: BigInt.from(date.millisecondsSinceEpoch ~/ 1000),
   ).toInt();
-  return max(0, estimate - _heightEstimateMarginBlocks);
+  return minotariSafeStartHeight(estimate);
 }
 
 /// A random wallet-database passphrase; it lives only in the encrypted .keys file.
@@ -263,9 +274,16 @@ abstract class MinotariWalletBase
     return ffi;
   }
 
+  /// Every node call goes through here. cw's HTTP client can't use the app's built-in Tor,
+  /// so with Tor on nothing is sent rather than leak it over clearnet; and node traffic,
+  /// which carries the wallet's own transactions, must be TLS.
   String get _nodeUrl {
     final node = _currentNode;
     if (node == null) throw Exception('No node connected. Call connectToNode first.');
+    if (CakeTor.instance?.enabled == true) {
+      throw TorUnsupportedException('Minotari cannot use Tor yet; turn off built-in Tor.');
+    }
+    if (!node.isSSL) throw Exception('Minotari nodes must use SSL (https).');
     return node.uri.toString();
   }
 
@@ -457,6 +475,7 @@ abstract class MinotariWalletBase
       amount: Money.fromInt(amount, CryptoCurrency.xtm),
       fee: Money.fromInt(fee, CryptoCurrency.xtm),
       send: send,
+      isFeeEstimate: !sendAll,
     );
   }
 
@@ -571,10 +590,27 @@ abstract class MinotariWalletBase
 
   @override
   Future<bool> checkNodeHealth() async {
-    final node = _currentNode;
-    if (node == null) return false;
+    final String baseUrl;
+    try {
+      baseUrl = _nodeUrl;
+    } catch (e) {
+      printV('Minotari node not usable: $e');
+      return false;
+    }
     await MinotariFfi.ensureRustLibInitialized();
-    return base_node.checkNodeHealth(baseUrl: node.uri.toString());
+    return base_node.checkNodeHealth(baseUrl: baseUrl);
+  }
+
+  /// Gives up a pending send the node keeps refusing and releases its inputs, then reloads
+  /// the balance and history. cw stops this wallet's scan for it, so it is started again.
+  /// Returns cw's note on what abandoning does not do.
+  Future<String> abandonSend(String transactionId) async {
+    final note =
+        await _requireFfi.abandonSend(passphrase: _dbPassphrase, transactionId: transactionId);
+    await updateBalance();
+    await updateTransactions();
+    if (_keepScanning) unawaited(_scan());
+    return note;
   }
 
   /// The mnemonic, read from the wallet database for the seed page; null for wallets

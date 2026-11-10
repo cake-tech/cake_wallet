@@ -1920,6 +1920,7 @@ abstract class Minotari {
 
   Future<int> getHeightByDate({required DateTime date});
   bool isScanning(Object wallet);
+  Future<String> abandonSend(Object wallet, String transactionId);
   Future<String?> getSeed(Object wallet);
   Future<String?> getSpendPrivateKey(Object wallet);
 

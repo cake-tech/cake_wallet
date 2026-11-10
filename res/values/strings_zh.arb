@@ -1,4 +1,6 @@
 {
+  "abandon_send": "放弃发送",
+  "abandon_send_confirmation": "放弃这次发送并释放其资金？仅当节点持续拒绝时才执行此操作。节点可能仍然会挖掘它，因此不要再次向同一个接收者付款，直到它显示为拒绝为止。",
   "about": "关于",
   "about_cake_pay": "Cake Pay 让您轻松使用加密资产购买礼品卡，可立即在超过 150,000 家商户消费。",
   "about_litecoin_privacy": "关于 Litecoin 隐私",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "签名交易时发生错误",
   "establishing_tor_connection": "正在建立 Tor 连接",
   "estimated": "预估",
+  "estimated_fee": "预计费用",
   "estimated_new_fee": "预估新手续费",
   "estimated_receive_amount": "预计接收数量",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "最小值：${value}",
   "min_value": "最小值：${value} ${currency}",
   "mining": "挖矿",
+  "minotari_node_requires_ssl": "Minotari 节点必须使用 SSL (https)。",
+  "minotari_tor_unsupported": "Minotari 还不能使用 Tor。关闭内置 Tor 来同步和发送 Minotari。",
   "mint_address": "铸币地址",
   "minutes_to_pin_code": "${minute} 分钟",
   "mm": "MM",

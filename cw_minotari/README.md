@@ -156,15 +156,11 @@ pending transaction is shown once the stream reaches `Broadcasted`; the scanner 
 
 ### Fee Estimation
 
-Three priority levels:
-- `MinotariTransactionPriority.slow` (raw: 0)
-- `MinotariTransactionPriority.medium` (raw: 1, default)
-- `MinotariTransactionPriority.fast` (raw: 2)
-
-The send screen quotes each output's amount (an amount covering the balance as a send-all); the
-quotes are observable, so the fee re-renders when one arrives, and they refresh whenever the
-scan catches up. The confirmation shows the fee quoted for the real amount and number of
-outputs, or the send-all quote.
+cw builds every send at one fixed fee rate (5 µT per gram), so Cake offers no fee priority for
+Minotari. The send screen and the confirmation show an *estimated* fee: a quote from the node
+for the real amount and number of outputs, which the paid fee may not match. A send-all is
+quoted exactly as cw will build it. Quotes are shared between identical requests and kept for a
+minute.
 
 ## Dependencies
 
@@ -218,8 +214,8 @@ Uses first payment reference (payref) from transaction for lookup.
 - Transaction history with full details
 - Address generation and display
 - Address validation (RFC-0155 compliant)
-- Fee estimation with priority levels
-- Transaction sending (multiple recipients, send-all)
+- Fee estimates (no priority: cw sends at a fixed rate)
+- Transaction sending (multiple recipients, send-all), and abandoning a stalled send
 - Message signing and verification
 - Restore from keys (spendable, or watch-only with the spend public key)
 - Password change (re-encrypts the .keys files; the random database passphrase is kept)
@@ -230,6 +226,9 @@ Uses first payment reference (payref) from transaction for lookup.
 
 1. **Hardware wallets:** Not supported
 2. **Buy/sell providers:** No providers currently support XTM
+3. **Tor:** cw's HTTP client can't use Cake's built-in Tor, so with built-in Tor on Minotari
+   makes no node calls (no sync, fees or sends) instead of leaking them over clearnet
+4. **Nodes:** custom Minotari nodes must use SSL (https)
 
 ## Resources
 

@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Iwanan ang pagpapadala",
+  "abandon_send_confirmation": "Iwanan ang pagpapadalang ito at palayain ang mga pondo nito? Gawin lamang ito kung patuloy itong tinatanggihan ng node. Maaaring minahin pa rin ito ng isang node, kaya huwag nang magbayad muli sa parehong tatanggap hanggang sa makita itong tinanggihan.",
   "about": "Tungkol",
   "about_cake_pay": "Binibigyang-daan ka ng Cake Pay na madaling bumili ng mga gift card gamit ang mga virtual asset, na magagamit kaagad sa mahigit 150,000 merchant.",
   "about_litecoin_privacy": "Tungkol sa Privacy ng Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "May naganap na error habang pinipirmahan ang transaksyon",
   "establishing_tor_connection": "Itinatatag ang koneksyon sa Tor",
   "estimated": "Tinatayang",
+  "estimated_fee": "Tinatayang bayad",
   "estimated_new_fee": "Tinatayang bagong bayarin",
   "estimated_receive_amount": "Tinatayang halagang matatanggap",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Pagmimina",
+  "minotari_node_requires_ssl": "Dapat gumamit ng SSL (https) ang mga Minotari node.",
+  "minotari_tor_unsupported": "Hindi pa magagamit ng Minotari ang Tor. I-off ang built-in na Tor upang i-sync at ipadala ang Minotari.",
   "mint_address": "Mint Address",
   "minutes_to_pin_code": "${minute} minuto",
   "mm": "MM",

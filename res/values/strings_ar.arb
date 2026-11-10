@@ -1,4 +1,6 @@
 {
+  "abandon_send": "التخلي عن الإرسال",
+  "abandon_send_confirmation": "التخلي عن هذا الإرسال وتحرير أمواله؟ لا تفعل ذلك إلا إذا استمرت العقدة في رفضها. قد تستمر العقدة في تعدينها، لذا لا تدفع لنفس المستلم مرة أخرى حتى تظهر على أنها مرفوضة.",
   "about": "حول",
   "about_cake_pay": "يتيح لك Cake Pay شراء بطاقات هدايا بسهولة باستخدام الأصول الافتراضية، ويمكن إنفاقها فورًا لدى أكثر من 150,000 تاجر.",
   "about_litecoin_privacy": "حول خصوصية Litecoin",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "حدث خطأ أثناء توقيع المعاملة",
   "establishing_tor_connection": "جارٍ إنشاء اتصال بـ Tor",
   "estimated": "تقديري",
+  "estimated_fee": "الرسوم المقدرة",
   "estimated_new_fee": "الرسوم الجديدة المقدّرة",
   "estimated_receive_amount": "الكمية التقديرية المستلمة",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "الحد الأدنى: ${value}",
   "min_value": "الحد الأدنى: ${value} ${currency}",
   "mining": "التعدين",
+  "minotari_node_requires_ssl": "يجب أن تستخدم عقد Minotari SSL (https).",
+  "minotari_tor_unsupported": "لا يستطيع مينوتاري استخدام Tor بعد. قم بإيقاف تشغيل Tor المدمج لمزامنة وإرسال Minotari.",
   "mint_address": "عنوان السكّ",
   "minutes_to_pin_code": "${minute} دقائق",
   "mm": "MM",

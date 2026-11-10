@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Göndermeyi bırak",
+  "abandon_send_confirmation": "Bu gönderimden vazgeçilip fonları serbest bırakılsın mı? Bunu yalnızca düğüm reddetmeye devam ederse yapın. Bir düğüm yine de onu kazabilir, bu nedenle reddedilmiş olarak görünene kadar aynı alıcıya tekrar ödeme yapmayın.",
   "about": "Hakkında",
   "about_cake_pay": "Cake Pay, sanal varlıklarla hediye kartlarını kolayca satın almanıza ve 150.000'den fazla işyerinde anında harcamanıza olanak tanır.",
   "about_litecoin_privacy": "Litecoin Gizliliği Hakkında",
@@ -470,6 +472,7 @@
   "errorSigningTransaction": "İşlem imzalanırken bir hata oluştu",
   "establishing_tor_connection": "Tor bağlantısı kuruluyor",
   "estimated": "Tahmini",
+  "estimated_fee": "Tahmini ücret",
   "estimated_new_fee": "Tahmini yeni işlem ücreti",
   "estimated_receive_amount": "Tahmini alınacak miktar",
   "eta": "ETA",
@@ -692,6 +695,8 @@
   "min_amount": "Min: ${value}",
   "min_value": "Min: ${value} ${currency}",
   "mining": "Madencilik",
+  "minotari_node_requires_ssl": "Minotari düğümleri SSL (https) kullanmalıdır.",
+  "minotari_tor_unsupported": "Minotari henüz Tor'u kullanamıyor. Minotari'yi senkronize etmek ve göndermek için yerleşik Tor'u kapatın.",
   "mint_address": "Mint Adresi",
   "minutes_to_pin_code": "${minute} dakika",
   "mm": "MM",

@@ -8,6 +8,7 @@ class PendingMinotariTransaction with PendingTransaction {
     required this.amount,
     required this.fee,
     required this.send,
+    required this.isFeeEstimate,
   });
 
   @override
@@ -17,6 +18,10 @@ class PendingMinotariTransaction with PendingTransaction {
   final Money fee;
 
   final Future<void> Function() send;
+
+  /// cw builds every send at a fixed fee rate, so only a send-all's quote is exact.
+  @override
+  final bool isFeeEstimate;
 
   // shortcut: the bridge drops send_transaction's SendResultDto, so the recorded transaction id
   // is unknown here; the scanner reports the send by id. Upgrade once the send stream carries it.

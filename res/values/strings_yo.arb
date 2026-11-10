@@ -1,4 +1,6 @@
 {
+  "abandon_send": "Firanṣẹ silẹ",
+  "abandon_send_confirmation": "Firanṣẹ yii silẹ ki o si gba awọn owo rẹ laaye? Ṣe eyi nikan ti ipade naa ba kọ. Ipade kan le tun gbe mi, nitorinaa maṣe san owo olugba kan naa lẹẹkansi titi yoo fi han bi a ti kọ.",
   "about": "Nipa",
   "about_cake_pay": "Cake Pay jẹ́ kí o lè ra àwọn káàdì ẹ̀bùn ní rọrùn pẹ̀lú àwọn ohun-ìní foju, tí o lè lò lẹ́sẹ̀kẹsẹ̀ ní ọ̀dọ̀ ju àwọn oníṣòwò 150,000 lọ.",
   "about_litecoin_privacy": "Nipa Asiri Litecoin",
@@ -471,6 +473,7 @@
   "errorSigningTransaction": "Aṣiṣe kan ti ṣẹlẹ̀ nígbà tí a ń fọwọ́ sí ìdúnàdúrà",
   "establishing_tor_connection": "Ń dá ìsopọ̀ Tor sílẹ̀",
   "estimated": "Ìṣírò",
+  "estimated_fee": "Ifoju ọya",
   "estimated_new_fee": "Ifojúsùn owó ìdúná tuntun",
   "estimated_receive_amount": "Iye ti a fojú gba láti gba",
   "eta": "ETA",
@@ -693,6 +696,8 @@
   "min_amount": "Kere ju: ${value}",
   "min_value": "Kéré jù: ${value} ${currency}",
   "mining": "Iwakusa",
+  "minotari_node_requires_ssl": "Awọn apa Minotari gbọdọ lo SSL (https).",
+  "minotari_tor_unsupported": "Minotari ko le lo Tor sibẹsibẹ. Pa Tor ti a ṣe sinu rẹ lati muṣiṣẹpọ ati firanṣẹ Minotari.",
   "mint_address": "Àdírẹ́sì Mint",
   "minutes_to_pin_code": "${minute} ìṣẹ́jú",
   "mm": "MM",
