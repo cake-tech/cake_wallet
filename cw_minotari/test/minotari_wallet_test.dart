@@ -4,9 +4,11 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/exceptions/cake_exception.dart';
+import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_keys_file.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
@@ -257,6 +259,52 @@ void main() {
     test('never goes below zero', () {
       expect(minotariSafeStartHeight(0), 0);
       expect(minotariSafeStartHeight(500), 0);
+    });
+  });
+
+  group('minotariNodeUrl', () {
+    Node node({required bool ssl}) =>
+        Node(uri: 'rpc.tari.com', type: WalletType.minotari, useSSL: ssl);
+
+    test('an SSL node gives its https URL', () {
+      expect(minotariNodeUrl(node(ssl: true), torOn: false), 'https://rpc.tari.com');
+    });
+
+    test('with Tor running nothing is sent', () {
+      expect(() => minotariNodeUrl(node(ssl: true), torOn: true),
+          throwsA(isA<TorUnsupportedException>()));
+    });
+
+    test('a non-SSL node is refused', () {
+      expect(() => minotariNodeUrl(node(ssl: false), torOn: false), throwsException);
+    });
+
+    test('no node is refused', () {
+      expect(() => minotariNodeUrl(null, torOn: false), throwsException);
+    });
+  });
+
+  group('minotariThenRestore', () {
+    test('restores after a failed action and keeps its error', () async {
+      var restored = false;
+
+      await expectLater(
+        minotariThenRestore<String>(
+          () async => throw StateError('not stalled'),
+          () async => restored = true,
+        ),
+        throwsA(isA<StateError>()),
+      );
+      expect(restored, isTrue);
+    });
+
+    test('a failed restore keeps the action result', () async {
+      final result = await minotariThenRestore<String>(
+        () async => 'abandoned',
+        () async => throw StateError('reload failed'),
+      );
+
+      expect(result, 'abandoned');
     });
   });
 }

@@ -548,7 +548,7 @@ class Node {
   /// The Tari base node HTTP API answers `GET /get_tip_info`. Minotari can't use built-in Tor
   /// yet, so with Tor on the node is not reported usable.
   Future<bool> requestMinotariNode() async {
-    if (CakeTor.instance?.enabled == true) return false;
+    if (CakeTor.instance?.started == true) return false;
     try {
       final response = await ProxyWrapper()
           .get(clearnetUri: uri.replace(path: '${uri.path}/get_tip_info'.replaceAll('//', '/')))

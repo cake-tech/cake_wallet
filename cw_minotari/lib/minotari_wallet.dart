@@ -65,6 +65,33 @@ String randomMinotariPassphrase() {
   return List.generate(32, (_) => allowedChars[random.nextInt(allowedChars.length)]).join();
 }
 
+/// The base URL for a Minotari node call. cw's HTTP client can't use the app's built-in Tor,
+/// so with Tor running ([torOn]) nothing is sent rather than leak it over clearnet; and node
+/// traffic, which carries the wallet's own transactions, must be TLS.
+String minotariNodeUrl(Node? node, {required bool torOn}) {
+  if (node == null) throw Exception('No node connected. Call connectToNode first.');
+  if (torOn) throw TorUnsupportedException('Minotari cannot use Tor yet; turn off built-in Tor.');
+  if (!node.isSSL) throw Exception('Minotari nodes must use SSL (https).');
+  return node.uri.toString();
+}
+
+/// Runs [action], then [restore] whether or not it failed. A failing [restore] is logged and
+/// never replaces [action]'s result or error.
+Future<T> minotariThenRestore<T>(
+  Future<T> Function() action,
+  Future<void> Function() restore,
+) async {
+  try {
+    return await action();
+  } finally {
+    try {
+      await restore();
+    } catch (e) {
+      printV('Minotari restore after an action failed: $e');
+    }
+  }
+}
+
 /// Runs [work] once everything already in [queue] has run. A failure is logged and goes no
 /// further, so it can't block later work or fail whoever awaits it (a send that has already
 /// broadcast must not report failure because a history refresh did).
@@ -274,18 +301,8 @@ abstract class MinotariWalletBase
     return ffi;
   }
 
-  /// Every node call goes through here. cw's HTTP client can't use the app's built-in Tor,
-  /// so with Tor on nothing is sent rather than leak it over clearnet; and node traffic,
-  /// which carries the wallet's own transactions, must be TLS.
-  String get _nodeUrl {
-    final node = _currentNode;
-    if (node == null) throw Exception('No node connected. Call connectToNode first.');
-    if (CakeTor.instance?.enabled == true) {
-      throw TorUnsupportedException('Minotari cannot use Tor yet; turn off built-in Tor.');
-    }
-    if (!node.isSSL) throw Exception('Minotari nodes must use SSL (https).');
-    return node.uri.toString();
-  }
+  /// Every node call goes through here; `started` is the Tor signal ProxyWrapper routes by.
+  String get _nodeUrl => minotariNodeUrl(_currentNode, torOn: CakeTor.instance?.started == true);
 
   Future<void> init() async {
     // Every Minotari wallet is mainnet; refuse anything else rather than open it as mainnet.
@@ -459,7 +476,8 @@ abstract class MinotariWalletBase
       await for (final event in ffi.sendTransaction(
         recipients: recipients,
         sendAll: sendAll,
-        baseNodeUrl: nodeUrl,
+        // Checked again at broadcast: Tor may have been turned on since the quote.
+        baseNodeUrl: _nodeUrl,
       )) {
         if (event.stage == TransactionStage.broadcasted) broadcasted = true;
       }
@@ -601,17 +619,18 @@ abstract class MinotariWalletBase
     return base_node.checkNodeHealth(baseUrl: baseUrl);
   }
 
-  /// Gives up a pending send the node keeps refusing and releases its inputs, then reloads
-  /// the balance and history. cw stops this wallet's scan for it, so it is started again.
-  /// Returns cw's note on what abandoning does not do.
-  Future<String> abandonSend(String transactionId) async {
-    final note =
-        await _requireFfi.abandonSend(passphrase: _dbPassphrase, transactionId: transactionId);
-    await updateBalance();
-    await updateTransactions();
-    if (_keepScanning) unawaited(_scan());
-    return note;
-  }
+  /// Gives up a pending send the node keeps refusing and releases its inputs. cw stops this
+  /// wallet's scan before it decides, so whether it abandons or refuses, the scan is started
+  /// again and the balance and history reloaded. Returns cw's note on what abandoning does
+  /// not do.
+  Future<String> abandonSend(String transactionId) => minotariThenRestore(
+        () => _requireFfi.abandonSend(passphrase: _dbPassphrase, transactionId: transactionId),
+        () async {
+          if (_keepScanning) unawaited(_scan());
+          await updateBalance();
+          await updateTransactions();
+        },
+      );
 
   /// The mnemonic, read from the wallet database for the seed page; null for wallets
   /// imported from keys (only those keep their keys in the .keys file).
