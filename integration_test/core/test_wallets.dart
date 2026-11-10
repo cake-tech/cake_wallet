@@ -50,10 +50,11 @@ class TestWallets {
         return secrets.dogeTestWalletSeeds;
       case WalletType.zcash:
         return secrets.zcashTestWalletSeeds;
+      case WalletType.minotari:
+        return secrets.minotariTestWalletSeeds;
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
-      case WalletType.minotari:
         throw Exception("No test wallet seed available for ${type.name}");
     }
   }
@@ -95,6 +96,7 @@ class TestWallets {
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
+      // The Minotari test wallet is on stagenet; the generic flows restore on mainnet.
       case WalletType.minotari:
         return "";
     }
@@ -105,4 +107,15 @@ class TestWallets {
   static String get moneroRestoreBlockHeight => secrets.moneroTestWalletBlockHeight;
 
   static String get zcashRestoreHeight => secrets.zcashTestWalletRestoreHeight;
+
+  // Stagenet: the Minotari secrets must never hold a funded mainnet wallet.
+  static String get minotariReceiveAddress => secrets.minotariTestWalletReceiveAddress;
+
+  static String get minotariViewKey => secrets.minotariTestWalletViewKey;
+
+  static String get minotariSpendKey => secrets.minotariTestWalletSpendKey;
+
+  static String get minotariRestoreHeight => secrets.minotariTestWalletRestoreHeight;
+
+  static String get minotariRecipientAddress => secrets.minotariTestRecipientAddress;
 }
