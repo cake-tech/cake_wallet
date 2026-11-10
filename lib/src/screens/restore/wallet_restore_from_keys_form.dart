@@ -5,7 +5,6 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
-import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cw_core/generate_name.dart';
@@ -85,9 +84,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   final TextEditingController privateKeyController;
   final TextEditingController? passwordTextEditingController;
   final TextEditingController? repeatedPasswordTextEditingController;
-  // A QR with only the public spend key restores a watch-only wallet.
-  late bool isViewOnly = (widget.restoredWallet?.spendKey ?? '').isEmpty &&
-      (widget.restoredWallet?.spendPubkey ?? '').isNotEmpty;
   void Function()? passwordListener;
   void Function()? repeatedPasswordListener;
 
@@ -214,51 +210,6 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
   }
 
   Widget _restoreFromKeysFormFields() {
-    if (widget.walletRestoreViewModel.type == WalletType.minotari) {
-      return Column(
-        children: [
-          BaseTextFormField(
-            controller: viewKeyController,
-            hintText: S.of(context).restore_view_key_private,
-            maxLines: null,
-            validator: (value) =>
-                value != null && value.isNotEmpty ? null : S.of(context).field_required,
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: StandardCheckbox(
-              key: ValueKey('wallet_restore_from_keys_view_only_checkbox_key'),
-              value: isViewOnly,
-              caption: S.of(context).watching,
-              onChanged: (value) => setState(() {
-                isViewOnly = value;
-                // Only the key for the chosen mode is submitted.
-                (value ? spendKeyController : spendPubkeyController).clear();
-              }),
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.only(top: 20.0),
-            child: BaseTextFormField(
-              controller: isViewOnly ? spendPubkeyController : spendKeyController,
-              hintText: isViewOnly
-                  ? S.of(context).restore_spend_key_public
-                  : S.of(context).restore_spend_key_private,
-              maxLines: null,
-              validator: (value) =>
-                  value != null && value.isNotEmpty ? null : S.of(context).field_required,
-            ),
-          ),
-          BlockchainHeightWidget(
-            key: blockchainHeightKey,
-            onHeightChange: (_) => null,
-            onHeightOrDateEntered: widget.onHeightOrDateEntered,
-            walletType: widget.walletRestoreViewModel.type,
-          ),
-        ],
-      );
-    }
-
     // Decred can only restore a view only wallet with an account pubkey. Other
     // fields are not used.
     if (widget.walletRestoreViewModel.onlyViewKeyRestore) {
@@ -304,12 +255,13 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
     return Column(
       children: [
-        BaseTextFormField(
-          controller: addressController,
-          keyboardType: TextInputType.multiline,
-          maxLines: null,
-          hintText: S.of(context).restore_address,
-        ),
+        if (widget.walletRestoreViewModel.keysRestoreNeedsAddress)
+          BaseTextFormField(
+            controller: addressController,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            hintText: S.of(context).restore_address,
+          ),
         Container(
           padding: EdgeInsets.only(top: 20.0),
           child: BaseTextFormField(
@@ -343,7 +295,7 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             maxLines: null,
           ),
         ),
-        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+        if (widget.walletRestoreViewModel.hasKeysRestoreHeightSelector)
           BlockchainHeightWidget(
             key: blockchainHeightKey,
             hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,

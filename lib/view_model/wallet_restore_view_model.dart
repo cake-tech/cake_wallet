@@ -109,6 +109,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.zcash,
   ].contains(type);
 
+  /// Coins whose keys already give the address don't ask for it.
+  late final bool keysRestoreNeedsAddress = ![WalletType.minotari].contains(type);
+
+  /// Minotari seeds carry their birthday, so only its keys restore asks for a height.
+  late final bool hasKeysRestoreHeightSelector =
+      hasBlockchainHeightSelector || [WalletType.minotari].contains(type);
+
   late final bool onlyViewKeyRestore =
       [if (FeatureFlag.hasBitcoinViewOnly) WalletType.bitcoin, WalletType.decred].contains(type);
 
