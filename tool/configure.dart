@@ -1924,6 +1924,8 @@ abstract class Minotari {
 
   Map<String, String> getKeys(Object wallet);
   int? getRestoreHeight(Object wallet);
+
+  Future<void> checkpointDatabase();
 }
 
   """;

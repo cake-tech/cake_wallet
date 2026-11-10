@@ -7,6 +7,7 @@ import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
+import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -38,7 +39,15 @@ class _FakeEncryptionFileUtils extends EncryptionFileUtils {
 
 void main() {
   group('minotariSyncStatusFor', () {
-    SyncStatus? statusFor(ScanEventDto event) => minotariSyncStatusFor(event, startHeight: 100);
+    SyncStatus? statusFor(ScanEventDto event, {bool caughtUp = false}) =>
+        minotariSyncStatusFor(event, startHeight: 100, caughtUp: caughtUp);
+
+    ScanEventDto progress(int current, int tip) => ScanEventDto.progress(
+          accountId: 1,
+          currentHeight: BigInt.from(current),
+          tipHeight: BigInt.from(tip),
+          blocksScanned: BigInt.one,
+        );
 
     test('progress reports the percentage towards the tip', () {
       final status = statusFor(ScanEventDto.progress(
@@ -50,6 +59,15 @@ void main() {
 
       expect(status, isA<SyncingSyncStatus>());
       expect(status!.progress(), 0.5);
+    });
+
+    test('before catching up, progress near the tip is still syncing', () {
+      expect(statusFor(progress(199, 200)), isA<SyncingSyncStatus>());
+    });
+
+    test('once caught up, it stays synced within 2 blocks of the tip', () {
+      expect(statusFor(progress(198, 200), caughtUp: true), isA<SyncedSyncStatus>());
+      expect(statusFor(progress(197, 200), caughtUp: true), isA<SyncingSyncStatus>());
     });
 
     test('only a caught-up or completed scan is synced', () {
@@ -141,6 +159,43 @@ void main() {
       expect(File(keysPath).readAsStringSync(), 'old');
       expect(File('$keysPath.backup').readAsStringSync(), 'old');
       expect(files(), ['wallet.keys', 'wallet.keys.backup']);
+    });
+  });
+
+  group('copyMinotariKeysFiles', () {
+    late Directory dir;
+    late String fromPath;
+    late String toPath;
+
+    setUp(() {
+      dir = Directory.systemTemp.createTempSync('minotari_rename');
+      fromPath = '${dir.path}/old/old';
+      toPath = '${dir.path}/new/new';
+      Directory('${dir.path}/old').createSync();
+      File('$fromPath.keys').writeAsStringSync('old keys');
+      File('$fromPath.keys.backup').writeAsStringSync('old backup');
+    });
+
+    tearDown(() => dir.deleteSync(recursive: true));
+
+    test('copies both files and returns the copies', () async {
+      final copies = await copyMinotariKeysFiles(fromPath: fromPath, toPath: toPath);
+
+      expect(copies.map((f) => f.path), ['$toPath.keys', '$toPath.keys.backup']);
+      expect(File('$toPath.keys').readAsStringSync(), 'old keys');
+      expect(File('$fromPath.keys').existsSync(), isTrue);
+    });
+
+    test('never overwrites files already under the new name', () async {
+      Directory('${dir.path}/new').createSync();
+      File('$toPath.keys.backup').writeAsStringSync('leftover');
+
+      await expectLater(
+        copyMinotariKeysFiles(fromPath: fromPath, toPath: toPath),
+        throwsA(isA<WalletExistsException>()),
+      );
+      expect(File('$toPath.keys.backup').readAsStringSync(), 'leftover');
+      expect(File('$toPath.keys').existsSync(), isFalse);
     });
   });
 }

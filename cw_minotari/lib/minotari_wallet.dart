@@ -107,13 +107,25 @@ List<SendRecipient> minotariRecipients(List<OutputInfo> outputs) {
   }).toList();
 }
 
+/// Blocks a caught-up scan may trail the tip by and still count as synced.
+const _syncedTipGap = 2;
+
 /// The sync status a scan event moves the wallet to, or null when it leaves it unchanged.
 ///
-/// Only a caught-up scan is synced; a scan that was stopped or replaced leaves the wallet
-/// not connected rather than synced or failed.
-SyncStatus? minotariSyncStatusFor(ScanEventDto event, {required int startHeight}) =>
+/// A scan is first synced when it has caught up (Waiting or Completed); after that
+/// ([caughtUp]) it stays synced while it trails the tip by at most [_syncedTipGap] blocks.
+/// A scan that was stopped or replaced leaves the wallet not connected rather than synced
+/// or failed.
+SyncStatus? minotariSyncStatusFor(
+  ScanEventDto event, {
+  required int startHeight,
+  required bool caughtUp,
+}) =>
     switch (event) {
       ScanEventDto_Started() => SyncronizingSyncStatus(),
+      ScanEventDto_Progress(:final currentHeight, :final tipHeight)
+          when caughtUp && tipHeight - currentHeight <= BigInt.from(_syncedTipGap) =>
+        SyncedSyncStatus(),
       ScanEventDto_Progress(:final currentHeight, :final tipHeight) =>
         SyncingSyncStatus.fromHeightValues(tipHeight.toInt(), startHeight, currentHeight.toInt()),
       ScanEventDto_Waiting() || ScanEventDto_Completed() => SyncedSyncStatus(),
@@ -165,11 +177,18 @@ abstract class MinotariWalletBase
 
   /// The scan this wallet started last; events of earlier scans are ignored.
   ScanHandle? _scanHandle;
+  ScanPriority _scanPriority = ScanPriority.foreground;
   int _scanStartHeight = 0;
+  bool _scanCaughtUp = false;
+
+  /// Set while the app wants this wallet scanning, so a foreground scan another engine
+  /// replaced (Android background sync) is started again.
+  bool _keepScanning = false;
 
   /// The latest quote per priority: a send screen asking again for the same amount within
   /// [_feeQuoteLifetime] costs no node call, and nothing is quoted unless one asks.
-  final Map<TransactionPriority, ({int amount, int fee, DateTime quotedAt})> _feeQuotes = {};
+  final Map<TransactionPriority, ({int amount, bool sendAll, int fee, DateTime quotedAt})>
+      _feeQuotes = {};
   static const _feeQuoteLifetime = Duration(minutes: 1);
 
   String _password;
@@ -274,6 +293,11 @@ abstract class MinotariWalletBase
   @override
   Future<void> startSync() => _scan();
 
+  /// Background priority: it never replaces the app's own scan (cw refuses it, which ends
+  /// as [FailedSyncStatus]), and a foreground scan replaces it.
+  @override
+  Future<void> startBackgroundSync() => _scan(priority: ScanPriority.background);
+
   @override
   Future<void> rescan({required int height}) {
     // The rescan rolls the history back; reload all of it once the scan has caught up.
@@ -284,13 +308,21 @@ abstract class MinotariWalletBase
   /// Starts a continuous scan, replacing this wallet's previous one. Errors (including
   /// transport errors) end as [FailedSyncStatus]; the connection check reconnects and
   /// starts the scan again.
-  Future<void> _scan({int? fromHeight}) async {
+  Future<void> _scan({
+    int? fromHeight,
+    ScanPriority priority = ScanPriority.foreground,
+  }) async {
     try {
       syncStatus = AttemptingSyncStatus();
       final ffi = _requireFfi;
       final handle = ffi.createScanHandle();
       _scanHandle = handle;
-      ffi.scan(handle: handle, baseNodeUrl: _nodeUrl, fromHeight: fromHeight).listen(
+      _scanPriority = priority;
+      _scanCaughtUp = false;
+      _keepScanning = true;
+      ffi
+          .scan(handle: handle, baseNodeUrl: _nodeUrl, priority: priority, fromHeight: fromHeight)
+          .listen(
         (event) {
           if (_scanHandle == handle) _onScanEvent(event);
         },
@@ -311,6 +343,7 @@ abstract class MinotariWalletBase
       case ScanEventDto_Started(:final fromHeight):
         _scanStartHeight = fromHeight.toInt();
       case ScanEventDto_Waiting() || ScanEventDto_Completed():
+        _scanCaughtUp = true;
         unawaited(updateBalance());
         if (_reloadTransactionsWhenSynced) {
           _reloadTransactionsWhenSynced = false;
@@ -325,18 +358,30 @@ abstract class MinotariWalletBase
       case ScanEventDto_ReorgDetected():
         unawaited(updateTransactions());
         unawaited(updateBalance());
+      case ScanEventDto_Superseded() when _keepScanning && _scanPriority == ScanPriority.foreground:
+        // Another engine's scan (Android background sync) replaced the app's; take it back.
+        unawaited(_scan());
+        return;
       case ScanEventDto_Error(:final field0):
         printV('Minotari scan error: $field0');
       default:
         break;
     }
 
-    final status = minotariSyncStatusFor(event, startHeight: _scanStartHeight);
-    if (status != null) syncStatus = status;
+    final status = minotariSyncStatusFor(
+      event,
+      startHeight: _scanStartHeight,
+      caughtUp: _scanCaughtUp,
+    );
+    // Re-reporting synced would make every listener (the send screen's fee) run again.
+    if (status != null && !(status is SyncedSyncStatus && syncStatus is SyncedSyncStatus)) {
+      syncStatus = status;
+    }
   }
 
   @override
   Future<void> stopSync() async {
+    _keepScanning = false;
     final handle = _scanHandle;
     if (handle != null) await _ffi?.stopScan(handle);
   }
@@ -423,18 +468,19 @@ abstract class MinotariWalletBase
   @override
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     final quote = _feeQuotes[priority];
-    return quote != null && quote.amount == (amount ?? 0) ? quote.fee : 0;
+    return quote != null && !quote.sendAll && quote.amount == (amount ?? 0) ? quote.fee : 0;
   }
 
-  /// Asks the node for the fee of one output of [amount]; an amount covering the whole
-  /// balance is quoted as a send-all.
+  /// Asks the node for the fee of one output of [amount], or quotes a send-all.
   @override
-  Future<int> estimatedFeeFor(TransactionPriority priority, int? amount) async {
+  Future<int> estimatedFeeFor(TransactionPriority priority, int? amount,
+      {bool sendAll = false}) async {
     final ffi = _ffi;
     final quote = _feeQuotes[priority];
-    final requested = amount ?? 0;
+    final requested = sendAll ? 0 : amount ?? 0;
     if (ffi == null || _currentNode == null) return 0;
     if (quote != null &&
+        quote.sendAll == sendAll &&
         quote.amount == requested &&
         DateTime.now().difference(quote.quotedAt) < _feeQuoteLifetime) {
       return quote.fee;
@@ -442,7 +488,7 @@ abstract class MinotariWalletBase
 
     try {
       final int fee;
-      if (requested > 0 && requested >= balance[CryptoCurrency.xtm]!.available.amount.toInt()) {
+      if (sendAll) {
         fee = (await ffi.estimateSendAllFee(recipientAddress: address)).fee.toInt();
       } else {
         fee = (await ffi.estimateFee(
@@ -454,7 +500,8 @@ abstract class MinotariWalletBase
             .estimatedFee
             .toInt();
       }
-      _feeQuotes[priority] = (amount: requested, fee: fee, quotedAt: DateTime.now());
+      _feeQuotes[priority] =
+          (amount: requested, sendAll: sendAll, fee: fee, quotedAt: DateTime.now());
       return fee;
     } catch (e) {
       printV('Minotari fee estimate failed: $e');

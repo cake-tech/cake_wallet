@@ -108,5 +108,8 @@ class CWMinotari extends Minotari {
   }
 
   @override
+  Future<void> checkpointDatabase() => MinotariWalletService.checkpointDatabase();
+
+  @override
   int? getRestoreHeight(Object wallet) => (wallet as MinotariWallet).walletInfo.restoreHeight;
 }

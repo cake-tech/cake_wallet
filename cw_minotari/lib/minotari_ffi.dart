@@ -111,6 +111,12 @@ class MinotariFfi {
     await wallet.renameWallet(currentWalletName: walletName, newWalletName: newWalletName);
   }
 
+  /// Folds the write-ahead log into the database file so a copy of it is consistent.
+  Future<void> checkpoint() async {
+    await _useDatabase();
+    await db.checkpointDatabase();
+  }
+
   Future<bool> exists() async {
     await _useDatabase();
     return (await wallet.listWallets()).contains(walletName);
@@ -130,6 +136,7 @@ class MinotariFfi {
 
   /// Reads the mnemonic for the seed page; the caller must not keep it longer than needed.
   Future<List<String>> seedWords({required String passphrase}) async {
+    await _useDatabase();
     final handle = await wallet.getSeedWords(walletName: walletName, password: passphrase);
     return wallet.revealSeedWords(handle: handle);
   }
@@ -145,6 +152,7 @@ class MinotariFfi {
   Stream<scanner.ScanEventDto> scan({
     required scanner.ScanHandle handle,
     required String baseNodeUrl,
+    required scanner.ScanPriority priority,
     int? fromHeight,
   }) {
     final config = scanner.ScanConfiguration(
@@ -154,7 +162,7 @@ class MinotariFfi {
       continuous: true,
       pollIntervalSeconds: BigInt.from(60),
       requiredConfirmations: BigInt.from(3),
-      priority: scanner.ScanPriority.foreground,
+      priority: priority,
     );
 
     if (fromHeight == null) return scanner.startScan(handle: handle, config: config);

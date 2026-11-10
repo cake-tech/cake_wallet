@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
 import 'package:cake_wallet/core/backup_service.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_backup/backup.dart' as cake_backup;
 import 'package:cake_wallet/utils/package_info.dart';
@@ -402,6 +403,8 @@ class BackupServiceV3 extends $BackupService {
     }
 
     tmpDir.createSync();
+    // Minotari's wallet.db (the only copy of its seeds) must be consistent in the copy.
+    await minotari?.checkpointDatabase();
     zipEncoder.create(archivePath);
     outer:
     for (var entity in fileEntities) {

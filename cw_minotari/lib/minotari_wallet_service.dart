@@ -17,6 +17,27 @@ import 'package:cw_minotari/src/rust/api/wallet.dart' show WalletCreationDetails
 /// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
 final _encryptionFileUtils = encryptionFileUtilsFor(true);
 
+/// Copies a wallet's .keys and .keys.backup from [fromPath] to [toPath] and returns the
+/// copies. Never overwrites: files already at [toPath] may be the only way to unlock a
+/// leftover account's seed.
+Future<List<File>> copyMinotariKeysFiles({
+  required String fromPath,
+  required String toPath,
+}) async {
+  const suffixes = ['.keys', '.keys.backup'];
+  if (suffixes.any((suffix) => File('$toPath$suffix').existsSync())) {
+    throw WalletExistsException('Wallet files already exist at $toPath.');
+  }
+
+  await Directory(File(toPath).parent.path).create(recursive: true);
+  final copies = <File>[];
+  for (final suffix in suffixes) {
+    final keysFile = File('$fromPath$suffix');
+    if (keysFile.existsSync()) copies.add(await keysFile.copy('$toPath$suffix'));
+  }
+  return copies;
+}
+
 class MinotariWalletService extends WalletService<
     MinotariNewWalletCredentials,
     MinotariRestoreWalletFromSeedCredentials,
@@ -121,9 +142,10 @@ class MinotariWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
 
-    // Locks the wallet for every holder and stops its scans before deleting it.
-    final typeDir = await pathForWalletTypeDir(type: getType());
-    await MinotariFfi(dataPath: '$typeDir/wallet.db', walletName: wallet).delete();
+    // Locks the wallet for every holder and stops its scans before deleting it. Without an
+    // account (a create that never finished) the files and WalletInfo still go.
+    final ffi = await _ffiFor(wallet);
+    if (await ffi.exists()) await ffi.delete();
 
     final path = await pathForWalletDir(name: wallet, type: getType());
     final dir = Directory(path);
@@ -143,16 +165,20 @@ class MinotariWalletService extends WalletService<
       throw Exception('Wallet not found');
     }
 
+    final typeDir = await pathForWalletTypeDir(type: getType());
+    final newPath = '$typeDir/$newName/$newName';
+    if (await (await _ffiFor(newName)).exists()) {
+      throw WalletExistsException(
+          'The Minotari wallet database already has a wallet named "$newName".');
+    }
+
     // The .keys files are copied before the account is renamed, so the account is never under
     // a name without them; a failed rename removes the copies.
-    final currentPath = await pathForWallet(name: currentName, type: getType());
-    final newPath = await pathForWallet(name: newName, type: getType());
-    final copies = <File>[];
+    final copies = await copyMinotariKeysFiles(
+      fromPath: await pathForWallet(name: currentName, type: getType()),
+      toPath: newPath,
+    );
     try {
-      for (final suffix in ['.keys', '.keys.backup']) {
-        final keysFile = File('$currentPath$suffix');
-        if (keysFile.existsSync()) copies.add(await keysFile.copy('$newPath$suffix'));
-      }
       await (await _ffiFor(currentName)).rename(newWalletName: newName);
     } catch (_) {
       for (final copy in copies) {
@@ -217,6 +243,29 @@ class MinotariWalletService extends WalletService<
     bool? isTestnet,
   }) =>
       throw UnsupportedError('Minotari does not support hardware wallets');
+
+  /// Corrupted-wallet recovery: the mnemonic lives only in the wallet database, opened with
+  /// the passphrase from the .keys file. Wallets imported from keys have none.
+  @override
+  Future<String> getSeeds(String name, String password, WalletType type) async {
+    try {
+      final keysData =
+          await WalletKeysFile.readKeysFile(name, type, password, _encryptionFileUtils);
+      if (keysData.scanSecret != null) return '';
+      final ffi = await _ffiFor(name);
+      return (await ffi.seedWords(passphrase: keysData.passphrase ?? '')).join(' ');
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// Makes wallet.db consistent before an app backup copies it; nothing to do without one.
+  static Future<void> checkpointDatabase() async {
+    final dbPath = '${await pathForWalletTypeDir(type: WalletType.minotari)}/wallet.db';
+    if (!File(dbPath).existsSync()) return;
+    // The checkpoint doesn't depend on the wallet; any name will do.
+    await MinotariFfi(dataPath: dbPath, walletName: '').checkpoint();
+  }
 
   @override
   Future<bool> isWalletExit(String name) async {
