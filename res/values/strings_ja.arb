@@ -847,7 +847,7 @@
   "picker_section_recents": "最近",
   "picker_section_selected": "選択済み",
   "picker_section_stablecoins": "ステーブルコイン",
-  "picker_section_tokenized_stocks": "トークン化された株式 (xStocks)",
+  "picker_section_tokenized_stocks": "トークン化された株式",
   "picker_section_tokens_standard": "トークン (${standard})",
   "picker_see_all": "全て見る",
   "picker_show_less": "表示を少なくする",

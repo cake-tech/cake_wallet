@@ -846,7 +846,7 @@
   "picker_section_recents": "最近的内容",
   "picker_section_selected": "已选择",
   "picker_section_stablecoins": "稳定币",
-  "picker_section_tokenized_stocks": "代币化股票 (xStocks)",
+  "picker_section_tokenized_stocks": "代币化股票",
   "picker_section_tokens_standard": "代币（${standard}）",
   "picker_see_all": "查看全部",
   "picker_show_less": "显示较少",

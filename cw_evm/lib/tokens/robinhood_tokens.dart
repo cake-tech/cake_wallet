@@ -35,7 +35,7 @@ class RobinhoodTokens {
         contractAddress: "0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/nvdax.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -44,7 +44,7 @@ class RobinhoodTokens {
         contractAddress: "0x4a0e65a3eccec6dbe60ae065f2e7bb85fae35eea",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/spcxx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -53,7 +53,7 @@ class RobinhoodTokens {
         contractAddress: "0xaf3d76f1834a1d425780943c99ea8a608f8a93f9",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/apple.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -62,7 +62,7 @@ class RobinhoodTokens {
         contractAddress: "0x322f0929c4625ed5bad873c95208d54e1c003b2d",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/tslax.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -71,7 +71,7 @@ class RobinhoodTokens {
         contractAddress: "0x2e0847e8910a9732eb3fb1bb4b70a580adad4fe3",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/googlx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -80,7 +80,7 @@ class RobinhoodTokens {
         contractAddress: "0x117cc2133c37b721f49de2a7a74833232b3b4c0c",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/spyx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -89,7 +89,7 @@ class RobinhoodTokens {
         contractAddress: "0xe93237c50d904957cf27e7b1133b510c669c2e74",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/msftx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -98,7 +98,7 @@ class RobinhoodTokens {
         contractAddress: "0xc0d6457c16cc70d6790dd43521c899c87ce02f35",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/metax.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -107,7 +107,7 @@ class RobinhoodTokens {
         contractAddress: "0x12f190a9f9d7d37a250758b26824b97ce941bf54",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amznx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -116,7 +116,7 @@ class RobinhoodTokens {
         contractAddress: "0x1b0e319c6a659f002271b69db8a7df2f911c153e",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/gmex.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -125,7 +125,7 @@ class RobinhoodTokens {
         contractAddress: "0x86923f96303d656e4aa86d9d42d1e57ad2023fdc",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amd.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -134,7 +134,7 @@ class RobinhoodTokens {
         contractAddress: "0xff080c8ce2e5feadaca0da81314ae59d232d4afd",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mu.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -143,7 +143,7 @@ class RobinhoodTokens {
         contractAddress: "0x894e1ec2d74ffe5aef8dc8a9e84686accb964f2a",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/pltrx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -152,7 +152,7 @@ class RobinhoodTokens {
         contractAddress: "0xc9a981fee1f9dec688bb123ccdecc63d0debfc4e",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/gldx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -161,7 +161,7 @@ class RobinhoodTokens {
         contractAddress: "0x1d11f0496982706c5e14a514d4e79f2e6bde4516",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/djt.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -170,7 +170,7 @@ class RobinhoodTokens {
         contractAddress: "0xc72b96e0e48ecd4dc75e1e45396e26300bc39681",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/intcx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -179,7 +179,7 @@ class RobinhoodTokens {
         contractAddress: "0x6330d8c3178a418788df01a47479c0ce7ccf450b",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/coinx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -188,7 +188,7 @@ class RobinhoodTokens {
         contractAddress: "0xb90a19ff0af67f7779aff50a882a9cff42446400",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/sndkx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -197,7 +197,7 @@ class RobinhoodTokens {
         contractAddress: "0xd5f3879160bc7c32ebb4dc785f8a4f505888de68",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/qqqx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -206,7 +206,7 @@ class RobinhoodTokens {
         contractAddress: "0xb0992820e760d836549ba69bc7598b4af75dee03",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/orclx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -215,7 +215,7 @@ class RobinhoodTokens {
         contractAddress: "0xd917b029c761d264c6a312bbbcda868658ef86a6",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/usarx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -224,7 +224,7 @@ class RobinhoodTokens {
         contractAddress: "0x822cc93ffd030293e9842c30bbd678f530701867",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/bex.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -233,7 +233,7 @@ class RobinhoodTokens {
         contractAddress: "0x5f10a1c971b69e47e059e1dc91901b59b3fb49c3",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/crwvx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -242,7 +242,7 @@ class RobinhoodTokens {
         contractAddress: "0x05b37fb53a299a1b874a619e1c4c404d52c36f4c",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/rddtx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -251,7 +251,7 @@ class RobinhoodTokens {
         contractAddress: "0x4ea005168d7f09a7a0ba9d1def21a479950e44c2",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/cost.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -260,7 +260,7 @@ class RobinhoodTokens {
         contractAddress: "0xec262a75e413fafd0df80480274532c79d42da09",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mstrx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -269,7 +269,7 @@ class RobinhoodTokens {
         contractAddress: "0xe0444ef8bf4ed74f74fd73686e2ddf4c1c5591e8",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/nflxx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -278,7 +278,7 @@ class RobinhoodTokens {
         contractAddress: "0xa30fa36db767ad9ed3f7a60fc79526fb4d56d344",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/usox.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -287,7 +287,7 @@ class RobinhoodTokens {
         contractAddress: "0x5e81213613b6b86eab4c6c50d718d34359459786",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/ttwo.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -296,7 +296,7 @@ class RobinhoodTokens {
         contractAddress: "0x05a3d1cd21d0c88145e82600e62e7e496e0f222b",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amcx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -305,7 +305,7 @@ class RobinhoodTokens {
         contractAddress: "0xdf0992e440dd0be65bd8439b609d6d4366bf1cb5",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/crclx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -314,7 +314,7 @@ class RobinhoodTokens {
         contractAddress: "0x58ffe4a942d3885baa22d7520691f611ef09e7aa",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/tsm.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -323,7 +323,7 @@ class RobinhoodTokens {
         contractAddress: "0x8005d266423c7ea827372c9c864491e5786600ea",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/llyx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -332,7 +332,7 @@ class RobinhoodTokens {
         contractAddress: "0x941ae714ec6d8130c7b75d67160ca08f1e7d11dd",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/dell.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -341,7 +341,7 @@ class RobinhoodTokens {
         contractAddress: "0x4e62068525ab11fe768e29dfd00ef909b9803016",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/lulu.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -350,7 +350,7 @@ class RobinhoodTokens {
         contractAddress: "0xad25ac6c84d497db898fa1e8387bf6af3532a1c4",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/baba.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -359,7 +359,7 @@ class RobinhoodTokens {
         contractAddress: "0x62fd0668e10d8b72339be2dcf7643001688ff13b",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mrvlx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -368,7 +368,7 @@ class RobinhoodTokens {
         contractAddress: "0xf9b46d3d1b22199d4d1025a9cedb540a33f1a2d5",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/xomx.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -377,7 +377,7 @@ class RobinhoodTokens {
         contractAddress: "0x47f93d52cbec7c6d2cfc080e154002370a60daea",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/asml.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -386,7 +386,7 @@ class RobinhoodTokens {
         contractAddress: "0x156e175dd063a8ce274c50654ef40e0032b3fbcf",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/avgox.webp",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -395,7 +395,7 @@ class RobinhoodTokens {
         contractAddress: "0xb1bf26c1d20ff267a4f93550d1e0d06ac40a114b",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/rivn.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -404,7 +404,7 @@ class RobinhoodTokens {
         contractAddress: "0x0f17206447090e464c277571124dd2688e48aea9",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/qcom.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -413,7 +413,7 @@ class RobinhoodTokens {
         contractAddress: "0x25c288e6d899b9bc30160965ad9644c67e73be0c",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/f.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -422,7 +422,7 @@ class RobinhoodTokens {
         contractAddress: "0xf53f66751b1eff985311b693531e3290f600c410",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/shop.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -431,7 +431,7 @@ class RobinhoodTokens {
         contractAddress: "0xf23250dac154d05bb671cb0d0ebef3c635c79ce2",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/ups.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -440,7 +440,7 @@ class RobinhoodTokens {
         contractAddress: "0x27c99fbde9d0d2aa4f4bfb4943f237843ddf6958",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/ddog.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -449,7 +449,7 @@ class RobinhoodTokens {
         contractAddress: "0x408c14038a04f7bd235329e26d2bf569ee20e250",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/nu.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -458,7 +458,7 @@ class RobinhoodTokens {
         contractAddress: "0x98e75885157c80992a8d41b696d8c9c6fb30a926",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/sofi.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -467,7 +467,7 @@ class RobinhoodTokens {
         contractAddress: "0x82da4646242e1d962e96e932269dc644c94a9caa",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/wday.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -476,7 +476,7 @@ class RobinhoodTokens {
         contractAddress: "0x56d23bee5f41a7120170b0c603dae30128e460e9",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/intu.png",
+        iconPath: "assets/images/stocks/robinhood_stock_token.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
     ];

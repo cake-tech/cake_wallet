@@ -846,7 +846,7 @@
   "picker_section_recents": "Son Kullanılanlar",
   "picker_section_selected": "Seçildi",
   "picker_section_stablecoins": "Stablecoin'ler",
-  "picker_section_tokenized_stocks": "Tokenleştirilmiş Hisse Senetleri (xStocks)",
+  "picker_section_tokenized_stocks": "Tokenleştirilmiş Hisse Senetleri",
   "picker_section_tokens_standard": "Jetonlar (${standard})",
   "picker_see_all": "Tümünü gör",
   "picker_show_less": "Daha az göster",

@@ -848,7 +848,7 @@
   "picker_section_recents": "Terbaru",
   "picker_section_selected": "Terpilih",
   "picker_section_stablecoins": "Stablecoin",
-  "picker_section_tokenized_stocks": "Saham yang Diberi Token (xStocks)",
+  "picker_section_tokenized_stocks": "Saham yang Diberi Token",
   "picker_section_tokens_standard": "Token (${standard})",
   "picker_see_all": "Lihat semuanya",
   "picker_show_less": "Tampilkan lebih sedikit",

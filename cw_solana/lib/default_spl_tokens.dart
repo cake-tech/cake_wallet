@@ -185,7 +185,7 @@ class DefaultSPLTokens {
       decimal: 8,
       mint: "amdx",
       enabled: false,
-      iconPath: "assets/images/stocks/amd.png",
+      iconPath: "assets/images/stocks/amdx.webp",
       groups: const {CurrencyGroups.tokenizedStock},
     ),
     SPLToken(

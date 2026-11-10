@@ -75,7 +75,7 @@ class BSCTokens {
         contractAddress: "0x205812cdbed920aff76c6580abd681a46d11efc7",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/qqqx.webp",
+        iconPath: "assets/images/stocks/qqqb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -84,7 +84,7 @@ class BSCTokens {
         contractAddress: "0xbe9d156892e55e7154bcd3cb0fea677f9d3103e1",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/spcxx.webp",
+        iconPath: "assets/images/stocks/spcxb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -93,7 +93,7 @@ class BSCTokens {
         contractAddress: "0x02fca66c1d1afb4e2a7884261eb00f63598a7436",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/nvdax.webp",
+        iconPath: "assets/images/stocks/nvdab.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -111,7 +111,7 @@ class BSCTokens {
         contractAddress: "0x7138b48df7d98d7e3cc221bfe7192d0a178182d8",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/spyx.webp",
+        iconPath: "assets/images/stocks/spyb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -120,7 +120,7 @@ class BSCTokens {
         contractAddress: "0x5b1910eaad6450e50f816082aa078c41f10c292f",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/tslax.webp",
+        iconPath: "assets/images/stocks/tslab.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -129,7 +129,7 @@ class BSCTokens {
         contractAddress: "0x431a3bee82e2ca41e49895cbece5bb0f76a89b7a",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/apple.webp",
+        iconPath: "assets/images/stocks/aaplb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -138,7 +138,7 @@ class BSCTokens {
         contractAddress: "0x46ceefda28dd7207059ed19b0acdc026955bb15c",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/gmex.webp",
+        iconPath: "assets/images/stocks/gmeb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -147,7 +147,7 @@ class BSCTokens {
         contractAddress: "0x3f53de71c126bdabae20f9cd64848d317f6c3238",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/googlx.webp",
+        iconPath: "assets/images/stocks/googlb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -156,7 +156,7 @@ class BSCTokens {
         contractAddress: "0xca750ef65f295bbecd685abf54e82caf297bdb61",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/skhyx.webp",
+        iconPath: "assets/images/stocks/skhyb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -165,7 +165,7 @@ class BSCTokens {
         contractAddress: "0x4ef9d3062c7f6eba4aae4990c5036598c6eff4ec",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/baba.png",
+        iconPath: "assets/images/stocks/babab.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -174,7 +174,7 @@ class BSCTokens {
         contractAddress: "0xcdf2f3e0fa43c47a6662a91c9e4a7c5f69762699",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mu.png",
+        iconPath: "assets/images/stocks/mub.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -183,7 +183,7 @@ class BSCTokens {
         contractAddress: "0x75fd4cf6f8392e41e70391d60c90c0d5211603a1",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amd.png",
+        iconPath: "assets/images/stocks/amdb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -192,7 +192,7 @@ class BSCTokens {
         contractAddress: "0xf2ec508422174ee564de98187db9359d318afb6b",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/djt.webp",
+        iconPath: "assets/images/stocks/djtb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -201,7 +201,7 @@ class BSCTokens {
         contractAddress: "0x80106cb3ead06659a5ad19df39d9b4733863b9b0",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/msftx.webp",
+        iconPath: "assets/images/stocks/msftb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -210,7 +210,7 @@ class BSCTokens {
         contractAddress: "0xa394dcea3fd3847fd793afbfd163e2e3858b7c65",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/hoodx.webp",
+        iconPath: "assets/images/stocks/hoodb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -219,7 +219,7 @@ class BSCTokens {
         contractAddress: "0xe87afb3076aeb0f9b14e368de8145ae6a2826a14",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mstrx.webp",
+        iconPath: "assets/images/stocks/mstrb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -228,7 +228,7 @@ class BSCTokens {
         contractAddress: "0x5fd86da9b05abe396fe9d02a4a213a7c00556503",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mrnax.webp",
+        iconPath: "assets/images/stocks/mrnab.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -237,7 +237,7 @@ class BSCTokens {
         contractAddress: "0xd6829ea836b6fa224d099d40e54b31262f874631",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/nflxx.webp",
+        iconPath: "assets/images/stocks/nflxb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -246,7 +246,7 @@ class BSCTokens {
         contractAddress: "0xbe82f76637dba2c114c41df856c2c51e522e2cb8",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/ishares.webp",
+        iconPath: "assets/images/stocks/ewyb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -255,7 +255,7 @@ class BSCTokens {
         contractAddress: "0x4af1d41cd9dd950dca43984b43aaa2a8702714ac",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/flncx.webp",
+        iconPath: "assets/images/stocks/flncb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -264,7 +264,7 @@ class BSCTokens {
         contractAddress: "0x7425889fe94f9d693e8daefe88bcced6acfef4c0",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/metax.webp",
+        iconPath: "assets/images/stocks/metab.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -273,7 +273,7 @@ class BSCTokens {
         contractAddress: "0x80f3d493ebce97e343c53d29a137942416b4ffc0",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/crclx.webp",
+        iconPath: "assets/images/stocks/crclb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -282,7 +282,7 @@ class BSCTokens {
         contractAddress: "0xab78b89b5bb00236be0b4b20704cbfa04efc711c",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/tsm.png",
+        iconPath: "assets/images/stocks/tsmb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -291,7 +291,7 @@ class BSCTokens {
         contractAddress: "0x3ee4df61bd4f867e349beae8bfe07bc31b4850fb",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/sndkx.webp",
+        iconPath: "assets/images/stocks/sndkb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -300,7 +300,7 @@ class BSCTokens {
         contractAddress: "0xee6f4bcc88c2c8583d5a65c7d0c877b464100711",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/himsx.webp",
+        iconPath: "assets/images/stocks/himsb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -309,7 +309,7 @@ class BSCTokens {
         contractAddress: "0x1a4b499833a79a09ad7cf1d42d7dacf71e92eb00",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amznx.webp",
+        iconPath: "assets/images/stocks/amznb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -318,7 +318,7 @@ class BSCTokens {
         contractAddress: "0xe614e2fc6c787035ff51f452e8e826bfd32d5283",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/intcx.webp",
+        iconPath: "assets/images/stocks/intcb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -327,7 +327,7 @@ class BSCTokens {
         contractAddress: "0x96e7d606e229448ef817a7f35fd7394c3e15d00c",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amcx.webp",
+        iconPath: "assets/images/stocks/amcb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -336,7 +336,7 @@ class BSCTokens {
         contractAddress: "0x95b0409679b55c31772daa2fb4bee7b125b77521",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/pddx.webp",
+        iconPath: "assets/images/stocks/pddb.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
     ];

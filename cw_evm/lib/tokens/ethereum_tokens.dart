@@ -97,7 +97,7 @@ class EthereumTokens {
         contractAddress: "0x2d1f7226bd1f780af6b9a49dcc0ae00e8df4bdee",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/nvdax.webp",
+        iconPath: "assets/images/stocks/nvdaon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -106,7 +106,7 @@ class EthereumTokens {
         contractAddress: "0xf6b1117ec07684d3958cad8beb1b302bfd21103f",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/tslax.webp",
+        iconPath: "assets/images/stocks/tslaon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -115,7 +115,7 @@ class EthereumTokens {
         contractAddress: "0xc9eef266834730340a55b6cc24621b31baf55581",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/spcxx.webp",
+        iconPath: "assets/images/stocks/spcxon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -124,7 +124,7 @@ class EthereumTokens {
         contractAddress: "0x14c3abf95cb9c93a8b82c1cdcb76d72cb87b2d4c",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/apple.webp",
+        iconPath: "assets/images/stocks/aaplon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -133,7 +133,7 @@ class EthereumTokens {
         contractAddress: "0xf3e4872e6a4cf365888d93b6146a2baa7348f1a4",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/ishares_blackrock.webp",
+        iconPath: "assets/images/stocks/slvon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -142,7 +142,7 @@ class EthereumTokens {
         contractAddress: "0xfedc5f4a6c38211c1338aa411018dfaf26612c08",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/spyx.webp",
+        iconPath: "assets/images/stocks/spyon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -151,7 +151,7 @@ class EthereumTokens {
         contractAddress: "0xba47214edd2bb43099611b208f75e4b42fdcfedc",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/googlx.webp",
+        iconPath: "assets/images/stocks/googlon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -160,7 +160,7 @@ class EthereumTokens {
         contractAddress: "0x0e397938c1aa0680954093495b70a9f5e2249aba",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/qqqx.webp",
+        iconPath: "assets/images/stocks/qqqon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -169,7 +169,7 @@ class EthereumTokens {
         contractAddress: "0xbb8774fb97436d23d74c1b882e8e9a69322cfd31",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amznx.webp",
+        iconPath: "assets/images/stocks/amznon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -178,7 +178,7 @@ class EthereumTokens {
         contractAddress: "0x3632dea96a953c11dac2f00b4a05a32cd1063fae",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/crclx.webp",
+        iconPath: "assets/images/stocks/crclon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -187,7 +187,7 @@ class EthereumTokens {
         contractAddress: "0xb812837b81a3a6b81d7cd74cfb19a7f2784555e5",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/msftx.webp",
+        iconPath: "assets/images/stocks/msfton.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -196,7 +196,7 @@ class EthereumTokens {
         contractAddress: "0x0c1f3412a44ff99e40bf14e06e5ea321ae7b3938",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/amd.png",
+        iconPath: "assets/images/stocks/amdon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -205,7 +205,7 @@ class EthereumTokens {
         contractAddress: "0xcabd955322dfbf94c084929ac5e9eca3feb5556f",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mstrx.webp",
+        iconPath: "assets/images/stocks/mstron.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -214,7 +214,7 @@ class EthereumTokens {
         contractAddress: "0xfda09936dbd717368de0835ba441d9e62069d36f",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/intcx.webp",
+        iconPath: "assets/images/stocks/intcon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -223,7 +223,7 @@ class EthereumTokens {
         contractAddress: "0xf042cfa86cf1d598a75bdb55c3507a1f39f9493b",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/coinx.webp",
+        iconPath: "assets/images/stocks/coinon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -232,7 +232,7 @@ class EthereumTokens {
         contractAddress: "0x59644165402b611b350645555b50afb581c71eb2",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/metax.webp",
+        iconPath: "assets/images/stocks/metaon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -241,7 +241,7 @@ class EthereumTokens {
         contractAddress: "0x050362ab1072cb2ce74d74770e22a3203ad04ee5",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mu.png",
+        iconPath: "assets/images/stocks/muon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -250,7 +250,7 @@ class EthereumTokens {
         contractAddress: "0x41765f0fcddc276309195166c7a62ae522fa09ef",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/baba.png",
+        iconPath: "assets/images/stocks/babaon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -259,7 +259,7 @@ class EthereumTokens {
         contractAddress: "0x032dec3372f25c41ea8054b4987a7c4832cdb338",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/nflxx.webp",
+        iconPath: "assets/images/stocks/nflxon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -268,7 +268,7 @@ class EthereumTokens {
         contractAddress: "0x423a63dfe8d82cd9c6568c92210aa537d8ef6885",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/copxx.webp",
+        iconPath: "assets/images/stocks/copxon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -277,7 +277,7 @@ class EthereumTokens {
         contractAddress: "0x1f5fc5c3c8b0f15c7e21af623936ff2b210b6415",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/usox.webp",
+        iconPath: "assets/images/stocks/usoon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -286,7 +286,7 @@ class EthereumTokens {
         contractAddress: "0x8de5d49725550f7b318b2fa0f1b1f118e98e8d0f",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/sgovx.webp",
+        iconPath: "assets/images/stocks/sgovon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -295,7 +295,7 @@ class EthereumTokens {
         contractAddress: "0x33483a58079b4225b10e57958ca28ad7b9cdbaf7",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/bmnrx.webp",
+        iconPath: "assets/images/stocks/bmnron.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -304,7 +304,7 @@ class EthereumTokens {
         contractAddress: "0x998f02a9e343ef6e3e6f28700d5a20f839fd74e6",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/hoodx.webp",
+        iconPath: "assets/images/stocks/hoodon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -313,7 +313,7 @@ class EthereumTokens {
         contractAddress: "0x0c666485b02f7a87d21add7aeb9f5e64975aa490",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/pltrx.webp",
+        iconPath: "assets/images/stocks/pltron.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -322,7 +322,7 @@ class EthereumTokens {
         contractAddress: "0x74a03d741226f738098c35da8188e57aca50d146",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/kox.webp",
+        iconPath: "assets/images/stocks/koon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -331,7 +331,7 @@ class EthereumTokens {
         contractAddress: "0xf404e5f887dbd5508e16a1198fcdd5de1a4296b8",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/mrvlx.webp",
+        iconPath: "assets/images/stocks/mrvlon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -340,7 +340,7 @@ class EthereumTokens {
         contractAddress: "0xac37c20c1d0e5285035e056101a64e263ff94a41",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/vx.webp",
+        iconPath: "assets/images/stocks/von.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -349,7 +349,7 @@ class EthereumTokens {
         contractAddress: "0x3cafdbfe682aec17d5ace2f97a2f3ab3dcf6a4a9",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/tsm.png",
+        iconPath: "assets/images/stocks/tsmon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -358,7 +358,7 @@ class EthereumTokens {
         contractAddress: "0xe51ba774ebf6392c45bf1d9e6b334d07992460d3",
         decimal: 18,
         enabled: false,
-        iconPath: "assets/images/stocks/asml.png",
+        iconPath: "assets/images/stocks/asmlon.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
     ];

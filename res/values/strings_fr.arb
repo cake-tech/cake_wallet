@@ -846,7 +846,7 @@
   "picker_section_recents": "Récents",
   "picker_section_selected": "Choisi",
   "picker_section_stablecoins": "Pièces stables",
-  "picker_section_tokenized_stocks": "Actions tokenisées (xStocks)",
+  "picker_section_tokenized_stocks": "Actions tokenisées",
   "picker_section_tokens_standard": "Jetons (${standard})",
   "picker_see_all": "Voir tout",
   "picker_show_less": "Afficher moins",

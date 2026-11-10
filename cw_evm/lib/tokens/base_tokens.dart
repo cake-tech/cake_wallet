@@ -61,7 +61,7 @@ class BaseTokens {
         contractAddress: "0xb20000000000000000000078ee7ce2fe4908108c",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/nvdax.webp",
+        iconPath: "assets/images/stocks/nvdac.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -70,7 +70,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000c2e324d24d7eecd1fb",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/apple.webp",
+        iconPath: "assets/images/stocks/aaplc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -79,7 +79,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000002d0ba3164cc74f58b7",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/googlx.webp",
+        iconPath: "assets/images/stocks/googlc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -88,7 +88,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000007b9fcbd005511acbd5",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/spcxx.webp",
+        iconPath: "assets/images/stocks/spcxc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -97,7 +97,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000008bc8786b856e61707c",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/metax.webp",
+        iconPath: "assets/images/stocks/metac.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -106,7 +106,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000001e800a7f5189430cd0",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/tslax.webp",
+        iconPath: "assets/images/stocks/tslac.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -115,7 +115,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000d9192b6b456483c2e8",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/amznx.webp",
+        iconPath: "assets/images/stocks/amznc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -124,7 +124,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000004884b426556b92883d",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/mstrx.webp",
+        iconPath: "assets/images/stocks/mstrc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -133,7 +133,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000ab99cfa739e253872b",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/msftx.webp",
+        iconPath: "assets/images/stocks/msftc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -142,7 +142,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000397293cb8cda9a10c5",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/sndkx.webp",
+        iconPath: "assets/images/stocks/sndkc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -151,7 +151,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000fd2f87532b90095211",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/mu.png",
+        iconPath: "assets/images/stocks/muc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -160,7 +160,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000005ac674f707e357409c",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/nok.webp",
+        iconPath: "assets/images/stocks/nokc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -169,7 +169,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000007d16372840df4dabbe",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/pltrx.webp",
+        iconPath: "assets/images/stocks/pltrc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -178,7 +178,7 @@ class BaseTokens {
         contractAddress: "0xb20000000000000000000066242d4067724cb7a1",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/rddtx.webp",
+        iconPath: "assets/images/stocks/rddtc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -187,7 +187,7 @@ class BaseTokens {
         contractAddress: "0xb20000000000000000000058b8c947e44011dfe6",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/nflxx.webp",
+        iconPath: "assets/images/stocks/nflxc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -196,7 +196,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000007790ed6e48e06ed935",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/gmex.webp",
+        iconPath: "assets/images/stocks/gmec.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -205,7 +205,7 @@ class BaseTokens {
         contractAddress: "0xb20000000000000000000043a599976181bcf336",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/himsx.webp",
+        iconPath: "assets/images/stocks/himsc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -214,7 +214,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000450ad3abe5d4846c6e",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/pyplx.webp",
+        iconPath: "assets/images/stocks/pyplc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -223,7 +223,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000f1a0f91e34892e4718",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/llyx.webp",
+        iconPath: "assets/images/stocks/llyc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -232,7 +232,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000a613d12deafbbb1db7",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/duolx.webp",
+        iconPath: "assets/images/stocks/duolc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -241,7 +241,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000428e3a3eebbb20692b",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/djt.webp",
+        iconPath: "assets/images/stocks/djtc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -250,7 +250,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000002601c5c94f435da168",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/htzx.webp",
+        iconPath: "assets/images/stocks/htzc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -259,7 +259,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000000d8ce462e99ee7a47b",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/amd.png",
+        iconPath: "assets/images/stocks/amdc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -268,7 +268,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000a26326a922ffa87f6c",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/sonyx.webp",
+        iconPath: "assets/images/stocks/sonyc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -277,7 +277,7 @@ class BaseTokens {
         contractAddress: "0xb2000000000000000000005bd7ae89b9e6189bb5",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/rblxx.webp",
+        iconPath: "assets/images/stocks/rblxc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -286,7 +286,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000ca425ab42e07c35bc3",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/qubtx.webp",
+        iconPath: "assets/images/stocks/qubtc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -295,7 +295,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000f720c26062bc3067da",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/ttwo.png",
+        iconPath: "assets/images/stocks/ttwoc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -304,7 +304,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000fc737aea6196ab5a4c",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/avgox.webp",
+        iconPath: "assets/images/stocks/avgoc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -313,7 +313,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000b1a29cf17a1819288a",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/astsx.webp",
+        iconPath: "assets/images/stocks/astsc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
       Erc20Token(
@@ -322,7 +322,7 @@ class BaseTokens {
         contractAddress: "0xb200000000000000000000ec3c4c7395cc609813",
         decimal: 8,
         enabled: false,
-        iconPath: "assets/images/stocks/mrvlx.webp",
+        iconPath: "assets/images/stocks/mrvlc.webp",
         groups: const {CurrencyGroups.tokenizedStock},
       ),
     ];
