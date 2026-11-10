@@ -14,7 +14,8 @@ class ZcashWalletAddresses = ZcashWalletAddressesBase with _$ZcashWalletAddresse
 
 abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
   ZcashWalletAddressesBase(this.accountId, final WalletInfo walletInfo) : super(walletInfo) {
-    addressPageType = ZcashReceivePageOption.typeFromString(walletInfo.addressPageType ?? "");
+    // Not through the setter: that also runs init(), which the wallet's init() runs right after
+    _addressPageType = ZcashReceivePageOption.typeFromString(walletInfo.addressPageType ?? "");
   }
 
   int accountId;
@@ -168,7 +169,7 @@ abstract class ZcashWalletAddressesBase extends WalletAddresses with Store {
 
     final addr = await ZcashWalletBase.runWithCoin(
       accountId: accountId,
-      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7),
+      func: (final coin) => zkool_account.getAddresses(c: coin, uaPools: 7, account: accountId),
     );
 
     transparentAddress = addr.taddr ?? 'unknown addr.taddr';

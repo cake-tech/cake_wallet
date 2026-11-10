@@ -219,6 +219,7 @@ Future<PendingTransactionDescription> createTransactionSync(
     fee: rFee,
     hash: rHash,
     hex: rHex,
+    txCount: pendingTx.txCount(),
     pointerAddress: pendingTx.ffiAddress(),
   );
 }
@@ -263,6 +264,7 @@ Future<PendingTransactionDescription> createTransactionMultDest(
     hash: tx.txid(''),
     hex: tx.hex(''),
     pointerAddress: tx.ffiAddress(),
+    txCount: tx.txCount(),
   );
 }
 

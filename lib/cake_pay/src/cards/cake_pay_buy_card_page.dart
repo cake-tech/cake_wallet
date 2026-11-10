@@ -102,7 +102,6 @@ class CakePayBuyCardPage extends BasePage {
             style: TextStyle(
               fontSize: 18.0,
               fontWeight: FontWeight.bold,
-              fontFamily: 'Lato',
               color: titleColor(context),
             ),
           ),

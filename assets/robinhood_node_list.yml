@@ -1,0 +1,23 @@
+-
+  uri: robinhood-rpc.publicnode.com
+  isDefault: true
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "PublicNode"
+-
+  uri: robinhood.nownodes.io
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "NOWNodes"
+-
+  uri: rpc.mainnet.chain.robinhood.com
+  useSSL: true
+  isEnabledForAutoSwitching: true
+  label: "Robinhood"
+-
+  uri: robinhood-mainnet.g.alchemy.com
+  path: /v2
+  useSSL: true
+  isDefault: false
+  isEnabledForAutoSwitching: true
+  label: "Alchemy"
