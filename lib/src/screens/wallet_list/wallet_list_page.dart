@@ -65,7 +65,7 @@ class WalletListPage extends BasePage {
         return WalletListBody(
           walletListViewModel: walletListViewModel,
           authService: authService,
-          onWalletLoaded: onWalletLoaded ?? (context) => Navigator.of(context).pop(),
+          onWalletLoaded: onWalletLoaded,
         );
       });
 
@@ -122,12 +122,12 @@ class WalletListBody extends StatefulWidget {
   WalletListBody({
     required this.walletListViewModel,
     required this.authService,
-    required this.onWalletLoaded,
+    this.onWalletLoaded,
   });
 
   final WalletListViewModel walletListViewModel;
   final AuthService authService;
-  final Function(BuildContext) onWalletLoaded;
+  final Function(BuildContext)? onWalletLoaded;
 
   @override
   WalletListBodyState createState() => WalletListBodyState();
@@ -482,14 +482,20 @@ class WalletListBodyState extends State<WalletListBody> {
       return;
     }
 
+    var isAuthCallbackCalled = false;
+
     await widget.authService.authenticateAction(
       context,
       onAuthSuccess: (isAuthenticatedSuccessfully) async {
+        isAuthCallbackCalled = true;
+
         if (!isAuthenticatedSuccessfully) {
           printV("!isAuthenticatedSuccessfully");
           _loadingWallet = false;
           return;
         }
+
+        _loadingWallet = true;
 
         try {
           final requireHardwareWalletConnection =
@@ -534,9 +540,10 @@ class WalletListBodyState extends State<WalletListBody> {
             if (!this.mounted) return;
             if (!context.mounted) return;
             if (requireHardwareWalletConnection) {
+              unawaited(_progressBar?.dismiss());
               Navigator.of(context).pop();
             }
-            await widget.onWalletLoaded.call(context);
+            await widget.onWalletLoaded?.call(context);
           }
         } catch (e) {
           await ExceptionHandler.resetLastPopupDate();
@@ -552,7 +559,10 @@ class WalletListBodyState extends State<WalletListBody> {
       conditionToDetermineIfToUse2FA:
           widget.walletListViewModel.shouldRequireTOTP2FAForAccessingWallet,
     );
-    _loadingWallet = false;
+
+    if (!isAuthCallbackCalled) {
+      _loadingWallet = false;
+    }
   }
 
   void changeProcessText(String text) {
