@@ -195,9 +195,11 @@ abstract class TronWalletBase
         walletName: walletInfo.name,
       );
 
-      if (existingToken != null && _isStoredAs(existingToken, newToken)) continue;
-
-      changedTokens.add(newToken);
+      if (existingToken != null && _isStoredAs(existingToken, newToken)) {
+        newToken.id = existingToken.id;
+      } else {
+        changedTokens.add(newToken);
+      }
       _upsertCachedToken(newToken);
     }
 
