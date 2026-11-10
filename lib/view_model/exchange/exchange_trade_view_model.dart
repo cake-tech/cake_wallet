@@ -391,10 +391,11 @@ abstract class ExchangeTradeViewModelBase with Store {
         return DecredURI(amount: amount, address: inputAddress);
       case WalletType.zcash:
         return ZcashURI(amount: amount, address: inputAddress);
+      case WalletType.minotari:
+        return MinotariURI(amount: amount, address: inputAddress);
       case WalletType.banano:
       case WalletType.none:
       case WalletType.haven:
-      case WalletType.minotari:
         return null;
     }
   }
