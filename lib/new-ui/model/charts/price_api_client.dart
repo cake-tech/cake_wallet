@@ -9,7 +9,7 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 
 const priceApiHost = "prices.cakewallet.com";
-const priceApiHostOnion = "46wisoe2uwipcj2j4og6smiq7hbmj34fkkrquwlzbbsqtgat7bf3erid.onion";
+const priceApiHostOnion = "cakeprcgc6mywkgmft2qd7qkkzddsfdmvcia7geilte7qhd2vazgi6id.onion";
 
 class LatestPriceRequest {
   LatestPriceRequest({required this.from, required this.to});
@@ -54,13 +54,13 @@ class PriceRequest {
 
 class PriceApiClient {
   static Future<Map<String, dynamic>?> _getJson(Uri uri) async {
-    final resp =
-        await ProxyWrapper().get(headers: {"x-api-key": secrets.fiatApiKey}, clearnetUri: uri);
-    if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
-      printV("server returned code: ${resp.statusCode}\nuri: ${uri}\nresp body: ${resp.body}");
-      return null;
-    }
     try {
+      final resp =
+          await ProxyWrapper().get(headers: {"x-api-key": secrets.fiatApiKey}, clearnetUri: uri);
+      if (!(resp.statusCode >= 200 && resp.statusCode < 300)) {
+        printV("server returned code: ${resp.statusCode}\nuri: ${uri}\nresp body: ${resp.body}");
+        return null;
+      }
       return jsonDecode(resp.body) as Map<String, dynamic>?;
     } catch (e) {
       printV("failed to decode response for ${uri.host}/${uri.path}: $e");
