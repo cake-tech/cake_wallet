@@ -8,7 +8,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 PREPARE="$ROOT/scripts/prepare_minotari.sh"
-LIB=rust_lib_flutter_rust_wallet
+LIB=minotari_wallet_ffi
 TAG="$(sed -n 's/^CW_TARI_WALLET_TAG="\(.*\)"$/\1/p' "$PREPARE")"
 T="$(mktemp -d)"
 trap 'rm -rf "$T"' EXIT

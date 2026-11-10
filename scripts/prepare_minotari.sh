@@ -13,7 +13,7 @@ CW_TARI_WALLET_TAG="v0.2.0"
 CW_TARI_WALLET_SHA="7d8d1c4d57f55c1c3a0a9cc67aed354e0c411214"
 CW_TARI_WALLET_SUMS_SHA256="PENDING-v0.2.0-release-SHA256SUMS-digest"
 
-LIB=rust_lib_flutter_rust_wallet
+LIB=minotari_wallet_ffi
 REPO="https://github.com/tari-project/cw_tari_wallet"
 URL="$REPO/releases/download/$CW_TARI_WALLET_TAG"
 

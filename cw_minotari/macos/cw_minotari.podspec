@@ -15,5 +15,5 @@ Pod::Spec.new do |s|
   s.platform         = :osx, '13.0'
 
   # Built by scripts/prepare_minotari.sh macos
-  s.vendored_frameworks = 'Frameworks/rust_lib_flutter_rust_wallet.framework'
+  s.vendored_frameworks = 'Frameworks/minotari_wallet_ffi.framework'
 end
