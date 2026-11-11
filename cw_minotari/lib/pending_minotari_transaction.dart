@@ -48,5 +48,8 @@ class MinotariTransactionCredentials {
   final List<OutputInfo> outputs;
   final TransactionPriority? priority;
 
-  MinotariTransactionCredentials(this.outputs, {this.priority});
+  /// The abandoned send this one pays again, so that only one of them can be mined.
+  final String? conflictsWithTransactionId;
+
+  MinotariTransactionCredentials(this.outputs, {this.priority, this.conflictsWithTransactionId});
 }

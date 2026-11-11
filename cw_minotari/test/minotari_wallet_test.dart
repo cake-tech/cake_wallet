@@ -11,10 +11,13 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
+import 'package:cw_minotari/minotari_send_notes.dart';
 import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
+import 'package:cw_minotari/src/rust/api/send_transaction.dart';
+import 'package:cw_minotari/src/rust/api/transactions.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 OutputInfo _output({String address = 'addr', int amount = 0, bool sendAll = false, String? note}) =>
@@ -231,6 +234,15 @@ void main() {
       expect(File('$fromPath.keys').existsSync(), isTrue);
     });
 
+    test('copies the send notes too', () async {
+      File('$fromPath$minotariSendNotesSuffix').writeAsStringSync('notes');
+
+      final copies = await copyMinotariKeysFiles(fromPath: fromPath, toPath: toPath);
+
+      expect(copies.map((f) => f.path), contains('$toPath$minotariSendNotesSuffix'));
+      expect(File('$toPath$minotariSendNotesSuffix').readAsStringSync(), 'notes');
+    });
+
     test('never overwrites files already under the new name', () async {
       Directory('${dir.path}/new').createSync();
       File('$toPath.keys.backup').writeAsStringSync('leftover');
@@ -432,6 +444,186 @@ void main() {
         estimateSendAll: (_) => fail('not a send-all'),
       );
       expect(quote.feePerGram, BigInt.from(7));
+    });
+  });
+  group('minotariBroadcastResult', () {
+    SendTransactionEvent event(TransactionStage stage, {SendResultDto? result}) =>
+        SendTransactionEvent(stage: stage, details: stage.name, result: result);
+
+    final result = SendResultDto(
+      transaction: DisplayedTransactionDto(
+        id: '42',
+        direction: DisplayedTransactionDirection.outgoing,
+        source: DisplayedTransactionSource.oneSided,
+        status: DisplayedTransactionStatus.pending,
+        amount: BigInt.from(1000),
+        amountDisplay: '0.001 XTM',
+        blockchain: BlockchainInfoDto(
+          blockHeight: BigInt.zero,
+          timestamp: '',
+          confirmations: BigInt.zero,
+        ),
+        payrefs: const [],
+      ),
+      acceptedByNode: false,
+      nodeReason: 'mempool full',
+    );
+
+    test('is the final Broadcasted event\'s result, accepted or not', () async {
+      expect(
+        await minotariBroadcastResult(Stream.fromIterable([
+          event(TransactionStage.initializing),
+          event(TransactionStage.broadcasting),
+          event(TransactionStage.broadcasted, result: result),
+        ])),
+        result,
+      );
+    });
+
+    test('a stream without a broadcast is a failure', () async {
+      await expectLater(
+        minotariBroadcastResult(Stream.fromIterable([
+          event(TransactionStage.initializing),
+          event(TransactionStage.broadcasting),
+        ])),
+        throwsA(isA<Exception>()),
+      );
+    });
+  });
+
+  group('MinotariSendNotes', () {
+    late Directory dir;
+    late String path;
+
+    setUp(() {
+      dir = Directory.systemTemp.createTempSync('minotari_notes');
+      path = '${dir.path}/wallet$minotariSendNotesSuffix';
+    });
+
+    tearDown(() => dir.deleteSync(recursive: true));
+
+    test('a missing or unreadable file is no notes', () async {
+      expect((await MinotariSendNotes.load(path)).abandoned, isEmpty);
+      File(path).writeAsStringSync('not json');
+      final notes = await MinotariSendNotes.load(path);
+      expect([notes.notAccepted, notes.abandoned, notes.alerted], everyElement(isEmpty));
+    });
+
+    test('notes survive a reload', () async {
+      final notes = await MinotariSendNotes.load(path);
+      await notes.update((notes) {
+        notes.notAccepted['1'] = 'mempool full';
+        notes.abandoned.add('2');
+        notes.alerted.add('3');
+      });
+
+      final reloaded = await MinotariSendNotes.load(path);
+      expect(reloaded.notAccepted, {'1': 'mempool full'});
+      expect(reloaded.abandoned, {'2'});
+      expect(reloaded.alerted, {'3'});
+      expect(File('$path.tmp').existsSync(), isFalse);
+    });
+
+    test('an update keeps what another engine wrote meanwhile', () async {
+      final foreground = await MinotariSendNotes.load(path);
+      final background = await MinotariSendNotes.load(path);
+      await background.update((notes) => notes.abandoned.add('2'));
+
+      await foreground.update((notes) => notes.alerted.add('3'));
+
+      final reloaded = await MinotariSendNotes.load(path);
+      expect(reloaded.abandoned, {'2'});
+      expect(reloaded.alerted, {'3'});
+    });
+
+    test('a failed write still changes the notes in memory', () async {
+      final notes = await MinotariSendNotes.load('${dir.path}/missing/wallet.sends.json');
+      await notes.update((notes) => notes.abandoned.add('2'));
+      expect(notes.abandoned, {'2'});
+    });
+  });
+
+  group('addMinotariSendNotes', () {
+    Map<String, dynamic> notesFor(
+      String id,
+      DisplayedTransactionStatus status, {
+      Set<String> minedAfterAbandon = const {},
+    }) {
+      final notes = MinotariSendNotes('unused')
+        ..notAccepted['1'] = 'mempool full'
+        ..notAccepted['4'] = ''
+        ..abandoned.add('2');
+      final info = <String, dynamic>{};
+      addMinotariSendNotes(
+        info,
+        id: id,
+        status: status,
+        notes: notes,
+        minedAfterAbandon: minedAfterAbandon,
+      );
+      return info;
+    }
+
+    test('a send the node did not accept says so while it is pending', () {
+      expect(notesFor('1', DisplayedTransactionStatus.pending),
+          {'notAcceptedByNode': 'mempool full'});
+      expect(notesFor('4', DisplayedTransactionStatus.pending), {'notAcceptedByNode': ''});
+    });
+
+    test('once cw sees it on chain (or gives it up) the warning no longer applies', () {
+      for (final status in [
+        DisplayedTransactionStatus.unconfirmed,
+        DisplayedTransactionStatus.confirmed,
+        DisplayedTransactionStatus.rejected,
+      ]) {
+        expect(notesFor('1', status), isEmpty, reason: '$status');
+      }
+    });
+
+    test('marks abandoned sends and those mined after all', () {
+      expect(notesFor('2', DisplayedTransactionStatus.rejected), {'abandoned': true});
+      expect(
+        notesFor('2', DisplayedTransactionStatus.confirmed, minedAfterAbandon: {'2'}),
+        {'abandoned': true, 'minedAfterAbandon': true},
+      );
+      expect(notesFor('3', DisplayedTransactionStatus.confirmed), isEmpty);
+    });
+  });
+
+  test('minotariMinedAfterAbandon keeps only the sends mined after all', () {
+    AbandonWarningDto warning(String id, AbandonWarningKind kind) =>
+        AbandonWarningDto(transactionId: id, kind: kind, eventId: 1);
+
+    expect(
+      minotariMinedAfterAbandon([
+        warning('1', AbandonWarningKind.acceptedAfterAbandon),
+        warning('2', AbandonWarningKind.minedAfterAbandon),
+      ]),
+      ['2'],
+    );
+  });
+
+  group('MinotariFfi.sendDetails', () {
+    final ffi = MinotariFfi(dataPath: 'unused', walletName: 'wallet');
+    final recipients = [SendRecipient(address: 'addr', amount: BigInt.from(5))];
+
+    test('pays an abandoned send again when given its id', () {
+      final details = ffi.sendDetails(
+        recipients: recipients,
+        sendAll: false,
+        baseNodeUrl: 'https://node',
+        conflictsWithTransactionId: '42',
+      );
+      expect(details.conflictsWithTransactionId, '42');
+      expect(details.walletName, 'wallet');
+      expect(details.recipients, recipients);
+    });
+
+    test('a plain send conflicts with nothing', () {
+      final details =
+          ffi.sendDetails(recipients: recipients, sendAll: true, baseNodeUrl: 'https://node');
+      expect(details.conflictsWithTransactionId, isNull);
+      expect(details.sendAll, isTrue);
     });
   });
 }

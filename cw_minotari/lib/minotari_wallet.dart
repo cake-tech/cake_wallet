@@ -21,6 +21,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_minotari/minotari_balance.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
+import 'package:cw_minotari/minotari_send_notes.dart';
 import 'package:cw_minotari/minotari_transaction_history.dart';
 import 'package:cw_minotari/minotari_transaction_info.dart';
 import 'package:cw_minotari/minotari_transaction_priority.dart';
@@ -190,6 +191,21 @@ List<SendRecipient> minotariRecipients(List<OutputInfo> outputs) {
   }).toList();
 }
 
+/// The result the send [events] stream's final Broadcasted event carries. Throws when the
+/// stream ends without a broadcast.
+Future<SendResultDto?> minotariBroadcastResult(Stream<SendTransactionEvent> events) async {
+  var broadcasted = false;
+  SendResultDto? result;
+  await for (final event in events) {
+    if (event.stage == TransactionStage.broadcasted) {
+      broadcasted = true;
+      result = event.result ?? result;
+    }
+  }
+  if (!broadcasted) throw Exception('Transaction stream ended before the broadcast.');
+  return result;
+}
+
 /// Whether cw refused a background scan because the app is scanning the wallet itself.
 /// Matches cw's error text, which is part of its frozen API.
 bool minotariForegroundScanActive(Object error) =>
@@ -284,6 +300,14 @@ abstract class MinotariWalletBase
 
   bool get isScanning => _keepScanning;
 
+  late MinotariSendNotes _sendNotes;
+
+  /// This wallet's abandoned sends that were mined after all, from cw's warnings and scans.
+  final Set<String> _minedAfterAbandon = {};
+
+  /// Those of them the user has not been warned about yet.
+  final ObservableSet<String> abandonAlerts = ObservableSet();
+
   /// The latest quote per priority: a send screen asking again for the same amount within
   /// [_feeQuoteLifetime] costs no node call, and nothing is quoted unless one asks.
   final Map<TransactionPriority, ({int amount, bool sendAll, int fee, DateTime quotedAt})>
@@ -357,6 +381,8 @@ abstract class MinotariWalletBase
       throw WalletOpenException('Minotari supports mainnet only, not ${walletInfo.network}.');
     }
 
+    final walletPath = await pathForWallet(name: walletInfo.name, type: walletInfo.type);
+    _sendNotes = await MinotariSendNotes.load('$walletPath$minotariSendNotesSuffix');
     final dbPath = p.join(await pathForWalletTypeDir(type: walletInfo.type), 'wallet.db');
     final ffi = MinotariFfi(dataPath: dbPath, walletName: walletInfo.name);
     await ffi.unlock(passphrase: _dbPassphrase);
@@ -369,6 +395,11 @@ abstract class MinotariWalletBase
     _ffi = ffi;
     _isUnlocked = true;
 
+    try {
+      _addMinedAfterAbandon(minotariMinedAfterAbandon(await ffi.abandonWarnings()));
+    } catch (e) {
+      printV('Minotari abandon warnings not read: $e');
+    }
     await updateBalance();
     await updateTransactions();
   }
@@ -463,9 +494,11 @@ abstract class MinotariWalletBase
           unawaited(updateTransactions());
         }
       case ScanEventDto_TransactionsReady(:final field0):
+        _addMinedAfterAbandon(field0.abandonedThenMinedIds ?? const []);
         _processNewTransactions(field0.transactions);
         unawaited(updateBalance());
       case ScanEventDto_TransactionsUpdated(:final field0):
+        _addMinedAfterAbandon(field0.abandonedThenMinedIds ?? const []);
         _processNewTransactions(field0.updatedTransactions);
         unawaited(updateBalance());
       case ScanEventDto_ReorgDetected():
@@ -531,17 +564,21 @@ abstract class MinotariWalletBase
     );
 
     Future<void> send() async {
-      var broadcasted = false;
-      await for (final event in ffi.sendTransaction(
+      final result = await minotariBroadcastResult(ffi.sendTransaction(
         recipients: recipients,
         sendAll: sendAll,
         // Checked again at broadcast: Tor may have been turned on since the quote.
         baseNodeUrl: _nodeUrl,
         feePerGram: feePerGram,
-      )) {
-        if (event.stage == TransactionStage.broadcasted) broadcasted = true;
+        conflictsWithTransactionId: creds.conflictsWithTransactionId,
+      ));
+
+      // Still a success: cw has recorded the send and rebroadcasts it while the scan runs, so
+      // it must not be sent again. The history says the node has not accepted it yet.
+      if (result != null && !result.acceptedByNode) {
+        await _sendNotes.update(
+            (notes) => notes.notAccepted[result.transaction.id] = result.nodeReason ?? '');
       }
-      if (!broadcasted) throw Exception('Transaction stream ended before the broadcast.');
 
       // Recorded as pending; the scanner's TransactionsUpdated confirms it. Neither refresh
       // throws, so a failed refresh can't report a broadcast send as failed.
@@ -682,13 +719,33 @@ abstract class MinotariWalletBase
   /// again and the balance and history reloaded. Returns cw's note on what abandoning does
   /// not do.
   Future<String> abandonSend(String transactionId) => minotariThenRestore(
-        () => _requireFfi.abandonSend(passphrase: _dbPassphrase, transactionId: transactionId),
+        () async {
+          final note =
+              await _requireFfi.abandonSend(passphrase: _dbPassphrase, transactionId: transactionId);
+          // Only a send Cake abandoned can be paid again; cw's history doesn't tell.
+          await _sendNotes.update((notes) => notes.abandoned.add(transactionId));
+          return note;
+        },
         () async {
           if (_keepScanning) unawaited(_scan());
           await updateBalance();
           await updateTransactions();
         },
       );
+
+  /// Records abandoned sends that were mined after all; those the user wasn't warned about
+  /// before are added to [abandonAlerts].
+  void _addMinedAfterAbandon(Iterable<String> ids) {
+    _minedAfterAbandon.addAll(ids);
+    final unwarned = ids.where((id) => !_sendNotes.alerted.contains(id));
+    if (unwarned.isNotEmpty) runInAction(() => abandonAlerts.addAll(unwarned));
+  }
+
+  /// The user has been warned that abandoned send [transactionId] was mined after all.
+  Future<void> markAbandonAlerted(String transactionId) async {
+    runInAction(() => abandonAlerts.remove(transactionId));
+    await _sendNotes.update((notes) => notes.alerted.add(transactionId));
+  }
 
   /// The mnemonic, read from the wallet database for the seed page; null for wallets
   /// imported from keys (only those keep their keys in the .keys file).
@@ -798,6 +855,14 @@ abstract class MinotariWalletBase
       txInfo.additionalInfo['counterpartyAddress'] = txDto.counterparty!.address;
       txInfo.additionalInfo['counterpartyEmoji'] = txDto.counterparty!.addressEmoji;
     }
+
+    addMinotariSendNotes(
+      txInfo.additionalInfo,
+      id: txDto.id,
+      status: txDto.status,
+      notes: _sendNotes,
+      minedAfterAbandon: _minedAfterAbandon,
+    );
 
     return txInfo;
   }

@@ -15,7 +15,7 @@ import 'package:cw_minotari/src/rust/frb_generated.dart';
 import 'package:path/path.dart' as p;
 
 export 'package:cw_minotari/src/rust/api/send_transaction.dart'
-    show SendRecipient, SendTransactionEvent, TransactionStage;
+    show SendRecipient, SendResultDto, SendTransactionEvent, TransactionStage;
 
 export 'package:cw_minotari/src/rust/api/fee.dart'
     show FeeEstimate, FeePriority, SendAllFeeEstimate;
@@ -195,22 +195,40 @@ class MinotariFfi {
       transactions.getTransactions(walletName: walletName, limit: limit, offset: offset);
 
   /// Sends to [recipients], or sweeps the wallet to the single recipient when [sendAll], at
-  /// [feePerGram] µT per gram (the rate of the quote the user confirmed).
+  /// [feePerGram] µT per gram (the rate of the quote the user confirmed). The final Broadcasted
+  /// event carries the send's result.
   Stream<send_tx.SendTransactionEvent> sendTransaction({
     required List<send_tx.SendRecipient> recipients,
     required bool sendAll,
     required String baseNodeUrl,
     required BigInt feePerGram,
+    String? conflictsWithTransactionId,
   }) =>
       send_tx.sendTransactionAtFee(
-        details: send_tx.MultiSendTransactionDetails(
-          network: network,
-          baseUrl: baseNodeUrl,
-          walletName: walletName,
+        details: sendDetails(
           recipients: recipients,
           sendAll: sendAll,
+          baseNodeUrl: baseNodeUrl,
+          conflictsWithTransactionId: conflictsWithTransactionId,
         ),
         feePerGram: feePerGram,
+      );
+
+  /// What [sendTransaction] sends. With [conflictsWithTransactionId] (an abandoned send's id)
+  /// it pays again so that it and the abandoned send can never both be mined.
+  send_tx.MultiSendTransactionDetails sendDetails({
+    required List<send_tx.SendRecipient> recipients,
+    required bool sendAll,
+    required String baseNodeUrl,
+    String? conflictsWithTransactionId,
+  }) =>
+      send_tx.MultiSendTransactionDetails(
+        network: network,
+        baseUrl: baseNodeUrl,
+        walletName: walletName,
+        recipients: recipients,
+        sendAll: sendAll,
+        conflictsWithTransactionId: conflictsWithTransactionId,
       );
 
   /// Gives up a send the node keeps refusing and releases its inputs; returns cw's note on
@@ -221,6 +239,11 @@ class MinotariFfi {
         passphrase: passphrase,
         transactionId: transactionId,
       );
+
+  /// cw's warnings about sends this wallet abandoned that a node accepted or that were mined
+  /// after all.
+  Future<List<send_tx.AbandonWarningDto>> abandonWarnings() =>
+      send_tx.getAbandonWarnings(walletName: walletName);
 
   Future<fee.FeeEstimate> estimateFee({
     required BigInt amount,

@@ -12,6 +12,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
+import 'package:cw_minotari/minotari_send_notes.dart';
 import 'package:cw_minotari/src/rust/api/height.dart' show birthdayFromHeight;
 import 'package:cw_minotari/src/rust/api/wallet.dart' show WalletCreationDetails;
 import 'package:path/path.dart' as p;
@@ -19,14 +20,14 @@ import 'package:path/path.dart' as p;
 /// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
 final _encryptionFileUtils = encryptionFileUtilsFor(true);
 
-/// Copies a wallet's .keys and .keys.backup from [fromPath] to [toPath] and returns the
-/// copies. Never overwrites: files already at [toPath] may be the only way to unlock a
-/// leftover account's seed.
+/// Copies a wallet's .keys and .keys.backup, and its send notes, from [fromPath] to [toPath]
+/// and returns the copies. Never overwrites: files already at [toPath] may be the only way to
+/// unlock a leftover account's seed.
 Future<List<File>> copyMinotariKeysFiles({
   required String fromPath,
   required String toPath,
 }) async {
-  const suffixes = ['.keys', '.keys.backup'];
+  const suffixes = ['.keys', '.keys.backup', minotariSendNotesSuffix];
   if (suffixes.any((suffix) => File('$toPath$suffix').existsSync())) {
     throw WalletExistsException('Wallet files already exist at $toPath.');
   }
