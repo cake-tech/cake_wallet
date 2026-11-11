@@ -51,7 +51,7 @@ class _KeychainRestorePageState extends State<KeychainRestorePage> {
             bloc: widget.bloc,
             listener: (context, event) {
               if (event is WalletOpened) {
-                Navigator.of(context).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+                Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
               }
             },
             child: BlocConsumer<KeychainRestoreBloc, KeychainRestoreState>(
