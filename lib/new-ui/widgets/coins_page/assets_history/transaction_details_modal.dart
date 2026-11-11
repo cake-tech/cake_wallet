@@ -199,6 +199,18 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                             onTap: _abandonSend,
                                           ),
                                         ],
+                                      if (widget.transactionDetailsViewModel.canPayAgain)
+                                        "pay again": [
+                                          ListItemRegularRow(
+                                            keyValue: "pay again",
+                                            label: S.of(context).minotari_pay_again,
+                                            onTap: () => Navigator.of(context).pushNamed(
+                                              Routes.send,
+                                              arguments: widget
+                                                  .transactionDetailsViewModel.payAgainArguments,
+                                            ),
+                                          ),
+                                        ],
                                       if (widget.transactionDetailsViewModel.canReplaceByFee)
                                         "rbf": [
                                           ListItemRegularRow(

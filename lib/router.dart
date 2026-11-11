@@ -434,6 +434,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final initialPaymentRequest = args?['paymentRequest'] as PaymentRequest?;
       final initialRawInput = args?["rawLink"] as String?;
       final coinTypeToSpendFrom = args?['coinTypeToSpendFrom'] as UnspentCoinType?;
+      final minotariConflictsWithTransactionId =
+          args?['minotariConflictsWithTransactionId'] as String?;
 
       return handleRouteWithPlatformAwareness(
         (context) => Material(
@@ -441,7 +443,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
             param1: SendPageParams(
                 initialPaymentRequest: initialPaymentRequest,
                 initialRawInput: initialRawInput,
-                unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any),
+                unspentCoinType: coinTypeToSpendFrom ?? UnspentCoinType.any,
+                minotariConflictsWithTransactionId: minotariConflictsWithTransactionId),
           ),
         ),
         settings: settings,

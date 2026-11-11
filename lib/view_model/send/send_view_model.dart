@@ -160,6 +160,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   UnspentCoinType coinTypeToSpendFrom;
 
+  /// The abandoned Minotari send this send pays again (its details' Pay again), so the two can
+  /// never both be mined.
+  String? minotariConflictsWithTransactionId;
+
   bool get showAddressBookPopup => _settingsStore.showAddressBookPopupEnabled;
 
   bool get isMwebEnabled => balanceViewModel.mwebEnabled;
@@ -1409,7 +1413,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // priority: priority,
         );
       case WalletType.minotari:
-        return minotari!.createMinotariTransactionCredentials(outputs, priority: priority);
+        return minotari!.createMinotariTransactionCredentials(
+          outputs,
+          priority: priority,
+          conflictsWithTransactionId: minotariConflictsWithTransactionId,
+        );
       default:
         throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for send', wallet.type);
     }
@@ -1562,6 +1570,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     String errorMessage = error.toString();
 
     if (error is TorUnsupportedException) return S.current.minotari_tor_unsupported;
+
+    // cw's refusals to pay an abandoned send again; its error texts are part of its frozen API.
+    if (walletType == WalletType.minotari) {
+      if (errorMessage.contains("The transaction to conflict with is not an abandoned send")) {
+        return S.current.minotari_pay_again_not_abandoned;
+      }
+      if (errorMessage.contains("None of the abandoned send's inputs can be spent")) {
+        return S.current.minotari_pay_again_inputs_spent;
+      }
+      if (errorMessage.contains("The resend does not conflict with the abandoned send")) {
+        return S.current.minotari_pay_again_no_conflict;
+      }
+    }
 
     if (walletType == WalletType.solana) {
       if (errorMessage.contains('insufficient lamports')) {

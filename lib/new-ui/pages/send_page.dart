@@ -165,6 +165,7 @@ class SendPageParams {
     SendPageModes? mode,
     this.unspentCoinType = UnspentCoinType.any,
     this.initialCurrency,
+    this.minotariConflictsWithTransactionId,
   }) : mode = mode ?? SendPageModes.normal;
 
   final PaymentRequest? initialPaymentRequest;
@@ -172,6 +173,9 @@ class SendPageParams {
   final SendPageModes mode;
   final CryptoCurrency? initialCurrency;
   final UnspentCoinType unspentCoinType;
+
+  /// The abandoned Minotari send this send pays again.
+  final String? minotariConflictsWithTransactionId;
 }
 
 class NewSendPage extends StatefulWidget {
@@ -190,6 +194,7 @@ class NewSendPage extends StatefulWidget {
     if (params.initialCurrency != null) {
       sendViewModel.selectedCryptoCurrency = params.initialCurrency!;
     }
+    sendViewModel.minotariConflictsWithTransactionId = params.minotariConflictsWithTransactionId;
   }
 
   final SendViewModel sendViewModel;

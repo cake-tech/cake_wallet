@@ -20,3 +20,21 @@ String minotariTransactionStatus(TransactionInfo tx) {
 /// send, cancelled or reorganized); the history shows its status so it can't pass for sent.
 bool isMinotariFailedTransaction(TransactionInfo tx) =>
     const {'rejected', 'cancelled', 'reorganized'}.contains(tx.additionalInfo['status']);
+
+/// A Minotari send the node had not accepted when it was made, while cw still has it pending.
+/// It is recorded and rebroadcast, so it must not be sent again.
+bool isMinotariSendNotAccepted(TransactionInfo tx) =>
+    tx.additionalInfo['notAcceptedByNode'] is String;
+
+/// What the user should know about a Minotari send: that the node has not accepted it yet (and
+/// the node's reason), or that the user abandoned it and it was mined after all.
+String? minotariSendWarning(TransactionInfo tx) {
+  final reason = tx.additionalInfo['notAcceptedByNode'] as String?;
+  if (reason != null) {
+    return reason.isEmpty
+        ? S.current.minotari_not_accepted_by_node
+        : '${S.current.minotari_not_accepted_by_node}: $reason';
+  }
+  if (tx.additionalInfo['minedAfterAbandon'] == true) return S.current.minotari_mined_after_abandon;
+  return null;
+}

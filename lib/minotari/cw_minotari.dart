@@ -67,7 +67,7 @@ class CWMinotari extends Minotari {
 
   @override
   Object createMinotariTransactionCredentials(List<Output> outputs,
-          {TransactionPriority? priority}) =>
+          {TransactionPriority? priority, String? conflictsWithTransactionId}) =>
       MinotariTransactionCredentials(
         outputs
             .map((out) => OutputInfo(
@@ -81,6 +81,7 @@ class CWMinotari extends Minotari {
                 ))
             .toList(),
         priority: priority,
+        conflictsWithTransactionId: conflictsWithTransactionId,
       );
 
   @override
@@ -93,6 +94,14 @@ class CWMinotari extends Minotari {
   @override
   Future<String> abandonSend(Object wallet, String transactionId) =>
       (wallet as MinotariWallet).abandonSend(transactionId);
+
+  @override
+  List<String> getAbandonAlerts(Object wallet) =>
+      (wallet as MinotariWallet).abandonAlerts.toList();
+
+  @override
+  Future<void> markAbandonAlerted(Object wallet, String transactionId) =>
+      (wallet as MinotariWallet).markAbandonAlerted(transactionId);
 
   @override
   bool isScanning(Object wallet) => (wallet as MinotariWallet).isScanning;

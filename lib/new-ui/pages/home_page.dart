@@ -27,6 +27,7 @@ import "package:cake_wallet/new-ui/widgets/coins_page/unconfirmed_balance_widget
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/utils/payment_request.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/nft_view_model.dart";
 import "package:cw_core/unspent_coin_type.dart";
@@ -50,6 +51,7 @@ class NewHomePage extends StatefulWidget {
 class _NewHomePageState extends State<NewHomePage> with RouteAware {
   late final ReactionDisposer _walletReaction;
   late final ReactionDisposer _migrationReaction;
+  late final ReactionDisposer _minotariAbandonReaction;
 
   @override
   void initState() {
@@ -76,6 +78,42 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
         );
       }
     });
+
+    _minotariAbandonReaction = reaction(
+      (_) => widget.dashboardViewModel.minotariAbandonAlerts,
+      _showMinotariAbandonAlert,
+      fireImmediately: true,
+    );
+  }
+
+  bool _showingMinotariAbandonAlert = false;
+
+  /// Warns once per send, one at a time, that a Minotari send the user abandoned was mined
+  /// after all.
+  Future<void> _showMinotariAbandonAlert(List<String> transactionIds) async {
+    if (transactionIds.isEmpty || _showingMinotariAbandonAlert) return;
+    _showingMinotariAbandonAlert = true;
+    final wallet = widget.dashboardViewModel.wallet;
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return;
+      await showPopUp<void>(
+        context: context,
+        builder: (dialogContext) => AlertWithOneAction(
+          alertTitle: S.of(dialogContext).warning,
+          alertContent: S.of(dialogContext).minotari_abandoned_send_mined,
+          buttonText: S.of(dialogContext).ok,
+          buttonAction: () => Navigator.of(dialogContext).pop(),
+        ),
+      );
+    } finally {
+      _showingMinotariAbandonAlert = false;
+    }
+    await widget.dashboardViewModel.markMinotariAbandonAlerted(wallet, transactionIds.first);
+    // Marking it shows the next one; this catches any that came in while the alert was open.
+    if (mounted) {
+      unawaited(_showMinotariAbandonAlert(widget.dashboardViewModel.minotariAbandonAlerts));
+    }
   }
 
   @override
@@ -88,6 +126,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   void dispose() {
     _walletReaction();
     _migrationReaction();
+    _minotariAbandonReaction();
     routeObserver.unsubscribe(this);
     super.dispose();
   }

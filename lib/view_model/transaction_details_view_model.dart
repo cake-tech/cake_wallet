@@ -16,10 +16,12 @@ import "package:cake_wallet/src/screens/transaction_details/transaction_details_
 import "package:cake_wallet/src/screens/transaction_details/transaction_expandable_list_item.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/tron/tron.dart";
+import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/view_model/dashboard/minotari_transaction_status.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:collection/collection.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/transaction_direction.dart";
@@ -135,6 +137,13 @@ class TxDetailRowDefinition {
       title: "Status",
       valueGetter: (vm) => minotariTransactionStatus(vm.transactionInfo),
       applicable: (vm) => _hasMinotariInfo(vm, "status"),
+    ),
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_transaction_details_minotari_warning_key",
+      title: S.current.warning,
+      valueGetter: (vm) => minotariSendWarning(vm.transactionInfo) ?? "",
+      applicable: (vm) =>
+          vm.wallet.type == WalletType.minotari && minotariSendWarning(vm.transactionInfo) != null,
     ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_source_key",
@@ -727,4 +736,31 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   /// Returns cw's note on what abandoning does not do.
   Future<String> abandonSend() => minotari!.abandonSend(wallet, transactionInfo.id);
+
+  /// A Minotari send this wallet abandoned that is still rejected can be paid again with a send
+  /// that spends its released inputs, so the two can never both be mined.
+  bool get canPayAgain =>
+      wallet.type == WalletType.minotari &&
+      wallet.canSend() &&
+      transactionInfo.direction == TransactionDirection.outgoing &&
+      transactionInfo.additionalInfo["status"] == "rejected" &&
+      transactionInfo.additionalInfo["abandoned"] == true &&
+      transactionInfo.additionalInfo["counterpartyAddress"] != null;
+
+  /// The send page's arguments to pay the abandoned send again: its recipient and the amount
+  /// it paid them (cw's amount of a send includes its fee).
+  Map<String, dynamic> get payAgainArguments {
+    final fee = transactionInfo.fee?.amount ?? BigInt.zero;
+    final amount = Money(transactionInfo.amount.amount - fee, transactionInfo.amount.currency);
+    return {
+      "paymentRequest": PaymentRequest(
+        transactionInfo.additionalInfo["counterpartyAddress"] as String,
+        amount.toString(),
+        "",
+        "",
+        null,
+      ),
+      "minotariConflictsWithTransactionId": transactionInfo.id,
+    };
+  }
 }

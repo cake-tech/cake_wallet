@@ -1914,13 +1914,15 @@ abstract class Minotari {
   TransactionPriority getMinotariTransactionPrioritySlow();
 
   Object createMinotariTransactionCredentials(List<Output> outputs,
-      {TransactionPriority? priority});
+      {TransactionPriority? priority, String? conflictsWithTransactionId});
 
   Object createMinotariTransactionCredentialsRaw(List<OutputInfo> outputs);
 
   Future<int> getHeightByDate({required DateTime date});
   bool isScanning(Object wallet);
   Future<String> abandonSend(Object wallet, String transactionId);
+  List<String> getAbandonAlerts(Object wallet);
+  Future<void> markAbandonAlerted(Object wallet, String transactionId);
   Future<String?> getSeed(Object wallet);
   Future<String?> getSpendPrivateKey(Object wallet);
 

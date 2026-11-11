@@ -22,6 +22,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
@@ -385,6 +386,16 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isMigratingToIronwood =>
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
+
+  /// The ids of Minotari sends the user abandoned that were mined after all, which the user
+  /// hasn't been warned about yet.
+  List<String> get minotariAbandonAlerts => wallet.type == WalletType.minotari
+      ? minotari?.getAbandonAlerts(wallet) ?? const []
+      : const [];
+
+  /// [wallet]'s user has been warned that its abandoned send [transactionId] was mined.
+  Future<void> markMinotariAbandonAlerted(WalletBase wallet, String transactionId) =>
+      minotari!.markAbandonAlerted(wallet, transactionId);
 
   @computed
   bool get requiresManualShield => wallet.type == WalletType.zcash && wallet.isHardwareWallet;
@@ -1736,6 +1747,10 @@ abstract class DashboardViewModelBase with Store {
 
     if (wallet.type == WalletType.minotari && isMinotariFailedTransaction(tx)) {
       return ' (${minotariTransactionStatus(tx)})';
+    }
+
+    if (wallet.type == WalletType.minotari && isMinotariSendNotAccepted(tx)) {
+      return ' (${S.current.minotari_not_accepted_by_node})';
     }
 
     if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')
