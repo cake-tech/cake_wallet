@@ -112,6 +112,8 @@ For Cake Wallet, also fetch the prebuilt Minotari library (needs `curl`, `unzip`
 ../prepare_minotari.sh ios
 ```
 
+To build the library yourself from the same pinned commit instead, run `../prepare_minotari.sh --from-source ios` (needs Rust with `rustup`, GNU `make`, `python3` and Xcode). It reports whether each built file matches the published release; a difference is expected, because native builds are rarely identical byte for byte.
+
 Then run the configuration script to setup app name, app icon, etc:
 
 ```zsh

@@ -1,7 +1,11 @@
 #!/bin/bash
 # Downloads the pinned cw_tari_wallet release bundle, verifies it, and unpacks the
 # native libraries for the given platforms plus the FRB Dart bindings into cw_minotari.
-# Usage: scripts/prepare_minotari.sh <android|ios|macos|linux|windows>...
+# Usage: scripts/prepare_minotari.sh [--from-source] <android|ios|macos|linux|windows>...
+#
+# --from-source builds the same pinned commit locally instead of downloading it
+# (scripts/build_minotari_from_source.sh lists what that needs), then reports whether
+# each built zip matches the published release.
 
 set -euo pipefail
 
@@ -32,7 +36,12 @@ lib_dir() {
   esac
 }
 
-[ $# -gt 0 ] || die "usage: $0 <android|ios|macos|linux|windows>..."
+FROM_SOURCE=0
+if [ "${1:-}" = --from-source ]; then
+  FROM_SOURCE=1
+  shift
+fi
+[ $# -gt 0 ] || die "usage: $0 [--from-source] <android|ios|macos|linux|windows>..."
 for tool in curl unzip sha256sum git; do command -v "$tool" >/dev/null || die "$tool is required"; done
 
 [[ "$CW_TARI_WALLET_SUMS_SHA256" =~ ^[0-9a-f]{64}$ ]] || die "CW_TARI_WALLET_SUMS_SHA256 is not a sha256 digest"
@@ -46,7 +55,8 @@ for platform in "$@"; do
   esac
 done
 
-cd "$(dirname "$0")/../cw_minotari"
+SCRIPTS="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPTS/../cw_minotari"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -59,15 +69,37 @@ curl -fsSL -o "$TMP/SHA256SUMS" "$URL/SHA256SUMS"
 # --strict: without it, macOS sha256sum accepts malformed or empty input.
 (cd "$TMP" && echo "$CW_TARI_WALLET_SUMS_SHA256  SHA256SUMS" | sha256sum -c --strict -)
 
-# Everything is downloaded and verified before cw_minotari is touched.
+if [ "$FROM_SOURCE" = 1 ]; then
+  "$SCRIPTS/build_minotari_from_source.sh" "$CW_TARI_WALLET_TAG" "$CW_TARI_WALLET_SHA" "$TMP" "${assets[@]}"
+fi
+
+# Everything is fetched and checked before cw_minotari is touched.
 for asset in "${assets[@]}"; do
   zip="cw_tari_wallet-$CW_TARI_WALLET_TAG-$asset.zip"
   line="$(awk -v f="$zip" '$2 == f' "$TMP/SHA256SUMS")"
   [ -n "$line" ] || die "$zip is not listed in SHA256SUMS"
-  curl -fsSL -o "$TMP/$zip" "$URL/$zip"
-  (cd "$TMP" && echo "$line" | sha256sum -c --strict -)
+  if [ "$FROM_SOURCE" = 1 ]; then
+    # Informational only: compares the files inside the built zip with the published
+    # one. Native builds are rarely identical across machines and toolchains, so a
+    # difference is not an error.
+    mkdir -p "$TMP/published" "$TMP/published-$asset"
+    curl -fsSL -o "$TMP/published/$zip" "$URL/$zip"
+    (cd "$TMP/published" && echo "$line" | sha256sum -c --strict - >/dev/null)
+    unzip -q -o "$TMP/published/$zip" -d "$TMP/published-$asset"
+  else
+    curl -fsSL -o "$TMP/$zip" "$URL/$zip"
+    (cd "$TMP" && echo "$line" | sha256sum -c --strict -)
+  fi
   mkdir -p "$TMP/$asset"
   unzip -q -o "$TMP/$zip" -d "$TMP/$asset"
+  if [ "$FROM_SOURCE" = 1 ]; then
+    if diff -rq "$TMP/published-$asset" "$TMP/$asset" >/dev/null; then
+      echo "$zip: built from source; same files as the published release"
+    else
+      echo "$zip: built from source; differs from the published release:"
+      diff -rq "$TMP/published-$asset" "$TMP/$asset" | sed 's|'"$TMP"'/||g; s/^/  /' || true
+    fi
+  fi
 done
 
 rm "$TMP/dart/dart/pubspec.yaml"

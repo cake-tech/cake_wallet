@@ -97,3 +97,37 @@ done
 [ ! -e ios/Frameworks ] && [ ! -e linux/lib ] && [ -f windows/lib/$LIB.dll ] && [ -f android/src/main/jniLibs/arm64-v8a/lib$LIB.so ] \
   || { echo "FAIL: stale folders not removed, or current ones removed" >&2; exit 1; }
 echo "ok: stale platform folders are removed"
+
+# --from-source: a fake build script stands in for the real (slow) build.
+fake_build() { # <exit status> [<asset> whose zip should differ from the release]
+  cat > "$T/scripts/build_minotari_from_source.sh" <<FAKE
+#!/bin/bash
+set -euo pipefail
+[ "$1" = 0 ] || { echo "build failed" >&2; exit $1; }
+tag="\$1" out="\$3"
+shift 3
+for a in "\$@"; do cp "$T/good/cw_tari_wallet-\$tag-\$a.zip" "\$out/"; done
+if [ -n "${2:-}" ]; then
+  mkdir -p "$T/other/jniLibs/arm64-v8a" && echo rebuilt > "$T/other/jniLibs/arm64-v8a/lib$LIB.so"
+  rm -f "\$out/cw_tari_wallet-\$tag-${2:-}.zip" && (cd "$T/other" && zip -qr "\$out/cw_tari_wallet-\$tag-${2:-}.zip" .)
+fi
+FAKE
+  chmod +x "$T/scripts/build_minotari_from_source.sh"
+}
+
+fake_build 1
+expect_fail "failed source build" "build failed" "$GOOD" --from-source android
+
+fake_build 0
+prepare "$GOOD" --from-source android > "$T/log" 2>&1 || { cat "$T/log"; echo "FAIL: source build" >&2; exit 1; }
+grep -qF "cw_tari_wallet-$TAG-android.zip: built from source; same files as the published release" "$T/log" \
+  || { cat "$T/log"; echo "FAIL: identical build not reported" >&2; exit 1; }
+echo "ok: a source build with the release's files is reported and installed"
+
+fake_build 0 android
+prepare "$GOOD" --from-source android > "$T/log" 2>&1 || { cat "$T/log"; echo "FAIL: differing source build" >&2; exit 1; }
+grep -qF "cw_tari_wallet-$TAG-android.zip: built from source; differs from the published release" "$T/log" \
+  || { cat "$T/log"; echo "FAIL: differing build not reported" >&2; exit 1; }
+[ "$(cat android/src/main/jniLibs/arm64-v8a/lib$LIB.so)" = rebuilt ] \
+  || { echo "FAIL: the source-built library was not installed" >&2; exit 1; }
+echo "ok: a differing source build is reported and installed"
