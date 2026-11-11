@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -13,6 +14,7 @@ import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_ffi.dart';
 import 'package:cw_minotari/src/rust/api/height.dart' show birthdayFromHeight;
 import 'package:cw_minotari/src/rust/api/wallet.dart' show WalletCreationDetails;
+import 'package:path/path.dart' as p;
 
 /// Encryption utils for Minotari - always use XChaCha20 (no legacy wallet support needed)
 final _encryptionFileUtils = encryptionFileUtilsFor(true);
@@ -59,7 +61,7 @@ class MinotariWalletService extends WalletService<
   WalletType getType() => WalletType.minotari;
 
   Future<MinotariFfi> _ffiFor(String walletName) async {
-    final dbPath = '${await pathForWalletTypeDir(type: getType())}/wallet.db';
+    final dbPath = p.join(await pathForWalletTypeDir(type: getType()), 'wallet.db');
     return MinotariFfi(dataPath: dbPath, walletName: walletName);
   }
 
@@ -183,8 +185,8 @@ class MinotariWalletService extends WalletService<
     }
 
     final typeDir = await pathForWalletTypeDir(type: getType());
-    final newPath = '$typeDir/$newName/$newName';
-    if (Directory('$typeDir/$newName').existsSync()) {
+    final newPath = p.join(typeDir, newName, newName);
+    if (Directory(p.join(typeDir, newName)).existsSync()) {
       throw WalletExistsException('A Minotari wallet directory named "$newName" already exists.');
     }
     if (await (await _ffiFor(newName)).exists()) {
@@ -285,7 +287,7 @@ class MinotariWalletService extends WalletService<
   /// Makes wallet.db consistent before an app backup copies it; nothing to do without one.
   @override
   Future<void> prepareForBackup() async {
-    final dbPath = '${await pathForWalletTypeDir(type: WalletType.minotari)}/wallet.db';
+    final dbPath = p.join(await pathForWalletTypeDir(type: WalletType.minotari), 'wallet.db');
     if (!File(dbPath).existsSync()) return;
     // The checkpoint doesn't depend on the wallet; any name will do.
     await MinotariFfi(dataPath: dbPath, walletName: '').checkpoint();
@@ -295,7 +297,7 @@ class MinotariWalletService extends WalletService<
   Future<bool> isWalletExit(String name) async {
     try {
       final typeDir = await pathForWalletTypeDir(type: getType());
-      return File('$typeDir/$name/$name.keys').existsSync();
+      return File(p.join(typeDir, name, '$name.keys')).existsSync();
     } catch (_) {
       return false;
     }

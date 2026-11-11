@@ -14,6 +14,7 @@ dependencies:
   http: ^1.2.2
   collection: ^1.18.0
   ffi: ^2.1.0
+  path: any
   ffigen: ^12.0.0
   cw_core:
     path: ../cw_core

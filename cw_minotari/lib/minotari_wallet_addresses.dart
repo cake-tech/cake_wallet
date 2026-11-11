@@ -23,12 +23,16 @@ abstract class MinotariWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   Future<void> updateAddressesInBox() async {
-    // Minotari wallets have a single address derived from keys
-    // The address will be set when the wallet is initialized
+    if (address.isEmpty) return;
+    addressesMap
+      ..clear()
+      ..[address] = '';
+    await saveAddressesInBox();
   }
 
-  void setAddress(String newAddress) {
+  Future<void> setAddress(String newAddress) async {
     address = newAddress;
+    await updateAddressesInBox();
   }
 
   @override

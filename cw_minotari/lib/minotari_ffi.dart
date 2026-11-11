@@ -12,6 +12,7 @@ import 'package:cw_minotari/src/rust/api/send_transaction.dart' as send_tx;
 import 'package:cw_minotari/src/rust/api/logger.dart' as logger;
 import 'package:cw_minotari/src/rust/api/network.dart';
 import 'package:cw_minotari/src/rust/frb_generated.dart';
+import 'package:path/path.dart' as p;
 
 export 'package:cw_minotari/src/rust/api/send_transaction.dart'
     show SendRecipient, SendTransactionEvent, TransactionStage;
@@ -41,7 +42,7 @@ class MinotariFfi {
       // Rust logs go only to a rotating file (<app dir>/minotari/logs). A second engine in
       // the same process (Android background sync) gets Ok without a second logger.
       try {
-        logger.initLogger(basePath: '${(await getAppDir()).path}/minotari');
+        logger.initLogger(basePath: p.join((await getAppDir()).path, 'minotari'));
       } catch (e) {
         printV('Minotari logger not started: $e');
       }

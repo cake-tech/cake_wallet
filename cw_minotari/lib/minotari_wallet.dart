@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'dart:math';
 
 import 'package:cw_core/amount/money.dart';
@@ -30,6 +31,7 @@ import 'package:cw_minotari/src/rust/api/height.dart' show estimateHeightAtTime;
 import 'package:cw_minotari/src/rust/api/scanner.dart';
 import 'package:cw_minotari/src/rust/api/transactions.dart';
 import 'package:mobx/mobx.dart';
+import 'package:path/path.dart' as p;
 
 part 'minotari_wallet.g.dart';
 
@@ -355,11 +357,11 @@ abstract class MinotariWalletBase
       throw WalletOpenException('Minotari supports mainnet only, not ${walletInfo.network}.');
     }
 
-    final dbPath = '${await pathForWalletTypeDir(type: walletInfo.type)}/wallet.db';
+    final dbPath = p.join(await pathForWalletTypeDir(type: walletInfo.type), 'wallet.db');
     final ffi = MinotariFfi(dataPath: dbPath, walletName: walletInfo.name);
     await ffi.unlock(passphrase: _dbPassphrase);
     try {
-      walletAddresses.setAddress(await ffi.getAddress());
+      await walletAddresses.setAddress(await ffi.getAddress());
     } catch (_) {
       await ffi.lock();
       rethrow;
