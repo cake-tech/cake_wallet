@@ -273,11 +273,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
-      resolved-ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
+      ref: afc9c4d3fb803e53cbdc542ce35f99fdb1089f27
+      resolved-ref: afc9c4d3fb803e53cbdc542ce35f99fdb1089f27
       url: "https://github.com/breez/breez-sdk-spark-flutter"
     source: git
-    version: "0.23.0"
+    version: "0.27.2"
   bs58:
     dependency: "direct overridden"
     description:
@@ -1291,11 +1291,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: frb_dart
-      ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
-      resolved-ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      ref: "8631db91a90c699439c9ce2a1fb4164ae8661da9"
+      resolved-ref: "8631db91a90c699439c9ce2a1fb4164ae8661da9"
       url: "https://github.com/fzyzcjy/flutter_rust_bridge"
     source: git
-    version: "2.11.1"
+    version: "2.13.0"
   flutter_secure_storage:
     dependency: "direct main"
     description:
