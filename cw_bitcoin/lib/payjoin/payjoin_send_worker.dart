@@ -64,11 +64,12 @@ class PayjoinSenderWorker {
   ) async {
     if (_cancelled) throw PayjoinSenderCancelledException();
     final persister = _persister ?? _InMemorySenderPersister();
-    final events = persister.load();
 
-    if (events.isNotEmpty) {
-      printV('[pjSender] resuming from ${events.length} event(s)');
-      return _runFromReplay(persister, _sessionDeadline());
+    // `run` always starts a new session for [psbtBase64]. Replaying an
+    // existing log here would continue an earlier send to the same endpoint
+    // and sign its original instead of this one; resuming is [resume]'s job.
+    if (persister.load().isNotEmpty) {
+      throw const PayjoinEndpointAlreadyUsedError();
     }
 
     return _runFresh(

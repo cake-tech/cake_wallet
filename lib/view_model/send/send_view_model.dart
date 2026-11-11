@@ -61,6 +61,7 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/lnurl.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -1831,22 +1832,40 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @observable
   bool isPayjoinEnabled = true;
 
-  /// Sets [payjoinUri] from a scanned/pasted BIP21 URI, silently stripping
-  /// the `pj=` parameter when it resolves to a receiver endpoint owned by
-  /// the current wallet. A self-addressed payjoin would be rejected by
-  /// BIP78's `checkInputsNotOwned` anyway, so we downgrade to a regular
-  /// self-send up-front — the send form's label and the eventual commit
-  /// path then both treat it as a normal tx.
+  /// Set when the last scanned/pasted payment request's `pj=` endpoint was
+  /// already used by an earlier send. The request is then paid as a regular
+  /// transaction and the send form explains why.
+  @observable
+  PayjoinEndpointUse? reusedPayjoinEndpoint;
+
+  /// Sets [payjoinUri] from a scanned/pasted BIP21 URI, stripping the `pj=`
+  /// parameter when:
+  /// - it resolves to a receiver endpoint owned by the current wallet. A
+  ///   self-addressed payjoin would be rejected by BIP78's
+  ///   `checkInputsNotOwned` anyway, so we silently downgrade to a regular
+  ///   self-send.
+  /// - an earlier send already used the endpoint (see
+  ///   [reusedPayjoinEndpoint]). It is a single-use mailbox, and another
+  ///   payjoin to it would replay the earlier session.
+  /// The send form's label and the eventual commit path then both treat it
+  /// as a normal tx.
   @action
   Future<void> setPayjoinUri(String? uri) async {
     isPayjoinEnabled = true;
-    if (uri != null &&
-        uri.isNotEmpty &&
-        wallet.type == WalletType.bitcoin &&
-        await bitcoin!.isSelfSendPayjoinUri(wallet, uri)) {
-      printV('Stripping self-addressed payjoin URI: $uri');
-      payjoinUri = null;
-      return;
+    reusedPayjoinEndpoint = null;
+    if (uri != null && uri.isNotEmpty && wallet.type == WalletType.bitcoin) {
+      if (await bitcoin!.isSelfSendPayjoinUri(wallet, uri)) {
+        printV('Stripping self-addressed payjoin URI: $uri');
+        payjoinUri = null;
+        return;
+      }
+      final endpointUse = await bitcoin!.getPayjoinEndpointUse(wallet, uri);
+      if (endpointUse != null) {
+        printV('Stripping already used payjoin URI (${endpointUse.name}): $uri');
+        payjoinUri = null;
+        reusedPayjoinEndpoint = endpointUse;
+        return;
+      }
     }
     payjoinUri = uri;
   }

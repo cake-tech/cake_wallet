@@ -13,6 +13,7 @@ import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_persister.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_receive_worker.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_send_worker.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_bitcoin/psbt/utils.dart';
 import 'package:cw_core/cake_hive.dart';
@@ -354,6 +355,13 @@ class PayjoinManager {
   }) async {
     final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
     await _eventStore.ensureOpen();
+    // [initSender] already refused a used endpoint; this covers a race with
+    // another send. Return before the insert so the earlier session's row
+    // (status, txid, original) is never overwritten.
+    if (_eventStore.loadSender(pjUri).isNotEmpty) {
+      writePayjoinLog("Sender($pjUri) refused: endpoint already has a session");
+      return;
+    }
     await _payjoinStorage.insertSenderSession(
       pjUri,
       _wallet.id,
@@ -369,6 +377,10 @@ class PayjoinManager {
     );
     final minFeeRateSatPerKwu = networkFeesSatPerVb * 250;
 
+    // Never leave a second worker appending to the same event log.
+    _runningSenders.remove(pjUri)
+      ?..cancel()
+      ..dispose();
     _runningSenders[pjUri] = senderWorker;
 
     try {
@@ -407,7 +419,7 @@ class PayjoinManager {
       writePayjoinLog("[ERROR] Sender($pjUri) $e\n$s");
       await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, e.toString());
     } finally {
-      _runningSenders.remove(pjUri)?.dispose();
+      _removeSenderWorker(pjUri, senderWorker);
     }
   }
 
@@ -419,12 +431,92 @@ class PayjoinManager {
     String pjUriString,
     String originalPsbt,
   ) async {
+    final String endpoint;
     try {
       final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
-      return pjUri.pjEndpoint();
+      endpoint = pjUri.pjEndpoint();
     } catch (e) {
       throw Exception('Error initializing Payjoin Sender: $e');
     }
+    // Backstop for the send form's check: the form may be stale (another
+    // send to the same request committed in the meantime).
+    if (await senderEndpointUse(pjUriString) != null) {
+      writePayjoinLog("Sender refused: endpoint already used");
+      throw const PayjoinEndpointAlreadyUsedError();
+    }
+    return endpoint;
+  }
+
+  /// Returns how an earlier send in ANY wallet already used the `pj=`
+  /// endpoint of [pjUriString], or null when no send ever reached the
+  /// payjoin protocol with it.
+  ///
+  /// Sender sessions and their event logs are keyed by the endpoint, and an
+  /// endpoint is a single-use mailbox: a second send to it would replay the
+  /// earlier session (paying the earlier amount) or collide with it.
+  Future<PayjoinEndpointUse?> senderEndpointUse(String? pjUriString) async {
+    final endpoint = _pjParam(pjUriString);
+    if (endpoint == null) return null;
+    final key = normalizePjEndpoint(endpoint);
+
+    await _eventStore.ensureOpen();
+    final uses = <PayjoinEndpointUse>{};
+    for (final session in await _payjoinStorage.getSenderSessions()) {
+      final sessionEndpoint = session.pjUri;
+      if (sessionEndpoint == null || normalizePjEndpoint(sessionEndpoint) != key) continue;
+      final use = _senderEndpointUse(session);
+      if (use != null) uses.add(use);
+    }
+    // An open session needs the user's attention most; a cancelled one may
+    // still be broadcast by the receiver.
+    for (final use in const [
+      PayjoinEndpointUse.pending,
+      PayjoinEndpointUse.cancelled,
+      PayjoinEndpointUse.paid,
+    ]) {
+      if (uses.contains(use)) return use;
+    }
+    return null;
+  }
+
+  PayjoinEndpointUse? _senderEndpointUse(PayjoinSession session) {
+    if (session.usedFallback || session.status == PayjoinSessionStatus.success.name) {
+      return PayjoinEndpointUse.paid;
+    }
+    // No protocol events: the sender was never built, so nothing reached
+    // the receiver and the request can be paid again.
+    if (_eventStore.loadSender(session.pjUri!).isEmpty) return null;
+    if (session.status == PayjoinSessionStatus.cancelled.name) {
+      return PayjoinEndpointUse.cancelled;
+    }
+    return PayjoinEndpointUse.pending;
+  }
+
+  /// The raw `pj=` value of a BIP21 URI, as used for the sender session keys.
+  static String? _pjParam(String? bip21) {
+    if (bip21 == null || bip21.isEmpty) return null;
+    final Map<String, String> params;
+    try {
+      params = Uri.parse(bip21).queryParameters;
+    } catch (_) {
+      return null;
+    }
+    final pj = params['pj'] ?? params['PJ'];
+    return pj == null || pj.isEmpty ? null : pj;
+  }
+
+  /// Compares endpoints by directory and mailbox only. QR codes often
+  /// uppercase the whole URI (the mailbox id is case-insensitive bech32),
+  /// and the fragment carries per-request receiver parameters.
+  static String normalizePjEndpoint(String endpoint) {
+    final trimmed = endpoint.trim();
+    var normalized = (Uri.tryParse(trimmed)?.removeFragment().toString() ??
+            trimmed.split('#').first)
+        .toLowerCase();
+    while (normalized.endsWith('/')) {
+      normalized = normalized.substring(0, normalized.length - 1);
+    }
+    return normalized;
   }
 
   /// Returns true when [pjUriString]'s `pj=` endpoint resolves to a
@@ -797,8 +889,17 @@ class PayjoinManager {
       writePayjoinLog("[ERROR] Sender($endpoint) $e\n$s");
       await _payjoinStorage.markSenderSessionUnrecoverable(endpoint, e.toString());
     } finally {
-      _runningSenders.remove(endpoint)?.dispose();
+      _removeSenderWorker(endpoint, worker);
     }
+  }
+
+  /// Disposes [worker] and unregisters it, unless a newer worker has
+  /// already replaced it under [endpoint].
+  void _removeSenderWorker(String endpoint, PayjoinSenderWorker worker) {
+    if (identical(_runningSenders[endpoint], worker)) {
+      _runningSenders.remove(endpoint);
+    }
+    worker.dispose();
   }
 
   /// Parses the first [RetrievedOriginalPayload] event from the receiver

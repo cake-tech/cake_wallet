@@ -232,6 +232,13 @@ class PayjoinStorage {
   Future<PayjoinSession?> getSenderSession(String pjUrl) =>
       _getSessionByKey("$_senderPrefix$pjUrl");
 
+  /// All sender sessions across every wallet, oldest first.
+  Future<List<PayjoinSession>> getSenderSessions() async {
+    final rows =
+        await _db.query(_tableName, where: 'sender IS NOT NULL', orderBy: 'rowid ASC');
+    return rows.map(_fromRow).toList();
+  }
+
   Future<PayjoinSession?> getReceiverSession(String receiverId) =>
       _getSessionByKey("$_receiverPrefix$receiverId");
 

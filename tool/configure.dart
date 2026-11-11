@@ -112,6 +112,7 @@ import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -302,6 +303,7 @@ abstract class Bitcoin {
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
   Future<bool> isSelfSendPayjoinUri(Object wallet, String? pjUriString);
+  Future<PayjoinEndpointUse?> getPayjoinEndpointUse(Object wallet, String? pjUriString);
   void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);

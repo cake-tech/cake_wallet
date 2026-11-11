@@ -864,6 +864,13 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  Future<PayjoinEndpointUse?> getPayjoinEndpointUse(Object wallet, String? pjUriString) async {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) return null;
+    return _wallet.payjoinManager.senderEndpointUse(pjUriString);
+  }
+
+  @override
   Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false}) async {
     final _wallet = wallet as ElectrumWallet;
     final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;

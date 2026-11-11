@@ -54,3 +54,19 @@ enum PayjoinSessionStatus {
   cancelled,
   unrecoverable,
 }
+
+/// How an earlier send already used a payjoin endpoint. A BIP77 endpoint is
+/// a single-use receiver mailbox, so a payment request whose `pj=` appears
+/// here must not start another payjoin.
+enum PayjoinEndpointUse {
+  /// An earlier send is still open; finish it (or broadcast its fallback)
+  /// instead of paying again.
+  pending,
+
+  /// An earlier send completed, by payjoin or by its fallback.
+  paid,
+
+  /// An earlier send was cancelled after its original transaction reached
+  /// the receiver, who can still broadcast it.
+  cancelled,
+}

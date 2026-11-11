@@ -62,6 +62,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/lnurl.dart";
+import "package:cw_core/payjoin_session.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -560,6 +561,19 @@ class _NewSendPageState extends State<NewSendPage> {
                                                 ),
                                               ),
                                             ],
+                                          ),
+                                        ),
+                                      if (widget.sendViewModel.reusedPayjoinEndpoint != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            _reusedPayjoinEndpointMessage(
+                                              widget.sendViewModel.reusedPayjoinEndpoint!,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Theme.of(context).colorScheme.error,
+                                            ),
                                           ),
                                         ),
                                       Column(
@@ -1229,6 +1243,17 @@ class _NewSendPageState extends State<NewSendPage> {
     }
 
     _applyPaymentRequest(request.paymentRequest, amountOverride: amountOverride);
+  }
+
+  String _reusedPayjoinEndpointMessage(PayjoinEndpointUse use) {
+    switch (use) {
+      case PayjoinEndpointUse.pending:
+        return S.of(context).payjoin_endpoint_pending;
+      case PayjoinEndpointUse.paid:
+        return S.of(context).payjoin_endpoint_paid;
+      case PayjoinEndpointUse.cancelled:
+        return S.of(context).payjoin_endpoint_cancelled;
+    }
   }
 
   void _applyPaymentRequest(PaymentRequest paymentRequest, {String? amountOverride}) {

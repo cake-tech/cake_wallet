@@ -11,3 +11,12 @@ class PayjoinSessionError extends CakeException {
 class RecoverableError extends PayjoinSessionError {
   const RecoverableError(super.message);
 }
+
+/// Thrown when a send targets a `pj=` endpoint an earlier send already used.
+/// The endpoint is a single-use mailbox, so a second payjoin to it would
+/// replay or collide with the earlier session.
+class PayjoinEndpointAlreadyUsedError extends PayjoinSessionError {
+  const PayjoinEndpointAlreadyUsedError()
+      : super("This payment request was already used for a payjoin. "
+            "Scan a new one or send without payjoin.");
+}
