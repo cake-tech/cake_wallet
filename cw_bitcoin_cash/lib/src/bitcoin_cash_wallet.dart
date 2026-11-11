@@ -56,12 +56,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       initialAddresses: initialAddresses,
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
-      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
-      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
-      accountIndexes: [currentAccountIndex],
-      currentAccountIndex: currentAccountIndex,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
+      accounts: accounts,
       network: network,
       initialAddressPageType: addressPageType,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -82,8 +77,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       List<BitcoinAddressRecord>? initialAddresses,
       ElectrumBalance? initialBalance,
       Map<String, int>? initialRegularAddressIndex,
-      Map<String, int>? initialChangeAddressIndex}) async {
-    return BitcoinCashWallet(
+      Map<String, int>? initialChangeAddressIndex}) async => BitcoinCashWallet(
       mnemonic: mnemonic,
       password: password,
       walletInfo: walletInfo,
@@ -98,7 +92,6 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       addressPageType: P2pkhAddressType.p2pkh,
       passphrase: passphrase,
     );
-  }
 
   static Future<BitcoinCashWallet> open({
     required String name,
