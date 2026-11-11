@@ -395,6 +395,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @observable
   BitcoinAddressRecord? previousAddressRecord;
 
+  /// The highest receive index "new address" handed out in this session, by address type and
+  /// account, so it never hands out the same address twice.
+  final Map<String, int> _highestHandedOutReceiveIndex = {};
+
   @computed
   int get totalCountOfReceiveAddresses => addressesByReceiveType.fold(0, (acc, addressRecord) {
         if (!addressRecord.isHidden) {
@@ -568,6 +572,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     final newAddressIndex = firstFreeIndex(
       _takenStandardIndexes(isHidden: false, type: addressPageType, accountIndex: accountIndex),
     );
+
+    final freeAddress = _nextFreeReceiveAddress(accountIndex: accountIndex);
+    if (freeAddress != null) {
+      _noteHandedOut(accountIndex, freeAddress.index);
+      if (label.isNotEmpty) {
+        freeAddress.setNewName(label);
+        updateAddressesByMatch();
+      }
+      return freeAddress;
+    }
+    _noteHandedOut(accountIndex, newAddressIndex);
 
     final hd = _hdForAddressGeneration(
       isHidden: false,
@@ -1202,7 +1217,26 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required BitcoinAddressType type,
     required int accountIndex,
   }) {
-    var legacyIsSameChain = false;
+    final legacyIsSameChain =
+        _legacyIsSameChain(isHidden: isHidden, type: type, accountIndex: accountIndex);
+
+    return {
+      for (final record in _addresses)
+        if (record.isHidden == isHidden &&
+            record.type == type &&
+            (walletInfo.type != WalletType.bitcoin || record.accountIndex == accountIndex) &&
+            (!record.isLegacyDerivation || legacyIsSameChain))
+          record.index,
+    };
+  }
+
+  /// Whether the legacy derivation of this chain has the same keys as the standard one, which
+  /// makes its records the same addresses.
+  bool _legacyIsSameChain({
+    required bool isHidden,
+    required BitcoinAddressType type,
+    required int accountIndex,
+  }) {
     try {
       final standard = _hdForAddressGeneration(
         isHidden: isHidden,
@@ -1216,18 +1250,66 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         isLegacyDerivation: true,
         accountIndex: accountIndex,
       );
-      legacyIsSameChain = standard.publicKey.toHex() == legacy.publicKey.toHex() &&
+      return standard.publicKey.toHex() == legacy.publicKey.toHex() &&
           standard.chainCode.toHex() == legacy.chainCode.toHex();
-    } on UnsupportedAddressTypeForAccountException catch (_) {}
+    } on UnsupportedAddressTypeForAccountException catch (_) {
+      return false;
+    }
+  }
 
-    return {
-      for (final record in _addresses)
-        if (record.isHidden == isHidden &&
-            record.type == type &&
-            (walletInfo.type != WalletType.bitcoin || record.accountIndex == accountIndex) &&
-            (!record.isLegacyDerivation || legacyIsSameChain))
-          record.index,
-    };
+  /// The next free receive address to hand out as a new one, or null when none is left and a new
+  /// index has to be derived.
+  ///
+  /// Sync keeps 20 or more unused addresses derived past the last used one. Deriving after all of
+  /// them put a new address beyond the gap a restore scans (BIP44: 20 unused addresses after the
+  /// last used one), so funds sent to it were missed when the seed was restored. Handing those
+  /// addresses out first, in order, keeps a new address right after the last used one. It goes on
+  /// from the address on screen and from the highest one handed out before, so no address is shown
+  /// twice. Labelled, hidden and legacy-derivation addresses are never handed out. MWEB addresses
+  /// aren't discovered by the gap, so they keep deriving.
+  BitcoinAddressRecord? _nextFreeReceiveAddress({required int accountIndex}) {
+    final type = addressPageType;
+    if (type == SegwitAddresType.mweb) {
+      return null;
+    }
+
+    final legacyIsSameChain =
+        _legacyIsSameChain(isHidden: false, type: type, accountIndex: accountIndex);
+    final chain = _addresses
+        .where(
+          (record) =>
+              !record.isHidden &&
+              record.type == type &&
+              (walletInfo.type != WalletType.bitcoin || record.accountIndex == accountIndex) &&
+              (!record.isLegacyDerivation || legacyIsSameChain),
+        )
+        .toList();
+
+    // What the address getter shows: standard derivation, unused, not hidden by the user.
+    bool isShowable(BitcoinAddressRecord record) =>
+        !record.isLegacyDerivation && !record.isUsed && !hiddenAddresses.contains(record.address);
+
+    // The address on screen: the one last set, or, when that one belongs to another address type
+    // or account, the one the address getter falls back to.
+    final previous = previousAddressRecord;
+    final onScreen = previous != null && chain.contains(previous)
+        ? previous
+        : chain.firstWhereOrNull(isShowable);
+    final after = max(onScreen?.index ?? -1, _highestHandedOut(accountIndex));
+
+    // A labelled address stays with whoever it was labelled for.
+    return chain
+        .where((record) => isShowable(record) && record.name.isEmpty && record.index > after)
+        .sortedBy<num>((record) => record.index)
+        .firstOrNull;
+  }
+
+  int _highestHandedOut(int accountIndex) =>
+      _highestHandedOutReceiveIndex["$addressPageType/$accountIndex"] ?? -1;
+
+  void _noteHandedOut(int accountIndex, int index) {
+    _highestHandedOutReceiveIndex["$addressPageType/$accountIndex"] =
+        max(_highestHandedOut(accountIndex), index);
   }
 
   @action
