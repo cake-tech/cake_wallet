@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_signer.dart';
@@ -8,6 +9,7 @@ import 'package:cw_bitcoin/payjoin/relay_response.dart';
 import 'package:cw_bitcoin/psbt/signer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:payjoin/payjoin.dart' as pj;
 
@@ -407,30 +409,76 @@ class PayjoinReceiverWorker {
 
   List<pj.InputPair> _buildInputPairs() {
     printV('PayjoinReceiverWorker: building input pairs from ${utxos.length} utxos');
-    return utxos.map((utxo) {
+    return buildInputPairs(utxos);
+  }
+
+  /// Weight of a P2TR key-spend input with the default sighash, as
+  /// rust-payjoin computes it: outpoint + sequence (160 WU), empty scriptSig
+  /// length (4 WU) and a single 64-byte signature witness (66 WU). It can't
+  /// predict this itself for an unsigned input.
+  static const int p2trKeySpendInputWeight = 230;
+
+  /// Candidate receiver inputs, one per UTXO whose type the payjoin library
+  /// and our signer/finalizer can handle. Every other UTXO is skipped, so a
+  /// single unsupported coin can't fail the whole contribution:
+  /// - P2PKH: the FFI input can't carry the `non_witness_utxo` it needs, and
+  ///   with only a `witness_utxo` the finalizer would treat it as segwit.
+  /// - P2WSH and other scripts: weight can't be predicted before signing.
+  @visibleForTesting
+  static List<pj.InputPair> buildInputPairs(List<UtxoWithAddress> utxos) {
+    final pairs = <pj.InputPair>[];
+    for (final utxo in utxos) {
       final btcUtxo = utxo.utxo;
-      final scriptPubkey = Uint8List.fromList(utxo.ownerDetails.address.toScriptPubKey().toBytes());
-      return pj.InputPair(
-        txin: pj.TxIn(
-          previousOutput: pj.OutPoint(
-            txid: btcUtxo.txHash,
-            vout: btcUtxo.vout,
+      final type = btcUtxo.scriptType;
+      final Uint8List? redeemScript;
+      final int? expectedWeight;
+      if (type == SegwitAddresType.p2wpkh) {
+        redeemScript = null;
+        expectedWeight = null;
+      } else if (type == P2shAddressType.p2wpkhInP2sh) {
+        // rust-payjoin needs the redeem script to recognise nested P2WPKH
+        // (and predicts its weight from it); the finalizer reuses it for the
+        // scriptSig.
+        redeemScript =
+            Uint8List.fromList(utxo.public().toP2wpkhAddress().toScriptPubKey().toBytes());
+        expectedWeight = null;
+      } else if (type == SegwitAddresType.p2tr) {
+        redeemScript = null;
+        expectedWeight = p2trKeySpendInputWeight;
+      } else {
+        printV('PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout} '
+            '(unsupported type ${type.value})');
+        continue;
+      }
+
+      try {
+        pairs.add(pj.InputPair(
+          txin: pj.TxIn(
+            previousOutput: pj.OutPoint(
+              txid: btcUtxo.txHash,
+              vout: btcUtxo.vout,
+            ),
+            scriptSig: Uint8List(0),
+            sequence: 0,
+            witness: [],
           ),
-          scriptSig: Uint8List(0),
-          sequence: 0,
-          witness: [],
-        ),
-        psbtin: pj.PsbtInput(
-          witnessUtxo: pj.TxOut(
-            valueSat: btcUtxo.value.toInt(),
-            scriptPubkey: scriptPubkey,
+          psbtin: pj.PsbtInput(
+            witnessUtxo: pj.TxOut(
+              valueSat: btcUtxo.value.toInt(),
+              scriptPubkey:
+                  Uint8List.fromList(utxo.ownerDetails.address.toScriptPubKey().toBytes()),
+            ),
+            redeemScript: redeemScript,
+            witnessScript: null,
           ),
-          redeemScript: null,
-          witnessScript: null,
-        ),
-        expectedWeight: null,
-      );
-    }).toList();
+          expectedWeight:
+              expectedWeight == null ? null : pj.Weight(weightUnits: expectedWeight),
+        ));
+      } catch (e) {
+        printV('PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout}: $e');
+      }
+    }
+    return pairs;
   }
 
   Future<String> _sendFinalProposal(
