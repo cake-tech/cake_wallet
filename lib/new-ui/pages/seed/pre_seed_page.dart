@@ -8,6 +8,7 @@ import "package:cake_wallet/new-ui/widgets/seed/seed_page_scaffold.dart";
 import "package:cake_wallet/new-ui/widgets/stacked_buttons.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/view_model/wallet_seed_view_model.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -89,7 +90,8 @@ class _PreSeedPageState extends State<PreSeedPage> {
               ? StackedButtons(
                   primaryKey: const ValueKey("pre_seed_page_button_key"),
                   primaryText: S.of(context).show_recovery_phrase,
-                  onPrimary: () => Navigator.of(context).pushNamed(Routes.seed, arguments: true),
+                  onPrimary: () => Navigator.of(context)
+                      .pushNamed(Routes.seed, arguments: WalletSeedPageParams(isNewWalletCreated: true)),
                   secondaryKey: const ValueKey("pre_seed_page_skip_button_key"),
                   secondaryText: S.of(context).skip_this_step,
                   onSecondary: _confirmSkip,
