@@ -159,7 +159,7 @@ class AuthService with Store {
       secureStorage,
       sharedPreferences,
       authenticationStore,
-      appStore,
+      walletPoolService,
       resetService,
       walletList,
     );
