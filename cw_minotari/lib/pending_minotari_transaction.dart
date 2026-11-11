@@ -17,7 +17,8 @@ class PendingMinotariTransaction with PendingTransaction {
   @override
   final Money fee;
 
-  final Future<void> Function() send;
+  /// Broadcasts the send and returns cw's id of the recorded transaction, if cw reported one.
+  final Future<String?> Function() send;
 
   /// A send is built at its quote's rate, but the quote sizes a plain output and picks inputs at
   /// the Fast rate, so the paid fee can differ slightly (a payment id, another input). A
@@ -25,10 +26,11 @@ class PendingMinotariTransaction with PendingTransaction {
   @override
   final bool isFeeEstimate;
 
-  // shortcut: the bridge drops send_transaction's SendResultDto, so the recorded transaction id
-  // is unknown here; the scanner reports the send by id. Upgrade once the send stream carries it.
+  String _id = '';
+
+  /// cw's id of the recorded transaction (its key in the history), once committed.
   @override
-  String get id => '';
+  String get id => _id;
 
   @override
   String get amountFormatted => amount.toStringWithSymbol();
@@ -37,7 +39,7 @@ class PendingMinotariTransaction with PendingTransaction {
   String get hex => '';
 
   @override
-  Future<void> commit() => send();
+  Future<void> commit() async => _id = await send() ?? '';
 
   @override
   Future<Map<String, String>> commitUR() =>

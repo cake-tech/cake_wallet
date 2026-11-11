@@ -563,7 +563,7 @@ abstract class MinotariWalletBase
       ),
     );
 
-    Future<void> send() async {
+    Future<String?> send() async {
       final result = await minotariBroadcastResult(ffi.sendTransaction(
         recipients: recipients,
         sendAll: sendAll,
@@ -584,6 +584,7 @@ abstract class MinotariWalletBase
       // throws, so a failed refresh can't report a broadcast send as failed.
       await updateBalance();
       await updateTransactions();
+      return result?.transaction.id;
     }
 
     return PendingMinotariTransaction(
