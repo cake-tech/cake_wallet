@@ -235,6 +235,13 @@ class MinotariFfi {
         walletName: walletName,
       );
 
+  /// The node's fee per gram for [priority], capped by cw; reads no wallet data.
+  Future<BigInt> feePerGram({
+    required fee.FeePriority priority,
+    required String baseNodeUrl,
+  }) =>
+      fee.getFeePerGram(priority: priority, baseUrl: baseNodeUrl);
+
   Future<fee.SendAllFeeEstimate> estimateSendAllFee({
     required String recipientAddress,
     required BigInt feePerGram,

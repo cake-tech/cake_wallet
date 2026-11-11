@@ -132,6 +132,35 @@ Future<void> writeMinotariKeysFiles(
   }
 }
 
+/// The cw fee priority for a Cake priority (Medium when none is chosen).
+FeePriority minotariFeePriority(TransactionPriority? priority) => switch (priority) {
+      MinotariTransactionPriority.slow => FeePriority.slow,
+      MinotariTransactionPriority.fast => FeePriority.fast,
+      _ => FeePriority.medium,
+    };
+
+/// What a send of [amount] at [priority] pays out and costs, and the rate it is built at.
+///
+/// A normal send is built at the rate of its [estimate]. A send-all asks the node for
+/// [priority]'s rate and quotes the sweep at it with [estimateSendAll].
+Future<({int amount, int fee, BigInt feePerGram})> quoteMinotariSend({
+  required TransactionPriority? priority,
+  required bool sendAll,
+  required int amount,
+  required Future<FeeEstimate> Function(FeePriority priority) estimate,
+  required Future<BigInt> Function(FeePriority priority) feePerGram,
+  required Future<SendAllFeeEstimate> Function(BigInt feePerGram) estimateSendAll,
+}) async {
+  final feePriority = minotariFeePriority(priority);
+  if (sendAll) {
+    final rate = await feePerGram(feePriority);
+    final quote = await estimateSendAll(rate);
+    return (amount: quote.amountAfterFee.toInt(), fee: quote.fee.toInt(), feePerGram: rate);
+  }
+  final quote = await estimate(feePriority);
+  return (amount: amount, fee: quote.estimatedFee.toInt(), feePerGram: quote.feePerGram);
+}
+
 /// One cw recipient per output. A send-all pays its single recipient everything, so it
 /// cannot be combined with other outputs.
 List<SendRecipient> minotariRecipients(List<OutputInfo> outputs) {
@@ -481,29 +510,23 @@ abstract class MinotariWalletBase
     final recipients = minotariRecipients(creds.outputs);
     final sendAll = creds.outputs.first.sendAll;
 
-    // The send is built at exactly the rate quoted for the chosen priority.
-    final int amount;
-    final int fee;
-    final BigInt feePerGram;
-    if (sendAll) {
-      feePerGram = await _feePerGram(ffi, creds.priority);
-      final quote = await ffi.estimateSendAllFee(
+    final total = recipients.fold(0, (sum, recipient) => sum + recipient.amount.toInt());
+    final (:amount, :fee, :feePerGram) = await quoteMinotariSend(
+      priority: creds.priority,
+      sendAll: sendAll,
+      amount: total,
+      estimate: (priority) => ffi.estimateFee(
+        amount: BigInt.from(total),
+        numOutputs: recipients.length,
+        priority: priority,
+        baseNodeUrl: nodeUrl,
+      ),
+      feePerGram: (priority) => ffi.feePerGram(priority: priority, baseNodeUrl: nodeUrl),
+      estimateSendAll: (feePerGram) => ffi.estimateSendAllFee(
         recipientAddress: recipients.single.address,
         feePerGram: feePerGram,
-      );
-      amount = quote.amountAfterFee.toInt();
-      fee = quote.fee.toInt();
-    } else {
-      amount = recipients.fold(0, (sum, recipient) => sum + recipient.amount.toInt());
-      final quote = await ffi.estimateFee(
-        amount: BigInt.from(amount),
-        numOutputs: recipients.length,
-        priority: _feePriority(creds.priority),
-        baseNodeUrl: nodeUrl,
-      );
-      fee = quote.estimatedFee.toInt();
-      feePerGram = quote.feePerGram;
-    }
+      ),
+    );
 
     Future<void> send() async {
       var broadcasted = false;
@@ -618,7 +641,8 @@ abstract class MinotariWalletBase
     _feeQuoteRequests[priority] = request;
     final int fee;
     if (sendAll) {
-      final feePerGram = await _feePerGram(ffi, priority);
+      final feePerGram =
+          await ffi.feePerGram(priority: minotariFeePriority(priority), baseNodeUrl: _nodeUrl);
       fee = (await ffi.estimateSendAllFee(recipientAddress: address, feePerGram: feePerGram))
           .fee
           .toInt();
@@ -626,7 +650,7 @@ abstract class MinotariWalletBase
       fee = (await ffi.estimateFee(
         amount: BigInt.from(amount),
         numOutputs: 1,
-        priority: _feePriority(priority),
+        priority: minotariFeePriority(priority),
         baseNodeUrl: _nodeUrl,
       ))
           .estimatedFee
@@ -637,24 +661,6 @@ abstract class MinotariWalletBase
     }
     return fee;
   }
-
-  /// The node's fee per gram for [priority], as cw caps it.
-  // shortcut: cw exposes the rate only on a fee estimate, so this quotes 1 µT (any spendable
-  // output covers it); upgrade if cw gains a rate-only call.
-  Future<BigInt> _feePerGram(MinotariFfi ffi, TransactionPriority? priority) async =>
-      (await ffi.estimateFee(
-        amount: BigInt.one,
-        numOutputs: 1,
-        priority: _feePriority(priority),
-        baseNodeUrl: _nodeUrl,
-      ))
-          .feePerGram;
-
-  FeePriority _feePriority(TransactionPriority? priority) => switch (priority) {
-        MinotariTransactionPriority.slow => FeePriority.slow,
-        MinotariTransactionPriority.fast => FeePriority.fast,
-        _ => FeePriority.medium,
-      };
 
   @override
   Future<bool> checkNodeHealth() async {

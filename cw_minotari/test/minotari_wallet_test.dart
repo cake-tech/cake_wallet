@@ -10,6 +10,8 @@ import 'package:cw_core/output_info.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_minotari/minotari_ffi.dart';
+import 'package:cw_minotari/minotari_transaction_priority.dart';
 import 'package:cw_minotari/minotari_wallet.dart';
 import 'package:cw_minotari/minotari_wallet_service.dart';
 import 'package:cw_minotari/src/rust/api/scanner.dart';
@@ -359,6 +361,77 @@ void main() {
       );
 
       expect(result, 'abandoned');
+    });
+  });
+
+  group('quoteMinotariSend', () {
+    const priorities = {
+      MinotariTransactionPriority.slow: (FeePriority.slow, 2),
+      MinotariTransactionPriority.medium: (FeePriority.medium, 7),
+      MinotariTransactionPriority.fast: (FeePriority.fast, 30),
+    };
+    Future<FeeEstimate> estimate(FeePriority priority) async => FeeEstimate(
+          estimatedFee: BigInt.from(priority.index * 1000 + 100),
+          totalAmountRequired: BigInt.zero,
+          feePerGram: BigInt.from(priorities.values.firstWhere((p) => p.$1 == priority).$2),
+          inputCount: BigInt.one,
+        );
+    Future<BigInt> feePerGram(FeePriority priority) async =>
+        BigInt.from(priorities.values.firstWhere((p) => p.$1 == priority).$2);
+
+    test('a send is built at the rate of the quote for the chosen priority', () async {
+      for (final MapEntry(key: priority, value: (feePriority, rate)) in priorities.entries) {
+        final quote = await quoteMinotariSend(
+          priority: priority,
+          sendAll: false,
+          amount: 5000,
+          estimate: estimate,
+          feePerGram: (_) => fail('a normal send takes the rate from its quote'),
+          estimateSendAll: (_) => fail('not a send-all'),
+        );
+        expect(quote.feePerGram, BigInt.from(rate), reason: '$priority');
+        expect(quote.fee, feePriority.index * 1000 + 100, reason: '$priority');
+        expect(quote.amount, 5000);
+      }
+    });
+
+    test('a send-all is quoted and built at the chosen priority\'s rate', () async {
+      for (final MapEntry(key: priority, value: (_, rate)) in priorities.entries) {
+        BigInt? quotedAt;
+        final quote = await quoteMinotariSend(
+          priority: priority,
+          sendAll: true,
+          amount: 0,
+          estimate: (_) => fail('a send-all is not quoted by amount'),
+          feePerGram: feePerGram,
+          estimateSendAll: (feePerGram) async {
+            quotedAt = feePerGram;
+            return SendAllFeeEstimate(
+              fee: feePerGram * BigInt.from(100),
+              amountAfterFee: BigInt.from(900000),
+              inputCount: BigInt.two,
+              skippedDust: BigInt.zero,
+              skippedOverCap: BigInt.zero,
+            );
+          },
+        );
+        expect(quotedAt, BigInt.from(rate), reason: '$priority');
+        expect(quote.feePerGram, BigInt.from(rate), reason: '$priority');
+        expect(quote.fee, rate * 100);
+        expect(quote.amount, 900000);
+      }
+    });
+
+    test('no priority quotes at Medium', () async {
+      final quote = await quoteMinotariSend(
+        priority: null,
+        sendAll: false,
+        amount: 1,
+        estimate: estimate,
+        feePerGram: feePerGram,
+        estimateSendAll: (_) => fail('not a send-all'),
+      );
+      expect(quote.feePerGram, BigInt.from(7));
     });
   });
 }
