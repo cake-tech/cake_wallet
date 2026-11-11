@@ -13,9 +13,9 @@ set -euo pipefail
 # release's SHA256SUMS asset. The digest pins every zip:
 #   gh release download <tag> -R tari-project/cw_tari_wallet -p SHA256SUMS && sha256sum SHA256SUMS
 # Each run replaces cw_minotari/lib/src/rust; run ./model_generator.sh afterwards.
-CW_TARI_WALLET_TAG="v0.3.1"
-CW_TARI_WALLET_SHA="93e066234b53c7c782707fdff40b361fbe36aa8d"
-CW_TARI_WALLET_SUMS_SHA256="93cb1f9aee909261705a366768549bd03fd9ff523eb1b0afe1e014e39e5c4502"
+CW_TARI_WALLET_TAG="v0.4.0"
+CW_TARI_WALLET_SHA="8763dbc55e93e466228d9996e5c09e71f2ac3f1d"
+CW_TARI_WALLET_SUMS_SHA256="2be487511128dd8140b085588832a6a65142a04eb14d1b0783730b70f4fffb1f"
 
 LIB=minotari_wallet_ffi
 REPO="https://github.com/tari-project/cw_tari_wallet"
