@@ -83,6 +83,7 @@ Money? getBolt11Amount(String invoice) {
 }
 
 class LNURL {
+  static Future<Money?> getPayRequestAmount(String lnurl) async {
     final url = decode(lnurl);
     final response =
         await ProxyWrapper().get(clearnetUri: url).timeout(const Duration(seconds: 10));

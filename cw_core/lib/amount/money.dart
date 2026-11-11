@@ -214,7 +214,9 @@ class Money implements Comparable<Money> {
   /// If just [currency] is provided and the decimals missmatch
   /// the amount will be transformed to keep its canonical representation
   Money copyWith({BigInt? amount, Currency? currency, int? decimals}) {
-    if (currency != null && amount == null && decimals == null &&
+    if (currency != null &&
+        amount == null &&
+        decimals == null &&
         currency.decimals != this.decimals) {
       return Money(
         _transformAmount(this.amount, this.decimals, currency.decimals),
@@ -228,7 +230,8 @@ class Money implements Comparable<Money> {
 
   void _assertSameCurrency(Money other, [String? message]) {
     if (currency != other.currency) {
-      throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
+      throw ArgumentError(message ??
+          "Cannot operate with money values in different currencies. $currency - ${other.currency}");
     }
   }
 

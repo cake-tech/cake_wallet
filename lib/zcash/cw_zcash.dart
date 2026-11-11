@@ -45,6 +45,20 @@ class CWZcash extends Zcash {
   }
 
   @override
+  WalletCredentials createZcashHardwareWalletCredentials({
+    required String name,
+    required HardwareWalletService hardwareWalletService,
+    required int? height,
+    int accountIndex = 0,
+  }) =>
+      ZcashRestoreWalletFromHardware(
+        name: name,
+        hardwareWalletService: hardwareWalletService,
+        height: height,
+        accountIndex: accountIndex,
+      );
+
+  @override
   Object createZcashTransactionCredentials(List<Output> outputs,
       {required CryptoCurrency currency, int? feeRate, TransactionPriority? priority}) {
     final txPriority =
@@ -79,24 +93,7 @@ class CWZcash extends Zcash {
 
   @override
   WalletService<WalletCredentials, WalletCredentials, WalletCredentials, WalletCredentials>
-      createZcashWalletService(bool isDirect) {
-    return ZcashWalletService();
-  }
-
-  @override
-  double formatterZcashAmountToDouble({TransactionInfo? transaction, BigInt? amount}) {
-    return cryptoAmountToDouble(amount: amount?.toInt() ?? 0, divider: 1e8);
-  }
-
-  @override
-  int formatterZcashParseAmount(String amount) {
-    return CryptoCurrency.zec.parseAmount(amount).amount.toInt();
-  }
-
-  @override
-  String formatterZcashAmountToString({required int amount}) {
-    return CryptoCurrency.zec.formatAmount(BigInt.from(amount));
-  }
+      createZcashWalletService(bool isDirect) => ZcashWalletService();
 
   @override
   String getAddress(
@@ -169,6 +166,12 @@ class CWZcash extends Zcash {
     final zcashWallet = wallet as ZcashWallet;
     final addresses = zcashWallet.walletAddresses as ZcashWalletAddresses;
     final type = ZcashReceivePageOption.typeFromString(addresses.walletInfo.addressPageType ?? "");
+    if (type == ZcashAddressType.transparentRotated && !zcashWallet.canRotateTransparentAddress) {
+      return ZcashReceivePageOption.transparent;
+    }
+    if (type == ZcashAddressType.shieldedSapling && !zcashWallet.canUseLegacyShielded) {
+      return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
+    }
     if (type == ZcashAddressType.shieldedOrchard) {
       return ZcashReceivePageOption.shieldedOrchard(ironwood: addresses.ironwoodActive);
     }
@@ -229,6 +232,21 @@ class CWZcash extends Zcash {
   bool hasOrchardMigratableBalance(WalletBase wallet) {
     return (wallet as ZcashWallet).hasOrchardMigratableBalance();
   }
+
+  @override
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service) async {
+    if (service is ZcashHardwareWalletService) {
+      (wallet as ZcashWallet).hardwareWalletService = service;
+    }
+  }
+
+  @override
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
+      ZcashLedgerService(connection);
+
+  @override
+  Future<PendingTransaction?> createShieldingTransaction(WalletBase wallet) =>
+      (wallet as ZcashWallet).createShieldingTransaction();
 }
 
 const wordList = [

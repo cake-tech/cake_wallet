@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:bip39/src/wordlists/english.dart' as bip39_english;
+import 'package:cw_core/utils/bip39_seed.dart';
 
 bool isBip39Seed(String mnemonic) => bip39.validateMnemonic(mnemonic);
 
@@ -12,7 +13,7 @@ String generateBip39Mnemonic({int strength = 128}) =>
     bip39.generateMnemonic(strength: strength);
 
 String getSecretDerivationFromBip39(String mnemonic, {String passphrase = ''}) {
-  final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase);
+  final seed = bip39MnemonicToSeed(mnemonic, passphrase: passphrase);
 
   final bip32KeyPair = bip32.BIP32.fromSeed(seed).derivePath("m/44'/128'/0'/0/0");
 
