@@ -3,6 +3,16 @@ import 'package:flutter/widgets.dart';
 import 'dart:math' as math;
 
 class AddressFormatter {
+  /// Keeps the first [head] and last [tail] characters, e.g. `bc1qxy2k...3p83hx0w1h`.
+  /// Returns [address] unchanged when it is too short to benefit from truncation.
+  static String truncateMiddle(String address, {int head = 8, int tail = 10}) {
+    const ellipsis = "...";
+    if (address.length <= head + tail + ellipsis.length) {
+      return address;
+    }
+    return "${address.substring(0, head)}$ellipsis${address.substring(address.length - tail)}";
+  }
+
   static Widget buildSegmentedAddress({
     required String address,
     WalletType? walletType,

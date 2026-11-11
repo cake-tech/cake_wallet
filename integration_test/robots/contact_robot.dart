@@ -1,4 +1,4 @@
-import "package:cake_wallet/src/screens/contact/contact_list_page.dart";
+import "package:cake_wallet/new-ui/pages/address_book/contact_list_page.dart";
 import "package:cake_wallet/src/screens/contact/contact_page.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";

@@ -74,6 +74,7 @@ import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/address_book/wallet_contacts/wallet_contacts_cubit.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
@@ -89,7 +90,7 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/new-ui/pages/address_book/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
@@ -1009,10 +1010,20 @@ Future<void> setup({
       (CryptoCurrency? cur, _) =>
           ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
 
+  getIt.registerFactoryParam<WalletContactsCubit, CryptoCurrency?, void>(
+      (CryptoCurrency? cur, _) => WalletContactsCubit(
+            groupService: getIt.get<WalletGroupService>(),
+            appStore: getIt.get<AppStore>(),
+            currencyFilter: cur,
+            // null EVM proxy = no chain-id filtering
+            chainIdForWalletType: evm?.getChainIdByWalletType,
+          ));
+
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, bool?>(
       (CryptoCurrency? cur, bool? showAddContact) => ContactListPage(
             getIt.get<ContactListViewModel>(param1: cur),
             getIt.get<AuthService>(),
+            currency: cur,
             showAddButton: showAddContact ?? true,
           ));
 

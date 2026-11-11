@@ -1,8 +1,36 @@
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:flutter/material.dart";
+
+enum ModernButtonShape { circle, roundedSquare }
 
 class ModernButton extends StatelessWidget {
+  const ModernButton({
+    required this.size,
+    required this.icon,
+    required this.onPressed,
+    super.key,
+    this.iconSize,
+    this.iconColor,
+    this.backgroundColor,
+    this.label,
+    this.semanticLabel,
+    this.shape = ModernButtonShape.circle,
+    this.cornerRadius,
+  }) : svgPath = null;
+
+  const ModernButton.svg(
+      {required this.size,
+      required this.svgPath,
+      required this.onPressed,
+      super.key,
+      this.iconSize,
+      this.iconColor,
+      this.backgroundColor,
+      this.label,
+      this.semanticLabel,
+      this.shape = ModernButtonShape.circle,
+      this.cornerRadius})
+      : icon = null;
   final double size;
   final String? svgPath;
   final Widget? icon;
@@ -12,35 +40,11 @@ class ModernButton extends StatelessWidget {
   final double? iconSize;
   final String? label;
 
-  /// Accessible name announced by screen readers. Falls back to [label] (the
-  /// visible caption) when omitted, so one of the two is required. Must be
-  /// localized by the caller.
+  final ModernButtonShape shape;
+  final double? cornerRadius;
   final String? semanticLabel;
   static const iconSvgSizeRatio = 2 / 3;
-
-  const ModernButton(
-      {super.key,
-      required this.size,
-      required this.icon,
-      required this.onPressed,
-      this.iconSize,
-      this.iconColor,
-      this.backgroundColor,
-      this.label,
-      this.semanticLabel})
-      : svgPath = null;
-
-  const ModernButton.svg(
-      {super.key,
-      required this.size,
-      required this.svgPath,
-      required this.onPressed,
-      this.iconSize,
-      this.iconColor,
-      this.backgroundColor,
-      this.label,
-      this.semanticLabel})
-      : icon = null;
+  static const squareCornerRadiusRatio = 1 / 3;
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +52,14 @@ class ModernButton extends StatelessWidget {
     final resolvedIconSize = iconSize ?? size * (svgPath != null ? 1 : iconSvgSizeRatio);
     final resolvedBackgroundColor =
         backgroundColor ?? Theme.of(context).colorScheme.surfaceContainer;
+
+    final isSquare = shape == ModernButtonShape.roundedSquare;
+    final borderRadius = BorderRadius.circular(
+      isSquare ? (cornerRadius ?? size * squareCornerRadiusRatio) : size,
+    );
     final Widget resolvedIcon = svgPath != null
         ? CakeImageWidget(
-            imageUrl: svgPath!,
+            imageUrl: svgPath,
             width: resolvedIconSize,
             height: resolvedIconSize,
             fit: BoxFit.contain,
@@ -76,12 +85,18 @@ class ModernButton extends StatelessWidget {
             Container(
               decoration: BoxDecoration(
                 color: resolvedBackgroundColor,
-                borderRadius: BorderRadius.circular(size),
+                borderRadius: borderRadius,
               ),
               width: size,
               height: size,
               child: IconButton(
                 padding: EdgeInsets.zero,
+                // Keep the pressed/ripple effect inside the rounded square.
+                style: isSquare
+                    ? IconButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: borderRadius),
+                      )
+                    : null,
                 onPressed: onPressed,
                 icon: ExcludeSemantics(child: resolvedIcon),
               ),
@@ -91,11 +106,12 @@ class ModernButton extends StatelessWidget {
                 child: Text(
                   label!,
                   style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.onSurface),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
-              )
+              ),
           ],
         ),
       ),

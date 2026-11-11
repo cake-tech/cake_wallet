@@ -15,21 +15,50 @@ import "package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget
 import "package:cake_wallet/src/widgets/new_list_row/list_item_toggle_widget.dart";
 import "package:flutter/material.dart";
 
+class ListSectionHeader extends StatelessWidget {
+  const ListSectionHeader({required this.title, this.leading, super.key});
+
+  final String title;
+  final Widget? leading;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          if (leading != null) ExcludeSemantics(child: leading!),
+          Flexible(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      );
+}
+
 class NewListSections extends StatelessWidget {
   const NewListSections(
       {super.key,
-        required this.sections,
-        this.controllers = const {},
-        this.tapHandlers = const {},
-        this.getCheckboxValue,
-        this.updateCheckboxValue,
-        this.showHeader = false});
+      required this.sections,
+      this.controllers = const {},
+      this.tapHandlers = const {},
+      this.headerWidgets = const {},
+      this.getCheckboxValue,
+      this.updateCheckboxValue,
+      this.showHeader = false});
 
   final Map<String, List<ListItem>> sections;
   final Map<String, TextEditingController> controllers;
   final bool Function(String key)? getCheckboxValue;
   final void Function(String key, bool value)? updateCheckboxValue;
   final Map<String, VoidCallback> tapHandlers;
+  final Map<String, Widget> headerWidgets;
   final bool showHeader;
 
   static const double sectionSpacing = 20;
@@ -48,20 +77,22 @@ class NewListSections extends StatelessWidget {
     );
   }
 
-  Widget _buildSection(String headerText, List<ListItem> items, BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (showHeader && headerText.isNotEmpty && items.length > 0) ...[
-            Text(
-              headerText,
-              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(height: 12)
-          ],
-          for (int index = 0; index < items.length; index++)
-            _withSectionFlags(items[index], index == 0, index == items.length - 1),
+  Widget _buildSection(String headerText, List<ListItem> items, BuildContext context) {
+    final header = headerWidgets[headerText] ??
+        (headerText.isNotEmpty ? ListSectionHeader(title: headerText) : null);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showHeader && header != null && items.isNotEmpty) ...[
+          header,
+          const SizedBox(height: 12),
         ],
-      );
+        for (int index = 0; index < items.length; index++)
+          _withSectionFlags(items[index], index == 0, index == items.length - 1),
+      ],
+    );
+  }
 
   Widget _withSectionFlags(ListItem item, bool isFirst, bool isLast) {
     if (item is ListItemTextField) {
@@ -71,7 +102,6 @@ class NewListSections extends StatelessWidget {
       controller != null,
       'No controller provided for key ${item.keyValue}. '
           'Please provide a TextEditingController for this key.');
-
 
       return ListItemTextFieldWidget(
         keyValue: item.keyValue,
@@ -92,6 +122,7 @@ class NewListSections extends StatelessWidget {
         keyValue: item.keyValue,
         label: item.label,
         subtitle: item.subtitle,
+        subtitleWidget: item.subtitleWidget,
         trailingText: item.trailingText,
         iconPath: item.iconPath,
         badgeIconPath: item.badgeIconPath,

@@ -123,8 +123,12 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
   return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
 }
 
-String getNetworkIconForWalletListItem(WalletType type) {
+String getNetworkIconForWalletListItem(
+    WalletType type, {
+      bool isLightning = false,
+    }) {
   if (type == WalletType.none) return "";
+  if (isLightning) return "assets/new-ui/network_icons/lightning.svg";
   return "assets/new-ui/network_icons/${type.name.toLowerCase()}.svg";
 }
 

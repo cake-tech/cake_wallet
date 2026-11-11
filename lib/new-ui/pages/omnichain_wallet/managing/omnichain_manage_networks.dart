@@ -115,7 +115,7 @@ class _OmniChainManageNetworksMainPageState extends State<OmniChainManageNetwork
       keyValue: "${keyPrefix}_${type.name}_button_key",
       label: walletTypeToString(type),
       labelIconPath: labelIcon,
-      iconPath: getCryptoCurrencyIconForWalletListItem(type),
+      iconPath: getNetworkIconForWalletListItem(type),
       subtitle: walletTypeToDescription(type).isNotEmpty ? walletTypeToDescription(type) : null,
       value: _isChecked(type),
       onChanged: (_) => _onNetworkTapped(type),

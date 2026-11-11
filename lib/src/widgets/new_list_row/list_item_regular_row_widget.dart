@@ -11,6 +11,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
         required this.keyValue,
         required this.label,
         this.subtitle,
+        this.subtitleWidget,
         this.trailingText,
         this.iconPath,
         this.badgeIconPath,
@@ -39,6 +40,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final String keyValue;
   final String label;
   final String? subtitle;
+
+  /// Takes precedence over [subtitle] when set.
+  final Widget? subtitleWidget;
   final String? trailingText;
   final String? secondaryLabel;
   final String? iconPath;
@@ -210,7 +214,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                                 )
                                             ],
                                           ),
-                                        if (subtitle != null)
+                                        if (subtitleWidget != null)
+                                          subtitleWidget!
+                                        else if (subtitle != null)
                                           Text(
                                             subtitle!,
                                             style: subtitleColor == null

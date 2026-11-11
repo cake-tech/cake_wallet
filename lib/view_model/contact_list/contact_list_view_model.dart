@@ -5,18 +5,15 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import 'package:cake_wallet/new-ui/entries/address_book/wallet_contact_utils.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
+import "package:cake_wallet/new-ui/entries/address_book/wallet_contact_loader.dart";
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
-import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
 import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -47,6 +44,8 @@ abstract class ContactListViewModelBase with Store {
 
   Future<void> _lastWalletContactsLoad = Future.value();
 
+  /// Kept for Send/Exchange/NFT (internal-wallet and 2FA checks, which only compare addresses).
+  /// The Address Book reads wallet contacts from `WalletContactsCubit`.
   @action
   Future<void> loadWalletContacts() async {
     final waitFor = _lastWalletContactsLoad;
@@ -57,73 +56,8 @@ abstract class ContactListViewModelBase with Store {
 
     try {
       final loadedContacts = <WalletContact>[];
-      final walletInfos = await WalletInfo.getAll();
-      for (final info in walletInfos) {
-        final addressInfos = await info.getAddressInfos();
-        final addresses = await info.getAddresses();
-        if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
-            addressInfos.isNotEmpty) {
-          for (var key in addressInfos.keys) {
-            final value = addressInfos[key];
-            final address = value?.first;
-            if (address != null) {
-              final name = _createName(info.name, address.label, key: key);
-              loadedContacts.add(WalletContact(
-                address.address,
-                name,
-                getCryptoCurrencyForWalletListItem(
-                  info.type,
-                ),
-                walletType: info.type,
-              ));
-            }
-          }
-        } else if (addresses.isNotEmpty == true && addresses.length > 1) {
-          if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
-              .contains(info.type)) {
-            final address = info.address;
-            final name = _createName(info.name, "", key: 0);
-            loadedContacts.add(WalletContact(
-              address,
-              name,
-              getCryptoCurrencyForWalletListItem(
-                info.type,
-              ),
-              walletType: info.type,
-            ));
-          } else {
-            addresses.forEach((address, label) {
-              if (label.isEmpty) {
-                return;
-              }
-              final name = _createName(info.name, label, key: null);
-              loadedContacts.add(WalletContact(
-                address,
-                name,
-                getCryptoCurrencyForWalletListItem(
-                  info.type,
-                  isTestnet: info.network == null
-                      ? false
-                      : info.network!.toLowerCase().contains("testnet"),
-                ),
-                walletType: info.type,
-                label: label,
-              ));
-            });
-          }
-        } else {
-          loadedContacts.add(WalletContact(
-            info.address,
-            _createName(info.name, "",
-                key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
-                    ? 0
-                    : null),
-            getCryptoCurrencyForWalletListItem(
-              info.type,
-            ),
-            walletType: info.type,
-          ));
-        }
+      for (final info in await WalletInfo.getAll()) {
+        loadedContacts.addAll(await loadWalletContactsForWallet(info, groupId: info.groupId));
       }
 
       walletContacts = loadedContacts;
@@ -132,14 +66,6 @@ abstract class ContactListViewModelBase with Store {
     } finally {
       done.complete();
     }
-  }
-
-  String _createName(String walletName, String label, {int? key = null}) {
-    final actualLabel = label
-        .replaceAll(RegExp(r'active', caseSensitive: false), S.current.active)
-        .replaceAll(RegExp(r'silent payments', caseSensitive: false), S.current.silent_payments);
-    return '$walletName${key == null ? "" : " [#${key}]"} ${actualLabel.isNotEmpty ? "($actualLabel)" : ""}'
-        .trim();
   }
 
   final bool isAutoGenerateEnabled;
@@ -170,34 +96,9 @@ abstract class ContactListViewModelBase with Store {
   List<WalletContact> get walletContactsToShow =>
       walletContacts.where((element) => _isValidForCurrency(element, true)).toList();
 
-  bool _isValidForCurrency(ContactBase element, bool isWalletContact) {
-    if (_currency == null) return true;
-    if (isWalletContact && element is WalletContact && !element.isPickable) return false;
-
-    final currencyMatches = element.type == _currency;
-
-    final tagsMatch =
-        element.type.tag != null && _currency.tag != null && element.type.tag == _currency.tag;
-
-    final tagMatchesTitle = _currency.tag != null && _currency.tag == element.type.title;
-
-    final titleMatchesTag = _currency.title == element.type.tag;
-
-    var matches = currencyMatches || tagsMatch || tagMatchesTitle || titleMatchesTag;
-
-    if (matches && isWalletContact && element is WalletContact && element.walletType != null) {
-      final walletType = element.walletType!;
-
-      if (isEVMCompatibleChain(walletType)) {
-        final currencyChainId = TokenUtilities.getChainId(_currency);
-        final walletChainId = evm!.getChainIdByWalletType(walletType);
-
-        if (currencyChainId != walletChainId) matches = false;
-      }
-    }
-
-    return matches;
-  }
+  bool _isValidForCurrency(ContactBase element, bool isWalletContact) =>
+      isContactValidForCurrency(element, _currency,
+          isWalletContact: isWalletContact, chainIdForWalletType: evm?.getChainIdByWalletType);
 
   void dispose() => _subscription?.cancel();
 

@@ -2,6 +2,7 @@ import "package:another_flushbar/flushbar.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
+import "package:cake_wallet/new-ui/pages/address_book/wallet_contacts_modal_page.dart";
 import "package:cake_wallet/new-ui/pages/omnichain_wallet/managing/omnichain_manage_networks.dart";
 import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/omnichain_wallet/managing/omnichain_wallet_managing_bloc.dart";
@@ -13,12 +14,14 @@ import "package:cake_wallet/new-ui/widgets/new_search_bar.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/reactions/wallet_utils.dart";
+import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/wallet_types.g.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 class OmniChainChangeNetworkPage extends StatelessWidget {
@@ -134,6 +137,18 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                 leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
                 onLeadingPressed: () => Navigator.of(context).maybePop(),
+                trailingIcon: const Icon(Icons.menu_book_outlined),
+                trailingSemanticLabel: S.of(context).contact_list_contacts,
+                onTrailingPressed: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute<void>(
+                    builder: (_) => WalletContactsModalPage(
+                      onContactTap: (contact) {
+                        Clipboard.setData(ClipboardData(text: contact.address));
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                ),
               ),
               Expanded(
                 child: Padding(
@@ -161,76 +176,79 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                         // TODO(serhii): localize
                                         "This wallet's seed type doesn't support other networks",
                                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color:
-                                                  Theme.of(context).colorScheme.onSurfaceVariant,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             ),
                                       ),
                                     ),
                                   NewListSections(
-                                showHeader: true,
-                                sections: {
-                                  currentSectionTitle: isEvm
-                                      ? [
-                                          ...evmTypes.map(
-                                            (type) => ListItemCheckbox(
-                                              keyValue: "ecosystem_${type.name}_button_key",
-                                              label: walletTypeToString(type),
-                                              iconPath: getNetworkIconForWalletListItem(type),
-                                              value: state.selectedWallet?.type == type ||
-                                                  (state.selectedWallet == null && type == current),
-                                              onChanged: (_) {
-                                                if (state.isLoading) return;
-                                                if (type == state.currentNetwork)
-                                                  return; // already active
-                                                final info =
-                                                    state.wallets.firstWhere((w) => w.type == type);
-                                                context.read<OmniChainWalletManagingBloc>().add(
-                                                      OmniChainWalletManagingActivateSelectedWallet(
-                                                          info),
-                                                    );
-                                              },
+                                    showHeader: true,
+                                    sections: {
+                                      currentSectionTitle: isEvm
+                                          ? [
+                                              ...evmTypes.map(
+                                                (type) => ListItemCheckbox(
+                                                  keyValue: "ecosystem_${type.name}_button_key",
+                                                  label: walletTypeToString(type),
+                                                  iconPath: getNetworkIconForWalletListItem(type),
+                                                  value: state.selectedWallet?.type == type ||
+                                                      (state.selectedWallet == null &&
+                                                          type == current),
+                                                  onChanged: (_) {
+                                                    if (state.isLoading) return;
+                                                    if (type == state.currentNetwork)
+                                                      return; // already active
+                                                    final info = state.wallets
+                                                        .firstWhere((w) => w.type == type);
+                                                    context.read<OmniChainWalletManagingBloc>().add(
+                                                          OmniChainWalletManagingActivateSelectedWallet(
+                                                              info),
+                                                        );
+                                                  },
+                                                ),
+                                              ),
+                                            ]
+                                          : [
+                                              if (current != null)
+                                                ListItemCheckbox(
+                                                  keyValue: "current_network_button_key",
+                                                  label: walletTypeToString(current),
+                                                  iconPath:
+                                                      getNetworkIconForWalletListItem(current),
+                                                  value: state.selectedWallet == null,
+                                                  onChanged: (_) {},
+                                                )
+                                              else
+                                                ListItemCheckbox(
+                                                  keyValue: "current_network_button_key",
+                                                  label: "No Network",
+                                                  value: state.selectedWallet == null,
+                                                  onChanged: (_) {},
+                                                ),
+                                            ],
+                                      "Other Chains": [
+                                        ...state.filteredWallets
+                                            .where((info) =>
+                                                !(isEvm && isEVMCompatibleChain(info.type)))
+                                            .map(
+                                              (info) => ListItemCheckbox(
+                                                keyValue:
+                                                    "other_networks_${info.type.name}_button_key",
+                                                label: walletTypeToString(info.type),
+                                                iconPath:
+                                                    getNetworkIconForWalletListItem(info.type),
+                                                value: state.selectedWallet?.type == info.type,
+                                                onChanged: (_) {
+                                                  if (state.isLoading) return;
+                                                  context.read<OmniChainWalletManagingBloc>().add(
+                                                        OmniChainWalletManagingActivateSelectedWallet(
+                                                            info),
+                                                      );
+                                                },
+                                              ),
                                             ),
-                                          ),
-                                        ]
-                                      : [
-                                          if (current != null)
-                                            ListItemCheckbox(
-                                              keyValue: "current_network_button_key",
-                                              label: walletTypeToString(current),
-                                              iconPath: getNetworkIconForWalletListItem(current),
-                                              value: state.selectedWallet == null,
-                                              onChanged: (_) {},
-                                            )
-                                          else
-                                            ListItemCheckbox(
-                                              keyValue: "current_network_button_key",
-                                              label: "No Network",
-                                              value: state.selectedWallet == null,
-                                              onChanged: (_) {},
-                                            ),
-                                        ],
-                                  "Other Chains": [
-                                    ...state.filteredWallets
-                                        .where(
-                                            (info) => !(isEvm && isEVMCompatibleChain(info.type)))
-                                        .map(
-                                          (info) => ListItemCheckbox(
-                                            keyValue: "other_networks_${info.type.name}_button_key",
-                                            label: walletTypeToString(info.type),
-                                            iconPath: getNetworkIconForWalletListItem(info.type),
-                                            value: state.selectedWallet?.type == info.type,
-                                            onChanged: (_) {
-                                              if (state.isLoading) return;
-                                              context.read<OmniChainWalletManagingBloc>().add(
-                                                    OmniChainWalletManagingActivateSelectedWallet(
-                                                        info),
-                                                  );
-                                            },
-                                          ),
-                                        ),
-                                  ],
-                                },
-                              ),
+                                      ],
+                                    },
+                                  ),
                                 ],
                               ),
                             ),
@@ -263,30 +281,33 @@ class _OmniChainChangeNetworkMainPageState extends State<OmniChainChangeNetworkM
                                               onPressed: !state.canManageNetworks
                                                   ? null
                                                   : () async {
-                                                final bloc =
-                                                    context.read<OmniChainWalletManagingBloc>();
-                                                final s = bloc.state;
+                                                      final bloc = context
+                                                          .read<OmniChainWalletManagingBloc>();
+                                                      final s = bloc.state;
 
-                                                final existing = <WalletType>{
-                                                  if (s.currentNetwork != null) s.currentNetwork!,
-                                                  ...s.wallets.map((w) => w.type),
-                                                };
-                                                final available = availableWalletTypes
-                                                    .where(isBIP39Wallet)
-                                                    .toList();
+                                                      final existing = <WalletType>{
+                                                        if (s.currentNetwork != null)
+                                                          s.currentNetwork!,
+                                                        ...s.wallets.map((w) => w.type),
+                                                      };
+                                                      final available = availableWalletTypes
+                                                          .where(isBIP39Wallet)
+                                                          .toList();
 
-                                                await Navigator.of(context).push<void>(
-                                                  MaterialPageRoute<void>(
-                                                    builder: (context) => Material(
-                                                      color: Theme.of(context).colorScheme.surface,
-                                                      child: OmniChainManageNetworksMainPage(
-                                                        availableNetworks: available,
-                                                        selectedNetworks: existing,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
+                                                      await Navigator.of(context).push<void>(
+                                                        MaterialPageRoute<void>(
+                                                          builder: (context) => Material(
+                                                            color: Theme.of(context)
+                                                                .colorScheme
+                                                                .surface,
+                                                            child: OmniChainManageNetworksMainPage(
+                                                              availableNetworks: available,
+                                                              selectedNetworks: existing,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
                                             )),
                                       ],
                                     ),

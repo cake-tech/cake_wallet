@@ -41,7 +41,7 @@ import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart'
 import "package:cake_wallet/src/screens/connect_device/hardware_wallet_account_options_page.dart";
 import 'package:cake_wallet/src/screens/connect_device/select_device_manufacturer_page.dart';
 import "package:cake_wallet/src/screens/connect_device/select_hardware_wallet_account_page.dart";
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/new-ui/pages/address_book/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
