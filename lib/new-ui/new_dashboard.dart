@@ -82,7 +82,10 @@ class _NewDashboardState extends State<NewDashboard> {
               // widget.dashboardPageWidgets[_selectedPage],
               IndexedStack(
                 index: _selectedPage,
-                children: widget.dashboardPageWidgets,
+                children: [
+                  for (int i = 0; i < widget.dashboardPageWidgets.length; i++)
+                    TickerMode(enabled: i == _selectedPage, child: widget.dashboardPageWidgets[i]),
+                ],
               ),
               IgnorePointer(
                 child: Container(
