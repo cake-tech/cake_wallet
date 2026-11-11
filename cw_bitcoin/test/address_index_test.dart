@@ -3,6 +3,7 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
+import "package:cw_bitcoin/lightning/lightning_addres_type.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
 import "package:cw_core/db/sqlite.dart";
