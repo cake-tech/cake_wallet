@@ -35,8 +35,14 @@ class PayjoinSenderWorker {
   PayjoinSenderWorker({
     required MailroomManager mailroomManager,
     required pj.JsonSenderSessionPersister persister,
+    this.directory,
   })  : _mailroomManager = mailroomManager,
         _persister = persister;
+
+  // The receiver's payjoin directory (the `pj=` endpoint). Relays on the
+  // same host are never used: one operator holding both OHTTP roles could
+  // link this client's IP to the payjoin payload.
+  final String? directory;
 
   final MailroomManager _mailroomManager;
   final http.Client client = ProxyWrapper().getHttpIOClient();
@@ -137,16 +143,38 @@ class PayjoinSenderWorker {
     pj.JsonSenderSessionPersister persister,
     DateTime deadline,
   ) async {
-    final relayResponse = await _postViaRelay(
-      (relay) => withReplyKey.createV2PostRequest(ohttpRelay: relay),
-      deadline: deadline,
-    );
-    printV('[pjSender] POST subscribe -> ${relayResponse.requestUrl}');
-    final transition = withReplyKey.processResponse(
-      response: relayResponse.bodyBytes,
-      postCtx: relayResponse.ohttpCtx,
-    );
-    return transition.save(persister: persister);
+    var consecutiveFailures = 0;
+    while (true) {
+      try {
+        final relayResponse = await _postViaRelay(
+          (relay) => withReplyKey.createV2PostRequest(ohttpRelay: relay),
+          deadline: deadline,
+        );
+        printV('[pjSender] POST subscribe -> ${relayResponse.requestUrl}');
+        final transition = withReplyKey.processResponse(
+          response: relayResponse.bodyBytes,
+          postCtx: relayResponse.ohttpCtx,
+        );
+        return transition.save(persister: persister);
+      } on pj.TransientSenderPersistedException catch (e) {
+        printV('[pjSender] post retry: $e');
+      } catch (e) {
+        throw _classify(e);
+      }
+      if (_cancelled) throw PayjoinSenderCancelledException();
+      await Future.delayed(_nextBackoff(consecutiveFailures++));
+    }
+  }
+
+  /// Transient errors persisted nothing and are retried by the callers;
+  /// everything else ends the session (fatal errors already closed it in the
+  /// event log, and an expired session can never send another request).
+  Object _classify(Object e) {
+    if (e is pj.CreateRequestException) {
+      return UnrecoverableError(
+          e.isExpired() ? 'Session expired' : 'Cannot create request: $e');
+    }
+    return e;
   }
 
   Future<String> _pollForProposal(
@@ -184,13 +212,11 @@ class PayjoinSenderWorker {
         rethrow;
       } on PayjoinSenderFallbackAvailableException {
         rethrow;
+      } on pj.TransientSenderPersistedException catch (e) {
+        printV('[pjSender] poll retry: $e');
       } catch (e, s) {
-        if (e is pj.ResponseException) {
-          printV('Payjoin poll recoverable error: $e');
-        } else {
-          printV('[pjSender] poll FATAL: $e\n$s');
-          rethrow;
-        }
+        printV('[pjSender] poll FATAL: $e\n$s');
+        throw _classify(e);
       }
       await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
@@ -211,7 +237,15 @@ class PayjoinSenderWorker {
       // configured pool. A broken relay costs one wasted request per
       // round; the next pick naturally spreads load across the pool.
       // Retries are bounded by [deadline], not by failure marks.
-      final relay = _mailroomManager.chooseRelay();
+      final String relay;
+      try {
+        relay = _mailroomManager.chooseRelay(
+          excludeHost: directory == null ? null : Uri.tryParse(directory!)?.host,
+        );
+      } on StateError {
+        throw const UnrecoverableError(
+            'No payjoin relay configured apart from the directory host');
+      }
       // FFI/protocol errors raised while building the request are NOT relay
       // problems — propagate them so the caller sees the real cause.
       final reqCtx = buildRequest(relay);

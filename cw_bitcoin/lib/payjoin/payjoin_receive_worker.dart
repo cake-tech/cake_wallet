@@ -60,6 +60,7 @@ class PayjoinReceiverWorker {
     required this.isMineChecker,
     required this.isOutpointOwned,
     required this.getMaxFeeRateSatPerVb,
+    this.directory,
     this.getCurrentHeight,
     pj.JsonReceiverSessionPersister? persister,
     void Function()? onProposalReceived,
@@ -81,6 +82,10 @@ class PayjoinReceiverWorker {
   // deducted from its own output, so this is what limits a fee drain. Read
   // when the proposal is built, since a session can wait for hours.
   final int Function() getMaxFeeRateSatPerVb;
+  // The session's payjoin directory (its `pj=` endpoint). Relays on the same
+  // host are never used: one operator holding both OHTTP roles could link
+  // this client's IP to the payjoin payload.
+  final String? directory;
   final int Function()? getCurrentHeight;
   final pj.JsonReceiverSessionPersister? _persister;
   final void Function()? _onProposalReceived;
@@ -206,7 +211,8 @@ class PayjoinReceiverWorker {
     }
     // Terminal / non-resumable states
     if (state is pj.HasReplyableExceptionReceiveSession) {
-      throw RecoverableError('session in HasReplyableException state');
+      await _replyWithError(state.inner, persister);
+      throw const UnrecoverableError('Rejected the sender\'s proposal');
     }
     if (state is pj.MonitorReceiveSession) {
       throw RecoverableError('session in Monitor state');
@@ -279,12 +285,10 @@ class PayjoinReceiverWorker {
           return outcome.inner;
         }
         initialized = (outcome as pj.StasisInitializedTransitionOutcome).inner;
-      } catch (e) {
-        if (e is pj.ResponseException || e is pj.ProtocolException) {
-          printV('Poll failed: $e');
-          rethrow;
-        }
+      } on pj.TransientReceiverPersistedException catch (e) {
         printV('Poll retry: $e');
+      } catch (e) {
+        throw _classify(e);
       }
       await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
@@ -307,7 +311,12 @@ class PayjoinReceiverWorker {
       final maybeInputsSeen = checkOwned.save(persister: persister);
       return _runProcessingChain(maybeInputsSeen, persister);
     } catch (e) {
-      if (e is RecoverableError) rethrow;
+      if (e is PayjoinSessionError) rethrow;
+      final error = _classify(e);
+      if (error is UnrecoverableError) {
+        await _replyIfRejected(persister);
+        throw error;
+      }
       throw RecoverableError('_processPayjoinProposal failed at step: $e');
     }
   }
@@ -402,7 +411,12 @@ class PayjoinReceiverWorker {
 
       throw RecoverableError('Unexpected state in chain: ${current.runtimeType}');
     } catch (e) {
-      if (e is RecoverableError) rethrow;
+      if (e is PayjoinSessionError) rethrow;
+      final error = _classify(e);
+      if (error is UnrecoverableError) {
+        await _replyIfRejected(persister);
+        throw error;
+      }
       throw RecoverableError('_processPayjoinProposal failed at step: $e');
     }
   }
@@ -485,16 +499,78 @@ class PayjoinReceiverWorker {
     pj.PayjoinProposal proposal,
     pj.JsonReceiverSessionPersister persister,
   ) async {
-    final relayResponse = await _postViaRelay(
-      (relay) => proposal.createPostRequest(ohttpRelay: relay),
-      deadline: _sessionDeadline,
-    );
-    final transition = proposal.processResponse(
-      body: relayResponse.bodyBytes,
-      ohttpContext: relayResponse.ohttpCtx,
-    );
-    transition.save(persister: persister);
+    try {
+      final relayResponse = await _postViaRelay(
+        (relay) => proposal.createPostRequest(ohttpRelay: relay),
+        deadline: _sessionDeadline,
+      );
+      final transition = proposal.processResponse(
+        body: relayResponse.bodyBytes,
+        ohttpContext: relayResponse.ohttpCtx,
+      );
+      transition.save(persister: persister);
+    } catch (e) {
+      throw _classify(e);
+    }
     return proposal.psbt();
+  }
+
+  /// A rejected processing step leaves the session in `HasReplyableException`;
+  /// answer the sender right away instead of on the next resume.
+  Future<void> _replyIfRejected(pj.JsonReceiverSessionPersister persister) async {
+    final pj.ReceiveSession state;
+    try {
+      final replayResult = pj.replayReceiverEventLog(persister: persister);
+      state = replayResult.state();
+      replayResult.dispose();
+    } catch (e) {
+      printV('[pjReceiver] replay before error reply failed: $e');
+      return;
+    }
+    if (state is pj.HasReplyableExceptionReceiveSession) {
+      await _replyWithError(state.inner, persister);
+    }
+  }
+
+  /// Tells the sender its proposal was rejected, so it stops polling and
+  /// broadcasts its original transaction instead of waiting for the session
+  /// to expire. Best effort: the session is over either way.
+  Future<void> _replyWithError(
+    pj.HasReplyableException state,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    try {
+      final relayResponse = await _postViaRelay(
+        (relay) => state.createErrorRequest(ohttpRelay: relay),
+        deadline: _sessionDeadline,
+      );
+      state
+          .processErrorResponse(
+            body: relayResponse.bodyBytes,
+            ohttpContext: relayResponse.ohttpCtx,
+          )
+          .save(persister: persister);
+      printV('[pjReceiver] sent error reply to the sender');
+    } catch (e) {
+      printV('[pjReceiver] error reply failed: $e');
+    }
+  }
+
+  /// Maps an error from the payjoin library (or a relay pick) onto the
+  /// session error model. Transient errors persisted nothing and may be
+  /// retried; fatal ones closed the session in the event log, and an expired
+  /// session can never send another request.
+  PayjoinSessionError _classify(Object e) {
+    if (e is PayjoinSessionError) return e;
+    if (e is pj.ReceiverCreateRequestException) {
+      return UnrecoverableError(
+          e.isExpired() ? 'Session expired' : 'Cannot create request: $e');
+    }
+    if (e is pj.FatalReceiverPersistedException ||
+        e is pj.StorageReceiverPersistedException) {
+      return UnrecoverableError('$e');
+    }
+    return RecoverableError('$e');
   }
 
   T _wrapSync<T>(T Function() fn, String step) {
@@ -503,6 +579,11 @@ class PayjoinReceiverWorker {
     } catch (e) {
       throw RecoverableError('$step failed: $e');
     }
+  }
+
+  String? get _directoryHost {
+    final directory = this.directory;
+    return directory == null ? null : Uri.tryParse(directory)?.host;
   }
 
   Future<PayjoinRelayResponse> _postViaRelay(
@@ -520,7 +601,13 @@ class PayjoinReceiverWorker {
       // configured pool. A broken relay costs one wasted request per
       // round; the next pick naturally spreads load across the pool.
       // Retries are bounded by [deadline], not by failure marks.
-      final relay = _mailroomManager.chooseRelay();
+      final String relay;
+      try {
+        relay = _mailroomManager.chooseRelay(excludeHost: _directoryHost);
+      } on StateError {
+        throw const UnrecoverableError(
+            'No payjoin relay configured apart from the directory host');
+      }
       // FFI/protocol errors raised while building the request are NOT relay
       // problems — propagate them so the caller sees the real cause.
       final reqResp = buildRequest(relay);

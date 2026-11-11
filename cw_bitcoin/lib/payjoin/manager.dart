@@ -622,6 +622,7 @@ class PayjoinManager {
         isOutpointOwned: (txid, vout) =>
             _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
         getMaxFeeRateSatPerVb: _receiverMaxFeeRateSatPerVb,
+        directory: pjEndpoint,
         persister: persister,
         onProposalReceived: () {
           unawaited(_payjoinStorage.markReceiverSessionInProgress(pjEndpoint));
@@ -677,6 +678,9 @@ class PayjoinManager {
       } finally {
         _runningReceivers.remove(pjEndpoint)?.dispose();
       }
+    } on UnrecoverableError catch (e) {
+      writePayjoinLog("[ERROR] Receiver($pjEndpoint) unrecoverable: $e");
+      await _payjoinStorage.markReceiverSessionUnrecoverable(pjEndpoint, e.message);
     } catch (e) {
       writePayjoinLog("[ERROR] Receiver($pjEndpoint) $e");
       // Don't mark unrecoverable: the directory session is independent of the
@@ -736,6 +740,7 @@ class PayjoinManager {
       isOutpointOwned: (txid, vout) =>
           _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
       getMaxFeeRateSatPerVb: _receiverMaxFeeRateSatPerVb,
+      directory: endpoint,
       persister: persister,
       onProposalReceived: () {
         _payjoinStorage.markReceiverSessionInProgress(endpoint);
@@ -791,6 +796,9 @@ class PayjoinManager {
       } else {
         writePayjoinLog("[ERROR] Receiver($endpoint) $e");
       }
+    } on UnrecoverableError catch (e) {
+      writePayjoinLog("[ERROR] Receiver($endpoint) unrecoverable: $e");
+      await _payjoinStorage.markReceiverSessionUnrecoverable(endpoint, e.message);
     } catch (e) {
       writePayjoinLog("[ERROR] Receiver($endpoint) $e");
       // Don't mark unrecoverable: same rationale as spawnReceiver — a
@@ -822,6 +830,7 @@ class PayjoinManager {
     final worker = PayjoinSenderWorker(
       mailroomManager: _mailroomManager,
       persister: persister,
+      directory: endpoint,
     );
     _runningSenders[endpoint] = worker;
     writePayjoinLog("Sender($endpoint) resuming worker from event log");
