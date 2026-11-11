@@ -346,23 +346,49 @@ class PayjoinManager {
     }
   }
 
-  Future<void> spawnNewSender({
+  Future<pj.OhttpKeys> _fetchOhttpKeys(String directory) async {
+    return _mailroomManager.fetchOhttpKeysFromDirectory(directory);
+  }
+
+  /// Creates and persists the sender session for [pjUrl], then posts and
+  /// polls it in the background.
+  ///
+  /// The session is built before this returns, so the caller (the pending
+  /// transaction's commit) fails instead of reporting the payment as sent
+  /// when the payjoin can't start: endpoint already used, payee output not
+  /// matching the request's `amount=`, unsupported URI, ...
+  Future<void> initSender({
     required String pjUrl,
     required String originalPsbt,
     required BigInt amount,
-    int networkFeesSatPerVb = 1,
-    bool isTestnet = false,
+    required int networkFeesSatPerVb,
     String? recipientAddress,
   }) async {
-    final pjUri = Uri.parse(pjUrl).queryParameters['pj']!;
-    await _eventStore.ensureOpen();
-    // [initSender] already refused a used endpoint; this covers a race with
-    // another send. Return before the insert so the earlier session's row
-    // (status, txid, original) is never overwritten.
-    if (_eventStore.loadSender(pjUri).isNotEmpty) {
-      writePayjoinLog("Sender($pjUri) refused: endpoint already has a session");
-      return;
+    final pjUri = _pjParam(pjUrl);
+    if (pjUri == null) {
+      throw Exception('Error initializing Payjoin Sender: missing pj parameter');
     }
+    await _eventStore.ensureOpen();
+    if (await senderEndpointUse(pjUrl) != null) {
+      writePayjoinLog("Sender($pjUri) refused: endpoint already used");
+      throw const PayjoinEndpointAlreadyUsedError();
+    }
+
+    try {
+      PayjoinSenderWorker.createSession(
+        psbtBase64: originalPsbt,
+        pjUriString: pjUrl,
+        minFeeRateSatPerKwu: networkFeesSatPerVb * 250,
+        persister: PayjoinSenderPersister(_eventStore, pjUri),
+      );
+    } on PayjoinEndpointAlreadyUsedError {
+      rethrow;
+    } catch (e) {
+      writePayjoinLog("[ERROR] Sender($pjUri) build failed: $e");
+      throw Exception('Error initializing Payjoin Sender: $e');
+    }
+    writePayjoinLog("Sender($pjUri) Created");
+
     await _payjoinStorage.insertSenderSession(
       pjUri,
       _wallet.id,
@@ -372,80 +398,11 @@ class PayjoinManager {
       recipientAddress: recipientAddress,
     );
 
-    final senderWorker = PayjoinSenderWorker(
-      mailroomManager: _mailroomManager,
-      persister: PayjoinSenderPersister(_eventStore, pjUri),
-    );
-    final minFeeRateSatPerKwu = networkFeesSatPerVb * 250;
-
-    // Never leave a second worker appending to the same event log.
+    // Never leave an earlier worker appending to the same event log.
     _runningSenders.remove(pjUri)
       ?..cancel()
       ..dispose();
-    _runningSenders[pjUri] = senderWorker;
-
-    try {
-      writePayjoinLog("Sender($pjUri) Created");
-
-      final proposalPsbt = await senderWorker.run(
-        originalPsbt,
-        pjUrl,
-        minFeeRateSatPerKwu,
-      );
-      writePayjoinLog("Sender($pjUri) proposedPSBT len=${proposalPsbt.length}");
-
-      final utxos = _wallet.getUtxoWithPrivateKeys();
-      writePayjoinLog(
-          "Sender($pjUri) utxos=${utxos.length}; types=${utxos.map((u) => u.utxo.scriptType.value).toList()}");
-      final finalizedPsbt = await _wallet.signPsbt(proposalPsbt, utxos);
-
-      final txId = getTxIdFromPsbtV0(finalizedPsbt);
-      writePayjoinLog("Sender($pjUri) expected: $txId");
-
-      await _wallet.commitPsbt(finalizedPsbt);
-      await _payjoinStorage.markSenderSessionComplete(pjUri, txId);
-    } on PayjoinSenderCancelledException {
-      // Cancellation status is set explicitly by cancelSender() (user
-      // action) or implies an administrative shutdown — never infer a
-      // cancel here, the worker exception can't distinguish the two.
-      writePayjoinLog("Sender($pjUri) worker cancelled; status unchanged");
-    } on PayjoinSenderFallbackAvailableException catch (e) {
-      writePayjoinLog(
-          "Sender($pjUri) fallback required by replayed state (len=${e.fallbackTx.length})");
-      await _payjoinStorage.markSenderSessionUnrecoverable(
-        pjUri,
-        'Fallback transaction ready to broadcast',
-      );
-    } catch (e, s) {
-      writePayjoinLog("[ERROR] Sender($pjUri) $e\n$s");
-      await _payjoinStorage.markSenderSessionUnrecoverable(pjUri, e.toString());
-    } finally {
-      _removeSenderWorker(pjUri, senderWorker);
-    }
-  }
-
-  Future<pj.OhttpKeys> _fetchOhttpKeys(String directory) async {
-    return _mailroomManager.fetchOhttpKeysFromDirectory(directory);
-  }
-
-  Future<String> initSender(
-    String pjUriString,
-    String originalPsbt,
-  ) async {
-    final String endpoint;
-    try {
-      final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
-      endpoint = pjUri.pjEndpoint();
-    } catch (e) {
-      throw Exception('Error initializing Payjoin Sender: $e');
-    }
-    // Backstop for the send form's check: the form may be stale (another
-    // send to the same request committed in the meantime).
-    if (await senderEndpointUse(pjUriString) != null) {
-      writePayjoinLog("Sender refused: endpoint already used");
-      throw const PayjoinEndpointAlreadyUsedError();
-    }
-    return endpoint;
+    await _maybeResumeSenderWorker(pjUri);
   }
 
   /// Returns how an earlier send in ANY wallet already used the `pj=`
@@ -844,8 +801,9 @@ class PayjoinManager {
     }
   }
 
-  /// Re-spawns a sender worker from its persisted event log so the polling
-  /// loop continues after a wallet switch / app restart.
+  /// Spawns a sender worker that drives the session from its persisted event
+  /// log: right after [initSender] created it, or to continue after a wallet
+  /// switch / app restart.
   ///
   /// Idempotent: skips when a worker is already running for [endpoint], or
   /// when the session has no original PSBT / no events to replay.

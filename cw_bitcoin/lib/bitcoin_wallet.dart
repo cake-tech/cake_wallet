@@ -633,12 +633,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final shouldSaveRecipientAddress = credentials.shouldSaveRecipientAddress;
     final pjUri = payjoinUri!;
     tx.commitOverride = () async {
-      await payjoinManager.initSender(pjUri, originalPsbt);
       final parsedUri = Uri.parse(pjUri);
       final recipientAddress = shouldSaveRecipientAddress
           ? (parsedUri.queryParameters['address'] ?? parsedUri.path)
           : null;
-      payjoinManager.spawnNewSender(
+      // Awaited: a session that can't be built fails the send here instead
+      // of after the success screen. Posting and polling continue in the
+      // background.
+      await payjoinManager.initSender(
         pjUrl: pjUri,
         originalPsbt: originalPsbt,
         amount: tx.amount.amount,

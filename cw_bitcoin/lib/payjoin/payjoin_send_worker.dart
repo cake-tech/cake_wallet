@@ -27,20 +27,20 @@ const _relayRequestTimeout = Duration(seconds: 10);
 /// Mirrors `payjoin-cli`'s `process_sender_session` driver:
 ///   WithReplyKey -> PollingForProposal -> Closed(Success)
 ///
-/// On [run], if [persister] already holds events the worker resumes via
-/// `replaySenderEventLog` (matching [PayjoinReceiverWorker]'s replay path).
-/// Otherwise it builds a fresh [pj.SenderBuilder] from the original PSBT and
-/// uri, then proceeds through the state machine.
+/// A session is created up-front by [createSession]; the worker then drives
+/// it from its persisted event log via [resume] (`replaySenderEventLog`,
+/// matching [PayjoinReceiverWorker]'s replay path), both for a new send and
+/// after a wallet switch / app restart.
 class PayjoinSenderWorker {
   PayjoinSenderWorker({
     required MailroomManager mailroomManager,
-    pj.JsonSenderSessionPersister? persister,
+    required pj.JsonSenderSessionPersister persister,
   })  : _mailroomManager = mailroomManager,
         _persister = persister;
 
   final MailroomManager _mailroomManager;
   final http.Client client = ProxyWrapper().getHttpIOClient();
-  final pj.JsonSenderSessionPersister? _persister;
+  final pj.JsonSenderSessionPersister _persister;
   bool _cancelled = false;
   bool _disposed = false;
 
@@ -57,39 +57,39 @@ class PayjoinSenderWorker {
     client.close();
   }
 
-  Future<String> run(
-    String psbtBase64,
-    String pjUriString,
-    int minFeeRateSatPerKwu,
-  ) async {
-    if (_cancelled) throw PayjoinSenderCancelledException();
-    final persister = _persister ?? _InMemorySenderPersister();
-
-    // `run` always starts a new session for [psbtBase64]. Replaying an
-    // existing log here would continue an earlier send to the same endpoint
-    // and sign its original instead of this one; resuming is [resume]'s job.
+  /// Builds a new sender session for [psbtBase64] and persists its first
+  /// state into [persister], without any network I/O. Throws when the
+  /// session can't be built (e.g. the payee output doesn't match the
+  /// request's `amount=`), before anything reaches the receiver.
+  ///
+  /// Refuses a persister that already holds events: those belong to an
+  /// earlier send to the same endpoint, and continuing them would sign that
+  /// send's original instead of [psbtBase64].
+  static void createSession({
+    required String psbtBase64,
+    required String pjUriString,
+    required int minFeeRateSatPerKwu,
+    required pj.JsonSenderSessionPersister persister,
+  }) {
     if (persister.load().isNotEmpty) {
       throw const PayjoinEndpointAlreadyUsedError();
     }
-
-    return _runFresh(
-        psbtBase64, pjUriString, minFeeRateSatPerKwu, persister, _sessionDeadline());
+    final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
+    pj.SenderBuilder(psbt: psbtBase64, uri: pjUri)
+        .buildRecommended(minFeeRateSatPerKwu: minFeeRateSatPerKwu)
+        .save(persister: persister);
   }
 
   DateTime _sessionDeadline() =>
       DateTime.now().add(_maxSenderSessionDuration);
 
-  /// Resumes a sender session from its persisted event log. Used when the
-  /// worker is re-spawned after a wallet switch / app restart and the
-  /// original PSBT / BIP21 URI are no longer at hand (the replayed FFI
-  /// state contains everything needed to continue polling). Requires a
-  /// persister to have been supplied at construction time.
+  /// Drives the session from its persisted event log: a session just made
+  /// by [createSession], or one re-spawned after a wallet switch / app
+  /// restart (the replayed FFI state contains everything needed to
+  /// continue).
   Future<String> resume() async {
     if (_cancelled) throw PayjoinSenderCancelledException();
     final persister = _persister;
-    if (persister == null) {
-      throw StateError('Cannot resume sender without a persister');
-    }
     final events = persister.load();
     if (events.isEmpty) {
       throw StateError('Cannot resume sender: event log is empty');
@@ -130,25 +130,6 @@ class PayjoinSenderWorker {
       throw Exception('Sender session already closed without a proposal');
     }
     throw Exception('Sender session not resumable: ${state.runtimeType}');
-  }
-
-  Future<String> _runFresh(
-    String psbtBase64,
-    String pjUriString,
-    int minFeeRateSatPerKwu,
-    pj.JsonSenderSessionPersister persister,
-    DateTime deadline,
-  ) async {
-    final pjUri = pj.Uri.parse(uri: pjUriString).checkPjSupported();
-    final builder = pj.SenderBuilder(psbt: psbtBase64, uri: pjUri);
-    final initialTransition = builder.buildRecommended(
-      minFeeRateSatPerKwu: minFeeRateSatPerKwu,
-    );
-    final withReplyKey = initialTransition.save(persister: persister);
-
-    final polling =
-        await _postOriginalProposal(withReplyKey, persister, deadline);
-    return _pollForProposal(polling, persister, deadline);
   }
 
   Future<pj.PollingForProposal> _postOriginalProposal(
@@ -289,17 +270,4 @@ class PayjoinSenderFallbackAvailableException extends PayjoinSessionError {
   PayjoinSenderFallbackAvailableException(this.fallbackTx)
       : super('Fallback transaction ready to broadcast');
   final Uint8List fallbackTx;
-}
-
-class _InMemorySenderPersister extends pj.JsonSenderSessionPersister {
-  final List<String> _events = [];
-
-  @override
-  void save(String event) => _events.add(event);
-
-  @override
-  List<String> load() => List.from(_events);
-
-  @override
-  void close() => _events.clear();
 }

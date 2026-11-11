@@ -214,6 +214,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void clearOutputs() {
     outputs.clear();
     addOutput();
+    payjoinUri = null;
+    reusedPayjoinEndpoint = null;
   }
 
   @action
@@ -1802,11 +1804,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   /// switch value on the send form. False for non-Bitcoin wallets or when
   /// the user toggled the switch off.
   @computed
-  bool get hasActivePayjoin =>
-      wallet.type == WalletType.bitcoin &&
-      usePayjoin &&
-      isPayjoinEnabled &&
-      (payjoinUri?.isNotEmpty ?? false);
+  bool get hasActivePayjoin => hasPayjoinOption && isPayjoinEnabled;
 
   /// True when the send form should show the payjoin row at all: a Bitcoin
   /// wallet with payjoin enabled in settings and a `pj=` endpoint on the
@@ -1814,9 +1812,42 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   /// off so it can be turned back on.
   @computed
   bool get hasPayjoinOption =>
-      wallet.type == WalletType.bitcoin &&
-      usePayjoin &&
-      (payjoinUri?.isNotEmpty ?? false);
+      wallet.type == WalletType.bitcoin && usePayjoin && _formMatchesPayjoinUri;
+
+  /// Whether the form still pays the request [payjoinUri] came from: one
+  /// output, to the request's address, for its `amount=` when it set one.
+  /// The sender session is built against that request (BIP78 requires the
+  /// payee output to match it exactly), so payjoin is dropped once the user
+  /// edits the recipient or the requested amount, or adds a recipient.
+  bool get _formMatchesPayjoinUri {
+    final uri = payjoinUri;
+    if (uri == null || uri.isEmpty || outputs.length != 1) return false;
+    final Uri parsed;
+    try {
+      parsed = Uri.parse(uri);
+    } catch (_) {
+      return false;
+    }
+    final params = {
+      for (final entry in parsed.queryParameters.entries) entry.key.toLowerCase(): entry.value,
+    };
+
+    final output = outputs.first;
+    final requestAddress = params['address'] ?? parsed.path;
+    final formAddress = output.isParsedAddress ? output.extractedAddress : output.address;
+    // Bech32 addresses are case-insensitive and QR codes often uppercase them.
+    if (formAddress.trim().toLowerCase() != requestAddress.trim().toLowerCase()) return false;
+
+    final requestAmount = params['amount'];
+    if (requestAmount == null || requestAmount.isEmpty) return true;
+    if (output.sendAll) return false;
+    try {
+      final currency = output.cryptoCurrencyHandler();
+      return output.cryptoAmountMoney.amount == currency.parseAmount(requestAmount).amount;
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// Toggle handler for the send form's "Use Payjoin" switch. [payjoinUri]
   /// itself is never mutated by the toggle — the flag only gates whether it
