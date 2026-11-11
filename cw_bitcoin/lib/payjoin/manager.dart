@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:blockchain_utils/blockchain_utils.dart';
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
@@ -492,6 +493,25 @@ class PayjoinManager {
     return PayjoinEndpointUse.pending;
   }
 
+  /// Bounds for [receiverMaxFeeRateSatPerVb]. The floor keeps payjoins
+  /// working when the fee estimate is unavailable (the wallet then reports
+  /// 1 sat/vB); the ceiling bounds the worst case for one P2WPKH input
+  /// (272 WU) to ~68k sats.
+  static const int minReceiverMaxFeeRateSatPerVb = 10;
+  static const int maxReceiverMaxFeeRateSatPerVb = 1000;
+
+  /// The highest effective fee rate the receiver will pay for its own input:
+  /// twice the current fast estimate, clamped to
+  /// [minReceiverMaxFeeRateSatPerVb]..[maxReceiverMaxFeeRateSatPerVb].
+  /// A sender asking for more (`minfeerate`) gets no payjoin and falls back
+  /// to its original transaction.
+  static int receiverMaxFeeRateSatPerVb(int fastFeeRateSatPerVb) =>
+      (fastFeeRateSatPerVb * 2)
+          .clamp(minReceiverMaxFeeRateSatPerVb, maxReceiverMaxFeeRateSatPerVb);
+
+  int _receiverMaxFeeRateSatPerVb() =>
+      receiverMaxFeeRateSatPerVb(_wallet.feeRate(BitcoinTransactionPriority.fast));
+
   /// The raw `pj=` value of a BIP21 URI, as used for the sender session keys.
   static String? _pjParam(String? bip21) {
     if (bip21 == null || bip21.isEmpty) return null;
@@ -644,6 +664,7 @@ class PayjoinManager {
         },
         isOutpointOwned: (txid, vout) =>
             _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
+        getMaxFeeRateSatPerVb: _receiverMaxFeeRateSatPerVb,
         persister: persister,
         onProposalReceived: () {
           unawaited(_payjoinStorage.markReceiverSessionInProgress(pjEndpoint));
@@ -757,6 +778,7 @@ class PayjoinManager {
       },
       isOutpointOwned: (txid, vout) =>
           _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
+      getMaxFeeRateSatPerVb: _receiverMaxFeeRateSatPerVb,
       persister: persister,
       onProposalReceived: () {
         _payjoinStorage.markReceiverSessionInProgress(endpoint);

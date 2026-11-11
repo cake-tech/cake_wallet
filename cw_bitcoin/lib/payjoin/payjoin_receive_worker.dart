@@ -57,6 +57,7 @@ class PayjoinReceiverWorker {
     required this.utxos,
     required this.isMineChecker,
     required this.isOutpointOwned,
+    required this.getMaxFeeRateSatPerVb,
     this.getCurrentHeight,
     pj.JsonReceiverSessionPersister? persister,
     void Function()? onProposalReceived,
@@ -73,6 +74,11 @@ class PayjoinReceiverWorker {
   // [utxos] — so checkInputsNotOwned can't be bypassed by referencing a
   // wallet-owned outpoint that falls outside that snapshot.
   final bool Function(String txid, int vout) isOutpointOwned;
+  // Upper bound on the effective fee rate the receiver pays for its own
+  // input. The sender picks `minfeerate` freely and the receiver's share is
+  // deducted from its own output, so this is what limits a fee drain. Read
+  // when the proposal is built, since a session can wait for hours.
+  final int Function() getMaxFeeRateSatPerVb;
   final int Function()? getCurrentHeight;
   final pj.JsonReceiverSessionPersister? _persister;
   final void Function()? _onProposalReceived;
@@ -362,10 +368,12 @@ class PayjoinReceiverWorker {
 
       // WantsFeeRange → ProvisionalProposal
       if (current is pj.WantsFeeRange) {
+        final maxFeeRate = getMaxFeeRateSatPerVb();
+        printV('[pjReceiver] applyFeeRange maxEffectiveFeeRate=$maxFeeRate sat/vB');
         final applyFeeRangeTransition = _wrapSync(
           () => current.applyFeeRange(
             minFeeRateSatPerVb: null,
-            maxEffectiveFeeRateSatPerVb: 10000,
+            maxEffectiveFeeRateSatPerVb: maxFeeRate,
           ),
           'applyFeeRange',
         );
