@@ -846,7 +846,7 @@
   "picker_section_recents": "최근",
   "picker_section_selected": "선택된",
   "picker_section_stablecoins": "스테이블코인",
-  "picker_section_tokenized_stocks": "토큰화된 주식(xStocks)",
+  "picker_section_tokenized_stocks": "토큰화된 주식",
   "picker_section_tokens_standard": "토큰(${standard})",
   "picker_see_all": "모두 보기",
   "picker_show_less": "간략히 보기",

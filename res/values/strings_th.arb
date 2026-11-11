@@ -846,7 +846,7 @@
   "picker_section_recents": "ล่าสุด",
   "picker_section_selected": "เลือกแล้ว",
   "picker_section_stablecoins": "Stablecoins",
-  "picker_section_tokenized_stocks": "หุ้นโทเค็น (xStocks)",
+  "picker_section_tokenized_stocks": "หุ้นโทเค็น",
   "picker_section_tokens_standard": "โทเค็น (${standard})",
   "picker_see_all": "ดูทั้งหมด",
   "picker_show_less": "แสดงน้อยลง",

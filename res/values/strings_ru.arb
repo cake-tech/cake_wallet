@@ -847,7 +847,7 @@
   "picker_section_recents": "Недавние",
   "picker_section_selected": "Выбрано",
   "picker_section_stablecoins": "Стейблкоины",
-  "picker_section_tokenized_stocks": "Токенизированные акции (xStocks)",
+  "picker_section_tokenized_stocks": "Токенизированные акции",
   "picker_section_tokens_standard": "Токены (${standard})",
   "picker_see_all": "Посмотреть все",
   "picker_show_less": "Показать меньше",

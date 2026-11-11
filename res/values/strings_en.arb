@@ -892,7 +892,7 @@
   "picker_section_recents": "Recents",
   "picker_section_selected": "Selected",
   "picker_section_stablecoins": "Stablecoins",
-  "picker_section_tokenized_stocks": "Tokenized Stocks (xStocks)",
+  "picker_section_tokenized_stocks": "Tokenized Stocks",
   "picker_section_tokens_standard": "Tokens (${standard})",
   "picker_see_all": "See All",
   "picker_show_less": "Show less",
