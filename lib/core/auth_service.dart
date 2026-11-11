@@ -7,7 +7,7 @@ import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/store/app_store.dart' show AppStore;
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cw_core/db/sqlite.dart';
 import "package:cw_core/keychain_read_status_native.dart";
@@ -29,7 +29,7 @@ class AuthService with Store {
     required this.sharedPreferences,
     required this.settingsStore,
     required this.authenticationStore,
-    required this.appStore,
+    required this.walletPoolService,
     required this.resetService,
     required this.walletList,
   });
@@ -52,7 +52,7 @@ class AuthService with Store {
   final SharedPreferences sharedPreferences;
   final SettingsStore settingsStore;
   final AuthenticationStore authenticationStore;
-  final AppStore appStore;
+  final WalletPoolService walletPoolService;
   final ResetService resetService;
   final List<WalletInfo> walletList;
 
@@ -114,7 +114,7 @@ class AuthService with Store {
     }
 
     if (decodedDuressPin == pin) {
-      await _handleDuressLogin(secureStorage, sharedPreferences, authenticationStore, appStore,
+      await _handleDuressLogin(secureStorage, sharedPreferences, authenticationStore, walletPoolService,
           resetService, walletList);
 
       navigatorKey.currentState?.pushNamedAndRemoveUntil(
@@ -159,7 +159,7 @@ class AuthService with Store {
       secureStorage,
       sharedPreferences,
       authenticationStore,
-      appStore,
+      walletPoolService,
       resetService,
       walletList,
     );
@@ -265,7 +265,7 @@ Future<void> _handleDuressLogin(
   SecureStorage secureStorage,
   SharedPreferences sharedPreferences,
   AuthenticationStore authenticationStore,
-  AppStore appStore,
+  WalletPoolService walletPoolService,
   ResetService resetService,
   List<WalletInfo> wallets,
 ) async {
@@ -273,10 +273,7 @@ Future<void> _handleDuressLogin(
 
   // Close wallet instance if opened
   try {
-    if (appStore.wallet != null) {
-      await appStore.wallet!.close();
-    }
-    appStore.wallet = null;
+    await walletPoolService.closeActive();
   } catch (e) {
     printV('[DURESS] Failed to close wallet instance: $e');
   }

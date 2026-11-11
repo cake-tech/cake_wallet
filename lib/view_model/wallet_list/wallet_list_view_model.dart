@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_loading_service.dart';
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -20,6 +21,7 @@ abstract class WalletListViewModelBase with Store {
     this._appStore,
     this._walletLoadingService,
     this._walletManager,
+    this._walletPoolService,
   )   : wallets = ObservableList<WalletListItem>(),
         multiWalletGroups = ObservableList<WalletGroup>(),
         singleWalletsList = ObservableList<WalletListItem>(),
@@ -66,6 +68,7 @@ abstract class WalletListViewModelBase with Store {
   final AppStore _appStore;
   final WalletManager _walletManager;
   final WalletLoadingService _walletLoadingService;
+  final WalletPoolService _walletPoolService;
 
   WalletType get currentWalletType => _appStore.wallet!.type;
 
@@ -78,8 +81,7 @@ abstract class WalletListViewModelBase with Store {
       return;
     }
 
-    final wallet = await _walletLoadingService.load(walletItem.type, walletItem.name);
-    await _appStore.changeCurrentWallet(wallet);
+    await _walletPoolService.switchTo(WalletKey(walletItem.name, walletItem.type));
     updateList();
   }
 

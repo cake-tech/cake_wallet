@@ -1,13 +1,13 @@
 import 'package:cake_wallet/di.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
+import "package:cw_core/wallet_info.dart";
 
 Future<void> loadCurrentWallet({String? password}) async {
-  final appStore = getIt.get<AppStore>();
   final name = getIt.get<SharedPreferences>().getString(PreferencesKey.currentWalletName);
   final typeRaw = getIt.get<SharedPreferences>().getInt(PreferencesKey.currentWalletType) ?? 0;
 
@@ -17,6 +17,13 @@ Future<void> loadCurrentWallet({String? password}) async {
 
   final type = deserializeFromInt(typeRaw);
   final walletLoadingService = getIt.get<WalletLoadingService>();
-  final wallet = await walletLoadingService.load(type, name, password: password);
-  await appStore.changeCurrentWallet(wallet);
+  final walletPoolService = getIt.get<WalletPoolService>();
+
+  try {
+    await walletPoolService.switchTo(WalletKey(name, type),
+        load: () => walletLoadingService.open(type, name, password: password));
+  } catch (error, stack) {
+    final wallet = await walletLoadingService.recover(type, name, error, stack);
+    await walletPoolService.switchTo(wallet.key, load: () async => wallet);
+  }
 }

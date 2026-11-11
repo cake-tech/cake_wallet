@@ -1,7 +1,8 @@
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/store/app_store.dart';
+import "package:cake_wallet/new-ui/services/wallet_pool_service.dart";
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_unlock_view_model.dart';
 
@@ -11,7 +12,7 @@ class WalletUnlockLoadableViewModel = WalletUnlockLoadableViewModelBase
     with _$WalletUnlockLoadableViewModel;
 
 abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel with Store {
-  WalletUnlockLoadableViewModelBase(this._appStore, this._walletLoadingService,
+  WalletUnlockLoadableViewModelBase(this._walletPoolService, this._walletLoadingService,
       {required this.walletName, required this.walletType})
       : password = '',
         state = InitialExecutionState();
@@ -30,7 +31,7 @@ abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel w
 
   final WalletLoadingService _walletLoadingService;
 
-  final AppStore _appStore;
+  final WalletPoolService _walletPoolService;
 
   @override
   @action
@@ -41,8 +42,8 @@ abstract class WalletUnlockLoadableViewModelBase extends WalletUnlockViewModel w
   Future<void> unlock() async {
     try {
       state = InitialExecutionState();
-      final wallet = await _walletLoadingService.load(walletType, walletName, password: password);
-      _appStore.changeCurrentWallet(wallet);
+      await _walletPoolService.switchTo(WalletKey(walletName, walletType),
+          load: () => _walletLoadingService.open(walletType, walletName, password: password));
       success();
     } catch (e) {
       failure(e.toString());

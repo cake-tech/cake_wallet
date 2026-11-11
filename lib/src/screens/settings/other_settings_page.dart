@@ -24,6 +24,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/db/sqlite.dart';
+import "package:flutter/foundation.dart";
 import 'package:flutter/material.dart';
 import "package:flutter_mobx/flutter_mobx.dart";
 import 'package:path/path.dart' as p;
@@ -234,6 +235,11 @@ class OtherSettingsPage extends BasePage {
                     keyValue: '[dev] *QR tools',
                     label: '[dev] *QR tools',
                     onTap: () => Navigator.of(context).pushNamed(Routes.devExchangeProviderLogs)),
+                  ListItemRegularRow(
+                      keyValue: "[dev] runWithWallet playground",
+                      label: "[dev] runWithWallet playground",
+                      onTap: () =>
+                          Navigator.of(context).pushNamed(Routes.devRunWithWalletPlayground)),
                 ListItemRegularRow(
                     keyValue: '[dev] browse sqlite db',
                     label: '[dev] browse sqlite db',
