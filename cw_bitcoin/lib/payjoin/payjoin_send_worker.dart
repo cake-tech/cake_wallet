@@ -1,13 +1,12 @@
 import "dart:async";
-import "dart:io";
 import "dart:typed_data";
 
 import "package:cw_bitcoin/payjoin/mailroom_manager.dart";
 import "package:cw_bitcoin/payjoin/payjoin_session_errors.dart";
+import "package:cw_bitcoin/payjoin/post_via_relay.dart";
 import "package:cw_bitcoin/payjoin/relay_response.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
-import "package:http/http.dart" as very_insecure_http_do_not_use;
 import "package:payjoin/payjoin.dart" as pj;
 
 /// Maximum wall-clock duration a sender worker will keep polling for a
@@ -15,13 +14,6 @@ import "package:payjoin/payjoin.dart" as pj;
 /// expiry window; the FFI also surfaces explicit terminal states which we
 /// handle separately.
 const _maxSenderSessionDuration = Duration(hours: 24);
-const _initialBackoff = Duration(seconds: 2);
-const _maxBackoff = Duration(seconds: 30);
-
-/// Per-request cap so a relay that accepts the connection but never
-/// responds (common over Tor) can't stall the retry loop forever — the
-/// timeout surfaces as a SocketException and the next relay is tried.
-const _relayRequestTimeout = Duration(seconds: 10);
 
 /// Drives the v2 Payjoin sender state machine.
 ///
@@ -169,7 +161,7 @@ class PayjoinSenderWorker {
       if (_cancelled) {
         throw const PayjoinSenderCancelledException();
       }
-      await Future.delayed(_nextBackoff(consecutiveFailures++));
+      await Future.delayed(nextRelayBackoff(consecutiveFailures++));
     }
   }
 
@@ -226,87 +218,30 @@ class PayjoinSenderWorker {
         printV("[pjSender] poll FATAL: $e\n$s");
         throw _classify(e);
       }
-      await Future.delayed(_nextBackoff(consecutiveFailures++));
+      await Future.delayed(nextRelayBackoff(consecutiveFailures++));
     }
   }
 
   Future<PayjoinRelayResponse> _postViaRelay(
     pj.RequestOhttpContext Function(String relay) buildRequest, {
     required DateTime deadline,
-  }) async {
-    var consecutiveFailures = 0;
-    while (true) {
-      if (_cancelled) {
-        throw const PayjoinSenderCancelledException();
-      }
-      if (DateTime.now().isAfter(deadline)) {
-        throw const PayjoinSessionError(
+  }) =>
+      postViaRelay(
+        client: client,
+        mailroomManager: _mailroomManager,
+        directory: directory,
+        buildRequest: (relay) {
+          final requestContext = buildRequest(relay);
+          return (request: requestContext.request, ohttpCtx: requestContext.ohttpCtx);
+        },
+        deadline: deadline,
+        isCancelled: () => _cancelled,
+        cancelledError: const PayjoinSenderCancelledException(),
+        expiredError: const PayjoinSessionError(
           "Payjoin sender session expired before relay connectivity returned",
-        );
-      }
-      // Stateless relay choice: every pick is random over the full
-      // configured pool. A broken relay costs one wasted request per
-      // round; the next pick naturally spreads load across the pool.
-      // Retries are bounded by [deadline], not by failure marks.
-      final String relay;
-      try {
-        relay = _mailroomManager.chooseRelay(
-          excludeHost: directory == null ? null : Uri.tryParse(directory!)?.host,
-        );
-      } on StateError {
-        throw const UnrecoverableError("No payjoin relay configured apart from the directory host");
-      }
-      // FFI/protocol errors raised while building the request are NOT relay
-      // problems — propagate them so the caller sees the real cause.
-      final reqCtx = buildRequest(relay);
-      try {
-        final response = await client
-            .post(
-              Uri.parse(reqCtx.request.url),
-              headers: {"Content-Type": reqCtx.request.contentType},
-              body: reqCtx.request.body,
-            )
-            .timeout(
-              _relayRequestTimeout,
-              onTimeout: () => throw SocketException("relay $relay request timed out"),
-            );
-        if (response.statusCode >= 200 && response.statusCode < 300) {
-          return PayjoinRelayResponse(
-            bodyBytes: response.bodyBytes,
-            ohttpCtx: reqCtx.ohttpCtx,
-            requestUrl: reqCtx.request.url,
-          );
-        }
-        // Non-2xx from the relay itself (OHTTP wraps the directory response,
-        // so the relay's status is its own) — try again.
-        printV("[pjSender] relay $relay returned HTTP ${response.statusCode}");
-      } on IOException catch (e) {
-        // Transport failure of any kind — socket, TLS handshake, HTTP
-        // protocol, request timeout. Try the next pick. A cancel disposes
-        // the HTTP client mid-request, surfacing as one of these — exit
-        // as a cancellation instead.
-        if (_cancelled) {
-          throw const PayjoinSenderCancelledException();
-        }
-        printV("[pjSender] relay $relay transport error: $e");
-      } on very_insecure_http_do_not_use.ClientException catch (e) {
-        if (_cancelled) {
-          throw const PayjoinSenderCancelledException();
-        }
-        printV("[pjSender] relay $relay transport error: $e");
-      }
-      await Future.delayed(_nextBackoff(consecutiveFailures++));
-    }
-  }
-}
-
-Duration _nextBackoff(int consecutiveFailures) {
-  if (consecutiveFailures == 0) {
-    return _initialBackoff;
-  }
-  final seconds = (_initialBackoff.inSeconds * (1 << consecutiveFailures))
-      .clamp(_initialBackoff.inSeconds, _maxBackoff.inSeconds);
-  return Duration(seconds: seconds);
+        ),
+        logTag: "pjSender",
+      );
 }
 
 class PayjoinSenderCancelledException extends PayjoinSessionError {

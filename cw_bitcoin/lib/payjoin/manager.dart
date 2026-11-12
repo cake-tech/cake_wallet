@@ -160,51 +160,18 @@ class PayjoinManager {
         return;
       }
 
-      if (state is pj.ReceiverPendingFallbackReceiveSession) {
+      if (state is pj.ReceiverPendingFallbackReceiveSession ||
+          state is pj.HasReplyableExceptionReceiveSession) {
         try {
-          final rawTxBytes = state.inner.fallbackTx();
-          if (rawTxBytes.isNotEmpty) {
-            final hex = BytesUtils.toHexString(rawTxBytes);
-            await _payjoinStorage.storeReceiverPsbt(
-              sessionId,
-              "RAW:$hex",
-            );
-          }
+          await _storeReceiverFallback(sessionId, state, persister);
         } catch (e) {
-          writePayjoinLog(
-            "[WARNING] Receiver($sessionId) fallbackTx extraction: $e",
-          );
+          writePayjoinLog("[WARNING] Receiver($sessionId) fallback extraction: $e");
         }
         await _payjoinStorage.markReceiverSessionUnrecoverable(
           sessionId,
-          "Fallback transaction ready to broadcast",
-        );
-        return;
-      }
-
-      if (state is pj.HasReplyableExceptionReceiveSession) {
-        try {
-          final cancelTransition = state.inner.cancel();
-          final pending = cancelTransition.save(persister: persister);
-          if (pending != null) {
-            final rawTxBytes = pending.fallbackTx();
-            if (rawTxBytes.isNotEmpty) {
-              final hex = BytesUtils.toHexString(rawTxBytes);
-              await _payjoinStorage.storeReceiverPsbt(
-                sessionId,
-                "RAW:$hex",
-              );
-            }
-            pending.close();
-          }
-        } catch (e) {
-          writePayjoinLog(
-            "[WARNING] Receiver($sessionId) cancel->fallback: $e",
-          );
-        }
-        await _payjoinStorage.markReceiverSessionUnrecoverable(
-          sessionId,
-          "Unrecoverable error",
+          state is pj.ReceiverPendingFallbackReceiveSession
+              ? "Fallback transaction ready to broadcast"
+              : "Unrecoverable error",
         );
         return;
       }
@@ -662,95 +629,13 @@ class PayjoinManager {
       // leaves the persisted session without a polling worker.
       _payjoinStorage.markReceiverSessionWaiting(pjEndpoint).ignore();
 
-      final persister = PayjoinReceiverPersister(
-        _eventStore,
+      final worker = await _startReceiverWorker(
         pjEndpoint,
+        PayjoinReceiverPersister(_eventStore, pjEndpoint),
       );
-
-      var utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
-      if (utxos.isEmpty) {
-        await _wallet.updateAllUnspents();
-        utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
-      }
-      // Candidates arrive in wallet scan order (address, then age), which is
-      // predictable; shuffle so the receiver's input choice can't mirror it.
-      utxos.shuffle(Random.secure());
-      final worker = PayjoinReceiverWorker(
-        mailroomManager: _mailroomManager,
-        utxos: utxos,
-        isMineChecker: (scriptBytes) {
-          final script = Script.fromRaw(byteData: scriptBytes);
-          return _wallet.isMine(script);
-        },
-        isOutpointOwned: (txid, vout) =>
-            _wallet.unspentCoins.any((u) => u.hash == txid && u.vout == vout),
-        getMaxFeeRateSatPerVb: _receiverMaxFeeRateSatPerVb,
-        directory: pjEndpoint,
-        persister: persister,
-        onProposalReceived: () {
-          unawaited(_payjoinStorage.markReceiverSessionInProgress(pjEndpoint));
-          // Sender's original PSBT is now in the event log.  Extract the
-          // receiver's output amount so the dashboard displays a real value
-          // instead of 0 during the processing window, and store the sender's
-          // original PSBT so fallback broadcast is offered like the sender.
-          unawaited(_tryProcessOriginalPayloadFromEvents(pjEndpoint));
-        },
-      );
-
-      _runningReceivers[pjEndpoint] = worker;
-
-      try {
-        final psbt = await worker.resume();
-        writePayjoinLog("Receiver($pjEndpoint) proposalSent len=${psbt.length}");
-        // worker.run() returned — the proposal was posted to the directory.
-        // Metadata extraction is best-effort; failures here don't affect the
-        // protocol state (the sender can still pick up and broadcast).
-        String txId = "";
-        String netAmount = "0";
-        try {
-          txId = getTxIdFromPsbtV0(psbt);
-        } catch (e) {
-          writePayjoinLog("[WARNING] Receiver($pjEndpoint) txId extraction: $e");
-        }
-        try {
-          netAmount = getReceiverNetAmountFromPsbt(psbt, _wallet);
-        } catch (e) {
-          writePayjoinLog("[WARNING] Receiver($pjEndpoint) netAmount calc: $e");
-        }
-        // Keep a fallback PSBT on the session so the user can
-        // fallback-broadcast if the sender drops off after the proposal is
-        // posted. Only the sender's original PSBT is broadcastable — the
-        // proposal PSBT has the sender's signature stripped, so it must
-        // never be stored as the fallback. Extract the original
-        // synchronously from the event log instead of racing with the
-        // unawaited onProposalReceived handler.
-        final senderOriginal = _senderOriginalPsbtFromEvents(pjEndpoint);
-        if (senderOriginal != null) {
-          await _payjoinStorage.mutateReceiver(pjEndpoint, (session) {
-            if ((session.originalPsbt ?? "").isEmpty) {
-              session.originalPsbt = senderOriginal;
-            }
-          });
-        }
-
-        await _payjoinStorage.markReceiverSessionComplete(
-          pjEndpoint,
-          txId,
-          netAmount,
-        );
-      } finally {
-        _runningReceivers.remove(pjEndpoint)?.dispose();
-      }
-    } on UnrecoverableError catch (e) {
-      writePayjoinLog("[ERROR] Receiver($pjEndpoint) unrecoverable: $e");
-      await _payjoinStorage.markReceiverSessionUnrecoverable(pjEndpoint, e.message);
+      await _driveReceiverToCompletion(worker, pjEndpoint);
     } catch (e) {
       writePayjoinLog("[ERROR] Receiver($pjEndpoint) $e");
-      // Don't mark unrecoverable: the directory session is independent of the
-      // local worker.  A transient error here (FFI panic, metadata parse
-      // failure) shouldn't prevent the session from being visible in the UI or
-      // resumable on the next launch.  The resumeSessions() expiry check
-      // cleans up sessions that are genuinely dead.
     }
   }
 
@@ -790,13 +675,25 @@ class PayjoinManager {
       return;
     }
 
-    // Same UTXO policy as spawnReceiver: confirmed-only (with a rescan
-    // fallback), shuffled so the input choice can't mirror wallet scan order.
+    final worker = await _startReceiverWorker(endpoint, persister);
+    writePayjoinLog("Receiver($endpoint) resuming worker from event log");
+
+    unawaited(_driveReceiverToCompletion(worker, endpoint));
+  }
+
+  /// Builds a receiver worker that continues [endpoint]'s session from its
+  /// persisted event log and registers it as the endpoint's running worker.
+  Future<PayjoinReceiverWorker> _startReceiverWorker(
+    String endpoint,
+    PayjoinReceiverPersister persister,
+  ) async {
     var utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
     if (utxos.isEmpty) {
       await _wallet.updateAllUnspents();
       utxos = _wallet.getUtxoWithPrivateKeys(confirmedOnly: true);
     }
+    // Candidates arrive in wallet scan order (address, then age), which is
+    // predictable; shuffle so the receiver's input choice can't mirror it.
     utxos.shuffle(Random.secure());
 
     final worker = PayjoinReceiverWorker(
@@ -812,15 +709,16 @@ class PayjoinManager {
       directory: endpoint,
       persister: persister,
       onProposalReceived: () {
-        _payjoinStorage.markReceiverSessionInProgress(endpoint);
+        unawaited(_payjoinStorage.markReceiverSessionInProgress(endpoint));
+        // Sender's original PSBT is now in the event log.  Extract the
+        // receiver's output amount so the dashboard displays a real value
+        // instead of 0 during the processing window, and store the sender's
+        // original PSBT so fallback broadcast is offered like the sender.
         unawaited(_tryProcessOriginalPayloadFromEvents(endpoint));
       },
     );
     _runningReceivers[endpoint] = worker;
-    writePayjoinLog("Receiver($endpoint) resuming worker from event log");
-
-    // Drive in the background; mirrors spawnReceiver's post-run handling.
-    unawaited(_driveReceiverToCompletion(worker, endpoint));
+    return worker;
   }
 
   Future<void> _driveReceiverToCompletion(
@@ -843,8 +741,11 @@ class PayjoinManager {
       } catch (e) {
         writePayjoinLog("[WARNING] Receiver($endpoint) netAmount calc: $e");
       }
-      // Same rule as spawnReceiver: only the sender's original PSBT is a
-      // broadcastable fallback — the proposal PSBT is not. Extract it
+      // Keep a fallback PSBT on the session so the user can
+      // fallback-broadcast if the sender drops off after the proposal is
+      // posted. Only the sender's original PSBT is broadcastable — the
+      // proposal PSBT has the sender's signature stripped, so it must
+      // never be stored as the fallback. Extract the original
       // synchronously from the event log instead of racing with the
       // unawaited onProposalReceived handler.
       final senderOriginal = _senderOriginalPsbtFromEvents(endpoint);
@@ -870,9 +771,11 @@ class PayjoinManager {
       await _payjoinStorage.markReceiverSessionUnrecoverable(endpoint, e.message);
     } catch (e) {
       writePayjoinLog("[ERROR] Receiver($endpoint) $e");
-      // Don't mark unrecoverable: same rationale as spawnReceiver — a
-      // transient error here shouldn't prevent the next wallet-switch
-      // resume from retrying.
+      // Don't mark unrecoverable: the directory session is independent of the
+      // local worker.  A transient error here (FFI panic, metadata parse
+      // failure) shouldn't prevent the session from being visible in the UI or
+      // resumable on the next launch.  The resumeSessions() expiry check
+      // cleans up sessions that are genuinely dead.
     } finally {
       _runningReceivers.remove(endpoint)?.dispose();
     }
@@ -1106,29 +1009,39 @@ class PayjoinManager {
       final state = replayResult.state();
       replayResult.dispose();
 
-      // States that have progressed past UncheckedOriginalPayload have
-      // fallback_tx available.  Earlier states (Initialized,
-      // UncheckedOriginalPayload) do NOT — skip without persisting.
-      final pending = _cancelToPendingFallback(state, persister);
-      if (pending == null) {
-        return;
-      }
-
-      try {
-        final rawTxBytes = pending.fallbackTx();
-        if (rawTxBytes.isNotEmpty) {
-          await _payjoinStorage.storeReceiverPsbt(
-            sessionId,
-            "RAW:${BytesUtils.toHexString(rawTxBytes)}",
-          );
-        }
-      } finally {
-        pending.close();
-      }
+      await _storeReceiverFallback(sessionId, state, persister);
     } catch (e) {
       writePayjoinLog(
         "[WARNING] Receiver($sessionId) fallback extraction: $e",
       );
+    }
+  }
+
+  /// Moves [state] to `PendingFallback` (see [_cancelToPendingFallback]) and
+  /// stores its raw fallback transaction hex on the session.
+  Future<void> _storeReceiverFallback(
+    String sessionId,
+    pj.ReceiveSession state,
+    PayjoinReceiverPersister persister,
+  ) async {
+    // States that have progressed past UncheckedOriginalPayload have
+    // fallback_tx available.  Earlier states (Initialized,
+    // UncheckedOriginalPayload) do NOT — skip without persisting.
+    final pending = _cancelToPendingFallback(state, persister);
+    if (pending == null) {
+      return;
+    }
+
+    try {
+      final rawTxBytes = pending.fallbackTx();
+      if (rawTxBytes.isNotEmpty) {
+        await _payjoinStorage.storeReceiverPsbt(
+          sessionId,
+          "RAW:${BytesUtils.toHexString(rawTxBytes)}",
+        );
+      }
+    } finally {
+      pending.close();
     }
   }
 
