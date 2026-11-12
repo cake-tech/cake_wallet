@@ -15,7 +15,7 @@ class NewSendAddressInput extends StatefulWidget {
     required this.addressController,
     this.onURIScanned,
     this.onPushPasteButton,
-    required this.selectedCurrency,
+    this.selectedCurrency,
     this.onSelectedContact,
     this.onPushAddressBookButton,
     required this.onEditingComplete,
@@ -32,7 +32,7 @@ class NewSendAddressInput extends StatefulWidget {
   final Function(BuildContext)? onPushAddressBookButton;
   final Function(ContactBase)? onSelectedContact;
   final String? displayName;
-  final Currency selectedCurrency;
+  final Currency? selectedCurrency;
   final VoidCallback onEditingComplete;
   final bool bottomPadding;
   final FormFieldValidator<String>? validator;

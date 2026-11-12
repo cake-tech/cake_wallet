@@ -31,11 +31,7 @@ class ContactPage extends BasePage {
     _addressController.addListener(() {
       final address = _addressController.text;
 
-      if (address != contactViewModel.address) {
-        contactViewModel.displayName = '';
-      }
-
-      contactViewModel.address = address;
+      contactViewModel.updateAddress(address);
     });
 
     autorun((_) => _currencyTypeController.text =
@@ -101,24 +97,26 @@ class ContactPage extends BasePage {
                     ),
                   ),
                 ),
-                if (contactViewModel.currency != null)
-                  Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Observer(
-                      builder: (_) {
-                        return NewSendAddressInput(
-                          key: ValueKey("contact_page_address_input_key"),
-                          focusNode: addressFocusNode,
-                          displayName: contactViewModel.displayName,
-                          addressController: _addressController,
-                          onEditingComplete: () {},
-                          onPushPasteButton: (context) => _extractParsedAddress(context),
-                          validator: AddressValidator(type: contactViewModel.currency!),
-                          selectedCurrency: contactViewModel.currency!,
-                        );
-                      },
-                    ),
-                  )
+                Padding(
+                  padding: EdgeInsets.only(top: 20),
+                  child: Observer(
+                    builder: (_) {
+                      final currency = contactViewModel.currency;
+                      return NewSendAddressInput(
+                        key: ValueKey("contact_page_address_input_key"),
+                        focusNode: addressFocusNode,
+                        displayName: contactViewModel.displayName,
+                        addressController: _addressController,
+                        onEditingComplete: () {},
+                        onPushPasteButton: (context) => _extractParsedAddress(context),
+                        onSelectedContact: (contact) =>
+                            contactViewModel.selectCurrency(contact.type),
+                        validator: currency == null ? null : AddressValidator(type: currency),
+                        selectedCurrency: currency,
+                      );
+                    },
+                  ),
+                )
               ],
             ),
           ),
@@ -144,18 +142,20 @@ class ContactPage extends BasePage {
                     key: ValueKey("contact_page_save_button_key"),
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
-                      _extractParsedAddress(context);
+                      await _extractParsedAddress(context);
+                      if (!context.mounted) return;
 
                       if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
                         return;
                       }
 
+                      if (!contactViewModel.isReady) return;
                       await contactViewModel.save();
                     },
                     text: S.of(context).save,
                     color: Theme.of(context).colorScheme.primary,
                     textColor: Theme.of(context).colorScheme.onPrimary,
-                    isDisabled: !contactViewModel.isReady,
+                    isDisabled: !contactViewModel.canAttemptSave,
                   ),
                 ),
               )
@@ -165,13 +165,35 @@ class ContactPage extends BasePage {
   }
 
   Future<void> _extractParsedAddress(BuildContext context) async {
+    final query = contactViewModel.address.trim();
+    final currency = contactViewModel.currency;
+    final generation = contactViewModel.addressLookupGeneration;
     final parsedAddress = await contactViewModel.extractParsedAddress(context);
-    if (parsedAddress == null) return;
+    if (parsedAddress == null ||
+        !context.mounted ||
+        !contactViewModel.isAddressLookupCurrent(
+          query: query,
+          currency: currency,
+          generation: generation,
+        )) {
+      return;
+    }
 
     final confirmed = await showParsedAddressConfirmationAlert(context, parsedAddress);
-    if (!confirmed) return;
+    if (!confirmed ||
+        !context.mounted ||
+        !contactViewModel.isAddressLookupCurrent(
+          query: query,
+          currency: currency,
+          generation: generation,
+        )) {
+      return;
+    }
 
     contactViewModel.applyParsedAddress(parsedAddress);
+    if (contactViewModel.currency == null && context.mounted) {
+      _presentCurrencyPicker(context);
+    }
   }
 
   void _presentCurrencyPicker(BuildContext context) {
@@ -183,7 +205,7 @@ class ContactPage extends BasePage {
         items: contactViewModel.currencies,
         title: S.of(context).please_select,
         hintText: S.of(context).search_currency,
-        onItemSelected: (Currency item) => contactViewModel.currency = item as CryptoCurrency,
+        onItemSelected: (Currency item) => contactViewModel.selectCurrency(item as CryptoCurrency),
       ),
       context: context,
     );
@@ -235,15 +257,18 @@ class ContactPage extends BasePage {
     final confirmed = await showPopUp<bool>(
       context: context,
       builder: (BuildContext context) {
+        final currencies = parsedAddress.parsedAddressByCurrencyMap.keys
+            .map((currency) => currency.toString())
+            .join(', ');
         return AlertWithOneAction(
           alertTitle: S.of(context).address_detected,
           headerTitleText: parsedAddress.profileName.isEmpty ? null : parsedAddress.profileName,
           headerImageProfileUrl: parsedAddress.profileImageUrl.isEmpty
               ? parsedAddress.addressSource.iconPath
               : parsedAddress.profileImageUrl,
-          alertContent: S.of(context).extracted_address_content(
-                '${parsedAddress.handle} (${parsedAddress.addressSource.label})',
-              ),
+          alertContent:
+              '${S.of(context).extracted_address_content('${parsedAddress.handle} (${parsedAddress.addressSource.label})')}\n\n'
+              '${S.of(context).settings_currency}: $currencies',
           buttonText: S.of(context).ok,
           buttonAction: () => Navigator.of(context).pop(true),
         );

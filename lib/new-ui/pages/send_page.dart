@@ -250,6 +250,17 @@ class _NewSendPageState extends State<NewSendPage> {
     );
 
     _disposers.add(
+      reaction(
+        (_) => widget.sendViewModel.outputs[_selectedOutput].addressInvalidationGeneration,
+        (_) {
+          final output = widget.sendViewModel.outputs[_selectedOutput];
+          final controller = _addressControllers[_selectedOutput];
+          if (controller.text != output.address) controller.text = output.address;
+        },
+      ),
+    );
+
+    _disposers.add(
       reaction((_) => widget.sendViewModel.outputs[_selectedOutput].memo, (memo) {
         if (memo != _memoControllers[_selectedOutput].text) {
           _memoControllers[_selectedOutput].text = memo;
@@ -320,15 +331,36 @@ class _NewSendPageState extends State<NewSendPage> {
   }
 
   Future<void> _resolveAddressForOutput(Output output) async {
+    final query = output.address.trim();
+    final currency = widget.sendViewModel.selectedCryptoCurrency;
+    final generation = output.addressLookupGeneration;
     final result = await widget.sendViewModel.resolveAddressForOutput(output);
-    if (result == null || !mounted) {
+    if (result == null ||
+        !mounted ||
+        !output.isAddressLookupCurrent(
+          query: query,
+          currency: currency,
+          generation: generation,
+        )) {
       return;
     }
 
     final confirmed = await showParsedAddressConfirmationAlert(context, result);
+    if (!mounted ||
+        !output.isAddressLookupCurrent(
+          query: query,
+          currency: currency,
+          generation: generation,
+        )) {
+      return;
+    }
 
     if (confirmed) {
-      output.applyAddressLookupResult(result);
+      final applied = output.applyAddressLookupResult(
+        result,
+        expectedGeneration: generation,
+      );
+      if (!applied) return;
     } else {
       output.resetParsedAddress();
       return;
@@ -751,6 +783,15 @@ class _NewSendPageState extends State<NewSendPage> {
     setState(() {
       _selectedOutput = index;
     });
+    if (index >= 0 &&
+        index < widget.sendViewModel.outputs.length &&
+        index < _addressControllers.length) {
+      final output = widget.sendViewModel.outputs[index];
+      final address = output.isParsedAddress ? output.extractedAddress : output.address;
+      if (_addressControllers[index].text != address) {
+        _addressControllers[index].text = address;
+      }
+    }
     // final output = widget.sendViewModel.outputs[index];
     // _amountController.text = _fiatInputMode ? output.fiatAmount : output.cryptoAmount;
     // _addressController.text = output.address;

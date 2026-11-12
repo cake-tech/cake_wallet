@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
+import 'package:cake_wallet/core/address_resolver/namecoin/namecoin_record.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
@@ -126,6 +128,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         super(appStore: _appStore) {
     outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
 
+    reaction<CryptoCurrency>((_) => selectedCryptoCurrency, (_) {
+      for (final output in outputs) {
+        output.invalidateForCurrencyChange();
+      }
+    });
+
     unspentCoinsListViewModel.initialSetup();
     // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
 
@@ -189,12 +197,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   Future<ParsedAddress?> resolveAddressForOutput(Output output) async {
     final query = output.address.trim();
+    final currency = selectedCryptoCurrency;
+    final generation = output.addressLookupGeneration;
     if (query.isEmpty) return null;
 
     // Check if the address is valid for the current currency (except for Zano, which can use handles as addresses)
-    if (selectedCryptoCurrency != CryptoCurrency.zano) {
+    if (currency != CryptoCurrency.zano &&
+        !NamecoinRecord.isNamecoinIdentifier(query)) {
       final isValidAddress = AddressValidator(
-        type: selectedCryptoCurrency,
+        type: currency,
         network: wallet.walletInfo.network,
       ).isValid(query);
       if (isValidAddress) return null;
@@ -203,10 +214,22 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     final results = await _adrResService.resolve(
       query: query,
       wallet: wallet,
-      currency: selectedCryptoCurrency,
+      currency: currency,
     );
 
-    return results.isEmpty ? null : results.first;
+    if (!output.isAddressLookupCurrent(
+      query: query,
+      currency: currency,
+      generation: generation,
+    )) {
+      return null;
+    }
+
+    if (results.isEmpty) return null;
+    final resolvedAddress = results.first.parsedAddressByCurrencyMap[currency];
+    if (resolvedAddress == null || resolvedAddress.isEmpty) return null;
+
+    return results.first;
   }
 
   @action
@@ -953,6 +976,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       }
 
       // Regular flow
+
+      for (final output in outputs) {
+        final hasInvalidParsedAddress =
+            output.parsedAddress.addressSource != AddressSource.notParsed &&
+                !output.isParsedAddress;
+        final hasUnresolvedNamecoin =
+            NamecoinRecord.isNamecoinIdentifier(output.address) && !output.isParsedAddress;
+        if (hasInvalidParsedAddress || hasUnresolvedNamecoin) {
+          throw TransactionGenerationException(
+            'The resolved address does not match the selected currency. Resolve the alias again.',
+          );
+        }
+      }
 
       final isSendAll = outputs.any((output) => output.sendAll);
 

@@ -60,6 +60,13 @@ abstract class OutputBase with Store {
 
   Key key;
 
+  int _addressLookupGeneration = 0;
+
+  int get addressLookupGeneration => _addressLookupGeneration;
+
+  @observable
+  int addressInvalidationGeneration = 0;
+
   bool get useSatoshi => _appStore.amountParsingProxy.useSatoshi(cryptoCurrencyHandler());
 
   @observable
@@ -100,7 +107,19 @@ abstract class OutputBase with Store {
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.addressSource != AddressSource.notParsed && parsedAddress.handle.isNotEmpty;
+      parsedAddress.addressSource != AddressSource.notParsed &&
+      parsedAddress.handle.isNotEmpty &&
+      extractedAddress.isNotEmpty &&
+      parsedAddress.parsedAddressByCurrencyMap[cryptoCurrencyHandler()] == extractedAddress;
+
+  bool isAddressLookupCurrent({
+    required String query,
+    required CryptoCurrency currency,
+    required int generation,
+  }) =>
+      generation == _addressLookupGeneration &&
+      query == address.trim() &&
+      currency == cryptoCurrencyHandler();
 
   String roundedCryptoAmount(int digits) => displayCryptoAmount.withMaxDecimals(digits);
 
@@ -281,6 +300,7 @@ abstract class OutputBase with Store {
 
   @action
   void resetParsedAddress() {
+    _addressLookupGeneration++;
     displayName = null;
     extractedAddress = '';
     note = '';
@@ -288,13 +308,45 @@ abstract class OutputBase with Store {
   }
 
   @action
-  void applyAddressLookupResult(ParsedAddress result) {
-    final currency = cryptoCurrencyHandler();
+  void invalidateForCurrencyChange() {
+    addressInvalidationGeneration++;
+    final source = parsedAddress.addressSource;
+    final handle = parsedAddress.handle;
 
+    if (source == AddressSource.contact) {
+      resetParsedAddress();
+      address = '';
+      return;
+    }
+
+    // Keep the parsed result as evidence of a mismatch so transaction creation
+    // fails closed, but never leave its extracted recipient usable by another asset.
+    _addressLookupGeneration++;
+    displayName = null;
+    extractedAddress = '';
+    note = '';
+    if (source != AddressSource.notParsed && handle.isNotEmpty) address = handle;
+  }
+
+  @action
+  bool applyAddressLookupResult(ParsedAddress result, {int? expectedGeneration}) {
+    if (expectedGeneration != null && expectedGeneration != _addressLookupGeneration) {
+      return false;
+    }
+
+    final currency = cryptoCurrencyHandler();
+    final resolvedAddress = result.parsedAddressByCurrencyMap[currency];
+    if (resolvedAddress == null || resolvedAddress.isEmpty) {
+      resetParsedAddress();
+      return false;
+    }
+
+    _addressLookupGeneration++;
     parsedAddress = result;
-    extractedAddress = result.parsedAddressByCurrencyMap[currency] ?? '';
+    extractedAddress = resolvedAddress;
     note = result.description;
     displayName = result.profileName.isNotEmpty ? result.profileName : result.handle;
+    return true;
   }
 
   @action
