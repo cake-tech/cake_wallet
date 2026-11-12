@@ -994,6 +994,7 @@ abstract class EVMChainWalletBase
     String? sourceTokenAddress,
     BigInt? sourceTokenAmount, {
     bool useBlinkProtection = true,
+    int gasReserve = 0,
   }) async {
     // Define Native Currency
     final nativeCurrency = switch (selectedChainId) {
@@ -1022,7 +1023,7 @@ abstract class EVMChainWalletBase
     }
 
     final nativeBal = balance[nativeCurrency]?.available ?? Money.zero(nativeCurrency);
-    var requiredNative = Money.fromInt(gas.estimatedGasFee, nativeCurrency);
+    var requiredNative = Money.fromInt(gas.feeWithReserve(gasReserve), nativeCurrency);
 
     if (valueWei.currency == nativeCurrency) {
       requiredNative += valueWei;
@@ -1056,7 +1057,7 @@ abstract class EVMChainWalletBase
 
     // Final Safe Gas Limit
     // If estimation failed (0), use 300,000 as a safe default for swaps.
-    final gasUnits = gas.estimatedGasUnits == 0 ? 300000 : gas.estimatedGasUnits;
+    final gasUnits = gas.estimatedGasUnits == 0 ? 300000 : gas.estimatedGasUnits + gasReserve;
 
     try {
       return _client.signTransaction(
@@ -1663,6 +1664,10 @@ class GasParamsHandler {
       gasPrice: 0,
     );
   }
+
+  // let a failed estimate's zero fee propagate to callers
+  int feeWithReserve(int gasReserve) =>
+      estimatedGasUnits == 0 ? 0 : estimatedGasFee + gasReserve * gasPrice;
 }
 
 class DiscoveredToken {

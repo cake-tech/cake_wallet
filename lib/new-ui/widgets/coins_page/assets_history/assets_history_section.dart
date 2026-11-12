@@ -13,6 +13,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'assets_section.dart';
+import 'defi_section.dart';
 import 'history_section.dart';
 
 class AssetsHistorySectionActionButton {
@@ -52,6 +53,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
     final hasAssetsButton = widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled;
     final hasNftTab = isNFTACtivatedChain(widget.dashboardViewModel.wallet.type,
         chainId: widget.dashboardViewModel.wallet.chainId);
+    final hasDefiTab = DefiSection.supportsWallet(widget.dashboardViewModel.wallet);
     tabs = [
       if (hasAssetsTab)
         AssetsHistorySectionTab(
@@ -66,11 +68,17 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
                 arguments: widget.dashboardViewModel.balanceViewModel,
               );
             }): null),
+      if (hasDefiTab)
+        AssetsHistorySectionTab(
+          S.current.defi,
+          DefiSection(key: ValueKey(widget.dashboardViewModel.wallet.id)),
+          null,
+        ),
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(
             detailsAsPage: false,
-            roundedTopSection: hasAssetsTab || hasNftTab,
+            roundedTopSection: hasAssetsTab || hasDefiTab || hasNftTab,
             dashboardViewModel: widget.dashboardViewModel,
             short: true,
           ),

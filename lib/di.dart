@@ -22,6 +22,8 @@ import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/backup_service_v3.dart';
 import 'package:cake_wallet/core/csv_export_service.dart';
+import "package:cake_wallet/core/everstake/ethereum_pool.dart";
+import "package:cake_wallet/core/everstake/everstake_service.dart";
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
@@ -72,6 +74,8 @@ import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
+import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
@@ -581,6 +585,35 @@ Future<void> setup({
 
   getIt.registerFactory<LightningUsernameBloc>(
       () => LightningUsernameBloc(getIt.get<AppStore>().wallet!));
+
+  getIt.registerFactory<EverstakeBloc>(() {
+    final wallet = getIt.get<AppStore>().wallet!;
+    return EverstakeBloc(
+      wallet: wallet,
+      settingsStore: getIt.get<SettingsStore>(),
+      evm: evm!,
+      service: EverstakeService(),
+      pool: EverstakeEthereumPool(
+        (call) => evm!.getWeb3Client(wallet)!.makeRPCCall<String>("eth_call", [
+          {
+            "from": wallet.walletAddresses.address,
+            "to": call.to,
+            "data": call.data,
+            "value": "0x${call.value.amount.toRadixString(16)}",
+          },
+          "latest",
+        ]),
+      ),
+    );
+  });
+
+  getIt.registerFactoryParam<FiatRateCubit, CryptoCurrency, void>(
+    (currency, _) => FiatRateCubit(
+      currency: currency,
+      settingsStore: getIt.get<SettingsStore>(),
+      fiatConversionStore: getIt.get<FiatConversionStore>(),
+    ),
+  );
 
   getIt.registerFactory<AuthService>(
     () => AuthService(

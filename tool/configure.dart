@@ -1574,9 +1574,19 @@ abstract class EVM {
     TransactionPriority? priority,
     {bool useBlinkProtection = true,
     String? sourceTokenAddress,
-    BigInt? sourceTokenAmount}
+    BigInt? sourceTokenAmount,
+    int gasReserve = 0}
   );
   
+  Future<Money> estimateRawCallDataTransactionFee(
+    WalletBase wallet,
+    String to,
+    String dataHex,
+    Money valueWei,
+    TransactionPriority? priority,
+    {int gasReserve = 0}
+  );
+
   // Hardware wallet methods
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
