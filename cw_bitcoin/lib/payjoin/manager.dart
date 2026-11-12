@@ -1330,7 +1330,10 @@ class PayjoinManager {
     List<String> outputAddresses,
   ) async {
     final direct = await _payjoinStorage.getSessionByTxId(txId, walletId: _wallet.id);
-    if (direct != null || outputAddresses.isEmpty) {
+    if (direct != null) {
+      return direct;
+    }
+    if (outputAddresses.isEmpty) {
       return null;
     }
 
