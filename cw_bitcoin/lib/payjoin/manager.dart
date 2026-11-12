@@ -342,7 +342,7 @@ class PayjoinManager {
               // unknown to the server — the broadcast genuinely failed, so
               // fall through to the outer catch to keep the session
               // inProgress and retry on the next resume.
-              throw Exception("tx $txId not found on chain");
+              throw PayjoinSessionError("tx $txId not found on chain");
             }
             writePayjoinLog("Sender($pjUri) tx $txId already on chain — marking complete");
           }
@@ -405,7 +405,7 @@ class PayjoinManager {
   }) async {
     final pjUri = _pjParam(pjUrl);
     if (pjUri == null) {
-      throw Exception("Error initializing Payjoin Sender: missing pj parameter");
+      throw const PayjoinSessionError("Error initializing Payjoin Sender: missing pj parameter");
     }
     await _eventStore.ensureOpen();
     if (await senderEndpointUse(pjUrl) != null) {
@@ -424,7 +424,7 @@ class PayjoinManager {
       rethrow;
     } catch (e) {
       writePayjoinLog("[ERROR] Sender($pjUri) build failed: $e");
-      throw Exception("Error initializing Payjoin Sender: $e");
+      throw PayjoinSessionError("Error initializing Payjoin Sender: $e");
     }
     writePayjoinLog("Sender($pjUri) Created");
 
@@ -593,12 +593,19 @@ class PayjoinManager {
     // pool per fetch). Directories that fail are tracked in a local set
     // for THIS init only — nothing persists, so a later init re-probes
     // every directory fresh. When the set covers the configured pool,
-    // chooseDirectory's StateError surfaces the failure to the caller.
+    // chooseDirectory's StateError surfaces as
+    // PayjoinDirectoryUnreachableError so callers can fall back to a plain
+    // BIP21 URI.
     final attemptedDirectories = <String>{};
     while (true) {
-      final directory = _mailroomManager.chooseDirectory(
-        exclude: attemptedDirectories,
-      );
+      final String directory;
+      try {
+        directory = _mailroomManager.chooseDirectory(
+          exclude: attemptedDirectories,
+        );
+      } on StateError {
+        throw const PayjoinDirectoryUnreachableError();
+      }
       try {
         final ohttpKeys = await _fetchOhttpKeys(directory);
 
@@ -1210,7 +1217,7 @@ class PayjoinManager {
     final data = session?.originalPsbt;
     if (data == null || data.isEmpty) {
       writePayjoinLog("Fallback($endpoint) no stored PSBT");
-      throw Exception("No fallback PSBT available");
+      throw const PayjoinSessionError("No fallback PSBT available");
     }
 
     final isSender = session!.isSenderSession;

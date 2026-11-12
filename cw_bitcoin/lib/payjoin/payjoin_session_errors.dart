@@ -27,3 +27,10 @@ class PayjoinEndpointAlreadyUsedError extends PayjoinSessionError {
       : super("This payment request was already used for a payjoin. "
             "Scan a new one or send without payjoin.");
 }
+
+/// Thrown when no payjoin directory could be reached to start a receiver
+/// session — offline, or every directory/relay pair failed. Callers treat it
+/// as "no payjoin this time" and fall back to a plain BIP21 URI.
+class PayjoinDirectoryUnreachableError extends CakeException {
+  const PayjoinDirectoryUnreachableError() : super("No payjoin directory could be reached");
+}

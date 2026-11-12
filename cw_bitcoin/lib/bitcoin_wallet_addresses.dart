@@ -4,6 +4,7 @@ import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/utils.dart';
 import 'package:cw_core/parse_fixed.dart';
 import 'package:cw_core/payment_uris.dart';
@@ -83,16 +84,15 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
 
-  bool _isPayjoinConnectivityError(String error) =>
-      ["error sending request for url", "Instance of 'FfiIoError'"].any((e) => error.contains(e));
-
   @action
   Future<void> initPayjoin() async {
     try {
       await payjoinManager.initPayjoin();
+    } on PayjoinDirectoryUnreachableError catch (e) {
+      printV(e);
     } catch (e) {
       printV(e);
-      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
+      rethrow;
     }
   }
 
@@ -145,12 +145,11 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
           address: address,
         );
       }
+    } on PayjoinDirectoryUnreachableError catch (e) {
+      // Ignore Connectivity errors
+      printV(e);
     } catch (e) {
       printV(e);
-      // Ignore Connectivity errors
-      if (!_isPayjoinConnectivityError(e.toString())) {
-        rethrow;
-      }
     } finally {
       if (!placeholderSettled) {
         payjoinReceiverInFlight--;
