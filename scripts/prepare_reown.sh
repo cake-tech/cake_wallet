@@ -34,6 +34,7 @@ s|^  freezed: \^2\.5\.7$|  freezed: ^2.5.8|
 s|^  dependency_validator: \^4\.1\.2$|  dependency_validator: ^5.1.0|
 ' "packages/$pkg/pubspec.yaml"
 done
+
 # disables codegen/resolving for the examples. i really could not care less about them
 for gen in packages/reown_appkit/generate_files.sh packages/reown_walletkit/generate_files.sh; do
   universal_sed '
