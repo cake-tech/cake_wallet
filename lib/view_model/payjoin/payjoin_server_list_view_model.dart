@@ -1,15 +1,14 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/payjoin/payjoin_server.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/payjoin/payjoin_server.dart";
+import "package:cake_wallet/entities/preferences_key.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:flutter/foundation.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 class PayjoinServerListViewModel extends ChangeNotifier {
   PayjoinServerListViewModel() {
@@ -23,9 +22,10 @@ class PayjoinServerListViewModel extends ChangeNotifier {
 
   final List<PayjoinServer> relays = [];
   final List<PayjoinServer> directories = [];
-  final http.Client _client = ProxyWrapper().getHttpIOClient();
+  final _client = ProxyWrapper().getHttpIOClient();
 
   bool _isTesting = false;
+
   bool get isTesting => _isTesting;
 
   Future<void> _loadCustom() async {
@@ -33,9 +33,11 @@ class PayjoinServerListViewModel extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
 
       final removedRelays = Set<String>.from(
-          prefs.getStringList(PreferencesKey.payjoinRemovedDefaultRelays) ?? []);
+        prefs.getStringList(PreferencesKey.payjoinRemovedDefaultRelays) ?? [],
+      );
       final removedDirs = Set<String>.from(
-          prefs.getStringList(PreferencesKey.payjoinRemovedDefaultDirectories) ?? []);
+        prefs.getStringList(PreferencesKey.payjoinRemovedDefaultDirectories) ?? [],
+      );
       relays.removeWhere((r) => removedRelays.contains(r.url));
       directories.removeWhere((d) => removedDirs.contains(d.url));
 
@@ -60,7 +62,7 @@ class PayjoinServerListViewModel extends ChangeNotifier {
         }
       }
     } catch (e) {
-      printV('Failed to load payjoin servers: $e');
+      printV("Failed to load payjoin servers: $e");
     }
   }
 
@@ -70,28 +72,36 @@ class PayjoinServerListViewModel extends ChangeNotifier {
       final customRelays = relays.where((r) => !r.isDefault).toList();
       final customDirs = directories.where((d) => !d.isDefault).toList();
       await prefs.setString(
-          PreferencesKey.payjoinRelays, jsonEncode(customRelays.map((r) => r.toJson()).toList()));
+        PreferencesKey.payjoinRelays,
+        jsonEncode(customRelays.map((r) => r.toJson()).toList()),
+      );
       await prefs.setString(
-          PreferencesKey.payjoinDirectories, jsonEncode(customDirs.map((d) => d.toJson()).toList()));
+        PreferencesKey.payjoinDirectories,
+        jsonEncode(customDirs.map((d) => d.toJson()).toList()),
+      );
       await _applyMailroomConfig(prefs);
     } catch (e) {
-      printV('Failed to save payjoin servers: $e');
+      printV("Failed to save payjoin servers: $e");
     }
   }
 
   Future<void> _applyMailroomConfig(SharedPreferences prefs) async {
     try {
       final wallet = getIt.get<AppStore>().wallet;
-      if (wallet == null || !getIt.get<SettingsStore>().usePayjoin) return;
+      if (wallet == null || !getIt.get<SettingsStore>().usePayjoin) {
+        return;
+      }
       PayjoinServer.applyMailroomConfig(wallet, prefs);
     } catch (e) {
-      printV('Failed to apply payjoin mailroom config: $e');
+      printV("Failed to apply payjoin mailroom config: $e");
     }
   }
 
   void addServer(String url, PayjoinServerType type) {
     final list = type == PayjoinServerType.relay ? relays : directories;
-    if (list.any((s) => s.url == url)) return;
+    if (list.any((s) => s.url == url)) {
+      return;
+    }
     list.add(PayjoinServer(url: url, type: type));
     _save();
     notifyListeners();
@@ -100,10 +110,16 @@ class PayjoinServerListViewModel extends ChangeNotifier {
   void updateServer(PayjoinServer server, String newUrl) {
     final list = server.type == PayjoinServerType.relay ? relays : directories;
     final trimmed = newUrl.trim();
-    if (trimmed.isEmpty || server.url == trimmed) return;
-    if (list.any((s) => s.url == trimmed)) return;
+    if (trimmed.isEmpty || server.url == trimmed) {
+      return;
+    }
+    if (list.any((s) => s.url == trimmed)) {
+      return;
+    }
     final index = list.indexOf(server);
-    if (index == -1) return;
+    if (index == -1) {
+      return;
+    }
     list[index] = PayjoinServer(
       url: trimmed,
       type: server.type,
@@ -138,7 +154,7 @@ class PayjoinServerListViewModel extends ChangeNotifier {
       await prefs.setStringList(key, existing);
       await _applyMailroomConfig(prefs);
     } catch (e) {
-      printV('Failed to save removed default: $e');
+      printV("Failed to save removed default: $e");
     }
   }
 
@@ -147,22 +163,22 @@ class PayjoinServerListViewModel extends ChangeNotifier {
     notifyListeners();
 
     final allServers = [...relays, ...directories];
-    await Future.wait(allServers.map((server) async {
-      server.isTesting = true;
-      notifyListeners();
-      try {
-        final uri = Uri.parse(server.url).resolve('/health');
-        final response = await _client
-            .get(uri)
-            .timeout(const Duration(seconds: 10));
-        server.isLive = response.statusCode >= 200 && response.statusCode < 400;
-      } catch (e) {
-        server.isLive = false;
-      } finally {
-        server.isTesting = false;
+    await Future.wait(
+      allServers.map((server) async {
+        server.isTesting = true;
         notifyListeners();
-      }
-    }));
+        try {
+          final uri = Uri.parse(server.url).resolve("/health");
+          final response = await _client.get(uri).timeout(const Duration(seconds: 10));
+          server.isLive = response.statusCode >= 200 && response.statusCode < 400;
+        } catch (e) {
+          server.isLive = false;
+        } finally {
+          server.isTesting = false;
+          notifyListeners();
+        }
+      }),
+    );
 
     _isTesting = false;
     notifyListeners();
