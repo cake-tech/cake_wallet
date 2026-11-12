@@ -49,20 +49,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   @observable
   String? payjoinAddress;
 
-  /// Number of `newPayjoinReceiver` calls currently in flight (directory +
-  /// OHTTP relay round-trips). The receive page shows a blurred placeholder
-  /// QR while any call is in flight, so the plain-address QR never flashes
-  /// before the pjuri is ready. Counted up before the receiver work starts
-  /// and down in `newPayjoinReceiver`'s `finally` on both success and
-  /// failure; the guard-path early returns never touch it, so a concurrent
-  /// guard rejection cannot clear the flag while another call is still
-  /// pending.
-  @observable
-  int payjoinReceiverInFlight = 0;
-
-  @computed
-  bool get isPayjoinReceiverPending => payjoinReceiverInFlight > 0;
-
   @override
   String getAddress(
       {required int index,
@@ -101,32 +87,19 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
 
   @action
   Future<void> newPayjoinReceiver({bool shouldSaveRecipientAddress = false}) async {
-    // BIP78 requires the address the sender pays (the one shown in the BIP21
-    // URI) to match the script the receiver session is bound to, so bind the
-    // currently displayed address. Silent Payments and Lightning page types
-    // expose non-script addresses that cannot be bound.
     if (addressPageType == SilentPaymentsAddresType.p2sp ||
         addressPageType == LightningAddressType.p2l) {
       payjoinEndpoint = null;
       payjoinAddress = null;
       return;
     }
-    // Soft guard: skip silently when the wallet has no spendable UTXOs, so the
-    // receive page can render without surfacing a receiver-creation error.
-    // PayjoinManager.initReceiver also enforces this as a hard guard.
+
     if (!payjoinManager.canCreateReceiver) {
       printV("Skipping payjoin receiver creation: no spendable UTXOs available");
       payjoinEndpoint = null;
       payjoinAddress = null;
       return;
     }
-    payjoinReceiverInFlight++;
-    // Whether the placeholder period has already been settled (pjuri ready
-    // or attempt failed). spawnReceiver below stays awaited for the
-    // receiver's whole session lifetime — which can outlast the receive
-    // page by minutes — so the pending counter must be released the moment
-    // the pjuri is ready, not when the session eventually ends.
-    var placeholderSettled = false;
     try {
       final address = this.address;
       final endpoint = await payjoinManager.initReceiver(
@@ -138,8 +111,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       if (endpoint.isNotEmpty) {
         payjoinEndpoint = endpoint;
         payjoinAddress = address;
-        payjoinReceiverInFlight--;
-        placeholderSettled = true;
         await payjoinManager.spawnReceiver(
           pjEndpoint: endpoint,
           address: address,
@@ -150,10 +121,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       printV(e);
     } catch (e) {
       printV(e);
-    } finally {
-      if (!placeholderSettled) {
-        payjoinReceiverInFlight--;
-      }
     }
   }
 
@@ -181,6 +148,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     return BitcoinURI(address: address, amount: amount, pjUri: pjUri);
   }
 
+  @override
   Future<PaymentURI> getPaymentRequestUri(String amount) async {
     if (addressPageType is LightningAddressType && lightningWallet != null) {
       final amountSats = amount.isNotEmpty ? tryParseFixed(amount, 8) : null;

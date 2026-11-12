@@ -298,7 +298,6 @@ abstract class Bitcoin {
 
   void updatePayjoinState(Object wallet, bool state);
   String getPayjoinEndpoint(Object wallet);
-  bool isPayjoinReceiverPending(Object wallet);
   Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false});
   void cancelPayjoinSession(Object wallet, String sessionId);
   Future<void> fallbackBroadcastPayjoin(Object wallet, String sessionId);
