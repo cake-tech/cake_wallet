@@ -1,9 +1,7 @@
-import "package:cake_wallet/anonpay/anonpay_donation_link_info.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
-import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart";
@@ -37,7 +35,6 @@ import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
-import "package:shared_preferences/shared_preferences.dart";
 
 class NewReceivePage extends StatefulWidget {
   NewReceivePage({
@@ -110,10 +107,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
         } else {
           widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
         }
-        // The displayed address changed with the type, so the payjoin
-        // receiver must be rebound to it — otherwise getPaymentUri silently
-        // strips pj= because payjoinAddress no longer matches (and for
-        // Lightning the stale session is cleared outright).
+
         _ensurePayjoinSession();
         return;
       }
@@ -125,8 +119,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
       if ([WalletType.bitcoin, WalletType.litecoin]
           .contains(widget.addressListViewModel.type)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
-        // Same rebinding requirement as above for the non-BitcoinReceivePageOption
-        // path (no-op for litecoin — _ensurePayjoinSession checks wallet type).
+
         _ensurePayjoinSession();
       }
       if (widget.addressListViewModel.type == WalletType.zcash) {
