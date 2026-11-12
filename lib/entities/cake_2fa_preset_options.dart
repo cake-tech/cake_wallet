@@ -11,6 +11,7 @@ class Cake2FAPresetsOptions extends EnumerableItem<int> with Serializable<int> {
   static Cake2FAPresetsOptions deserialize({required int raw}) {
     switch (raw) {
       case 0:
+        return Cake2FAPresetsOptions.custom;
       case 1:
         return Cake2FAPresetsOptions.normal;
       case 2:

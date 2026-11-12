@@ -3,7 +3,6 @@ import "package:cake_wallet/new-ui/widgets/modal_header.dart";
 import "package:cake_wallet/new-ui/widgets/modal_page_wrapper.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/view_model/set_up_2fa_viewmodel.dart';
@@ -11,16 +10,13 @@ import 'package:flutter/material.dart';
 import "package:flutter_mobx/flutter_mobx.dart";
 import 'package:url_launcher/url_launcher.dart';
 
-class Setup2FAPage extends BasePage {
-  Setup2FAPage({required this.setup2FAViewModel});
+class Setup2FAPage extends StatelessWidget {
+  const Setup2FAPage({super.key, required this.setup2FAViewModel});
 
   final Setup2FAViewModel setup2FAViewModel;
 
   @override
-  bool get hideAppBar => true;
-
-  @override
-  Widget body(BuildContext context) {
+  Widget build(BuildContext context) {
     final cake2FAGuideUri = Uri.parse('https://docs.cakewallet.com/features/advanced/authentication/');
     return ModalPageWrapper(
       topBar: ModalTopBar(
