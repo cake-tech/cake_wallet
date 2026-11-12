@@ -69,7 +69,6 @@ class PayjoinReceiverWorker {
     required this.isOutpointOwned,
     required this.getMaxFeeRateSatPerVb,
     this.directory,
-    this.getCurrentHeight,
     pj.JsonReceiverSessionPersister? persister,
     void Function()? onProposalReceived,
   })  : _mailroomManager = mailroomManager,
@@ -97,7 +96,6 @@ class PayjoinReceiverWorker {
   // host are never used: one operator holding both OHTTP roles could link
   // this client's IP to the payjoin payload.
   final String? directory;
-  final int Function()? getCurrentHeight;
   final pj.JsonReceiverSessionPersister? _persister;
   final void Function()? _onProposalReceived;
   bool _cancelled = false;
@@ -121,26 +119,6 @@ class PayjoinReceiverWorker {
     }
     _disposed = true;
     client.close();
-  }
-
-  Future<String> run(String address, String directory, pj.OhttpKeys ohttpKeys) {
-    try {
-      if (_cancelled) {
-        throw const CancelException();
-      }
-      _sessionDeadline = DateTime.now().add(_maxReceiverSessionDuration);
-      final persister = _persister ?? _InMemoryReceiverPersister();
-      final events = persister.load();
-
-      if (events.isNotEmpty) {
-        return _runFromReplay(persister);
-      }
-
-      return _runFresh(address, directory, ohttpKeys, persister);
-    } catch (e) {
-      printV("PayjoinReceiverWorker error: $e");
-      rethrow;
-    }
   }
 
   /// Resumes a receiver session from its persisted event log. Used when the
@@ -239,23 +217,6 @@ class PayjoinReceiverWorker {
     throw RecoverableError(
       "Cannot continue from unexpected session state: ${state.runtimeType}",
     );
-  }
-
-  Future<String> _runFresh(
-    String address,
-    String directory,
-    pj.OhttpKeys ohttpKeys,
-    pj.JsonReceiverSessionPersister persister,
-  ) {
-    final builder = pj.ReceiverBuilder(
-      address: address,
-      directory: directory,
-      ohttpKeys: ohttpKeys,
-    );
-    final initialTransition = builder.build();
-    final initialized = initialTransition.save(persister: persister);
-
-    return _processFromInitialized(initialized, persister);
   }
 
   Future<String> _processFromInitialized(
@@ -691,17 +652,4 @@ Duration _nextBackoff(int consecutiveFailures) {
 
 class CancelException extends PayjoinSessionError {
   const CancelException() : super("Payjoin receiver session cancelled");
-}
-
-class _InMemoryReceiverPersister extends pj.JsonReceiverSessionPersister {
-  final List<String> _events = [];
-
-  @override
-  void save(String event) => _events.add(event);
-
-  @override
-  List<String> load() => List.from(_events);
-
-  @override
-  void close() => _events.clear();
 }

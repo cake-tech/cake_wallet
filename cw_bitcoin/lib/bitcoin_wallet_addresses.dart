@@ -3,6 +3,7 @@ import 'package:blockchain_utils/bip/bip/bip32/bip32.dart';
 import 'package:cw_bitcoin/bitcoin_receive_page_option.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
+import 'package:cw_bitcoin/lightning/utils.dart';
 import 'package:cw_bitcoin/payjoin/manager.dart';
 import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
 import 'package:cw_bitcoin/utils.dart';
@@ -11,10 +12,7 @@ import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:mobx/mobx.dart';
-
-import 'lightning/utils.dart';
 
 part 'bitcoin_wallet_addresses.g.dart';
 
@@ -22,7 +20,7 @@ class BitcoinWalletAddresses = BitcoinWalletAddressesBase with _$BitcoinWalletAd
 
 abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   BitcoinWalletAddressesBase(
-    WalletInfo walletInfo, {
+    super.walletInfo, {
     required super.mainHdByTypeAndAccount,
     required super.sideHdByTypeAndAccount,
     required super.accountIndexes,
@@ -39,7 +37,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialSilentAddressIndex = 0,
     super.masterHd,
     super.lightningWallet,
-  }) : super(walletInfo);
+  });
 
   final PayjoinManager payjoinManager;
 
@@ -104,8 +102,8 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       final address = this.address;
       final endpoint = await payjoinManager.initReceiver(
         address,
-        isTestnet: false,
         retryCount: 0,
+        isTestnet: network == BitcoinNetwork.testnet,
         shouldSaveRecipientAddress: shouldSaveRecipientAddress,
       );
       if (endpoint.isNotEmpty) {
@@ -114,6 +112,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
         await payjoinManager.spawnReceiver(
           pjEndpoint: endpoint,
           address: address,
+          isTestnet: network == BitcoinNetwork.testnet,
         );
       }
     } on PayjoinDirectoryUnreachableError catch (e) {
