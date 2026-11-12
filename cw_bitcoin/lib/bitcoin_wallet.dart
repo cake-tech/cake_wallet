@@ -429,14 +429,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     if (session.isSenderSession) {
       info.amount = session.amount;
-      info.additionalInfo["pjNetFlow"] = -session.amount;
+      info.additionalInfo["pjNetFlow"] = -session.amount.amount.toInt();
     } else {
       info.direction = TransactionDirection.incoming;
       // A zero session amount means no proposal was ever processed —
       // keep the amount derived from the actual transaction.
       if (session.amount > Money.zero(info.amount.currency)) {
         info.amount = session.amount;
-        info.additionalInfo["pjNetFlow"] = session.amount;
+        info.additionalInfo["pjNetFlow"] = session.amount.amount.toInt();
       }
     }
 

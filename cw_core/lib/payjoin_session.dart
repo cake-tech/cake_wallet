@@ -47,7 +47,7 @@ class PayjoinSession {
 
   Money get amount => Money.parse(rawAmount ?? "0", CryptoCurrency.btc, isBaseUnit: true);
 
-  set amount(Money amount) => rawAmount = amount.toString();
+  set amount(Money amount) => rawAmount = amount.toStringWithPrecision(useBaseUnit: true);
 }
 
 enum PayjoinSessionStatus {
