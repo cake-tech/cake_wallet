@@ -729,6 +729,15 @@ class PayjoinManager {
       final psbt = await worker.resume();
       writePayjoinLog("Receiver($endpoint) proposalSent len=${psbt.length}");
 
+      // The worker was cancelled (cancelReceiver / cancelAllReceivers) or
+      // replaced while its proposal post was finishing. Don't overwrite the
+      // status the canceller set; a later resume completes the session from
+      // its Monitor state.
+      if (!identical(_runningReceivers[endpoint], worker)) {
+        writePayjoinLog("Receiver($endpoint) worker no longer active; status unchanged");
+        return;
+      }
+
       String txId = "";
       String netAmount = "0";
       try {
@@ -777,8 +786,17 @@ class PayjoinManager {
       // resumable on the next launch.  The resumeSessions() expiry check
       // cleans up sessions that are genuinely dead.
     } finally {
-      _runningReceivers.remove(endpoint)?.dispose();
+      _removeReceiverWorker(endpoint, worker);
     }
+  }
+
+  /// Disposes [worker] and unregisters it, unless a newer worker has
+  /// already replaced it under [endpoint].
+  void _removeReceiverWorker(String endpoint, PayjoinReceiverWorker worker) {
+    if (identical(_runningReceivers[endpoint], worker)) {
+      _runningReceivers.remove(endpoint);
+    }
+    worker.dispose();
   }
 
   /// Spawns a sender worker that drives the session from its persisted event
