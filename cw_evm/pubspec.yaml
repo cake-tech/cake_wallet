@@ -2,7 +2,6 @@ name: cw_evm
 description: A new Flutter package project.
 version: 0.0.1
 publish_to: none
-author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
@@ -13,14 +12,9 @@ dependencies:
   flutter:
     sdk: flutter
   web3dart: ^2.7.1
-  eth_sig_util: ^0.0.9
-  erc20: ^1.0.1
   bip39: ^1.0.6
   bip32: ^2.0.0
   hex: ^0.2.0
-  http: ^1.1.0
-  hive: ^2.2.3
-  collection: ^1.17.1
   path: ^1.8.0
   shared_preferences: ^2.0.15
   mobx: ^2.0.7+4

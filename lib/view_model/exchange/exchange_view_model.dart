@@ -25,7 +25,6 @@ import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
@@ -34,9 +33,11 @@ import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart'
 import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/whynot_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
+import "package:cake_wallet/exchange/utils/deposit_wallet_utils.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -308,7 +309,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
         ChainflipExchangeProvider(),
         if (FeatureFlag.isExolixEnabled) ExolixExchangeProvider(),
         SwapTradeExchangeProvider(),
-        // LetsExchangeExchangeProvider(),
+        WhyNotExchangeProvider(),
         // StealthExExchangeProvider(),
         XOSwapExchangeProvider(),
         SwapsXyzExchangeProvider(),
@@ -463,20 +464,14 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
   @computed
   Future<List<WalletInfo>> get depositWallets async {
-    WalletType? type;
-    type = cryptoCurrencyOrTokenToWalletType(depositCurrency);
+    final currency = depositCurrency;
+    final type = depositWalletType(currency);
     if (type == null) {
-      try {
-        type =
-            cryptoCurrencyOrTokenToWalletType(CryptoCurrency.fromString(depositCurrency.tag ?? ""));
-      } catch (_) {}
+      return [];
     }
 
-    if (type != null) {
-      return await WalletInfo.selectList("type = ?", [type.index]);
-    }
-
-    return await WalletInfo.getAll();
+    final wallets = await WalletInfo.selectList("type = ?", [type.index]);
+    return wallets.where((wallet) => canFundDeposit(wallet, currency)).toList();
   }
 
   @action
