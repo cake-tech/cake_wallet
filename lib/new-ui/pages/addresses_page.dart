@@ -115,13 +115,12 @@ class _NewAddressesPageState extends State<NewAddressesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final query = _searchController.text.trim().toLowerCase();
     final filteredItems = items.where((item) {
       if (item is! WalletAddressListItem) return false;
-      if (_searchController.text.isEmpty) return true;
-      if (item.name == null || item.name!.isEmpty) {
-        return (item.address.contains(_searchController.text.toLowerCase()));
-      }
-      return (item.name ?? '').toLowerCase().contains(_searchController.text.toLowerCase());
+      if (query.isEmpty) return true;
+      return item.address.toLowerCase().contains(query) ||
+          (item.name ?? '').toLowerCase().contains(query);
     }).toList();
 
     return Container(
