@@ -28,7 +28,7 @@ bool _hasAccounts(DashboardViewModel vm) => vm.wallet.hasAccountsSupport;
 
 bool _hasCoinControl(DashboardViewModel vm) => vm.wallet.hasCoinControl;
 
-bool _hasOptionalAddressTypes(DashboardViewModel vm) => vm.hasOptionalAddressTypes;
+bool _hasOptionalAddressTypes(DashboardViewModel vm) => vm.wallet.hasOptionalAddressTypes;
 
 bool _requiresKeyImageSync(DashboardViewModel vm) =>
     vm.wallet.type == WalletType.monero &&

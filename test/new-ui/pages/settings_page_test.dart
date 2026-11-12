@@ -72,9 +72,9 @@ void main() {
     when(() => dashboardViewModel.hasSilentPayments).thenReturn(false);
     when(() => dashboardViewModel.hasMweb).thenReturn(false);
     when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
-    when(() => dashboardViewModel.hasOptionalAddressTypes).thenReturn(false);
     when(() => wallet.hasAccountsSupport).thenReturn(false);
     when(() => wallet.hasCoinControl).thenReturn(false);
+    when(() => wallet.hasOptionalAddressTypes).thenReturn(false);
     when(() => wallet.name).thenReturn("My Cake Wallet");
     when(() => wallet.hardwareWalletType).thenReturn(null);
   });
@@ -175,7 +175,7 @@ void main() {
 
   test("Bitcoin settings show the address types row when optional types exist", () {
     when(() => wallet.type).thenReturn(WalletType.bitcoin);
-    when(() => dashboardViewModel.hasOptionalAddressTypes).thenReturn(true);
+    when(() => wallet.hasOptionalAddressTypes).thenReturn(true);
 
     final sections = const WalletSettingsResolver().resolveSections(dashboardViewModel);
     final routes = sections.expand((section) => section).map((item) => item.route);

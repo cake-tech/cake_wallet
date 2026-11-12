@@ -143,6 +143,7 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   bool get hasSilentPaymentsScanning => false;
 
   bool get hasCoinControl => false;
+  bool get hasOptionalAddressTypes => false;
   bool get hasAccountsSupport => false;
   bool get hasNativeAccounts => false;
   bool get canToggleMultiAccounts => hasAccountsSupport && !hasNativeAccounts;

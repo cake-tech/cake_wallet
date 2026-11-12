@@ -673,6 +673,9 @@ abstract class ElectrumWalletBase
   bool get hasCoinControl => true;
 
   @override
+  bool get hasOptionalAddressTypes => type == WalletType.bitcoin && !walletInfo.isHardwareWallet;
+
+  @override
   bool get hasAccountsSupport =>
       type == WalletType.bitcoin &&
           isSoftwareWallet &&

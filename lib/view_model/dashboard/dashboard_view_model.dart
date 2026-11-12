@@ -876,11 +876,6 @@ abstract class DashboardViewModelBase with Store {
       !wallet.isHardwareWallet;
 
   @computed
-  bool get hasOptionalAddressTypes =>
-      wallet.type == WalletType.bitcoin &&
-      bitcoin!.getOptionalAddressTypeOptions(wallet).isNotEmpty;
-
-  @computed
   bool get showSilentPaymentsCard => hasSilentPayments && settingsStore.silentPaymentsCardDisplay;
 
   @computed
