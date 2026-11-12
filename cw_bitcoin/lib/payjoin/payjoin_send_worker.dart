@@ -138,9 +138,9 @@ class PayjoinSenderWorker {
           return psbt;
         }
       }
-      throw Exception("Sender session already closed without a proposal");
+      throw const PayjoinSessionError("Sender session already closed without a proposal");
     }
-    throw Exception("Sender session not resumable: ${state.runtimeType}");
+    throw PayjoinSessionError("Sender session not resumable: ${state.runtimeType}");
   }
 
   Future<pj.PollingForProposal> _postOriginalProposal(
@@ -194,7 +194,7 @@ class PayjoinSenderWorker {
         throw const PayjoinSenderCancelledException();
       }
       if (DateTime.now().isAfter(deadline)) {
-        throw Exception("Payjoin sender session expired before a proposal arrived");
+        throw const PayjoinSessionError("Payjoin sender session expired before a proposal arrived");
       }
       printV("Polling Payjoin Sender Proposal");
       try {
@@ -240,7 +240,9 @@ class PayjoinSenderWorker {
         throw const PayjoinSenderCancelledException();
       }
       if (DateTime.now().isAfter(deadline)) {
-        throw Exception("Payjoin sender session expired before relay connectivity returned");
+        throw const PayjoinSessionError(
+          "Payjoin sender session expired before relay connectivity returned",
+        );
       }
       // Stateless relay choice: every pick is random over the full
       // configured pool. A broken relay costs one wasted request per

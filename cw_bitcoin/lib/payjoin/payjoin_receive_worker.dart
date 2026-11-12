@@ -188,7 +188,7 @@ class PayjoinReceiverWorker {
       return _processFromMaybeInputsOwned(state.inner, persister);
     }
     if (state is pj.ClosedReceiveSession) {
-      throw Exception("Session already completed");
+      throw const PayjoinSessionError("Session already completed");
     }
     // Resume from any deeper intermediate state by extracting the inner
     // type and walking the processing chain forward.
