@@ -1,14 +1,14 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
+import "dart:async";
+import "dart:io";
+import "dart:typed_data";
 
-import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
-import 'package:cw_bitcoin/payjoin/relay_response.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:http/http.dart' as http;
-import 'package:payjoin/payjoin.dart' as pj;
+import "package:cw_bitcoin/payjoin/mailroom_manager.dart";
+import "package:cw_bitcoin/payjoin/payjoin_session_errors.dart";
+import "package:cw_bitcoin/payjoin/relay_response.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:http/http.dart" as very_insecure_http_do_not_use;
+import "package:payjoin/payjoin.dart" as pj;
 
 /// Maximum wall-clock duration a sender worker will keep polling for a
 /// proposal before giving up. Mirrors the v2 protocol's typical session
@@ -17,6 +17,7 @@ import 'package:payjoin/payjoin.dart' as pj;
 const _maxSenderSessionDuration = Duration(hours: 24);
 const _initialBackoff = Duration(seconds: 2);
 const _maxBackoff = Duration(seconds: 30);
+
 /// Per-request cap so a relay that accepts the connection but never
 /// responds (common over Tor) can't stall the retry loop forever — the
 /// timeout surfaces as a SocketException and the next relay is tried.
@@ -44,8 +45,8 @@ class PayjoinSenderWorker {
   // link this client's IP to the payjoin payload.
   final String? directory;
 
+  final client = ProxyWrapper().getHttpIOClient();
   final MailroomManager _mailroomManager;
-  final http.Client client = ProxyWrapper().getHttpIOClient();
   final pj.JsonSenderSessionPersister _persister;
   bool _cancelled = false;
   bool _disposed = false;
@@ -58,7 +59,9 @@ class PayjoinSenderWorker {
   /// Safe to call from any terminal path; the polling loops will throw on the
   /// next iteration if [cancel] has also been called.
   void dispose() {
-    if (_disposed) return;
+    if (_disposed) {
+      return;
+    }
     _disposed = true;
     client.close();
   }
@@ -86,21 +89,22 @@ class PayjoinSenderWorker {
         .save(persister: persister);
   }
 
-  DateTime _sessionDeadline() =>
-      DateTime.now().add(_maxSenderSessionDuration);
+  DateTime _sessionDeadline() => DateTime.now().add(_maxSenderSessionDuration);
 
   /// Drives the session from its persisted event log: a session just made
   /// by [createSession], or one re-spawned after a wallet switch / app
   /// restart (the replayed FFI state contains everything needed to
   /// continue).
-  Future<String> resume() async {
-    if (_cancelled) throw PayjoinSenderCancelledException();
+  Future<String> resume() {
+    if (_cancelled) {
+      throw const PayjoinSenderCancelledException();
+    }
     final persister = _persister;
     final events = persister.load();
     if (events.isEmpty) {
-      throw StateError('Cannot resume sender: event log is empty');
+      throw StateError("Cannot resume sender: event log is empty");
     }
-    printV('[pjSender] resuming from ${events.length} event(s)');
+    printV("[pjSender] resuming from ${events.length} event(s)");
     return _runFromReplay(persister, _sessionDeadline());
   }
 
@@ -113,13 +117,12 @@ class PayjoinSenderWorker {
     replayResult.dispose();
 
     if (state is pj.WithReplyKeySendSession) {
-      printV('[pjSender] replay -> WithReplyKey; posting original proposal');
-      final polling =
-          await _postOriginalProposal(state.inner, persister, deadline);
+      printV("[pjSender] replay -> WithReplyKey; posting original proposal");
+      final polling = await _postOriginalProposal(state.inner, persister, deadline);
       return _pollForProposal(polling, persister, deadline);
     }
     if (state is pj.PollingForProposalSendSession) {
-      printV('[pjSender] replay -> PollingForProposal; continuing');
+      printV("[pjSender] replay -> PollingForProposal; continuing");
       return _pollForProposal(state.inner, persister, deadline);
     }
     if (state is pj.SenderPendingFallbackSendSession) {
@@ -131,11 +134,13 @@ class PayjoinSenderWorker {
       final outcome = state.inner;
       if (outcome.isSuccess()) {
         final psbt = outcome.successPsbtBase64();
-        if (psbt != null) return psbt;
+        if (psbt != null) {
+          return psbt;
+        }
       }
-      throw Exception('Sender session already closed without a proposal');
+      throw Exception("Sender session already closed without a proposal");
     }
-    throw Exception('Sender session not resumable: ${state.runtimeType}');
+    throw Exception("Sender session not resumable: ${state.runtimeType}");
   }
 
   Future<pj.PollingForProposal> _postOriginalProposal(
@@ -150,18 +155,20 @@ class PayjoinSenderWorker {
           (relay) => withReplyKey.createV2PostRequest(ohttpRelay: relay),
           deadline: deadline,
         );
-        printV('[pjSender] POST subscribe -> ${relayResponse.requestUrl}');
+        printV("[pjSender] POST subscribe -> ${relayResponse.requestUrl}");
         final transition = withReplyKey.processResponse(
           response: relayResponse.bodyBytes,
           postCtx: relayResponse.ohttpCtx,
         );
         return transition.save(persister: persister);
       } on pj.TransientSenderPersistedException catch (e) {
-        printV('[pjSender] post retry: $e');
+        printV("[pjSender] post retry: $e");
       } catch (e) {
         throw _classify(e);
       }
-      if (_cancelled) throw PayjoinSenderCancelledException();
+      if (_cancelled) {
+        throw const PayjoinSenderCancelledException();
+      }
       await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
   }
@@ -171,8 +178,7 @@ class PayjoinSenderWorker {
   /// event log, and an expired session can never send another request).
   Object _classify(Object e) {
     if (e is pj.CreateRequestException) {
-      return UnrecoverableError(
-          e.isExpired() ? 'Session expired' : 'Cannot create request: $e');
+      return UnrecoverableError(e.isExpired() ? "Session expired" : "Cannot create request: $e");
     }
     return e;
   }
@@ -184,11 +190,13 @@ class PayjoinSenderWorker {
   ) async {
     var consecutiveFailures = 0;
     while (true) {
-      if (_cancelled) throw PayjoinSenderCancelledException();
-      if (DateTime.now().isAfter(deadline)) {
-        throw Exception('Payjoin sender session expired before a proposal arrived');
+      if (_cancelled) {
+        throw const PayjoinSenderCancelledException();
       }
-      printV('Polling Payjoin Sender Proposal');
+      if (DateTime.now().isAfter(deadline)) {
+        throw Exception("Payjoin sender session expired before a proposal arrived");
+      }
+      printV("Polling Payjoin Sender Proposal");
       try {
         final relayResponse = await _postViaRelay(
           (relay) => polling.createPollRequest(ohttpRelay: relay),
@@ -200,22 +208,22 @@ class PayjoinSenderWorker {
         );
         final outcome = pollTransition.save(persister: persister);
         consecutiveFailures = 0;
-        printV('[pjSender] poll outcome=${outcome.runtimeType}');
+        printV("[pjSender] poll outcome=${outcome.runtimeType}");
 
         if (outcome is pj.ProgressPollingForProposalTransitionOutcome) {
-          printV('[pjSender] Progress; psbtLen=${outcome.psbtBase64.length}');
+          printV("[pjSender] Progress; psbtLen=${outcome.psbtBase64.length}");
           return outcome.psbtBase64;
         }
         polling = (outcome as pj.StasisPollingForProposalTransitionOutcome).inner;
-        printV('[pjSender] Stasis; will retry');
+        printV("[pjSender] Stasis; will retry");
       } on PayjoinSenderCancelledException {
         rethrow;
       } on PayjoinSenderFallbackAvailableException {
         rethrow;
       } on pj.TransientSenderPersistedException catch (e) {
-        printV('[pjSender] poll retry: $e');
+        printV("[pjSender] poll retry: $e");
       } catch (e, s) {
-        printV('[pjSender] poll FATAL: $e\n$s');
+        printV("[pjSender] poll FATAL: $e\n$s");
         throw _classify(e);
       }
       await Future.delayed(_nextBackoff(consecutiveFailures++));
@@ -228,10 +236,11 @@ class PayjoinSenderWorker {
   }) async {
     var consecutiveFailures = 0;
     while (true) {
-      if (_cancelled) throw PayjoinSenderCancelledException();
+      if (_cancelled) {
+        throw const PayjoinSenderCancelledException();
+      }
       if (DateTime.now().isAfter(deadline)) {
-        throw Exception(
-            'Payjoin sender session expired before relay connectivity returned');
+        throw Exception("Payjoin sender session expired before relay connectivity returned");
       }
       // Stateless relay choice: every pick is random over the full
       // configured pool. A broken relay costs one wasted request per
@@ -243,8 +252,7 @@ class PayjoinSenderWorker {
           excludeHost: directory == null ? null : Uri.tryParse(directory!)?.host,
         );
       } on StateError {
-        throw const UnrecoverableError(
-            'No payjoin relay configured apart from the directory host');
+        throw const UnrecoverableError("No payjoin relay configured apart from the directory host");
       }
       // FFI/protocol errors raised while building the request are NOT relay
       // problems — propagate them so the caller sees the real cause.
@@ -253,12 +261,13 @@ class PayjoinSenderWorker {
         final response = await client
             .post(
               Uri.parse(reqCtx.request.url),
-              headers: {'Content-Type': reqCtx.request.contentType},
+              headers: {"Content-Type": reqCtx.request.contentType},
               body: reqCtx.request.body,
             )
-            .timeout(_relayRequestTimeout,
-                onTimeout: () => throw SocketException(
-                    'relay $relay request timed out'));
+            .timeout(
+              _relayRequestTimeout,
+              onTimeout: () => throw SocketException("relay $relay request timed out"),
+            );
         if (response.statusCode >= 200 && response.statusCode < 300) {
           return PayjoinRelayResponse(
             bodyBytes: response.bodyBytes,
@@ -268,17 +277,21 @@ class PayjoinSenderWorker {
         }
         // Non-2xx from the relay itself (OHTTP wraps the directory response,
         // so the relay's status is its own) — try again.
-        printV('[pjSender] relay $relay returned HTTP ${response.statusCode}');
+        printV("[pjSender] relay $relay returned HTTP ${response.statusCode}");
       } on IOException catch (e) {
         // Transport failure of any kind — socket, TLS handshake, HTTP
         // protocol, request timeout. Try the next pick. A cancel disposes
         // the HTTP client mid-request, surfacing as one of these — exit
         // as a cancellation instead.
-        if (_cancelled) throw PayjoinSenderCancelledException();
-        printV('[pjSender] relay $relay transport error: $e');
-      } on http.ClientException catch (e) {
-        if (_cancelled) throw PayjoinSenderCancelledException();
-        printV('[pjSender] relay $relay transport error: $e');
+        if (_cancelled) {
+          throw const PayjoinSenderCancelledException();
+        }
+        printV("[pjSender] relay $relay transport error: $e");
+      } on very_insecure_http_do_not_use.ClientException catch (e) {
+        if (_cancelled) {
+          throw const PayjoinSenderCancelledException();
+        }
+        printV("[pjSender] relay $relay transport error: $e");
       }
       await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
@@ -286,15 +299,16 @@ class PayjoinSenderWorker {
 }
 
 Duration _nextBackoff(int consecutiveFailures) {
-  if (consecutiveFailures == 0) return _initialBackoff;
+  if (consecutiveFailures == 0) {
+    return _initialBackoff;
+  }
   final seconds = (_initialBackoff.inSeconds * (1 << consecutiveFailures))
       .clamp(_initialBackoff.inSeconds, _maxBackoff.inSeconds);
   return Duration(seconds: seconds);
 }
 
 class PayjoinSenderCancelledException extends PayjoinSessionError {
-  const PayjoinSenderCancelledException()
-      : super('Payjoin sender session cancelled');
+  const PayjoinSenderCancelledException() : super("Payjoin sender session cancelled");
 }
 
 /// Thrown when a replayed sender session is already in the
@@ -302,6 +316,6 @@ class PayjoinSenderCancelledException extends PayjoinSessionError {
 /// enclosed fallback transaction to settle the original payment.
 class PayjoinSenderFallbackAvailableException extends PayjoinSessionError {
   PayjoinSenderFallbackAvailableException(this.fallbackTx)
-      : super('Fallback transaction ready to broadcast');
+      : super("Fallback transaction ready to broadcast");
   final Uint8List fallbackTx;
 }

@@ -1,17 +1,16 @@
-import 'dart:io';
-import 'dart:typed_data';
+import "dart:io";
 
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/payjoin/mailroom_manager.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_signer.dart';
-import 'package:cw_bitcoin/payjoin/relay_response.dart';
-import 'package:cw_bitcoin/psbt/signer.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:payjoin/payjoin.dart' as pj;
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:cw_bitcoin/payjoin/mailroom_manager.dart";
+import "package:cw_bitcoin/payjoin/payjoin_session_errors.dart";
+import "package:cw_bitcoin/payjoin/payjoin_signer.dart";
+import "package:cw_bitcoin/payjoin/relay_response.dart";
+import "package:cw_bitcoin/psbt/signer.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:flutter/foundation.dart";
+import "package:http/http.dart" as very_insecure_http_do_not_use;
+import "package:payjoin/payjoin.dart" as pj;
 
 /// Maximum wall-clock duration a receiver worker will keep polling for an
 /// original payload before giving up. Matches the v2 protocol's typical
@@ -20,35 +19,44 @@ import 'package:payjoin/payjoin.dart' as pj;
 const _maxReceiverSessionDuration = Duration(hours: 24);
 const _initialBackoff = Duration(seconds: 2);
 const _maxBackoff = Duration(seconds: 30);
+
 /// Per-request cap so a relay that accepts the connection but never
 /// responds (common over Tor) can't stall the retry loop forever — the
 /// timeout surfaces as a SocketException and the next relay is tried.
 const _relayRequestTimeout = Duration(seconds: 10);
 
 class _IsScriptOwned extends pj.IsScriptOwned {
-  final bool Function(Uint8List) fn;
   _IsScriptOwned(this.fn);
+
+  final bool Function(Uint8List) fn;
+
   @override
   bool callback(Uint8List script) => fn(script);
 }
 
 class _IsOutputKnown extends pj.IsOutputKnown {
-  final bool Function(pj.OutPoint) fn;
   _IsOutputKnown(this.fn);
+
+  final bool Function(pj.OutPoint) fn;
+
   @override
   bool callback(pj.OutPoint outpoint) => fn(outpoint);
 }
 
 class _IsInputOwned extends pj.IsInputOwned {
-  final bool Function(pj.OutPoint) fn;
   _IsInputOwned(this.fn);
+
+  final bool Function(pj.OutPoint) fn;
+
   @override
   bool callback(pj.OutPoint outpoint) => fn(outpoint);
 }
 
 class _ProcessPsbt extends pj.ProcessPsbt {
-  final String Function(String) fn;
   _ProcessPsbt(this.fn);
+
+  final String Function(String) fn;
+
   @override
   String callback(String psbt) => fn(psbt);
 }
@@ -68,20 +76,23 @@ class PayjoinReceiverWorker {
         _persister = persister,
         _onProposalReceived = onProposalReceived;
 
+  final client = ProxyWrapper().getHttpIOClient();
   final MailroomManager _mailroomManager;
-  final http.Client client = ProxyWrapper().getHttpIOClient();
   final List<UtxoWithPrivateKey> utxos;
   final bool Function(Uint8List) isMineChecker;
+
   // Consults the wallet's full tracked UTXO set (frozen, unconfirmed,
   // marked-sending included) at check time — NOT the spendable snapshot in
   // [utxos] — so checkInputsNotOwned can't be bypassed by referencing a
   // wallet-owned outpoint that falls outside that snapshot.
   final bool Function(String txid, int vout) isOutpointOwned;
+
   // Upper bound on the effective fee rate the receiver pays for its own
   // input. The sender picks `minfeerate` freely and the receiver's share is
   // deducted from its own output, so this is what limits a fee drain. Read
   // when the proposal is built, since a session can wait for hours.
   final int Function() getMaxFeeRateSatPerVb;
+
   // The session's payjoin directory (its `pj=` endpoint). Relays on the same
   // host are never used: one operator holding both OHTTP roles could link
   // this client's IP to the payjoin payload.
@@ -95,8 +106,7 @@ class PayjoinReceiverWorker {
   /// Wall-clock deadline shared by every relay round-trip of one session
   /// (polling and the final proposal post), so relay retry loops inside
   /// [_postViaRelay] can't spin past the receiver session lifetime.
-  DateTime _sessionDeadline =
-      DateTime.now().add(_maxReceiverSessionDuration);
+  DateTime _sessionDeadline = DateTime.now().add(_maxReceiverSessionDuration);
 
   /// Signals the polling loops to stop at the next iteration. Does not release
   /// resources — call [dispose] for that.
@@ -106,14 +116,18 @@ class PayjoinReceiverWorker {
   /// Safe to call from any terminal path; the polling loops will throw on the
   /// next iteration if [cancel] has also been called.
   void dispose() {
-    if (_disposed) return;
+    if (_disposed) {
+      return;
+    }
     _disposed = true;
     client.close();
   }
 
-  Future<String> run(String address, String directory, pj.OhttpKeys ohttpKeys) async {
+  Future<String> run(String address, String directory, pj.OhttpKeys ohttpKeys) {
     try {
-      if (_cancelled) throw CancelException();
+      if (_cancelled) {
+        throw const CancelException();
+      }
       _sessionDeadline = DateTime.now().add(_maxReceiverSessionDuration);
       final persister = _persister ?? _InMemoryReceiverPersister();
       final events = persister.load();
@@ -124,7 +138,7 @@ class PayjoinReceiverWorker {
 
       return _runFresh(address, directory, ohttpKeys, persister);
     } catch (e) {
-      printV('PayjoinReceiverWorker error: $e');
+      printV("PayjoinReceiverWorker error: $e");
       rethrow;
     }
   }
@@ -134,20 +148,22 @@ class PayjoinReceiverWorker {
   /// directory + ohttpKeys are no longer at hand (they live inside the
   /// replayed FFI state). Requires a persister to have been supplied at
   /// construction time.
-  Future<String> resume() async {
+  Future<String> resume() {
     try {
-      if (_cancelled) throw CancelException();
+      if (_cancelled) {
+        throw const CancelException();
+      }
       _sessionDeadline = DateTime.now().add(_maxReceiverSessionDuration);
       final persister = _persister;
       if (persister == null) {
-        throw StateError('Cannot resume receiver without a persister');
+        throw StateError("Cannot resume receiver without a persister");
       }
       if (persister.load().isEmpty) {
-        throw StateError('Cannot resume receiver: event log is empty');
+        throw StateError("Cannot resume receiver: event log is empty");
       }
       return _runFromReplay(persister);
     } catch (e) {
-      printV('PayjoinReceiverWorker resume error: $e');
+      printV("PayjoinReceiverWorker resume error: $e");
       rethrow;
     }
   }
@@ -172,7 +188,7 @@ class PayjoinReceiverWorker {
       return _processFromMaybeInputsOwned(state.inner, persister);
     }
     if (state is pj.ClosedReceiveSession) {
-      throw Exception('Session already completed');
+      throw Exception("Session already completed");
     }
     // Resume from any deeper intermediate state by extracting the inner
     // type and walking the processing chain forward.
@@ -212,21 +228,25 @@ class PayjoinReceiverWorker {
     // Terminal / non-resumable states
     if (state is pj.HasReplyableExceptionReceiveSession) {
       await _replyWithError(state.inner, persister);
-      throw const UnrecoverableError('Rejected the sender\'s proposal');
+      throw const UnrecoverableError("Rejected the sender's proposal");
     }
     if (state is pj.MonitorReceiveSession) {
-      throw RecoverableError('session in Monitor state');
+      throw const RecoverableError("session in Monitor state");
     }
     if (state is pj.ReceiverPendingFallbackReceiveSession) {
-      throw RecoverableError('session in PendingFallback state');
+      throw const RecoverableError("session in PendingFallback state");
     }
     throw RecoverableError(
-      'Cannot continue from unexpected session state: ${state.runtimeType}',
+      "Cannot continue from unexpected session state: ${state.runtimeType}",
     );
   }
 
-  Future<String> _runFresh(String address, String directory, pj.OhttpKeys ohttpKeys,
-      pj.JsonReceiverSessionPersister persister) async {
+  Future<String> _runFresh(
+    String address,
+    String directory,
+    pj.OhttpKeys ohttpKeys,
+    pj.JsonReceiverSessionPersister persister,
+  ) {
     final builder = pj.ReceiverBuilder(
       address: address,
       directory: directory,
@@ -264,11 +284,13 @@ class PayjoinReceiverWorker {
   ) async {
     var consecutiveFailures = 0;
     while (true) {
-      if (_cancelled) throw CancelException();
-      if (DateTime.now().isAfter(_sessionDeadline)) {
-        throw RecoverableError('Payjoin receiver session expired before a proposal arrived');
+      if (_cancelled) {
+        throw const CancelException();
       }
-      printV('Polling for Proposal');
+      if (DateTime.now().isAfter(_sessionDeadline)) {
+        throw const RecoverableError("Payjoin receiver session expired before a proposal arrived");
+      }
+      printV("Polling for Proposal");
       try {
         final relayResponse = await _postViaRelay(
           (relay) => initialized.createPollRequest(ohttpRelay: relay),
@@ -286,7 +308,7 @@ class PayjoinReceiverWorker {
         }
         initialized = (outcome as pj.StasisInitializedTransitionOutcome).inner;
       } on pj.TransientReceiverPersistedException catch (e) {
-        printV('Poll retry: $e');
+        printV("Poll retry: $e");
       } catch (e) {
         throw _classify(e);
       }
@@ -302,22 +324,23 @@ class PayjoinReceiverWorker {
       final checkOwned = _wrapSync(
         () => maybeInputsOwned.checkInputsNotOwned(
           isOwned: _IsInputOwned(
-            (outpoint) =>
-                isOutpointOwned(outpoint.txid, outpoint.vout),
+            (outpoint) => isOutpointOwned(outpoint.txid, outpoint.vout),
           ),
         ),
-        'checkInputsNotOwned',
+        "checkInputsNotOwned",
       );
       final maybeInputsSeen = checkOwned.save(persister: persister);
       return _runProcessingChain(maybeInputsSeen, persister);
     } catch (e) {
-      if (e is PayjoinSessionError) rethrow;
+      if (e is PayjoinSessionError) {
+        rethrow;
+      }
       final error = _classify(e);
       if (error is UnrecoverableError) {
         await _replyIfRejected(persister);
         throw error;
       }
-      throw RecoverableError('_processPayjoinProposal failed at step: $e');
+      throw RecoverableError("_processPayjoinProposal failed at step: $e");
     }
   }
 
@@ -336,7 +359,7 @@ class PayjoinReceiverWorker {
           () => current.checkNoInputsSeenBefore(
             isKnown: _IsOutputKnown((_) => false),
           ),
-          'checkNoInputsSeenBefore',
+          "checkNoInputsSeenBefore",
         );
         current = checkSeen.save(persister: persister);
       }
@@ -347,7 +370,7 @@ class PayjoinReceiverWorker {
           () => current.identifyReceiverOutputs(
             isReceiverOutput: _IsScriptOwned(isMineChecker),
           ),
-          'identifyReceiverOutputs',
+          "identifyReceiverOutputs",
         );
         current = identifyOutputs.save(persister: persister);
       }
@@ -362,7 +385,7 @@ class PayjoinReceiverWorker {
       if (current is pj.WantsInputs) {
         final candidateInputs = _buildInputPairs();
         if (candidateInputs.isEmpty) {
-          throw RecoverableError('No unspent outputs available');
+          throw const RecoverableError("No unspent outputs available");
         }
         pj.InputPair selectedUtxo = candidateInputs.first;
         try {
@@ -380,27 +403,27 @@ class PayjoinReceiverWorker {
       // WantsFeeRange → ProvisionalProposal
       if (current is pj.WantsFeeRange) {
         final maxFeeRate = getMaxFeeRateSatPerVb();
-        printV('[pjReceiver] applyFeeRange maxEffectiveFeeRate=$maxFeeRate sat/vB');
+        printV("[pjReceiver] applyFeeRange maxEffectiveFeeRate=$maxFeeRate sat/vB");
         final applyFeeRangeTransition = _wrapSync(
           () => current.applyFeeRange(
             minFeeRateSatPerVb: null,
             maxEffectiveFeeRateSatPerVb: maxFeeRate,
           ),
-          'applyFeeRange',
+          "applyFeeRange",
         );
         current = applyFeeRangeTransition.save(persister: persister);
       }
 
       // ProvisionalProposal → PayjoinProposal
       if (current is pj.ProvisionalProposal) {
-        printV('PSBT to sign received (len=${current.psbtToSign().length})');
+        printV("PSBT to sign received (len=${current.psbtToSign().length})");
         final finalizeTransition = _wrapSync(
           () => current.finalizeProposal(
             processPsbt: _ProcessPsbt(
               (psbt) => signPsbtSync(psbt, utxos),
             ),
           ),
-          'finalizeProposal',
+          "finalizeProposal",
         );
         current = finalizeTransition.save(persister: persister);
       }
@@ -409,20 +432,22 @@ class PayjoinReceiverWorker {
         return current;
       }
 
-      throw RecoverableError('Unexpected state in chain: ${current.runtimeType}');
+      throw RecoverableError("Unexpected state in chain: ${current.runtimeType}");
     } catch (e) {
-      if (e is PayjoinSessionError) rethrow;
+      if (e is PayjoinSessionError) {
+        rethrow;
+      }
       final error = _classify(e);
       if (error is UnrecoverableError) {
         await _replyIfRejected(persister);
         throw error;
       }
-      throw RecoverableError('_processPayjoinProposal failed at step: $e');
+      throw RecoverableError("_processPayjoinProposal failed at step: $e");
     }
   }
 
   List<pj.InputPair> _buildInputPairs() {
-    printV('PayjoinReceiverWorker: building input pairs from ${utxos.length} utxos');
+    printV("PayjoinReceiverWorker: building input pairs from ${utxos.length} utxos");
     return buildInputPairs(utxos);
   }
 
@@ -460,36 +485,37 @@ class PayjoinReceiverWorker {
         redeemScript = null;
         expectedWeight = p2trKeySpendInputWeight;
       } else {
-        printV('PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout} '
-            '(unsupported type ${type.value})');
+        printV("PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout} "
+            "(unsupported type ${type.value})");
         continue;
       }
 
       try {
-        pairs.add(pj.InputPair(
-          txin: pj.TxIn(
-            previousOutput: pj.OutPoint(
-              txid: btcUtxo.txHash,
-              vout: btcUtxo.vout,
+        pairs.add(
+          pj.InputPair(
+            txin: pj.TxIn(
+              previousOutput: pj.OutPoint(
+                txid: btcUtxo.txHash,
+                vout: btcUtxo.vout,
+              ),
+              scriptSig: Uint8List(0),
+              sequence: 0,
+              witness: [],
             ),
-            scriptSig: Uint8List(0),
-            sequence: 0,
-            witness: [],
-          ),
-          psbtin: pj.PsbtInput(
-            witnessUtxo: pj.TxOut(
-              valueSat: btcUtxo.value.toInt(),
-              scriptPubkey:
-                  Uint8List.fromList(utxo.ownerDetails.address.toScriptPubKey().toBytes()),
+            psbtin: pj.PsbtInput(
+              witnessUtxo: pj.TxOut(
+                valueSat: btcUtxo.value.toInt(),
+                scriptPubkey:
+                    Uint8List.fromList(utxo.ownerDetails.address.toScriptPubKey().toBytes()),
+              ),
+              redeemScript: redeemScript,
+              witnessScript: null,
             ),
-            redeemScript: redeemScript,
-            witnessScript: null,
+            expectedWeight: expectedWeight == null ? null : pj.Weight(weightUnits: expectedWeight),
           ),
-          expectedWeight:
-              expectedWeight == null ? null : pj.Weight(weightUnits: expectedWeight),
-        ));
+        );
       } catch (e) {
-        printV('PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout}: $e');
+        printV("PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout}: $e");
       }
     }
     return pairs;
@@ -524,7 +550,7 @@ class PayjoinReceiverWorker {
       state = replayResult.state();
       replayResult.dispose();
     } catch (e) {
-      printV('[pjReceiver] replay before error reply failed: $e');
+      printV("[pjReceiver] replay before error reply failed: $e");
       return;
     }
     if (state is pj.HasReplyableExceptionReceiveSession) {
@@ -550,9 +576,9 @@ class PayjoinReceiverWorker {
             ohttpContext: relayResponse.ohttpCtx,
           )
           .save(persister: persister);
-      printV('[pjReceiver] sent error reply to the sender');
+      printV("[pjReceiver] sent error reply to the sender");
     } catch (e) {
-      printV('[pjReceiver] error reply failed: $e');
+      printV("[pjReceiver] error reply failed: $e");
     }
   }
 
@@ -561,23 +587,23 @@ class PayjoinReceiverWorker {
   /// retried; fatal ones closed the session in the event log, and an expired
   /// session can never send another request.
   PayjoinSessionError _classify(Object e) {
-    if (e is PayjoinSessionError) return e;
+    if (e is PayjoinSessionError) {
+      return e;
+    }
     if (e is pj.ReceiverCreateRequestException) {
-      return UnrecoverableError(
-          e.isExpired() ? 'Session expired' : 'Cannot create request: $e');
+      return UnrecoverableError(e.isExpired() ? "Session expired" : "Cannot create request: $e");
     }
-    if (e is pj.FatalReceiverPersistedException ||
-        e is pj.StorageReceiverPersistedException) {
-      return UnrecoverableError('$e');
+    if (e is pj.FatalReceiverPersistedException || e is pj.StorageReceiverPersistedException) {
+      return UnrecoverableError("$e");
     }
-    return RecoverableError('$e');
+    return RecoverableError("$e");
   }
 
   T _wrapSync<T>(T Function() fn, String step) {
     try {
       return fn();
     } catch (e) {
-      throw RecoverableError('$step failed: $e');
+      throw RecoverableError("$step failed: $e");
     }
   }
 
@@ -592,10 +618,13 @@ class PayjoinReceiverWorker {
   }) async {
     var consecutiveFailures = 0;
     while (true) {
-      if (_cancelled) throw CancelException();
+      if (_cancelled) {
+        throw const CancelException();
+      }
       if (DateTime.now().isAfter(deadline)) {
-        throw RecoverableError(
-            'Payjoin receiver session expired before relay connectivity returned');
+        throw const RecoverableError(
+          "Payjoin receiver session expired before relay connectivity returned",
+        );
       }
       // Stateless relay choice: every pick is random over the full
       // configured pool. A broken relay costs one wasted request per
@@ -605,8 +634,7 @@ class PayjoinReceiverWorker {
       try {
         relay = _mailroomManager.chooseRelay(excludeHost: _directoryHost);
       } on StateError {
-        throw const UnrecoverableError(
-            'No payjoin relay configured apart from the directory host');
+        throw const UnrecoverableError("No payjoin relay configured apart from the directory host");
       }
       // FFI/protocol errors raised while building the request are NOT relay
       // problems — propagate them so the caller sees the real cause.
@@ -615,12 +643,13 @@ class PayjoinReceiverWorker {
         final response = await client
             .post(
               Uri.parse(reqResp.request.url),
-              headers: {'Content-Type': reqResp.request.contentType},
+              headers: {"Content-Type": reqResp.request.contentType},
               body: reqResp.request.body,
             )
-            .timeout(_relayRequestTimeout,
-                onTimeout: () => throw SocketException(
-                    'relay $relay request timed out'));
+            .timeout(
+              _relayRequestTimeout,
+              onTimeout: () => throw SocketException("relay $relay request timed out"),
+            );
         if (response.statusCode >= 200 && response.statusCode < 300) {
           return PayjoinRelayResponse(
             bodyBytes: response.bodyBytes,
@@ -630,17 +659,21 @@ class PayjoinReceiverWorker {
         }
         // Non-2xx from the relay itself (OHTTP wraps the directory response,
         // so the relay's status is its own) — try again.
-        printV('[pjReceiver] relay $relay returned HTTP ${response.statusCode}');
+        printV("[pjReceiver] relay $relay returned HTTP ${response.statusCode}");
       } on IOException catch (e) {
         // Transport failure of any kind — socket, TLS handshake, HTTP
         // protocol, request timeout. Try the next pick. A cancel disposes
         // the HTTP client mid-request, surfacing as one of these — exit
         // as a cancellation instead.
-        if (_cancelled) throw CancelException();
-        printV('[pjReceiver] relay $relay transport error: $e');
-      } on http.ClientException catch (e) {
-        if (_cancelled) throw CancelException();
-        printV('[pjReceiver] relay $relay transport error: $e');
+        if (_cancelled) {
+          throw const CancelException();
+        }
+        printV("[pjReceiver] relay $relay transport error: $e");
+      } on very_insecure_http_do_not_use.ClientException catch (e) {
+        if (_cancelled) {
+          throw const CancelException();
+        }
+        printV("[pjReceiver] relay $relay transport error: $e");
       }
       await Future.delayed(_nextBackoff(consecutiveFailures++));
     }
@@ -648,14 +681,16 @@ class PayjoinReceiverWorker {
 }
 
 Duration _nextBackoff(int consecutiveFailures) {
-  if (consecutiveFailures == 0) return _initialBackoff;
+  if (consecutiveFailures == 0) {
+    return _initialBackoff;
+  }
   final seconds = (_initialBackoff.inSeconds * (1 << consecutiveFailures))
       .clamp(_initialBackoff.inSeconds, _maxBackoff.inSeconds);
   return Duration(seconds: seconds);
 }
 
 class CancelException extends PayjoinSessionError {
-  const CancelException() : super('Payjoin receiver session cancelled');
+  const CancelException() : super("Payjoin receiver session cancelled");
 }
 
 class _InMemoryReceiverPersister extends pj.JsonReceiverSessionPersister {
