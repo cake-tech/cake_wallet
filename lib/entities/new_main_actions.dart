@@ -60,6 +60,7 @@ class NewMainActions {
     name: (context) => S.of(context).charts,
     image: "assets/new-ui/navbar/charts.svg",
     key: const ValueKey("dashboard_page_charts_action_button_key"),
+    canShow: (dashboardVM) => dashboardVM.showCharts,
     onTap: () {},
   );
 }

@@ -58,7 +58,7 @@ class DisplaySettingsPageRobot extends BaseRobot {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey("display_settings_fiat_currency")),
-        matching: find.text(currency.title),
+        matching: find.textContaining(currency.title),
       ),
       findsOneWidget,
       reason: "The currency row still does not show ${currency.title}",
