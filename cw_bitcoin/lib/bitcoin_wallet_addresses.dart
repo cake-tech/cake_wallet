@@ -43,10 +43,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   final PayjoinManager payjoinManager;
 
   @observable
-  String? payjoinEndpoint = null;
+  String? payjoinEndpoint;
 
   @observable
-  String? payjoinAddress = null;
+  String? payjoinAddress;
 
   /// Number of `newPayjoinReceiver` calls currently in flight (directory +
   /// OHTTP relay round-trips). The receive page shows a blurred placeholder
@@ -97,9 +97,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   }
 
   @action
-  Future<void> ensurePayjoinReceiver() async {
-    await newPayjoinReceiver();
-  }
+  Future<void> ensurePayjoinReceiver() => newPayjoinReceiver();
 
   @action
   Future<void> newPayjoinReceiver({bool shouldSaveRecipientAddress = false}) async {
@@ -117,7 +115,9 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     // receive page can render without surfacing a receiver-creation error.
     // PayjoinManager.initReceiver also enforces this as a hard guard.
     if (!payjoinManager.canCreateReceiver) {
-      printV('Skipping payjoin receiver creation: no spendable UTXOs available');
+      printV("Skipping payjoin receiver creation: no spendable UTXOs available");
+      payjoinEndpoint = null;
+      payjoinAddress = null;
       return;
     }
     payjoinReceiverInFlight++;
@@ -130,7 +130,11 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     try {
       final address = this.address;
       final endpoint = await payjoinManager.initReceiver(
-          address, false, 0, shouldSaveRecipientAddress);
+        address,
+        isTestnet: false,
+        retryCount: 0,
+        shouldSaveRecipientAddress: shouldSaveRecipientAddress,
+      );
       if (endpoint.isNotEmpty) {
         payjoinEndpoint = endpoint;
         payjoinAddress = address;
@@ -144,9 +148,13 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     } catch (e) {
       printV(e);
       // Ignore Connectivity errors
-      if (!_isPayjoinConnectivityError(e.toString())) rethrow;
+      if (!_isPayjoinConnectivityError(e.toString())) {
+        rethrow;
+      }
     } finally {
-      if (!placeholderSettled) payjoinReceiverInFlight--;
+      if (!placeholderSettled) {
+        payjoinReceiverInFlight--;
+      }
     }
   }
 
@@ -170,7 +178,7 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
       final lnUrl = getLnurlOfLightningAddress(address);
       return LightningPaymentRequest(address: address, lnURL: lnUrl, amount: amount);
     }
-    final pjUri = payjoinAddress == address ? (payjoinEndpoint ?? '') : '';
+    final pjUri = payjoinAddress == address ? (payjoinEndpoint ?? "") : "";
     return BitcoinURI(address: address, amount: amount, pjUri: pjUri);
   }
 
