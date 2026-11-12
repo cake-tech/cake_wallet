@@ -788,11 +788,13 @@ class CWBitcoin extends Bitcoin {
   @override
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    if (!isPayjoinAvailable(wallet)) return '';
+    if (!isPayjoinAvailable(wallet)) {
+      return "";
+    }
     final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
     return addresses.payjoinAddress == _wallet.walletAddresses.address
-        ? (addresses.payjoinEndpoint ?? '')
-        : '';
+        ? (addresses.payjoinEndpoint ?? "")
+        : "";
   }
 
   @override
@@ -806,9 +808,6 @@ class CWBitcoin extends Bitcoin {
   void updatePayjoinState(Object wallet, bool value) {
     final _wallet = wallet as ElectrumWallet;
     if (value) {
-      // init + resume: when the wallet is already synced no sync-status
-      // transition will fire, so toggling payjoin on must itself restart
-      // the stored sender/receiver workers.
       resumePayjoinSessions(_wallet);
     } else {
       stopPayjoinSessions(wallet);
@@ -852,21 +851,40 @@ class CWBitcoin extends Bitcoin {
   @override
   void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories) {
     final _wallet = wallet as ElectrumWallet;
-    if (_wallet is! BitcoinWallet) return;
+    if (_wallet is! BitcoinWallet) {
+      return;
+    }
     _wallet.payjoinManager.configureMailroom(relays: relays, directories: directories);
+  }
+
+  @override
+  Future<List<PayjoinSession>> getAllPayjoinSessions() async =>
+      (await PayjoinStorage().readAllWithKeys()).map((e) => e.value).toList();
+
+  @override
+  Future<List<String>> getPayjoinSessionEvents(PayjoinSession session) async {
+    final eventStore = PayjoinEventStore();
+    await eventStore.ensureOpen();
+    return session.isSenderSession
+        ? eventStore.loadSender(session.pjUri ?? "")
+        : eventStore.loadReceiver(session.receiver ?? "");
   }
 
   @override
   Future<bool> isSelfSendPayjoinUri(Object wallet, String? pjUriString) async {
     final _wallet = wallet as ElectrumWallet;
-    if (_wallet is! BitcoinWallet) return false;
+    if (_wallet is! BitcoinWallet) {
+      return false;
+    }
     return _wallet.payjoinManager.isSelfSendPayjoinUri(pjUriString);
   }
 
   @override
   Future<PayjoinEndpointUse?> getPayjoinEndpointUse(Object wallet, String? pjUriString) async {
     final _wallet = wallet as ElectrumWallet;
-    if (_wallet is! BitcoinWallet) return null;
+    if (_wallet is! BitcoinWallet) {
+      return null;
+    }
     return _wallet.payjoinManager.senderEndpointUse(pjUriString);
   }
 
@@ -883,11 +901,11 @@ class CWBitcoin extends Bitcoin {
   void cancelPayjoinSession(Object wallet, String sessionId) {
     final _wallet = wallet as ElectrumWallet;
     final pm = (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager;
-    if (sessionId.startsWith('pj_send_')) {
-      final pjUri = sessionId.substring('pj_send_'.length);
+    if (sessionId.startsWith("pj_send_")) {
+      final pjUri = sessionId.substring("pj_send_".length);
       pm.cancelSender(pjUri);
-    } else if (sessionId.startsWith('pj_recv_')) {
-      final endpoint = sessionId.substring('pj_recv_'.length);
+    } else if (sessionId.startsWith("pj_recv_")) {
+      final endpoint = sessionId.substring("pj_recv_".length);
       pm.cancelReceiver(endpoint);
     }
   }
@@ -896,11 +914,11 @@ class CWBitcoin extends Bitcoin {
   Future<void> fallbackBroadcastPayjoin(Object wallet, String sessionId) async {
     final _wallet = wallet as ElectrumWallet;
     final pm = (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager;
-    if (sessionId.startsWith('pj_send_')) {
-      final pjUri = sessionId.substring('pj_send_'.length);
+    if (sessionId.startsWith("pj_send_")) {
+      final pjUri = sessionId.substring("pj_send_".length);
       await pm.fallbackBroadcast(pjUri);
-    } else if (sessionId.startsWith('pj_recv_')) {
-      final endpoint = sessionId.substring('pj_recv_'.length);
+    } else if (sessionId.startsWith("pj_recv_")) {
+      final endpoint = sessionId.substring("pj_recv_".length);
       await pm.fallbackBroadcast(endpoint);
     }
   }

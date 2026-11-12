@@ -165,6 +165,8 @@ import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/litecoin_trezor_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
+import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:mobx/mobx.dart';
 import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
@@ -305,6 +307,8 @@ abstract class Bitcoin {
   Future<bool> isSelfSendPayjoinUri(Object wallet, String? pjUriString);
   Future<PayjoinEndpointUse?> getPayjoinEndpointUse(Object wallet, String? pjUriString);
   void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories);
+  Future<List<PayjoinSession>> getAllPayjoinSessions();
+  Future<List<String>> getPayjoinSessionEvents(PayjoinSession session);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);

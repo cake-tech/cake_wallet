@@ -1,18 +1,15 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
-import 'package:cw_bitcoin/payjoin/storage.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart";
 
-part 'payjoin_settings_view_model.g.dart';
+part "payjoin_settings_view_model.g.dart";
 
-class PayjoinSettingsViewModel = PayjoinSettingsViewModelBase
-    with _$PayjoinSettingsViewModel;
+class PayjoinSettingsViewModel = PayjoinSettingsViewModelBase with _$PayjoinSettingsViewModel;
 
 abstract class PayjoinSettingsViewModelBase with Store {
   PayjoinSettingsViewModelBase(this._settingsStore, this._wallet);
@@ -21,7 +18,9 @@ abstract class PayjoinSettingsViewModelBase with Store {
   final WalletBase _wallet;
 
   WalletType get _walletType => _wallet.type;
+
   String get _walletName => _wallet.name;
+
   String get _walletId => _wallet.id;
 
   @computed
@@ -38,56 +37,51 @@ abstract class PayjoinSettingsViewModelBase with Store {
     final logFile = File("$path/payjoin.log");
     final buf = StringBuffer();
 
-    buf.writeln('=== Payjoin Sessions ===');
-    buf.writeln('Wallet: $_walletName ($_walletType)');
-    buf.writeln('');
+    buf.writeln("=== Payjoin Sessions ===");
+    buf.writeln("Wallet: $_walletName ($_walletType)");
+    buf.writeln("");
 
     try {
-      final storage = PayjoinStorage();
-      final allSessions =
-          (await storage.readAllWithKeys()).map((e) => e.value).toList();
+      final allSessions = await bitcoin!.getAllPayjoinSessions();
       final sessions = allSessions.where((s) => s.walletId == _walletId).toList();
-      buf.writeln('Total sessions: ${allSessions.length}');
-      buf.writeln('Sessions for this wallet: ${sessions.length}');
+      buf.writeln("Total sessions: ${allSessions.length}");
+      buf.writeln("Sessions for this wallet: ${sessions.length}");
 
       if (sessions.isNotEmpty) {
-        final eventStore = PayjoinEventStore();
-        await eventStore.ensureOpen();
-        buf.writeln('');
-        buf.writeln('--- Session Data ---');
+        buf.writeln("");
+        buf.writeln("--- Session Data ---");
         for (final session in sessions) {
-          buf.writeln('');
+          buf.writeln("");
           buf.writeln(
-              'Direction: ${session.isSenderSession ? "Sender (outgoing)" : "Receiver (incoming)"}');
-          buf.writeln('Status: ${session.status}');
+            'Direction: ${session.isSenderSession ? "Sender (outgoing)" : "Receiver (incoming)"}',
+          );
+          buf.writeln("Status: ${session.status}");
           buf.writeln('URI: ${session.pjUri ?? "-"}');
           buf.writeln('Receiver: ${session.receiver ?? "-"}');
           buf.writeln('Sender: ${session.sender ?? "-"}');
           buf.writeln('Amount: ${session.rawAmount ?? "-"}');
           buf.writeln('TxID: ${session.txId ?? "-"}');
-          buf.writeln('Used Fallback: ${session.usedFallback}');
+          buf.writeln("Used Fallback: ${session.usedFallback}");
           buf.writeln('Error: ${session.error ?? "-"}');
 
           try {
-            final events = session.isSenderSession
-                ? eventStore.loadSender(session.pjUri ?? '')
-                : eventStore.loadReceiver(session.receiver ?? '');
+            final events = await bitcoin!.getPayjoinSessionEvents(session);
             if (events.isNotEmpty) {
-              buf.writeln('Protocol Events:');
+              buf.writeln("Protocol Events:");
               for (final event in events) {
-                buf.writeln('  $event');
+                buf.writeln("  $event");
               }
             }
           } catch (_) {}
         }
-        buf.writeln('');
-        buf.writeln('--- End Session Data ---');
+        buf.writeln("");
+        buf.writeln("--- End Session Data ---");
       }
     } catch (_) {}
 
-    if (await logFile.exists()) {
-      buf.writeln('');
-      buf.writeln('--- Raw Payjoin Log ---');
+    if (logFile.existsSync()) {
+      buf.writeln("");
+      buf.writeln("--- Raw Payjoin Log ---");
       buf.writeln(await logFile.readAsString());
     }
 
@@ -100,58 +94,53 @@ abstract class PayjoinSettingsViewModelBase with Store {
     final logFile = File("$path/payjoin.log");
     final buf = StringBuffer();
 
-    buf.writeln('=== Payjoin Export ===');
-    buf.writeln('Wallet: $_walletName ($_walletType)');
-    buf.writeln('Wallet ID: $_walletId');
-    buf.writeln('Generated: ${DateTime.now().toIso8601String()}');
-    buf.writeln('');
+    buf.writeln("=== Payjoin Export ===");
+    buf.writeln("Wallet: $_walletName ($_walletType)");
+    buf.writeln("Wallet ID: $_walletId");
+    buf.writeln("Generated: ${DateTime.now().toIso8601String()}");
+    buf.writeln("");
 
     try {
-      final storage = PayjoinStorage();
-      final allSessions =
-          (await storage.readAllWithKeys()).map((e) => e.value).toList();
+      final allSessions = await bitcoin!.getAllPayjoinSessions();
       final sessions = allSessions.where((s) => s.walletId == _walletId).toList();
-      buf.writeln('Total sessions in storage: ${allSessions.length}');
-      buf.writeln('Sessions for this wallet: ${sessions.length}');
-      buf.writeln('Sessions for other wallets: ${allSessions.length - sessions.length}');
+      buf.writeln("Total sessions in storage: ${allSessions.length}");
+      buf.writeln("Sessions for this wallet: ${sessions.length}");
+      buf.writeln("Sessions for other wallets: ${allSessions.length - sessions.length}");
       if (sessions.isNotEmpty) {
-        final eventStore = PayjoinEventStore();
-        await eventStore.ensureOpen();
-        buf.writeln('');
-        buf.writeln('--- Session Data ---');
+        buf.writeln("");
+        buf.writeln("--- Session Data ---");
         for (final session in sessions) {
-          buf.writeln('');
+          buf.writeln("");
           buf.writeln(
-              'Direction: ${session.isSenderSession ? "Sender (outgoing)" : "Receiver (incoming)"}');
-          buf.writeln('Status: ${session.status}');
+            'Direction: ${session.isSenderSession ? "Sender (outgoing)" : "Receiver (incoming)"}',
+          );
+          buf.writeln("Status: ${session.status}");
           buf.writeln('URI: ${session.pjUri ?? "-"}');
           buf.writeln('Receiver: ${session.receiver ?? "-"}');
           buf.writeln('Sender: ${session.sender ?? "-"}');
           buf.writeln('Amount: ${session.rawAmount ?? "-"}');
           buf.writeln('TxID: ${session.txId ?? "-"}');
-          buf.writeln('Used Fallback: ${session.usedFallback}');
+          buf.writeln("Used Fallback: ${session.usedFallback}");
           buf.writeln('Error: ${session.error ?? "-"}');
 
           try {
-            final events = session.isSenderSession
-                ? eventStore.loadSender(session.pjUri ?? '')
-                : eventStore.loadReceiver(session.receiver ?? '');
+            final events = await bitcoin!.getPayjoinSessionEvents(session);
             if (events.isNotEmpty) {
-              buf.writeln('Protocol Events:');
+              buf.writeln("Protocol Events:");
               for (final event in events) {
-                buf.writeln('  $event');
+                buf.writeln("  $event");
               }
             }
           } catch (_) {}
         }
-        buf.writeln('');
-        buf.writeln('--- End Session Data ---');
+        buf.writeln("");
+        buf.writeln("--- End Session Data ---");
       }
     } catch (_) {}
 
-    if (await logFile.exists()) {
-      buf.writeln('');
-      buf.writeln('--- Raw Payjoin Log ---');
+    if (logFile.existsSync()) {
+      buf.writeln("");
+      buf.writeln("--- Raw Payjoin Log ---");
       buf.writeln(await logFile.readAsString());
     }
 
