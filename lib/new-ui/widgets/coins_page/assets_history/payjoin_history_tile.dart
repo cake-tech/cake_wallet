@@ -1,6 +1,8 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/transaction_direction.dart";
 import "package:flutter/material.dart";
 
@@ -18,7 +20,7 @@ class PayjoinHistoryTile extends StatelessWidget {
   });
 
   final String createdAt;
-  final String amount;
+  final Money amount;
   final String? amountFiat;
   final TransactionDirection direction;
   final bool pending;
@@ -79,7 +81,10 @@ class PayjoinHistoryTile extends StatelessWidget {
     return HistoryTileBase(
       title: pending ? "$title Payjoin..." : "$title Payjoin",
       date: createdAt,
-      amount: amount,
+      amountWidget: MoneyText(
+        amount,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      ),
       leadingIcon: _buildLeadingIcon(context),
       amountFiat: amountFiat ?? "",
       roundedTop: roundedTop,

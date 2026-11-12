@@ -91,8 +91,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
       TradeDetailsListCardItem(
         id: session.isSenderSession ? S.current.sending : S.current.receiving,
         createdAt: dateFormat.format(session.inProgressSince!).toString(),
-        pair:
-            "${bitcoin!.formatterBitcoinAmountToString(amount: session.amount.toInt())} BTC",
+        pair: session.amount.toStringWithSymbol(),
         onTap: (_) {},
       ),
       if (session.error?.isNotEmpty == true)

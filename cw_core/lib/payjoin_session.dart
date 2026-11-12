@@ -1,3 +1,6 @@
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+
 class PayjoinSession {
   PayjoinSession({
     required this.walletId,
@@ -42,8 +45,9 @@ class PayjoinSession {
 
   bool get isSenderSession => sender != null;
 
-  BigInt get amount => BigInt.parse(rawAmount ?? "0");
-  set amount(BigInt amount) => rawAmount = amount.toString();
+  Money get amount => Money.parse(rawAmount ?? "0", CryptoCurrency.btc, isBaseUnit: true);
+
+  set amount(Money amount) => rawAmount = amount.toString();
 }
 
 enum PayjoinSessionStatus {

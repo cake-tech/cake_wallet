@@ -217,10 +217,8 @@ class HistorySection extends StatelessWidget {
                               child: PayjoinHistoryTile(
                                   createdAt:
                                       _formatTransactionDate(session.inProgressSince!, localeName),
-                                  amount: dashboardViewModel.appStore.amountParsingProxy
-                                      .asDisplayStringWithSymbol(
-                                          Money(session.amount, CryptoCurrency.btc)),
-                                  amountFiat: _computeFiatAmount(session.amount),
+                                  amount: session.amount,
+                                  amountFiat: _computeFiatAmount(session.amount.amount),
                                   direction: direction,
                                   pending: pending,
                                   roundedTop: roundedTop,
@@ -264,7 +262,7 @@ class HistorySection extends StatelessWidget {
     final raw = calculateFiatAmountRaw(cryptoAmount: cryptoAmount, price: price)
         .withLocalSeperator(dashboardViewModel.appStore.settingsStore.languageCode);
     final fiatCurrency = dashboardViewModel.appStore.settingsStore.fiatCurrency;
-    return '${fiatCurrency.title} $raw';
+    return "${fiatCurrency.title} $raw";
   }
 
   String _getChainIconPath() {

@@ -4,7 +4,6 @@ import 'dart:isolate';
 import 'dart:math' show Random, min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -2883,14 +2882,10 @@ abstract class ElectrumWalletBase
     );
   }
 
-  /// Lets a concrete wallet enrich a parsed transaction with metadata that is
-  /// not derivable from the chain data alone (payjoin amounts/direction).
-  ///
-  /// Every path that builds an [ElectrumTransactionInfo] calls this, so
-  /// subclasses only need to override it once instead of patching each
-  /// call site. Returns true when [info] was modified.
-  Future<bool> applyTransactionMetadata(ElectrumTransactionInfo info,
-          {required String txId}) async =>
+  Future<bool> applyTransactionMetadata(
+    ElectrumTransactionInfo info, {
+    required String txId,
+  }) async =>
       false;
 
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(

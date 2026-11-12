@@ -417,22 +417,26 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   late final PayjoinManager payjoinManager;
 
   @override
-  Future<bool> applyTransactionMetadata(ElectrumTransactionInfo info,
-      {required String txId}) async {
+  Future<bool> applyTransactionMetadata(
+    ElectrumTransactionInfo info, {
+    required String txId,
+  }) async {
     final session =
         await payjoinManager.sessionForTxIdWithBackfill(txId, info.outputAddresses ?? const []);
-    if (session == null) return false;
+    if (session == null) {
+      return false;
+    }
 
     if (session.isSenderSession) {
-      info.amount = Money(session.amount, info.amount.currency);
-      info.additionalInfo['pjNetFlow'] = -session.amount.toInt();
+      info.amount = session.amount;
+      info.additionalInfo["pjNetFlow"] = -session.amount;
     } else {
       info.direction = TransactionDirection.incoming;
       // A zero session amount means no proposal was ever processed —
       // keep the amount derived from the actual transaction.
-      if (session.amount > BigInt.zero) {
-        info.amount = Money(session.amount, info.amount.currency);
-        info.additionalInfo['pjNetFlow'] = session.amount.toInt();
+      if (session.amount > Money.zero(info.amount.currency)) {
+        info.amount = session.amount;
+        info.additionalInfo["pjNetFlow"] = session.amount;
       }
     }
 

@@ -97,7 +97,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
     reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
       // The infobox depends on the selected address type, so the page has to be
       // rebuilt when it changes.
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
 
       if (widget.dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {

@@ -1,10 +1,10 @@
 import "dart:async";
 
-import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart";
 import "package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart";
@@ -14,7 +14,6 @@ import "package:cake_wallet/src/screens/transaction_details/confirmations_list_i
 import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
-import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
 import "package:cake_wallet/utils/show_bar.dart";
 import "package:cake_wallet/view_model/payjoin_details_view_model.dart";
@@ -90,10 +89,7 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
     final vm = widget.payjoinDetailsViewModel;
     final session = vm.payjoinSession;
     final isOutgoing = session?.isSenderSession ?? false;
-    final amountDisplay = getIt
-        .get<AppStore>()
-        .amountParsingProxy
-        .asDisplayStringWithSymbol(Money(session?.amount ?? BigInt.zero, CryptoCurrency.btc));
+    final amountDisplay = session?.amount ?? Money.zero(CryptoCurrency.btc);
 
     return SafeArea(
       bottom: false,
@@ -131,19 +127,26 @@ class _PayjoinDetailsModalState extends State<PayjoinDetailsModal> {
                         ),
                         CopyWrapper(
                           requireLongPress: true,
-                          data: ClipboardData(text: amountDisplay),
+                          data: ClipboardData(text: amountDisplay.toStringWithSymbol()),
                           builder: (context, copied) => AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
-                            child: Text(
-                              key: ValueKey(copied),
-                              copied ? S.of(context).copied : amountDisplay,
-                              style: TextStyle(
-                                fontSize: 28,
-                                color: copied
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
+                            child: copied
+                                ? Text(
+                                    S.of(context).copied,
+                                    key: ValueKey(copied),
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  )
+                                : MoneyText(
+                                    amountDisplay,
+                                    key: ValueKey(copied),
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                    ),
+                                  ),
                           ),
                         ),
                         Padding(
