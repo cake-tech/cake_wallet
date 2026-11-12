@@ -193,6 +193,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   String _normalizeTitleToNetwork(String title) => switch (title.toUpperCase()) {
     "XNO" => "nano",
+    "ARB" => "arbitrum",
     _ => title.toLowerCase(),
   };
 

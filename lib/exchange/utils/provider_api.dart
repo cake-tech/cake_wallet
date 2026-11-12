@@ -35,11 +35,33 @@ class ProviderHttpException implements Exception {
 }
 
 class ProviderApi {
-  ProviderApi(this._proxy, {required this.authority, this.headers = const {}, this.errorMessage});
+  ProviderApi(this._proxy, {required this.authority, this.onionAuthority, this.useTorOnly = false, this.headers = const {}, this.errorMessage});
 
   final ProxyWrapper _proxy;
   final String authority;
+  final String? onionAuthority;
+  final bool useTorOnly;
   final Map<String, String> headers;
+
+
+  Future<Uri> _getUri(String path, Map<String, dynamic> queryParams) async {
+    if(onionAuthority == null || !CakeTor.instance!.started) return Uri.https(authority, path, queryParams);
+
+
+    final uri = Uri.http(onionAuthority!, path, queryParams);
+
+    if (useTorOnly) {
+      return uri;
+    }
+
+    try {
+      await ProxyWrapper().get(clearnetUri: uri);
+      return uri;
+    } catch (e) {
+      return Uri.https(authority, path, queryParams);
+    }
+  }
+
 
   // every provider has a slightly different way of providing the error message
   // we pass in a function for this to show a meaningful error in logs instead of Instance of WhateverException
@@ -51,11 +73,11 @@ class ProviderApi {
   }) async {
     final response = switch (request.method) {
       HttpMethod.get => await _proxy.get(
-        clearnetUri: Uri.https(authority, request.path(), request.toJson()),
+        clearnetUri: await _getUri(request.path(), request.toJson()),
         headers: headers,
       ),
       HttpMethod.post => await _proxy.post(
-        clearnetUri: Uri.https(authority, request.path()),
+        clearnetUri: await _getUri(request.path(), {}),
         headers: {...headers, "Content-Type": "application/json"},
         body: json.encode(request.toJson()),
       ),

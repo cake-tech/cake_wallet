@@ -52,12 +52,14 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
   static final apiKey = isMoneroOnly ? secrets.trocadorMoneroApiKey : secrets.trocadorApiKey;
   static const clearNetAuthority = "api.trocador.app";
-  // static const onionApiAuthority = 'trocadorfyhlu27aefre5u7zri66gudtzdyelymftvr4yjwcxhfaqsid.onion';
+  static const onionApiAuthority = "65bsisadnxvw4kfz7h7a3jwcyenrhluuj3kd5toslfzxbk5q4m3wy6qd.onion";
   static const markup = secrets.trocadorExchangeMarkup;
 
   late final _api = ProviderApi(
     proxyWrapper,
     authority: clearNetAuthority,
+    onionAuthority: onionApiAuthority,
+    useTorOnly: useTorOnly,
     headers: {"API-Key": apiKey},
     errorMessage: (json) => switch ((json["error"], json["message"])) {
       (null, null) => null,

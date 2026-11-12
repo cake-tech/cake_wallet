@@ -373,7 +373,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       refundAddress: request.refundAddress,
       routerData: routerData ?? "",
       routerValue: txValue,
-      router: chainId,
+      router: srcChain.chainId.toString(),
       providerId: vmId.name,
       vmId: vmId,
       needToRegister: needToRegisterInSwapXyz,

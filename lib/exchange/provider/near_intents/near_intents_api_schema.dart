@@ -68,6 +68,7 @@ enum NearIntentsStatus {
 extension StatusToState on NearIntentsStatus {
   TradeState get toState => switch(this) {
     .pendingDeposit => .pending,
+    .knownDepositTx => .pending,
     .processing => .processing,
     .success => .success,
     .incompleteDeposit => .underpaid,

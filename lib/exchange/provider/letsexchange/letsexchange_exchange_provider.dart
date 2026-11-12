@@ -59,17 +59,14 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
-    if (request is! FloatingRateRequest) {
-      throw Exception("fixed rate unsupported");
-    }
 
     final params = LetsExchangeInfoRequest(
-      float: true,
+      float: request is FloatingRateRequest,
       from: request.depositCurrency.symbol,
       to: request.payoutCurrency.title,
       networkFrom: _getNetworkType(request.depositCurrency),
       networkTo: _getNetworkType(request.payoutCurrency),
-      amount: double.parse(request.depositAmount.toString()),
+      amount: double.parse(request.amount.toString()),
       affiliateId: _affiliateId,
     );
 
@@ -77,10 +74,16 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(
-        request.depositAmount,
-        Money.safeParse(responseData.amount, request.payoutCurrency),
-      ),
+      rate: switch (request) {
+        FloatingRateRequest(:final depositAmount) => ExchangeRate.fromAmounts(
+          depositAmount,
+          Money.safeParse(responseData.amount, request.payoutCurrency),
+        ),
+        FixedRateRequest(:final payoutAmount) => ExchangeRate.fromAmounts(
+          Money.safeParse(responseData.amount, request.depositCurrency),
+          payoutAmount,
+        ),
+      },
       limits: ExchangeLimits(
         min: Money.safeParse(responseData.minAmount, request.depositCurrency),
         max: Money.safeParse(responseData.maxAmount, request.depositCurrency),
@@ -98,7 +101,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       to: request.payoutCurrency.title,
       networkFrom: networkFrom,
       networkTo: networkTo,
-      amount: double.parse(request.depositAmount.toString()),
+      amount: double.parse(
+        (request.isFixedRate ? request.payoutAmount : request.depositAmount).toString(),
+      ),
       affiliateId: _affiliateId,
       float: !request.isFixedRate,
     );

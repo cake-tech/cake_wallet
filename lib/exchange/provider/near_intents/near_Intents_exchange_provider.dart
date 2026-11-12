@@ -179,6 +179,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       depositAmount: Money.safeParse(quote.amountInFormatted, request.depositCurrency),
       payoutAmount: Money.safeParse(quote.amountOutFormatted, request.payoutCurrency),
       memo: quote.depositMemo,
+      extraId: quote.depositMemo,
     );
   }
 
@@ -200,8 +201,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       txId: data.swapDetails.originChainTxHashes.firstOrNull?.hash,
       extraId: quote.depositMemo,
       isRefund: data.status == .refunded,
-      depositAmount: Money.safeParse(quote.amountInFormatted, trade.depositCurrency),
-      payoutAmount: Money.safeParse(quote.amountOutFormatted, trade.payoutCurrency),
+      depositAmount: Money.safeParse(data.swapDetails.amountInFormatted ?? quote.amountInFormatted, trade.depositCurrency),
+      payoutAmount: Money.safeParse(data.swapDetails.amountOutFormatted ?? quote.amountOutFormatted, trade.payoutCurrency),
     );
   }
 
