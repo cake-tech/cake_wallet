@@ -309,6 +309,9 @@ abstract class Bitcoin {
   void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories);
   Future<List<PayjoinSession>> getAllPayjoinSessions();
   Future<List<String>> getPayjoinSessionEvents(PayjoinSession session);
+  Stream<void> getPayjoinSessionChanges();
+  Future<List<MapEntry<String, PayjoinSession>>> getAllPayjoinSessionsWithKeys();
+  Future<PayjoinSession?> getPayjoinSessionByKey(String key);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);
