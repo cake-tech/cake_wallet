@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import "package:cake_wallet/new-ui/widgets/call_scam_banner.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
@@ -26,6 +27,10 @@ class WalletSeedPage extends BasePage {
 
   final bool isNewWalletCreated;
   final WalletSeedViewModel walletSeedViewModel;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+      (context, root) => CallScamBanner(child: root);
 
   @override
   Widget trailing(BuildContext context) {
