@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:convert";
 import "dart:io";
 import "dart:math";
+import "dart:typed_data";
 
 import "package:bitcoin_base/bitcoin_base.dart";
 import "package:blockchain_utils/blockchain_utils.dart";
@@ -208,6 +209,22 @@ class PayjoinManager {
         return;
       }
 
+      // The proposal was already posted but the worker was killed before
+      // markReceiverSessionComplete ran. Nothing is left for a worker to do
+      // (it would throw on Monitor), so complete the session here.
+      if (state is pj.MonitorReceiveSession) {
+        await _tryProcessOriginalPayloadFromEvents(sessionId);
+        final txId = _proposalTxIdFromMonitor(state.inner);
+        final stored = await _payjoinStorage.getReceiverSession(sessionId);
+        await _payjoinStorage.markReceiverSessionComplete(
+          sessionId,
+          txId,
+          stored?.rawAmount ?? "0",
+        );
+        writePayjoinLog("Receiver($sessionId) resume: proposal already posted, txId=$txId");
+        return;
+      }
+
       // Non-terminal states — update status and spawn worker to continue
       // polling from the replayed event log.
       if (state is pj.InitializedReceiveSession) {
@@ -231,6 +248,25 @@ class PayjoinManager {
       }
     } catch (e) {
       writePayjoinLog("[ERROR] Resume receiver($sessionId) $e");
+    }
+  }
+
+  String _proposalTxIdFromMonitor(pj.Monitor monitor) {
+    try {
+      if (!monitor.proposalTxidIsStable()) {
+        return "";
+      }
+      String? txId;
+      monitor.checkForTransaction(
+        findTransaction: _TransactionFinder((id) {
+          txId ??= id;
+          return null;
+        }),
+      ).dispose();
+      return txId ?? "";
+    } catch (e) {
+      writePayjoinLog("[WARNING] Monitor txId extraction: $e");
+      return "";
     }
   }
 
@@ -1396,4 +1432,13 @@ class _EphemeralReceiverPersister extends pj.JsonReceiverSessionPersister {
 
   @override
   void close() => _events.clear();
+}
+
+class _TransactionFinder extends pj.TransactionFinder {
+  _TransactionFinder(this.fn);
+
+  final Uint8List? Function(String) fn;
+
+  @override
+  Uint8List? callback(String txid) => fn(txid);
 }
