@@ -98,6 +98,13 @@ class NotAnNFTException extends CakeException {
   NotAnNFTException() : super("Not an NFT.");
 }
 
+class UnrecognizedTokenProgramException extends CakeException {
+  UnrecognizedTokenProgramException(this.programId)
+      : super("Unrecognized token program: $programId");
+
+  final String programId;
+}
+
 class AmbiguousTokenSymbolException extends CakeException {
   AmbiguousTokenSymbolException(this.symbol) : super("Ambigous token: $symbol");
 
