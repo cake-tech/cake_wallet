@@ -85,7 +85,7 @@ class SolanaWalletClient {
       final balance = await _provider!.requestWithContext(
         SolanaRPCGetBalance(account: SolAddress(walletAddress)),
       );
-      return Money(balance.result, CryptoCurrency.sol);
+      return Money(balance.result as BigInt, CryptoCurrency.sol);
     } catch (_) {
       if (throwOnError) {
         rethrow;
@@ -1105,7 +1105,7 @@ class SolanaWalletClient {
           try {
             return await _provider!.request(
               SolanaRPCGetTransaction(
-                transactionSignature: signature['signature'],
+                transactionSignature: signature['signature'] as String,
                 encoding: SolanaRPCEncoding.jsonParsed,
                 maxSupportedTransactionVersion: 1,
                 skipVerification: true,
@@ -1299,11 +1299,11 @@ class SolanaWalletClient {
       }
 
       return SPLToken(
-        name: name,
-        mint: symbol,
-        symbol: filteredTokenSymbol,
+        name: name as String,
+        mint: symbol as String,
+        symbol: filteredTokenSymbol as String,
         mintAddress: mintAddress,
-        iconPath: iconPath,
+        iconPath: iconPath as String?,
         decimal: decimals,
       );
     } catch (e, s) {
@@ -1707,24 +1707,34 @@ class SolanaWalletClient {
   /// Gets the token program ID for a given mint address.
   /// Returns the standard SPL Token program ID if the mint account cannot be fetched.
   Future<SolAddress> _getTokenProgramId(SolAddress mintAddress) async {
+    SolanaAccountInfo? mintAccountInfo;
     try {
-      final mintAccountInfo = await _provider!.request(
+      mintAccountInfo = await _provider!.request(
         SolanaRPCGetAccountInfo(
           account: mintAddress,
           commitment: Commitment.confirmed,
         ),
       );
-
-      // Determine the token program ID from the mint account owner
-      if (mintAccountInfo != null) {
-        return mintAccountInfo.owner;
-      }
     } catch (e) {
       // If we can't fetch mint info, default to standard SPL Token program
       printV('Warning: Could not fetch mint account info: $e');
     }
 
-    return SPLTokenProgramConst.tokenProgramId;
+    if (mintAccountInfo == null) {
+      return SPLTokenProgramConst.tokenProgramId;
+    }
+
+    final mintOwner = mintAccountInfo.owner.address;
+
+    if (mintOwner == SPLTokenProgramConst.tokenProgramId.address) {
+      return SPLTokenProgramConst.tokenProgramId;
+    }
+
+    if (mintOwner == SPLTokenProgramConst.token2022ProgramId.address) {
+      return SPLTokenProgramConst.token2022ProgramId;
+    }
+
+    throw SolanaUnrecognizedTokenProgramException(mintOwner);
   }
 
   Future<ProgramDerivedAddress?> _findAssociatedTokenAccount({
@@ -1802,7 +1812,6 @@ class SolanaWalletClient {
         tokenProgramId: tokenProgramId,
       );
 
-      // Verify the account exists and get the actual program ID that owns it
       final accountInfo = await _provider!.request(
         SolanaRPCGetAccountInfo(
           account: associatedSenderAccount.address,
@@ -1811,11 +1820,16 @@ class SolanaWalletClient {
       );
 
       if (accountInfo != null) {
-        senderTokenProgramId = accountInfo.owner;
+        if (accountInfo.owner.address != tokenProgramId.address) {
+          throw SolanaUnrecognizedTokenProgramException(accountInfo.owner.address);
+        }
+
         senderAccountSpace = accountInfo.space;
       } else {
         associatedSenderAccount = null;
       }
+    } on SolanaUnrecognizedTokenProgramException {
+      rethrow;
     } catch (e) {
       associatedSenderAccount = null;
     }
@@ -1838,11 +1852,17 @@ class SolanaWalletClient {
         );
 
         if (accountInfo != null) {
-          senderTokenProgramId = accountInfo.owner;
+          if (accountInfo.owner.address != SPLTokenProgramConst.tokenProgramId.address) {
+            throw SolanaUnrecognizedTokenProgramException(accountInfo.owner.address);
+          }
+
+          senderTokenProgramId = SPLTokenProgramConst.tokenProgramId;
           senderAccountSpace = accountInfo.space;
         } else {
           associatedSenderAccount = null;
         }
+      } on SolanaUnrecognizedTokenProgramException {
+        rethrow;
       } catch (_) {
         associatedSenderAccount = null;
       }
@@ -1859,10 +1879,28 @@ class SolanaWalletClient {
     bool shouldCreateRecipientAccount = false;
 
     try {
+      final recipientOwner = SolAddress(destinationAddress);
+      final isOffCurveRecipient = !recipientOwner.isOnCurve;
+
+      if (isOffCurveRecipient) {
+        final destinationInfo = await _provider!.request(
+          SolanaRPCGetAccountInfo(account: recipientOwner, commitment: Commitment.confirmed),
+        );
+
+        final destinationOwnerProgram = destinationInfo?.owner.address;
+        if (destinationOwnerProgram == SPLTokenProgramConst.tokenProgramId.address ||
+            destinationOwnerProgram == SPLTokenProgramConst.token2022ProgramId.address) {
+          throw SolanaCreateAssociatedTokenAccountException(
+            "Recipient $destinationAddress is a token account, not a wallet address",
+          );
+        }
+      }
+
       final recipientPDA = AssociatedTokenAccountProgramUtils.associatedTokenAccount(
         mint: mintAddress,
-        owner: SolAddress(destinationAddress),
+        owner: recipientOwner,
         tokenProgramId: senderTokenProgramId,
+        allowOwnerOffCurve: isOffCurveRecipient,
       );
 
       SolanaAccountInfo? recipientInfo;
@@ -2017,7 +2055,7 @@ class SolanaWalletClient {
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        return jsonResponse['image'];
+        return jsonResponse['image'] as String?;
       } else {
         return null;
       }
