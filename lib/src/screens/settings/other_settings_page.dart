@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
@@ -19,14 +17,12 @@ import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/share_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/other_settings_view_model.dart';
-import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/db/sqlite.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_mobx/flutter_mobx.dart";
-import 'package:path/path.dart' as p;
 
 class OtherSettingsPage extends BasePage {
   OtherSettingsPage(this._otherSettingsViewModel) {
@@ -259,5 +255,4 @@ class OtherSettingsPage extends BasePage {
       await ShareUtil.shareFile(filePath: file.path, fileName: "Lightning.log", context: context);
     }
   }
-
 }
