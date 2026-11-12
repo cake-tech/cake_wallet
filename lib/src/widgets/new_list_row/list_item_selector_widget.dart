@@ -14,11 +14,13 @@ class ListItemSelectorWidget extends StatelessWidget {
     this.isFirstInSection = false,
     this.isLastInSection = false,
     this.onTap,
+    this.optionImagePath,
   });
 
   final String keyValue;
   final String label;
   final List<String> options;
+  final String? optionImagePath;
   final int selectedIndex;
   final ValueChanged<int> onChanged;
   final bool isFirstInSection;
@@ -43,6 +45,8 @@ class ListItemSelectorWidget extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     spacing: 8,
                     children: [
+                      if (optionImagePath != null)
+                        CakeImageWidget(imageUrl: optionImagePath, width: 18, height: 18),
                       Flexible(
                         child: Text(
                           options[selectedIndex],
