@@ -55,7 +55,7 @@ class _ChainChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsetsDirectional.only(end: 8),
+      padding: const EdgeInsetsDirectional.only(end: 4),
       child: MergeSemantics(
         child: Semantics(
           button: true,
@@ -65,10 +65,10 @@ class _ChainChip extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(80),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: EdgeInsets.symmetric(horizontal: isSelected ? 12 : 10),
               decoration: BoxDecoration(
                 color: isSelected ? colors.primary : colors.surfaceContainer,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(80),
               ),
               child: Center(
                 child: Text(
@@ -76,7 +76,7 @@ class _ChainChip extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: isSelected ? 14 : 12,
-                        letterSpacing: -0.07,
+                        letterSpacing: isSelected ? -0.07 : -0.06,
                         color: isSelected ? colors.onPrimary : colors.primary,
                       ),
                 ),

@@ -15,12 +15,14 @@ import 'package:hex/hex.dart';
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
-      {required this.ins, required this.confirmations, this.time});
+      {required this.ins, required this.confirmations, this.time, this.hex, this.insHex});
 
   final BtcTransaction originalTransaction;
   final List<BtcTransaction?> ins;
   final int? time;
   final int confirmations;
+  final String? hex;
+  final List<String?>? insHex;
 }
 
 class ElectrumTransactionInfo extends TransactionInfo {

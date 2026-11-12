@@ -1,5 +1,6 @@
 import "dart:core";
 import "dart:developer" as dev;
+import "dart:math";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
@@ -787,7 +788,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     try {
-      final crypto = (double.parse(_amount.replaceAll(",", ".")) / fiatRate).toStringAsFixed(8);
+      final crypto = (double.parse(_amount.replaceAll(",", ".")) / fiatRate)
+          .toStringAsFixed(min(cryptoCurrency.decimals, 8));
       if (_amount != crypto) {
         _amount = crypto;
       }

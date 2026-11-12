@@ -17,7 +17,7 @@ class BuySellQuotLoading extends BuySellQuotLoadingState {}
 class BuySellQuotLoaded extends BuySellQuotLoadingState {}
 
 class BuySellQuotFailed extends BuySellQuotLoadingState {
-  final String? errorMessage;
+  final String errorMessage;
 
-  BuySellQuotFailed({this.errorMessage});
+  BuySellQuotFailed({required this.errorMessage});
 }
