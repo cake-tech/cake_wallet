@@ -526,56 +526,6 @@ class _NewSendPageState extends State<NewSendPage> {
                                               ),
                                           ],
                                         ),
-                                      if (widget.sendViewModel.hasPayjoinOption)
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 4),
-                                          child: Row(
-                                            children: [
-                                              CakeImageWidget(
-                                                imageUrl: "assets/new-ui/payjoin.svg",
-                                                width: 16,
-                                                height: 16,
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Expanded(
-                                                child: Text(
-                                                  S.of(context).payjoin_use_for_tx,
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .bodySmall
-                                                        ?.color
-                                                        ?.withOpacity(0.8),
-                                                  ),
-                                                ),
-                                              ),
-                                              StandardSwitch(
-                                                value: widget
-                                                    .sendViewModel.hasActivePayjoin,
-                                                onTapped: () => widget
-                                                    .sendViewModel
-                                                    .setPayjoinEnabled(
-                                                  !widget.sendViewModel
-                                                      .hasActivePayjoin,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      if (widget.sendViewModel.reusedPayjoinEndpoint != null)
-                                        Padding(
-                                          padding: const EdgeInsets.only(top: 4),
-                                          child: Text(
-                                            _reusedPayjoinEndpointMessage(
-                                              widget.sendViewModel.reusedPayjoinEndpoint!,
-                                            ),
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: Theme.of(context).colorScheme.error,
-                                            ),
-                                          ),
-                                        ),
                                       Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         spacing: 12,
@@ -650,6 +600,55 @@ class _NewSendPageState extends State<NewSendPage> {
                                             memoController: _memoControllers[_selectedOutput],
                                             maxMemoLength: widget.sendViewModel.maxMemoLength,
                                             memoLength: output.memo.length,
+                                          ),
+                                        ),
+                                      if (widget.sendViewModel.hasPayjoinOption)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: Row(
+                                            spacing: 12,
+                                            children: [
+                                              CakeImageWidget(
+                                                imageUrl: "assets/new-ui/payjoin.svg",
+                                                width: 24,
+                                                height: 24,
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  S.of(context).payjoin_use_for_tx,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ),
+                                              StandardSwitch(
+                                                value: widget.sendViewModel.hasActivePayjoin,
+                                                backgroundColorActive:
+                                                    const Color.fromARGB(255, 247, 83, 148),
+                                                onTapped: () =>
+                                                    widget.sendViewModel.setPayjoinEnabled(
+                                                  !widget.sendViewModel.hasActivePayjoin,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      if (widget.sendViewModel.reusedPayjoinEndpoint != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            _reusedPayjoinEndpointMessage(
+                                              widget.sendViewModel.reusedPayjoinEndpoint!,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Theme.of(context).colorScheme.error,
+                                            ),
                                           ),
                                         ),
                                       if (widget.sendViewModel.hasCoinControl ||
