@@ -1,4 +1,5 @@
 import "dart:io";
+import "dart:math";
 
 import "package:cw_bitcoin/payjoin/mailroom_manager.dart";
 import "package:cw_bitcoin/payjoin/payjoin_session_errors.dart";
@@ -105,7 +106,7 @@ Duration nextRelayBackoff(int consecutiveFailures) {
   if (consecutiveFailures == 0) {
     return _initialBackoff;
   }
-  final seconds = (_initialBackoff.inSeconds * (1 << consecutiveFailures))
+  final seconds = (_initialBackoff.inSeconds * (1 << min(consecutiveFailures, 4)))
       .clamp(_initialBackoff.inSeconds, _maxBackoff.inSeconds);
   return Duration(seconds: seconds);
 }
