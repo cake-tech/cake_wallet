@@ -1,12 +1,12 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
-import 'package:cw_core/payjoin_session.dart';
-import 'package:flutter/foundation.dart';
-import 'package:mobx/mobx.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart";
+import "package:cw_core/payjoin_session.dart";
+import "package:flutter/foundation.dart";
+import "package:mobx/mobx.dart";
 
-part 'payjoin_transactions_store.g.dart';
+part "payjoin_transactions_store.g.dart";
 
 class PayjoinTransactionsStore = PayjoinTransactionsStoreBase with _$PayjoinTransactionsStore;
 
@@ -55,11 +55,13 @@ abstract class PayjoinTransactionsStoreBase with Store {
             PayjoinSessionStatus.unrecoverable.name,
             PayjoinSessionStatus.cancelled.name,
           ].contains(session.status)) {
-        updatedTransactions.add(PayjoinTransactionListItem(
-          sessionId: key,
-          session: session,
-          key: ValueKey('payjoin_transaction_list_item_${key}_key'),
-        ));
+        updatedTransactions.add(
+          PayjoinTransactionListItem(
+            sessionId: key,
+            session: session,
+            key: ValueKey("payjoin_transaction_list_item_${key}_key"),
+          ),
+        );
       }
     }
 

@@ -1,6 +1,6 @@
-import 'dart:typed_data';
+import "dart:typed_data";
 
-import 'package:payjoin/payjoin.dart' as pj;
+import "package:payjoin/payjoin.dart" as pj;
 
 /// Normalized wrapper for an OHTTP-relayed request/response pair returned by
 /// the mailroom. Used by both sender and receiver workers to carry the bytes

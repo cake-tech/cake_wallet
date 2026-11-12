@@ -1,8 +1,8 @@
-import 'dart:io';
-import 'dart:math';
+import "dart:io";
+import "dart:math";
 
-import 'package:payjoin/http.dart' as pj_http;
-import 'package:payjoin/payjoin.dart' as pj;
+import "package:payjoin/http.dart" as pj_http;
+import "package:payjoin/payjoin.dart" as pj;
 
 /// Stateless relay/directory chooser plus the directory OHTTP-key fetch.
 ///
@@ -50,7 +50,7 @@ class MailroomManager {
           .toList();
     }
     if (available.isEmpty) {
-      throw StateError('No valid relays available');
+      throw StateError("No valid relays available");
     }
     return available[Random.secure().nextInt(available.length)];
   }
@@ -64,7 +64,7 @@ class MailroomManager {
         .where((d) => !(exclude?.contains(d) ?? false))
         .toList();
     if (available.isEmpty) {
-      throw StateError('No valid directories available');
+      throw StateError("No valid directories available");
     }
     return available[Random.secure().nextInt(available.length)];
   }

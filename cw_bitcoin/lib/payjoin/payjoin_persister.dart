@@ -1,12 +1,12 @@
-import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
-import 'package:payjoin/payjoin.dart' as pj;
+import "package:cw_bitcoin/payjoin/payjoin_event_store.dart";
+import "package:payjoin/payjoin.dart" as pj;
 
 class PayjoinSenderPersister extends pj.JsonSenderSessionPersister {
-  final PayjoinEventStore _store;
-  final String _key;
-
   PayjoinSenderPersister(this._store, String sessionId)
       : _key = PayjoinEventStore.senderKey(sessionId);
+
+  final PayjoinEventStore _store;
+  final String _key;
 
   @override
   void save(String event) => _store.append(_key, event);
@@ -19,11 +19,11 @@ class PayjoinSenderPersister extends pj.JsonSenderSessionPersister {
 }
 
 class PayjoinReceiverPersister extends pj.JsonReceiverSessionPersister {
-  final PayjoinEventStore _store;
-  final String _key;
-
   PayjoinReceiverPersister(this._store, String sessionId)
       : _key = PayjoinEventStore.receiverKey(sessionId);
+
+  final PayjoinEventStore _store;
+  final String _key;
 
   @override
   void save(String event) => _store.append(_key, event);

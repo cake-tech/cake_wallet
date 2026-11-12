@@ -1,8 +1,8 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cw_core/db/sqlite.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import "package:cw_core/db/sqlite.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
 /// SQLite-backed event log for payjoin session protocol events (table
 /// `PayjoinSessionEvents`, one row per event, ordered by `seq`).
@@ -14,7 +14,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 /// durable flush). Appends persist asynchronously; a failed insert is logged
 /// but never blocks the protocol (matching Hive's lazy flush behavior).
 class PayjoinEventStore {
-  static const String _tableName = 'PayjoinSessionEvents';
+  static const String _tableName = "PayjoinSessionEvents";
 
   final Map<String, List<String>> _cache = {};
   final Map<String, int> _nextSeq = {};
@@ -26,19 +26,23 @@ class PayjoinEventStore {
   /// Idempotent; concurrent callers share one in-flight load instead of
   /// seeding the cache twice for the same rows.
   Future<void> ensureOpen() {
-    if (_loaded) return Future.value();
+    if (_loaded) {
+      return Future.value();
+    }
     return _opening ??= _load();
   }
 
   Future<void> _load() async {
     try {
-      final rows = await db!.query(_tableName, orderBy: 'seq');
+      final rows = await db!.query(_tableName, orderBy: "seq");
       for (final row in rows) {
-        final key = row['sessionKey'] as String;
-        final seq = row['seq'] as int;
-        _cache.putIfAbsent(key, () => <String>[]).add(row['event'] as String);
+        final key = row["sessionKey"]! as String;
+        final seq = row["seq"]! as int;
+        _cache.putIfAbsent(key, () => <String>[]).add(row["event"]! as String);
         final next = seq + 1;
-        if (next > (_nextSeq[key] ?? 0)) _nextSeq[key] = next;
+        if (next > (_nextSeq[key] ?? 0)) {
+          _nextSeq[key] = next;
+        }
       }
       _loaded = true;
     } finally {
@@ -51,9 +55,9 @@ class PayjoinEventStore {
 
   List<String> loadSender(String sessionId) => load(senderKey(sessionId));
 
-  static String receiverKey(String sessionId) => 'recv_$sessionId';
+  static String receiverKey(String sessionId) => "recv_$sessionId";
 
-  static String senderKey(String sessionId) => 'send_$sessionId';
+  static String senderKey(String sessionId) => "send_$sessionId";
 
   /// Appends [event] under [key]. Synchronous cache write, asynchronous
   /// durable insert (never blocks or fails the protocol).
@@ -67,7 +71,7 @@ class PayjoinEventStore {
     if (database == null) {
       // Callers are expected to await `ensureOpen()` first; if the database
       // isn't ready, keep the event in memory rather than failing the protocol.
-      printV('[PayjoinEventStore] database not ready, event kept in memory only');
+      printV("[PayjoinEventStore] database not ready, event kept in memory only");
       return;
     }
 
@@ -76,14 +80,14 @@ class PayjoinEventStore {
           .insert(
         _tableName,
         {
-          'sessionKey': key,
-          'seq': seq,
-          'event': event,
+          "sessionKey": key,
+          "seq": seq,
+          "event": event,
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       )
           .catchError((Object e) {
-        printV('[PayjoinEventStore] failed to persist event: $e');
+        printV("[PayjoinEventStore] failed to persist event: $e");
         return -1;
       }),
     );

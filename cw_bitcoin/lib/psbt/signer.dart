@@ -1,16 +1,16 @@
-import 'dart:typed_data';
+import "dart:typed_data";
 
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:collection/collection.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_unspent.dart';
-import 'package:cw_bitcoin/bitcoin_wallet.dart';
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:collection/collection.dart";
+import "package:cw_bitcoin/bitcoin_address_record.dart";
+import "package:cw_bitcoin/bitcoin_unspent.dart";
+import "package:cw_bitcoin/bitcoin_wallet.dart";
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
-import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:ledger_bitcoin/psbt.dart';
-import 'package:ledger_bitcoin/src/utils/buffer_writer.dart';
+import "package:cw_bitcoin/utils.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:ledger_bitcoin/psbt.dart";
+import "package:ledger_bitcoin/src/utils/buffer_writer.dart";
 
 extension PsbtSigner on PsbtV2 {
   Uint8List extractUnsignedTX({bool getSegwit = true}) {
@@ -47,18 +47,18 @@ extension PsbtSigner on PsbtV2 {
     final reconstructedRaw = extractUnsignedTX(getSegwit: false);
     final raw = BytesUtils.toHexString(reconstructedRaw);
     final tx = BtcTransaction.fromRaw(raw);
-    printV('[signWithUTXO] reconstructed unsigned_tx hex=$raw');
-    printV('[signWithUTXO] tx.inputs=${tx.inputs.length} utxos=${utxos.length}');
+    printV("[signWithUTXO] reconstructed unsigned_tx hex=$raw");
+    printV("[signWithUTXO] tx.inputs=${tx.inputs.length} utxos=${utxos.length}");
     printV(
-        '[signWithUTXO] tx.version=${BytesUtils.toHexString(tx.version)} tx.locktime=${BytesUtils.toHexString(tx.locktime)}');
+      "[signWithUTXO] tx.version=${BytesUtils.toHexString(tx.version)} tx.locktime=${BytesUtils.toHexString(tx.locktime)}",
+    );
 
     /// when the transaction is taproot and we must use getTaproot transaction
     /// digest we need all of inputs amounts and owner script pub keys
-    List<BigInt> taprootAmounts = [];
-    List<Script> taprootScripts = [];
+    final taprootAmounts = <BigInt>[];
+    final taprootScripts = <Script>[];
 
     final anyP2tr = utxos.any((e) => e.utxo.isP2tr());
-    printV('[signWithUTXO] anySenderP2tr=$anyP2tr');
     if (anyP2tr) {
       for (final input in tx.inputs) {
         final utxo = utxos
@@ -66,14 +66,14 @@ extension PsbtSigner on PsbtV2 {
 
         if (utxo == null) {
           printV(
-              '[signWithUTXO] input txid=${input.txId} vout=${input.txIndex} -> not in utxos, fetching taproot pair');
+              "[signWithUTXO] input txid=${input.txId} vout=${input.txIndex} -> not in utxos, fetching taproot pair");
           try {
             final trPair = await getTaprootPair!.call(input.txId, input.txIndex);
             taprootAmounts.add(trPair.value);
             taprootScripts.add(trPair.script);
-            printV('[signWithUTXO]   fetched OK; amount=${trPair.value}');
+            printV("[signWithUTXO]   fetched OK; amount=${trPair.value}");
           } catch (e, s) {
-            printV('[signWithUTXO]   getTaprootPair FAILED: $e\n$s');
+            printV("[signWithUTXO]   getTaprootPair FAILED: $e\n$s");
             rethrow;
           }
           continue;
@@ -81,7 +81,7 @@ extension PsbtSigner on PsbtV2 {
         taprootAmounts.add(utxo.utxo.value);
         taprootScripts.add(_findLockingScript(utxo, true));
       }
-      printV('[signWithUTXO] built taprootAmounts.len=${taprootAmounts.length}');
+      printV("[signWithUTXO] built taprootAmounts.len=${taprootAmounts.length}");
     }
 
     for (var i = 0; i < tx.inputs.length; i++) {
@@ -90,11 +90,11 @@ extension PsbtSigner on PsbtV2 {
           e.utxo.vout == tx.inputs[i].txIndex); // ToDo: More robust verify
       if (utxo == null) {
         printV(
-            '[signWithUTXO] skip in[$i] txid=${tx.inputs[i].txId} vout=${tx.inputs[i].txIndex} (not in utxos)');
+            "[signWithUTXO] skip in[$i] txid=${tx.inputs[i].txId} vout=${tx.inputs[i].txIndex} (not in utxos)");
         continue;
       }
       printV(
-          '[signWithUTXO] signing in[$i] txid=${tx.inputs[i].txId} vout=${tx.inputs[i].txIndex} scriptType=${utxo.utxo.scriptType.value}');
+          "[signWithUTXO] signing in[$i] txid=${tx.inputs[i].txId} vout=${tx.inputs[i].txIndex} scriptType=${utxo.utxo.scriptType.value}");
 
       /// We receive the owner's ScriptPubKey
       final script = _findLockingScript(utxo, false);
@@ -106,11 +106,11 @@ extension PsbtSigner on PsbtV2 {
       /// We generate transaction digest for current input
       final digest =
           _generateTransactionDigest(script, i, utxo.utxo, tx, taprootAmounts, taprootScripts);
-      printV('[signWithUTXO]   digest.len=${digest.length}');
+      printV("[signWithUTXO]   digest.len=${digest.length}");
 
       /// now we need sign the transaction digest
       final sig = signer(digest, utxo, utxo.privateKey, sighash);
-      printV('[signWithUTXO]   sig.len=${sig.length ~/ 2}');
+      printV("[signWithUTXO]   sig.len=${sig.length ~/ 2}");
 
       if (utxo.utxo.isP2tr()) {
         setInputTapKeySig(i, Uint8List.fromList(BytesUtils.fromHexString(sig)));
@@ -119,29 +119,29 @@ extension PsbtSigner on PsbtV2 {
             Uint8List.fromList(BytesUtils.fromHexString(sig)));
       }
     }
-    printV('[signWithUTXO] done');
+    printV("[signWithUTXO] done");
   }
 
   List<int> _generateTransactionDigest(Script scriptPubKeys, int input, BitcoinUtxo utxo,
       BtcTransaction transaction, List<BigInt> taprootAmounts, List<Script> tapRootPubKeys) {
     final isSegwit = utxo.isSegwit();
     final isP2tr = utxo.isP2tr();
-    printV('[digest] in[$input] isSegwit=$isSegwit isP2tr=$isP2tr');
-    printV('[digest] in[$input] scriptCode=${BytesUtils.toHexString(scriptPubKeys.toBytes())}');
-    printV('[digest] in[$input] amount=${utxo.value} sat');
+    printV("[digest] in[$input] isSegwit=$isSegwit isP2tr=$isP2tr");
+    printV("[digest] in[$input] scriptCode=${BytesUtils.toHexString(scriptPubKeys.toBytes())}");
+    printV("[digest] in[$input] amount=${utxo.value} sat");
     printV(
-        '[digest] in[$input] tx.version=${BytesUtils.toHexString(transaction.version)} tx.locktime=${BytesUtils.toHexString(transaction.locktime)}');
-    printV('[digest] in[$input] tx.inputs.len=${transaction.inputs.length}');
+        "[digest] in[$input] tx.version=${BytesUtils.toHexString(transaction.version)} tx.locktime=${BytesUtils.toHexString(transaction.locktime)}");
+    printV("[digest] in[$input] tx.inputs.len=${transaction.inputs.length}");
     for (var j = 0; j < transaction.inputs.length; j++) {
       final inp = transaction.inputs[j];
       printV(
-          '[digest]   txIn[$j] txid=${inp.txId} vout=${inp.txIndex} seq=${BytesUtils.toHexString(inp.sequence)}');
+          "[digest]   txIn[$j] txid=${inp.txId} vout=${inp.txIndex} seq=${BytesUtils.toHexString(inp.sequence)}");
     }
-    printV('[digest] in[$input] tx.outputs.len=${transaction.outputs.length}');
+    printV("[digest] in[$input] tx.outputs.len=${transaction.outputs.length}");
     for (var j = 0; j < transaction.outputs.length; j++) {
       final out = transaction.outputs[j];
       printV(
-          '[digest]   txOut[$j] value=${out.amount} script=${BytesUtils.toHexString(out.scriptPubKey.toBytes())}');
+          "[digest]   txOut[$j] value=${out.amount} script=${BytesUtils.toHexString(out.scriptPubKey.toBytes())}");
     }
     final psbtLocktime = getGlobalFallbackLocktime();
     printV('[digest] in[$input] PSBT fallbackLocktime field=${psbtLocktime ?? "null (→ 0)"}');
@@ -161,7 +161,7 @@ extension PsbtSigner on PsbtV2 {
     } else {
       digest = transaction.getTransactionDigest(txInIndex: input, script: scriptPubKeys);
     }
-    printV('[digest] in[$input] → digest=${BytesUtils.toHexString(digest)}');
+    printV("[digest] in[$input] → digest=${BytesUtils.toHexString(digest)}");
     return digest;
   }
 
