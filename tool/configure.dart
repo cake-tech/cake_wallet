@@ -732,7 +732,9 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 """;
   const bitcoinCashCWHeaders = """
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
@@ -759,6 +761,8 @@ abstract class BitcoinCash {
   List<TransactionPriority> getTransactionPriorities();
 
   TransactionPriority getBitcoinCashTransactionPrioritySlow();
+
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
 }
   """;
 

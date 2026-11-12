@@ -74,6 +74,7 @@ abstract class WalletHardwareRestoreViewModelBase extends WalletCreationVM with 
     switch (type) {
       case WalletType.bitcoin:
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         credentials = bitcoin!
             .createBitcoinHardwareWalletCredentials(name: name, accountData: selectedAccount!);
         break;

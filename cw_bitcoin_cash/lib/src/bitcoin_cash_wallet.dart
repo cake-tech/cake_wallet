@@ -1,37 +1,41 @@
-import 'package:bitbox/bitbox.dart' as bitbox;
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cw_bitcoin/electrum_balance.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_keys_file.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
+import "package:bitbox/bitbox.dart" as bitbox;
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:cw_bitcoin/bitcoin_address_record.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
+import "package:cw_bitcoin/electrum_balance.dart";
+import "package:cw_bitcoin/electrum_wallet.dart";
+import "package:cw_bitcoin/electrum_wallet_snapshot.dart";
+import "package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart";
+import "package:cw_bitcoin/output_ordering.dart";
+import "package:cw_bitcoin/psbt/transaction_builder.dart";
+import "package:cw_bitcoin_cash/src/bitcoin_cash_base.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/output_info.dart";
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_keys_file.dart";
+import "package:flutter/foundation.dart";
+import "package:hive/hive.dart";
+import "package:mobx/mobx.dart";
 
-import 'bitcoin_cash_base.dart';
-
-part 'bitcoin_cash_wallet.g.dart';
+part "bitcoin_cash_wallet.g.dart";
 
 class BitcoinCashWallet = BitcoinCashWalletBase with _$BitcoinCashWallet;
 
 abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   BitcoinCashWalletBase({
-    required String mnemonic,
     required String password,
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
     required Box<UnspentCoinsInfo> unspentCoinsInfo,
-    required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
+    String? mnemonic,
+    Uint8List? seedBytes,
+    String? xpub,
     String? passphrase,
     BitcoinAddressType? addressPageType,
     List<BitcoinAddressRecord>? initialAddresses,
@@ -39,18 +43,20 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
   }) : super(
-            mnemonic: mnemonic,
-            password: password,
-            walletInfo: walletInfo,
-            derivationInfo: derivationInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
-            network: BitcoinCashNetwork.mainnet,
-            initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            seedBytes: seedBytes,
-            currency: CryptoCurrency.bch,
-            encryptionFileUtils: encryptionFileUtils,
-            passphrase: passphrase) {
+          mnemonic: mnemonic,
+          xpub: xpub,
+          password: password,
+          walletInfo: walletInfo,
+          derivationInfo: derivationInfo,
+          unspentCoinsInfo: unspentCoinsInfo,
+          network: BitcoinCashNetwork.mainnet,
+          initialAddresses: initialAddresses,
+          initialBalance: initialBalance,
+          seedBytes: seedBytes,
+          currency: CryptoCurrency.bch,
+          encryptionFileUtils: encryptionFileUtils,
+          passphrase: passphrase,
+        ) {
     walletAddresses = BitcoinCashWalletAddresses(
       walletInfo,
       initialAddresses: initialAddresses,
@@ -67,7 +73,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       isHardwareWallet: walletInfo.isHardwareWallet,
     );
     autorun((_) {
-      this.walletAddresses.isEnabledAutoGenerateSubaddress = this.isEnabledAutoGenerateSubaddress;
+      walletAddresses.isEnabledAutoGenerateSubaddress = isEnabledAutoGenerateSubaddress;
     });
   }
 
@@ -138,7 +144,8 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
     }
 
     return BitcoinCashWallet(
-      mnemonic: keysData.mnemonic!,
+      mnemonic: keysData.mnemonic,
+      xpub: keysData.xPub,
       password: password,
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
@@ -168,7 +175,9 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         }
       }).toList(),
       initialBalance: snp?.balance,
-      seedBytes: await MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
+      seedBytes: keysData.mnemonic == null
+          ? null
+          : MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
       encryptionFileUtils: encryptionFileUtils,
       initialRegularAddressIndex: snp?.regularAddressIndex,
       initialChangeAddressIndex: snp?.changeAddressIndex,
@@ -182,6 +191,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
         Uint8List.fromList(hd.childKey(Bip32KeyIndex(index)).privateKey.raw),
       );
 
+  @override
   int calculateEstimatedFeeWithFeeRate(int feeRate, int? amount, {int? outputsCount, int? size}) {
     int inputsCount = 0;
     int totalValue = 0;
@@ -233,5 +243,64 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
       netVersion: network.wifNetVer,
     );
     return priv.signMessage(StringUtils.encode(message));
+  }
+
+  @override
+  Future<BtcTransaction> buildHardwareWalletTransaction({
+    required List<BitcoinOutput> outputs,
+    required BigInt fee,
+    required BasedUtxoNetwork network,
+    required List<UtxoWithAddress> utxos,
+    required List<OutputInfo> cwOutputs,
+    required Map<String, PublicKeyWithDerivationPath> publicKeys,
+    String? memo,
+    bool enableRBF = false,
+    BitcoinOrdering inputOrdering = BitcoinOrdering.bip69,
+    BitcoinOrdering outputOrdering = BitcoinOrdering.bip69,
+  }) async {
+    final masterFingerprint =
+        await (hardwareWalletService! as BitcoinHardwareWalletService).getMasterFingerprint();
+
+    final readyInputs = <PSBTReadyUtxoWithAddress>[];
+    for (final utxo in utxos) {
+      final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
+      final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
+
+      readyInputs.add(
+        PSBTReadyUtxoWithAddress(
+          utxo: utxo.utxo,
+          rawTx: rawTx,
+          ownerDetails: utxo.ownerDetails,
+          ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+          ownerMasterFingerprint: masterFingerprint,
+          ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+        ),
+      );
+    }
+
+    final orderedOutputs = orderOutputs(outputs, outputOrdering).map((o) {
+      if (o.isChange && publicKeys.containsKey(o.address.pubKeyHash())) {
+        final changeKey = publicKeys[o.address.pubKeyHash()]!;
+        return PSBTReadyBitcoinOutput(
+          address: o.address,
+          value: o.value,
+          isSilentPayment: o.isSilentPayment,
+          isChange: o.isChange,
+          changeMasterFingerprint: masterFingerprint,
+          changeDerivationPath: changeKey.derivationPath,
+          changePublicKey: changeKey.publicKey,
+        );
+      }
+      return PSBTReadyBitcoinOutput.fromOutput(o);
+    });
+
+    final rawHex = await (hardwareWalletService! as BitcoinCashHardwareWalletService)
+        .signBitcoinCashTransaction(
+      outputs: orderedOutputs.toList(),
+      inputs: readyInputs,
+      publicKeys: publicKeys,
+    );
+
+    return BtcTransaction.fromRaw(rawHex);
   }
 }
