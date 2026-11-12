@@ -1,10 +1,10 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/entities/preferences_key.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 enum PayjoinServerType { relay, directory }
 
@@ -16,6 +16,12 @@ class PayjoinServer {
     this.isLive = false,
     this.isTesting = false,
   });
+
+  factory PayjoinServer.fromJson(Map<String, dynamic> json) => PayjoinServer(
+        url: json["url"] as String,
+        type: json["type"] == "relay" ? PayjoinServerType.relay : PayjoinServerType.directory,
+        isDefault: json["isDefault"] as bool? ?? false,
+      );
 
   final String url;
   final PayjoinServerType type;
@@ -33,29 +39,21 @@ class PayjoinServer {
   }
 
   Map<String, dynamic> toJson() => {
-        'url': url,
-        'type': type == PayjoinServerType.relay ? 'relay' : 'directory',
-        'isDefault': isDefault,
+        "url": url,
+        "type": type == PayjoinServerType.relay ? "relay" : "directory",
+        "isDefault": isDefault,
       };
 
-  factory PayjoinServer.fromJson(Map<String, dynamic> json) => PayjoinServer(
-        url: json['url'] as String,
-        type: json['type'] == 'relay'
-            ? PayjoinServerType.relay
-            : PayjoinServerType.directory,
-        isDefault: json['isDefault'] as bool? ?? false,
-      );
-
   static const defaultRelays = [
-    'https://pj.bobspacebkk.com',
-    'https://pj.benalleng.com',
-    'https://ohttp.achow101.com',
+    "https://pj.bobspacebkk.com",
+    "https://pj.benalleng.com",
+    "https://ohttp.achow101.com",
   ];
 
   static const defaultDirectories = [
-    'https://pj.benalleng.com',
-    'https://payjo.in',
-    'https://lets.payjo.in',
+    "https://pj.benalleng.com",
+    "https://payjo.in",
+    "https://lets.payjo.in",
   ];
 
   static List<PayjoinServer> builtinRelays() => defaultRelays
@@ -63,17 +61,20 @@ class PayjoinServer {
       .toList();
 
   static List<PayjoinServer> builtinDirectories() => defaultDirectories
-      .map((u) =>
-          PayjoinServer(url: u, type: PayjoinServerType.directory, isDefault: true))
+      .map(
+        (u) => PayjoinServer(url: u, type: PayjoinServerType.directory, isDefault: true),
+      )
       .toList();
 
   static ({List<String> relays, List<String> directories}) loadUrlsFromPrefs(
     SharedPreferences prefs,
   ) {
     final removedRelays = Set<String>.from(
-        prefs.getStringList(PreferencesKey.payjoinRemovedDefaultRelays) ?? []);
+      prefs.getStringList(PreferencesKey.payjoinRemovedDefaultRelays) ?? [],
+    );
     final removedDirectories = Set<String>.from(
-        prefs.getStringList(PreferencesKey.payjoinRemovedDefaultDirectories) ?? []);
+      prefs.getStringList(PreferencesKey.payjoinRemovedDefaultDirectories) ?? [],
+    );
 
     final relays = <String>[
       ...defaultRelays.where((u) => !removedRelays.contains(u)),
@@ -106,7 +107,9 @@ class PayjoinServer {
   }
 
   static void applyMailroomConfig(WalletBase wallet, SharedPreferences prefs) {
-    if (wallet.type != WalletType.bitcoin) return;
+    if (wallet.type != WalletType.bitcoin) {
+      return;
+    }
     final config = loadUrlsFromPrefs(prefs);
     bitcoin!.configurePayjoinMailroom(wallet, config.relays, config.directories);
   }
