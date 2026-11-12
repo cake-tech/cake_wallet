@@ -93,6 +93,9 @@ abstract class PrivacySettingsViewModelBase with Store {
   bool get looksUpOpenAlias => _settingsStore.lookupsOpenAlias;
 
   @computed
+  bool get looksUpNamecoin => _settingsStore.lookupsNamecoin;
+
+  @computed
   bool get looksUpENS => _settingsStore.lookupsENS;
 
   @computed

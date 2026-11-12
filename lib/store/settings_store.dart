@@ -134,6 +134,7 @@ abstract class SettingsStoreBase with Store {
       required this.lookupsYatService,
       required this.lookupsUnstoppableDomains,
       required this.lookupsOpenAlias,
+      required this.lookupsNamecoin,
       required this.lookupsENS,
       required this.lookupsZcashNames,
       required this.lookupsZcashAddress,
@@ -591,6 +592,11 @@ abstract class SettingsStoreBase with Store {
         (bool looksUpOpenAlias) =>
             _sharedPreferences.setBool(PreferencesKey.lookupsOpenAlias, looksUpOpenAlias));
 
+    reaction(
+        (_) => lookupsNamecoin,
+        (bool looksUpNamecoin) =>
+            _sharedPreferences.setBool(PreferencesKey.lookupsNamecoin, looksUpNamecoin));
+
     reaction((_) => lookupsENS,
         (bool looksUpENS) => _sharedPreferences.setBool(PreferencesKey.lookupsENS, looksUpENS));
 
@@ -1026,6 +1032,9 @@ abstract class SettingsStoreBase with Store {
   bool lookupsOpenAlias;
 
   @observable
+  bool lookupsNamecoin;
+
+  @observable
   bool lookupsENS;
 
   @observable
@@ -1380,6 +1389,7 @@ abstract class SettingsStoreBase with Store {
     final lookupsUnstoppableDomains =
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     final lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+    final lookupsNamecoin = sharedPreferences.getBool(PreferencesKey.lookupsNamecoin) ?? true;
     final lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     final lookupsZcashNames = sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
     final lookupsZcashAddress =
@@ -1738,6 +1748,7 @@ abstract class SettingsStoreBase with Store {
       lookupsYatService: lookupsYatService,
       lookupsUnstoppableDomains: lookupsUnstoppableDomains,
       lookupsOpenAlias: lookupsOpenAlias,
+      lookupsNamecoin: lookupsNamecoin,
       lookupsENS: lookupsENS,
       lookupsZcashNames: lookupsZcashNames,
       lookupsZcashAddress: lookupsZcashAddress,
@@ -1992,6 +2003,7 @@ abstract class SettingsStoreBase with Store {
     lookupsUnstoppableDomains =
         sharedPreferences.getBool(PreferencesKey.lookupsUnstoppableDomains) ?? true;
     lookupsOpenAlias = sharedPreferences.getBool(PreferencesKey.lookupsOpenAlias) ?? true;
+    lookupsNamecoin = sharedPreferences.getBool(PreferencesKey.lookupsNamecoin) ?? true;
     lookupsENS = sharedPreferences.getBool(PreferencesKey.lookupsENS) ?? true;
     lookupsZcashNames = sharedPreferences.getBool(PreferencesKey.lookupsZcashNames) ?? true;
     lookupsWellKnown = sharedPreferences.getBool(PreferencesKey.lookupsWellKnown) ?? true;

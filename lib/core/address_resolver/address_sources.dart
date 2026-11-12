@@ -53,6 +53,11 @@ enum AddressSource {
       alias: 'user@domain.com'),
   contact(label: 'Contact', iconPath: ''),
   notParsed(label: 'Unknown', iconPath: ''),
+  // Append new sources to preserve the persisted raw indices above.
+  namecoin(
+      label: 'Namecoin',
+      iconPath: 'assets/new-ui/address_sources/namecoin.svg',
+      alias: 'name.bit or d/name'),
   ;
 
   const AddressSource({
@@ -69,8 +74,10 @@ enum AddressSource {
 extension AddressSourceIndex on AddressSource {
   int get raw => index;
 
-  static AddressSource fromRaw(int raw) =>
-      AddressSource.values[raw.clamp(0, AddressSource.values.length - 1)];
+  static AddressSource fromRaw(int raw) {
+    if (raw == AddressSource.namecoin.index) return AddressSource.namecoin;
+    return AddressSource.values[raw.clamp(0, AddressSource.notParsed.index)];
+  }
 }
 
 extension AddressSourceNameParser on AddressSource {
