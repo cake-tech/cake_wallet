@@ -862,6 +862,17 @@ class CWBitcoin extends Bitcoin {
       (await PayjoinStorage().readAllWithKeys()).map((e) => e.value).toList();
 
   @override
+  Stream<void> getPayjoinSessionChanges() => PayjoinStorage.changes;
+
+  @override
+  Future<List<MapEntry<String, PayjoinSession>>> getAllPayjoinSessionsWithKeys() =>
+      PayjoinStorage().readAllWithKeys();
+
+  @override
+  Future<PayjoinSession?> getPayjoinSessionByKey(String key) =>
+      PayjoinStorage().getSessionByKey(key);
+
+  @override
   Future<List<String>> getPayjoinSessionEvents(PayjoinSession session) async {
     final eventStore = PayjoinEventStore();
     await eventStore.ensureOpen();

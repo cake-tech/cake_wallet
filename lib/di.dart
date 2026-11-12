@@ -28,7 +28,6 @@ import 'package:cake_wallet/core/new_wallet_type_arguments.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
-import 'package:cake_wallet/core/selectable_option.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -56,11 +55,7 @@ import 'package:cake_wallet/new-ui/model/charts/price_store.dart';
 import 'package:cake_wallet/new-ui/new_dashboard.dart';
 import 'package:cake_wallet/new-ui/pages/about_page.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_amount_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_network_page.dart';
-import 'package:cake_wallet/new-ui/pages/bridge/bridge_receiving_wallet_page.dart';
 import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
@@ -74,7 +69,6 @@ import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
-import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_label_modal.dart';
@@ -279,7 +273,6 @@ import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/nano_account.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/unspent_coin_type.dart';
@@ -300,7 +293,6 @@ import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
-import 'src/screens/buy/buy_sell_page.dart';
 
 
 final getIt = GetIt.instance;
@@ -370,7 +362,7 @@ Future<void> setup({
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
-  getIt.registerFactory(() => PayjoinTransactionsStore(storage: PayjoinStorage()));
+  getIt.registerFactory(PayjoinTransactionsStore.new);
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<OrderFilterStore>(OrderFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore(getIt.get<AppStore>()));
@@ -1549,7 +1541,6 @@ Future<void> setup({
       (String sessionId, TransactionInfo? transactionInfo) => PayjoinDetailsViewModel(
             sessionId,
             transactionInfo,
-            payjoinStorage: PayjoinStorage(),
             themeStore: getIt.get<ThemeStore>(),
           ));
 

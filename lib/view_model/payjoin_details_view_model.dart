@@ -1,26 +1,25 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart';
-import 'package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/address_list_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
-import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/themes/core/theme_store.dart';
-import 'package:cake_wallet/utils/date_formatter.dart';
-import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
-import 'package:cw_bitcoin/payjoin/storage.dart';
-import 'package:cw_core/payjoin_session.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:flutter/widgets.dart';
-import 'package:mobx/mobx.dart';
-import 'package:url_launcher/url_launcher.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/trade_details/trade_details_list_card.dart";
+import "package:cake_wallet/src/screens/trade_details/trade_details_status_item.dart";
+import "package:cake_wallet/src/screens/transaction_details/address_list_item.dart";
+import "package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart";
+import "package:cake_wallet/src/screens/transaction_details/standart_list_item.dart";
+import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
+import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/themes/core/theme_store.dart";
+import "package:cake_wallet/utils/date_formatter.dart";
+import "package:cake_wallet/view_model/transaction_details_view_model.dart";
+import "package:cw_core/payjoin_session.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:flutter/widgets.dart";
+import "package:mobx/mobx.dart";
+import "package:url_launcher/url_launcher.dart";
 
-part 'payjoin_details_view_model.g.dart';
+part "payjoin_details_view_model.g.dart";
 
 class PayjoinDetailsViewModel = PayjoinDetailsViewModelBase with _$PayjoinDetailsViewModel;
 
@@ -28,15 +27,12 @@ abstract class PayjoinDetailsViewModelBase with Store {
   PayjoinDetailsViewModelBase(
     this.payjoinSessionId,
     this.transactionInfo, {
-    required PayjoinStorage payjoinStorage,
     required this.themeStore,
-  })  : items = ObservableList<TransactionDetailsListItem>(),
-        _payjoinStorage = payjoinStorage {
+  }) : items = ObservableList<TransactionDetailsListItem>() {
     _loadSession();
-    listener = PayjoinStorage.changes.listen((_) => _loadSession());
+    listener = bitcoin!.getPayjoinSessionChanges().listen((_) => _loadSession());
   }
 
-  final PayjoinStorage _payjoinStorage;
   final ThemeStore themeStore;
   final String payjoinSessionId;
   final TransactionInfo? transactionInfo;
@@ -57,7 +53,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
   /// detail items. No-ops once the session row disappears.
   @action
   Future<void> _loadSession() async {
-    final session = await _payjoinStorage.getSessionByKey(payjoinSessionId);
+    final session = await bitcoin!.getPayjoinSessionByKey(payjoinSessionId);
     if (session == null) return;
     payjoinSession = session;
 
@@ -71,7 +67,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
           AddressListItem(
             title: S.current.transaction_details_recipient_address,
             value: session.recipientAddress!,
-            key: const ValueKey('standard_list_item_transaction_details_recipient_address_key'),
+            key: const ValueKey("standard_list_item_transaction_details_recipient_address_key"),
           ),
         );
       }
@@ -112,15 +108,15 @@ abstract class PayjoinDetailsViewModelBase with Store {
 
     if (session.txId?.isNotEmpty == true) {
       items.add(BlockExplorerListItem(
-        title: '${S.current.view_transaction_on}mempool.cakewallet.com',
-        value: '${S.current.view_transaction_on}mempool.space',
+        title: "${S.current.view_transaction_on}mempool.cakewallet.com",
+        value: "${S.current.view_transaction_on}mempool.space",
         onTap: () async {
           try {
-            final uri = Uri.parse('https://mempool.cakewallet.com/tx/${session.txId!}');
+            final uri = Uri.parse("https://mempool.cakewallet.com/tx/${session.txId!}");
             if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
           } catch (e) {}
         },
-        key: ValueKey('block_explorer_list_item_wallet_type_key'),
+        key: ValueKey("block_explorer_list_item_wallet_type_key"),
       ));
     }
   }
@@ -169,7 +165,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
     if (session == null || session.isSenderSession) {
       return items.length;
     }
-    const txIdKey = 'standard_list_item_transaction_details_id_key';
+    const txIdKey = "standard_list_item_transaction_details_id_key";
     final txIdIdx = items.indexWhere(
       (i) => (i.key as ValueKey?)?.value == txIdKey,
     );
@@ -178,21 +174,21 @@ abstract class PayjoinDetailsViewModelBase with Store {
 
   String _getStatusString() {
     final session = payjoinSession;
-    if (session == null) return '';
+    if (session == null) return "";
     switch (session.status) {
-      case 'success':
+      case "success":
         if (transactionInfo?.isPending == false) return S.current.successful;
         return S.current.payjoin_request_awaiting_tx;
-      case 'inProgress':
+      case "inProgress":
         return S.current.payjoin_request_in_progress;
-      case 'waiting':
+      case "waiting":
         return S.current.payjoin_request_awaiting_tx;
-      case 'cancelled':
+      case "cancelled":
         return S.current.cancelled;
-      case 'unrecoverable':
+      case "unrecoverable":
         // Legacy sessions persisted before the explicit `cancelled` status
         // stored the cancel as unrecoverable + error 'Cancelled'.
-        if (session.error == 'Cancelled') return S.current.cancelled;
+        if (session.error == "Cancelled") return S.current.cancelled;
         return S.current.error;
       default:
         return session.status;

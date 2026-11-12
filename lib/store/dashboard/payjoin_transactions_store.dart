@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
-import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -11,16 +11,13 @@ part 'payjoin_transactions_store.g.dart';
 class PayjoinTransactionsStore = PayjoinTransactionsStoreBase with _$PayjoinTransactionsStore;
 
 abstract class PayjoinTransactionsStoreBase with Store {
-  PayjoinTransactionsStoreBase({
-    required this.storage,
-  }) : transactions = <PayjoinTransactionListItem>[] {
-    storageChangesSubscription = PayjoinStorage.changes.listen((_) => updateTransactionList());
+  PayjoinTransactionsStoreBase() : transactions = <PayjoinTransactionListItem>[] {
+    storageChangesSubscription =
+        bitcoin!.getPayjoinSessionChanges().listen((_) => updateTransactionList());
     updateTransactionList();
   }
 
-  final PayjoinStorage storage;
-
-  /// Fires after every session mutation in any [PayjoinStorage] instance.
+  /// Fires after every payjoin session mutation, for any wallet.
   late final StreamSubscription<void> storageChangesSubscription;
 
   @observable
@@ -33,7 +30,7 @@ abstract class PayjoinTransactionsStoreBase with Store {
   @action
   Future<void> updateTransactionList() async {
     final updatedTransactions = <PayjoinTransactionListItem>[];
-    final sessions = await storage.readAllWithKeys();
+    final sessions = await bitcoin!.getAllPayjoinSessionsWithKeys();
     for (final entry in sessions) {
       final key = entry.key;
       final session = entry.value;
