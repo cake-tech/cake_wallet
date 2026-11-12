@@ -1,20 +1,20 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/transaction_direction.dart";
+import "package:flutter/material.dart";
 
 class PayjoinHistoryTile extends StatelessWidget {
   const PayjoinHistoryTile({
-    super.key,
     required this.createdAt,
     required this.amount,
-    this.amountFiat,
     required this.direction,
     required this.pending,
     required this.roundedTop,
     required this.roundedBottom,
     required this.bottomSeparator,
+    this.amountFiat,
+    super.key,
   });
 
   final String createdAt;
@@ -29,12 +29,12 @@ class PayjoinHistoryTile extends StatelessWidget {
   String _getDirectionIcon() {
     if (pending) {
       return direction == TransactionDirection.incoming
-          ? 'assets/new-ui/history-receiving.svg'
-          : 'assets/new-ui/history-sending.svg';
+          ? "assets/new-ui/history-receiving.svg"
+          : "assets/new-ui/history-sending.svg";
     }
     return direction == TransactionDirection.incoming
-        ? 'assets/new-ui/history-received.svg'
-        : 'assets/new-ui/history-sent.svg';
+        ? "assets/new-ui/history-received.svg"
+        : "assets/new-ui/history-sent.svg";
   }
 
   Widget _buildLeadingIcon(BuildContext context) {
@@ -56,10 +56,11 @@ class PayjoinHistoryTile extends StatelessWidget {
             width: 16,
             height: 16,
             decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onInverseSurface,
-                shape: BoxShape.circle),
-            child: CakeImageWidget(
-              imageUrl: 'assets/new-ui/payjoin.svg',
+              color: Theme.of(context).colorScheme.onInverseSurface,
+              shape: BoxShape.circle,
+            ),
+            child: const CakeImageWidget(
+              imageUrl: "assets/new-ui/payjoin.svg",
               height: 14,
               width: 14,
             ),
@@ -80,7 +81,7 @@ class PayjoinHistoryTile extends StatelessWidget {
       date: createdAt,
       amount: amount,
       leadingIcon: _buildLeadingIcon(context),
-      amountFiat: amountFiat ?? '',
+      amountFiat: amountFiat ?? "",
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,
       bottomSeparator: bottomSeparator,
