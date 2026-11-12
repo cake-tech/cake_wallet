@@ -294,7 +294,7 @@ class PayjoinStorage {
   Future<List<MapEntry<String, PayjoinSession>>> readAllWithKeys() async {
     // rowid order matches the old Hive box's insertion order.
     final rows = await _db.query(_tableName, orderBy: "rowid ASC");
-    return rows.map((row) => MapEntry(row["sessionId"] as String, _fromRow(row))).toList();
+    return rows.map((row) => MapEntry(row["sessionId"]! as String, _fromRow(row))).toList();
   }
 
   /// Finds a non-sender session in [walletId] whose [PayjoinSession.recipientAddress]
@@ -317,23 +317,7 @@ class PayjoinStorage {
       return null;
     }
     PayjoinSession? best;
-    for (final entry in await readAllWithKeys()) {
-      final session = entry.value;
-      if (session.walletId != walletId) {
-        continue;
-      }
-      if (session.isSenderSession) {
-        continue;
-      }
-      if (session.txId?.isNotEmpty ?? false) {
-        continue;
-      }
-      if (session.status == PayjoinSessionStatus.success.name) {
-        continue;
-      }
-      if (session.status == PayjoinSessionStatus.cancelled.name) {
-        continue;
-      }
+    for (final session in await _pendingReceiverSessions(walletId)) {
       // Only sessions with evidence of a submitted original payload are
       // eligible: a plain (non-payjoin) payment to the recipient address
       // must not be claimed as the session's outcome.
@@ -353,6 +337,22 @@ class PayjoinStorage {
       }
     }
     return best;
+  }
+
+  Future<List<PayjoinSession>> _pendingReceiverSessions(String walletId) async {
+    final rows = await _db.query(
+      _tableName,
+      where: "walletId = ? AND sender IS NULL "
+          "AND (txId IS NULL OR txId = '') "
+          "AND status NOT IN (?, ?)",
+      whereArgs: [
+        walletId,
+        PayjoinSessionStatus.success.name,
+        PayjoinSessionStatus.cancelled.name,
+      ],
+      orderBy: "rowid ASC",
+    );
+    return rows.map(_fromRow).toList();
   }
 
   Future<bool> hasActiveReceiverSession(String walletId) async {
@@ -389,37 +389,31 @@ class PayjoinStorage {
 
   /// Returns [PayjoinSession] for both sender (keyed by pjUri) and receiver
   /// (keyed by endpoint), or null if no match.
-  Future<PayjoinSession?> getSessionByEndpoint(String endpoint) async => await _getSessionByKey("$_senderPrefix$endpoint") ??
-        await _getSessionByKey("$_receiverPrefix$endpoint");
+  Future<PayjoinSession?> getSessionByEndpoint(String endpoint) async =>
+      await _getSessionByKey("$_senderPrefix$endpoint") ??
+      await _getSessionByKey("$_receiverPrefix$endpoint");
 
   /// Include unrecoverable sessions that have a stored fallback PSBT so the
   /// "keep around until fallback broadcast" pattern works — the user can
   /// still see and broadcast the fallback tx even after the session failed.
   Future<List<PayjoinSession>> readAllOpenSessions(String walletId) async {
-    final sessions = <PayjoinSession>[];
-    for (final entry in await readAllWithKeys()) {
-      final session = entry.value;
-      if (session.walletId != walletId) {
-        continue;
-      }
-      if (session.status == PayjoinSessionStatus.success.name) {
-        continue;
-      }
+    final rows = await _db.query(
+      _tableName,
       // Explicit user cancel is terminal — never resume, even with a stored
-      // fallback PSBT (the user chose to abandon the payjoin).
-      if (session.status == PayjoinSessionStatus.cancelled.name) {
-        continue;
-      }
-      if (session.status == PayjoinSessionStatus.unrecoverable.name) {
-        // Keep unrecoverable sessions IF they have a stored fallback PSBT
-        // (broadcast not yet done) OR if they haven't used the fallback yet.
-        if (!(session.originalPsbt?.isNotEmpty == true && !session.usedFallback)) {
-          continue;
-        }
-      }
-      sessions.add(session);
-    }
-    return sessions;
+      // fallback PSBT (the user chose to abandon the payjoin). Unrecoverable
+      // sessions are kept only while their fallback PSBT is still unused.
+      where: "walletId = ? AND status NOT IN (?, ?) "
+          "AND (status != ? OR (originalPsbt IS NOT NULL AND originalPsbt != '' "
+          "AND usedFallback = 0))",
+      whereArgs: [
+        walletId,
+        PayjoinSessionStatus.success.name,
+        PayjoinSessionStatus.cancelled.name,
+        PayjoinSessionStatus.unrecoverable.name,
+      ],
+      orderBy: "rowid ASC",
+    );
+    return rows.map(_fromRow).toList();
   }
 
   Future<List<PayjoinSession>> readAllSessions(String walletId) async {
