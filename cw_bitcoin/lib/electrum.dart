@@ -554,6 +554,25 @@ class ElectrumClient {
         return '';
       });
 
+  /// Submits a child-with-parents package (child last) via package relay,
+  /// for zero-fee parents that only relay together with their CPFP child.
+  Future<void> broadcastPackage({required List<String> rawTransactions}) async {
+    int? callId;
+    final result = await call(
+      method: 'blockchain.transaction.broadcast_package',
+      params: [rawTransactions],
+      idCallback: (id) => callId = id,
+    );
+
+    if (result is Map && result["success"] == true) {
+      return;
+    }
+
+    throw PackageBroadcastException(
+      result is Map ? "${result["errors"]}" : getErrorMessage(callId!),
+    );
+  }
+
   Future<Map<String, dynamic>> getMerkle({required String hash, required int height}) async =>
       await call(method: 'blockchain.transaction.get_merkle', params: [hash, height])
           as Map<String, dynamic>;

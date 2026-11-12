@@ -77,7 +77,7 @@ dependencies:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: v0.23.0
+      ref: 1c91a60f300ba1f93586e0e10452f462dfc989ca
 
 dev_dependencies:
   flutter_test:

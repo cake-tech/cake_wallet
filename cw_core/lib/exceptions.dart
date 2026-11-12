@@ -119,3 +119,47 @@ class WalletDeprecationException extends CakeException {
 class WalletSwitchException extends CakeException {
   WalletSwitchException(super.message);
 }
+
+/// A unilateral exit was refused because no leaf is worth its own exit fee at [feeRate].
+class UnilateralExitNoLeavesException extends CakeException {
+  UnilateralExitNoLeavesException({required this.feeRate})
+      : super("No Spark leaves are worth exiting at $feeRate sat/vB.");
+
+  final int feeRate;
+}
+
+/// A unilateral exit was refused because its fees at [feeRate] exceed what it recovers.
+class UnilateralExitFeeExceedsRecoveryException extends CakeException {
+  UnilateralExitFeeExceedsRecoveryException({
+    required this.feeRate,
+    required this.feeSat,
+    required this.recoverableSat,
+  }) : super("Exiting at $feeRate sat/vB costs $feeSat sats in fees but recovers only "
+            "$recoverableSat sats.");
+
+  final int feeRate;
+  final int feeSat;
+  final int recoverableSat;
+}
+
+/// A unilateral exit could not start because the wallet lacks confirmed funds to pay its fees.
+class UnilateralExitFundingShortfallException extends CakeException {
+  UnilateralExitFundingShortfallException({required this.neededSat})
+      : super("A unilateral exit needs at least $neededSat sats in confirmed SegWit funds "
+            "to pay its fees");
+
+  final int neededSat;
+}
+
+/// Why a unilateral exit cannot start, for the parts the user can be shown.
+enum UnilateralExitBlock {
+  noDestination,
+  lightningDisabled,
+  noFundsLeft,
+}
+
+class UnilateralExitBlockedException extends CakeException {
+  UnilateralExitBlockedException(this.reason) : super(reason.name);
+
+  final UnilateralExitBlock reason;
+}

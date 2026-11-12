@@ -14,12 +14,14 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import "package:cake_wallet/entities/spark_exit_quote.dart";
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/evm_transaction_error_fees_handler.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -441,7 +443,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
     return sp.hasMatch(address);
   }
-
 
   @computed
   bool get hasCoinControl =>
@@ -922,10 +923,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
             final fromCurrency = trade.from ?? CryptoCurrency.sol;
             final amount = Money.tryParse(
-              trade.amount.sanitized(),
-              fromCurrency,
-              strictParsing: false,
-            ) ?? Money.zero(fromCurrency);
+                  trade.amount.sanitized(),
+                  fromCurrency,
+                  strictParsing: false,
+                ) ??
+                Money.zero(fromCurrency);
 
             final prepared = await solana!.signAndPrepareJupiterSwapTransaction(
               wallet,
@@ -1065,6 +1067,139 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
   }
 
+  /// Prepares a unilateral exit of the Spark balance to this wallet's on-chain
+  /// side, ready for the regular confirm-and-commit flow.
+  @action
+  Future<void> createUnilateralExitTransaction({
+    required int feeRate,
+    List<String>? leafIds,
+  }) async {
+    final preparationId = ++_sendPreparationId;
+    bool replaced() => preparationId != _sendPreparationId;
+
+    state = IsExecutingState();
+    pendingTransaction = null;
+
+    try {
+      final destination = bitcoin!.getUnilateralExitDestination(wallet);
+
+      clearOutputs();
+      outputs.first.address = destination;
+
+      final prepared = await bitcoin!.createUnilateralExitTransaction(
+        wallet,
+        destination: destination,
+        feeRate: feeRate,
+        leafIds: leafIds,
+      );
+      if (replaced()) {
+        return;
+      }
+
+      pendingTransaction = prepared;
+      state = ExecutedSuccessfullyState();
+    } catch (e, stackTrace) {
+      printV("Spark unilateral exit failed: $e\n$stackTrace");
+
+      if (replaced()) {
+        return;
+      }
+
+      // Nothing was built, so the sheet must not show a send estimate as the exit fee.
+      outputs.first.estimatedFee = Money.zero(outputs.first.estimatedFee.currency);
+      state = FailureState(translateErrorMessage(e, wallet.type, wallet.currency));
+    }
+  }
+
+  /// Merges the Spark balance into fewer, larger leaves so more of it is worth exiting.
+  /// The merge needs Spark's operators; when they are unreachable the exit goes ahead
+  /// with the leaves the wallet already has, which is what an exit is for.
+  Future<void> mergeLeavesForUnilateralExit() async {
+    try {
+      await bitcoin!.mergeLeavesForUnilateralExit(wallet);
+    } catch (e) {
+      printV("Spark leaf merge before exit failed, quoting the current leaves: $e");
+    }
+  }
+
+  /// Quotes a Spark exit at [feeRate] of [leafIds] (every leaf worth it when null) without
+  /// building it, or the rebuild of the exit under way.
+  Future<SparkExitQuote> quoteUnilateralExit({
+    required int feeRate,
+    List<String>? leafIds,
+  }) async {
+    try {
+      final quote = await bitcoin!.quoteUnilateralExit(
+        wallet,
+        destination: bitcoin!.getUnilateralExitDestination(wallet),
+        feeRate: feeRate,
+        leafIds: leafIds,
+      );
+
+      final failure = quote.leaves.isEmpty
+          ? UnilateralExitNoLeavesException(feeRate: feeRate)
+          : quote.recoverableSat <= quote.feeSat
+              ? UnilateralExitFeeExceedsRecoveryException(
+                  feeRate: feeRate,
+                  feeSat: quote.feeSat,
+                  recoverableSat: quote.recoverableSat,
+                )
+              : null;
+
+      return SparkExitQuote(
+        isRebuild: quote.isRebuild,
+        recoverableAmount: _btcDisplay(quote.recoverableSat),
+        feeAmount: _btcDisplay(quote.feeSat),
+        failureMessage:
+            failure == null ? null : translateErrorMessage(failure, wallet.type, wallet.currency),
+        leaves: [
+          for (final leaf in quote.leaves)
+            SparkExitLeaf(
+              id: leaf.id,
+              amount: _btcDisplay(leaf.valueSat),
+              isCooperative: leaf.isCooperative,
+            ),
+        ],
+        skipped: [
+          for (final leaf in quote.skipped)
+            SparkExitSkippedLeaf(
+              id: leaf.id,
+              amount: _btcDisplay(leaf.valueSat),
+              reason: switch (leaf.reason) {
+                "feeExceedsValue" => S.current.spark_exit_skipped_fee_exceeds_value,
+                "fundsNotFound" => S.current.spark_exit_skipped_funds_not_found,
+                "unverified" => S.current.spark_exit_skipped_unverified,
+                "operatorsUnavailable" => S.current.spark_exit_skipped_operators_unavailable,
+                _ => S.current.spark_exit_skipped_not_recoverable(leaf.message ?? ""),
+              },
+            ),
+        ],
+      );
+    } catch (e) {
+      return SparkExitQuote.failed(
+        failureMessage: translateErrorMessage(e, wallet.type, wallet.currency),
+      );
+    }
+  }
+
+  String _btcDisplay(int sat) =>
+      amountParsingProxy.asDisplayStringWithSymbol(Money.fromInt(sat, CryptoCurrency.btc));
+
+  /// Fee rate in sat/vB for a Bitcoin priority, as the Spark exit offers it.
+  int bitcoinFeeRateFor(TransactionPriority priority) =>
+      priority == bitcoin!.getBitcoinTransactionPriorityCustom()
+          ? feesViewModel.customBitcoinFeeRate
+          : bitcoin!.getFeeRate(wallet, priority);
+
+  int get maxBitcoinFeeRate => bitcoin!.getMaxCustomFeeRate(wallet);
+
+  /// The priorities the settings picker offers, minus custom (which the sheet's field covers).
+  List<({TransactionPriority priority, int feeRate})> get bitcoinFeeRatePriorities => [
+        for (final priority in priorityForWalletType(WalletType.bitcoin))
+          if (priority != bitcoin!.getBitcoinTransactionPriorityCustom())
+            (priority: priority, feeRate: bitcoinFeeRateFor(priority)),
+      ];
+
   Future<void> _handleOcpRequest() async {
     if (OpenCryptoPayService.requiresClientCommit(selectedCryptoCurrency)) {
       await pendingTransaction!.commit();
@@ -1089,7 +1224,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
-      throw TransactionGenerationException("Pending transaction doesn't exist. It should not be happened.");
+      throw TransactionGenerationException(
+          "Pending transaction doesn't exist. It should not be happened.");
     }
 
     try {
@@ -1394,7 +1530,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // priority: priority,
         );
       default:
-        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for send', wallet.type);
+        throw BadWalletTypeException(
+            'Unexpected wallet type: ${wallet.type} for send', wallet.type);
     }
   }
 
@@ -1537,12 +1674,52 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   // End EVM helper functions
 
+  /// A lower rate is only worth suggesting above the 1 sat/vB floor.
+  String _withLowerFeeRateHint(String message, int feeRate) {
+    if (feeRate <= 1) {
+      return message;
+    }
+
+    return "$message ${S.current.spark_exit_lower_fee_rate_hint}";
+  }
+
   String translateErrorMessage(
     Object error,
     WalletType walletType,
     CryptoCurrency currency,
   ) {
     String errorMessage = error.toString();
+
+    if (error is UnilateralExitNoLeavesException) {
+      return _withLowerFeeRateHint(
+        S.current.spark_exit_no_leaves_worth_exiting(error.feeRate.toString()),
+        error.feeRate,
+      );
+    }
+
+    if (error is UnilateralExitFeeExceedsRecoveryException) {
+      return _withLowerFeeRateHint(
+        S.current.spark_exit_fee_exceeds_recovery(
+          error.feeRate.toString(),
+          error.feeSat.toString(),
+          error.recoverableSat.toString(),
+        ),
+        error.feeRate,
+      );
+    }
+
+    if (error is UnilateralExitFundingShortfallException) {
+      final amount = Money.fromInt(error.neededSat, CryptoCurrency.btc);
+      return S.current.spark_exit_funding_shortfall(amount.toString());
+    }
+
+    if (error is UnilateralExitBlockedException) {
+      return switch (error.reason) {
+        UnilateralExitBlock.noDestination => S.current.spark_exit_no_destination,
+        UnilateralExitBlock.lightningDisabled => S.current.spark_exit_lightning_disabled,
+        UnilateralExitBlock.noFundsLeft => S.current.spark_exit_no_funds_left,
+      };
+    }
 
     if (walletType == WalletType.solana) {
       if (errorMessage.contains('insufficient lamports')) {
