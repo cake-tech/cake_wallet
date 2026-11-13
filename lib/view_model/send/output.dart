@@ -27,6 +27,8 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 
@@ -37,7 +39,8 @@ const String cryptoNumberPattern = '0.0';
 class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
-  OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
+  OutputBase(this._wallet, this._appStore, this._fiatConversationStore, this.cryptoCurrencyHandler,
+      {this.coinTypeToSpendFrom})
       : key = UniqueKey(),
         sendAll = false,
         cryptoAmount = '',
@@ -56,9 +59,19 @@ abstract class OutputBase with Store {
       }
       calculateEstimatedFee();
     });
+    if (_wallet.type == WalletType.pivx) {
+      reaction((_) => [address, extractedAddress, cryptoAmount, sendAll, coinTypeToSpendFrom?.call()],
+          (_) => calculateEstimatedFee());
+    }
   }
 
   Key key;
+
+  int _pivxFeeGeneration = 0;
+
+  // PIVX prices transparent and shielded routes differently; the reaction in
+  // the constructor re-prices the preview when the source changes.
+  final UnspentCoinType Function()? coinTypeToSpendFrom;
 
   bool get useSatoshi => _appStore.amountParsingProxy.useSatoshi(cryptoCurrencyHandler());
 
@@ -152,6 +165,19 @@ abstract class OutputBase with Store {
         case WalletType.decred:
         case WalletType.zano:
           estimatedFee = Money.fromInt(fee, walletTypeToCryptoCurrency(_wallet.type));
+          break;
+        case WalletType.pivx:
+          final priority = _settingsStore.getPriority(_wallet.type);
+          // A slower earlier estimate must not overwrite a newer one.
+          final generation = ++_pivxFeeGeneration;
+          if (priority != null) {
+            fee = await pivx!.estimatedSendFee(_wallet, priority, cryptoAmountMoney.amount.toInt(),
+                toAddress: isParsedAddress ? extractedAddress : address,
+                source: coinTypeToSpendFrom?.call() ?? UnspentCoinType.any,
+                sendAll: sendAll);
+          }
+          if (generation != _pivxFeeGeneration) return;
+          estimatedFee = Money.fromInt(fee, CryptoCurrency.pivx);
           break;
         case WalletType.bitcoin:
           if (cryptoCurrencyHandler() == CryptoCurrency.btcln) {
