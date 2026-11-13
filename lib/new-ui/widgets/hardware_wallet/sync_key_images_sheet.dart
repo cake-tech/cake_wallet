@@ -1,6 +1,7 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/directional_switcher.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -191,10 +192,25 @@ class _HardwareWalletProceedOnDeviceSheetState extends State<SyncKeyImagesSheet>
       return;
     }
 
-    final result = await widget.trezorConnectVM.syncKeyImages(widget.wallet);
-    if (result && context.mounted) {
-      Navigator.of(context).pop();
+    final error = await widget.trezorConnectVM.syncKeyImages(widget.wallet);
+    if (!mounted) {
+      return;
     }
+    if (error == null) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    setState(() => _state = _KeyImageSyncState.initial);
+    await showPopUp<void>(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).error,
+        alertContent: error,
+        buttonText: S.of(context).ok,
+        buttonAction: Navigator.of(context).pop,
+      ),
+    );
   }
 }
 

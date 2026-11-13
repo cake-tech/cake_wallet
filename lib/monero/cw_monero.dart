@@ -448,6 +448,14 @@ class CWMonero extends Monero {
   }
 
   @override
+  bool consumeKeyImageSyncRequest(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    final requested = moneroWallet.keyImageSyncRequested;
+    moneroWallet.keyImageSyncRequested = false;
+    return requested;
+  }
+
+  @override
   void monerocCheck() => checkIfMoneroCIsFine();
 
   @override
