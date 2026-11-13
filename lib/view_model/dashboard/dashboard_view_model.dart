@@ -325,10 +325,10 @@ abstract class DashboardViewModelBase with Store {
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
       SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.letsExchange,
-          value: () => tradeFilterStore.displayLetsExchange,
+          providerDescription: ExchangeProviderDescription.whyNot,
+          value: () => tradeFilterStore.displayWhyNot,
           onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.whyNot)),
       SwapProviderFilterItem(
           providerDescription: ExchangeProviderDescription.stealthEx,
           value: () => tradeFilterStore.displayStealthEx,
@@ -388,6 +388,9 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isMigratingToIronwood =>
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
+
+  @computed
+  bool get requiresManualShield => wallet.type == WalletType.zcash && wallet.isHardwareWallet;
 
   @computed
   bool get isSyncHeavy {
