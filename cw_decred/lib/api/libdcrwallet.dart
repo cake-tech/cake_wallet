@@ -468,7 +468,7 @@ class Libwallet {
     _commands.send((id, req));
     final res = await completer.future as PayloadResult;
     try {
-      return jsonDecode(res.payload);
+      return jsonDecode(res.payload) as Map<String, dynamic>;
     } catch (_) {
       if (throwOnError) {
         rethrow;

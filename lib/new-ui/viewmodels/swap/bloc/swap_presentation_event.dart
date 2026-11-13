@@ -37,6 +37,10 @@ final class RefundAddressRequired extends SwapPresentationEvent {
   final CryptoCurrency currency;
 }
 
+final class SourceWalletSelectionRequested extends SwapPresentationEvent {
+  const SourceWalletSelectionRequested();
+}
+
 final class WalletSwitchFailed extends SwapPresentationEvent {
   const WalletSwitchFailed(this.error);
 

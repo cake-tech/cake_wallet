@@ -4,7 +4,7 @@ import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
 import "package:json_annotation/json_annotation.dart";
 
-part "letsexchange_api_schema.g.dart";
+part "whynot_api_schema.g.dart";
 
 class SafeBoolConverter implements JsonConverter<bool, Object> {
   const SafeBoolConverter();
@@ -43,9 +43,27 @@ class SafeStringConverter implements JsonConverter<String, Object> {
   Object toJson(String value) => value;
 }
 
+// whynot dropped the created_at/expired_at shapes letsexchange had, so take seconds, a date string or nothing
+class SafeDateTimeConverter implements JsonConverter<DateTime?, Object?> {
+  const SafeDateTimeConverter();
+
+  @override
+  DateTime? fromJson(Object? json) => switch (json) {
+    final num seconds => DateTime.fromMillisecondsSinceEpoch((seconds * 1000).toInt(), isUtc: true),
+    final String value => switch (num.tryParse(value)) {
+      final seconds? => DateTime.fromMillisecondsSinceEpoch((seconds * 1000).toInt(), isUtc: true),
+      null => DateTime.tryParse(value),
+    },
+    _ => null,
+  };
+
+  @override
+  Object? toJson(DateTime? value) => value?.toIso8601String();
+}
+
 @JsonSerializable()
-class LetsExchangeInfoRequest {
-  const LetsExchangeInfoRequest({
+class WhyNotInfoRequest {
+  const WhyNotInfoRequest({
     required this.from,
     required this.to,
     required this.amount,
@@ -76,12 +94,12 @@ class LetsExchangeInfoRequest {
   @JsonKey(name: "partner_user_ip", includeIfNull: false)
   final String? partnerUserIp;
 
-  Map<String, dynamic> toJson() => _$LetsExchangeInfoRequestToJson(this);
+  Map<String, dynamic> toJson() => _$WhyNotInfoRequestToJson(this);
 }
 
 @JsonSerializable(createToJson: false)
-class LetsExchangeInfoResponse {
-  const LetsExchangeInfoResponse({
+class WhyNotInfoResponse {
+  const WhyNotInfoResponse({
     required this.minAmount,
     required this.maxAmount,
     required this.amount,
@@ -93,8 +111,8 @@ class LetsExchangeInfoResponse {
     this.rateIdExpiredAt,
   });
 
-  factory LetsExchangeInfoResponse.fromJson(Map<String, dynamic> json) =>
-      _$LetsExchangeInfoResponseFromJson(json);
+  factory WhyNotInfoResponse.fromJson(Map<String, dynamic> json) =>
+      _$WhyNotInfoResponseFromJson(json);
 
   @JsonKey(name: "min_amount")
   final String minAmount;
@@ -118,16 +136,16 @@ class LetsExchangeInfoResponse {
 }
 
 @JsonSerializable(createToJson: false)
-class LetsExchangeAmlSignal {
-  const LetsExchangeAmlSignal({
+class WhyNotAmlSignal {
+  const WhyNotAmlSignal({
     required this.signal,
     required this.signalId,
     required this.signalPercent,
     required this.level,
   });
 
-  factory LetsExchangeAmlSignal.fromJson(Map<String, dynamic> json) =>
-      _$LetsExchangeAmlSignalFromJson(json);
+  factory WhyNotAmlSignal.fromJson(Map<String, dynamic> json) =>
+      _$WhyNotAmlSignalFromJson(json);
 
   @JsonKey(name: "signal")
   final String signal;
@@ -140,8 +158,8 @@ class LetsExchangeAmlSignal {
 }
 
 @JsonSerializable()
-class LetsExchangeCreateTransactionRequest {
-  const LetsExchangeCreateTransactionRequest({
+class WhyNotCreateTransactionRequest {
+  const WhyNotCreateTransactionRequest({
     required this.coinFrom,
     required this.coinTo,
     required this.withdrawal,
@@ -195,13 +213,13 @@ class LetsExchangeCreateTransactionRequest {
   @JsonKey(name: "partner_user_ip", includeIfNull: false)
   final String? partnerUserIp;
 
-  Map<String, dynamic> toJson() => _$LetsExchangeCreateTransactionRequestToJson(this);
+  Map<String, dynamic> toJson() => _$WhyNotCreateTransactionRequestToJson(this);
 }
 
 @JsonSerializable(createToJson: false)
 @TradeStateConverter()
-class LetsExchangeTransactionResponse {
-  const LetsExchangeTransactionResponse({
+class WhyNotTransactionResponse {
+  const WhyNotTransactionResponse({
     this.transactionId,
     this.status,
     this.coinFrom,
@@ -238,8 +256,8 @@ class LetsExchangeTransactionResponse {
     this.expiredAt,
   });
 
-  factory LetsExchangeTransactionResponse.fromJson(Map<String, dynamic> json) =>
-      _$LetsExchangeTransactionResponseFromJson(json);
+  factory WhyNotTransactionResponse.fromJson(Map<String, dynamic> json) =>
+      _$WhyNotTransactionResponseFromJson(json);
 
   @JsonKey(name: "transaction_id")
   final String? transactionId;
@@ -305,10 +323,11 @@ class LetsExchangeTransactionResponse {
   @JsonKey(name: "profit")
   final double? profit;
   @JsonKey(name: "aml_error_signals")
-  final List<LetsExchangeAmlSignal>? amlErrorSignals;
+  final List<WhyNotAmlSignal>? amlErrorSignals;
   @JsonKey(name: "created_at")
+  @SafeDateTimeConverter()
   final DateTime? createdAt;
   @JsonKey(name: "expired_at")
-  @SecondsDateTimeConverter()
+  @SafeDateTimeConverter()
   final DateTime? expiredAt;
 }

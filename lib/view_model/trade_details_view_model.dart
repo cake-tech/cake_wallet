@@ -5,13 +5,13 @@ import 'package:cake_wallet/exchange/provider/chainflip/chainflip_exchange_provi
 import 'package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/whynot/whynot_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -52,8 +52,8 @@ abstract class TradeDetailsViewModelBase with Store {
 
       case ExchangeProviderDescription.swapTrade:
         _provider = SwapTradeExchangeProvider();
-      case ExchangeProviderDescription.letsExchange:
-        _provider = LetsExchangeExchangeProvider();
+      case ExchangeProviderDescription.whyNot:
+        _provider = WhyNotExchangeProvider();
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
@@ -99,8 +99,8 @@ abstract class TradeDetailsViewModelBase with Store {
         return 'https://track.ninerealms.com/${trade.id}';
       case ExchangeProviderDescription.swapTrade:
         return 'https://swaptrade.io/send/${trade.id}';
-      case ExchangeProviderDescription.letsExchange:
-        return 'https://letsexchange.io/?transactionId=${trade.id}';
+      case ExchangeProviderDescription.whyNot:
+        return "https://receipt.whynot.exchange/${trade.id}";
       case ExchangeProviderDescription.stealthEx:
         return 'https://stealthex.io/exchange/?id=${trade.id}';
       case ExchangeProviderDescription.chainflip:

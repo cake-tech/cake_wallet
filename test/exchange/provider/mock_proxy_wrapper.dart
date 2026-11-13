@@ -76,6 +76,7 @@ abstract class MockProxyWrapper implements ProxyWrapper {
     Uri? onionUri,
     String? body,
     bool allowMitmMoneroBypassSSLCheck = false,
+    bool preferIPv6 = false,
   }) => _answer("POST", clearnetUri ?? onionUri, body);
 
   @override

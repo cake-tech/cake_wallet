@@ -1,4 +1,4 @@
-import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/whynot/whynot_exchange_provider.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -8,32 +8,32 @@ import "../exchange_provider_suite.dart";
 import "../mock_proxy_wrapper.dart";
 import "canned_responses.dart";
 
-class LetsExchangeMockProxyWrapper extends MockProxyWrapper {
+class WhyNotMockProxyWrapper extends MockProxyWrapper {
   @override
   MockResponse? route(MockRequest request) {
     if (request.method == "POST" && request.path == "/api/v1/info") {
-      return const MockResponse(letsExchangeInfo);
+      return const MockResponse(whyNotInfo);
     }
 
     if (request.method == "POST" && request.path == "/api/v1/transaction") {
-      return const MockResponse(letsExchangeTransaction);
+      return const MockResponse(whyNotTransaction);
     }
 
     if (request.method == "GET" && request.path.startsWith("/api/v1/transaction/")) {
-      return request.path.endsWith("/$letsExchangeTradeId")
-          ? const MockResponse(letsExchangeTransaction)
-          : const MockResponse.notFound(letsExchangeNotFound);
+      return request.path.endsWith("/$whyNotTradeId")
+          ? const MockResponse(whyNotTransaction)
+          : const MockResponse.notFound(whyNotNotFound);
     }
 
     return null;
   }
 }
 
-ProviderScenario letsExchangeScenario() => ProviderScenario(
-  title: "LetsExchange",
+ProviderScenario whyNotScenario() => ProviderScenario(
+  title: "WhyNot",
   build: () {
-    final mock = LetsExchangeMockProxyWrapper();
-    return ProviderUnderTest(LetsExchangeExchangeProvider(proxyWrapper: mock), mock);
+    final mock = WhyNotMockProxyWrapper();
+    return ProviderUnderTest(WhyNotExchangeProvider(proxyWrapper: mock), mock);
   },
   from: CryptoCurrency.usdterc20,
   to: CryptoCurrency.usdc,
@@ -46,26 +46,26 @@ ProviderScenario letsExchangeScenario() => ProviderScenario(
   expectedRateLimitsMin: Money.parse("10", CryptoCurrency.usdterc20),
   expectedRateLimitsMax: Money.parse("50000", CryptoCurrency.usdterc20),
   expectedCreatedTrade: ExpectedTrade(
-    id: letsExchangeTradeId,
+    id: whyNotTradeId,
     state: TradeState.wait,
     depositAmount: Money.parse("100", CryptoCurrency.usdterc20),
     payoutAmount: Money.parse("99", CryptoCurrency.usdc),
-    fundingAddress: letsExchangeDepositAddress,
+    fundingAddress: whyNotDepositAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
     createdAtIsNow: true,
     expiredAt: DateTime.fromMillisecondsSinceEpoch(
-      letsExchangeExpiredAtSeconds * 1000,
+      whyNotExpiredAtSeconds * 1000,
       isUtc: true,
     ),
   ),
-  tradeId: letsExchangeTradeId,
+  tradeId: whyNotTradeId,
   expectedFoundTrade: ExpectedTrade(
-    id: letsExchangeTradeId,
+    id: whyNotTradeId,
     state: TradeState.wait,
     depositAmount: Money.parse("100", CryptoCurrency.usdterc20),
     payoutAmount: Money.parse("99", CryptoCurrency.usdc),
-    fundingAddress: letsExchangeDepositAddress,
+    fundingAddress: whyNotDepositAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
     isRefund: false,

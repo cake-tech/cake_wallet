@@ -100,7 +100,7 @@ void restoreWalletFromSeedSync(
     required String seed,
     int nettype = 0,
     int restoreHeight = 0}) {
-  var newWptr;
+  final wownero.wallet newWptr;
   if (seed.split(" ").length == 14) {
     txhistory = null;
     newWptr = wownero.WOWNERO_deprecated_restore14WordSeed(

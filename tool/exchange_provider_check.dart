@@ -37,7 +37,7 @@ import "package:cake_wallet/entities/sort_balance_types.dart";
 import "package:cake_wallet/entities/sync_status_display_mode.dart";
 import "package:cake_wallet/entities/wallet_list_order_types.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/whynot/whynot_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";

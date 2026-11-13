@@ -48,9 +48,9 @@ class SolanaTransactionInfo extends TransactionInfo {
       direction: parseTransactionDirectionFromInt(data['direction'] as int),
       date: DateTime.fromMillisecondsSinceEpoch(data['blockTime'] as int),
       isPending: data['isPending'] as bool,
-      to: data['to'],
-      from: data['from'],
-      fee: Money.parse(data['txFee'], CryptoCurrency.sol),
+      to: data['to'] as String?,
+      from: data['from'] as String?,
+      fee: Money.parse(data['txFee'] as String, CryptoCurrency.sol),
     );
   }
 

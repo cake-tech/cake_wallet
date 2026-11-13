@@ -39,6 +39,7 @@ class _RecordingProxy implements ProxyWrapper {
     Uri? onionUri,
     String? body,
     bool allowMitmMoneroBypassSSLCheck = false,
+    bool preferIPv6 = false,
   }) async {
     calls.add(_Call("POST", clearnetUri!, headers ?? {}, body));
     return response;

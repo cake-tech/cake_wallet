@@ -103,35 +103,35 @@ const stealthExExchange = '{"id":"$stealthExTradeId","status":"waiting","rate":"
 
 const stealthExNotFound = '{"err":{"kind":"NotFound","details":"exchange not found"}}';
 
-// ── LetsExchange - usdt to usdc, both erc20, floating ─────────────────────────────────────
+// ── WhyNot - usdt to usdc, both erc20, floating ─────────────────────────────────────
 //
-// LetsExchange looks a trade's currencies up by ticker plus network, and a non-empty network
+// WhyNot looks a trade's currencies up by ticker plus network, and a non-empty network
 // tag has to match a tagged currency exactly - so this pair is two erc20 tokens rather than
 // the btc/xmr pair the other providers use.
 
-const letsExchangeTradeId = "le-trade-1";
-const letsExchangeDepositAddress = "0xletsexchangedepositaddress";
-const letsExchangeCreatedAt = "2026-07-29 17:04:31";
-const letsExchangeExpiredAtSeconds = 1785335671;
+const whyNotTradeId = "le-trade-1";
+const whyNotDepositAddress = "0xwhynotdepositaddress";
+const whyNotCreatedAt = "2026-07-29 17:04:31";
+const whyNotExpiredAtSeconds = 1785335671;
 
-const letsExchangeInfo = '{"deposit_min_amount":"10","deposit_max_amount":"50000",'
+const whyNotInfo = '{"deposit_min_amount":"10","deposit_max_amount":"50000",'
     '"min_amount":"10","max_amount":"50000","amount":"99","fee":"0","rate":"0.99",'
     '"profit":"0","withdrawal_fee":"0","extra_fee_amount":"0","rate_id":"le-rate-1",'
     '"rate_id_expired_at":0,"applied_promo_code_id":null,"networks_from":[],'
     '"networks_to":[],"deposit_amount_usdt":"100","expired_at":"1785333936912",'
     '"base_amount":"99"}';
 
-const letsExchangeTransaction = '{"is_float":true,"status":"wait","type":"cex",'
+const whyNotTransaction = '{"is_float":true,"status":"wait","type":"cex",'
     '"coin_from":"USDT","coin_to":"USDC","deposit_amount":"100",'
     '"withdrawal_amount":"99","withdrawal":"$payoutAddress","withdrawal_extra_id":null,'
     '"return":"$refundAddress","return_extra_id":null,"coin_from_network":"ERC20",'
-    '"coin_to_network":"ERC20","deposit":"$letsExchangeDepositAddress",'
+    '"coin_to_network":"ERC20","deposit":"$whyNotDepositAddress",'
     '"deposit_extra_id":null,"rate":"0.99","fee":"0","revert":false,'
-    '"transaction_id":"$letsExchangeTradeId","expired_at":$letsExchangeExpiredAtSeconds,'
-    '"created_at":"$letsExchangeCreatedAt","hash_in":null,"hash_out":null,'
+    '"transaction_id":"$whyNotTradeId","expired_at":$whyNotExpiredAtSeconds,'
+    '"created_at":"$whyNotCreatedAt","hash_in":null,"hash_out":null,'
     '"confirmations":0,"need_confirmations":64,"aml_error_signals":[],"error_code":""}';
 
-const letsExchangeNotFound = '{"error":"Transaction not found"}';
+const whyNotNotFound = '{"error":"Transaction not found"}';
 
 // ── Trocador - btc to xmr, floating ──────────────────────────────────────────────────────
 

@@ -4,7 +4,7 @@ import "package:cake_wallet/exchange/provider/chainflip/chainflip_api_schema.dar
 import "package:cake_wallet/exchange/provider/changenow/changenow_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_api_schema.dart";
 import "package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart";
-import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_api_schema.dart";
+import "package:cake_wallet/exchange/provider/whynot/whynot_api_schema.dart";
 import "package:cake_wallet/exchange/provider/near_intents/near_intents_api_schema.dart";
 import "package:cake_wallet/exchange/provider/stealthex/stealthex_api_schema.dart";
 import "package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_api_schema.dart";
@@ -145,9 +145,9 @@ void main() {
     });
   });
 
-  group("LetsExchange", () {
+  group("WhyNot", () {
     test("the info body gives 10 - 50000 usdt and a rate id", () {
-      final info = LetsExchangeInfoResponse.fromJson(_map(letsExchangeInfo));
+      final info = WhyNotInfoResponse.fromJson(_map(whyNotInfo));
 
       expect(Money.parse(info.minAmount, CryptoCurrency.usdterc20), Money.parse("10", CryptoCurrency.usdterc20));
       expect(Money.parse(info.maxAmount, CryptoCurrency.usdterc20), Money.parse("50000", CryptoCurrency.usdterc20));
@@ -155,7 +155,7 @@ void main() {
     });
 
     test("100 usdt for 99 usdc prices one usdt at 0.99 usdc", () {
-      final info = LetsExchangeInfoResponse.fromJson(_map(letsExchangeInfo));
+      final info = WhyNotInfoResponse.fromJson(_map(whyNotInfo));
       final rate = ExchangeRate.fromAmounts(
         Money.parse("100", CryptoCurrency.usdterc20),
         Money.parse(info.amount, CryptoCurrency.usdc),
@@ -169,21 +169,21 @@ void main() {
     });
 
     test("the transaction body keeps the amounts apart from the addresses", () {
-      final transaction = LetsExchangeTransactionResponse.fromJson(_map(letsExchangeTransaction));
+      final transaction = WhyNotTransactionResponse.fromJson(_map(whyNotTransaction));
 
-      expect(transaction.transactionId, letsExchangeTradeId);
+      expect(transaction.transactionId, whyNotTradeId);
       expect(transaction.status, TradeState.wait);
       expect(transaction.depositAmount, "100");
       expect(transaction.withdrawalAmount, "99");
-      expect(transaction.deposit, letsExchangeDepositAddress);
+      expect(transaction.deposit, whyNotDepositAddress);
       expect(transaction.withdrawal, payoutAddress);
       expect(transaction.returnAddress, refundAddress);
       expect(transaction.coinFromNetwork, "ERC20");
       expect(transaction.coinToNetwork, "ERC20");
-      expect(transaction.createdAt, DateTime.parse(letsExchangeCreatedAt));
+      expect(transaction.createdAt, DateTime.parse(whyNotCreatedAt));
       expect(
         transaction.expiredAt,
-        DateTime.fromMillisecondsSinceEpoch(letsExchangeExpiredAtSeconds * 1000, isUtc: true),
+        DateTime.fromMillisecondsSinceEpoch(whyNotExpiredAtSeconds * 1000, isUtc: true),
       );
     });
   });

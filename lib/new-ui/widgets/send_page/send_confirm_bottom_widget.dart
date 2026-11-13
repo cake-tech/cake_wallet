@@ -120,6 +120,8 @@ class SwapConfirmBottomWidget extends StatelessWidget {
         builder: (context) => SwapSendExternalModal(
           from: state.trade.depositAmount.currency as CryptoCurrency,
           to: state.trade.payoutAmount.currency as CryptoCurrency,
+          address: state.trade.fundingAddress,
+          amount: state.trade.depositAmount.toString(),
           uri: state.trade.uri,
           extraId: state.trade.extraId,
         ),

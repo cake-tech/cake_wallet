@@ -12,12 +12,21 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
 class SwapSendExternalModal extends StatefulWidget {
-  const SwapSendExternalModal(
-      {required this.uri, required this.from, required this.to, super.key, this.extraId,});
+  const SwapSendExternalModal({
+    required this.address,
+    required this.amount,
+    required this.uri,
+    required this.from,
+    required this.to,
+    super.key,
+    this.extraId,
+  });
 
   final CryptoCurrency from;
   final CryptoCurrency to;
-  final PaymentURI uri;
+  final String address;
+  final String amount;
+  final PaymentURI? uri;
   final String? extraId;
 
   @override
@@ -25,14 +34,13 @@ class SwapSendExternalModal extends StatefulWidget {
 }
 
 class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
-  PaymentURI? uri;
   bool largeQrMode = false;
   static const warningTextColor = Color(0xFFFFB84E);
   static const warningBackgroundColor = Color(0xFF8E5800);
 
   @override
   Widget build(BuildContext context) {
-    if (widget.uri.address.isEmpty) {
+    if (widget.address.isEmpty) {
       return const SizedBox.shrink();
     }
     final resolvedSize = MediaQuery.of(context).size.width * (largeQrMode ? 0.8 : 0.54);
@@ -84,7 +92,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 spacing: 8,
                                 children: [
                                   Text(
-                                    widget.uri.amount,
+                                    widget.amount,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w500,
                                         fontSize: 16,
@@ -107,20 +115,21 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 fontWeight: FontWeight.w500))
                       ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          largeQrMode = !largeQrMode;
-                        });
-                      },
-                      child: TweenAnimationBuilder<double>(
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeOutCubic,
-                        tween: Tween<double>(
-                          begin: resolvedSize,
-                          end: resolvedSize,
-                        ),
-                        builder: (context, animatedSize, child) => SizedBox(
+                    if (widget.uri != null)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            largeQrMode = !largeQrMode;
+                          });
+                        },
+                        child: TweenAnimationBuilder<double>(
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOutCubic,
+                          tween: Tween<double>(
+                            begin: resolvedSize,
+                            end: resolvedSize,
+                          ),
+                          builder: (context, animatedSize, child) => SizedBox(
                             width: animatedSize,
                             height: animatedSize,
                             child: ClipRRect(
@@ -128,14 +137,14 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                               child: QrImage(
                                 size: animatedSize,
                                 embeddedImagePath: widget.from.iconPath,
-                                data: uri?.toString() ?? widget.uri.address,
+                                data: widget.uri!.toString(),
                               ),
                             ),
                           ),
+                        ),
                       ),
-                    ),
                     AddressFormatter.buildSegmentedAddress(
-                        address: widget.uri.address,
+                        address: widget.address,
                         evenTextStyle: TextStyle(color: Theme
                             .of(context)
                             .colorScheme
@@ -220,7 +229,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                         Flexible(
                           child: NewPrimaryButton(
                               onPressed: () =>
-                                  ClipboardUtil.copyToClipboard(context, widget.uri.address),
+                                  ClipboardUtil.copyToClipboard(context, widget.address),
                               text: S.of(context).copy,
                               color: Theme.of(context).colorScheme.primary,
                               textColor: Theme.of(context).colorScheme.onPrimary),

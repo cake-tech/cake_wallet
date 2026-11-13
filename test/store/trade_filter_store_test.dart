@@ -31,7 +31,7 @@ void main() {
       final keys = store.filters.single.children.map((child) => child.key);
 
       for (final provider in [
-        ExchangeProviderDescription.letsExchange,
+        ExchangeProviderDescription.whyNot,
         ExchangeProviderDescription.stealthEx,
         ExchangeProviderDescription.xoSwap,
         ExchangeProviderDescription.swapTrade,

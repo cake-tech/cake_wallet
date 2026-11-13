@@ -14,6 +14,7 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/exchange/utils/deposit_wallet_utils.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
@@ -22,6 +23,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/swap_wallet_list_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/trade_creator.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/fees_helper.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
@@ -285,9 +287,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
             isFixedRate: event.payoutAmount != null,
             depositAmount: depositAmount,
             payoutAmount: payoutAmount,
-            source: _isSameChain(s.depositAmount.currency, depositCurrency)
-                ? current.source
-                : const ExternalSwapSource(""),
+            source: _sourceFor(current.source, s.depositAmount.currency, depositCurrency),
             memo: isSamePayoutChain && payoutCurrency.memoLabelType != null ? current.memo : "",
             payoutAddress: () => payoutAddress,
           ),
@@ -491,12 +491,16 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
             // the swap all amount is pinned to the deposit side, so it has to be the one driving
             // the rate - otherwise the next rate load would overwrite it.
             isFixedRate: s.isSwapAll ? false : s.isFixedRate,
-            source: _isSameChain(s.depositAmount.currency, event.newCurrency)
-                ? current.source
-                : const ExternalSwapSource(""),
+            source: _sourceFor(current.source, s.depositAmount.currency, event.newCurrency),
           ),
         );
         add(RatesLoadStarted());
+
+        if (event.selectSource &&
+            (await SwapWalletListService.getDepositWallets(event.newCurrency)).isNotEmpty &&
+            !emit.isDone) {
+          emitPresentation(const SourceWalletSelectionRequested());
+        }
       }
     }
   }
@@ -569,7 +573,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           current.copyWith(
             depositAmount: newDepositAmount,
             payoutAmount: newPayoutAmount,
-            source: isSameChain ? current.source : const ExternalSwapSource(""),
+            source: _sourceFor(current.source, s.depositAmount.currency, s.payoutAmount.currency),
             payoutAddress: () => isSameChain ? current.payoutAddress : null,
             memo:
                 isSameChain && newPayoutAmount.currency.memoLabelType != null ? current.memo : "",
@@ -583,6 +587,12 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   bool _isSameChain(CryptoCurrency a, CryptoCurrency b) =>
       cryptoCurrencyOrTokenToWalletType(a) != null &&
       cryptoCurrencyOrTokenToWalletType(a) == cryptoCurrencyOrTokenToWalletType(b);
+
+  SwapSource _sourceFor(SwapSource source, CryptoCurrency from, CryptoCurrency to) =>
+      _isSameChain(from, to) &&
+          (source is! InternalSwapSource || canFundDeposit(source.sourceWallet, to))
+      ? source
+      : const ExternalSwapSource("");
 
   Future<void> _onForcedProviderSelected(
     ForcedProviderSelected event,

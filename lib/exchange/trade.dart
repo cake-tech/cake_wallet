@@ -71,7 +71,7 @@ class Trade {
   CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
   CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
 
-  PaymentURI get uri =>
+  PaymentURI? get uri =>
       SwapUriHelper.getUri(
           fundingAddress, depositAmount.toString(), depositAmount.currency as CryptoCurrency);
 

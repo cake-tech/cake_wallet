@@ -9,6 +9,7 @@ import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/payment_request.dart";
@@ -19,6 +20,7 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 import "package:permission_handler/permission_handler.dart";
 
@@ -265,7 +267,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                       ],
                     ),
                   ),
-                  FiatAmountBar(
+                  Observer(builder: (_) => FiatAmountBar(
                     foregroundElementColor: Theme.of(context).colorScheme.surfaceContainerHigh,
                     textColor: Theme.of(context).colorScheme.onSurfaceVariant,
                     fiatInputMode: _fiatInputMode,
@@ -293,7 +295,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     fiatAmount: amount.fiatAmount.toStringWithPrecision(fractionalDigits: 2),
                     cryptoCurrencySymbol: amount.currency.symbol,
                     fiatCurrencySymbol: widget.bloc.fiat.symbol,
-                  ),
+                  )),
                   Row(
                     spacing: 8,
                     children: [
@@ -407,31 +409,39 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
   void _presentCurrencyPicker() {
     if (widget.bloc.state case final SwapStateWithInputs s) {
-      final currencies =
-          (widget.isReceiverCard
-                  ? widget.bloc.currencyStore.receiveCurrencies
-                  : widget.bloc.currencyStore.depositCurrencies)
-              .where(
-                (c) => widget.network == null || cryptoCurrencyOrTokenToWalletType(c) == widget.network,
-              )
-              .toList();
+      if (!widget.isReceiverCard) {
+        final otherAssets = CurrencyPickerArgs(
+          items: widget.bloc.currencyStore.depositCurrencies,
+          selected: s.depositAmount.currency,
+          recentsSource: RecentsSource.trades,
+          onSelected: (currency) =>
+              widget.bloc.add(DepositCurrencyChanged(currency, selectSource: true)),
+          symbolResolver: (curr) => curr.symbol,
+        );
+        CurrencyPickerSheet.show(
+          context: context,
+          args: s.isExternalSend
+              ? otherAssets
+              : walletAssetsPickerArgs(widget.bloc, s.depositAmount.currency, otherAssets: otherAssets),
+        );
+        return;
+      }
+
+      final currencies = widget.bloc.currencyStore.receiveCurrencies
+          .where(
+            (c) => widget.network == null || cryptoCurrencyOrTokenToWalletType(c) == widget.network,
+          )
+          .toList();
       if (currencies.length <= 1) {
         return;
       }
-      final selected = widget.isReceiverCard ? s.payoutAmount.currency : s.depositAmount.currency;
       CurrencyPickerSheet.show(
         context: context,
         args: CurrencyPickerArgs(
           items: currencies,
-          selected: selected,
+          selected: s.payoutAmount.currency,
           recentsSource: RecentsSource.trades,
-          onSelected: (currency) {
-            widget.bloc.add(
-              widget.isReceiverCard
-                  ? PayoutCurrencyChanged(currency)
-                  : DepositCurrencyChanged(currency),
-            );
-          },
+          onSelected: (currency) => widget.bloc.add(PayoutCurrencyChanged(currency)),
           symbolResolver: (curr) => curr.symbol,
         ),
       );

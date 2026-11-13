@@ -56,9 +56,10 @@ final class SwapAllEnabled extends SwapEvent {
 final class RatesLoadStarted extends SwapEvent {}
 
 final class DepositCurrencyChanged extends SwapEvent {
-  const DepositCurrencyChanged(this.newCurrency);
+  const DepositCurrencyChanged(this.newCurrency, {this.selectSource = false});
 
   final CryptoCurrency newCurrency;
+  final bool selectSource;
 }
 
 final class PayoutCurrencyChanged extends SwapEvent {

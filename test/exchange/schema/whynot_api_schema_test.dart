@@ -1,14 +1,14 @@
-import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_api_schema.dart";
+import "package:cake_wallet/exchange/provider/whynot/whynot_api_schema.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../fixture.dart";
 
 void main() {
-  group("LetsExchangeInfoResponse", () {
+  group("WhyNotInfoResponse", () {
     test("parses info field by field", () {
-      final raw = fixtureMap("letsexchange", "info");
-      final info = LetsExchangeInfoResponse.fromJson(raw);
+      final raw = fixtureMap("whynot", "info");
+      final info = WhyNotInfoResponse.fromJson(raw);
 
       expect(info.minAmount, raw["min_amount"]);
       expect(info.maxAmount, raw["max_amount"]);
@@ -22,8 +22,8 @@ void main() {
     });
 
     test("parses info_revert, the fixed rate variant", () {
-      final raw = fixtureMap("letsexchange", "info_revert");
-      final info = LetsExchangeInfoResponse.fromJson(raw);
+      final raw = fixtureMap("whynot", "info_revert");
+      final info = WhyNotInfoResponse.fromJson(raw);
 
       expect(info.minAmount, raw["min_amount"]);
       expect(info.maxAmount, raw["max_amount"]);
@@ -35,18 +35,18 @@ void main() {
     });
 
     test("rate_id_expired_at is a number on info and a string on info_revert", () {
-      expect(fixtureMap("letsexchange", "info")["rate_id_expired_at"], isA<num>());
-      expect(fixtureMap("letsexchange", "info_revert")["rate_id_expired_at"], isA<String>());
+      expect(fixtureMap("whynot", "info")["rate_id_expired_at"], isA<num>());
+      expect(fixtureMap("whynot", "info_revert")["rate_id_expired_at"], isA<String>());
     });
 
     test("the floating quote has no rate id, so nothing to pass to the create call", () {
-      final info = LetsExchangeInfoResponse.fromJson(fixtureMap("letsexchange", "info"));
+      final info = WhyNotInfoResponse.fromJson(fixtureMap("whynot", "info"));
 
       expect(info.rateId, isEmpty);
     });
 
     test("the limits parse as amounts", () {
-      final info = LetsExchangeInfoResponse.fromJson(fixtureMap("letsexchange", "info"));
+      final info = WhyNotInfoResponse.fromJson(fixtureMap("whynot", "info"));
 
       expect(double.tryParse(info.minAmount), isNotNull);
       expect(double.tryParse(info.maxAmount), isNotNull);
@@ -54,20 +54,20 @@ void main() {
     });
 
     test("a rejected info answers with a validation body that this class cannot read", () {
-      final raw = fixtureMap("letsexchange", "info_bad_request");
+      final raw = fixtureMap("whynot", "info_bad_request");
 
       expect(raw["success"], isFalse);
       expect(raw["error"]["validation"], isNotNull);
       // there is no error class for this api, so the status code has to be checked first
-      expect(() => LetsExchangeInfoResponse.fromJson(raw), throwsA(anything));
+      expect(() => WhyNotInfoResponse.fromJson(raw), throwsA(anything));
     });
   });
 
-  group("LetsExchangeTransactionResponse", () {
+  group("WhyNotTransactionResponse", () {
     for (final name in ["transaction", "create_transaction"]) {
       test("parses $name field by field", () {
-        final raw = fixtureMap("letsexchange", name);
-        final tx = LetsExchangeTransactionResponse.fromJson(raw);
+        final raw = fixtureMap("whynot", name);
+        final tx = WhyNotTransactionResponse.fromJson(raw);
 
         expect(tx.transactionId, raw["transaction_id"]);
         expect(tx.coinFrom, raw["coin_from"]);
@@ -109,37 +109,37 @@ void main() {
     }
 
     test("is_float is 1 on one endpoint and true on the other", () {
-      final onTransaction = fixtureMap("letsexchange", "transaction")["is_float"];
-      final onCreate = fixtureMap("letsexchange", "create_transaction")["is_float"];
+      final onTransaction = fixtureMap("whynot", "transaction")["is_float"];
+      final onCreate = fixtureMap("whynot", "create_transaction")["is_float"];
 
       expect([onTransaction, onCreate].map((v) => v.runtimeType).toSet(), hasLength(2));
       expect(
-        LetsExchangeTransactionResponse.fromJson(
-          fixtureMap("letsexchange", "transaction"),
+        WhyNotTransactionResponse.fromJson(
+          fixtureMap("whynot", "transaction"),
         ).isFloat,
-        LetsExchangeTransactionResponse.fromJson(
-          fixtureMap("letsexchange", "create_transaction"),
+        WhyNotTransactionResponse.fromJson(
+          fixtureMap("whynot", "create_transaction"),
         ).isFloat,
         reason: "both mean the same thing once SafeBoolConverter has had a look",
       );
     });
 
     test("created_at is space separated rather than iso, and still parses", () {
-      final raw = fixtureMap("letsexchange", "transaction");
+      final raw = fixtureMap("whynot", "transaction");
 
       expect(raw["created_at"], isNot(contains("T")));
       expect(
-        LetsExchangeTransactionResponse.fromJson(raw).createdAt,
+        WhyNotTransactionResponse.fromJson(raw).createdAt,
         DateTime.parse(raw["created_at"] as String),
       );
     });
 
     test("the transaction fixture is the one the create fixture made", () {
-      final created = LetsExchangeTransactionResponse.fromJson(
-        fixtureMap("letsexchange", "create_transaction"),
+      final created = WhyNotTransactionResponse.fromJson(
+        fixtureMap("whynot", "create_transaction"),
       );
-      final fetched = LetsExchangeTransactionResponse.fromJson(
-        fixtureMap("letsexchange", "transaction"),
+      final fetched = WhyNotTransactionResponse.fromJson(
+        fixtureMap("whynot", "transaction"),
       );
 
       expect(fetched.transactionId, created.transactionId);
@@ -147,8 +147,8 @@ void main() {
     });
 
     test("the status maps to a wait state", () {
-      final tx = LetsExchangeTransactionResponse.fromJson(
-        fixtureMap("letsexchange", "transaction"),
+      final tx = WhyNotTransactionResponse.fromJson(
+        fixtureMap("whynot", "transaction"),
       );
 
       expect(tx.status, TradeState.wait);
@@ -156,8 +156,8 @@ void main() {
   });
 
   group("requests", () {
-    test("LetsExchangeInfoRequest serializes the snake case keys", () {
-      final json = const LetsExchangeInfoRequest(
+    test("WhyNotInfoRequest serializes the snake case keys", () {
+      final json = const WhyNotInfoRequest(
         from: "BTC",
         to: "XMR",
         amount: 1,
@@ -174,8 +174,8 @@ void main() {
       });
     });
 
-    test("LetsExchangeInfoRequest carries the networks when there are any", () {
-      final json = const LetsExchangeInfoRequest(
+    test("WhyNotInfoRequest carries the networks when there are any", () {
+      final json = const WhyNotInfoRequest(
         from: "USDT",
         to: "USDC",
         networkFrom: "ERC20",
@@ -192,8 +192,8 @@ void main() {
       expect(json.containsKey("partner_user_ip"), isFalse);
     });
 
-    test("LetsExchangeCreateTransactionRequest serializes the transaction parameters", () {
-      final json = const LetsExchangeCreateTransactionRequest(
+    test("WhyNotCreateTransactionRequest serializes the transaction parameters", () {
+      final json = const WhyNotCreateTransactionRequest(
         coinFrom: "USDT",
         coinTo: "USDC",
         withdrawal: "0xpayout",

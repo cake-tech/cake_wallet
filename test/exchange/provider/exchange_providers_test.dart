@@ -8,12 +8,12 @@ import "mocks/chainflip_mock.dart";
 import "mocks/changenow_mock.dart";
 import "mocks/exolix_mock.dart";
 import "mocks/jupiter_mock.dart";
-import "mocks/letsexchange_mock.dart";
 import "mocks/near_intents_mock.dart";
 import "mocks/stealthex_mock.dart";
 import "mocks/swapsxyz_mock.dart";
 import "mocks/swaptrade_mock.dart";
 import "mocks/trocador_mock.dart";
+import "mocks/whynot_mock.dart";
 import "mocks/xoswap_mock.dart";
 
 /// Runs the same suite against every provider, each wired to its own mocked api.
@@ -30,12 +30,12 @@ void main() {
     changeNowScenario(),
     exolixScenario(),
     jupiterScenario(),
-    letsExchangeScenario(),
     nearIntentsScenario(),
     stealthExScenario(),
     swapsXyzScenario(),
     swapTradeScenario(),
     trocadorScenario(),
+    whyNotScenario(),
     xoSwapScenario(),
   ];
 

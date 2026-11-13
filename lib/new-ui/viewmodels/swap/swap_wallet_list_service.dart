@@ -1,3 +1,4 @@
+import "package:cake_wallet/exchange/utils/deposit_wallet_utils.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -11,6 +12,18 @@ class SwapWalletListService {
     }
 
     return WalletInfo.getAllForType(type);
+  }
+
+  static Future<List<WalletInfo>> getDepositWallets(CryptoCurrency currency) async {
+    final type = depositWalletType(currency);
+
+    if (type == null) {
+      return [];
+    }
+
+    return (await WalletInfo.getAllForType(type))
+        .where((wallet) => canFundDeposit(wallet, currency))
+        .toList();
   }
 
   static Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {

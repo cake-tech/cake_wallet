@@ -15,7 +15,7 @@ class SolanaBalance extends Balance {
     final decoded = json.decode(jsonSource) as Map;
 
     try {
-      return SolanaBalance(currency.parseAmount(decoded["balance"]));
+      return SolanaBalance(currency.parseAmount(decoded["balance"] as String));
     } catch (e) {
       return SolanaBalance(Money.zero(currency));
     }

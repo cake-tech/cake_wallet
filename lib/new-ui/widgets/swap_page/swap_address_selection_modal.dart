@@ -5,6 +5,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/swap_wallet_list_service.dart
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
@@ -48,9 +49,9 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
     () async {
       if(widget.bloc.state case final SwapStateWithInputs s) {
-        items = await SwapWalletListService.getWallets(widget.isSelectingReceiver
-            ? s.payoutAmount.currency
-                : s.depositAmount.currency);
+        items = widget.isSelectingReceiver
+            ? await SwapWalletListService.getWallets(s.payoutAmount.currency)
+            : await SwapWalletListService.getDepositWallets(s.depositAmount.currency);
         for (final item in items) {
           if (item.type == WalletType.monero) {
             accounts[item.id] = await SwapWalletListService.addressesForAccountsWallet(item);
@@ -77,7 +78,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
             return Container(
                 decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
                 child: SafeArea(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -89,13 +90,27 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                         leadingIcon: Icon(Icons.close),
                         leadingSemanticLabel: S.of(context).close,onLeadingPressed: Navigator.of(context).pop,
                       ),
+                      if (!widget.isSelectingReceiver && items.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(18, 0, 18, 6),
+                          child: Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(
+                              S.of(context).available_wallets,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                letterSpacing: -0.07,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        ),
                       Flexible(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 18.0),
                           child: items.isEmpty
                               ? Center(
                               child: Text(
-                                "${S.of(context).no_wallets_for} ${widget.isSelectingReceiver ? currency.fullName : currency.fullName}.",
+                                "${S.of(context).no_wallets_for} ${currency.fullName}.",
                                 style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
                               ))
                               : ListView.builder(
@@ -106,18 +121,26 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             itemBuilder: (context, index) {
                               final item = items[index];
 
-                              late final bool selected;
-                              if (widget.isSelectingReceiver) {
-                                selected = s.payoutAddress is InternalWalletSwapAddress && (s.payoutAddress! as InternalWalletSwapAddress).walletInfo.internalId == item.internalId;
-                              } else {
-                                selected = s.source is InternalSwapSource && (s.source as InternalSwapSource).sourceWallet.internalId == item.internalId;
-                              }
-
                               final String currencyIconPath =
                               getCryptoCurrencyIconForWalletListItem(item.type);
 
-                              final bool hasAccounts =
-                                  item.type == WalletType.monero && widget.isSelectingReceiver;
+                              if (!widget.isSelectingReceiver) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 6.0),
+                                  child: WalletRow(
+                                    currencyIconPath: currencyIconPath,
+                                    walletName: item.name,
+                                    onTap: () {
+                                      widget.bloc.add(SourceChanged(InternalSwapSource(item)));
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                );
+                              }
+
+                              final selected = s.payoutAddress is InternalWalletSwapAddress && (s.payoutAddress! as InternalWalletSwapAddress).walletInfo.internalId == item.internalId;
+
+                              final bool hasAccounts = item.type == WalletType.monero;
 
                               List<WalletInfoAddressInfo>? accounts =
                               hasAccounts ? this.accounts[item.id] : null;
@@ -131,12 +154,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                                   accounts: accounts,
                                   onAddressChosen: (address, accountName) {
                                     if(accountName == null) {
-                                      if(widget.isSelectingReceiver) {
-                                        widget.bloc.add(PayoutAddressChanged(InternalWalletSwapAddress(item)));
-                                      } else {
-                                        widget.bloc.add(SourceChanged(InternalSwapSource(item)));
-                                      }
-
+                                      widget.bloc.add(PayoutAddressChanged(InternalWalletSwapAddress(item)));
                                     } else {
                                       widget.bloc.add(PayoutAddressChanged(InternalAccountSwapAddress(address: address, accountName: accountName, walletName: item.name)));
 
@@ -154,7 +172,9 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                         color: Theme.of(context).colorScheme.surfaceContainerHigh,
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                        padding: !widget.isSelectingReceiver
+                            ? const EdgeInsets.fromLTRB(18, 24, 18, 32)
+                            : const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18),
                         child: !widget.isSelectingReceiver
                             ? GestureDetector(
                           behavior: HitTestBehavior.opaque,
@@ -163,7 +183,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                             Navigator.of(context).pop();
                           },
                           child: Container(
-                            height: 64,
+                            height: 55,
                             decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.surfaceContainer,
                                 borderRadius: BorderRadius.circular(16)),

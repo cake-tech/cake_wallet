@@ -3,7 +3,7 @@ import "dart:convert";
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_api_schema.dart";
+import "package:cake_wallet/exchange/provider/whynot/whynot_api_schema.dart";
 import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
@@ -14,24 +14,24 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
-class LetsExchangeExchangeProvider extends ExchangeProvider {
-  LetsExchangeExchangeProvider({super.proxyWrapper});
+class WhyNotExchangeProvider extends ExchangeProvider {
+  WhyNotExchangeProvider({super.proxyWrapper});
 
-  static const apiKey = secrets.letsExchangeBearerToken;
-  static const _baseUrl = "api.letsexchange.io";
+  static const apiKey = secrets.whyNotBearerToken;
+  static const _baseUrl = "api.y-not.io";
   static const _infoPath = "/api/v1/info";
   static const _infoRevertPath = "/api/v1/info-revert";
   static const _createTransactionPath = "/api/v1/transaction";
   static const _createTransactionRevertPath = "/api/v1/transaction-revert";
   static const _getTransactionPath = "/api/v1/transaction";
 
-  static const _affiliateId = secrets.letsExchangeAffiliateId;
+  static const _affiliateId = secrets.whyNotAffiliateId;
 
   @override
   bool get supportsFixedRate => true;
 
   @override
-  ExchangeProviderDescription get description => ExchangeProviderDescription.letsExchange;
+  ExchangeProviderDescription get description => ExchangeProviderDescription.whyNot;
 
   @override
   Future<ExchangeLimits> fetchLimits({
@@ -39,7 +39,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    final params = LetsExchangeInfoRequest(
+    final params = WhyNotInfoRequest(
       float: !isFixedRateMode,
       from: from.symbol,
       to: to.title,
@@ -60,7 +60,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
 
-    final params = LetsExchangeInfoRequest(
+    final params = WhyNotInfoRequest(
       float: request is FloatingRateRequest,
       from: request.depositCurrency.symbol,
       to: request.payoutCurrency.title,
@@ -96,7 +96,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final networkFrom = _getNetworkType(request.depositCurrency);
     final networkTo = _getNetworkType(request.payoutCurrency);
 
-    final params = LetsExchangeInfoRequest(
+    final params = WhyNotInfoRequest(
       from: request.depositCurrency.title,
       to: request.payoutCurrency.title,
       networkFrom: networkFrom,
@@ -109,12 +109,11 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     );
 
     final responseInfoJSON = await _getInfo(params, request.isFixedRate);
-    final rateId = responseInfoJSON.rateId ?? "";
 
     final withdrawalAddress = _normalizeBchAddress(request.payoutAddress);
     final returnAddress = _normalizeBchAddress(request.refundAddress);
 
-    final tradeParams = LetsExchangeCreateTransactionRequest(
+    final tradeParams = WhyNotCreateTransactionRequest(
       coinFrom: request.depositCurrency.title,
       coinTo: request.payoutCurrency.title,
       depositAmount: request.isFixedRate ? null : request.depositAmount.toString(),
@@ -122,7 +121,7 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
       withdrawal: withdrawalAddress,
       withdrawalExtraId: request.toAddressExtraId ?? "",
       returnAddress: returnAddress,
-      rateId: rateId,
+      rateId: responseInfoJSON.rateId,
       networkFrom: networkFrom,
       networkTo: networkTo,
       affiliateId: _affiliateId,
@@ -146,9 +145,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     );
 
     if (response.statusCode != 200) {
-      throw Exception("LetsExchange create trade failed: ${response.body}");
+      throw Exception("WhyNot create trade failed: ${response.body}");
     }
-    final responseData = LetsExchangeTransactionResponse.fromJson(
+    final responseData = WhyNotTransactionResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
     );
 
@@ -181,9 +180,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     final response = await proxyWrapper.get(clearnetUri: url, headers: headers);
 
     if (response.statusCode != 200) {
-      throw Exception("LetsExchange fetch trade failed: ${response.body}");
+      throw Exception("WhyNot fetch trade failed: ${response.body}");
     }
-    final responseData = LetsExchangeTransactionResponse.fromJson(
+    final responseData = WhyNotTransactionResponse.fromJson(
       json.decode(response.body) as Map<String, dynamic>,
     );
 
@@ -205,8 +204,8 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     );
   }
 
-  Future<LetsExchangeInfoResponse> _getInfo(
-    LetsExchangeInfoRequest params,
+  Future<WhyNotInfoResponse> _getInfo(
+    WhyNotInfoRequest params,
     bool isFixedRateMode,
   ) async {
     final headers = {
@@ -223,9 +222,9 @@ class LetsExchangeExchangeProvider extends ExchangeProvider {
     );
 
     if (response.statusCode != 200) {
-      throw Exception("LetsExchange fetch info failed: ${response.body}");
+      throw Exception("WhyNot fetch info failed: ${response.body}");
     }
-    return LetsExchangeInfoResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    return WhyNotInfoResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
   }
 
   String? _getNetworkType(CryptoCurrency currency) {

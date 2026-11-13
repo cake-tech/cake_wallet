@@ -587,41 +587,41 @@ List<Fixture> _exolix() => [
     ];
 
 // ---------------------------------------------------------------------------
-// letsexchange - https://api.letsexchange.io, Authorization header, no Bearer prefix
+// whynot - https://api.y-not.io, Authorization header, no Bearer prefix
 // ---------------------------------------------------------------------------
 
-Map<String, String> _letsExchangeHeaders() => {
+Map<String, String> _whyNotHeaders() => {
       "Accept": "application/json",
-      "Authorization": _requireKey("letsExchangeBearerToken", secrets.letsExchangeBearerToken),
+      "Authorization": _requireKey("whyNotBearerToken", secrets.whyNotBearerToken),
     };
 
-Map<String, Object> _letsExchangeInfoBody({required bool float}) => {
+Map<String, Object> _whyNotInfoBody({required bool float}) => {
       "from": "BTC",
       "to": "XMR",
       "amount": "1",
-      "affiliate_id": secrets.letsExchangeAffiliateId,
+      "affiliate_id": secrets.whyNotAffiliateId,
       "float": float,
     };
 
-List<Fixture> _letsExchange() => [
-      Fixture("letsexchange", "info", (_) => _postJson(
-          "https://api.letsexchange.io/api/v1/info",
-          _letsExchangeInfoBody(float: true),
-          headers: _letsExchangeHeaders())),
+List<Fixture> _whyNot() => [
+      Fixture("whynot", "info", (_) => _postJson(
+          "https://api.y-not.io/api/v1/info",
+          _whyNotInfoBody(float: true),
+          headers: _whyNotHeaders())),
       // the fixed rate variant, which is what supportsFixedRate uses
-      Fixture("letsexchange", "info_revert", (_) => _postJson(
-          "https://api.letsexchange.io/api/v1/info-revert",
-          _letsExchangeInfoBody(float: false),
-          headers: _letsExchangeHeaders())),
-      Fixture("letsexchange", "info_bad_request", (_) => _postJson(
-          "https://api.letsexchange.io/api/v1/info",
+      Fixture("whynot", "info_revert", (_) => _postJson(
+          "https://api.y-not.io/api/v1/info-revert",
+          _whyNotInfoBody(float: false),
+          headers: _whyNotHeaders())),
+      Fixture("whynot", "info_bad_request", (_) => _postJson(
+          "https://api.y-not.io/api/v1/info",
           const <String, Object>{},
-          headers: _letsExchangeHeaders()), expectSuccess: false),
-      Fixture("letsexchange", "transaction", (options) => _get(
-          "https://api.letsexchange.io/api/v1/transaction/${options.id("letsexchange")}",
-          headers: _letsExchangeHeaders()), needsId: true),
-      Fixture("letsexchange", "create_transaction", (options) => _postJson(
-          "https://api.letsexchange.io/api/v1/transaction",
+          headers: _whyNotHeaders()), expectSuccess: false),
+      Fixture("whynot", "transaction", (options) => _get(
+          "https://api.y-not.io/api/v1/transaction/${options.id("whynot")}",
+          headers: _whyNotHeaders()), needsId: true),
+      Fixture("whynot", "create_transaction", (options) => _postJson(
+          "https://api.y-not.io/api/v1/transaction",
           {
             "coin_from": "USDT",
             "coin_to": "USDC",
@@ -631,10 +631,10 @@ List<Fixture> _letsExchange() => [
             "withdrawal": _ethAddress,
             "withdrawal_extra_id": "",
             "return": _ethAddress,
-            "affiliate_id": secrets.letsExchangeAffiliateId,
+            "affiliate_id": secrets.whyNotAffiliateId,
             "float": true,
           },
-          headers: _letsExchangeHeaders()), createsOrder: true, publishId: (body) => _pick(body, ["transaction_id"])),
+          headers: _whyNotHeaders()), createsOrder: true, publishId: (body) => _pick(body, ["transaction_id"])),
     ];
 
 
@@ -643,7 +643,7 @@ List<Fixture> _allFixtures() => [
       ..._chainflip(),
       ..._changeNow(),
       ..._exolix(),
-      ..._letsExchange(),
+      ..._whyNot(),
       ..._stealthEx(),
       ..._xoSwap(),
       ..._trocador(),

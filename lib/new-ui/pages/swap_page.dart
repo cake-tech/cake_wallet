@@ -21,6 +21,7 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart
 import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
@@ -119,6 +120,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           SwapAllNotReady() => _showSwapAllNotReadyPopup(),
           LowFeeAlert() => Future.delayed(const Duration(seconds: 1), _showFeeAlert),
           WalletSwitchFailed(:final error) => _showWalletSwitchFailedPopup(error),
+          SourceWalletSelectionRequested() => _showSourceWalletPicker(),
           RefundAddressRequired(:final currency) => _askForRefundAddress(currency),
         },
         child: BlocBuilder<SwapBloc, SwapState>(
@@ -360,6 +362,17 @@ class _NewSwapPageState extends State<NewSwapPage> {
             "${S.of(context).invalid_address_desc} ${currency.fullName ?? currency.symbol}.",
         buttonText: S.of(context).ok,
         buttonAction: Navigator.of(context).pop,
+      ),
+    );
+  }
+
+  Future<void> _showSourceWalletPicker() async {
+    await showMaterialModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+        child: SwapAddressSelectionModal(isSelectingReceiver: false, bloc: widget.bloc),
       ),
     );
   }
