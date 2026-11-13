@@ -81,13 +81,14 @@ class ElectrumClient {
     // Reset internal state to ensure clean connection
     _resetInternalState();
 
+    final oldSocket = socket;
+    socket = null;
     try {
-      await socket?.close();
+      await oldSocket?.close();
     } catch (_) {}
     if (attempt != _connectAttempt) {
       return;
     }
-    socket = null;
 
     final ssl = !(useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum")));
     final ProxySocket newSocket;
@@ -118,8 +119,6 @@ class ElectrumClient {
     socket = newSocket;
     _lastReceivedAt = DateTime.now();
 
-    // use ping to determine actual connection status since we could've just not timed out yet:
-    // _setConnectionStatus(ConnectionStatus.connected);
     newSocket.listen(
       (Uint8List event) {
         // A replaced socket's late reply must not complete a same-id request of the new session.
@@ -166,6 +165,7 @@ class ElectrumClient {
   // handle only loses itself; nothing is carried into the next reply.
   void _onData(Uint8List chunk) {
     _lastReceivedAt = DateTime.now();
+    _setConnectionStatus(ConnectionStatus.connected);
 
     var start = 0;
     var newline = chunk.indexOf(0x0A, start);
@@ -202,9 +202,8 @@ class ElectrumClient {
   }
 
   Future<void> ping() async {
-    // The keep-alive timer outlives a dropped socket, and callWithTimeout returns null when there
-    // is no socket, which must not count as a pong. A reply on a since-replaced socket says
-    // nothing about the current one either.
+    // The keep-alive timer outlives a dropped socket, so there may be nothing to ping. A timeout
+    // on a since-replaced socket says nothing about the current one either.
     final pinged = socket;
     if (_pingInFlight || pinged == null || pinged.isClosed) {
       return;
@@ -214,9 +213,6 @@ class ElectrumClient {
 
     try {
       await callWithTimeout(method: 'server.ping');
-      if (identical(socket, pinged)) {
-        _setConnectionStatus(ConnectionStatus.connected);
-      }
     } catch (_) {
       if (!identical(socket, pinged)) {
         return;
@@ -744,8 +740,11 @@ class ElectrumClient {
     return completer.future;
   }
 
-  Future<dynamic> callWithTimeout(
-      {required String method, List<Object> params = const [], int timeout = 5000}) async {
+  Future<dynamic> callWithTimeout({
+    required String method,
+    List<Object> params = const [],
+    int timeout = 5000,
+  }) async {
     try {
       if (!isConnected) return null;
 
@@ -773,9 +772,10 @@ class ElectrumClient {
   Future<void> close() async {
     _connectAttempt++;
     _aliveTimer?.cancel();
+    final oldSocket = socket;
+    socket = null;
     try {
-      await socket?.close();
-      socket = null;
+      await oldSocket?.close();
     } catch (_) {}
     onConnectionStatusChange = null;
     // Reset internal state when closing
