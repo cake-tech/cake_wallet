@@ -61,6 +61,7 @@ import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/lnurl.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -213,6 +214,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void clearOutputs() {
     outputs.clear();
     addOutput();
+    payjoinUri = null;
+    reusedPayjoinEndpoint = null;
   }
 
   @action
@@ -1344,7 +1347,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           priority: priority!,
           feeRate: feesViewModel.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
-          payjoinUri: _settingsStore.usePayjoin ? payjoinUri : null,
+          payjoinUri: hasActivePayjoin ? payjoinUri : null,
+          shouldSaveRecipientAddress: _settingsStore.shouldSaveRecipientAddress,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
@@ -1802,8 +1806,107 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get usePayjoin => _settingsStore.usePayjoin;
 
+  /// True when the current form has a non-empty `pj=` endpoint that will be
+  /// used at commit time. Drives the "Use Payjoin for this transaction"
+  /// switch value on the send form. False for non-Bitcoin wallets or when
+  /// the user toggled the switch off.
+  @computed
+  bool get hasActivePayjoin => hasPayjoinOption && isPayjoinEnabled;
+
+  /// True when the send form should show the payjoin row at all: a Bitcoin
+  /// wallet with payjoin enabled in settings and a `pj=` endpoint on the
+  /// current form. Keeps the row visible after the user turns the switch
+  /// off so it can be turned back on.
+  @computed
+  bool get hasPayjoinOption =>
+      wallet.type == WalletType.bitcoin && usePayjoin && _formMatchesPayjoinUri;
+
+  /// Whether the form still pays the request [payjoinUri] came from: one
+  /// output, to the request's address, for its `amount=` when it set one.
+  /// The sender session is built against that request (BIP78 requires the
+  /// payee output to match it exactly), so payjoin is dropped once the user
+  /// edits the recipient or the requested amount, or adds a recipient.
+  bool get _formMatchesPayjoinUri {
+    final uri = payjoinUri;
+    if (uri == null || uri.isEmpty || outputs.length != 1) return false;
+    final Uri parsed;
+    try {
+      parsed = Uri.parse(uri);
+    } catch (_) {
+      return false;
+    }
+    final params = {
+      for (final entry in parsed.queryParameters.entries) entry.key.toLowerCase(): entry.value,
+    };
+
+    final output = outputs.first;
+    final requestAddress = params['address'] ?? parsed.path;
+    final formAddress = output.isParsedAddress ? output.extractedAddress : output.address;
+    // Bech32 addresses are case-insensitive and QR codes often uppercase them.
+    if (formAddress.trim().toLowerCase() != requestAddress.trim().toLowerCase()) return false;
+
+    final requestAmount = params['amount'];
+    if (requestAmount == null || requestAmount.isEmpty) return true;
+    if (output.sendAll) return false;
+    try {
+      final currency = output.cryptoCurrencyHandler();
+      return output.cryptoAmountMoney.amount == currency.parseAmount(requestAmount).amount;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Toggle handler for the send form's "Use Payjoin" switch. [payjoinUri]
+  /// itself is never mutated by the toggle — the flag only gates whether it
+  /// is used at commit time.
+  @action
+  void setPayjoinEnabled(bool enabled) => isPayjoinEnabled = enabled;
+
   @observable
   String? payjoinUri;
+
+  /// Whether the send form's payjoin switch is on. Pure UI state: a fresh
+  /// BIP21 URI resets it to true via [setPayjoinUri].
+  @observable
+  bool isPayjoinEnabled = true;
+
+  /// Set when the last scanned/pasted payment request's `pj=` endpoint was
+  /// already used by an earlier send. The request is then paid as a regular
+  /// transaction and the send form explains why.
+  @observable
+  PayjoinEndpointUse? reusedPayjoinEndpoint;
+
+  /// Sets [payjoinUri] from a scanned/pasted BIP21 URI, stripping the `pj=`
+  /// parameter when:
+  /// - it resolves to a receiver endpoint owned by the current wallet. A
+  ///   self-addressed payjoin would be rejected by BIP78's
+  ///   `checkInputsNotOwned` anyway, so we silently downgrade to a regular
+  ///   self-send.
+  /// - an earlier send already used the endpoint (see
+  ///   [reusedPayjoinEndpoint]). It is a single-use mailbox, and another
+  ///   payjoin to it would replay the earlier session.
+  /// The send form's label and the eventual commit path then both treat it
+  /// as a normal tx.
+  @action
+  Future<void> setPayjoinUri(String? uri) async {
+    isPayjoinEnabled = true;
+    reusedPayjoinEndpoint = null;
+    if (uri != null && uri.isNotEmpty && wallet.type == WalletType.bitcoin) {
+      if (await bitcoin!.isSelfSendPayjoinUri(wallet, uri)) {
+        printV('Stripping self-addressed payjoin URI: $uri');
+        payjoinUri = null;
+        return;
+      }
+      final endpointUse = await bitcoin!.getPayjoinEndpointUse(wallet, uri);
+      if (endpointUse != null) {
+        printV('Stripping already used payjoin URI (${endpointUse.name}): $uri');
+        payjoinUri = null;
+        reusedPayjoinEndpoint = endpointUse;
+        return;
+      }
+    }
+    payjoinUri = uri;
+  }
 
   @action
   Future<void> fetchTokenForContractAddress(String contractAddress,

@@ -6,10 +6,12 @@ class StandardSwitch extends StatefulWidget {
     required this.value,
     required this.onTapped,
     this.backgroundColor,
+    this.backgroundColorActive,
   });
 
   final bool value;
   final Color? backgroundColor;
+  final Color? backgroundColorActive;
   final VoidCallback onTapped;
   @override
   StandardSwitchState createState() => StandardSwitchState();
@@ -30,9 +32,9 @@ class StandardSwitchState extends State<StandardSwitch> {
           height: 28,
           decoration: BoxDecoration(
             color: widget.value
-                ? Theme.of(context).colorScheme.primary
+                ? widget.backgroundColorActive ?? Theme.of(context).colorScheme.primary
                 : widget.backgroundColor ?? context.currentTheme.customColors.toggleColorOffState,
-            borderRadius: BorderRadius.all(Radius.circular(14.0)),
+            borderRadius: const BorderRadius.all(Radius.circular(14)),
           ),
           child: Container(
             width: 24.0,

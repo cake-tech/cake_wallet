@@ -2,14 +2,13 @@ import 'dart:math';
 
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
-import '../../../src/screens/receive/widgets/qr_image.dart';
 
 class ReceiveQrCode extends StatelessWidget {
   ReceiveQrCode({
@@ -86,63 +85,75 @@ class ReceiveQrCode extends StatelessWidget {
                           width: resolvedSize,
                           height: resolvedSize,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: addressListViewModel.hasPayjoin
+                                ? const BorderRadius.vertical(top: Radius.circular(20))
+                                : BorderRadius.circular(20),
                             color: Colors.white,
                           ),
                           child: Container(
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                                color: addressListViewModel.hasPayjoin && !largeQrMode
-                                    ? Theme.of(context).colorScheme.surfaceContainer
-                                    : Colors.transparent),
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                              color: addressListViewModel.hasPayjoin && !largeQrMode
+                                  ? Theme.of(context).colorScheme.surfaceContainer
+                                  : Colors.transparent,
+                            ),
                             child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Observer(
-                                    builder: (_) => QrImage(
-                                          data: addressListViewModel.uri.toString(),
-                                          size: resolvedSize,
-                                          semanticsLabel: S.of(context).qr_code_receive_address,
-                                          embeddedImagePath:
-                                              addressListViewModel.tokenCurrency != null
-                                                  ? addressListViewModel.tokenCurrency ==
-                                                          CryptoCurrency.btcln
-                                                      ? addressListViewModel.qrImage
-                                                      : addressListViewModel
-                                                          .tokenCurrency!.iconPath
-                                                  : addressListViewModel.qrImage,
-                                        ))),
+                              borderRadius: addressListViewModel.hasPayjoin
+                                  ? const BorderRadius.vertical(top: Radius.circular(20))
+                                  : BorderRadius.circular(20),
+                              child: Observer(
+                                builder: (_) => QrImage(
+                                  data: addressListViewModel.uri.toString(),
+                                  size: resolvedSize,
+                                  semanticsLabel: S.of(context).qr_code_receive_address,
+                                  embeddedImagePath: addressListViewModel.tokenCurrency != null
+                                      ? addressListViewModel.tokenCurrency == CryptoCurrency.btcln
+                                          ? addressListViewModel.qrImage
+                                          : addressListViewModel.tokenCurrency!.iconPath
+                                      : addressListViewModel.qrImage,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                      if (addressListViewModel.hasPayjoin)
-                        // Hidden but still mounted in large-QR mode, so keep it
-                        // out of the semantics tree there.
-                        ExcludeSemantics(
-                          excluding: largeQrMode,
-                          child: Opacity(
-                              opacity: largeQrMode ? 0 : 1,
-                              child: Container(
-                                  width: resolvedSize,
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.vertical(bottom: Radius.circular(16)),
-                                      color: Theme.of(context).colorScheme.surfaceContainer),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      spacing: 4,
-                                      children: [
-                                        CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
-                                        Text(S.of(context).payjoin_enabled)
-                                      ],
-                                    ),
-                                  ))),
-                        ),
-                      AnimatedSize(
+                      ClipRect(
+                        child: AnimatedAlign(
                           duration: animDuration,
                           curve: Curves.easeOutCubic,
-                          child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding + 40 : 0))
+                          heightFactor: addressListViewModel.hasPayjoin ? 1 : 0,
+                          alignment: Alignment.center,
+                          child: ExcludeSemantics(
+                            excluding: !addressListViewModel.hasPayjoin,
+                            child: AnimatedContainer(
+                              duration: animDuration,
+                              curve: Curves.easeOutCubic,
+                              width: resolvedSize * resolvedScale,
+                              decoration: BoxDecoration(
+                                borderRadius:
+                                    const BorderRadius.vertical(bottom: Radius.circular(16)),
+                                color: Theme.of(context).colorScheme.surfaceContainer,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 2),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 4,
+                                  children: [
+                                    const CakeImageWidget(imageUrl: "assets/new-ui/payjoin.svg"),
+                                    Text(S.of(context).payjoin_enabled),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      AnimatedSize(
+                        duration: animDuration,
+                        curve: Curves.easeOutCubic,
+                        child: SizedBox(height: largeQrMode ? largeQrModeBottomPadding + 40 : 0),
+                      ),
                     ],
                   ),
                 ),

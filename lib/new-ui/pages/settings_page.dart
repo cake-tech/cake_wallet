@@ -20,6 +20,8 @@ bool _hasLightning(DashboardViewModel vm) => vm.hasLightning;
 
 bool _hasSilentPayments(DashboardViewModel vm) => vm.hasSilentPayments;
 
+bool _hasPayjoin(DashboardViewModel vm) => vm.hasPayjoin;
+
 bool _hasMweb(DashboardViewModel vm) => vm.hasMweb;
 
 bool _hasWalletConnect(DashboardViewModel vm) => vm.hasWalletConnect;
@@ -120,6 +122,12 @@ class WalletSettingsResolver {
         S.current.silent_payments,
         Routes.silentPaymentsSettings,
         condition: _hasSilentPayments,
+      ),
+      SettingsListItem(
+        "assets/new-ui/settings_row_icons/payjoin.svg",
+        S.current.payjoin,
+        Routes.payjoinSettings,
+        condition: _hasPayjoin,
       ),
       SettingsListItem(
         "assets/new-ui/settings_row_icons/mweb.svg",

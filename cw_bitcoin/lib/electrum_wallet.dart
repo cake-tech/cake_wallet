@@ -4,7 +4,6 @@ import 'dart:isolate';
 import 'dart:math' show Random, min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -2883,6 +2882,12 @@ abstract class ElectrumWalletBase
     );
   }
 
+  Future<bool> applyTransactionMetadata(
+    ElectrumTransactionInfo info, {
+    required String txId,
+  }) async =>
+      false;
+
   Future<ElectrumTransactionInfo?> fetchTransactionInfo(
       {required String hash, int? height, bool? retryOnFailure}) async {
     try {
@@ -2898,6 +2903,10 @@ abstract class ElectrumWalletBase
         height: height,
       );
       info.accountIndex = owner;
+      info.id = hash;
+
+      await applyTransactionMetadata(info, txId: hash);
+
       return info;
     } catch (e) {
       if (e is FormatException && retryOnFailure == true) {
@@ -3211,6 +3220,11 @@ abstract class ElectrumWalletBase
                 transactionHistory.addOne(storedTx);
                 didUpdateHistory = true;
               }
+            }
+
+            if (await applyTransactionMetadata(storedTx, txId: txid)) {
+              transactionHistory.addOne(storedTx);
+              didUpdateHistory = true;
             }
 
             transactions[txid] = storedTx;
@@ -3661,6 +3675,9 @@ abstract class ElectrumWalletBase
           );
           info.id = txId;
           info.accountIndex = owner;
+
+          await applyTransactionMetadata(info, txId: txId);
+
           result[txId] = info;
         } catch (_) {
           result[txId] = null;

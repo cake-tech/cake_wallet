@@ -18,6 +18,7 @@ import "package:cake_wallet/tron/tron.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:collection/collection.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/transaction_direction.dart";
@@ -284,6 +285,20 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
   }
 
+  final TransactionInfo transactionInfo;
+  final Box<TransactionDescription> transactionDescriptionBox;
+  final WalletBase wallet;
+  final SendViewModel sendViewModel;
+  final AppStore _appStore;
+
+  final List<TransactionDetailsListItem> items;
+  final List<TransactionDetailsListItem> rbfListItems;
+  bool showRecipientAddress;
+  bool isRecipientAddressShown;
+  int newFee;
+  String? rawTransaction;
+  TransactionPriority? transactionPriority;
+
   void updateNote(String note) {
     final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
     final description = transactionDescriptionBox.values.firstWhere(
@@ -302,25 +317,11 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String get note {
     final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
-    final description = transactionDescriptionBox.values
-      .firstWhereOrNull((val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+    final description = transactionDescriptionBox.values.firstWhereOrNull(
+      (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
     );
     return description?.transactionNote ?? "";
   }
-
-  final TransactionInfo transactionInfo;
-  final Box<TransactionDescription> transactionDescriptionBox;
-  final WalletBase wallet;
-  final SendViewModel sendViewModel;
-  final AppStore _appStore;
-
-  final List<TransactionDetailsListItem> items;
-  final List<TransactionDetailsListItem> rbfListItems;
-  bool showRecipientAddress;
-  bool isRecipientAddressShown;
-  int newFee;
-  String? rawTransaction;
-  TransactionPriority? transactionPriority;
 
   CryptoCurrency get transactionAsset {
     if (isEVMCompatibleChain(wallet.type)) {
@@ -339,17 +340,41 @@ abstract class TransactionDetailsViewModelBase with Store {
     };
   }
 
+  Money get _payjoinAmount {
+    final pjNetFlow = transactionInfo.additionalInfo['pjNetFlow'];
+    if (pjNetFlow is int) {
+      if (pjNetFlow > 0) {
+        return Money(BigInt.from(pjNetFlow), transactionInfo.amount.currency);
+      }
+      return Money(BigInt.from(pjNetFlow.abs()), transactionInfo.amount.currency);
+    }
+    return transactionInfo.amount;
+  }
+
+  TransactionDirection get _payjoinDirection {
+    final isPayjoin = transactionInfo.additionalInfo['isPayjoin'] == true;
+    if (!isPayjoin) return transactionInfo.direction;
+    final pjNetFlow = transactionInfo.additionalInfo['pjNetFlow'];
+    if (pjNetFlow is int) {
+      return pjNetFlow > 0 ? TransactionDirection.incoming : TransactionDirection.outgoing;
+    }
+    final stored = transactionInfo.additionalInfo['payjoinDirection'];
+    if (stored is String) {
+      return TransactionDirection.values.byName(stored);
+    }
+    return transactionInfo.direction;
+  }
+
   @computed
   String get transactionAmount =>
-      _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.amount);
+      _appStore.amountParsingProxy.asDisplayStringWithSymbol(_payjoinAmount);
 
   @computed
   String get feeAmount =>
       _appStore.amountParsingProxy.asDisplayStringWithSymbol(transactionInfo.fee!);
 
   @computed
-  String get transactionCopyAmount =>
-      _appStore.amountParsingProxy.asDisplayString(transactionInfo.amount);
+  String get transactionCopyAmount => _appStore.amountParsingProxy.asDisplayString(_payjoinAmount);
 
   // TODO(malik1004x): integrate these getters with the TransactionInfo object
   String get formattedPendingStatus {
@@ -434,7 +459,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     if (transactionInfo.additionalInfo['isAutoShield'] == true) {
       return S.current.shielding;
     }
-    if (transactionInfo.direction == TransactionDirection.incoming) {
+    if (_payjoinDirection == TransactionDirection.incoming) {
       return S.current.received;
     }
 

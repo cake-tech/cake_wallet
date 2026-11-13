@@ -149,6 +149,7 @@ class CWBitcoin extends Bitcoin {
     int? feeRate,
     UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
     String? payjoinUri,
+    bool shouldSaveRecipientAddress = false,
   }) {
     final bitcoinFeeRate =
         priority == BitcoinTransactionPriority.custom && feeRate != null ? feeRate : null;
@@ -169,7 +170,8 @@ class CWBitcoin extends Bitcoin {
         priority: priority as BitcoinTransactionPriority,
         feeRate: bitcoinFeeRate,
         coinTypeToSpendFrom: coinTypeToSpendFrom,
-        payjoinUri: payjoinUri);
+        payjoinUri: payjoinUri,
+        shouldSaveRecipientAddress: shouldSaveRecipientAddress);
   }
 
   @override
@@ -277,9 +279,9 @@ class CWBitcoin extends Bitcoin {
     await bitcoinWallet.updateAllUnspents();
   }
 
-  WalletService createBitcoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource,
-      Box<PayjoinSession> payjoinSessionSource, bool isDirect) {
-    return BitcoinWalletService(unspentCoinSource, payjoinSessionSource, isDirect);
+  WalletService createBitcoinWalletService(
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect) {
+    return BitcoinWalletService(unspentCoinSource, isDirect);
   }
 
   WalletService createLitecoinWalletService(
@@ -786,15 +788,20 @@ class CWBitcoin extends Bitcoin {
   @override
   String getPayjoinEndpoint(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    if (!isPayjoinAvailable(wallet)) return '';
-    return (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint ?? '';
+    if (!isPayjoinAvailable(wallet)) {
+      return "";
+    }
+    final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
+    return addresses.payjoinAddress == _wallet.walletAddresses.address
+        ? (addresses.payjoinEndpoint ?? "")
+        : "";
   }
 
   @override
   void updatePayjoinState(Object wallet, bool value) {
     final _wallet = wallet as ElectrumWallet;
     if (value) {
-      (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
+      resumePayjoinSessions(_wallet);
     } else {
       stopPayjoinSessions(wallet);
     }
@@ -819,15 +826,105 @@ class CWBitcoin extends Bitcoin {
   @override
   void resumePayjoinSessions(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
-    (_wallet.walletAddresses as BitcoinWalletAddresses).initPayjoin();
+    final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
+    final pm = addresses.payjoinManager;
+    pm.initPayjoin().then((_) async {
+      await pm.resumeSessions();
+    });
   }
 
   @override
   void stopPayjoinSessions(Object wallet) {
     final _wallet = wallet as ElectrumWallet;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager.cleanupSessions();
-    (_wallet.walletAddresses as BitcoinWalletAddresses).currentPayjoinReceiver = null;
     (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinEndpoint = null;
+    (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinAddress = null;
+  }
+
+  @override
+  void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories) {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) {
+      return;
+    }
+    _wallet.payjoinManager.configureMailroom(relays: relays, directories: directories);
+  }
+
+  @override
+  Future<List<PayjoinSession>> getAllPayjoinSessions() async =>
+      (await PayjoinStorage().readAllWithKeys()).map((e) => e.value).toList();
+
+  @override
+  Stream<void> getPayjoinSessionChanges() => PayjoinStorage.changes;
+
+  @override
+  Future<List<MapEntry<String, PayjoinSession>>> getAllPayjoinSessionsWithKeys() =>
+      PayjoinStorage().readAllWithKeys();
+
+  @override
+  Future<PayjoinSession?> getPayjoinSessionByKey(String key) =>
+      PayjoinStorage().getSessionByKey(key);
+
+  @override
+  Future<List<String>> getPayjoinSessionEvents(PayjoinSession session) async {
+    final eventStore = PayjoinEventStore();
+    await eventStore.ensureOpen();
+    return session.isSenderSession
+        ? eventStore.loadSender(session.pjUri ?? "")
+        : eventStore.loadReceiver(session.receiver ?? "");
+  }
+
+  @override
+  Future<bool> isSelfSendPayjoinUri(Object wallet, String? pjUriString) async {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) {
+      return false;
+    }
+    return _wallet.payjoinManager.isSelfSendPayjoinUri(pjUriString);
+  }
+
+  @override
+  Future<PayjoinEndpointUse?> getPayjoinEndpointUse(Object wallet, String? pjUriString) async {
+    final _wallet = wallet as ElectrumWallet;
+    if (_wallet is! BitcoinWallet) {
+      return null;
+    }
+    return _wallet.payjoinManager.senderEndpointUse(pjUriString);
+  }
+
+  @override
+  Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false}) async {
+    final _wallet = wallet as ElectrumWallet;
+    final addresses = _wallet.walletAddresses as BitcoinWalletAddresses;
+    addresses.payjoinEndpoint = null;
+    addresses.payjoinAddress = null;
+    await addresses.newPayjoinReceiver(shouldSaveRecipientAddress: shouldSaveRecipientAddress);
+  }
+
+  @override
+  void cancelPayjoinSession(Object wallet, String sessionId) {
+    final _wallet = wallet as ElectrumWallet;
+    final pm = (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager;
+    if (sessionId.startsWith("pj_send_")) {
+      final pjUri = sessionId.substring("pj_send_".length);
+      pm.cancelSender(pjUri);
+    } else if (sessionId.startsWith("pj_recv_")) {
+      final endpoint = sessionId.substring("pj_recv_".length);
+      pm.cancelReceiver(endpoint);
+    }
+  }
+
+  @override
+  Future<void> fallbackBroadcastPayjoin(Object wallet, String sessionId) async {
+    final _wallet = wallet as ElectrumWallet;
+    final pm = (_wallet.walletAddresses as BitcoinWalletAddresses).payjoinManager;
+    if (sessionId.startsWith("pj_send_")) {
+      final pjUri = sessionId.substring("pj_send_".length);
+      await pm.fallbackBroadcast(pjUri);
+    } else if (sessionId.startsWith("pj_recv_")) {
+      final endpoint = sessionId.substring("pj_recv_".length);
+      await pm.fallbackBroadcast(endpoint);
+    }
   }
 
   @override

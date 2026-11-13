@@ -1,9 +1,7 @@
-import "package:cake_wallet/anonpay/anonpay_donation_link_info.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
-import "package:cake_wallet/entities/preferences_key.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/payjoin_copy_modal.dart";
@@ -37,7 +35,6 @@ import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
-import "package:shared_preferences/shared_preferences.dart";
 
 class NewReceivePage extends StatefulWidget {
   NewReceivePage({
@@ -86,6 +83,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
               ReceivePageOption.mainnet,
         );
         widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
+        _ensurePayjoinSession();
       }
     });
 
@@ -99,7 +97,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
     reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
       // The infobox depends on the selected address type, so the page has to be
       // rebuilt when it changes.
-      if (mounted) setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
 
       if (widget.dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {
@@ -109,6 +109,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
         } else {
           widget.addressListViewModel.selectedCurrency = CryptoCurrency.btc;
         }
+
+        _ensurePayjoinSession();
         return;
       }
       if (widget.dashboardViewModel.type == WalletType.zcash) {
@@ -119,12 +121,28 @@ class _NewReceivePageState extends State<NewReceivePage> {
       if ([WalletType.bitcoin, WalletType.litecoin]
           .contains(widget.addressListViewModel.type)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+
+        _ensurePayjoinSession();
       }
       if (widget.addressListViewModel.type == WalletType.zcash) {
         printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
         widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
       }
     });
+  }
+
+  void _ensurePayjoinSession() {
+    if (!widget.dashboardViewModel.settingsStore.usePayjoin) {
+      return;
+    }
+    final wallet = widget.addressListViewModel.wallet;
+    if (wallet.type == WalletType.bitcoin) {
+      bitcoin!.ensurePayjoinSession(
+        wallet,
+        shouldSaveRecipientAddress:
+            widget.dashboardViewModel.settingsStore.shouldSaveRecipientAddress,
+      );
+    }
   }
 
   @override
@@ -192,7 +210,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           semanticLabel: _largeQrMode
                               ? S.of(context).share_address
                               : S.of(context).rotate_address,
-                          onPressed: () {
+                          onPressed: () async {
                             if (_largeQrMode) {
                               ShareUtil.share(
                                 text: widget.addressListViewModel.uri.toString(),
@@ -200,7 +218,8 @@ class _NewReceivePageState extends State<NewReceivePage> {
                               );
                             } else {
                               if (widget.addressListViewModel.hasAddressRotation) {
-                                widget.addressListViewModel.rotateAddress();
+                                await widget.addressListViewModel.rotateAddress();
+                                _ensurePayjoinSession();
                               }
                             }
                           },
@@ -276,6 +295,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                         if (widget.addressListViewModel.hasPayjoin) {
                           showModalBottomSheet(
                             isScrollControlled: true,
+                            useRootNavigator: true,
                             context: context,
                             builder: (context) =>
                                 PayjoinCopyModal(uri: widget.addressListViewModel.uri),

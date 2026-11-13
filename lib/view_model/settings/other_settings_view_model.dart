@@ -8,7 +8,7 @@ import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/balance.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -191,15 +191,6 @@ abstract class OtherSettingsViewModelBase with Store {
     final path = await pathForWalletDir(name: _wallet.name, type: walletType);
     final logFile = File("$path/lightning.log");
 
-    if (await logFile.exists()) return logFile;
-    return null;
-  }
-
-  Future<File?> getPayjoinLog() async {
-    final path = await pathForWalletDir(name: _wallet.name, type: walletType);
-    final logFile = File("$path/payjoin.log");
-
-    if (await logFile.exists()) return logFile;
-    return null;
+     return logFile.existsSync() ? logFile : null;
   }
 }

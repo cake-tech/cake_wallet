@@ -771,8 +771,19 @@ abstract class DashboardViewModelBase with Store {
       _items.forEach((e) {
         if (e is TransactionListItem &&
             _payjoinTransactions.any((t) => t.session.txId == e.transaction.id)) {
-          _payjoinTransactions.firstWhere((t) => t.session.txId == e.transaction.id).transaction =
-              e.transaction;
+          final payjoinItem =
+              _payjoinTransactions.firstWhere((t) => t.session.txId == e.transaction.id);
+          if (payjoinItem.session.isSenderSession) {
+            e.transaction.amount = payjoinItem.session.amount;
+            if (payjoinItem.session.recipientAddress != null &&
+                payjoinItem.session.recipientAddress!.isNotEmpty) {
+              e.transaction.to = payjoinItem.session.recipientAddress;
+            }
+          } else {
+            e.transaction.direction = TransactionDirection.incoming;
+            e.transaction.amount = payjoinItem.session.amount;
+          }
+          payjoinItem.transaction = e.transaction;
         }
       });
       _items.addAll(_payjoinTransactions);
@@ -795,6 +806,10 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get hasLightning =>
       wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
+
+  @computed
+  bool get hasPayjoin =>
+      wallet.type == WalletType.bitcoin && wallet.hasPayjoinSupport && DeviceInfo.instance.isMobile;
 
   @computed
   bool get hasWalletConnect =>

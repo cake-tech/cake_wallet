@@ -186,6 +186,7 @@ dev_dependencies:
 # These are required for the app to build.
 # Note that this comment is parsed by scripts/create_overrides.sh, so plz don't break/remove it.
 # dependency_overrides:
+#   toml: 0.16.0
 #   bech32:
 #     git:
 #       url: https://github.com/cake-tech/bech32.git

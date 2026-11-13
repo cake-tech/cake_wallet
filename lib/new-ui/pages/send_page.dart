@@ -45,6 +45,8 @@ import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
+import "package:cake_wallet/src/widgets/standard_switch.dart";
+import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
@@ -60,6 +62,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/lnurl.dart";
+import "package:cw_core/payjoin_session.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -597,6 +600,55 @@ class _NewSendPageState extends State<NewSendPage> {
                                             memoController: _memoControllers[_selectedOutput],
                                             maxMemoLength: widget.sendViewModel.maxMemoLength,
                                             memoLength: output.memo.length,
+                                          ),
+                                        ),
+                                      if (widget.sendViewModel.hasPayjoinOption)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          child: Row(
+                                            spacing: 12,
+                                            children: [
+                                              CakeImageWidget(
+                                                imageUrl: "assets/new-ui/payjoin.svg",
+                                                width: 24,
+                                                height: 24,
+                                                color:
+                                                    Theme.of(context).colorScheme.onSurfaceVariant,
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  S.of(context).payjoin_use_for_tx,
+                                                  style: TextStyle(
+                                                    fontSize: 14,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                                ),
+                                              ),
+                                              StandardSwitch(
+                                                value: widget.sendViewModel.hasActivePayjoin,
+                                                backgroundColorActive:
+                                                    const Color.fromARGB(255, 247, 83, 148),
+                                                onTapped: () =>
+                                                    widget.sendViewModel.setPayjoinEnabled(
+                                                  !widget.sendViewModel.hasActivePayjoin,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      if (widget.sendViewModel.reusedPayjoinEndpoint != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: Text(
+                                            _reusedPayjoinEndpointMessage(
+                                              widget.sendViewModel.reusedPayjoinEndpoint!,
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: Theme.of(context).colorScheme.error,
+                                            ),
                                           ),
                                         ),
                                       if (widget.sendViewModel.hasCoinControl ||
@@ -1192,9 +1244,20 @@ class _NewSendPageState extends State<NewSendPage> {
     _applyPaymentRequest(request.paymentRequest, amountOverride: amountOverride);
   }
 
+  String _reusedPayjoinEndpointMessage(PayjoinEndpointUse use) {
+    switch (use) {
+      case PayjoinEndpointUse.pending:
+        return S.of(context).payjoin_endpoint_pending;
+      case PayjoinEndpointUse.paid:
+        return S.of(context).payjoin_endpoint_paid;
+      case PayjoinEndpointUse.cancelled:
+        return S.of(context).payjoin_endpoint_cancelled;
+    }
+  }
+
   void _applyPaymentRequest(PaymentRequest paymentRequest, {String? amountOverride}) {
     if (widget.sendViewModel.usePayjoin) {
-      widget.sendViewModel.payjoinUri = paymentRequest.pjUri;
+      widget.sendViewModel.setPayjoinUri(paymentRequest.pjUri);
     }
     _addressControllers[_selectedOutput].text = paymentRequest.address;
     final amountToApply = amountOverride ?? paymentRequest.amount;
