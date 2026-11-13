@@ -456,8 +456,8 @@ dependency_overrides:
       path: ./packages/flutter_bloc
   flutter_daemon:
     git:
-      url: https://github.com/MrCyjaneK/flutter_daemon
-      ref: c24ee99f2f3070ea02d8108bbdd7727d73f7e5f1
+      url: https://github.com/SWvheerden/flutter_daemon
+      ref: 9971725aaf3415b08f86a4d1c7fbfd081f90a615
   flutter_form_builder:
     git:
       url: https://github.com/flutter-form-builder-ecosystem/flutter_form_builder

@@ -1092,9 +1092,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c24ee99f2f3070ea02d8108bbdd7727d73f7e5f1
-      resolved-ref: c24ee99f2f3070ea02d8108bbdd7727d73f7e5f1
-      url: "https://github.com/MrCyjaneK/flutter_daemon"
+      ref: 9971725aaf3415b08f86a4d1c7fbfd081f90a615
+      resolved-ref: 9971725aaf3415b08f86a4d1c7fbfd081f90a615
+      url: "https://github.com/SWvheerden/flutter_daemon"
     source: git
     version: "0.0.1"
   flutter_driver:

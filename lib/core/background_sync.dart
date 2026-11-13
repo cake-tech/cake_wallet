@@ -15,6 +15,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:flutter_daemon/flutter_daemon.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/evm/evm.dart';
@@ -115,6 +116,10 @@ class BackgroundSync {
         .where((element) => ![WalletType.haven, WalletType.decred].contains(element.type))
         .toList();
     for (int i = 0; i < moneroWallets.length; i++) {
+      if (FlutterDaemon().foregroundRequested) {
+        printV("App opened, ending background sync");
+        return;
+      }
       final wallet = await walletLoadingService.load(moneroWallets[i].type, moneroWallets[i].name,
           isBackground: true);
       int syncedTicks = 0;
@@ -125,6 +130,18 @@ class BackgroundSync {
       inner:
       while (true) {
         await Future.delayed(const Duration(seconds: 1));
+        // The app was opened (it runs in this same process): hand over to it now.
+        if (FlutterDaemon().foregroundRequested) {
+          printV("App opened, ending background sync of ${wallet.name}");
+          try {
+            await wallet.stopBackgroundSync(
+                await keyService.getWalletPassword(walletName: wallet.name));
+          } catch (e) {
+            printV("error stopping sync: $e");
+          }
+          await wallet.close(shouldCleanup: true);
+          return;
+        }
         final syncStatus = wallet.syncStatus;
         final progress = syncStatus.progress();
         if (syncStatus is ConnectedSyncStatus ||
