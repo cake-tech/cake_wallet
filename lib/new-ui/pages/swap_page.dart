@@ -306,7 +306,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
 
 
   bool get _requiresTotp => switch (widget.bloc.state) {
-    SwapStateWithInputs(payoutAddress: InternalWalletSwapAddress()) =>
+    SwapStateWithInputs(payoutAddress: InternalWalletSwapAddress() || InternalAccountSwapAddress()) =>
       widget.authService.settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets,
     _ => widget.authService.settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets,
   };

@@ -26,13 +26,19 @@ class SwapWalletListService {
         .toList();
   }
 
-  static Future<List<WalletInfoAddressInfo>> addressesForAccountsWallet(WalletInfo wallet) async {
-    final List<WalletInfoAddressInfo> ret = [];
-    final addresses = await wallet.getAddressInfos();
-    for (var list in addresses.values) {
-      // we only want the "primary" account addresses - those that contain account names.
-      ret.addAll(list.where((item) => item.label.split(" ").length > 1));
+  static Future<List<WalletInfoAddressInfo>?> accountAddresses(WalletInfo wallet) async {
+    if (wallet.type != WalletType.monero) {
+    // btc has accounts as well but doesn't save addresses per-account
+    // we could work around it but there's a refactor for it right around the corner so i'm not touching wallet code
+      return null;
     }
-    return ret;
+
+    final addresses = [
+      // we only want the "primary" account addresses - those that contain account names.
+      for (final list in (await wallet.getAddressInfos()).values)
+        ...list.where((item) => item.label.split(" ").length > 1),
+    ];
+
+    return addresses.isEmpty ? null : addresses;
   }
 }

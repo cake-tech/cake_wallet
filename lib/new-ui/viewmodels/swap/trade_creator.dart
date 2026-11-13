@@ -5,8 +5,8 @@ import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/exchange_provider_logger.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/wallet_type.dart";
 
 class TradeCreator {
   const TradeCreator({
@@ -48,18 +48,17 @@ class TradeCreator {
   Future<void> persistTrade(Trade trade) async {
     try {
       await trade
-          .copyWith(walletId: _appStore.wallet!.id, accountIndex: _currentAccountIndex())
+          .copyWith(walletId: _appStore.wallet!.id, accountIndex: _accountIndexFor(trade))
           .save();
     } catch (e, st) {
       printV("trade save failed! this should NOT happen!\n$e\n$st");
     }
   }
 
-  int _currentAccountIndex() {
-    if (_appStore.wallet!.type != WalletType.monero) {
-      return 0;
-    }
-
-    return monero!.getCurrentAccount(_appStore.wallet!).id;
-  }
+  int _accountIndexFor(Trade trade) => switch (_appStore.wallet!.type) {
+    _ when trade.depositCurrency == CryptoCurrency.btcln => 0,
+    .monero => monero!.getCurrentAccount(_appStore.wallet!).id,
+    .bitcoin => _appStore.wallet!.walletInfo.currentAccountIndex,
+    _ => 0,
+  };
 }

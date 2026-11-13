@@ -11,7 +11,6 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_info.dart";
-import "package:cw_core/wallet_type.dart" show WalletType;
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
@@ -52,9 +51,11 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
         items = widget.isSelectingReceiver
             ? await SwapWalletListService.getWallets(s.payoutAmount.currency)
             : await SwapWalletListService.getDepositWallets(s.depositAmount.currency);
-        for (final item in items) {
-          if (item.type == WalletType.monero) {
-            accounts[item.id] = await SwapWalletListService.addressesForAccountsWallet(item);
+        if (widget.isSelectingReceiver) {
+          for (final item in items) {
+            if (await SwapWalletListService.accountAddresses(item) case final addresses?) {
+              accounts[item.id] = addresses;
+            }
           }
         }
       }
@@ -140,18 +141,13 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
                               final selected = s.payoutAddress is InternalWalletSwapAddress && (s.payoutAddress! as InternalWalletSwapAddress).walletInfo.internalId == item.internalId;
 
-                              final bool hasAccounts = item.type == WalletType.monero;
-
-                              List<WalletInfoAddressInfo>? accounts =
-                              hasAccounts ? this.accounts[item.id] : null;
-
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 6.0),
                                 child: SwapAddressSelectionModalRow(
                                   wallet: item,
                                   iconPath: currencyIconPath,
                                   isSelected: selected,
-                                  accounts: accounts,
+                                  accounts: accounts[item.id],
                                   onAddressChosen: (address, accountName) {
                                     if(accountName == null) {
                                       widget.bloc.add(PayoutAddressChanged(InternalWalletSwapAddress(item)));
