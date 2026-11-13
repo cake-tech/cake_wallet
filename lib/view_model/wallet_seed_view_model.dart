@@ -1,6 +1,7 @@
 import "dart:async";
 import 'dart:math';
 
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/wallet_info.dart";
@@ -14,17 +15,53 @@ part 'wallet_seed_view_model.g.dart';
 class WalletSeedViewModel = WalletSeedViewModelBase with _$WalletSeedViewModel;
 
 abstract class WalletSeedViewModelBase with Store {
-  WalletSeedViewModelBase(WalletBase wallet)
-      : name = wallet.name,
-        seed = wallet.seed!,
-        walletType = wallet.type,
-        _walletInfo = wallet.walletInfo,
+  WalletSeedViewModelBase(this._wallet)
+      : name = _wallet.name,
+        seed = _wallet.seed ?? '',
+        walletType = _wallet.type,
+        _walletInfo = _wallet.walletInfo,
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
-    setupSeedVerification();
+    if (_wallet.type == WalletType.minotari) {
+      loadMinotariSeed();
+    } else {
+      setupSeedVerification();
+    }
+  }
+
+  final WalletBase _wallet;
+
+  /// Why the seed couldn't be read; while [seed] is empty and this is null it is loading.
+  final seedLoadError = Observable<String?>(null);
+
+  bool get hasSeed => seed.isNotEmpty;
+
+  bool _isDisposed = false;
+
+  /// Minotari wallets do not keep the mnemonic; it lives here only while this page does.
+  Future<void> loadMinotariSeed() async {
+    runInAction(() => seedLoadError.value = null);
+    try {
+      final loaded = await minotari!.getSeed(_wallet) ?? '';
+      if (_isDisposed) return;
+      runInAction(() => seed = loaded);
+      if (loaded.isNotEmpty) setupSeedVerification();
+    } catch (e) {
+      runInAction(() => seedLoadError.value = e.toString());
+    }
   }
 
   final WalletInfo _walletInfo;
+
+  /// Drops the seed and the verification word options when the page closes.
+  void dispose() {
+    _isDisposed = true;
+    runInAction(() {
+      seed = '';
+      currentOptions.clear();
+      verificationIndices.clear();
+    });
+  }
 
   @observable
   String name;

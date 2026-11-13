@@ -165,6 +165,7 @@ class SendPageParams {
     SendPageModes? mode,
     this.unspentCoinType = UnspentCoinType.any,
     this.initialCurrency,
+    this.minotariConflictsWithTransactionId,
   }) : mode = mode ?? SendPageModes.normal;
 
   final PaymentRequest? initialPaymentRequest;
@@ -172,6 +173,9 @@ class SendPageParams {
   final SendPageModes mode;
   final CryptoCurrency? initialCurrency;
   final UnspentCoinType unspentCoinType;
+
+  /// The abandoned Minotari send this send pays again.
+  final String? minotariConflictsWithTransactionId;
 }
 
 class NewSendPage extends StatefulWidget {
@@ -190,6 +194,7 @@ class NewSendPage extends StatefulWidget {
     if (params.initialCurrency != null) {
       sendViewModel.selectedCryptoCurrency = params.initialCurrency!;
     }
+    sendViewModel.minotariConflictsWithTransactionId = params.minotariConflictsWithTransactionId;
   }
 
   final SendViewModel sendViewModel;
@@ -316,6 +321,7 @@ class _NewSendPageState extends State<NewSendPage> {
       controller.dispose();
     }
     _addressFocusNode.dispose();
+    widget.sendViewModel.dispose();
     super.dispose();
   }
 
@@ -346,6 +352,11 @@ class _NewSendPageState extends State<NewSendPage> {
   @override
   Widget build(BuildContext context) => Observer(
         builder: (_) {
+          // Every way in (Send, Scan, payment links, asset details, cards) builds this page;
+          // a watch-only wallet gets a notice instead of a form it can't use.
+          if (!widget.sendViewModel.wallet.canSend()) {
+            return SafeArea(child: Center(child: Text(S.of(context).watching)));
+          }
           final output = widget.sendViewModel.outputs[_selectedOutput];
           final recipientChain = widget.sendViewModel.isEVMWallet
               ? evm!.getChainInfoByChainId(_currentEvmChainIdOrMainnet())

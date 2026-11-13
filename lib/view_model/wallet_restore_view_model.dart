@@ -12,6 +12,7 @@ import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/tron/tron.dart';
 import 'package:cake_wallet/decred/decred.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/restore/restore_mode.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
@@ -60,6 +61,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       case WalletType.bitcoin:
       case WalletType.litecoin:
       case WalletType.zcash:
+      case WalletType.minotari:
         availableModes = [WalletRestoreMode.seed, WalletRestoreMode.keys];
         break;
       case WalletType.bitcoinCash:
@@ -107,6 +109,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     WalletType.zcash,
   ].contains(type);
 
+  /// Coins whose keys already give the address don't ask for it.
+  late final bool keysRestoreNeedsAddress = ![WalletType.minotari].contains(type);
+
+  /// Minotari seeds carry their birthday, so only its keys restore asks for a height.
+  late final bool hasKeysRestoreHeightSelector =
+      hasBlockchainHeightSelector || [WalletType.minotari].contains(type);
+
   late final bool onlyViewKeyRestore =
       [if (FeatureFlag.hasBitcoinViewOnly) WalletType.bitcoin, WalletType.decred].contains(type);
 
@@ -117,7 +126,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreMode mode;
 
   @computed
-  bool get passphraseAvailable => mode == WalletRestoreMode.seed;
+  // Minotari cipher seeds have no passphrase.
+  bool get passphraseAvailable => mode == WalletRestoreMode.seed && type != WalletType.minotari;
 
   @observable
   bool hasPassphrase;
@@ -237,6 +247,13 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             height: height,
             network: zcashNetwork,
           );
+        case WalletType.minotari:
+          return minotari!.createMinotariRestoreWalletFromSeedCredentials(
+            name: name,
+            password: password,
+            mnemonic: seed,
+            height: height,
+          );
         case WalletType.none:
         case WalletType.haven:
           break;
@@ -332,6 +349,15 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               privateKey: options['private_key'] as String,
               password: password,
               height: height);
+        case WalletType.minotari:
+          return minotari!.createMinotariRestoreWalletFromKeysCredentials(
+            name: name,
+            password: password,
+            viewPrivateKeyHex: viewKey!,
+            spendPrivateKeyHex: spendKey,
+            spendPublicKeyHex: spendPubkey,
+            height: height,
+          );
         default:
           break;
       }

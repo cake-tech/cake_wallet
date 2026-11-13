@@ -199,6 +199,9 @@ jobs:
           docker system prune -af --volumes > /dev/null
           df -h /
 
+      - name: Prepare Minotari
+        run: ./scripts/prepare_minotari.sh android
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/android

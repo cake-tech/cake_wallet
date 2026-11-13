@@ -2,8 +2,6 @@ import 'dart:math' show min;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/address_sources.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
-import 'package:cake_wallet/decred/decred.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
@@ -49,14 +47,20 @@ abstract class OutputBase with Store {
         extractedAddress = '',
         estimatedFee = Money.zero(cryptoCurrencyHandler()),
         parsedAddress = ParsedAddress(parsedAddressByCurrencyMap: {}) {
-    autorun((_) {
-      final status = _wallet.syncStatus;
-      if (status is! SyncedSyncStatus) {
-        return;
-      }
-      calculateEstimatedFee();
-    });
+    // Only on becoming synced: wallets that re-report synced (Minotari, every block poll)
+    // would otherwise refetch the fee for every live Output each time.
+    _syncedReaction = reaction(
+      (_) => _wallet.syncStatus is SyncedSyncStatus,
+      (bool isSynced) {
+        if (isSynced) calculateEstimatedFee();
+      },
+      fireImmediately: true,
+    );
   }
+
+  late final ReactionDisposer _syncedReaction;
+
+  void dispose() => _syncedReaction();
 
   Key key;
 
@@ -127,8 +131,12 @@ abstract class OutputBase with Store {
   @observable
   Money estimatedFee;
 
+  /// Fee requests finish out of order; only the latest one may set [estimatedFee].
+  int _feeRequest = 0;
+
   @action
   Future<void> calculateEstimatedFee() async {
+    final request = ++_feeRequest;
     try {
       final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
       if (isEVMCompatibleChain(_wallet.type)) {
@@ -137,11 +145,13 @@ abstract class OutputBase with Store {
 
       int fee = 0;
       if (_settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId) != null) {
-        fee = _wallet.calculateEstimatedFee(
+        fee = await _wallet.estimatedFeeFor(
           _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId)!,
           cryptoAmountMoney.amount.toInt(),
+          sendAll: sendAll,
         );
       }
+      if (request != _feeRequest) return;
 
       switch (_wallet.type) {
         case WalletType.monero:
@@ -151,6 +161,7 @@ abstract class OutputBase with Store {
         case WalletType.dogecoin:
         case WalletType.decred:
         case WalletType.zano:
+        case WalletType.minotari:
           estimatedFee = Money.fromInt(fee, walletTypeToCryptoCurrency(_wallet.type));
           break;
         case WalletType.bitcoin:

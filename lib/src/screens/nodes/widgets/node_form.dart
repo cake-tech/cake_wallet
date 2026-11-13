@@ -76,9 +76,14 @@ class NodeFormState extends State<NodeForm> {
                     keyValue: vm.nodeAddressUIKey,
                     label: S.current.node_address,
                     initialValue: vm.address,
-                    validator: vm.walletType == WalletType.decred
-                        ? NodeAddressValidatorDecredBlankException()
-                        : NodeAddressValidator(),
+                    validator: switch (vm.walletType) {
+                      WalletType.decred => NodeAddressValidatorDecredBlankException(),
+                      // Minotari node traffic carries the wallet's own transactions.
+                      WalletType.minotari => (value) => vm.useSSL
+                          ? NodeAddressValidator()(value)
+                          : S.current.minotari_node_requires_ssl,
+                      _ => NodeAddressValidator(),
+                    },
                   ),
                   if (vm.hasPathSupport)
                     ListItemTextField(
@@ -134,24 +139,26 @@ class NodeFormState extends State<NodeForm> {
                         onChanged: (value) => vm.isEnabledForAutoSwitching = value),
                 ],
               },
-              "proxy": [
-                ListItemCheckbox(
-                  keyValue: vm.useSocksProxyUIKey,
-                  label: 'Use SOCKS Proxy',
-                  value: vm.useSocksProxy,
-                  onChanged: (value) {
-                    vm.socksProxyAddress = '';
-                    vm.useSocksProxy = value;
-                  },
-                ),
-                if (vm.useSocksProxy)
-                  ListItemTextField(
-                    keyValue: vm.socksProxyAddressUIKey,
-                    label: 'host:port',
-                    initialValue: vm.socksProxyAddress,
-                    validator: SocksProxyNodeAddressValidator(),
+              // cw (Minotari) has no proxy support; a proxy here would be silently bypassed.
+              if (vm.walletType != WalletType.minotari)
+                "proxy": [
+                  ListItemCheckbox(
+                    keyValue: vm.useSocksProxyUIKey,
+                    label: 'Use SOCKS Proxy',
+                    value: vm.useSocksProxy,
+                    onChanged: (value) {
+                      vm.socksProxyAddress = '';
+                      vm.useSocksProxy = value;
+                    },
                   ),
-              ]
+                  if (vm.useSocksProxy)
+                    ListItemTextField(
+                      keyValue: vm.socksProxyAddressUIKey,
+                      label: 'host:port',
+                      initialValue: vm.socksProxyAddress,
+                      validator: SocksProxyNodeAddressValidator(),
+                    ),
+                ]
             },
             controllers: _controllers,
             getCheckboxValue: vm.getCheckboxValue,

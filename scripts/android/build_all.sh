@@ -13,5 +13,6 @@ case $APP_ANDROID_TYPE in
 	"monero.com") $DIR/build_monero_all.sh ;;
 	"cakewallet") $DIR/build_monero_all.sh
 					$DIR/build_mwebd.sh
-						$DIR/build_decred.sh ;;
+						$DIR/build_decred.sh
+						$DIR/../prepare_minotari.sh android ;;
 esac

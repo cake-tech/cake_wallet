@@ -43,6 +43,9 @@ abstract class WalletEditViewModelBase with Store {
     String? walletGroupKey,
     bool isWalletGroup = false,
   }) async {
+    // Renaming to the same name would save and then delete the wallet's own password.
+    if (!isWalletGroup && newName == walletItem.name) return;
+
     state = WalletEditRenamePending();
 
     if (isWalletGroup) {

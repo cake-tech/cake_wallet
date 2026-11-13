@@ -198,6 +198,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       case WalletType.nano:
       case WalletType.decred:
       case WalletType.zcash:
+      case WalletType.minotari:
         amount = calculateFiatAmountRaw(
           cryptoAmount: double.parse(transaction.amount.toString()),
           price: price,

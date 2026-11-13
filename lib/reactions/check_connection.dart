@@ -4,6 +4,7 @@ import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/utils/tor.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -22,6 +23,10 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
       return;
     }
     if (wallet.type == WalletType.decred && wallet.syncStatus is ProcessingSyncStatus) {
+      return;
+    }
+    // Minotari can't use Tor: while Tor is wanted it stays disconnected, with its Tor reason.
+    if (wallet.type == WalletType.minotari && CakeTor.requestedOrStarted) {
       return;
     }
 

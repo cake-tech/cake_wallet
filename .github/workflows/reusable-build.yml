@@ -323,6 +323,9 @@ jobs:
           git config --global --unset-all credential.helper || true
           git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"
 
+      - name: Prepare Minotari
+        run: ./scripts/prepare_minotari.sh android
+
       - name: Execute Build and Setup Commands
         run: |
           pushd scripts/android

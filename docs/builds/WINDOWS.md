@@ -45,8 +45,10 @@ For building Monero dependencies, it is required to install Windows [WSL](https:
 ```powershell
 wsl --install
 wsl sudo apt update
-wsl sudo apt install -y autoconf build-essential ccache cmake curl gcc gcc-mingw-w64-x86-64 git g++ g++-mingw-w64-x86-64 gperf lbzip2 libtool make pkg-config pigz
+wsl sudo apt install -y autoconf build-essential ccache cmake curl gcc gcc-mingw-w64-x86-64 git g++ g++-mingw-w64-x86-64 gperf lbzip2 libtool make pkg-config pigz unzip
 ```
+
+`cakewallet.bat` fetches the prebuilt Minotari library through `bash.exe`, which needs `curl`, `unzip`, `sha256sum` and `git` (installed above).
 
 ### 4. Installing Rust
 

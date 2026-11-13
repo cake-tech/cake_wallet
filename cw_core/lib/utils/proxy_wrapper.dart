@@ -475,4 +475,11 @@ class ProxyWrapper {
 
 class CakeTor {
   static CakeTorInstance? instance;
+
+  /// The user has built-in Tor on, whether or not it is running (it may be starting, or have
+  /// failed to start). The app's settings keep it in sync.
+  static bool requested = false;
+
+  /// Tor is wanted or running: a wallet that can't send through Tor must send nothing.
+  static bool get requestedOrStarted => requested || instance?.started == true;
 }

@@ -1,0 +1,133 @@
+#!/bin/bash
+# Offline test of scripts/prepare_minotari.sh: runs a copy pointed at a local fake
+# release and tag, checks that failed verification leaves cw_minotari untouched and
+# that a good bundle installs into a clean checkout. macOS is not covered (it needs
+# Apple's install_name_tool and codesign).
+
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+PREPARE="$ROOT/scripts/prepare_minotari.sh"
+LIB=minotari_wallet_ffi
+TAG="$(sed -n 's/^CW_TARI_WALLET_TAG="\(.*\)"$/\1/p' "$PREPARE")"
+T="$(mktemp -d)"
+trap 'rm -rf "$T"' EXIT
+
+# Fake upstream: the pinned tag in a local repo, release assets under a file:// URL.
+git init -q "$T/upstream.git"
+git -C "$T/upstream.git" -c user.name=test -c user.email=test@example.com commit -q --allow-empty -m test
+git -C "$T/upstream.git" -c user.name=test -c user.email=test@example.com tag -a -m test "$TAG"
+SHA="$(git -C "$T/upstream.git" rev-parse HEAD)"
+DIST="$T/upstream/releases/download/$TAG"
+mkdir -p "$DIST"
+
+stage() { # <asset> <file>...: zips empty placeholder files as the release asset
+  local asset="$1" dir="$T/stage/$1"
+  shift
+  for f in "$@"; do mkdir -p "$dir/$(dirname "$f")" && echo "$asset" > "$dir/$f"; done
+  (cd "$dir" && zip -qr "$DIST/cw_tari_wallet-$TAG-$asset.zip" .)
+}
+stage dart dart/pubspec.yaml dart/frb_generated.dart
+stage android jniLibs/arm64-v8a/lib$LIB.so
+stage ios "$LIB.xcframework/Info.plist"
+stage "linux-$(uname -m)" "lib$LIB.so"
+stage windows "$LIB.dll"
+(cd "$DIST" && sha256sum -- *.zip > SHA256SUMS && cp -R . "$T/good")
+GOOD="$(sha256sum "$DIST/SHA256SUMS" | cut -d' ' -f1)"
+
+# A clean checkout of cw_minotari (no lib/src) next to the script copy.
+git -C "$ROOT" archive HEAD cw_minotari | tar -x -C "$T"
+mkdir "$T/scripts"
+
+prepare() { # <pinned SHA256SUMS digest> <platform>...
+  sed -e "s|^REPO=.*|REPO=\"file://$T/upstream\"|" \
+      -e "s|^CW_TARI_WALLET_SHA=.*|CW_TARI_WALLET_SHA=\"${PIN_SHA:-$SHA}\"|" \
+      -e "s|^CW_TARI_WALLET_SUMS_SHA256=.*|CW_TARI_WALLET_SUMS_SHA256=\"$1\"|" \
+      "$PREPARE" > "$T/scripts/prepare_minotari.sh"
+  shift
+  bash "$T/scripts/prepare_minotari.sh" "$@"
+}
+
+state() { (cd "$T/cw_minotari" && find . | sort && find . -type f -exec sha256sum {} + | sort); }
+
+expect_fail() { # <name> <expected error> <digest> <platform>...
+  local name="$1" error="$2" before
+  shift 2
+  before="$(state)"
+  if prepare "$@" > "$T/log" 2>&1; then cat "$T/log"; echo "FAIL: $name succeeded" >&2; exit 1; fi
+  grep -qF -- "$error" "$T/log" || { cat "$T/log"; echo "FAIL: $name did not fail with: $error" >&2; exit 1; }
+  [ "$(state)" = "$before" ] || { echo "FAIL: $name changed cw_minotari" >&2; exit 1; }
+  echo "ok: $name fails ($error)"
+}
+
+restore() { rm -rf "$DIST" && cp -R "$T/good" "$DIST"; }
+
+expect_fail "wrong pinned digest" "SHA256SUMS: FAILED" "$(printf '%064d' 0)" android
+
+PIN_SHA="$(printf '%040d' 0)" expect_fail "tag not at pinned commit" "$TAG points at '$SHA'" "$GOOD" android
+
+echo tampered >> "$DIST/cw_tari_wallet-$TAG-android.zip"
+expect_fail "tampered zip" "cw_tari_wallet-$TAG-android.zip: FAILED" "$GOOD" android
+restore
+
+grep -v -- "-android.zip" "$T/good/SHA256SUMS" > "$DIST/SHA256SUMS"
+expect_fail "zip missing from SHA256SUMS" "cw_tari_wallet-$TAG-android.zip is not listed in SHA256SUMS" "$(sha256sum "$DIST/SHA256SUMS" | cut -d' ' -f1)" android
+restore
+
+[ ! -e "$T/cw_minotari/lib/src" ] || { echo "FAIL: checkout already has lib/src" >&2; exit 1; }
+prepare "$GOOD" android ios linux windows > "$T/log" 2>&1 || { cat "$T/log"; echo "FAIL: good bundle" >&2; exit 1; }
+cd "$T/cw_minotari"
+for f in lib/src/rust/frb_generated.dart \
+         android/src/main/jniLibs/arm64-v8a/lib$LIB.so \
+         ios/Frameworks/$LIB.xcframework/Info.plist \
+         linux/lib/lib$LIB.so \
+         windows/lib/$LIB.dll; do
+  [ -f "$f" ] || { echo "FAIL: good bundle did not install $f" >&2; exit 1; }
+done
+[ ! -e lib/src/rust/pubspec.yaml ] || { echo "FAIL: bindings pubspec.yaml installed" >&2; exit 1; }
+echo "ok: good bundle installs into a clean checkout"
+
+# A later run for one platform removes other platforms' folders left on another release.
+echo "v0.0.0 old" > ios/Frameworks/.cw_tari_wallet
+rm linux/lib/.cw_tari_wallet
+prepare "$GOOD" android > "$T/log" 2>&1 || { cat "$T/log"; echo "FAIL: android-only run" >&2; exit 1; }
+for p in ios linux; do
+  grep -qF "removed stale $p libs" "$T/log" || { cat "$T/log"; echo "FAIL: stale $p not reported" >&2; exit 1; }
+done
+[ ! -e ios/Frameworks ] && [ ! -e linux/lib ] && [ -f windows/lib/$LIB.dll ] && [ -f android/src/main/jniLibs/arm64-v8a/lib$LIB.so ] \
+  || { echo "FAIL: stale folders not removed, or current ones removed" >&2; exit 1; }
+echo "ok: stale platform folders are removed"
+
+# --from-source: a fake build script stands in for the real (slow) build.
+fake_build() { # <exit status> [<asset> whose zip should differ from the release]
+  cat > "$T/scripts/build_minotari_from_source.sh" <<FAKE
+#!/bin/bash
+set -euo pipefail
+[ "$1" = 0 ] || { echo "build failed" >&2; exit $1; }
+tag="\$1" out="\$3"
+shift 3
+for a in "\$@"; do cp "$T/good/cw_tari_wallet-\$tag-\$a.zip" "\$out/"; done
+if [ -n "${2:-}" ]; then
+  mkdir -p "$T/other/jniLibs/arm64-v8a" && echo rebuilt > "$T/other/jniLibs/arm64-v8a/lib$LIB.so"
+  rm -f "\$out/cw_tari_wallet-\$tag-${2:-}.zip" && (cd "$T/other" && zip -qr "\$out/cw_tari_wallet-\$tag-${2:-}.zip" .)
+fi
+FAKE
+  chmod +x "$T/scripts/build_minotari_from_source.sh"
+}
+
+fake_build 1
+expect_fail "failed source build" "build failed" "$GOOD" --from-source android
+
+fake_build 0
+prepare "$GOOD" --from-source android > "$T/log" 2>&1 || { cat "$T/log"; echo "FAIL: source build" >&2; exit 1; }
+grep -qF "cw_tari_wallet-$TAG-android.zip: built from source; same files as the published release" "$T/log" \
+  || { cat "$T/log"; echo "FAIL: identical build not reported" >&2; exit 1; }
+echo "ok: a source build with the release's files is reported and installed"
+
+fake_build 0 android
+prepare "$GOOD" --from-source android > "$T/log" 2>&1 || { cat "$T/log"; echo "FAIL: differing source build" >&2; exit 1; }
+grep -qF "cw_tari_wallet-$TAG-android.zip: built from source; differs from the published release" "$T/log" \
+  || { cat "$T/log"; echo "FAIL: differing build not reported" >&2; exit 1; }
+[ "$(cat android/src/main/jniLibs/arm64-v8a/lib$LIB.so)" = rebuilt ] \
+  || { echo "FAIL: the source-built library was not installed" >&2; exit 1; }
+echo "ok: a differing source build is reported and installed"

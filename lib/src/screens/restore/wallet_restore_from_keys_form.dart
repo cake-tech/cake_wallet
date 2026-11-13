@@ -255,12 +255,13 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
 
     return Column(
       children: [
-        BaseTextFormField(
-          controller: addressController,
-          keyboardType: TextInputType.multiline,
-          maxLines: null,
-          hintText: S.of(context).restore_address,
-        ),
+        if (widget.walletRestoreViewModel.keysRestoreNeedsAddress)
+          BaseTextFormField(
+            controller: addressController,
+            keyboardType: TextInputType.multiline,
+            maxLines: null,
+            hintText: S.of(context).restore_address,
+          ),
         Container(
           padding: EdgeInsets.only(top: 20.0),
           child: BaseTextFormField(
@@ -294,7 +295,7 @@ class WalletRestoreFromKeysFormState extends State<WalletRestoreFromKeysForm> {
             maxLines: null,
           ),
         ),
-        if (widget.walletRestoreViewModel.hasBlockchainHeightSelector)
+        if (widget.walletRestoreViewModel.hasKeysRestoreHeightSelector)
           BlockchainHeightWidget(
             key: blockchainHeightKey,
             hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
