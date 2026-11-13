@@ -241,6 +241,11 @@ abstract class DashboardViewModelBase with Store {
       reaction((_) => wallet.syncStatus, (SyncStatus syncStatus) {
         silentPaymentsScanningActive = bitcoin!.getScanningActive(wallet);
       });
+
+      // The flag can flip without a sync status change (e.g. first enable), which left the bar hidden.
+      reaction((_) => bitcoin!.getScanningActive(wallet), (active) {
+        silentPaymentsScanningActive = active;
+      });
     }
 
     loadCardDesigns();

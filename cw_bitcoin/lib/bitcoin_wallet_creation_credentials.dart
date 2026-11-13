@@ -34,17 +34,21 @@ class BitcoinRestoreWalletFromSeedCredentials extends WalletCredentials {
     required DerivationType derivationType,
     required String derivationPath,
     String? passphrase,
+    int? height,
+    this.alwaysScan,
   }) : super(
             name: name,
             password: password,
             passphrase: passphrase,
             walletInfo: walletInfo,
+            height: height,
             derivationInfo: DerivationInfo(
               derivationType: derivationType,
               derivationPath: derivationPath,
             ));
 
   final String mnemonic;
+  final bool? alwaysScan;
 }
 
 class BitcoinRestoreWalletFromWIFCredentials extends WalletCredentials {
@@ -64,10 +68,13 @@ class BitcoinWalletFromKeysCredentials extends WalletCredentials {
       required String password,
       required this.xpub,
       WalletInfo? walletInfo,
+      int? height,
+      this.alwaysScan,
       super.hardwareWalletType})
-      : super(name: name, password: password, walletInfo: walletInfo);
+      : super(name: name, password: password, walletInfo: walletInfo, height: height);
 
   final String xpub;
+  final bool? alwaysScan;
 }
 
 class LitecoinWalletFromKeysCredentials extends WalletCredentials {
@@ -78,8 +85,9 @@ class LitecoinWalletFromKeysCredentials extends WalletCredentials {
       required this.scanSecret,
       required this.spendPubkey,
       WalletInfo? walletInfo,
+      int? height,
       super.hardwareWalletType})
-      : super(name: name, password: password, walletInfo: walletInfo);
+      : super(name: name, password: password, walletInfo: walletInfo, height: height);
 
   final String xpub;
   final String scanSecret;

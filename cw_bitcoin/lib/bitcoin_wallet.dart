@@ -197,6 +197,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     int initialSilentAddressIndex = 0,
+    bool? alwaysScan,
   }) async {
     late Uint8List seedBytes;
 
@@ -231,6 +232,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       networkParam: network,
       payjoinBox: payjoinBox,
       useLightning: true,
+      alwaysScan: alwaysScan,
     );
   }
 
@@ -312,7 +314,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    return BitcoinWallet(
+    final wallet = BitcoinWallet(
       mnemonic: mnemonic,
       xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
       password: password,
@@ -336,6 +338,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       cachedLightningAddress: snp?.cachedLightningAddress,
       payjoinBox: payjoinBox,
     );
+
+    wallet.birthdayPending = snp?.birthdayPending ?? false;
+
+    return wallet;
   }
 
   @override
