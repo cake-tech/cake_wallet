@@ -34,6 +34,7 @@ class WelcomePage extends BasePage {
       icon: Icon(
         Icons.info_outline,
         size: 26,
+        semanticLabel: S.of(context).help,
       ),
       onPressed: () async {
         await launchUrl(_url, mode: LaunchMode.externalApplication);
