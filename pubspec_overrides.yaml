@@ -846,12 +846,12 @@ dependency_overrides:
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
-      ref: 75bba8632c529debf30ee2b1858530009fa6440b
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       path: ./packages/ledger-bitcoin
   ledger_ethereum:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
-      ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       path: ./packages/ledger-ethereum
   ledger_flutter_plus:
     git:
@@ -860,7 +860,7 @@ dependency_overrides:
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
-      ref: 75bba8632c529debf30ee2b1858530009fa6440b
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       path: ./packages/ledger-litecoin
   ledger_usb_plus:
     git:

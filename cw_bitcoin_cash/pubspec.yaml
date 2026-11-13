@@ -25,6 +25,11 @@ dependencies:
     git:
       url: https://github.com/cake-tech/blockchain_utils
       ref: 59fdf29d72068e0522a96a8953ed7272833a9f57
+  ledger_flutter_plus: ^1.4.1
+  ledger_litecoin:
+    git:
+      url: https://github.com/cake-tech/ledger-flutter-plus-plugins
+      path: packages/ledger-litecoin
 
 dev_dependencies:
   flutter_test:

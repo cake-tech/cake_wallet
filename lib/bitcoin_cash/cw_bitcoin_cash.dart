@@ -48,4 +48,8 @@ class CWBitcoinCash extends BitcoinCash {
   @override
   TransactionPriority getBitcoinCashTransactionPrioritySlow() =>
       BitcoinCashTransactionPriority.slow;
+
+  @override
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection) =>
+      BitcoinCashLedgerService(connection);
 }

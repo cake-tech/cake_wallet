@@ -96,4 +96,8 @@ class LitecoinLedgerService extends HardwareWalletService
       useTrustedInputForSegwit: true,
     );
   }
+
+  @override
+  Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) =>
+      litecoinLedgerApp.signMessage(message: message, signDerivationPath: derivationPath);
 }
