@@ -9,7 +9,7 @@ import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
 import "package:cake_wallet/new-ui/widgets/wallet_removal_popup.dart";
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/new-ui/pages/address_book/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';

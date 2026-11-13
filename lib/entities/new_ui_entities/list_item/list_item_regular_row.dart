@@ -1,11 +1,12 @@
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
+import "package:flutter/material.dart";
 
 class ListItemRegularRow extends ListItem {
   const ListItemRegularRow({
     required super.keyValue,
     required super.label,
     this.subtitle,
+    this.subtitleWidget,
     this.trailingText,
     this.iconPath,
     this.badgeIconPath,
@@ -14,6 +15,7 @@ class ListItemRegularRow extends ListItem {
     this.showArrow = true,
     this.bottomWidget,
     this.trailingWidget,
+    this.leadingAccessory,
     this.truncateTrailingText = false,
     this.truncateLabel = false,
     this.foregroundColor,
@@ -25,9 +27,13 @@ class ListItemRegularRow extends ListItem {
     this.iconColor,
     this.secondaryLabel,
     this.subtitleColor,
+    this.isEnabled = true,
   });
 
   final String? subtitle;
+
+  /// Takes precedence over [subtitle] when set.
+  final Widget? subtitleWidget;
   final String? trailingText;
   final String? iconPath;
   final String? trailingIconPath;
@@ -38,6 +44,7 @@ class ListItemRegularRow extends ListItem {
   final bool showArrow;
   final Widget? bottomWidget;
   final Widget? trailingWidget;
+  final bool? leadingAccessory;
   final bool truncateTrailingText;
   final bool truncateLabel;
   final Color? subtitleColor;
@@ -47,4 +54,5 @@ class ListItemRegularRow extends ListItem {
   final double? leadingIconSize;
   final double? badgeIconSize;
   final Color? iconColor;
+  final bool isEnabled;
 }

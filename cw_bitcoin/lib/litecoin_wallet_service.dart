@@ -1,20 +1,19 @@
-import 'dart:io';
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
-import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
-import 'package:cw_core/encryption_file_utils.dart';
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/unspent_coins_info.dart';
-import 'package:hive/hive.dart';
-import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
-import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cw_bitcoin/litecoin_wallet.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:path_provider/path_provider.dart';
+import "dart:io";
+
+import "package:bip39/bip39.dart" as bip39;
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:cw_bitcoin/bitcoin_mnemonic.dart";
+import "package:cw_bitcoin/bitcoin_mnemonics_bip39.dart";
+import "package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart";
+import "package:cw_bitcoin/litecoin_wallet.dart";
+import "package:cw_bitcoin/mnemonic_is_incorrect_exception.dart";
+import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/unspent_coins_info.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:hive/hive.dart";
+import "package:path_provider/path_provider.dart";
 
 class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
@@ -61,16 +60,8 @@ class LitecoinWalletService extends WalletService<
   }
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
-  Future<LitecoinWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: name, type: getType());
-    }
-
+  Future<LitecoinWallet> openWallet(WalletInfo walletInfo, String password) async {
+    final name = walletInfo.name;
     try {
       final wallet = await LitecoinWalletBase.open(
         password: password,
@@ -80,10 +71,10 @@ class LitecoinWalletService extends WalletService<
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
       final wallet = await LitecoinWalletBase.open(
         password: password,
         name: name,
@@ -97,13 +88,13 @@ class LitecoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async {
-    File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: wallet, type: getType());
-    }
-    await WalletInfo.delete(walletInfo);
+  Future<void> remove(WalletInfo walletInfo) async {
+    final unspentCoinsToDelete = unspentCoinsInfoSource.values
+        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
+        .toList();
+    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
+
+    await super.remove(walletInfo);
 
     // if there are no more litecoin wallets left, cleanup the neutrino db and other files created by mwebd:
     if ((await WalletInfo.selectList('type = ?', [WalletType.litecoin.index])).isEmpty) {
@@ -126,24 +117,9 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values
-        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
-        .toList();
-
-    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
-
     if (keysToDelete.isNotEmpty) {
       await unspentCoinsInfoSource.deleteAll(keysToDelete);
     }
-  }
-
-  @override
-  Future<void> rename(String currentName, String password, String newName) async {
-    if (currentName == newName) return;
-
-    await LitecoinWalletBase.copyMwebBox(fromName: currentName, toName: newName);
-    await super.rename(currentName, password, newName);
-    await LitecoinWalletBase.deleteMwebBox(currentName);
   }
 
   @override

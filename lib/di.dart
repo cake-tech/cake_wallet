@@ -10,6 +10,7 @@ import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart'
 import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import "package:cake_wallet/core/services/wallet_group_service.dart";
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
@@ -44,8 +45,6 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/wallet_edit_page_arguments.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -65,12 +64,17 @@ import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_available_network_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_details_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_summary_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/creation/wallet_creation_wallet_opening_page.dart";
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
 import 'package:cake_wallet/new-ui/pages/receive_page.dart';
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/address_book/wallet_contacts/wallet_contacts_cubit.dart";
 import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
 import 'package:cake_wallet/new-ui/widgets/addresses_page/address_label_input.dart';
@@ -86,7 +90,7 @@ import 'package:cake_wallet/src/screens/anonpay_details/anonpay_details_page.dar
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/new-ui/pages/address_book/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/edit_token_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/home_settings_page.dart';
@@ -258,7 +262,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_hardware_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
+import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_group_edit_bloc.dart";
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restore_choose_derivation_view_model.dart';
@@ -293,6 +297,7 @@ import 'package:trezor_connect/trezor_connect.dart';
 import 'buy/kryptonim/kryptonim.dart';
 import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
+import 'new-ui/services/omnichain_wallet/omnichain_wallet_service.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
 import 'src/screens/buy/buy_sell_page.dart';
@@ -416,8 +421,18 @@ Future<void> setup({
             settingsStore: getIt.get<SettingsStore>(),
           ));
 
-  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, WalletType, void>(
-      (type, _) => AdvancedPrivacySettingsViewModel(type, getIt.get<SettingsStore>()));
+  getIt.registerFactory<OmniChainWalletCreationService>(
+    () => OmniChainWalletCreationService(
+      walletNewVMBuilder: (newWalletArguments) =>
+          getIt.get<WalletNewVM>(param1: newWalletArguments),
+      walletManager: getIt.get<WalletGroupService>(),
+      walletLoadingService: getIt.get<WalletLoadingService>(),
+      appStore: getIt.get<AppStore>(),
+    ),
+  );
+
+  getIt.registerFactoryParam<AdvancedPrivacySettingsViewModel, List<WalletType>, void>(
+      (types, _) => AdvancedPrivacySettingsViewModel(types, getIt.get<SettingsStore>()));
 
   getIt.registerFactory<WalletLoadingService>(() => WalletLoadingService(
       getIt.get<SharedPreferences>(),
@@ -428,24 +443,20 @@ Future<void> setup({
       (newWalletArgs, _) => WalletNewVM(
             getIt.get<AppStore>(),
             getIt.get<WalletCreationService>(param1: newWalletArgs.type),
-            getIt.get<AdvancedPrivacySettingsViewModel>(param1: newWalletArgs.type),
+            getIt.get<AdvancedPrivacySettingsViewModel>(param1: [newWalletArgs.type]),
             getIt.get<SeedSettingsViewModel>(),
             newWalletArguments: newWalletArgs,
           ));
 
   final walletList = await WalletInfo.getAll();
 
-  getIt.registerFactory<WalletManager>(
-    () => WalletManager(
-      getIt.get<SharedPreferences>(),
-    ),
-  );
+  getIt.registerLazySingleton<WalletGroupService>(WalletGroupService.new,);
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
     (type, _) => WalletGroupsDisplayViewModel(
       getIt.get<AppStore>(),
       getIt.get<WalletLoadingService>(),
-      getIt.get<WalletManager>(),
+      getIt.get<WalletGroupService>(),
       getIt.get<WalletListViewModel>(),
       type: type,
     ),
@@ -557,7 +568,9 @@ Future<void> setup({
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+      keyService: getIt.get<KeyService>(),
+      walletGroupService: getIt.get<WalletGroupService>()
+  ));
 
   getIt.registerFactoryParam<CardCustomizerBloc, CardCustomizerBlocParams, void>(
       (params, _) {
@@ -830,24 +843,19 @@ Future<void> setup({
 
 
 
+  WalletListViewModel _buildWalletListViewModel() => WalletListViewModel(
+    getIt.get<AppStore>(),
+    getIt.get<WalletLoadingService>(),
+    getIt.get<WalletGroupService>(),
+    getIt.get<KeyService>(),
+    (type) => getIt.get<WalletService>(param1: type),
+  );
+
   if (DeviceInfo.instance.isMobile) {
-    getIt.registerFactory(
-      () => WalletListViewModel(
-        getIt.get<AppStore>(),
-        getIt.get<WalletLoadingService>(),
-        getIt.get<WalletManager>(),
-      ),
-    );
+    getIt.registerFactory<WalletListViewModel>(_buildWalletListViewModel);
   } else {
-    // register wallet list view model as singleton on desktop since it can be accessed
-    // from multiple places at the same time (Wallets DropDown, Wallets List in settings)
-    getIt.registerLazySingleton(
-      () => WalletListViewModel(
-        getIt.get<AppStore>(),
-        getIt.get<WalletLoadingService>(),
-        getIt.get<WalletManager>(),
-      ),
-    );
+    // shared on desktop (Wallets dropdown + Wallets list in settings)
+    getIt.registerLazySingleton<WalletListViewModel>(_buildWalletListViewModel);
   }
 
   getIt.registerFactoryParam<WalletListPage, Function(BuildContext)?, void>(
@@ -857,30 +865,12 @@ Future<void> setup({
             onWalletLoaded: onWalletLoaded as Future<void> Function(BuildContext)?,
           ));
 
-  getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
-    (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
-      walletListViewModel,
-      getIt.get<WalletLoadingService>(),
-      getIt.get<WalletManager>(),
-    ),
-  );
+  getIt.registerFactory<WalletEditBloc>(() => WalletEditBloc(
+    groupService: getIt.get<WalletGroupService>(),
+    walletServiceFactory: (type) => getIt.get<WalletService>(param1: type),
+  ),);
 
-  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
-    return WalletEditPage(
-      pageArguments: WalletEditPageArguments(
-        walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
-        authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(
-          param1: NewWalletArguments(type: arguments.editingWallet.type),
-        ),
-        editingWallet: arguments.editingWallet,
-        isWalletGroup: arguments.isWalletGroup,
-        groupName: arguments.groupName,
-        walletGroupKey: arguments.walletGroupKey,
-      ),
-    );
-  });
-
+  getIt.registerFactory<WalletEditPage>(WalletEditPage.new,);
   getIt.registerFactory<NanoAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
     if (wallet.type == WalletType.nano || wallet.type == WalletType.banano) {
@@ -1020,10 +1010,20 @@ Future<void> setup({
       (CryptoCurrency? cur, _) =>
           ContactListViewModel(_contactSource, walletList, cur, getIt.get<SettingsStore>()));
 
+  getIt.registerFactoryParam<WalletContactsCubit, CryptoCurrency?, void>(
+      (CryptoCurrency? cur, _) => WalletContactsCubit(
+            groupService: getIt.get<WalletGroupService>(),
+            appStore: getIt.get<AppStore>(),
+            currencyFilter: cur,
+            // null EVM proxy = no chain-id filtering
+            chainIdForWalletType: evm?.getChainIdByWalletType,
+          ));
+
   getIt.registerFactoryParam<ContactListPage, CryptoCurrency?, bool?>(
       (CryptoCurrency? cur, bool? showAddContact) => ContactListPage(
             getIt.get<ContactListViewModel>(param1: cur),
             getIt.get<AuthService>(),
+            currency: cur,
             showAddButton: showAddContact ?? true,
           ));
 
@@ -1370,12 +1370,26 @@ Future<void> setup({
     );
   });
 
+  getIt.registerFactoryParam<WalletCreationTypeSelectionPage, NewWalletTypeArguments, void>(
+          (newWalletTypeArguments, _) => WalletCreationTypeSelectionPage(
+          newWalletTypeArguments: newWalletTypeArguments,
+        ),);
+
+  getIt.registerFactory<WalletCreationDetailsPage>(WalletCreationDetailsPage.new);
+
+  getIt.registerFactory<WalletCreationSuccessPage>(WalletCreationSuccessPage.new);
+
+  getIt.registerFactory<WalletCreationOpeningPage>(WalletCreationOpeningPage.new);
+
+
+
   getIt.registerFactoryParam<NewWalletTypePage, NewWalletTypeArguments, void>(
       (newWalletTypeArguments, _) {
     return NewWalletTypePage(
       newWalletTypeArguments: newWalletTypeArguments,
     );
   });
+
 
   getIt.registerFactory<PreSeedPage>(() => PreSeedPage(getIt.get<AppStore>().wallet!));
 
@@ -1636,7 +1650,7 @@ Future<void> setup({
   getIt.registerFactory(() => BridgeViewModel(
         appStore: getIt.get<AppStore>(),
         bridgeTransfersStore: getIt.get<BridgeTransfersStore>(),
-        walletManager: getIt.get<WalletManager>(),
+        walletManager: getIt.get<WalletGroupService>(),
         fiatConversionStore: getIt.get<FiatConversionStore>(),
         settingsStore: getIt.get<SettingsStore>(),
       ));

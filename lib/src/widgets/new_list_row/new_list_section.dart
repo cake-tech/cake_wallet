@@ -1,36 +1,67 @@
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart';
-import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_checkbox_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_dropdown_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_selector_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart';
-import 'package:cake_wallet/src/widgets/new_list_row/list_item_toggle_widget.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_Item_checkbox.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_dropdown.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_expansion_tile.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_text_field.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_checkbox_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_dropdown_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_expansion_tile_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_selector_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_text_field_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_toggle_widget.dart";
+import "package:flutter/material.dart";
+
+class ListSectionHeader extends StatelessWidget {
+  const ListSectionHeader({required this.title, this.leading, super.key});
+
+  final String title;
+  final Widget? leading;
+
+  @override
+  Widget build(BuildContext context) => Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
+        children: [
+          if (leading != null) ExcludeSemantics(child: leading!),
+          Flexible(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      );
+}
 
 class NewListSections extends StatelessWidget {
   const NewListSections(
       {super.key,
-        required this.sections,
-        this.controllers = const {},
-        this.tapHandlers = const {},
-        this.getCheckboxValue,
-        this.updateCheckboxValue,
-        this.showHeader = false});
+      required this.sections,
+      this.controllers = const {},
+      this.tapHandlers = const {},
+      this.headerWidgets = const {},
+      this.getCheckboxValue,
+      this.updateCheckboxValue,
+      this.showHeader = false});
 
   final Map<String, List<ListItem>> sections;
   final Map<String, TextEditingController> controllers;
   final bool Function(String key)? getCheckboxValue;
   final void Function(String key, bool value)? updateCheckboxValue;
   final Map<String, VoidCallback> tapHandlers;
+  final Map<String, Widget> headerWidgets;
   final bool showHeader;
 
-  static const double sectionSpacing = 20.0;
+  static const double sectionSpacing = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -47,26 +78,23 @@ class NewListSections extends StatelessWidget {
   }
 
   Widget _buildSection(String headerText, List<ListItem> items, BuildContext context) {
+    final header = headerWidgets[headerText] ??
+        (headerText.isNotEmpty ? ListSectionHeader(title: headerText) : null);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (showHeader && headerText.isNotEmpty && items.length > 0) ...[
-          Text(
-            headerText,
-            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ),
-          SizedBox(height: 12)
+        if (showHeader && header != null && items.isNotEmpty) ...[
+          header,
+          const SizedBox(height: 12),
         ],
         for (int index = 0; index < items.length; index++)
-          _withSectionFlags(items[index], index, items.length),
+          _withSectionFlags(items[index], index == 0, index == items.length - 1),
       ],
     );
   }
 
-  Widget _withSectionFlags(ListItem item, int index, int length) {
-    final isFirst = index == 0;
-    final isLast = index == length - 1;
-
+  Widget _withSectionFlags(ListItem item, bool isFirst, bool isLast) {
     if (item is ListItemTextField) {
       final controller = controllers[item.keyValue];
 
@@ -94,6 +122,7 @@ class NewListSections extends StatelessWidget {
         keyValue: item.keyValue,
         label: item.label,
         subtitle: item.subtitle,
+        subtitleWidget: item.subtitleWidget,
         trailingText: item.trailingText,
         iconPath: item.iconPath,
         badgeIconPath: item.badgeIconPath,
@@ -110,11 +139,13 @@ class NewListSections extends StatelessWidget {
         copyableText: item.copyableText,
         trailingIconSize: item.trailingIconSize,
         trailingWidget: item.trailingWidget,
+        leadingAccessory: item.leadingAccessory,
         bottomWidget: item.bottomWidget,
         leadingIconErrorWidget: item.leadingIconErrorWidget,
         leadingIconSize: item.leadingIconSize,
         badgeIconSize: item.badgeIconSize,
         iconColor: item.iconColor,
+        isEnabled: item.isEnabled,
       );
     }
 
@@ -176,6 +207,31 @@ class NewListSections extends StatelessWidget {
       );
     }
 
-    return SizedBox.shrink();
+    if (item is ListItemExpansionTile) {
+      return ListItemExpansionTileWidget(
+        keyValue: item.keyValue,
+        label: item.label,
+        subtitle: item.subtitle,
+        trailingText: item.trailingText,
+        iconPath: item.iconPath,
+        foregroundColor: item.foregroundColor,
+        onTap: tapHandlers[item.keyValue] ?? item.onTap,
+        trailingWidget: item.trailingWidget,
+        isExpanded: item.isExpanded,
+        onExpansionChanged: item.onExpansionChanged,
+        isFirstInSection: isFirst,
+        isLastInSection: isLast,
+        children: [
+          for (int i = 0; i < item.children.length; i++)
+            _withSectionFlags(
+              item.children[i],
+              false,
+              isLast && i == item.children.length - 1,
+            ),
+        ],
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }

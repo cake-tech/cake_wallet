@@ -1,13 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:cw_core/amount/money.dart';
-import 'package:path/path.dart' as p;
 import 'package:cw_core/exceptions.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:cw_decred/pending_transaction.dart';
 import 'package:cw_decred/transaction_credentials.dart';
 import 'package:flutter/foundation.dart';
@@ -23,6 +19,7 @@ import 'package:cw_decred/balance.dart';
 import 'package:cw_decred/transaction_info.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_keys_file.dart';
@@ -74,9 +71,9 @@ abstract class DecredWalletBase
   final syncIntervalSynced = 30; // seconds
   static final defaultFeeRate = 10000;
   final String _password;
+  // TODO(wallet-id): libdcrwallet is keyed by walletInfo.name; switch to walletInfo.id (with data migration) before names can repeat.
   final Libwallet _libwallet;
   final Function() _closeLibwallet;
-  final idPrefix = "decred_";
 
   // TODO: Encrypt this.
   var _seed = "";
@@ -124,9 +121,9 @@ abstract class DecredWalletBase
 
   @override
   WalletKeysData get walletKeysData => WalletKeysData(
-        mnemonic: seed,
-        passphrase: passphrase,
-      );
+    mnemonic: seed,
+    passphrase: passphrase,
+  );
 
   @override
   Object get keys => {};
@@ -316,7 +313,7 @@ abstract class DecredWalletBase
       persistantPeer = addr;
       await _libwallet.closeWallet(walletInfo.name);
       final network = isTestnet ? "testnet" : "mainnet";
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: WalletType.decred);
+      final dirPath = await pathForWalletDirOf(walletInfo);
       final config = {
         "name": walletInfo.name,
         "datadir": dirPath,
@@ -460,7 +457,7 @@ abstract class DecredWalletBase
   int calculateEstimatedFee(TransactionPriority priority, int? amount) {
     if (priority is DecredTransactionPriority) {
       final P2PKHOutputSize =
-          36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
+      36; // 8 bytes value + 2 bytes version + at least 1 byte varint script size + P2PKHPkScriptSize
       // MsgTxOverhead is 4 bytes version (lower 2 bytes for the real transaction
       // version and upper 2 bytes for the serialization type) + 4 bytes locktime
       // + 4 bytes expiry + 3 bytes of varints for the number of transaction
@@ -617,43 +614,6 @@ abstract class DecredWalletBase
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => onError;
 
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-
-    final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-
-    if (File(newDirPath).existsSync()) {
-      throw "wallet already exists at $newDirPath";
-    }
-
-    final sourceDir = Directory(currentDirPath);
-    final targetDir = Directory(newDirPath);
-
-    if (!targetDir.existsSync()) {
-      await targetDir.create(recursive: true);
-    }
-
-    await for (final entity in sourceDir.list(recursive: true)) {
-      final relativePath = entity.path.substring(sourceDir.path.length + 1);
-      final targetPath = p.join(targetDir.path, relativePath);
-
-      if (entity is File) {
-        await entity.rename(targetPath);
-      } else if (entity is Directory) {
-        await Directory(targetPath).create(recursive: true);
-      }
-    }
-
-    await sourceDir.delete(recursive: true);
-
-    for (final suffix in const ['.keys', '.keys.backup']) {
-      final file = File(p.join(newDirPath, '${walletInfo.name}$suffix'));
-      if (file.existsSync()) {
-        await file.rename(p.join(newDirPath, '$newWalletName$suffix'));
-      }
-    }
-  }
-
   @override
   Future<String> signMessage(String message, {String? address = null}) async {
     if (watchingOnly) {
@@ -714,11 +674,13 @@ abstract class DecredWalletBase
       return;
     }
 
-    final walletID = idPrefix + walletInfo.name;
+    // walletInfo.id is "decred_<name>" for legacy wallets (same key as the old
+    // idPrefix + name), and the UUID for new wallets, so existing rows still match.
+    final walletID = walletInfo.id;
     if (unspentCoins.isNotEmpty) {
       unspentCoins.forEach((coin) {
         final coinInfoList = this.unspentCoinsInfo.values.where((element) =>
-            element.walletId == walletID && element.hash == coin.hash && element.vout == coin.vout);
+        element.walletId == walletID && element.hash == coin.hash && element.vout == coin.vout);
 
         if (coinInfoList.isEmpty) {
           this.addCoinInfo(coin);
@@ -748,7 +710,7 @@ abstract class DecredWalletBase
 
   void addCoinInfo(Unspent coin) {
     final newInfo = UnspentCoinsInfo(
-      walletId: idPrefix + walletInfo.name,
+      walletId: walletInfo.id,
       hash: coin.hash,
       isFrozen: false,
       isSending: coin.isSending,

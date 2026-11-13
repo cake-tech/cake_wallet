@@ -168,6 +168,7 @@ abstract class ZcashWalletBase
   }
 
   Node? lastNode;
+
   @override
   @action
   Future<void> connectToNode({required final Node node}) async {
@@ -369,9 +370,7 @@ abstract class ZcashWalletBase
           }
           if (height >= lastLoggedHeight + 5000) {
             lastLoggedHeight = height;
-            printV(
-              "[$accountId ($accountList)] [$oneshotSyncCount/$randInt] sync: $height",
-            );
+            printV("[$accountId ($accountList)] [$oneshotSyncCount/$randInt] sync: $height");
             unawaited(
               zkool_network.getCurrentHeight(c: c).then((final tip) {
                 if (tip > chainTip) {
@@ -417,10 +416,11 @@ abstract class ZcashWalletBase
                 unawaited(wallet.updateBalance());
                 unawaited(wallet.updateTransactions());
                 unawaited(
-                  ZcashTaddressRotation.updateCache(mainAccountId: wallet.accountId)
-                      .catchError((final e) {
-                        printV("rotation cache refresh: $e");
-                      }),
+                  ZcashTaddressRotation.updateCache(mainAccountId: wallet.accountId).catchError((
+                    final e,
+                  ) {
+                    printV("rotation cache refresh: $e");
+                  }),
                 );
               }
             });
@@ -509,9 +509,11 @@ abstract class ZcashWalletBase
       );
 
       final isAll = credentials.outputs.fold<bool>(false, (final a, final b) => a || (b.sendAll));
-      final totalAmount = isAll ? availableBalance - txFee : credentials.outputs.map((
-          final output) => output.cryptoAmount).reduce((final a, final b) => a + b);
-
+      final totalAmount = isAll
+          ? availableBalance - txFee
+          : credentials.outputs
+                .map((final output) => output.cryptoAmount)
+                .reduce((final a, final b) => a + b);
 
       if (isHardwareWallet) {
         final unsignedTx = await zkool_pay.packTransaction(pczt: txPlan);
@@ -521,12 +523,12 @@ abstract class ZcashWalletBase
         final signedTx = await zkool_pay.unpackTransaction(bytes: signedTxBytes);
 
         return PendingZcashTransaction(
-            zcashWallet: this as ZcashWallet,
-            amount: totalAmount,
-            txPlan: txPlan,
-            fee: txFee,
-            availableBalance: availableBalance,
-            signedTxPackage: signedTx
+          zcashWallet: this as ZcashWallet,
+          amount: totalAmount,
+          txPlan: txPlan,
+          fee: txFee,
+          availableBalance: availableBalance,
+          signedTxPackage: signedTx,
         );
       }
 
@@ -566,13 +568,12 @@ abstract class ZcashWalletBase
       return false;
     }
     final orchardSpent = tx.orchardSpent;
-    final spentFromOrchard = orchardSpent > BigInt.zero ||
-        tx.spendPools.contains(NotePool.orchard.index);
+    final spentFromOrchard =
+        orchardSpent > BigInt.zero || tx.spendPools.contains(NotePool.orchard.index);
     if (!spentFromOrchard) {
       return false;
     }
-    if (tx.ironwoodReceived > BigInt.zero ||
-        tx.notePools.contains(NotePool.ironwood.index)) {
+    if (tx.ironwoodReceived > BigInt.zero || tx.notePools.contains(NotePool.ironwood.index)) {
       return true;
     }
     // Orchard → Orchard split step (SD notes created, all outputs are ours).
@@ -648,20 +649,16 @@ abstract class ZcashWalletBase
         : 0;
     final memo = extraMemo != null ? "${tx.memo ?? ''}\n$extraMemo".trim() : tx.memo;
     final isMigration = directionOverride == null && _isIronwoodMigrationTx(tx, ownedAddresses);
-    final direction = directionOverride ??
-        (isMigration ? TransactionDirection.outgoing : tx.direction);
-    final amount = amountOverride ??
-        (isMigration ? _migrationDisplayAmount(tx) : tx.value);
+    final direction =
+        directionOverride ?? (isMigration ? TransactionDirection.outgoing : tx.direction);
+    final amount = amountOverride ?? (isMigration ? _migrationDisplayAmount(tx) : tx.value);
     final recipientAddresses = direction == TransactionDirection.outgoing
         ? _outgoingRecipientAddresses(tx, ownedAddresses: ownedAddresses)
         : const <String>[];
     final info = ZcashTransactionInfo(
       id: tx.txHash,
       amount: Money(amount, currency),
-      fee: Money(
-        direction == TransactionDirection.outgoing ? tx.fee : BigInt.zero,
-        currency,
-      ),
+      fee: Money(direction == TransactionDirection.outgoing ? tx.fee : BigInt.zero, currency),
       direction: direction,
       isPending: tx.height == 0,
       date: tx.time,
@@ -808,8 +805,7 @@ abstract class ZcashWalletBase
       return [];
     }
 
-    final transparent =
-        outputs.where((final o) => o.pool == NotePool.transparent.index).toList();
+    final transparent = outputs.where((final o) => o.pool == NotePool.transparent.index).toList();
     if (transparent.length >= 2) {
       outputs = transparent;
     }
@@ -846,7 +842,9 @@ abstract class ZcashWalletBase
         final owned = await _ownedAddressSet(coin, accountId);
         final txsI = await zkool_account.listTxHistory(account: accountId, c: coin);
         final txsA = await Future.wait(
-          txsI.map((final tx) => zkool_account.getTxDetails(idTx: tx.id, account: accountId, c: coin)),
+          txsI.map(
+            (final tx) => zkool_account.getTxDetails(idTx: tx.id, account: accountId, c: coin),
+          ),
         );
         final txs = <ZkoolTx>[];
         for (int i = 0; i < txsI.length; i++) {
@@ -995,50 +993,18 @@ abstract class ZcashWalletBase
   String get password => _password!;
 
   @override
-  Future<void> renameWalletFiles(final String newWalletName) async {
-    await renameWalletFilesForName(fromName: name, toName: newWalletName);
-  }
-
-  static Future<void> renameWalletFilesForName({
-    required final String fromName,
-    required final String toName,
-  }) async {
-    if (fromName == toName) {
-      return;
-    }
-    final currentWalletDir = Directory(await pathForWalletDir(name: fromName, type: _type));
-    if (!currentWalletDir.existsSync()) {
-      throw WalletNotFoundException(name: fromName, type: _type);
-    }
-    final newWalletDirPath = '${await pathForWalletTypeDir(type: _type)}/$toName';
-    if (Directory(newWalletDirPath).existsSync()) {
-      throw BadWalletDataException('Cannot rename wallet: "$toName" already exists');
-    }
-    await currentWalletDir.rename(newWalletDirPath);
-    for (final suffix in const ['', '.v2']) {
-      final oldFile = File('$newWalletDirPath/$fromName$suffix');
-      if (oldFile.existsSync()) {
-        await oldFile.rename('$newWalletDirPath/$toName$suffix');
-      }
-    }
-  }
-
-  @override
   bool get hasRescan => true;
 
   static int? lastKnownRestoreHeight = null;
 
   static int zashiAnnouncedBlockHeight = 2419420;
 
-  Future<int?> getBirthHeight() async =>
-      runWithCoin(
-        accountId: accountId,
-        func: (coin) async =>
-        (await zkool_account.listAccounts(c: coin))
-            .where((final a) => a.id == accountId)
-            .firstOrNull
-            ?.birth,
-      );
+  Future<int?> getBirthHeight() async => runWithCoin(
+    accountId: accountId,
+    func: (coin) async => (await zkool_account.listAccounts(
+      c: coin,
+    )).where((final a) => a.id == accountId).firstOrNull?.birth,
+  );
 
   @override
   @action
@@ -1062,8 +1028,7 @@ abstract class ZcashWalletBase
           );
 
           final accounts = await zkool_account.listAccounts(c: coin);
-          final updated =
-              accounts.where((final a) => a.id == accountId).firstOrNull;
+          final updated = accounts.where((final a) => a.id == accountId).firstOrNull;
           if (updated == null) {
             throw UpdateException('account $accountId not found after update');
           }
@@ -1175,8 +1140,9 @@ abstract class ZcashWalletBase
       await updateBalance();
       await updateTransactions();
       unawaited(
-        ZcashTaddressRotation.updateCache(mainAccountId: accountId)
-            .catchError((final e) => printV("rotation cache refresh: $e")),
+        ZcashTaddressRotation.updateCache(
+          mainAccountId: accountId,
+        ).catchError((final e) => printV("rotation cache refresh: $e")),
       );
       await _initKeys();
     } catch (e) {
@@ -1225,7 +1191,8 @@ abstract class ZcashWalletBase
   static DateTime? _lastIronwoodMigrateAt;
 
   bool _autorunNotReady(DateTime? lastExecution) =>
-      syncStatus is! SyncedSyncStatus || (lastExecution != null &&
+      syncStatus is! SyncedSyncStatus ||
+      (lastExecution != null &&
           lastExecution.isAfter(DateTime.now().subtract(const Duration(seconds: 75))));
 
   Future<void> _autoShield() async {
@@ -1470,8 +1437,9 @@ abstract class ZcashWalletBase
       // Unavailable uses the same per-note totals and thresholds as auto-shield/migration guards.
       final BigInt availableAmount;
       final BigInt unavailableAmount;
-      final sweepableUnavailable =
-          sweepable <= BigInt.from(_autoShieldMinSweep) ? BigInt.zero : sweepable;
+      final sweepableUnavailable = sweepable <= BigInt.from(_autoShieldMinSweep)
+          ? BigInt.zero
+          : sweepable;
       if (ironwoodActive == true && orchard > BigInt.zero) {
         availableAmount = ironwood;
         unavailableAmount = migratableOrchard + sweepableUnavailable;
@@ -1480,11 +1448,10 @@ abstract class ZcashWalletBase
         unavailableAmount = sweepableUnavailable;
       }
 
-      final notShowSweepable = _lastAutoShieldAt?.isAfter(
-          DateTime.now().subtract(const Duration(seconds: 75))) == true;
+      final notShowSweepable =
+          _lastAutoShieldAt?.isAfter(DateTime.now().subtract(const Duration(seconds: 75))) == true;
       runInAction(() {
-        _orchardMigratable =
-            ironwoodActive == true && migratableOrchard > BigInt.zero;
+        _orchardMigratable = ironwoodActive == true && migratableOrchard > BigInt.zero;
         balance[currency] = ZcashBalance(
           Money(availableAmount, currency),
           notShowSweepable ? Money.zero(currency) : Money(unavailableAmount, currency),
@@ -1536,7 +1503,7 @@ abstract class ZcashWalletBase
       passphrase: newWalletCredentials.passphrase,
       birthHeight: birthHeight,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1562,7 +1529,7 @@ abstract class ZcashWalletBase
       passphrase: fromSeedCredentials.passphrase,
       birthHeight: credentials.height!,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1593,7 +1560,7 @@ abstract class ZcashWalletBase
       passphrase: fromKeysCredentials.passphrase,
       birthHeight: credentials.height!,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1604,7 +1571,9 @@ abstract class ZcashWalletBase
     return wallet;
   }
 
-  static Future<ZcashWallet> restoreFromHardwareWallet(ZcashRestoreWalletFromHardware credentials) async {
+  static Future<ZcashWallet> restoreFromHardwareWallet(
+    ZcashRestoreWalletFromHardware credentials,
+  ) async {
     final network = networkForCredentials(credentials);
     await $init(network: network);
     credentials.walletInfo?.network = network.value;
@@ -1634,7 +1603,7 @@ abstract class ZcashWalletBase
       hw: 2,
       aIndex: credentials.accountIndex,
     );
-    await saveAccountId(credentials.name, accountId);
+    await saveAccountId(credentials.walletInfo!, accountId);
     final wallet = await open(
       name: credentials.name,
       password: credentials.password!,
@@ -1657,7 +1626,7 @@ abstract class ZcashWalletBase
     // if (password.isNotEmpty) {
     //   setDbPasswd(coin, password);
     // }
-    final accountId = await getZcashAccountIdForName(name);
+    final accountId = await getZcashAccountIdForName(walletInfo);
     if (accountId == null) {
       throw ZcashAccountException("accountId is null");
     }
@@ -1690,44 +1659,29 @@ abstract class ZcashWalletBase
     return accountId;
   }
 
-  static Future<int?> getLegacyZcashAccountIdForName(final String name) async {
-    final wPath = (await pathForWallet(name: name, type: _type));
-    final f = File(wPath);
-    if (!f.existsSync()) {
-      final accs = await zkool_account.listAccounts(c: c);
-      for (final acc in accs) {
-        if (acc.name == name) {
-          return acc.id;
-        }
-      }
+  static Future<int?> getLegacyZcashAccountIdForName(final WalletInfo walletInfo) =>
+      _readAccountId(walletInfo, suffix: "");
+
+  static Future<int?> getZcashAccountIdForName(final WalletInfo walletInfo) =>
+      _readAccountId(walletInfo, suffix: ".v2");
+
+  static Future<int?> _readAccountId(final WalletInfo walletInfo, {required String suffix}) async {
+    final file = File("${await walletFilePathOf(walletInfo)}$suffix");
+    if (file.existsSync()) {
+      return int.tryParse(file.readAsStringSync().trim());
     }
-    final content = f.readAsStringSync();
-    return int.tryParse(content.trim());
+
+    // No id file. Fall back to the account name only for legacy wallets: their folder and
+    // zkool account were created under that name. UUID wallets always have a .v2 file.
+    if (isUuidWallet(walletInfo)) return null;
+
+    final accounts = await zkool_account.listAccounts(c: c);
+    return accounts.where((a) => a.name == walletInfo.name).firstOrNull?.id;
   }
 
-  static Future<int?> getZcashAccountIdForName(final String name) async {
-    final wPath = (await pathForWallet(name: name, type: _type)) + ".v2";
-    final f = File(wPath);
-    if (!f.existsSync()) {
-      final accs = await zkool_account.listAccounts(c: c);
-      for (final acc in accs) {
-        if (acc.name == name) {
-          return acc.id;
-        }
-      }
-    }
-    final content = f.readAsStringSync();
-    return int.tryParse(content.trim());
-  }
-
-  static Future<void> saveAccountId(final String name, final int accountId) async {
-    final wPath = (await pathForWallet(name: name, type: _type)) + ".v2";
-    final dirName = Directory(wPath).parent.path;
-    if (!Directory(dirName).existsSync()) {
-      Directory(dirName).createSync(recursive: true);
-    }
-    final f = File(wPath);
-    f.writeAsStringSync(accountId.toString());
+  static Future<void> saveAccountId(final WalletInfo walletInfo, final int accountId) async {
+    final wPath = "${await pathForWalletOf(walletInfo)}.v2";
+    File(wPath).writeAsStringSync(accountId.toString());
   }
 
   static WalletType get _type => WalletType.zcash;
@@ -1784,12 +1738,14 @@ abstract class ZcashWalletBase
   static var c = zkool_coin.Coin();
 
   static String? _password;
+
   static Future<void> ensureRustLib() async {
     if (!_rustInitialized) {
       await zkool_frb.RustLib.init();
       _rustInitialized = true;
     }
   }
+
   static Future<void> $init({final ZcashNetwork network = ZcashNetwork.mainnet}) async {
     await ensureRustLib();
     if (_initialized && _activeNetwork == network) {
@@ -1832,22 +1788,21 @@ abstract class ZcashWalletBase
     required final String passphrase,
     final int hw = 0,
     final int aIndex = 0,
-  }) =>
-      zkool_account.newAccount(
-        na: zkool_account.NewAccount(
-          name: name,
-          restore: true,
-          passphrase: passphrase,
-          key: seed,
-          aindex: aIndex,
-          birth: height,
-          folder: '',
-          useInternal: true,
-          internal: false,
-          hw: hw,
-        ),
-        c: c,
-      );
+  }) => zkool_account.newAccount(
+    na: zkool_account.NewAccount(
+      name: name,
+      restore: true,
+      passphrase: passphrase,
+      key: seed,
+      aindex: aIndex,
+      birth: height,
+      folder: '',
+      useInternal: true,
+      internal: false,
+      hw: hw,
+    ),
+    c: c,
+  );
 
   static final runWithCoinMutex = Mutex();
   static int runWithCoinCount = 0;

@@ -3,6 +3,8 @@ import "package:cw_core/wallet_type.dart";
 class PreferencesKey {
   static const currentWalletType = 'current_wallet_type';
   static const currentWalletName = 'current_wallet_name';
+  // TODO(serhii): implement use of currentWalletId along with currentWalletName and currentWalletType to identify the current wallet
+  static const currentWalletId = "current_wallet_id";
   static const accountsHomePromoDismissed = 'accounts_home_promo_dismissed';
   static String educationDismissed(String educationId) => "education_dismissed_$educationId";
   static const currentNodeIdKey = 'current_node_id';

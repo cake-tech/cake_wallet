@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/wallet_group_migration.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
@@ -28,6 +29,7 @@ import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_backup/backup.dart' as cake_backup;
+import 'package:uuid/uuid.dart';
 
 
 class BackupServiceException extends CakeException {
@@ -93,6 +95,13 @@ class $BackupService {
     await verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
     await importPreferencesDump();
+
+    // Backups made before wallet groups get them the same way as an app upgrade.
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
   }
 
   // checked with .endsWith - so this should be the last part of the filename
@@ -141,6 +150,13 @@ class $BackupService {
     await importKeychainDumpV2(password);
     await importPreferencesDump();
     await importTransactionDescriptionDump(); // HiveError: Box has already been closed
+
+    // Backups made before wallet groups get them the same way as an app upgrade.
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
   }
 
   Future<void> verifyWallets() async {
@@ -307,8 +323,10 @@ class $BackupService {
   Future<void> importWalletKeychainInfo(Map<String, dynamic> info) async {
     final name = info['name'] as String;
     final password = info['password'] as String;
+    final id = info['id'] as String?;
+    final key = (id != null && Uuid.isValidUUID(fromString: id)) ? id : name;
 
-    await keyService.saveWalletPassword(walletName: name, password: password);
+    await keyService.saveWalletPassword(walletName: key, password: password);
   }
 
   Future<Uint8List> exportKeychainDumpV2(String password,
@@ -317,13 +335,15 @@ class $BackupService {
     final wallets = await Future.wait((await WalletInfo.getAll()).map((walletInfo) async {
       try {
         return {
+          'id': walletInfo.id,
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
-          'password': await keyService.getWalletPassword(walletName: walletInfo.name),
+          'password': await keyService.getWalletPasswordForWallet(walletInfo),
           'hardwareWalletType': walletInfo.hardwareWalletType?.index,
         };
       } catch (e) {
         return {
+          'id': walletInfo.id,
           'name': walletInfo.name,
           'type': walletInfo.type.toString(),
           'password': '',

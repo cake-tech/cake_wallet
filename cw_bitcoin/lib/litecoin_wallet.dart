@@ -248,15 +248,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
 
     ElectrumWalletSnapshot? snp = null;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
         encryptionFileUtils,
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         LitecoinNetwork.mainnet,
       );
@@ -271,8 +270,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );
@@ -496,31 +494,12 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> initMwebUtxosBox() async {
+    // TODO(wallet-id): MWEB box is keyed by wallet name; move to walletInfo.id (with box migration) before names can repeat.
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
 
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
-  static Future<void> copyMwebBox({
-    required String fromName,
-    required String toName,
-  }) async {
-    final oldBoxName = "${fromName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-    final newBoxName = "${toName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-    if (oldBoxName == newBoxName) return;
-
-    final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
-    final newBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
-    for (final key in oldBox.keys) {
-      await newBox.put(key, oldBox.get(key)!);
-    }
-  }
-
-  static Future<void> deleteMwebBox(String name) async {
-    final boxName = "${name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
-    final box = await CakeHive.openBox<MwebUtxo>(boxName);
-    await box.deleteFromDisk();
-  }
 
   @action
   @override

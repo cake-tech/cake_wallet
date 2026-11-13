@@ -1,69 +1,55 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_svg/svg.dart';
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 
 class ChainIcon extends StatelessWidget {
-  const ChainIcon(
-      {super.key,
-      required this.iconPath,
-      required this.dashboardViewModel,
-      required this.isSyncHeavy,
-      required this.showSyncedMessage});
+  const ChainIcon({
+    required this.iconPath, required this.openChainSelection, super.key,
+  });
+
+  static const _containerRadius = 12.0;
+  static const _iconRadius = 8.0;
 
   final String iconPath;
-  final bool isSyncHeavy;
-  final DashboardViewModel dashboardViewModel;
-  final bool showSyncedMessage;
+  final VoidCallback openChainSelection;
 
   @override
-  Widget build(BuildContext context) {
-    return Observer(
-      builder: (_) {
-        final progress = dashboardViewModel.status.progress();
-        final done = !showSyncedMessage && (!isSyncHeavy || progress >= 1);
-
-        return Stack(
-          children: [
-            AnimatedOpacity(
-              duration: Duration(milliseconds: 100),
-              opacity: done ? 0 : 1,
-              // Faded out means "nothing to report", so it must leave the tree too.
-              child: ExcludeSemantics(
-                excluding: done || showSyncedMessage,
-                child: CircularProgressIndicator(
-                  value: progress,
-                  color: showSyncedMessage ? Color(0xFFFF12A439) : Color(0xFFFFB84E),
-                  strokeWidth: 2,
-                  semanticsLabel: S.of(context).synchronizing,
-                  semanticsValue: "${(progress * 100).round()}%",
-                ),
-              ),
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(_containerRadius),
+          onTap: () {
+            HapticFeedback.mediumImpact();
+            openChainSelection();
+          },
+          child: Container(
+            height: 36,
+            padding: const EdgeInsets.only(left: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(_containerRadius),
+              color: Theme.of(context).colorScheme.surfaceContainerLowest,
             ),
-            AnimatedScale(
-              duration: Duration(milliseconds: 150),
-              scale: done ? 1 : 0.8,
-              child: AnimatedSwitcher(
-                duration: Duration(milliseconds: 150),
-                child: CakeImageWidget(
-                  imageUrl: iconPath,
-                  key: ValueKey(progress >= 1),
-                  width: 36,
-                  height: 36,
-                  colorFilter: ColorFilter.mode(
-                    done
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
-                        : Theme.of(context).colorScheme.primary,
-                    BlendMode.srcIn,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(_iconRadius),
+                  child: CakeImageWidget(
+                    imageUrl: iconPath,
+                    width: 28,
+                    height: 28,
                   ),
                 ),
-              ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 6),
+              ],
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ),
+      );
 }

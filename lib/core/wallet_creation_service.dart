@@ -1,6 +1,9 @@
+import "dart:io";
+
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/pathForWallet.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,11 +18,15 @@ import 'package:cw_core/wallet_type.dart';
 class WalletCreationService {
   WalletCreationService(
       {required WalletType initialType,
-      required this.keyService,
-      required this.sharedPreferences,
-      required this.settingsStore})
+        required this.keyService,
+        required this.sharedPreferences,
+        required this.settingsStore})
       : type = initialType {
-    changeWalletType(type: type);
+    if (initialType != WalletType.none) {
+      changeWalletType(type: initialType);
+    } else {
+      _service = null;
+    }
   }
 
   WalletType type;
@@ -32,6 +39,12 @@ class WalletCreationService {
 
   void changeWalletType({required WalletType type}) {
     this.type = type;
+
+    if (type == WalletType.none) {
+      _service = null;
+      return;
+    }
+
     _service = getIt.get<WalletService>(param1: type);
   }
 
@@ -52,18 +65,18 @@ class WalletCreationService {
   }
 
   Future<WalletBase> create(WalletCredentials credentials, {bool? isTestnet}) async {
-    await checkIfExists(credentials.name);
+    _ensureServiceAvailable();
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
     }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, credentials.password!);
 
     if (_hasSeedPhraseLengthOption) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
-    final wallet = await _service!.create(credentials, isTestnet: isTestnet);
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.create(credentials, isTestnet: isTestnet));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -102,15 +115,16 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials, {bool? isTestnet}) async {
+    _ensureServiceAvailable();
     await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
     }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, credentials.password!);
 
-    final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.restoreFromKeys(credentials, isTestnet: isTestnet));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -121,15 +135,16 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials, {bool? isTestnet}) async {
+    _ensureServiceAvailable();
     await checkIfExists(credentials.name);
 
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
     }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, credentials.password!);
 
-    final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.restoreFromSeed(credentials, isTestnet: isTestnet));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -139,12 +154,16 @@ class WalletCreationService {
     return wallet;
   }
 
+
   Future<WalletBase> restoreFromHardwareWallet(WalletCredentials credentials) async {
+    _ensureServiceAvailable();
     await checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.restoreFromHardwareWallet(credentials);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, password);
+
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.restoreFromHardwareWallet(credentials));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -152,5 +171,27 @@ class WalletCreationService {
     }
 
     return wallet;
+  }
+
+  void _ensureServiceAvailable() {
+    if (_service == null || type == WalletType.none) {
+      throw Exception('Wallet type is not set for WalletCreationService');
+    }
+  }
+
+  Future<WalletBase> _discardOnFailure(
+      WalletInfo walletInfo, Future<WalletBase> Function() run) async {
+    try {
+      return await run();
+    } catch (_) {
+      if (isUuidWallet(walletInfo)) {
+        try {
+          final dir = Directory(await walletDirPathOf(walletInfo));
+          if (dir.existsSync()) await dir.delete(recursive: true);
+          await keyService.deleteWalletPasswordForWallet(walletInfo);
+        } catch (_) {}
+      }
+      rethrow;
+    }
   }
 }
