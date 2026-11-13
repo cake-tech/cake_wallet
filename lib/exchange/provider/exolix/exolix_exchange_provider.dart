@@ -103,7 +103,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
       networkFrom: _networkFor(request.depositCurrency),
       networkTo: _networkFor(request.payoutCurrency),
       rateType: ExolixRateType.float,
-      amount: request.depositAmount.toString(),
+      amount: (request as FloatingRateRequest).depositAmount.toString(),
       apiToken: apiKey,
     );
 

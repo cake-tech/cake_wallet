@@ -14,7 +14,7 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
-class ChainflipExchangeProvider extends ExchangeProvider {
+class ChainflipExchangeProvider extends LimitsCacheExchangeProvider {
   ChainflipExchangeProvider({super.proxyWrapper});
 
   static final List<CryptoCurrency> _supported = [
@@ -98,7 +98,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         request.depositAmount,
         Money(bestQuote.egressAmountNative, request.payoutCurrency),
       ),
-      limits: await fetchLimits(
+      limits: await getLimits(
         from: request.depositCurrency,
         to: request.payoutCurrency,
         isFixedRateMode: false,

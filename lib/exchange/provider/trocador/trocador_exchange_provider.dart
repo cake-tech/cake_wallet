@@ -15,7 +15,7 @@ import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
-class TrocadorExchangeProvider extends ExchangeProvider {
+class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
   TrocadorExchangeProvider({
     this.useTorOnly = false,
     this.providerStates = const {},
@@ -67,10 +67,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     },
   );
 
-  static const _limitsLifetime = Duration(minutes: 10);
   static const _quoteLifetime = Duration(seconds: 30);
-
-  final Map<CryptoCurrency, (ExchangeLimits, DateTime)> _limits = {};
 
   ({RateRequest request, TrocadorRate rate, List<TrocadorQuote> quotes, DateTime fetchedAt})?
   _lastQuotes;
@@ -90,23 +87,16 @@ class TrocadorExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
-    if (_limits[from] case (final limits, final fetchedAt)
-        when DateTime.now().difference(fetchedAt) < _limitsLifetime) {
-      return limits;
-    }
-
     final coins = await _api.send(
       TrocadorCoinRequest(ticker: _normalizeCurrency(from), name: from.name),
     );
 
     final coinJson = coins.first;
 
-    final limits = ExchangeLimits(
+    return ExchangeLimits(
       min: Money.trySafeParse(coinJson.minimum, from),
       max: Money.trySafeParse(coinJson.maximum, from),
     );
-    _limits[from] = (limits, DateTime.now());
-    return limits;
   }
 
   @override
@@ -120,7 +110,7 @@ class TrocadorExchangeProvider extends ExchangeProvider {
         Money.safeParse(quotes.first.amountFrom ?? rate.amountFrom, request.depositCurrency),
         Money.safeParse(quotes.first.amountTo ?? rate.amountTo, request.payoutCurrency),
       ),
-      limits: await fetchLimits(
+      limits: await getLimits(
         from: request.depositCurrency,
         to: request.payoutCurrency,
         isFixedRateMode: request is FixedRateRequest,

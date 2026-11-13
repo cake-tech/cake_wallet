@@ -14,7 +14,7 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
-class StealthExExchangeProvider extends ExchangeProvider {
+class StealthExExchangeProvider extends LimitsCacheExchangeProvider {
   StealthExExchangeProvider({super.proxyWrapper});
 
   static const apiKey = secrets.stealthExBearerToken;
@@ -80,7 +80,7 @@ class StealthExExchangeProvider extends ExchangeProvider {
     return ProviderRate(provider: description,
         rate: ExchangeRate.fromAmounts(
             request.depositAmount, Money.safeParse(response.estimatedAmount, request.payoutCurrency)),
-        limits: await fetchLimits(
+        limits: await getLimits(
             from: request.depositCurrency, to: request.payoutCurrency, isFixedRateMode: false));
   }
 

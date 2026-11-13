@@ -21,7 +21,7 @@ import "package:cw_core/amount/money.dart";
 import "package:cw_core/amount/money_double.dart";
 import "package:cw_core/crypto_currency.dart";
 
-class ChangeNowExchangeProvider extends ExchangeProvider {
+class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
   ChangeNowExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper})
     : _settingsStore = settingsStore,
       _lastUsedRateId = "";
@@ -111,7 +111,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         responseData.fromAmount.toMoney(request.depositCurrency),
         responseData.toAmount.toMoney(request.payoutCurrency),
       ),
-      limits: await fetchLimits(
+      limits: await getLimits(
         from: request.depositCurrency,
         to: request.payoutCurrency,
         isFixedRateMode: request is FixedRateRequest,

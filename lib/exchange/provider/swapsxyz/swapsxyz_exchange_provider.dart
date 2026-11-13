@@ -62,7 +62,7 @@ class SwapsXyzTrade extends RoutableTrade {
   final bool requiresTokenApproval;
 }
 
-class SwapsXyzExchangeProvider extends ExchangeProvider
+class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     implements TransactionCreationExchangeProvider, TransactionRegistrationExchangeProvider {
   SwapsXyzExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper})
     : _settingsStore = settingsStore;
@@ -263,7 +263,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         Money(data.amountIn.amount, request.depositCurrency),
         Money(data.amountOut.amount, request.payoutCurrency),
       ),
-      limits: await fetchLimits(
+      limits: await getLimits(
         from: request.depositCurrency,
         to: request.payoutCurrency,
         isFixedRateMode: request is FixedRateRequest,
