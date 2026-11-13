@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -32,6 +33,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.usdtArb,
     CryptoCurrency.trx,
     CryptoCurrency.usdttrc20,
+    CryptoCurrency.cbbtc,
+    CryptoCurrency.bnb,
+    CryptoCurrency.usdtbsc,
   ];
 
   static const _baseURL = 'chainflip-broker.io';
@@ -112,7 +116,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'apiKey': _affiliateKey,
         'sourceAsset': _normalizeCurrency(from),
         'destinationAsset': _normalizeCurrency(to),
-        'amount': _amountToNative(amount, from),
+        'amount': _amountToNative(_amountString(amount, from), from),
         'commissionBps': _affiliateBps
       };
 
@@ -172,7 +176,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'apiKey': _affiliateKey,
         'sourceAsset': _normalizeCurrency(request.fromCurrency),
         'destinationAsset': _normalizeCurrency(request.toCurrency),
-        'amount': _amountToNative(double.parse(request.fromAmount), request.fromCurrency),
+        'amount': _amountToNative(request.fromAmount, request.fromCurrency),
         'commissionBps': _affiliateBps
       };
 
@@ -351,21 +355,32 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       'usdt.eth' => CryptoCurrency.usdterc20,
       'flip.eth' => CryptoCurrency.flip,
       'wbtc.eth' => CryptoCurrency.wbtc,
+      'cbbtc.eth' => CryptoCurrency.cbbtc,
       'sol.sol' => CryptoCurrency.sol,
       'usdc.sol' => CryptoCurrency.usdcsol,
+      'usdt.sol' => CryptoCurrency.usdtSol,
       'eth.arb' => CryptoCurrency.arbEth,
       'usdc.arb' => CryptoCurrency.usdcArb,
       'usdt.arb' => CryptoCurrency.usdtArb,
       'trx.tron' => CryptoCurrency.trx,
       'usdt.tron' => CryptoCurrency.usdttrc20,
+      'bnb.bsc' => CryptoCurrency.bnb,
+      'usdt.bsc' => CryptoCurrency.usdtbsc,
       _ => null
     };
 
     return currency;
   }
 
-  String _amountToNative(double amount, CryptoCurrency currency) =>
-      (amount * pow(10, currency.decimals)).toInt().toString();
+  String _amountToNative(String amount, CryptoCurrency currency) =>
+      AmountConverter.toBaseUnits(amount, currency.decimals);
+
+  String _amountString(double amount, CryptoCurrency currency) {
+    final text = amount.toString();
+    return text.contains('e') || text.contains('E')
+        ? amount.toStringAsFixed(currency.decimals)
+        : text;
+  }
 
   double _amountFromNative(String amount, CryptoCurrency currency) =>
       double.parse(amount) / pow(10, currency.decimals);
