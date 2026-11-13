@@ -27,7 +27,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
   static const ratePath = "/api/v2/rate";
 
   @override
-  bool get supportsFixedRate => true;
+  bool get supportsFixedRate => false;
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.exolix;
@@ -96,9 +96,6 @@ class ExolixExchangeProvider extends ExchangeProvider {
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
-    if (request is! FloatingRateRequest) {
-      throw Exception("fixed rate unsupported");
-    }
 
     final params = ExolixRateRequest(
       coinFrom: _normalizeCurrency(_overrideFromCryptoCurrency(request.depositCurrency)),

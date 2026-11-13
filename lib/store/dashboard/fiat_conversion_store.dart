@@ -20,7 +20,6 @@ abstract class FiatConversionStoreBase with Store {
   @observable
   ObservableMap<CryptoCurrency, double> prices;
 
-  // TODO refactor after charts is merged
   Future<Money> convert(Money amount, Currency target) async {
     final (crypto, fiat) = switch ((amount.currency, target)) {
       (final CryptoCurrency crypto, final FiatCurrency fiat) => (crypto, fiat),

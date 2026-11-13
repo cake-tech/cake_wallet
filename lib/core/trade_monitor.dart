@@ -35,33 +35,26 @@ class TradeMonitor {
   final Map<String, Timer> _tradeTimers = {};
   final SharedPreferences preferences;
 
-  ExchangeProvider? _getProviderByDescription(ExchangeProviderDescription description) {
-    switch (description) {
-      case ExchangeProviderDescription.changeNow:
-        return ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
-      case ExchangeProviderDescription.trocador:
-        return TrocadorExchangeProvider();
-      case ExchangeProviderDescription.exolix:
-        return ExolixExchangeProvider();
-      case ExchangeProviderDescription.swapTrade:
-        return SwapTradeExchangeProvider();
-      case ExchangeProviderDescription.whyNot:
-        return WhyNotExchangeProvider();
-      case ExchangeProviderDescription.stealthEx:
-        return StealthExExchangeProvider();
-      case ExchangeProviderDescription.chainflip:
-        return ChainflipExchangeProvider();
-      case ExchangeProviderDescription.xoSwap:
-        return XOSwapExchangeProvider();
-      case ExchangeProviderDescription.jupiter:
-        return JupiterExchangeProvider();
-      case ExchangeProviderDescription.nearIntents:
-        return NearIntentsExchangeProvider();
-      case ExchangeProviderDescription.swapsXyz:
-        return SwapsXyzExchangeProvider(settingsStore: appStore.settingsStore);
-    }
-    return null;
-  }
+  ExchangeProvider? _getProviderByDescription(ExchangeProviderDescription description) =>
+      switch (description) {
+            .changeNow =>
+            ChangeNowExchangeProvider(settingsStore: appStore.settingsStore),
+            .trocador => TrocadorExchangeProvider(),
+            .exolix => ExolixExchangeProvider(),
+            .swapTrade => SwapTradeExchangeProvider(),
+            .whyNot => WhyNotExchangeProvider(),
+            .stealthEx => StealthExExchangeProvider(),
+            .chainflip => ChainflipExchangeProvider(),
+            .xoSwap => XOSwapExchangeProvider(),
+            .jupiter => JupiterExchangeProvider(),
+            .nearIntents => NearIntentsExchangeProvider(),
+            .swapsXyz =>
+            SwapsXyzExchangeProvider(settingsStore: appStore.settingsStore),
+            .xmrto ||
+            .morphToken || .sideShift ||
+            .simpleSwap || .all ||
+            .thorChain => null
+      };
 
   void monitorActiveTrades(String walletId) {
     // Checks if the trade monitoring is permitted

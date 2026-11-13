@@ -13,11 +13,11 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
     try {
       final depositMoney = Money.safeParse(
         row["amount"] as String? ?? "0",
-        _reconstructCurrency(row, "from"),
+        _reconstructCurrency(row, .from),
       );
       final payoutMoney = Money.safeParse(
         row["receiveAmount"] as String? ?? "0",
-        _reconstructCurrency(row, "to"),
+        _reconstructCurrency(row, .to),
       );
 
       final newRow = {
@@ -50,8 +50,15 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
   }
 }
 
-CryptoCurrency _reconstructCurrency(Map<String, dynamic> row, String prefix) {
-  final title = row["${prefix}Title"] as String;
+enum _direction {to, from}
+
+CryptoCurrency _reconstructCurrency(Map<String, dynamic> row, _direction dir) {
+  final prefix = switch(dir) {
+        .to => "to",
+        .from => "from"
+  };
+
+  final title = row["${prefix}Title"] as String?;
 
   final tag = row["${prefix}Tag"] as String?;
 
@@ -59,7 +66,7 @@ CryptoCurrency _reconstructCurrency(Map<String, dynamic> row, String prefix) {
   if (live != null) return live;
 
   return CryptoCurrency(
-    title: title,
+    title: title ?? "",
     name: row["${prefix}Name"] as String? ?? "",
     tag: tag,
     fullName: row["${prefix}FullName"] as String?,

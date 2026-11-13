@@ -277,6 +277,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     _ => tag.toLowerCase(),
   };
 
+  String _symbolFor(CryptoCurrency currency) =>
+      switch(currency) {
+        CryptoCurrency.usdtArb => "USDT0",
+        _ => currency.title.toUpperCase()
+      };
+
 
   NearIntentsToken? currencyToNearAssetId(
     CryptoCurrency currency,
@@ -287,7 +293,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     }
 
     // TODO(malik): check with original integration author if this fix makes sense
-    final symbol = currency.title.toUpperCase();
+    final symbol = _symbolFor(currency);
     final blockchain = _normalizeTagToNearBlockchain(currency.tag ?? currency.title);
 
     // Use the native Bitcoin asset routed through Omni Bridge.

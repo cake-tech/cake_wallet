@@ -133,13 +133,6 @@ class SwapOptionsPage extends StatelessWidget {
 
                           })
                     ],
-                    //FIXME(malik): remove this after tests
-                    "test": [
-                      ListItemRegularRow(keyValue: "send logs", label: "Send logs", onTap: (){
-                        final logs = ExchangeProviderLogger.getLogsAsText();
-                        ShareUtil.share(text: logs, context: context);
-                      })
-                    ],
                   })
             ],
           ),

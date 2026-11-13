@@ -47,6 +47,10 @@ class SwapAddressResolver {
 
   // HACK: not much more we can do here with the way we fetch the wallet list
   Future<String> _addressFromWalletInfo(WalletInfo wi, CryptoCurrency curr) async {
+    if (wi.internalId == _appStore.wallet!.walletInfo.internalId) {
+      return _appStore.wallet!.walletAddresses.addressForExchange;
+    }
+
     if (wi.type == .bitcoin) {
       final _walletAddresses = await wi.getAddresses();
       if (curr == CryptoCurrency.btcln) {
@@ -68,9 +72,6 @@ class SwapAddressResolver {
     }
 
     if (wi.type == .zcash && curr == CryptoCurrency.zec) {
-      if (wi.internalId == _appStore.wallet!.walletInfo.internalId) {
-        return _appStore.wallet!.walletAddresses.addressForExchange;
-      }
 
       return (await wi.getAddresses()).entries
               .firstWhereOrNull((e) => e.value == "transparent")

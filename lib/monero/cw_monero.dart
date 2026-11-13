@@ -401,7 +401,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  List<Unspent> getUnspents(Object wallet) {
+  List<MoneroUnspent> getUnspents(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.unspentCoins;
   }
@@ -508,7 +508,7 @@ class CWMonero extends Monero {
         continue;
       }
       seen.add(item.toString());
-      if (item.isFrozen || !item.isSending) {
+      if (item.isFrozen || !item.isSending || !item.isUnlocked) {
         continue;
       }
       total += Money.fromInt(item.value, CryptoCurrency.xmr);
