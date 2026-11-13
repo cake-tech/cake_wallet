@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -8,6 +9,7 @@ class FloatingIconButton extends StatelessWidget {
     required this.iconPath,
     required this.onPressed,
     required this.semanticLabel,
+    this.testId,
   });
 
   final String iconPath;
@@ -16,11 +18,13 @@ class FloatingIconButton extends StatelessWidget {
   /// Localized accessible name for this icon-only button. The icon itself stays
   /// decorative, so this is the only name a screen reader can announce.
   final String semanticLabel;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
     return MergeSemantics(
       child: Semantics(
+        identifier: testId ?? TestId.fromKey(key),
         label: semanticLabel,
         button: true,
         enabled: true,

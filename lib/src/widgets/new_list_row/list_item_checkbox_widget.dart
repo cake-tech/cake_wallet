@@ -18,6 +18,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
     this.subtitle,
     this.iconPath,
     this.showArrow = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -31,6 +32,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemCheckboxWidget> createState() => _ListItemCheckboxWidgetState();
@@ -40,6 +42,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
     return ListItemStyleWrapper(
+      testId: widget.testId,
       iconPath: widget.iconPath,
       onTap: widget.onTap ??
           () {

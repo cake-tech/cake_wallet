@@ -5,6 +5,7 @@ class ListItemToggle extends ListItem {
   const ListItemToggle({
     required super.keyValue,
     required super.label,
+    super.testId,
     this.subtitle,
     this.iconPath,
     required this.value,

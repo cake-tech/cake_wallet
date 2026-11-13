@@ -1,6 +1,7 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +15,7 @@ class CurrencyPickerRow extends StatelessWidget {
     this.subtitle,
     this.chainPillLabel,
     this.chainBadgePath,
+    this.testId,
   });
 
   final CryptoCurrency currency;
@@ -23,12 +25,14 @@ class CurrencyPickerRow extends StatelessWidget {
   final String? subtitle;
   final String? chainPillLabel;
   final String? chainBadgePath;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return MergeSemantics(
       child: Semantics(
+        identifier: testId ?? TestId.fromKey(key),
         button: true,
         selected: isSelected,
         child: InkWell(
