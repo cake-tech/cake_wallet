@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart' show OPTIONAL_BITCOIN_ADDRESS_TYPES;
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -27,6 +28,7 @@ class ElectrumWalletSnapshot {
     required this.mwebAddresses,
     required this.alwaysScan,
     required this.useLightning,
+    required this.enabledOptionalAddressTypes,
     this.cachedLightningAddress,
     this.passphrase,
     this.derivationType,
@@ -54,6 +56,8 @@ class ElectrumWalletSnapshot {
   bool alwaysScan;
   bool useLightning;
   String? cachedLightningAddress;
+
+  Set<BitcoinAddressType> enabledOptionalAddressTypes;
 
   ElectrumBalance balance;
   ElectrumBalance? lightningBalance;
@@ -93,6 +97,21 @@ class ElectrumWalletSnapshot {
     final alwaysScan = data['alwaysScan'] as bool? ?? false;
     final useLightning = data['useLightning'] as bool? ?? true;
     final cachedLightningAddress = data['cachedLightningAddress'] as String?;
+    final storedEnabledTypes = data['enabled_optional_address_types'] as List?;
+
+    // Wallets saved before the toggles existed (and their backups) have no stored selection.
+    // Keep every optional type that already received funds enabled, so balance, history and
+    // spendable coins don't change on update; unused types stay off.
+    final Set<BitcoinAddressType> enabledOptionalAddressTypes = storedEnabledTypes != null
+        ? storedEnabledTypes.whereType<String>().map(BitcoinAddressType.fromValue).toSet()
+        : addresses
+            .where(
+              (a) =>
+                  OPTIONAL_BITCOIN_ADDRESS_TYPES.contains(a.type) &&
+                  (a.isUsed || a.txCount > 0 || a.balance > 0),
+            )
+            .map((a) => a.type)
+            .toSet();
 
     final currency = walletTypeToCryptoCurrency(type);
     final balance = ElectrumBalance.fromJSON(data['balance'] as String?, currency) ??
@@ -149,6 +168,7 @@ class ElectrumWalletSnapshot {
       alwaysScan: alwaysScan,
       useLightning: useLightning,
       cachedLightningAddress: cachedLightningAddress,
+      enabledOptionalAddressTypes: enabledOptionalAddressTypes,
     );
   }
 }

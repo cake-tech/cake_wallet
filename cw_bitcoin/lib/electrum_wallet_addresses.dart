@@ -38,6 +38,21 @@ const List<BitcoinAddressType> BITCOIN_ADDRESS_TYPES = [
   P2shAddressType.p2wpkhInP2sh,
 ];
 
+const List<BitcoinAddressType> OPTIONAL_BITCOIN_ADDRESS_TYPES = [
+  P2pkhAddressType.p2pkh,
+  SegwitAddresType.p2wsh,
+  P2shAddressType.p2wpkhInP2sh,
+];
+
+bool isAddressTypeEnabledFor(
+  WalletType walletType,
+  BitcoinAddressType type, {
+  required Set<BitcoinAddressType> enabledOptionalAddressTypes,
+}) =>
+    walletType != WalletType.bitcoin ||
+    !OPTIONAL_BITCOIN_ADDRESS_TYPES.contains(type) ||
+    enabledOptionalAddressTypes.contains(type);
+
 const List<BitcoinAddressType> LEGACY_DUPLICATE_ADDRESS_TYPES = [
   SegwitAddresType.p2wpkh,
   SegwitAddresType.p2wsh,
@@ -92,8 +107,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialMwebAddresses,
     Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
+    Set<BitcoinAddressType>? enabledOptionalAddressTypes,
     this.lightningWallet,
-  })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
+  })  : enabledOptionalAddressTypes = enabledOptionalAddressTypes ?? {},
+        _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
             ObservableList<BaseBitcoinAddressRecord>.of((<BitcoinAddressRecord>[]).toSet()),
         receiveAddresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? [])
@@ -186,6 +203,20 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final Bip32Slip10Secp256k1 legacySideHd;
   final bool isHardwareWallet;
   LightningWallet? lightningWallet;
+
+  final Set<BitcoinAddressType> enabledOptionalAddressTypes;
+
+  bool isAddressTypeEnabled(BitcoinAddressType type) => isAddressTypeEnabledFor(
+        walletInfo.type,
+        type,
+        enabledOptionalAddressTypes: enabledOptionalAddressTypes,
+      );
+
+  List<BitcoinAddressType> get enabledBitcoinAddressTypes =>
+      BITCOIN_ADDRESS_TYPES.where(isAddressTypeEnabled).toList();
+
+  List<BitcoinAddressRecord> get activeAddresses =>
+      _addresses.where((addressRecord) => isAddressTypeEnabled(addressRecord.type)).toList();
 
   @observable
   ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
@@ -428,10 +459,9 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       await _generateInitialAddresses(type: P2pkhAddressType.p2pkh);
     } else if (walletInfo.type == WalletType.bitcoin) {
       for (final accountIndex in effectiveAccountIndexes) {
-
         await prepareAccountAddresses(
           accountIndex,
-          types: accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES,
+          types: accountIndex == 0 ? enabledBitcoinAddressTypes : EXTRA_ACCOUNT_ADDRESS_TYPES,
           includeLegacy: accountIndex == 0,
         );
       }
@@ -517,7 +547,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     for (final type in types) {
       final shouldSkipHardwareWalletType = isHardwareWallet && type != SegwitAddresType.p2wpkh;
 
-      if (shouldSkipHardwareWalletType) continue;
+      if (shouldSkipHardwareWalletType || !isAddressTypeEnabled(type)) continue;
 
       await _generateInitialAddresses(accountIndex: accountIndex, type: type);
 
@@ -610,7 +640,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   void addBitcoinAddressTypes(String activeAddress) {
     final lastP2wpkh = _addresses
         .where((addressRecord) =>
-        _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
+            _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wpkh))
         .lastOrNull;
     if (lastP2wpkh != null) {
       if (lastP2wpkh.address != activeAddress) {
@@ -621,7 +651,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final lastP2pkh = _addresses.firstWhereOrNull(
-            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, P2pkhAddressType.p2pkh));
     if (lastP2pkh != null) {
       if (lastP2pkh.address != activeAddress) {
         addressesMap[lastP2pkh.address] = 'P2PKH';
@@ -641,7 +671,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final lastP2tr = _addresses.firstWhereOrNull(
-            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2tr));
     if (lastP2tr != null) {
       if (lastP2tr.address != activeAddress) {
         addressesMap[lastP2tr.address] = 'P2TR';
@@ -651,7 +681,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     }
 
     final lastP2wsh = _addresses.firstWhereOrNull(
-            (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
+        (addressRecord) => _isUnusedReceiveAddressByType(addressRecord, SegwitAddresType.p2wsh));
     if (lastP2wsh != null) {
       if (lastP2wsh.address != activeAddress) {
         addressesMap[lastP2wsh.address] = 'P2WSH';
@@ -805,6 +835,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     receiveAddresses.removeRange(0, receiveAddresses.length);
     final newAddresses = _addresses.where((addressRecord) =>
         _isCurrentAccountAddress(addressRecord) &&
+        isAddressTypeEnabled(addressRecord.type) &&
         !addressRecord.isHidden &&
         !addressRecord.isUsed);
     receiveAddresses.addAll(newAddresses);
@@ -1070,7 +1101,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   @action
   Future<void> setAddressType(BitcoinAddressType type) async {
-
     final needsAccountScopedHd =
         type is! LightningAddressType && type != SilentPaymentsAddresType.p2sp;
 
@@ -1099,6 +1129,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     BitcoinAddressType type,
   ) {
     return _isCurrentAccountAddress(addressRecord) &&
+        isAddressTypeEnabled(type) &&
         !addressRecord.isHidden &&
         !addressRecord.isUsed &&
         addressRecord.type == type;
@@ -1122,7 +1153,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateChangeAddresses();
     await updateAddressesInBox();
   }
-
 
   bool _isAddressTypeSupportedForAccount(BitcoinAddressType type, int accountIndex) {
     final effectiveAccountIndex = walletInfo.type == WalletType.bitcoin ? accountIndex : 0;
@@ -1165,6 +1195,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     required bool isLegacyDerivation,
     int accountIndex = 0,
   }) {
+    // Legacy derivation shares one HD across types, so the disabled-type check can't rely on the
+    // per-type HD maps alone.
+    if (!isAddressTypeEnabled(type)) {
+      throw UnsupportedAddressTypeForAccountException("Address type $type is disabled");
+    }
+
     if (isLegacyDerivation) {
       if (accountIndex != 0) {
         throw UnsupportedAddressTypeForAccountException(
