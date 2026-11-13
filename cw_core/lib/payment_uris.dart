@@ -284,7 +284,9 @@ class ERC681URI extends PaymentURI {
       final valueParam = uri.queryParameters["value"];
       if (valueParam != null) {
         final normalized = BigInt.tryParse(_normalizeToIntegerWei(valueParam));
-        formatedAmount = normalized != null ? formatFixed(normalized, 18) : "";
+        formatedAmount = normalized != null
+            ? formatFixed(normalized, 18)
+            : uri.queryParameters["amount"] ?? "";
       } else {
         formatedAmount = uri.queryParameters["amount"] ?? "";
       }
