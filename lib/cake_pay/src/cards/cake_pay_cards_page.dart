@@ -476,6 +476,7 @@ class _RedeemedCardSheetState extends State<_RedeemedCardSheet> {
         CakePayVoucherValueKind.cardNumber || null => S.of(context).gift_card_number,
       },
       pin: voucher?.pin,
+      cvv: voucher?.cvv,
       howToUse: voucher?.redemptionInstructions,
       orderId: card.orderId,
       footerType: FooterType.singleActionButton,

@@ -6,6 +6,7 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class CakePayService {
   CakePayService(this.secureStorage, this.cakePayApi);
@@ -142,6 +143,21 @@ class CakePayService {
         final result = await cakePayApi.getMyOrders(token: token, page: 1);
         return CakePayUserCard.fromOrders(result.orders);
       });
+
+  /// Only an order that already has its codes is listed in My Cards.
+  Future<bool> isOrderInMyCards({required String orderId}) async {
+    if (!await isLogged()) {
+      return false;
+    }
+
+    try {
+      final cards = await getUserCards();
+      return cards.any((card) => card.orderId == orderId);
+    } catch (e) {
+      printV(e);
+      return false;
+    }
+  }
 
   /// Run the VPN/location checks and reveal the codes of a purchased order.
   Future<CakePayRedemption> redeem({required String redemptionToken}) => _withUserToken(

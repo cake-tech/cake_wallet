@@ -401,8 +401,8 @@ class CakePayBuyCardPage extends BasePage {
                               : confirmPurchaseFirst(context);
                         },
                         text: '(Dev) Simulate Purchasing Gift Card',
-                        isDisabled: !_sendViewModel.isReadyForSend ||
-                            !cakePayBuyCardViewModel.isAmountSufficient ||
+                        // Simulated payments never send coins, so they don't wait for sync.
+                        isDisabled: !cakePayBuyCardViewModel.isAmountSufficient ||
                             cakePayBuyCardViewModel.isPurchasing,
                         isLoading: _sendViewModel.state is IsExecutingState ||
                             cakePayBuyCardViewModel.isPurchasing,

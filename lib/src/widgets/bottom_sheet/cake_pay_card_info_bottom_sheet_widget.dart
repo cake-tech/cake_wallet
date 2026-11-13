@@ -28,6 +28,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
     this.cardNumber,
     required this.cardNumberLabel,
     this.pin,
+    this.cvv,
     this.contentImage,
     this.howToUse,
     this.orderId,
@@ -57,6 +58,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
   final String? cardNumber;
   final String cardNumberLabel;
   final String? pin;
+  final String? cvv;
   final bool applyBoxShadow;
 
   /// The codes and instructions are still being fetched, so show spinners in their place.
@@ -100,6 +102,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                         cardNumber: cardNumber,
                         cardNumberLabel: cardNumberLabel,
                         pin: pin,
+                        cvv: cvv,
                         isLoading: isLoading,
                       ),
                     ),
@@ -141,6 +144,7 @@ class CakePayCardInfoBottomSheet extends BaseBottomSheet {
                 cardNumber: cardNumber,
                 cardNumberLabel: cardNumberLabel,
                 pin: pin,
+                cvv: cvv,
                 isLoading: isLoading,
               ),
             ),
@@ -371,6 +375,7 @@ Widget _buildBarcodeSide(
   String? cardNumber,
   required String cardNumberLabel,
   String? pin,
+  String? cvv,
   bool isLoading = false,
 }) =>
     SizedBox.expand(
@@ -421,6 +426,18 @@ Widget _buildBarcodeSide(
                   ],
                 ],
               ),
+            // CVV sits on its own line so a long card number never squeezes it out.
+            if (!isLoading && cvv != null) ...[
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _CopyableField(
+                  key: const ValueKey("cake_pay_card_info_cvv_field_key"),
+                  label: "CVV",
+                  value: cvv,
+                ),
+              ),
+            ],
           ],
         ),
       ),

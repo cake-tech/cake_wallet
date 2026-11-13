@@ -557,7 +557,8 @@ Future<void> setup({
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
-      keyService: getIt.get<KeyService>()));
+      keyService: getIt.get<KeyService>(),
+      cakePayService: getIt.get<CakePayService>()));
 
   getIt.registerFactoryParam<CardCustomizerBloc, CardCustomizerBlocParams, void>(
       (params, _) {
