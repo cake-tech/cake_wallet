@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cake_wallet/src/screens/support_chat/support_chat_navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 const COOKIE_KEY = 'chatwootCookie';
 
@@ -32,11 +34,49 @@ class ChatwootWidget extends StatefulWidget {
 class ChatwootWidgetState extends State<ChatwootWidget> {
   final GlobalKey _webViewKey = GlobalKey();
 
+  String get _allowedHost => Uri.parse(widget.supportUrl).host;
+
+  Future<NavigationActionPolicy> _policyFor(Uri? url, {required bool isMainFrame}) async {
+    final decision = decideSupportChatNavigation(
+      request: url,
+      isMainFrame: isMainFrame,
+      allowedHost: _allowedHost,
+    );
+    if (decision == SupportChatNavigation.openOutside && url != null) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+    if (decision == SupportChatNavigation.allow) {
+      return NavigationActionPolicy.ALLOW;
+    }
+    return NavigationActionPolicy.CANCEL;
+  }
+
   @override
   Widget build(BuildContext context) => InAppWebView(
         key: _webViewKey,
-        initialSettings: InAppWebViewSettings(transparentBackground: true),
+        initialSettings: InAppWebViewSettings(
+          transparentBackground: true,
+          useShouldOverrideUrlLoading: true,
+          supportMultipleWindows: true,
+        ),
         initialUrlRequest: URLRequest(url: WebUri(widget.supportUrl)),
+        shouldOverrideUrlLoading: (controller, navigationAction) {
+          return _policyFor(
+            navigationAction.request.url,
+            isMainFrame: navigationAction.isForMainFrame,
+          );
+        },
+        onCreateWindow: (controller, createWindowAction) async {
+          final url = createWindowAction.request.url;
+          final decision = decideSupportChatPopup(
+            request: url,
+            allowedHost: _allowedHost,
+          );
+          if (decision == SupportChatNavigation.openOutside && url != null) {
+            await launchUrl(url, mode: LaunchMode.externalApplication);
+          }
+          return false;
+        },
         onWebViewCreated: (InAppWebViewController controller) {
           controller.addWebMessageListener(
             WebMessageListener(
