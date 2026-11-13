@@ -248,9 +248,12 @@ class HistorySection extends StatelessWidget {
         showDialog<void>(
           context: context,
           barrierDismissible: false,
-          builder: (_) => const Center(
-            key: ValueKey("history_cake_pay_order_loading_key"),
-            child: CircularProgressIndicator(),
+          builder: (_) => const PopScope(
+            canPop: false,
+            child: Center(
+              key: ValueKey("history_cake_pay_order_loading_key"),
+              child: CircularProgressIndicator(),
+            ),
           ),
         ),
       );
