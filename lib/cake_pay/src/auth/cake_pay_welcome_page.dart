@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/email_validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
+import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -17,7 +19,8 @@ import 'package:mobx/mobx.dart';
 class CakePayWelcomePage extends BasePage {
   CakePayWelcomePage(this._authViewModel)
       : _formKey = GlobalKey<FormState>(),
-        _emailController = TextEditingController() {
+        _emailController = TextEditingController(),
+        _useStaging = ValueNotifier(CakePayApi.useStaging) {
     _emailController.text = _authViewModel.email;
     _emailController.addListener(() => _authViewModel.email = _emailController.text);
   }
@@ -27,6 +30,8 @@ class CakePayWelcomePage extends BasePage {
   final CakePayAuthViewModel _authViewModel;
 
   final TextEditingController _emailController;
+
+  final ValueNotifier<bool> _useStaging;
 
   @override
   Widget middle(BuildContext context) {
@@ -63,6 +68,29 @@ class CakePayWelcomePage extends BasePage {
               onSubmit: (text) => _login(),
             ),
           ),
+          if (CakePayApi.canSelectServer) ...[
+            SizedBox(height: 20),
+            ValueListenableBuilder<bool>(
+              valueListenable: _useStaging,
+              builder: (_, staging, __) => Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      staging ? 'Server: staging' : 'Server: production',
+                      style: textLarge(color: Theme.of(context).colorScheme.onSurface),
+                    ),
+                  ),
+                  StandardSwitch(
+                    value: staging,
+                    onTapped: () async {
+                      _useStaging.value = !staging;
+                      await _authViewModel.setUseStagingServer(_useStaging.value);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
           SizedBox(height: 20),
           Text(
             S.of(context).about_cake_pay,

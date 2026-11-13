@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -7,6 +9,8 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_til
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_trade_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
+import 'package:cake_wallet/order/order.dart';
+import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -173,8 +177,7 @@ class HistorySection extends StatelessWidget {
                                         color: Theme.of(context).colorScheme.onSurfaceVariant)));
                           } else if (item is OrderListItem) {
                             return _historyRow(
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(Routes.orderDetails, arguments: item.order),
+                              onTap: () => _openOrder(context, item.order),
                               child: HistoryOrderTile(
                                 date: _formatTransactionDate(item.order.createdAt, localeName),
                                 amount: item.orderFormattedAmount,
@@ -233,6 +236,44 @@ class HistorySection extends StatelessWidget {
                   );
           },
         ));
+  }
+
+  /// Opens the card in My Cards when it is listed there, otherwise the order details.
+  Future<void> _openOrder(BuildContext context, Order order) async {
+    final isCakePayOrder = order.orderProvider == OrderProviderDescription.cakePay;
+    final navigator = Navigator.of(context, rootNavigator: true);
+    if (isCakePayOrder) {
+      // The My Cards check pages through the API, so show progress while it runs.
+      unawaited(
+        showDialog<void>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const PopScope(
+            canPop: false,
+            child: Center(
+              key: ValueKey("history_cake_pay_order_loading_key"),
+              child: CircularProgressIndicator(),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final openInMyCards = await dashboardViewModel.canOpenCardInMyCards(order).whenComplete(() {
+      if (isCakePayOrder) {
+        navigator.pop();
+      }
+    });
+    if (!context.mounted) {
+      return;
+    }
+
+    if (openInMyCards) {
+      await Navigator.of(context).pushNamed(Routes.cakePayCardsPage);
+      return;
+    }
+
+    await Navigator.of(context).pushNamed(Routes.orderDetails, arguments: order);
   }
 
   String _getChainIconPath() {

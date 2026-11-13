@@ -1,13 +1,18 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 import 'image_placeholder.dart';
 
 class UserCardItem extends StatelessWidget {
-  UserCardItem({required this.title, required this.subTitle, this.onTap, this.logoUrl});
+  UserCardItem(
+      {required this.title, required this.subTitle, this.onTap, this.logoUrl, this.isNew = false});
 
   final VoidCallback? onTap;
   final String title;
   final String subTitle;
   final String? logoUrl;
+
+  /// Shows a badge for cards whose details were never opened.
+  final bool isNew;
 
   @override
   Widget build(BuildContext context) {
@@ -25,26 +30,39 @@ class UserCardItem extends StatelessWidget {
           ),
           child: Column(
             children: [
-              if (logoUrl != null)
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: AspectRatio(
-                    aspectRatio: 1.65,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(13)),
-                      child: Image.network(
-                        logoUrl!,
-                        fit: BoxFit.cover,
-                        loadingBuilder:
-                            (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(child: CircularProgressIndicator());
-                        },
-                        errorBuilder: (context, error, stackTrace) => CakePayCardImagePlaceholder(),
-                      ),
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: AspectRatio(
+                  aspectRatio: 1.65,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(13)),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Image-less cards keep this area so the NEW badge still has a spot.
+                        if (logoUrl == null)
+                          CakePayCardImagePlaceholder()
+                        else
+                          Image.network(
+                            logoUrl!,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              }
+
+                              return Center(child: CircularProgressIndicator());
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                CakePayCardImagePlaceholder(),
+                          ),
+                        if (isNew) const Positioned(top: 6, right: 6, child: _NewBadge()),
+                      ],
                     ),
                   ),
                 ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 child: Row(
@@ -71,6 +89,31 @@ class UserCardItem extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NewBadge extends StatelessWidget {
+  const _NewBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colors.primary,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        S.of(context).new_tag.toUpperCase(),
+        style: TextStyle(
+          color: colors.onPrimary,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

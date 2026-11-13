@@ -4,7 +4,11 @@ import 'dart:io' show Platform;
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/order/order.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
@@ -94,7 +98,8 @@ abstract class DashboardViewModelBase with Store {
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
       required this.sharedPreferences,
-      required this.keyService})
+      required this.keyService,
+      required this.cakePayService})
       : hasTradeAction = true,
         hasSwapAction = true,
         isShowFirstYatIntroduction = false,
@@ -904,6 +909,22 @@ abstract class DashboardViewModelBase with Store {
 
   final KeyService keyService;
   final SharedPreferences sharedPreferences;
+  final CakePayService cakePayService;
+
+  /// Opens a finished order in My Cards only when its card is listed there.
+  Future<bool> canOpenCardInMyCards(Order order) async {
+    if (!FeatureFlag.isCakePayRedemptionFlowEnabled) {
+      return false;
+    }
+    if (order.orderProvider != OrderProviderDescription.cakePay) {
+      return false;
+    }
+    if (order.state != TradeState.complete && order.state != TradeState.confirmed) {
+      return false;
+    }
+
+    return cakePayService.isOrderInMyCards(orderId: order.id);
+  }
 
   @observable
   bool silentPaymentsScanningActive = false;

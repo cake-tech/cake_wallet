@@ -2,8 +2,11 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_order.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
+import 'package:cw_core/utils/print_verbose.dart';
 
 class CakePayService {
   CakePayService(this.secureStorage, this.cakePayApi);
@@ -15,7 +18,8 @@ class CakePayService {
 
   static String get testCakePayApiKey => secrets.testCakePayApiKey;
 
-  static String get cakePayApiKey => secrets.cakePayApiKey;
+  static String get cakePayApiKey =>
+      CakePayApi.useStaging ? secrets.testCakePayApiKey : secrets.cakePayApiKey;
 
   static String get CSRFToken => secrets.CSRFToken;
 
@@ -116,6 +120,62 @@ class CakePayService {
           orderId: orderId,
           token: token,
         ),
+      );
+
+  /// Gift cards bought by the user, one entry per purchased unit, newest first.
+  Future<List<CakePayUserCard>> getUserCards() => _withUserToken((token) async {
+        final orders = <Map<String, dynamic>>[];
+        var page = 1;
+        var hasNextPage = true;
+
+        while (hasNextPage) {
+          final result = await cakePayApi.getMyOrders(token: token, page: page);
+          orders.addAll(result.orders);
+          hasNextPage = result.hasNextPage;
+          page++;
+        }
+
+        return CakePayUserCard.fromOrders(orders);
+      });
+
+  /// Only the newest page of purchased cards.
+  Future<List<CakePayUserCard>> getLatestUserCards() => _withUserToken((token) async {
+        final result = await cakePayApi.getMyOrders(token: token, page: 1);
+        return CakePayUserCard.fromOrders(result.orders);
+      });
+
+  /// Only an order that already has its codes is listed in My Cards.
+  Future<bool> isOrderInMyCards({required String orderId}) async {
+    if (!await isLogged()) {
+      return false;
+    }
+
+    try {
+      return await _withUserToken((token) async {
+        var page = 1;
+        var hasNextPage = true;
+
+        // Orders come newest first, so stop paging once the order shows up.
+        while (hasNextPage) {
+          final result = await cakePayApi.getMyOrders(token: token, page: page);
+          if (CakePayUserCard.fromOrders(result.orders).any((card) => card.orderId == orderId)) {
+            return true;
+          }
+          hasNextPage = result.hasNextPage;
+          page++;
+        }
+
+        return false;
+      });
+    } catch (e) {
+      printV(e);
+      return false;
+    }
+  }
+
+  /// Run the VPN/location checks and reveal the codes of a purchased order.
+  Future<CakePayRedemption> redeem({required String redemptionToken}) => _withUserToken(
+        (token) => cakePayApi.getRedemption(redemptionToken: redemptionToken, token: token),
       );
 
   ///Simulate Purchase Gift Card

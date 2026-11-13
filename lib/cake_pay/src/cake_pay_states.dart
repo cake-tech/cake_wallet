@@ -1,3 +1,5 @@
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
+
 abstract class CakePayUserVerificationState {}
 
 class CakePayUserVerificationStateInitial extends CakePayUserVerificationState {}
@@ -65,3 +67,25 @@ class InitialCakePayVendorLoadingState extends CakePayVendorState {}
 class CakePayVendorLoadingState extends CakePayVendorState {}
 
 class CakePayVendorLoadedState extends CakePayVendorState {}
+
+abstract class CakePayRedemptionState {}
+
+class CakePayRedemptionStateSuccess extends CakePayRedemptionState {
+  CakePayRedemptionStateSuccess({required this.voucher});
+
+  final CakePayVoucher voucher;
+}
+
+/// The server refused to show the codes (VPN/proxy, banned location, or codes not ready yet).
+class CakePayRedemptionStateBlocked extends CakePayRedemptionState {
+  CakePayRedemptionStateBlocked({required this.message, this.reason});
+
+  final String message;
+  final CakePayRedemptionBlockReason? reason;
+}
+
+class CakePayRedemptionStateFailure extends CakePayRedemptionState {
+  CakePayRedemptionStateFailure({required this.error});
+
+  final String error;
+}
