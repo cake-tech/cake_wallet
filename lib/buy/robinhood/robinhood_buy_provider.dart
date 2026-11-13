@@ -7,6 +7,7 @@ import 'package:cake_wallet/buy/buy_quote.dart';
 import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
+import "package:cake_wallet/core/madeleine_auth.dart";
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -37,7 +38,6 @@ class RobinhoodBuyProvider extends BuyProvider {
         );
 
   static const _baseUrl = 'applink.robinhood.com';
-  static const _cIdBaseUrl = 'exchange-helper.cakewallet.com';
   static const _apiBaseUrl = 'api.robinhood.com';
   static const _assetsPath = '/catpay/v1/supported_currencies/';
 
@@ -65,8 +65,6 @@ class RobinhoodBuyProvider extends BuyProvider {
   bool get isAggregator => false;
 
   String get _applicationId => secrets.robinhoodApplicationId;
-
-  String get _apiSecret => secrets.exchangeHelperApiKey;
 
   Future<List<CryptoCurrency>> getSupportedAssets() async {
     final uri = Uri.https(_apiBaseUrl, '$_assetsPath', {'applicationId': _applicationId});
@@ -131,25 +129,20 @@ class RobinhoodBuyProvider extends BuyProvider {
   }
 
   Future<String> getConnectId() async {
-    final walletAddress = wallet.walletAddresses.address;
-    final valid_until = (DateTime.now().millisecondsSinceEpoch / 1000).round() + 10;
-    final message = "$_apiSecret:${valid_until}";
-
-    final signature = await getSignature(message);
-
-    final uri = Uri.https(_cIdBaseUrl, "/api/robinhood");
-
-    final response = await ProxyWrapper().post(
-      clearnetUri: uri,
-      headers: {'Content-Type': 'application/json'},
-      body: json
-          .encode({'valid_until': valid_until, 'wallet': walletAddress, 'signature': signature}),
+    final headers = await MadeleineAuth(useSandbox: isTestEnvironment).getFullHeaders(
+      method: "GET",
+      path: "/api/robinhood",
+      wallet: wallet,
+      headers: {"Content-Type": "application/json"},
     );
 
+    final uri = Uri.https(MadeleineAuth.baseUrl, "/api/robinhood");
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+
     if (response.statusCode == 200) {
-      return (jsonDecode(response.body) as Map<String, dynamic>)['connectId'] as String;
+      return (jsonDecode(response.body) as Map<String, dynamic>)["connectId"] as String;
     } else {
-      throw BuySellProviderResponseException('Provider currently unavailable. Status: ${response.statusCode}');
+      throw BuySellProviderResponseException("Provider currently unavailable. Status: ${response.statusCode}");
     }
   }
 
