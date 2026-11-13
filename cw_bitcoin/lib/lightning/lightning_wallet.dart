@@ -10,27 +10,17 @@ import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
-import "dart:async";
-import "dart:io";
-import "dart:typed_data";
-
-import "package:breez_sdk_spark_flutter/breez_sdk_spark.dart";
-import "package:cw_bitcoin/bitcoin_transaction_priority.dart";
-import "package:cw_bitcoin/electrum_transaction_info.dart";
-import "package:cw_bitcoin/lightning/pending_lightning_transaction.dart";
-import "package:cw_core/amount/money.dart";
-import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/currency.dart";
-import "package:cw_core/exceptions/cake_exception.dart";
-import "package:cw_core/transaction_direction.dart";
-import "package:cw_core/utils/print_verbose.dart";
-import "package:cw_core/wallet_type.dart";
 
 bool _breezSdkSparkLibUninitialized = true;
 Stream<LogEntry>? _logStream;
+
+class LightningReconnectException extends CakeException {
+  const LightningReconnectException() : super("Could not reconnect to Spark");
+}
 
 class LightningWallet {
   LightningWallet({
@@ -52,6 +42,16 @@ class LightningWallet {
   BreezSdk? _sdk;
 
   String? cachedAddress;
+
+  String? _appPath;
+
+  /// How many copies of each leaf size the SDK keeps.
+  /// 1 keeps payments fast; 0 merges into the fewest, largest leaves, which makes it cheaper
+  /// to unilaterally exit.
+  int _leafMultiplicity = 1;
+
+  /// Re-attaches the wallet's event handlers after a reconnect.
+  void Function()? _listenToEvents;
 
   static int maxRetries = 10;
 
@@ -99,6 +99,8 @@ class LightningWallet {
   }
 
   Future<bool> init(String appPath) async {
+    _appPath = appPath;
+
     try {
       if (_breezSdkSparkLibUninitialized) {
         await BreezSdkSparkLib.init();
@@ -112,7 +114,11 @@ class LightningWallet {
         lnurlDomain: lnurlDomain,
         apiKey: apiKey,
         privateEnabledDefault: true,
-        maxDepositClaimFee: MaxFee.rate(satPerVbyte: BigInt.from(5)),
+        maxDepositClaimFee: MaxFee(onchain: MaxOnchainFee.rate(satPerVbyte: BigInt.from(5))),
+        leafOptimizationConfig: LeafOptimizationConfig(
+          autoEnabled: true,
+          multiplicity: _leafMultiplicity,
+        ),
       );
 
       final connectRequest = ConnectRequest(
@@ -140,6 +146,41 @@ class LightningWallet {
       printV(e);
       return false;
     }
+  }
+
+  /// Merges the balance into the fewest, largest leaves, so as much of it as possible is
+  /// worth exiting unilaterally. Leaf sizes are a connect-time setting, so this reconnects
+  /// with multiplicity 0. The merge swaps leaves with Spark's operators, so it only works
+  /// while they are reachable.
+  Future<void> consolidateLeavesForExit() async {
+    if (_leafMultiplicity != 0) {
+      _leafMultiplicity = 0;
+      await _reconnect();
+    }
+
+    final response = await sdk.optimizeLeaves(
+      request: const OptimizeLeavesRequest(mode: OptimizationMode.full),
+    );
+
+    printV("Spark leaves merged for exit: ${response.outcome}");
+  }
+
+  Future<void> _reconnect() async {
+    await _eventSubscription?.cancel();
+    await _logSubscription?.cancel();
+
+    try {
+      await _sdk?.disconnect();
+    } catch (_) {}
+
+    _sdk = null;
+    _eventStream = null;
+
+    if (!await init(_appPath!)) {
+      throw const LightningReconnectException();
+    }
+
+    _listenToEvents?.call();
   }
 
   Future<void> close() async {
@@ -428,14 +469,15 @@ class LightningWallet {
       request: ClaimDepositRequest(
         txid: txId,
         vout: vout,
-        maxFee: MaxFee.fixed(amount: newFee),
+        maxFee: MaxFee(onchain: MaxOnchainFee.fixed(amount: newFee)),
       ),
     );
 
-    if (response.payment == null) {
+    final outcome = response.outcome;
+    if (outcome is! ClaimDepositOutcome_Settled) {
       return null;
     }
-    return _getElectrumTransactionInfoFromPayment(response.payment!);
+    return _getElectrumTransactionInfoFromPayment(outcome.payment);
   }
 
   Future<String> refundDeposit(
@@ -456,32 +498,67 @@ class LightningWallet {
     return response.txHex;
   }
 
+  /// Quotes [leafIds], or every leaf worth more than its exit cost when null;
+  /// CPFP fees come from P2WPKH.
+  Future<PrepareRecoverFundsResponse> prepareUnilateralExit({
+    required int feeRate,
+    required String destination,
+    List<String>? leafIds,
+  }) =>
+      sdk.prepareRecoverFunds(
+        request: PrepareRecoverFundsRequest(
+          feeRateSatPerVbyte: BigInt.from(feeRate),
+          fundingKind: const CpfpFundingKind.p2Wpkh(),
+          destination: destination,
+          selection: leafIds == null
+              ? const ExitLeafSelection.all()
+              : ExitLeafSelection.specific(leafIds: leafIds),
+        ),
+      );
+
+  /// Builds and signs the full recovery transaction set. Nothing is broadcast.
+  Future<RecoverFundsResponse> unilateralExitWithSigner({
+    required PrepareRecoverFundsResponse quote,
+    required List<CpfpInput> fundingInputs,
+    required Future<Uint8List> Function(Uint8List) signPsbt,
+  }) =>
+      sdk.recoverFundsWithSigner(
+        request: RecoverFundsRequest(prepared: quote, fundingInputs: fundingInputs),
+        signPsbt: signPsbt,
+      );
+
+  /// Brings a kept recovery's transaction statuses up to date from the chain, and says
+  /// whether it is on track, done, or has to be built again.
+  Future<CheckRecoverFundsResponse> checkUnilateralExit(RecoverFundsResponse recovery) =>
+      sdk.checkRecoverFunds(request: CheckRecoverFundsRequest(recovery: recovery));
+
   void setEventListener({
     required Function(ElectrumTransactionInfo) onTransactionEvent,
     required Function onBalanceChangedEvent,
     required Function(Map<String, ElectrumTransactionInfo>) onCreateDepositTransactionEvent,
     required Function(List<ElectrumTransactionInfo>) onUpdateDepositTransactionEvent,
   }) {
-    _eventSubscription = _eventStream?.listen((sdkEvent) {
-      if (sdkEvent is SdkEvent_PaymentSucceeded) {
-        onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
-      } else if (sdkEvent is SdkEvent_PaymentPending) {
-        onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
-      } else if (sdkEvent is SdkEvent_ClaimedDeposits) {
-        onBalanceChangedEvent();
-        onUpdateDepositTransactionEvent(
-          sdkEvent.claimedDeposits.map(_getElectrumTransactionInfoFromDepositInfo).toList(),
-        );
-      } else if (sdkEvent is SdkEvent_UnclaimedDeposits) {
-        final unclaimedDeposits = <String, ElectrumTransactionInfo>{};
+    _listenToEvents = () => _eventSubscription = _eventStream?.listen((sdkEvent) {
+          if (sdkEvent is SdkEvent_PaymentSucceeded) {
+            onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
+          } else if (sdkEvent is SdkEvent_PaymentPending) {
+            onTransactionEvent(_getElectrumTransactionInfoFromPayment(sdkEvent.payment));
+          } else if (sdkEvent is SdkEvent_ClaimedDeposits) {
+            onBalanceChangedEvent();
+            onUpdateDepositTransactionEvent(
+              sdkEvent.claimedDeposits.map(_getElectrumTransactionInfoFromDepositInfo).toList(),
+            );
+          } else if (sdkEvent is SdkEvent_UnclaimedDeposits) {
+            final unclaimedDeposits = <String, ElectrumTransactionInfo>{};
 
-        for (final deposit in sdkEvent.unclaimedDeposits) {
-          unclaimedDeposits[deposit.txid] = _getElectrumTransactionInfoFromDepositInfo(deposit);
-        }
+            for (final deposit in sdkEvent.unclaimedDeposits) {
+              unclaimedDeposits[deposit.txid] = _getElectrumTransactionInfoFromDepositInfo(deposit);
+            }
 
-        onCreateDepositTransactionEvent(unclaimedDeposits);
-      }
-    });
+            onCreateDepositTransactionEvent(unclaimedDeposits);
+          }
+        });
+    _listenToEvents!();
   }
 
   ElectrumTransactionInfo _getElectrumTransactionInfoFromPayment(Payment payment) {

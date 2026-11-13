@@ -187,6 +187,8 @@ abstract class OtherSettingsViewModelBase with Store {
 
   bool get hasLightning => _wallet.hasLightningSupport;
 
+  bool get hasSparkUnilateralExit => hasLightning && bitcoin!.useLightning(_wallet);
+
   Future<File?> getLightningLog() async {
     final path = await pathForWalletDir(name: _wallet.name, type: walletType);
     final logFile = File("$path/lightning.log");

@@ -604,8 +604,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  bool isPayjoinAvailable(Object wallet) =>
-      (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
+  bool isPayjoinAvailable(Object wallet) => (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
 
   @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
@@ -893,6 +892,47 @@ class CWBitcoin extends Bitcoin {
     }
     return null;
   }
+
+  @override
+  String getUnilateralExitDestination(Object wallet) =>
+      (wallet as BitcoinWallet).unilateralExitDestination;
+
+  @override
+  Future<void> mergeLeavesForUnilateralExit(Object wallet) =>
+      (wallet as BitcoinWallet).mergeLeavesForUnilateralExit();
+
+  @override
+  Future<
+      ({
+        bool isRebuild,
+        int recoverableSat,
+        int feeSat,
+        List<({String id, int valueSat, bool isCooperative})> leaves,
+        List<({String id, int valueSat, String reason, String? message})> skipped,
+      })> quoteUnilateralExit(
+    Object wallet, {
+    required String destination,
+    required int feeRate,
+    List<String>? leafIds,
+  }) =>
+      (wallet as BitcoinWallet).quoteUnilateralExit(
+        destination: destination,
+        feeRate: feeRate,
+        leafIds: leafIds,
+      );
+
+  @override
+  Future<PendingTransaction> createUnilateralExitTransaction(
+    Object wallet, {
+    required String destination,
+    required int feeRate,
+    List<String>? leafIds,
+  }) =>
+      (wallet as BitcoinWallet).createUnilateralExitTransaction(
+        destination: destination,
+        feeRate: feeRate,
+        leafIds: leafIds,
+      );
 
   @override
   String? getBreezSdkError(Object exception) {

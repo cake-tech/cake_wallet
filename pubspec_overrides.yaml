@@ -88,7 +88,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: 4e41f96f4838139895c65c3f49109d05af5d46aa
+      ref: fa596406e138e6db479e186e6a4c246e68dc35b6
   bloc:
     git:
       url: https://github.com/felangel/bloc
@@ -115,7 +115,7 @@ dependency_overrides:
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
-      ref: 5943a3e773203f21728f87f1c0779040db8f2c28
+      ref: 1c91a60f300ba1f93586e0e10452f462dfc989ca
   bs58:
     git:
       url: https://github.com/litaoh/base58
@@ -557,7 +557,7 @@ dependency_overrides:
   flutter_rust_bridge:
     git:
       url: https://github.com/fzyzcjy/flutter_rust_bridge
-      ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      ref: 8631db91a90c699439c9ce2a1fb4164ae8661da9
       path: ./frb_dart
   flutter_secure_storage:
     git:
