@@ -377,6 +377,8 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                           isSilentPaymentsScan: true,
                           hasDatePicker: true,
                           onHeightChange: widget.setSilentPaymentsScanHeight,
+                          bitcoinMempoolAPIEnabled:
+                              widget.privacySettingsViewModel.isBitcoinMempoolAPIEnabled,
                         ),
                       ),
                   ],
