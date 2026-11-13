@@ -370,7 +370,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       ],
     );
 
-    return GestureDetector(
+    return Semantics(button: true, selected: false, inMutuallyExclusiveGroup: true, child: GestureDetector(
       key: ValueKey('picker_items_index_${itemName}_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
@@ -390,7 +390,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               )
             : itemContent,
       ),
-    );
+    ));
   }
 
   Widget buildSelectedItem(int index) {
@@ -459,7 +459,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       ],
     );
 
-    return GestureDetector(
+    return Semantics(button: true, selected: true, inMutuallyExclusiveGroup: true, child: GestureDetector(
       key: ValueKey('picker_items_index_${itemName}_selected_item_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
@@ -478,7 +478,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               )
             : itemContent,
       ),
-    );
+    ));
   }
 
   Widget? _getItemIcon(Item item) {
