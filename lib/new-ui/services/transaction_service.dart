@@ -18,6 +18,7 @@ import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_direction.dart";
+import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
@@ -28,10 +29,14 @@ class TransactionService {
 
   final AppStore _appStore;
 
-  Future<PendingTransaction> createTransaction(List<Output> outputs) async {
+  Future<PendingTransaction> createTransaction(
+    List<Output> outputs, {
+    required UnspentCoinType coinTypeToSpendFrom,
+  }) async {
 
 
-    final pendingTransaction = await _appStore.wallet!.createTransaction(_credentials(outputs));
+    final pendingTransaction =
+        await _appStore.wallet!.createTransaction(_credentials(outputs, coinTypeToSpendFrom));
 
 
 
@@ -47,7 +52,7 @@ class TransactionService {
   }
 
   // TODO(malik): i think it would be nice to have a createCredentials virtual method on WalletBase. all the wallets use it anyway
-  Object _credentials(List<Output> outputs) {
+  Object _credentials(List<Output> outputs, UnspentCoinType coinTypeToSpendFrom) {
     final priority = _appStore.settingsStore.getPriority(_appStore.wallet!.type, chainId: _appStore.wallet!.chainId);
 
 
@@ -74,14 +79,14 @@ class TransactionService {
           outputs,
           priority: priority!,
           feeRate: _appStore.settingsStore.customBitcoinFeeRate,
-          coinTypeToSpendFrom: hasLightning ? .lightning : .any,
+          coinTypeToSpendFrom: hasLightning ? .lightning : coinTypeToSpendFrom,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
           feeRate: _appStore.settingsStore.customBitcoinFeeRate,
-          coinTypeToSpendFrom: .nonMweb,
+          coinTypeToSpendFrom: coinTypeToSpendFrom,
         );
 
       case WalletType.monero:

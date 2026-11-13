@@ -841,7 +841,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
     }
     output.address = trade.fundingAddress;
-    return _transactionService.createTransaction([output]);
+    return _transactionService.createTransaction([output], coinTypeToSpendFrom: .nonMweb);
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
