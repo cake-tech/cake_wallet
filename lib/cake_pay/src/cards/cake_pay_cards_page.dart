@@ -446,6 +446,7 @@ class _RedeemedCardSheetState extends State<_RedeemedCardSheet> {
     switch (state) {
       case CakePayRedemptionStateSuccess():
         setState(() => _voucher = state.voucher);
+        unawaited(widget.viewModel.markCardOpened(widget.card));
       case CakePayRedemptionStateBlocked():
         await _closeWithMessage(state.message);
       case CakePayRedemptionStateFailure():

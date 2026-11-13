@@ -151,8 +151,22 @@ class CakePayService {
     }
 
     try {
-      final cards = await getUserCards();
-      return cards.any((card) => card.orderId == orderId);
+      return await _withUserToken((token) async {
+        var page = 1;
+        var hasNextPage = true;
+
+        // Orders come newest first, so stop paging once the order shows up.
+        while (hasNextPage) {
+          final result = await cakePayApi.getMyOrders(token: token, page: page);
+          if (CakePayUserCard.fromOrders(result.orders).any((card) => card.orderId == orderId)) {
+            return true;
+          }
+          hasNextPage = result.hasNextPage;
+          page++;
+        }
+
+        return false;
+      });
     } catch (e) {
       printV(e);
       return false;

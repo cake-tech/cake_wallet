@@ -69,12 +69,17 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   bool isNewCard(CakePayUserCard card) => !_openedCards.contains(_cardKey(card));
 
-  Future<void> _markOpened(CakePayUserCard card) async {
+  /// Called once the codes are on screen, so a sheet dismissed mid-redeem keeps the badge.
+  Future<void> markCardOpened(CakePayUserCard card) async {
     if (!_openedCards.add(_cardKey(card))) {
       return;
     }
 
-    await sharedPreferences.setStringList(_openedCardsKey, _openedCards.toList());
+    try {
+      await sharedPreferences.setStringList(_openedCardsKey, _openedCards.toList());
+    } catch (e) {
+      printV(e);
+    }
   }
 
   Map<String, List<FilterItem>> get createFilterItems => {
@@ -303,8 +308,6 @@ abstract class CakePayCardsListViewModelBase with Store {
       if (voucher == null) {
         return CakePayRedemptionStateBlocked(message: S.current.cakepay_no_gift_code_returned);
       }
-
-      await _markOpened(card);
 
       return CakePayRedemptionStateSuccess(voucher: voucher);
     } on CakePayUnauthorizedException catch (e) {

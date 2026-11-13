@@ -30,16 +30,19 @@ class UserCardItem extends StatelessWidget {
           ),
           child: Column(
             children: [
-              if (logoUrl != null)
-                Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: AspectRatio(
-                    aspectRatio: 1.65,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(13)),
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
+              Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: AspectRatio(
+                  aspectRatio: 1.65,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(13)),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // Image-less cards keep this area so the NEW badge still has a spot.
+                        if (logoUrl == null)
+                          CakePayCardImagePlaceholder()
+                        else
                           Image.network(
                             logoUrl!,
                             fit: BoxFit.cover,
@@ -54,12 +57,12 @@ class UserCardItem extends StatelessWidget {
                             errorBuilder: (context, error, stackTrace) =>
                                 CakePayCardImagePlaceholder(),
                           ),
-                          if (isNew) const Positioned(top: 6, right: 6, child: _NewBadge()),
-                        ],
-                      ),
+                        if (isNew) const Positioned(top: 6, right: 6, child: _NewBadge()),
+                      ],
                     ),
                   ),
                 ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 child: Row(
