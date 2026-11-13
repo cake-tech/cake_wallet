@@ -4,6 +4,8 @@ import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:cw_core/utils/tor/disabled.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "mock_proxy_wrapper.dart";
@@ -94,6 +96,8 @@ TradeRequest _request({bool isFixedRate = false}) => TradeRequest(
 );
 
 void main() {
+  setUpAll(() => CakeTor.instance = CakeTorDisabled());
+
   group("swap", () {
     test("the rate is the first enabled quote of the swap's rate type, not the best overall", () async {
       final rate = await _provider(_TrocadorMock(rate: _swapRate)).fetchRate(

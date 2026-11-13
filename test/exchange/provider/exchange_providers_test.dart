@@ -1,5 +1,7 @@
 import "package:cake_wallet/solana/solana.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:cw_core/utils/tor/disabled.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "exchange_provider_suite.dart";
@@ -23,7 +25,7 @@ import "mocks/xoswap_mock.dart";
 /// shapes live in `test/exchange/fixtures/` and are covered by the schema tests; these
 /// bodies are trimmed down copies of them with round numbers.
 void main() {
-  setUpAll(() {});
+  setUpAll(() => CakeTor.instance = CakeTorDisabled());
 
   final scenarios = <ProviderScenario>[
     chainflipScenario(),
