@@ -274,7 +274,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                     onSwitchButtonPressed: () => setState(() => _fiatInputMode = !_fiatInputMode),
                     allAmount: widget.isReceiverCard || state.isExternalSend
                         ? null
-                        : widget.bloc.spendingBalance.toString(),
+                        : widget.bloc.spendingBalance,
                     allAmountColor: hasSwapAll ? Theme
                         .of(context)
                         .colorScheme
@@ -291,10 +291,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                         widget.bloc.add(const SwapAllEnabled());
                       }
                     },
-                    cryptoAmount: amount.cryptoAmount.toStringWithPrecision(fractionalDigits: 6),
-                    fiatAmount: amount.fiatAmount.toStringWithPrecision(fractionalDigits: 2),
-                    cryptoCurrencySymbol: amount.currency.symbol,
-                    fiatCurrencySymbol: widget.bloc.fiat.symbol,
+                    cryptoAmount: amount.cryptoAmount,
+                    fiatAmount: amount.fiatAmount,
                   )),
                   Row(
                     spacing: 8,

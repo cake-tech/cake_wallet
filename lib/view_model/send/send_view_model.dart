@@ -368,6 +368,19 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
   }
 
+  @computed
+  Money get availableBalance {
+    if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
+      final balance = wallet.balance.values.first;
+      return balance.secondAvailable ?? Money.zero(balance.available.currency);
+    } else if (walletType == WalletType.litecoin &&
+        coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
+      return wallet.balance.values.first.available;
+    }
+
+    return wallet.balance[selectedCryptoCurrency]?.available ?? Money.zero(selectedCryptoCurrency);
+  }
+
   @action
   Future<void> updateSendingBalance() async {
     // force the sendingBalance to recompute since unspent coins aren't observable
