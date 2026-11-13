@@ -73,6 +73,13 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.nearIntents:
         _provider = NearIntentsExchangeProvider();
         break;
+      case ExchangeProviderDescription.xmrto:
+      case ExchangeProviderDescription.morphToken:
+      case ExchangeProviderDescription.sideShift:
+      case ExchangeProviderDescription.simpleSwap:
+      case ExchangeProviderDescription.all:
+      case ExchangeProviderDescription.thorChain:
+        _provider = null;
     }
 
     _updateItems();
@@ -83,39 +90,24 @@ abstract class TradeDetailsViewModelBase with Store {
     }
   }
 
-  static String? getTrackUrl(ExchangeProviderDescription provider, Trade trade) {
-    switch (provider) {
-      case ExchangeProviderDescription.changeNow:
-        return 'https://changenow.io/exchange/txs/${trade.id}';
-      case ExchangeProviderDescription.sideShift:
-        return 'https://sideshift.ai/orders/${trade.id}';
-      case ExchangeProviderDescription.simpleSwap:
-        return 'https://simpleswap.io/exchange?id=${trade.id}';
-      case ExchangeProviderDescription.trocador:
-        return 'https://trocador.app/en/checkout/${trade.id}';
-      case ExchangeProviderDescription.exolix:
-        return 'https://exolix.com/transaction/${trade.id}';
-      case ExchangeProviderDescription.thorChain:
-        return 'https://track.ninerealms.com/${trade.id}';
-      case ExchangeProviderDescription.swapTrade:
-        return 'https://swaptrade.io/send/${trade.id}';
-      case ExchangeProviderDescription.whyNot:
-        return "https://receipt.whynot.exchange/${trade.id}";
-      case ExchangeProviderDescription.stealthEx:
-        return 'https://stealthex.io/exchange/?id=${trade.id}';
-      case ExchangeProviderDescription.chainflip:
-        return 'https://scan.chainflip.io/channels/${trade.id}';
-      case ExchangeProviderDescription.xoSwap:
-        return 'https://orders.xoswap.com/${trade.id}';
-      case ExchangeProviderDescription.swapsXyz:
-        return 'https://scan.swaps.xyz/transactions/${trade.id}';
-      case ExchangeProviderDescription.jupiter:
-        return 'https://solscan.io/tx/${trade.txId}';
-      case ExchangeProviderDescription.nearIntents:
-        return 'https://explorer.near-intents.org/transactions/${trade.id}';
-    }
-    return null;
-  }
+  static String? getTrackUrl(ExchangeProviderDescription provider, Trade trade) =>
+      switch (provider) {
+            .changeNow => 'https://changenow.io/exchange/txs/${trade.id}',
+            .sideShift => 'https://sideshift.ai/orders/${trade.id}',
+            .simpleSwap => 'https://simpleswap.io/exchange?id=${trade.id}',
+            .trocador => 'https://trocador.app/en/checkout/${trade.id}',
+            .exolix => 'https://exolix.com/transaction/${trade.id}',
+            .thorChain => 'https://track.ninerealms.com/${trade.id}',
+            .swapTrade => 'https://swaptrade.io/send/${trade.id}',
+            .whyNot => "https://receipt.whynot.exchange/${trade.id}",
+            .stealthEx => 'https://stealthex.io/exchange/?id=${trade.id}',
+            .chainflip => 'https://scan.chainflip.io/channels/${trade.id}',
+            .xoSwap => 'https://orders.xoswap.com/${trade.id}',
+            .swapsXyz => 'https://scan.swaps.xyz/transactions/${trade.id}',
+            .jupiter => 'https://solscan.io/tx/${trade.txId}',
+            .nearIntents => 'https://explorer.near-intents.org/transactions/${trade.id}',
+            .xmrto || .morphToken || .all => null
+      };
 
   @observable
   Trade trade;
