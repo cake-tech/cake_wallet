@@ -6,6 +6,7 @@ import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_intents_status.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exception.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
@@ -287,6 +288,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
         amount: depositAmount,
         receiveAmount: quoteObj['amountOutFormatted']?.toString(),
         memo: depositMemo,
+        extraId: nearIntentsDepositMemo(depositMemo),
         isSendAll: isSendAll,
       );
 
@@ -336,9 +338,12 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
-    final param = {'depositAddress': id};
-    final uri = Uri.https(_baseUrl, '$_versionPath$_statusPath', param);
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
+    final uri = Uri.https(
+      _baseUrl,
+      '$_versionPath$_statusPath',
+      nearIntentsStatusQuery(depositAddress: id, depositMemo: extraId),
+    );
 
     final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
 

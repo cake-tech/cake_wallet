@@ -255,7 +255,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     final headers = {apiHeaderKey: apiKey};
     final params = <String, String>{'id': id};
     final uri = Uri.https(apiAuthority, findTradeByIdPath, params);

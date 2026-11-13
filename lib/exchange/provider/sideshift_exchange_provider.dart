@@ -340,7 +340,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     final url = apiBaseUrl + orderPath + '/' + id;
     final uri = Uri.parse(url);
     final response = await ProxyWrapper().get(clearnetUri: uri);

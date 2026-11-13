@@ -457,7 +457,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> findTradeById({required String id}) async {
+  Future<Trade> findTradeById({required String id, String? extraId}) async {
     try {
       final uri = Uri.https(_apiAuthority, '$_apiPath$_orders/$id');
       final response = await ProxyWrapper().get(clearnetUri: uri, headers: _headers);
