@@ -461,6 +461,10 @@ class SilentPaymentsScanner {
 
         if (allWorkersDone) {
           await _flushCheckpoint();
+          // A newer setListeners may have replaced this round while we flushed.
+          if (generation != _scanWorkerGeneration) {
+            return;
+          }
 
           if (shouldUpdateSyncStatus && _hasDeferredGaps) {
             _hasDeferredGaps = false;
@@ -480,8 +484,15 @@ class SilentPaymentsScanner {
             if (restoreHeight >= scanCeiling) {
               _wallet.syncStatus = SyncedTipSyncStatus(restoreHeight);
             } else {
-              _wallet.syncStatus = await _trueRemainingBlocks(restoreHeight, scanCeiling);
-              _scheduleStalledRetry(historical);
+              final remaining = await _trueRemainingBlocks(restoreHeight, scanCeiling);
+              if (generation != _scanWorkerGeneration) {
+                return;
+              }
+              _wallet.syncStatus = remaining;
+
+              if (!isSingleScan) {
+                _scheduleStalledRetry(historical);
+              }
             }
           }
         }
