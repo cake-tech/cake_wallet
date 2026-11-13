@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import CallKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -107,13 +108,20 @@ import Flutter
                     }
 
                     result(keychainReadStatus(key: key))
+
+                case "is_on_phone_call":
+                    result(self?.phoneCallStatus.isOnPhoneCall ?? false)
                 default:
                     result(FlutterMethodNotImplemented)
                 }
             })
+
+            FlutterEventChannel(name: "com.cake_wallet/phone_call_status", binaryMessenger: messenger)
+                .setStreamHandler(phoneCallStatus)
   }
     
     private var textField = UITextField()
+    private let phoneCallStatus = PhoneCallStatusStreamHandler()
     
 private func keyWindow() -> UIWindow? {
     UIApplication.shared.connectedScenes
@@ -156,4 +164,30 @@ private func keychainReadStatus(key: String) -> Int {
 
     var ref: AnyObject?
     return Int(SecItemCopyMatching(query as CFDictionary, &ref))
+}
+
+final class PhoneCallStatusStreamHandler: NSObject, FlutterStreamHandler, CXCallObserverDelegate {
+    private let callObserver = CXCallObserver()
+    private var eventSink: FlutterEventSink?
+
+    var isOnPhoneCall: Bool {
+        callObserver.calls.contains { !$0.hasEnded && ($0.hasConnected || $0.isOutgoing) }
+    }
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        eventSink = events
+        callObserver.setDelegate(self, queue: nil)
+        events(isOnPhoneCall)
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        callObserver.setDelegate(nil, queue: nil)
+        eventSink = nil
+        return nil
+    }
+
+    func callObserver(_ callObserver: CXCallObserver, callChanged call: CXCall) {
+        eventSink?(isOnPhoneCall)
+    }
 }

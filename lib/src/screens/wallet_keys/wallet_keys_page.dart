@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/qr_view_data.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/widgets/call_scam_banner.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -23,6 +24,10 @@ class WalletKeysPage extends BasePage {
   String get title => walletKeysViewModel.title;
 
   final WalletKeysViewModel walletKeysViewModel;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+      (context, root) => CallScamBanner(child: root);
 
   @override
   Widget body(BuildContext context) {
