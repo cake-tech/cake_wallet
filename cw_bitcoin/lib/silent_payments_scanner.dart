@@ -57,7 +57,7 @@ class SilentPaymentsScanner {
     }
 
     var useSSL = true;
-    final schemeMatch = RegExp(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://').firstMatch(value);
+    final schemeMatch = RegExp(r"^([a-zA-Z][a-zA-Z0-9+.-]*)://").firstMatch(value);
 
     if (schemeMatch != null) {
       final scheme = schemeMatch.group(1)!.toLowerCase();
@@ -71,7 +71,7 @@ class SilentPaymentsScanner {
       value = value.substring(schemeMatch.end);
     }
 
-    value = value.replaceAll(RegExp(r'/+$'), "");
+    value = value.replaceAll(RegExp(r"/+$"), "");
 
     final uri = Uri.tryParse("tcp://$value");
 
@@ -103,6 +103,8 @@ class SilentPaymentsScanner {
   // the rest once these workers finish.
   bool _hasDeferredGaps = false;
 
+  Timer? _stalledRetryTimer;
+
   Timer? _checkpointFlushTimer;
   Future<void> _checkpointFlushQueue = Future.value();
   static const _checkpointFlushInterval = Duration(milliseconds: 1500);
@@ -115,7 +117,9 @@ class SilentPaymentsScanner {
   static const Duration _silentPaymentsScanDelay = Duration(minutes: 1);
 
   /// Whether a scan round still has workers running.
-  bool get isScanning => _scanWorkers.any((w) => !_doneWorkerIndices.contains(w.workerIndex));
+  bool get isScanning =>
+      _stalledRetryTimer != null ||
+      _scanWorkers.any((w) => !_doneWorkerIndices.contains(w.workerIndex));
 
   /// Stops this wallet's scan for good (wallet closing). The workers use their
   /// own scan-server connection, so a wallet-node reconnect must not call this.
@@ -332,6 +336,7 @@ class SilentPaymentsScanner {
           rangeStart: chunk.startHeight,
           rangeEnd: chunk.endHeight,
           historical: historical,
+          isReverify: isForcedRescan,
         ),
       );
     }
@@ -377,13 +382,11 @@ class SilentPaymentsScanner {
               if (newUnspents.isNotEmpty) {
                 newUnspents.forEach(_wallet._updateSilentAddressRecord);
 
+                // tx.amount already totals every unspent found by this scan, so
+                // only the balance needs the newly found outputs added on top.
                 final newAmount = newUnspents.length > 1
                     ? newUnspents.map((e) => e.value).reduce((value, unspent) => value + unspent)
                     : newUnspents[0].value;
-
-                if (existingTxInfo.direction == TransactionDirection.incoming) {
-                  existingTxInfo.amount += Money.fromInt(newAmount, _wallet.currency);
-                }
 
                 // Update balance record
                 _wallet._bumpConfirmedBalance(Money.fromInt(newAmount, _wallet.currency));
@@ -474,9 +477,12 @@ class SilentPaymentsScanner {
 
           if (shouldUpdateSyncStatus) {
             final restoreHeight = _wallet.walletInfo.restoreHeight;
-            _wallet.syncStatus = restoreHeight >= scanCeiling
-                ? SyncedTipSyncStatus(restoreHeight)
-                : await _trueRemainingBlocks(restoreHeight, scanCeiling);
+            if (restoreHeight >= scanCeiling) {
+              _wallet.syncStatus = SyncedTipSyncStatus(restoreHeight);
+            } else {
+              _wallet.syncStatus = await _trueRemainingBlocks(restoreHeight, scanCeiling);
+              _scheduleStalledRetry(historical);
+            }
           }
         }
       }
@@ -527,9 +533,25 @@ class SilentPaymentsScanner {
     return SyncingSyncStatus(blocksLeft, ptc);
   }
 
+  void _scheduleStalledRetry(bool historical) {
+    _stalledRetryTimer?.cancel();
+    _stalledRetryTimer = Timer(_silentPaymentsScanDelay, () {
+      _stalledRetryTimer = null;
+      unawaited(
+        rescan(
+          height: _wallet.walletInfo.restoreHeight,
+          historicalModeOverride: historical,
+          ignoreExistingCoverage: false,
+        ),
+      );
+    });
+  }
+
   /// Flushes the checkpoint, kills every current scan worker and clears
   /// [_scanWorkers]. Safe to call when there are none running.
   Future<void> stopScanWorkers() async {
+    _stalledRetryTimer?.cancel();
+    _stalledRetryTimer = null;
     _checkpointFlushTimer?.cancel();
     _checkpointFlushTimer = null;
     // Flush immediately on a deliberate stop instead of leaving up to
@@ -579,8 +601,8 @@ class SilentPaymentsScanner {
       worker.pendingCheckpointHeight = null;
 
       final workerDone = _doneWorkerIndices.contains(worker.workerIndex);
-      final hasNewCoverage =
-          workerDone ? target >= worker.checkpointBaseline : target > worker.checkpointBaseline;
+      final hasNewCoverage = !worker.isReverify &&
+          (workerDone ? target >= worker.checkpointBaseline : target > worker.checkpointBaseline);
       if (hasNewCoverage) {
         await WalletInfoScanCoverage.markCovered(
           walletInfoId: _wallet.walletInfo.internalId,

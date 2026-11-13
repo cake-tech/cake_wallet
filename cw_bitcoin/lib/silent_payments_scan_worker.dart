@@ -13,6 +13,7 @@ class _ScanWorkerHandle {
     required this.rangeStart,
     required this.rangeEnd,
     required this.historical,
+    required this.isReverify,
   }) : checkpointBaseline = rangeStart;
 
   final int workerIndex;
@@ -20,6 +21,10 @@ class _ScanWorkerHandle {
   final int rangeStart;
   final int rangeEnd;
   final bool historical;
+
+  // A re-verify round only rescans the known match heights, so its progress
+  // says nothing about the blocks in between and must never mark coverage.
+  final bool isReverify;
 
   int checkpointBaseline;
   int? pendingCheckpointHeight;
