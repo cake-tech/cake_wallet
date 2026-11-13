@@ -37,11 +37,11 @@ class ElectrumClient {
   ElectrumClient()
       : _id = 0,
         _tasks = {},
-        _errors = {},
-        unterminatedString = '';
+        _errors = {};
 
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 5);
+  static const deadSocketTimeout = Duration(seconds: 60);
 
   bool get isConnected => socket != null && socket?.isClosed == false;
   ProxySocket? socket;
@@ -51,7 +51,13 @@ class ElectrumClient {
   Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
   Timer? _aliveTimer;
-  String unterminatedString;
+  // Bytes of a reply whose terminating newline hasn't arrived yet.
+  final BytesBuilder _pending = BytesBuilder(copy: false);
+  DateTime _lastReceivedAt = DateTime.now();
+  // See callWithTimeout's comment on this method: electrs-tweaks's reply
+  // never carries a matching id, so this is how _methodHandler finds the
+  // right pending task for a one-shot blockchain.tweaks.subscribe call.
+  String? _lastTweaksSubscribeRequestId;
 
   // Bumped by every connect() and close(). An attempt that is no longer the latest when its
   // socket arrives (node switch, reconnect, wallet closed) must not install it or report status.
@@ -75,13 +81,14 @@ class ElectrumClient {
     // Reset internal state to ensure clean connection
     _resetInternalState();
 
+    final oldSocket = socket;
+    socket = null;
     try {
-      await socket?.close();
+      await oldSocket?.close();
     } catch (_) {}
     if (attempt != _connectAttempt) {
       return;
     }
-    socket = null;
 
     final ssl = !(useSSL == false || (useSSL == null && uri.toString().contains("btc-electrum")));
     final ProxySocket newSocket;
@@ -110,27 +117,15 @@ class ElectrumClient {
     }
 
     socket = newSocket;
+    _lastReceivedAt = DateTime.now();
 
-    // use ping to determine actual connection status since we could've just not timed out yet:
-    // _setConnectionStatus(ConnectionStatus.connected);
     newSocket.listen(
       (Uint8List event) {
         // A replaced socket's late reply must not complete a same-id request of the new session.
         if (!identical(socket, newSocket)) {
           return;
         }
-        try {
-          final msg = utf8.decode(event.toList());
-          final messagesList = msg.split("\n");
-          for (var message in messagesList) {
-            if (message.isEmpty) {
-              continue;
-            }
-            _parseResponse(message);
-          }
-        } catch (e) {
-          printV("socket.listen: $e");
-        }
+        _onData(event);
       },
       onError: (Object error) {
         // A replaced socket's late error/close must not tear down its successor.
@@ -139,7 +134,7 @@ class ElectrumClient {
         }
         final errorMsg = error.toString();
         printV(errorMsg);
-        unterminatedString = '';
+        _pending.clear();
         socket?.destroy();
         socket = null;
         _setConnectionStatus(ConnectionStatus.disconnected);
@@ -149,7 +144,7 @@ class ElectrumClient {
         if (!identical(socket, newSocket)) {
           return;
         }
-        unterminatedString = '';
+        _pending.clear();
         try {
           _setConnectionStatus(ConnectionStatus.disconnected);
           socket?.destroy();
@@ -164,45 +159,42 @@ class ElectrumClient {
     keepAlive();
   }
 
-  void _parseResponse(String message) {
-    try {
-      final response = json.decode(message);
-      _handleResponse(response);
-    } on FormatException catch (e) {
-      final msg = e.message.toLowerCase();
+  // Replies are newline-delimited, but a socket read can end anywhere - mid
+  // line or mid UTF-8 character - so bytes are buffered until a full line
+  // arrives and each line is decoded once. A line that fails to decode or
+  // handle only loses itself; nothing is carried into the next reply.
+  void _onData(Uint8List chunk) {
+    _lastReceivedAt = DateTime.now();
+    _setConnectionStatus(ConnectionStatus.connected);
 
-      if (e.source is String) {
-        unterminatedString += e.source as String;
-      }
+    var start = 0;
+    var newline = chunk.indexOf(0x0A, start);
 
-      if (msg.contains("not a subtype of type")) {
-        unterminatedString += e.source as String;
-        return;
-      }
+    while (newline != -1) {
+      _pending.add(chunk.sublist(start, newline));
+      _parseLine(_pending.takeBytes());
+      start = newline + 1;
+      newline = chunk.indexOf(0x0A, start);
+    }
 
-      if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString);
-        _handleResponse(response);
-        unterminatedString = '';
-      }
-    } on TypeError catch (e) {
-      if (!e.toString().contains('Map<String, Object>') &&
-          !e.toString().contains('Map<String, dynamic>')) {
-        return;
-      }
-
-      unterminatedString += message;
-
-      if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString);
-        _handleResponse(response);
-        // unterminatedString = null;
-        unterminatedString = '';
-      }
-    } catch (e) {
-      printV("parse $e");
+    if (start < chunk.length) {
+      _pending.add(chunk.sublist(start));
     }
   }
+
+  void _parseLine(List<int> line) {
+    if (line.isEmpty) {
+      return;
+    }
+
+    try {
+      _handleResponse(json.decode(utf8.decode(line)));
+    } catch (e) {
+      printV("_parseLine: dropping reply (${line.length} bytes): $e");
+    }
+  }
+
+  bool _pingInFlight = false;
 
   void keepAlive() {
     _aliveTimer?.cancel();
@@ -210,34 +202,55 @@ class ElectrumClient {
   }
 
   Future<void> ping() async {
-    // The keep-alive timer outlives a dropped socket, and callWithTimeout returns null when there
-    // is no socket, which must not count as a pong. A reply on a since-replaced socket says
-    // nothing about the current one either.
+    // The keep-alive timer outlives a dropped socket, so there may be nothing to ping. A timeout
+    // on a since-replaced socket says nothing about the current one either.
     final pinged = socket;
-    if (pinged == null || pinged.isClosed) {
+    if (_pingInFlight || pinged == null || pinged.isClosed) {
       return;
     }
 
+    _pingInFlight = true;
+
     try {
       await callWithTimeout(method: 'server.ping');
-      if (identical(socket, pinged)) {
-        _setConnectionStatus(ConnectionStatus.connected);
-      }
     } catch (_) {
-      if (identical(socket, pinged)) {
-        _setConnectionStatus(ConnectionStatus.disconnected);
+      if (!identical(socket, pinged)) {
+        return;
       }
+
+      // A slow ping reply alone just means the server is busy, not dead -
+      // unless the socket is gone, or nothing at all has arrived on it for
+      // deadSocketTimeout.
+      final silentFor = DateTime.now().difference(_lastReceivedAt);
+      if (isConnected && silentFor < deadSocketTimeout) {
+        return;
+      }
+
+      if (isConnected) {
+        printV("ping: nothing received for ${silentFor.inSeconds}s, dropping the socket");
+        socket = null;
+        _pending.clear();
+        pinged.destroy();
+      }
+      _setConnectionStatus(ConnectionStatus.disconnected);
+    } finally {
+      _pingInFlight = false;
     }
   }
 
-  Future<List<String>> version() =>
-      call(method: 'server.version', params: ["", "1.4"]).then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) => val.toString()).toList();
-        }
+  Future<List<String>> version() async {
+    try {
+      final result =
+          await callWithTimeout(method: 'server.version', params: ["", "1.4"], timeout: 20000);
+      if (result is List) {
+        return result.map((dynamic val) => val.toString()).toList();
+      }
+    } catch (e) {
+      printV("version: timed out or failed: $e");
+    }
 
-        return [];
-      });
+    return [];
+  }
 
   Future<Map<String, dynamic>> getBalance(String scriptHash, {bool throwOnError = false}) async {
     try {
@@ -259,36 +272,42 @@ class ElectrumClient {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getHistory(String scriptHash) =>
-      call(method: 'blockchain.scripthash.get_history', params: [scriptHash])
-          .then((dynamic result) {
-        if (result is List) {
-          return result.map((dynamic val) {
-            if (val is Map<String, dynamic>) {
-              return val;
-            }
+  /// Throws when no history came back (timeout, no socket, error reply):
+  /// address discovery must not mistake a failed lookup for an unused address.
+  Future<List<Map<String, dynamic>>> getHistory(String scriptHash) async {
+    final result = await call(method: 'blockchain.scripthash.get_history', params: [scriptHash]);
 
-            return <String, dynamic>{};
-          }).toList();
-        }
-
-        return [];
-      });
-
-  Future<List<Map<String, dynamic>>?> getListUnspent(String scriptHash) async {
-    final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
-
-    if (result is List) {
-      return result.map((dynamic val) {
-        if (val is Map<String, dynamic>) {
-          return val;
-        }
-
-        return <String, dynamic>{};
-      }).toList();
+    if (result is! List) {
+      throw ElectrumResponseException("get_history returned no history for $scriptHash");
     }
 
-    return null;
+    return result.map((dynamic val) {
+      if (val is Map<String, dynamic>) {
+        return val;
+      }
+
+      return <String, dynamic>{};
+    }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>?> getListUnspent(String scriptHash) async {
+    try {
+      final result = await call(method: 'blockchain.scripthash.listunspent', params: [scriptHash]);
+
+      if (result is List) {
+        return result.map((dynamic val) {
+          if (val is Map<String, dynamic>) {
+            return val;
+          }
+
+          return <String, dynamic>{};
+        }).toList();
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<List<Map<String, dynamic>>> getMempool(String scriptHash) =>
@@ -569,8 +588,9 @@ class ElectrumClient {
     );
   }
 
-  Future<dynamic> getTweaks({required int height}) async =>
-      await callWithTimeout(method: 'blockchain.tweaks.subscribe', params: [height, 1, false]);
+  Future<dynamic> getTweaks({required int height, int timeout = 5000}) async =>
+      await callWithTimeout(
+          method: 'blockchain.tweaks.subscribe', params: [height, 1, false], timeout: timeout);
 
   Future<double> estimatefee({required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p]).then((dynamic result) {
@@ -665,15 +685,15 @@ class ElectrumClient {
     }
   }
 
-  BehaviorSubject<Object>? chainTipSubscribe() {
+  BehaviorSubject<Object?>? chainTipSubscribe() {
     _id += 1;
-    return subscribe<Object>(
+    return subscribe<Object?>(
         id: 'blockchain.headers.subscribe', method: 'blockchain.headers.subscribe');
   }
 
-  BehaviorSubject<Object>? scripthashUpdate(String scripthash) {
+  BehaviorSubject<Object?>? scripthashUpdate(String scripthash) {
     _id += 1;
-    return subscribe<Object>(
+    return subscribe<Object?>(
         id: 'blockchain.scripthash.subscribe:$scripthash',
         method: 'blockchain.scripthash.subscribe',
         params: [scripthash]);
@@ -687,6 +707,7 @@ class ElectrumClient {
       }
       final subscription = BehaviorSubject<T>();
       _regisrySubscription(id, subscription);
+      _tasks[_id.toString()] = SocketTask(subject: subscription, isSubscription: true);
       socket!.write(jsonrpc(method: method, id: _id, params: params));
 
       return subscription;
@@ -697,7 +718,10 @@ class ElectrumClient {
   }
 
   Future<dynamic> call(
-      {required String method, List<Object> params = const [], Function(int)? idCallback}) async {
+      {required String method,
+      List<Object> params = const [],
+      Function(int)? idCallback,
+      int timeout = 20000}) async {
     if (!isConnected) return null;
 
     final completer = Completer<dynamic>();
@@ -707,11 +731,20 @@ class ElectrumClient {
     _registryTask(id, completer);
     socket!.write(jsonrpc(method: method, id: id, params: params));
 
+    Timer(Duration(milliseconds: timeout), () {
+      if (!completer.isCompleted) {
+        completer.completeError(RequestFailedTimeoutException(method, id));
+      }
+    });
+
     return completer.future;
   }
 
-  Future<dynamic> callWithTimeout(
-      {required String method, List<Object> params = const [], int timeout = 5000}) async {
+  Future<dynamic> callWithTimeout({
+    required String method,
+    List<Object> params = const [],
+    int timeout = 5000,
+  }) async {
     try {
       if (!isConnected) return null;
 
@@ -719,6 +752,9 @@ class ElectrumClient {
       _id += 1;
       final id = _id;
       _registryTask(id, completer);
+      if (method == 'blockchain.tweaks.subscribe') {
+        _lastTweaksSubscribeRequestId = id.toString();
+      }
       socket!.write(jsonrpc(method: method, id: id, params: params));
       Timer(Duration(milliseconds: timeout), () {
         if (!completer.isCompleted) {
@@ -736,9 +772,10 @@ class ElectrumClient {
   Future<void> close() async {
     _connectAttempt++;
     _aliveTimer?.cancel();
+    final oldSocket = socket;
+    socket = null;
     try {
-      await socket?.close();
-      socket = null;
+      await oldSocket?.close();
     } catch (_) {}
     onConnectionStatusChange = null;
     // Reset internal state when closing
@@ -746,17 +783,17 @@ class ElectrumClient {
   }
 
   void _resetInternalState() {
-    // Only clears errors and unterminated string, leaves tasks or reset ID
+    // Only clears errors and buffered reply bytes, leaves tasks or reset ID
     // This preserves active subscriptions while clearing error state
     _errors.clear();
-    unterminatedString = '';
+    _pending.clear();
   }
 
   void _resetInternalStateCompletely() {
     _id = 0;
     _tasks.clear();
     _errors.clear();
-    unterminatedString = '';
+    _pending.clear();
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -770,8 +807,9 @@ class ElectrumClient {
       return;
     }
 
-    if (!(_tasks[id]?.completer?.isCompleted ?? false)) {
-      _tasks[id]?.completer!.complete(data);
+    final completer = _tasks[id]?.completer;
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(data);
     }
 
     if (!(_tasks[id]?.isSubscription ?? false)) {
@@ -802,7 +840,10 @@ class ElectrumClient {
         break;
       case 'blockchain.tweaks.subscribe':
         final params = request['params'] as List<dynamic>;
-        _tasks[_tasks.keys.first]?.subject?.add(params.last);
+        final requestId = _lastTweaksSubscribeRequestId;
+        if (requestId != null) {
+          _finish(requestId, params.last);
+        }
         break;
       default:
         break;
@@ -835,7 +876,11 @@ class ElectrumClient {
         }
       });
 
-      final firstItem = response.first as Map<String, dynamic>;
+      final firstRaw = response.first;
+      if (firstRaw is! Map) {
+        return;
+      }
+      final firstItem = firstRaw;
       final String firstIdAttr = firstItem['id'].toString();
 
       final String batchKey = firstIdAttr.contains('-')
@@ -891,16 +936,6 @@ class ElectrumClient {
   String getErrorMessage(int id) => _errors[id.toString()] ?? '';
 
   bool get isInternalStateConsistent => _errors.isEmpty;
-}
-
-// FIXME: move me
-bool isJSONStringCorrect(String source) {
-  try {
-    json.decode(source);
-    return true;
-  } catch (_) {
-    return false;
-  }
 }
 
 class RequestFailedTimeoutException implements Exception {

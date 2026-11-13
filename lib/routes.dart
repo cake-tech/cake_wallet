@@ -81,7 +81,6 @@ class Routes {
   static const cakePayAccountPage = '/cake_pay_account_page';
   static const webViewPage = '/web_view_page';
   static const silentPaymentsSettings = '/silent_payments_settings';
-  static const silentPaymentsLogs = '/silent_payments_logs';
   static const mwebSettings = '/mweb_settings';
   static const mwebLogs = '/mweb_logs';
   static const mwebNode = '/mweb_node';

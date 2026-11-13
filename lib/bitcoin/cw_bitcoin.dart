@@ -631,8 +631,24 @@ class CWBitcoin extends Bitcoin {
     bitcoinWallet.save();
   }
 
+  @override
+  bool needsSilentPaymentsStartHeight(Object wallet) =>
+      (wallet as ElectrumWallet).needsSilentPaymentsStartHeight;
+
+  @override
+  Future<void> setSilentPaymentsStartHeight(Object wallet, {int? blocksBack}) =>
+      (wallet as ElectrumWallet).setSilentPaymentsStartHeight(blocksBack: blocksBack);
+
   @computed
   bool getIsAlwaysScanningSP(Object wallet) => (wallet as ElectrumWallet).alwaysScan ?? false;
+
+  @override
+  bool setSilentPaymentsScanServer(String? server) =>
+      SilentPaymentsScanner.setCustomScanServer(server);
+
+  @override
+  bool isValidSilentPaymentsScanServer(String server) =>
+      SilentPaymentsScanner.parseScanServer(server) != null;
 
   @override
   bool isTestnet(Object wallet) {
@@ -660,15 +676,34 @@ class CWBitcoin extends Bitcoin {
   int getLitecoinHeightByDate({required DateTime date}) => getLtcHeightByDate(date: date);
 
   @override
-  Future<void> rescan(Object wallet, {required int height, bool? doSingleScan}) async {
+  Future<void> rescan(
+    Object wallet, {
+    required int height,
+    bool? doSingleScan,
+    int? workerCount,
+    bool? historicalMode,
+    bool ignoreExistingCoverage = true,
+  }) async {
     final bitcoinWallet = wallet as ElectrumWallet;
-    bitcoinWallet.rescan(height: height, doSingleScan: doSingleScan);
+    bitcoinWallet.rescan(
+      height: height,
+      doSingleScan: doSingleScan,
+      workerCountOverride: workerCount,
+      historicalModeOverride: historicalMode,
+      ignoreExistingCoverage: ignoreExistingCoverage,
+    );
   }
 
   @override
   Future<bool> getNodeIsElectrsSPEnabled(Object wallet) async {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.getNodeSupportsSilentPayments();
+  }
+
+  @override
+  int negotiatedScanProtocolVersion(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.negotiatedTweaksProtocolVersion();
   }
 
   @override
@@ -716,6 +751,12 @@ class CWBitcoin extends Bitcoin {
   bool txIsReceivedSilentPayment(TransactionInfo txInfo) {
     final tx = txInfo as ElectrumTransactionInfo;
     return tx.isReceivedSilentPayment;
+  }
+
+  @override
+  int txSilentPaymentUnspentsCount(TransactionInfo txInfo) {
+    final tx = txInfo as ElectrumTransactionInfo;
+    return tx.unspents?.length ?? -1;
   }
 
   @override
