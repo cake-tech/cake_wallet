@@ -92,4 +92,8 @@ class BitcoinCashLedgerService extends HardwareWalletService
       additionals: ["bip143", "cashaddr"],
     );
   }
+
+  @override
+  Future<Uint8List> signMessage({required Uint8List message, String? derivationPath}) =>
+      bitcoinCashLedgerApp.signMessage(message: message, signDerivationPath: derivationPath);
 }

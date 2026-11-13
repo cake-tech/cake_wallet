@@ -1,3 +1,5 @@
+import "dart:convert";
+
 import "package:bitbox/bitbox.dart" as bitbox;
 import "package:bitcoin_base/bitcoin_base.dart";
 import "package:blockchain_utils/blockchain_utils.dart";
@@ -230,14 +232,25 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    int? index;
-    try {
-      index = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-          : null;
-    } catch (_) {}
-    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
+  Future<String> signMessage(String message, {String? address}) async {
+    final addressEntry = address != null
+        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
+        : null;
+
+    if (walletInfo.isHardwareWallet) {
+      final index = addressEntry?.index ?? 0;
+      final isChange = addressEntry?.isHidden == true ? 1 : 0;
+      final derivationInfo = await walletInfo.getDerivationInfo();
+      final accountPath = derivationInfo.derivationPath;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+
+      final signature = await hardwareWalletService!
+          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
+
+      return base64Encode(signature);
+    }
+
+    final HD = addressEntry == null ? mainHd : mainHd.childKey(Bip32KeyIndex(addressEntry.index));
     final priv = ECPrivate.fromWif(
       WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,
