@@ -210,6 +210,28 @@ class ZcashTaddressRotation {
     );
   }
 
+  static Future<void> rewindForRescan({
+    required final int mainAccountId,
+    required final int accountId,
+    required final int height,
+    required final zkool_coin.Coin coin,
+  }) async {
+    await zkool_account.updateAccount(
+      update: zkool_account.AccountUpdate(
+        coin: coin.coin,
+        id: accountId,
+        birth: height,
+        folder: 0,
+      ),
+      c: coin,
+    );
+    await zkool_account.resetSync(id: accountId, c: coin);
+    shieldedAccountsTx.remove(mainAccountId);
+    shieldedAccountsTx.remove(accountId);
+    _resyncedRotationAccounts.remove(accountId);
+    _poolRescanAttempted.removeWhere((final key) => key.startsWith('$accountId:'));
+  }
+
   static Future<int?> getRotationAccountForMainAccount(final int mainAccountId) async {
     final cached = _rotationAccountByMain[mainAccountId];
     if (cached != null) {
