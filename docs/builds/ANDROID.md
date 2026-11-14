@@ -27,6 +27,7 @@ pushd scripts/android
     ./build_reown_deps.sh
     source ./app_env.sh cakewallet
     # source ./app_env.sh monero.com # Uncomment this line to build monero.com
+    ../prepare_minotari.sh android # Cake Wallet only; --from-source builds it locally (needs Rust and ANDROID_NDK_HOME)
     ./app_config.sh
     ./build_monero_all.sh # optional, ommit to not build monero
     ./build_decred.sh

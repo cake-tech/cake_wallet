@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
@@ -350,6 +351,21 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   }
 
                   await widget.nodeViewModel.save();
+                  // save() refuses some nodes (a non-SSL Minotari node) without creating one.
+                  final saveState = widget.nodeViewModel.state;
+                  if (saveState is FailureState) {
+                    if (!context.mounted) return;
+                    await showPopUp<void>(
+                      context: context,
+                      builder: (context) => AlertWithOneAction(
+                        alertTitle: S.of(context).error,
+                        alertContent: saveState.error,
+                        buttonText: S.of(context).ok,
+                        buttonAction: () => Navigator.of(context).pop(),
+                      ),
+                    );
+                    return;
+                  }
                   widget.nodeViewModel.setAsCurrent(widget.nodeViewModel.editingNode!);
                 }
                 if (testnetValue == true &&

@@ -698,6 +698,9 @@ class WalletInfo {
 
   String? addressPageType;
   String? network;
+
+  /// Restored from a view key and spend public key only: it can watch but not spend or sign.
+  bool isWatchOnly = false;
   int? accountDiscoveryLimit;
   bool? isMultiAccountsEnabled;
 
@@ -789,6 +792,7 @@ class WalletInfo {
         "accountDiscoveryLimit": accountDiscoveryLimit,
         "isMultiAccountsEnabled":
             isMultiAccountsEnabled == null ? null : (isMultiAccountsEnabled! ? 1 : 0),
+        "isWatchOnly": isWatchOnly ? 1 : 0,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -821,6 +825,7 @@ class WalletInfo {
         json["favoriteTokenAddress"] as String? ?? null,
         json["showSeedBackupReminder"] == 1);
     info.network = json['network'] as String?;
+    info.isWatchOnly = json['isWatchOnly'] == 1;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
     final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];
     info.isMultiAccountsEnabled =

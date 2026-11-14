@@ -71,7 +71,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -206,6 +206,14 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: "BOOLEAN DEFAULT FALSE",
         );
       }
+      if (oldVersion <= 15) {
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "isWatchOnly",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
     },
     onCreate: (Database db, int version) async {
       await db.execute('''
@@ -237,7 +245,8 @@ CREATE TABLE WalletInfo (
   favoriteTokenAddress TEXT DEFAULT NULL,
   accountDiscoveryLimit INTEGER DEFAULT NULL,
   isMultiAccountsEnabled INTEGER DEFAULT NULL,
-  showSeedBackupReminder BOOLEAN DEFAULT FALSE
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE,
+  isWatchOnly BOOLEAN DEFAULT FALSE
 );
 ''');
 

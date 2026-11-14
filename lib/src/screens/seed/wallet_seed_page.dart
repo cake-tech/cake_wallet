@@ -33,6 +33,7 @@ class WalletSeedPage extends BasePage {
         ? GestureDetector(
             key: ValueKey('wallet_seed_page_copy_seeds_button_key'),
             onTap: () {
+              if (!walletSeedViewModel.hasSeed) return;
               ClipboardUtil.setSensitiveDataToClipboard(
                 ClipboardData(text: walletSeedViewModel.seed),
               );
@@ -58,93 +59,98 @@ class WalletSeedPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return PopScope(
-      //FIXME i can't figure out why this was here? it caused back gesture to break
-      canPop: true,
-      child: Container(
-        alignment: Alignment.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Observer(
-              builder: (_) {
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        SizedBox(height: 16),
-                        WarningBox(content: S.current.cake_seeds_save_disclaimer),
-                        SizedBox(height: 36),
-                        Text(
-                          key: ValueKey('wallet_seed_page_wallet_name_text_key'),
-                          walletSeedViewModel.name,
-                          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.onSurface,
-                              ),
-                        ),
-                        SizedBox(height: 24),
-                        Expanded(
-                          child: SeedPhraseGridWidget(
-                            list: walletSeedViewModel.seedSplit,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-            Column(
+    return ClearSeedOnDispose(walletSeedViewModel,
+        child: PopScope(
+          //FIXME i can't figure out why this was here? it caused back gesture to break
+          canPop: true,
+          child: Container(
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Flexible(
-                        child: Container(
-                          padding: EdgeInsets.only(right: 8.0, top: 8.0),
-                          child: PrimaryButton(
-                            key: ValueKey('wallet_seed_page_save_seeds_button_key'),
-                            onPressed: () {
-                              _shareSeed(context);
-                            },
-                            text: S.of(context).save,
-                            color: Theme.of(context).colorScheme.surfaceContainer,
-                            textColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                          ),
-                        ),
-                      ),
-                      Flexible(
-                        child: Container(
-                          padding: EdgeInsets.only(left: 8.0, top: 8.0),
-                          child: PrimaryButton(
-                            key: ValueKey('wallet_seed_page_verify_seed_button_key'),
-                            onPressed: () => Navigator.pushNamed(
-                              context,
-                              Routes.walletSeedVerificationPage,
-                              arguments: isNewWalletCreated,
+                Observer(
+                  builder: (_) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            SizedBox(height: 16),
+                            WarningBox(content: S.current.cake_seeds_save_disclaimer),
+                            SizedBox(height: 36),
+                            Text(
+                              key: ValueKey('wallet_seed_page_wallet_name_text_key'),
+                              walletSeedViewModel.name,
+                              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).colorScheme.onSurface,
+                                  ),
                             ),
-                            text: S.current.verify_phrase,
-                            color: Theme.of(context).colorScheme.primary,
-                            textColor: Theme.of(context).colorScheme.onPrimary,
-                          ),
+                            SizedBox(height: 24),
+                            Expanded(
+                              child: walletSeedViewModel.hasSeed
+                                  ? SeedPhraseGridWidget(list: walletSeedViewModel.seedSplit)
+                                  : SeedLoadState(walletSeedViewModel),
+                            ),
+                          ],
                         ),
                       ),
+                    );
+                  },
+                ),
+                Observer(
+                  builder: (_) => Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.only(right: 8.0, top: 8.0),
+                                child: PrimaryButton(
+                                  key: ValueKey('wallet_seed_page_save_seeds_button_key'),
+                                  isDisabled: !walletSeedViewModel.hasSeed,
+                                  onPressed: () {
+                                    _shareSeed(context);
+                                  },
+                                  text: S.of(context).save,
+                                  color: Theme.of(context).colorScheme.surfaceContainer,
+                                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                                ),
+                              ),
+                            ),
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.only(left: 8.0, top: 8.0),
+                                child: PrimaryButton(
+                                  key: ValueKey('wallet_seed_page_verify_seed_button_key'),
+                                  isDisabled: !walletSeedViewModel.hasSeed,
+                                  onPressed: () => Navigator.pushNamed(
+                                    context,
+                                    Routes.walletSeedVerificationPage,
+                                    arguments: isNewWalletCreated,
+                                  ),
+                                  text: S.current.verify_phrase,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  textColor: Theme.of(context).colorScheme.onPrimary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16),
                     ],
                   ),
-                ),
-                SizedBox(height: 16),
+                )
               ],
-            )
-          ],
-        ),
-      ),
-    );
+            ),
+          ),
+        ));
   }
 
   void _shareSeed(BuildContext context) async {
@@ -172,4 +178,54 @@ class WalletSeedPage extends BasePage {
         break;
     }
   }
+}
+
+/// Shown while a seed that loads after the page opens (Minotari) is on its way, or why it
+/// failed with a retry.
+class SeedLoadState extends StatelessWidget {
+  const SeedLoadState(this.walletSeedViewModel);
+
+  final WalletSeedViewModel walletSeedViewModel;
+
+  @override
+  Widget build(BuildContext context) => Observer(builder: (_) {
+        final error = walletSeedViewModel.seedLoadError.value;
+        if (error == null) return const Center(child: CircularProgressIndicator());
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(error, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            PrimaryButton(
+              onPressed: walletSeedViewModel.loadMinotariSeed,
+              text: S.of(context).try_again,
+              color: Theme.of(context).colorScheme.primary,
+              textColor: Theme.of(context).colorScheme.onPrimary,
+            ),
+          ],
+        );
+      });
+}
+
+/// Disposes [walletSeedViewModel] when the page closes, so its seed copy goes with it.
+class ClearSeedOnDispose extends StatefulWidget {
+  const ClearSeedOnDispose(this.walletSeedViewModel, {required this.child});
+
+  final WalletSeedViewModel walletSeedViewModel;
+  final Widget child;
+
+  @override
+  State<ClearSeedOnDispose> createState() => _ClearSeedOnDisposeState();
+}
+
+class _ClearSeedOnDisposeState extends State<ClearSeedOnDispose> {
+  @override
+  void dispose() {
+    widget.walletSeedViewModel.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

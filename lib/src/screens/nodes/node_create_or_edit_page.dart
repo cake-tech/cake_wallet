@@ -76,6 +76,17 @@ class _NodeCreateOrEditPageState extends State<NodeCreateOrEditPage> {
     );
 
     reaction((_) => widget.nodeCreateOrEditViewModel.state, (state) async {
+      if (state is FailureState) {
+        await showPopUp<void>(
+          context: context,
+          builder: (context) => AlertWithOneAction(
+            alertTitle: S.of(context).error,
+            alertContent: state.error,
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop(),
+          ),
+        );
+      }
       if (state is ExecutedSuccessfullyState) {
         await Future.delayed(Duration(milliseconds: 100));
         if (mounted) Navigator.of(context).pop(widget.nodeCreateOrEditViewModel.editingNode);

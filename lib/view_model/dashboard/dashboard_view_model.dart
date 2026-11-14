@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/view_model/dashboard/minotari_transaction_status.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
@@ -21,6 +22,7 @@ import 'package:cake_wallet/entities/service_status.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/minotari/minotari.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
@@ -55,6 +57,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_history.dart';
@@ -383,6 +386,16 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isMigratingToIronwood =>
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
+
+  /// The ids of Minotari sends the user abandoned that were mined after all, which the user
+  /// hasn't been warned about yet.
+  List<String> get minotariAbandonAlerts => wallet.type == WalletType.minotari
+      ? minotari?.getAbandonAlerts(wallet) ?? const []
+      : const [];
+
+  /// [wallet]'s user has been warned that its abandoned send [transactionId] was mined.
+  Future<void> markMinotariAbandonAlerted(WalletBase wallet, String transactionId) =>
+      minotari!.markAbandonAlerted(wallet, transactionId);
 
   @computed
   bool get requiresManualShield => wallet.type == WalletType.zcash && wallet.isHardwareWallet;
@@ -1335,6 +1348,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.zano:
       case WalletType.haven:
       case WalletType.zcash:
+      case WalletType.minotari:
       case WalletType.none:
         return false;
     }
@@ -1595,7 +1609,19 @@ abstract class DashboardViewModelBase with Store {
     }
     settingsStore.currentBuiltinTor = value;
     if (value) {
-      unawaited(ensureTorStarted(context: context).then((_) async {
+      // Minotari can't use Tor: its scan stops before Tor starts, and stays stopped (Failed)
+      // if Tor fails to start, so nothing more leaves over clearnet.
+      final isMinotari = wallet.type == WalletType.minotari;
+      final stopMinotari = isMinotari ? wallet.stopSync() : Future<void>.value();
+      unawaited(stopMinotari
+          .then((_) => ensureTorStarted(context: context.mounted ? context : null))
+          .catchError((Object e, StackTrace s) {
+        if (isMinotari) {
+          wallet.syncStatus = FailedSyncStatus(
+              cause: const TorUnsupportedException('Minotari cannot use Tor yet.'));
+        }
+        Error.throwWithStackTrace(e, s);
+      }).then((_) async {
         if (settingsStore.currentBuiltinTor == false)
           return; // return when tor got disabled in the meantime;
         int? chainId;
@@ -1717,6 +1743,14 @@ abstract class DashboardViewModelBase with Store {
   String getTransactionType(TransactionInfo tx) {
     if (wallet.type == WalletType.bitcoin) {
       if (tx.isReplaced == true) return ' (replaced)';
+    }
+
+    if (wallet.type == WalletType.minotari && isMinotariFailedTransaction(tx)) {
+      return ' (${minotariTransactionStatus(tx)})';
+    }
+
+    if (wallet.type == WalletType.minotari && isMinotariSendNotAccepted(tx)) {
+      return ' (${S.current.minotari_not_accepted_by_node})';
     }
 
     if (wallet.chainId == 1 && tx.evmSignatureName == 'approval')

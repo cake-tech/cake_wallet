@@ -374,7 +374,10 @@ class SendTransactionDetails extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(S.of(context).fee,
+                            Text(
+                                transaction?.isFeeEstimate == true
+                                    ? S.of(context).estimated_fee
+                                    : S.of(context).fee,
                                 style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,

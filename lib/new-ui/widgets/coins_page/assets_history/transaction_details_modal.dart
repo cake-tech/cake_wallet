@@ -1,3 +1,5 @@
+import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -8,8 +10,11 @@ import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/transaction_details/address_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/confirmations_list_item.dart";
 import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -185,6 +190,27 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                           trailingIconSize: 8,
                                         ),
                                       ],
+                                      if (widget.transactionDetailsViewModel.canAbandonSend &&
+                                          !_abandoned)
+                                        "abandon": [
+                                          ListItemRegularRow(
+                                            keyValue: "abandon send",
+                                            label: S.of(context).abandon_send,
+                                            onTap: _abandonSend,
+                                          ),
+                                        ],
+                                      if (widget.transactionDetailsViewModel.canPayAgain)
+                                        "pay again": [
+                                          ListItemRegularRow(
+                                            keyValue: "pay again",
+                                            label: S.of(context).minotari_pay_again,
+                                            onTap: () => Navigator.of(context).pushNamed(
+                                              Routes.send,
+                                              arguments: widget
+                                                  .transactionDetailsViewModel.payAgainArguments,
+                                            ),
+                                          ),
+                                        ],
                                       if (widget.transactionDetailsViewModel.canReplaceByFee)
                                         "rbf": [
                                           ListItemRegularRow(
@@ -219,6 +245,71 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
           ),
         ),
       );
+
+  /// Taps are ignored while the confirmation is open or an abandon runs.
+  bool _abandoning = false;
+
+  /// This sheet keeps the transaction as it was; an abandoned send is now rejected.
+  bool _abandoned = false;
+
+  /// Asks first (an abandoned send can still be mined, so paying again risks paying twice),
+  /// then authenticates as for a send: abandoning frees funds that can then be spent.
+  Future<void> _abandonSend() async {
+    if (_abandoning) return;
+    _abandoning = true;
+    final bool confirmed;
+    try {
+      confirmed = await showPopUp<bool>(
+            context: context,
+            builder: (dialogContext) => AlertWithTwoActions(
+              alertTitle: S.of(dialogContext).abandon_send,
+              alertContent: S.of(dialogContext).abandon_send_confirmation,
+              leftButtonText: S.of(dialogContext).cancel,
+              rightButtonText: S.of(dialogContext).abandon_send,
+              actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+              actionRightButton: () => Navigator.of(dialogContext).pop(true),
+            ),
+          ) ==
+          true;
+    } finally {
+      _abandoning = false;
+    }
+    if (!confirmed || !mounted) return;
+
+    await getIt.get<AuthService>().authenticateAction(
+      context,
+      conditionToDetermineIfToUse2FA: widget.transactionDetailsViewModel.abandonNeeds2FA,
+      onAuthSuccess: (isAuthenticated) {
+        if (isAuthenticated) _runAbandon();
+      },
+    );
+  }
+
+  Future<void> _runAbandon() async {
+    if (_abandoning || !mounted) return;
+    _abandoning = true;
+    try {
+      String result;
+      try {
+        result = await widget.transactionDetailsViewModel.abandonSend();
+        if (mounted) setState(() => _abandoned = true);
+      } catch (e) {
+        result = e.toString();
+      }
+      if (!mounted) return;
+      await showPopUp<void>(
+        context: context,
+        builder: (dialogContext) => AlertWithOneAction(
+          alertTitle: S.of(dialogContext).abandon_send,
+          alertContent: result,
+          buttonText: S.of(dialogContext).ok,
+          buttonAction: () => Navigator.of(dialogContext).pop(),
+        ),
+      );
+    } finally {
+      _abandoning = false;
+    }
+  }
 
   Widget _buildTrailingWidget(TransactionDetailsListItem item) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),

@@ -17,6 +17,9 @@ mixin PendingTransaction {
   String get amountFormatted;
   String get feeFormatted => fee.toStringWithSymbol(fractionalDigits: 8);
   String get feeFormattedValue => fee.toStringWithPrecision(fractionalDigits: 8);
+
+  /// Whether [fee] is a quote the sent transaction may not match exactly.
+  bool get isFeeEstimate => false;
   String? feeRate;
   String get hex;
   String? get evmTxHashFromRawHex => null;

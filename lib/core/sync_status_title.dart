@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
 import 'package:cw_core/sync_status.dart';
 
 String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDisplayMode) {
@@ -46,6 +47,9 @@ String syncStatusTitle(SyncStatus syncStatus, SyncStatusDisplayMode syncStatusDi
   }
 
   if (syncStatus is FailedSyncStatus) {
+    if (syncStatus.cause is TorUnsupportedException) {
+      return S.current.minotari_tor_unsupported;
+    }
     if (syncStatus.error != null) {
       return syncStatus.error!;
     }

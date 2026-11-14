@@ -10,6 +10,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import 'package:cake_wallet/view_model/dashboard/minotari_transaction_status.dart';
 import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/payjoin_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
@@ -99,7 +100,12 @@ class CsvExportService {
   String _transactionRow(TransactionListItem item, String primaryAddress) {
     final tx = item.transaction;
     final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
-    final status = tx.isPending ? 'pending' : 'confirmed';
+    // A rejected (or abandoned), cancelled or reorganized Minotari send is neither.
+    final status = isMinotariFailedTransaction(tx)
+        ? tx.additionalInfo['status'] as String
+        : tx.isPending
+            ? 'pending'
+            : 'confirmed';
 
     // Prefer tx.to/tx.from; fall back to address lists for chains that don't populate them.
     final address = tx.direction == TransactionDirection.incoming

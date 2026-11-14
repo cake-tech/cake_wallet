@@ -58,6 +58,7 @@ const arbitrumDefaultNodeUri = 'arbitrum-one-rpc.publicnode.com';
 const bscDefaultNodeUri = 'bsc-dataseed.bnbchain.org';
 const robinhoodDefaultNodeUri = "robinhood-rpc.publicnode.com";
 const zcashDefaultNodeUri = 'zec.rocks:443';
+const minotariDefaultNodeUri = 'rpc.tari.com';
 
 Future<void> defaultSettingsMigration(
     {required int version,
@@ -658,6 +659,14 @@ Future<void> defaultSettingsMigration(
             sharedPreferences: sharedPreferences,
             type: WalletType.robinhood,
             currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
+          );
+          break;
+        case 73:
+          await addWalletNodeList(type: WalletType.minotari);
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.minotari,
+            currentNodePreferenceKey: PreferencesKey.currentMinotariNodeIdKey,
           );
           break;
         default:

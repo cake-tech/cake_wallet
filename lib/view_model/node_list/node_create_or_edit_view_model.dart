@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -144,6 +145,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       case WalletType.zano:
       case WalletType.decred:
       case WalletType.zcash:
+      case WalletType.minotari:
         return false;
     }
   }
@@ -252,6 +254,15 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @action
   Future<void> save({bool saveAsCurrent = false}) async {
+    // Minotari node traffic carries the wallet's own transactions; it must be TLS, and cw
+    // has no proxy support, so a SOCKS proxy would be silently bypassed.
+    if (walletType == WalletType.minotari && !useSSL) {
+      state = FailureState(S.current.minotari_node_requires_ssl);
+      return;
+    }
+    // The form has no proxy section for Minotari, so a proxy left on an older node is dropped
+    // here; the wallet would refuse a proxied node.
+    if (walletType == WalletType.minotari) socksProxyAddress = '';
     editingNode ??= Node();
     editingNode!.type = walletType;
     editingNode!.label = label;

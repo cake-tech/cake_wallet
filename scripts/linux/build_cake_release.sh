@@ -68,6 +68,7 @@ pushd scripts
 popd
 pushd scripts/linux
     source ./app_env.sh $APP_TYPE
+    ../prepare_minotari.sh linux
     ./app_config.sh
     ./build_monero_all.sh
 popd

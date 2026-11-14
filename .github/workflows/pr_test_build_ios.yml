@@ -224,6 +224,9 @@ jobs:
         run: ./scripts/prepare_reown.sh
 
 
+      - name: Prepare Minotari
+        run: ./scripts/prepare_minotari.sh ios
+
       - name: Execute Build and Setup Commands
         id: config
         run: |

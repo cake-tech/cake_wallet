@@ -50,6 +50,8 @@ class TestWallets {
         return secrets.dogeTestWalletSeeds;
       case WalletType.zcash:
         return secrets.zcashTestWalletSeeds;
+      case WalletType.minotari:
+        return secrets.minotariTestWalletSeeds;
       case WalletType.none:
       case WalletType.haven:
       case WalletType.banano:
@@ -87,6 +89,8 @@ class TestWallets {
         return secrets.nanoTestWalletReceiveAddress;
       case WalletType.wownero:
         return secrets.wowneroTestWalletReceiveAddress;
+      case WalletType.minotari:
+        return secrets.minotariTestWalletReceiveAddress;
       case WalletType.zano:
       case WalletType.decred:
       case WalletType.dogecoin:
@@ -103,4 +107,13 @@ class TestWallets {
   static String get moneroRestoreBlockHeight => secrets.moneroTestWalletBlockHeight;
 
   static String get zcashRestoreHeight => secrets.zcashTestWalletRestoreHeight;
+
+  // From CI secrets only, never committed: the spending flows need a funded mainnet wallet.
+  static String get minotariViewKey => secrets.minotariTestWalletViewKey;
+
+  static String get minotariSpendKey => secrets.minotariTestWalletSpendKey;
+
+  static String get minotariRestoreHeight => secrets.minotariTestWalletRestoreHeight;
+
+  static String get minotariRecipientAddress => secrets.minotariTestRecipientAddress;
 }

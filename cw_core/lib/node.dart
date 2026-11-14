@@ -299,6 +299,7 @@ class Node {
       case WalletType.tron:
       case WalletType.zano:
       case WalletType.decred:
+      case WalletType.minotari:
         return Uri.parse(
             "http${isSSL ? "s" : ""}://$uriRaw${path!.startsWith("/") || path!.isEmpty ? path : "/$path"}");
       case WalletType.none:
@@ -365,6 +366,8 @@ class Node {
           return requestZanoNode();
         case WalletType.decred:
           return requestDecredNode();
+        case WalletType.minotari:
+          return requestMinotariNode();
         case WalletType.none:
           return false;
       }
@@ -538,6 +541,21 @@ class Node {
       return response.statusCode >= 200 && response.statusCode < 300;
     } catch (err) {
       printV("Failed to request ethereum server: $err");
+      return false;
+    }
+  }
+
+  /// The Tari base node HTTP API answers `GET /get_tip_info`. Like the wallet, the probe
+  /// refuses what Minotari won't use: Tor (it can't yet), a SOCKS proxy, or a non-SSL node.
+  Future<bool> requestMinotariNode() async {
+    if (CakeTor.requestedOrStarted || useSocksProxy || !isSSL) return false;
+    try {
+      final response = await ProxyWrapper()
+          .get(clearnetUri: uri.replace(path: '${uri.path}/get_tip_info'.replaceAll('//', '/')))
+          .timeout(Duration(seconds: 10));
+      return response.statusCode == 200;
+    } catch (e) {
+      printV("error: $e");
       return false;
     }
   }
