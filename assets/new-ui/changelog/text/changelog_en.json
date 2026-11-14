@@ -1,18 +1,26 @@
 [
   {
-    "title": "Robinhood Chain",
-    "description": "Create Robinhood Chain wallets to send, receive and swap, with USDG and more tokens built in"
+    "title": "Zcash on Ledger",
+    "description": "Connect your Ledger to receive, shield and send ZEC"
   },
   {
-    "title": "Price Charts",
-    "description": "A new Charts tab to keep an eye on the prices of your assets"
+    "title": "Ready for Zcash NU7",
+    "description": "Your ZEC sends and shielding keep working through the NU7 network upgrade"
   },
   {
-    "title": "Bitcoin Accounts & Faster Sync",
-    "description": "Split your Bitcoin wallet into multiple accounts, and get up to date faster while history loads in the background"
+    "title": "BitBox02 Nova on iOS",
+    "description": "Use your BitBox02 Nova on iPhone and iPad over Bluetooth, with a pairing code check for a secure connection"
+  },
+  {
+    "title": "Faster Launch",
+    "description": "The app opens quicker, and wallets load and switch faster, especially on older phones or with many wallets"
+  },
+  {
+    "title": "BTC Map",
+    "description": "Find places to spend sats wherever you are, right from the Apps tab"
   },
   {
     "title": "Bug fixes & improvements",
-    "description": "Lightning amounts in sats, more Tor nodes, Monero core update, smoother Bitcoin wallets and more"
+    "description": "Stronger 2FA and backup protections, no more Bitcoin and Litecoin wallets stuck on Connecting, MoonPay on Arbitrum and more"
   }
 ]

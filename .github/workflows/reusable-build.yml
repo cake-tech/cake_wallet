@@ -21,6 +21,7 @@ defaults:
 env:
   CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
   CW_DOCKER_USE_CLOUD: "true"
+  GITHUB_TOKEN: ${{ github.token }}
 
 jobs:
   base:
@@ -41,26 +42,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build base
         run: ./scripts/android/docker/build.sh --only base
-
-  bitbox:
-    needs: base
-    runs-on: puzl-ubuntu-latest
-    timeout-minutes: 360
-    steps:
-      - uses: actions/checkout@v4
-        if: ${{ env.ACT != 'true' }}
-        with:
-          ref: ${{ inputs.ref }}
-      - name: Docker sock permissions
-        run: sudo chmod 666 /var/run/docker.sock || true
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build bitbox
-        run: ./scripts/android/docker/build.sh --only bitbox
 
   mwebd:
     needs: base
@@ -236,7 +217,7 @@ jobs:
         run: ./scripts/android/docker/build.sh --only decred
 
   final:
-    needs: [bitbox, mwebd, reown, zcash, torch_merge, monero_merge, decred]
+    needs: [mwebd, reown, zcash, torch_merge, monero_merge, decred]
     runs-on: puzl-ubuntu-latest
     timeout-minutes: 360
     steps:
@@ -403,43 +384,38 @@ jobs:
             --dart-define=CI_BRANCH="$BRANCH_NAME" \
             --release --split-per-abi
 
-      - name: Rename apk file
+      - name: Name apks after the branch
+        id: apks
         run: |
-          sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
-          cd build/app/outputs/flutter-apk
-          mkdir test-apk
-          cp app-arm64-v8a-release.apk test-apk/${sanitized_branch_name}.apk
-          cp app-x86_64-release.apk test-apk/${sanitized_branch_name}_x86.apk
+          # Artifact names reject / \ : * ? " < > |
+          safe_branch=$(printf '%s' "$BRANCH_NAME" | sed 's#[/\\:*?"<>|]#-#g' | tr -d '\r\n')
+          dir=build/app/outputs/flutter-apk/named
+          mkdir -p "$dir"
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "$dir/${safe_branch}.apk"
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "$dir/${safe_branch}_v7a.apk"
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk "$dir/${safe_branch}_x86.apk"
+          echo "branch=$safe_branch" >> "$GITHUB_OUTPUT"
 
-      - name: Find APK file
-        id: find_apk
-        run: |
-          set -x
-          sanitized_branch_name=$(grep '^id=' android/app.properties | cut -d'=' -f2 | sed 's/com\.cakewallet\.test_//')
-          apk_file=$(ls build/app/outputs/flutter-apk/test-apk/${sanitized_branch_name}.apk || exit 1)
-          echo "APK_FILE=$apk_file" >> $GITHUB_ENV
-      - name: Write BRANCH_NAME to env
-        run: echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
-
-      - name: Upload to slack step
-        uses: vaporif/slack-file-upload-action@v1
-        with:
-          token: ${{ secrets.SLACK_APP_TOKEN }}
-          initial_comment: ${{ env.message }}
-          files: >
-            [
-              {"file": "${{ env.APK_FILE }}", "filename": "${{ env.BRANCH_NAME }}.apk"}
-            ]
-          channel_id: ${{ secrets.SLACK_APK_CHANNEL }}
-
-      - name: cleanup
-        run: rm -rf build/app/outputs/flutter-apk/test-apk/
-
-      - name: Upload Artifact to github
+      - name: Upload arm64 apk
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ github.workspace }}/build/app/outputs/flutter-apk
-          name: "android apk"
+          name: ${{ steps.apks.outputs.branch }}.apk
+          path: build/app/outputs/flutter-apk/named/${{ steps.apks.outputs.branch }}.apk
+          if-no-files-found: error
+
+      - name: Upload x86_64 apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apks.outputs.branch }}_x86.apk
+          path: build/app/outputs/flutter-apk/named/${{ steps.apks.outputs.branch }}_x86.apk
+          if-no-files-found: error
+
+      - name: Upload armeabi-v7a apk
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apks.outputs.branch }}_v7a.apk
+          path: build/app/outputs/flutter-apk/named/${{ steps.apks.outputs.branch }}_v7a.apk
+          if-no-files-found: error
 
       - name: 16KB align
         run: |
@@ -447,3 +423,33 @@ jobs:
           for i in arm64-v8a x86_64; do
             ../../../../scripts/android/check_16kb_align.sh app-$i-release.apk
           done
+
+      - name: Post the build to slack
+        if: ${{ !cancelled() }}
+        env:
+          SLACK_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_APK_CHANNEL }}
+          RUN_URL: https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
+            echo "::notice::No slack token or channel configured, skipping the report"
+            exit 0
+          fi
+
+          label=$(printf '%s' "$BRANCH_NAME" | tr '\n\r' ' ' | tr -d '<>|')
+          text=$(printf ':cw: <%s|%s>' "$RUN_URL" "$label")
+          if [[ -n "$message" ]]; then
+            text=$(printf '%s\n%s' "$text" "$message")
+          fi
+
+          response=$(curl -sS -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_TOKEN" \
+            -H "Content-type: application/json; charset=utf-8" \
+            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$text" \
+              '{channel: $channel, text: $text}')")
+
+          if [[ "$(jq -r '.ok' <<< "$response")" != "true" ]]; then
+            error=$(jq -r '.error // "unknown"' <<< "$response")
+            echo "::warning::Slack rejected the build post: $error"
+            exit 0
+          fi

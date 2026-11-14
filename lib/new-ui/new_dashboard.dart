@@ -159,6 +159,7 @@ class _NewDashboardState extends State<NewDashboard> {
                 builder: (context) {
                   return ChangelogModal(
                     version: widget.dashboardViewModel.settingsStore.appVersion,
+                    languageCode: widget.dashboardViewModel.settingsStore.languageCode,
                   );
                 });
           }

@@ -1,6 +1,6 @@
-import 'package:bitbox_flutter/usb/bitbox_device.dart' as bitbox;
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
-import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
+import "package:bitbox_flutter/bitbox_flutter.dart" as bitbox;
+import "package:ledger_flutter_plus/ledger_flutter_plus.dart" as ledger;
+import "package:trezor_flutter/trezor_flutter.dart" as trezor;
 
 abstract class HardwareWalletDevice {
   String get name;
@@ -11,9 +11,9 @@ abstract class HardwareWalletDevice {
 }
 
 class LedgerHardwareWalletDevice extends HardwareWalletDevice {
-  final ledger.LedgerDevice device;
-
   LedgerHardwareWalletDevice(this.device);
+
+  final ledger.LedgerDevice device;
 
   @override
   String get name => device.name;
@@ -26,26 +26,27 @@ class LedgerHardwareWalletDevice extends HardwareWalletDevice {
 }
 
 class BitboxHardwareWalletDevice extends HardwareWalletDevice {
-  final bitbox.BitboxDevice device;
-
   BitboxHardwareWalletDevice(this.device);
+
+  final bitbox.BitboxDevice device;
 
   @override
   String get name => device.productName;
 
   @override
   HardwareWalletDeviceType get type => name.contains("BitBox02 Nova")
-      ? HardwareWalletDeviceType.BitBox02Nova
-      : HardwareWalletDeviceType.BitBox02;
+      ? HardwareWalletDeviceType.bitBox02Nova
+      : HardwareWalletDeviceType.bitBox02;
 
   @override
-  HardwareWalletConnectionType get connectionType => HardwareWalletConnectionType.usb;
+  HardwareWalletConnectionType get connectionType =>
+      device.isUsb ? HardwareWalletConnectionType.usb : HardwareWalletConnectionType.ble;
 }
 
 class TrezorHardwareWalletDevice extends HardwareWalletDevice {
-  final trezor.TrezorDevice device;
-
   TrezorHardwareWalletDevice(this.device);
+
+  final trezor.TrezorDevice device;
 
   @override
   String get name => device.name;
@@ -65,8 +66,8 @@ enum HardwareWalletDeviceType {
   ledgerNanoGen5,
   ledgerStax,
   ledgerFlex,
-  BitBox02,
-  BitBox02Nova,
+  bitBox02,
+  bitBox02Nova,
   trezorModelOne,
   trezorModelT,
   trezorSafe3,

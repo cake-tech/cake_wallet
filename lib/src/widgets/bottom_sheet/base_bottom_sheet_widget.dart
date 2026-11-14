@@ -61,7 +61,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
               children: <Widget>[
                 _buildHeader(context),
                 contentWidget(context),
-                _buildFooter(context),
+                buildFooter(context),
               ],
             ),
           ),
@@ -103,7 +103,7 @@ abstract class BaseBottomSheet extends StatelessWidget {
         ],
       );
 
-  Widget _buildFooter(BuildContext context) {
+  Widget buildFooter(BuildContext context) {
     switch (footerType) {
       case FooterType.none:
         return const SizedBox.shrink();

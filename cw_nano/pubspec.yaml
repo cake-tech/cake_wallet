@@ -2,7 +2,6 @@ name: cw_nano
 description: A new Flutter package project.
 version: 0.0.1
 publish_to: none
-author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
@@ -14,12 +13,7 @@ dependencies:
     sdk: flutter
   mobx: ^2.6.0
   bip39: ^1.0.6
-  bip32: ^2.0.0
-  decimal: ^2.3.3
-  libcrypto: ^0.2.2
-  ed25519_hd_key: ^2.2.0
   hex: ^0.2.0
-  http: ^1.1.0
   shared_preferences: ^2.0.15
   nanoutil:
     git:
