@@ -385,7 +385,8 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
   @computed
-  bool get requiresManualShield => wallet.type == WalletType.zcash && wallet.isHardwareWallet;
+  bool get requiresManualShield =>
+      wallet.type == WalletType.zcash && wallet.hardwareWalletType != null;
 
   @computed
   bool get isSyncHeavy {
