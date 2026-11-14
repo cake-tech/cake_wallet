@@ -3,6 +3,7 @@ import 'dart:io';
 import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import "package:cake_wallet/new-ui/modal_transition_snapshot.dart";
 import "package:cake_wallet/new-ui/page_open_listener.dart";
 import "package:cake_wallet/new-ui/page_open_listener.dart";
 import 'package:cake_wallet/new-ui/pages/charts_page.dart';
@@ -74,63 +75,65 @@ class _NewDashboardState extends State<NewDashboard> {
     return BottomSheetListener(
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
-        body: Material(
-          key: ValueKey("new_dashboard_page_key"),
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              // widget.dashboardPageWidgets[_selectedPage],
-              IndexedStack(
-                index: _selectedPage,
-                children: widget.dashboardPageWidgets,
-              ),
-              IgnorePointer(
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                      ],
+        body: ModalTransitionSnapshot(
+          child: Material(
+            key: ValueKey("new_dashboard_page_key"),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                // widget.dashboardPageWidgets[_selectedPage],
+                IndexedStack(
+                  index: _selectedPage,
+                  children: widget.dashboardPageWidgets,
+                ),
+                IgnorePointer(
+                  child: Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Invisible pointer-absorbing strip behind the nav bar: it must not
-              // be reachable by screen-reader traversal either.
-              ExcludeSemantics(
-                child: SafeArea(
-                  bottom: !(Platform.isIOS),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
-                    child: AbsorbPointer(
-                      absorbing: true,
-                      child: Container(color: Colors.transparent),
+                // Invisible pointer-absorbing strip behind the nav bar: it must not
+                // be reachable by screen-reader traversal either.
+                ExcludeSemantics(
+                  child: SafeArea(
+                    bottom: !(Platform.isIOS),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                      child: AbsorbPointer(
+                        absorbing: true,
+                        child: Container(color: Colors.transparent),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              NewMainNavBar(
-                dashboardViewModel: widget.dashboardViewModel,
-                selectedIndex: _selectedPage,
-                onItemTap: (index) {
-                  setState(() {
-                    _selectedPage = index;
-                  });
-                  if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
-                    page.onPageOpen();
-                  }
-                },
-              )
-            ],
+                NewMainNavBar(
+                  dashboardViewModel: widget.dashboardViewModel,
+                  selectedIndex: _selectedPage,
+                  onItemTap: (index) {
+                    setState(() {
+                      _selectedPage = index;
+                    });
+                    if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
+                      page.onPageOpen();
+                    }
+                  },
+                )
+              ],
+            ),
           ),
         ),
       ),
