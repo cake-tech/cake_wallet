@@ -234,7 +234,7 @@ abstract class BitcoinCashWalletBase extends ElectrumWallet with Store {
   @override
   Future<String> signMessage(String message, {String? address}) async {
     final addressEntry = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
+        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address, orElse: () => null)
         : null;
 
     if (walletInfo.isHardwareWallet) {
