@@ -73,7 +73,7 @@ class PillSegmentedControl<T> extends StatelessWidget {
                                 ? BoxDecoration(
                                     border: Border(
                                       left: BorderSide(
-                                        color: colorScheme.onSurface,
+                                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                                         width: _dividerWidth,
                                       ),
                                     ),
