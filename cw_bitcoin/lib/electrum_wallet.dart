@@ -150,6 +150,10 @@ abstract class ElectrumWalletBase
   /// For LEGACY addresses, returns the wallet's legacy derivation base (derivationInfo.derivationPath)
   /// which is already the account path used historically (e.g. m/0' or m/84'/0'/0').
   String _accountDerivationPathForRecord(BaseBitcoinAddressRecord record) {
+    if (isHardwareWallet && (derivationInfo.derivationPath?.isNotEmpty ?? false)) {
+      return derivationInfo.derivationPath!;
+    }
+
     if (derivationInfo.derivationType == DerivationType.electrum) {
       return derivationInfo.derivationPath ?? electrum_path; // m/0'
     }
