@@ -10,6 +10,7 @@ class ListItemToggleWidget extends StatefulWidget {
     required this.label,
     this.subtitle,
     this.iconPath,
+    this.iconColor,
     required this.value,
     required this.onChanged,
     this.leadingEndWidget,
@@ -19,6 +20,7 @@ class ListItemToggleWidget extends StatefulWidget {
 
   final String keyValue;
   final String? iconPath;
+  final Color? iconColor;
   final String label;
   final String? subtitle;
   final bool value;
@@ -42,6 +44,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
     return ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
+        iconPath: widget.iconPath,
         onTap: () {
           widget.onChanged(!widget.value);
         },
@@ -53,8 +56,13 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                 child: Row(
                   spacing: 8,
                   children: [
-                    if(widget.iconPath != null && widget.iconPath!.isNotEmpty)
-                    CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24,),
+                    if (widget.iconPath != null && widget.iconPath!.isNotEmpty)
+                      CakeImageWidget(
+                        imageUrl: widget.iconPath,
+                        width: 24,
+                        height: 24,
+                        color: widget.iconColor,
+                      ),
                     Flexible(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,

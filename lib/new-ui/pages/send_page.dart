@@ -933,7 +933,7 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (!widget.mode.popOnConfirmation && Navigator.canPop(context)) {
+          if (!widget.mode.popOnConfirmation && mounted && Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
           }
           showModalBottomSheet(
@@ -993,7 +993,7 @@ class _NewSendPageState extends State<NewSendPage> {
     final balanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
-          amount: "${r.availableBalance} ${r.asset.title}",
+          amount: "${r.availableBalance} ${r.formattedAssetTitle}",
           fiat: isFiatDisabled ? null : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
@@ -1170,6 +1170,12 @@ class _NewSendPageState extends State<NewSendPage> {
     } catch (e) {
       printV("Payment flow error: $e");
       _applyPaymentRequest(evaluationResult.request.paymentRequest);
+    }
+
+    for (final output in widget.sendViewModel.outputs) {
+      if (output.estimatedFee.currency != widget.sendViewModel.currency) {
+        await output.calculateEstimatedFee();
+      }
     }
   }
 
