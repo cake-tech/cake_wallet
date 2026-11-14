@@ -202,11 +202,15 @@ class ExceptionHandler {
             rightButtonText: S.of(context).send,
             leftButtonText: S.of(context).do_not_send,
             actionRightButton: () {
-              Navigator.of(context).pop();
+              if (Navigator.canPop(context)) {
+                Navigator.of(context).pop();
+              }
               _sendExceptionFile();
             },
             actionLeftButton: () {
-              Navigator.of(context).pop();
+              if (Navigator.canPop(context)) {
+                Navigator.of(context).pop();
+              }
             },
           );
         },

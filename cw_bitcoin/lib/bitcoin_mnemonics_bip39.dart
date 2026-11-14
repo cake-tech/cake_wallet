@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 
 class MnemonicBip39 {
   /// Generate bip39 mnemonic
@@ -8,5 +9,5 @@ class MnemonicBip39 {
 
   /// Create root seed from mnemonic
   static Uint8List toSeed(String mnemonic, {String? passphrase}) =>
-      bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+      bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
 }
