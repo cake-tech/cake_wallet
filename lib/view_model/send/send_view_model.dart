@@ -27,7 +27,7 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_intents/near_intents_exchange_provider.dart';
 import 'package:cake_wallet/solana/solana.dart';
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
