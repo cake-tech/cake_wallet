@@ -6,16 +6,14 @@ class PickerSectionHeader extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+  Widget build(BuildContext context) => Padding(
+      padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              letterSpacing: -0.06,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
       ),
     );
-  }
 }
