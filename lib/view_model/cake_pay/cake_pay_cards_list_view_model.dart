@@ -203,7 +203,8 @@ abstract class CakePayCardsListViewModelBase with Store {
   @action
   Future<void> checkMaintenance() async {
     try {
-      isUnderMaintenance = await cakePayService.isUnderMaintenance();
+      isUnderMaintenance =
+          await cakePayService.isUnderMaintenance().timeout(const Duration(seconds: 10));
     } catch (e) {
       printV(e);
       isUnderMaintenance = false;
