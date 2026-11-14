@@ -69,12 +69,6 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   }
 
   void _onItemTap(int index) {
-    // if (index == widget.selectedIndex) return;
-    //
-    // setState(() {
-    //   widget.selectedIndex = index;
-    // });
-
     widget.onItemTap(index);
 
     NewMainActions.all[index].onTap.call();
@@ -128,12 +122,16 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
             .where((action) => action.canShow?.call(widget.dashboardViewModel) ?? true)
             .toList();
 
-        final pillWidth = _estimatePillWidthForAction(context, visibleActions[widget.selectedIndex],
+        final realSelectedIndex = visibleActions.indexOf(NewMainActions.all[widget.selectedIndex]);
+
+
+        final pillWidth = _estimatePillWidthForAction(context, visibleActions[realSelectedIndex],
             color: activeColor);
 
         final barWidth = calcBarWidth(pillWidth, visibleActions.length);
 
-        final currentAction = visibleActions[widget.selectedIndex];
+
+        final currentAction = visibleActions[realSelectedIndex];
 
         return Align(
           alignment: Alignment.bottomCenter,
@@ -166,7 +164,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                             alignment: Alignment.center,
                             children: [
                               AnimatedPill(
-                                left: calcLeft(widget.selectedIndex, pillWidth),
+                                left: calcLeft(realSelectedIndex, pillWidth),
                                 pillColor: pillColor,
                                 currentAction: currentAction,
                                 pillIconHeight: pillIconHeight,
@@ -184,14 +182,14 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                   duration: pillResizeDuration,
                                   width: iconBoxWidth,
                                   left: calcLeft(i, pillWidth) +
-                                      ((i == widget.selectedIndex)
+                                      ((i == realSelectedIndex)
                                           ? iconHorizontalPadding / 100
                                           : 0),
                                   curve: Curves.easeOutCubic,
                                   child: Semantics(
                                     identifier: TestId.fromKey(visibleActions[i].key),
                                     button: true,
-                                    selected: i == widget.selectedIndex,
+                                    selected: i == realSelectedIndex,
                                     inMutuallyExclusiveGroup: true,
                                     label: visibleActions[i].name(context),
                                     child: InkWell(
@@ -199,12 +197,12 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                       splashFactory: NoSplash.splashFactory,
                                       splashColor: Colors.transparent,
                                       borderRadius: BorderRadius.circular(pillBorderRadius),
-                                      onTap: () => _onItemTap(i),
+                                      onTap: () => _onItemTap(NewMainActions.all.indexOf(visibleActions[i])),
                                       child: AnimatedContainer(
                                         duration:
                                             _firstFrame ? Duration.zero : inactiveIconMoveDuration,
                                         curve: Curves.easeOutCubic,
-                                        width: i == widget.selectedIndex ? pillWidth : iconBoxWidth,
+                                        width: i == realSelectedIndex ? pillWidth : iconBoxWidth,
                                         alignment: Alignment.center,
                                         child: AnimatedAlign(
                                           duration: inactiveIconFadeDuration,
@@ -213,13 +211,13 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                           child: AnimatedScale(
                                             duration: inactiveIconAppearDuration,
                                             curve: Curves.easeOutCubic,
-                                            scale: (i == widget.selectedIndex) ? 0.857 : 1.0,
+                                            scale: (i == realSelectedIndex) ? 0.857 : 1.0,
                                             child: TweenAnimationBuilder<Color?>(
                                                 tween: ColorTween(
-                                                  begin: (i == widget.selectedIndex)
+                                                  begin: (i == realSelectedIndex)
                                                       ? inactiveColor
                                                       : activeColor,
-                                                  end: (i == widget.selectedIndex)
+                                                  end: (i == realSelectedIndex)
                                                       ? activeColor
                                                       : inactiveColor,
                                                 ),

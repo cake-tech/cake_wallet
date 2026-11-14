@@ -107,6 +107,7 @@ abstract class ContactListViewModelBase with Store {
                       : info.network!.toLowerCase().contains("testnet"),
                 ),
                 walletType: info.type,
+                label: label,
               ));
             });
           }
@@ -171,9 +172,7 @@ abstract class ContactListViewModelBase with Store {
 
   bool _isValidForCurrency(ContactBase element, bool isWalletContact) {
     if (_currency == null) return true;
-    if (!element.name.contains('Active') &&
-        isWalletContact &&
-        (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
+    if (isWalletContact && element is WalletContact && !element.isPickable) return false;
 
     final currencyMatches = element.type == _currency;
 

@@ -49,13 +49,13 @@ class YwalletAccountInfo {
   final String ivk;
   final String address;
   static YwalletAccountInfo fromJson(final Map<String, dynamic> j) => YwalletAccountInfo(
-    idAccount: j['id_account'],
-    name: j['name'],
-    seed: j['seed'],
-    aindex: j['aindex'],
-    sk: j['sk'],
-    ivk: j['ivk'],
-    address: j['address'],
+    idAccount: j['id_account'] as int,
+    name: j['name'] as String,
+    seed: j['seed'] as String,
+    aindex: j['aindex'] as int,
+    sk: j['sk'] as String,
+    ivk: j['ivk'] as String,
+    address: j['address'] as String,
   );
 }
 
