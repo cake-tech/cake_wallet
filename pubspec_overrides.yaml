@@ -112,11 +112,6 @@ dependency_overrides:
       url: https://github.com/dart-lang/tools
       ref: b1312b18df67b0be3101ca15c03dfd8d7c9383bb
       path: ./pkgs/boolean_selector
-  borsh_annotation:
-    git:
-      url: https://github.com/espresso-cash/espresso-cash-public
-      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      path: ./packages/borsh_annotation
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
@@ -539,7 +534,7 @@ dependency_overrides:
   flutter_mailer:
     git:
       url: https://github.com/taljacobson/flutter_mailer
-      ref: 9c4ed111a9151a2bbfb9afe2c18a37599c6f84f3
+      ref: 7280c3a17152be21be8bb2e172610dd8888049d2
   flutter_mobx:
     git:
       url: https://github.com/mobxjs/mobx.dart
@@ -861,7 +856,7 @@ dependency_overrides:
   ledger_flutter_plus:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
@@ -1239,7 +1234,7 @@ dependency_overrides:
   rlz:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
       path: ./rust_builder
   rxdart:
     git:
@@ -1339,11 +1334,6 @@ dependency_overrides:
     git:
       url: https://github.com/sneurlax/socks_socket
       ref: e6232c53c1595469931ababa878759a067c02e94
-  solana:
-    git:
-      url: https://github.com/espresso-cash/espresso-cash-public
-      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      path: ./packages/solana
   source_gen:
     git:
       url: https://github.com/dart-lang/source_gen
@@ -1681,4 +1671,4 @@ dependency_overrides:
   zkool:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: 36e72b530c274c4a54a6127aadb94886e84d67bf
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653

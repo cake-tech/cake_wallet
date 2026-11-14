@@ -1,13 +1,5 @@
-#!/bin/sh
-source "$(cd "$(dirname "$0")/.." && pwd)/functions.sh"
-
-. ./config.sh
-# ./install_missing_headers.sh
-# ./build_openssl.sh
-# ./build_boost.sh
-# ./build_sodium.sh
-# ./build_zmq.sh
-# ./build_unbound.sh
+#!/bin/bash
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/functions.sh"
 
 set -x -e
 
@@ -15,12 +7,29 @@ cd "$(dirname "$0")"
 
 ../prepare_moneroc.sh
 
-for COIN in monero wownero zano;
+if [[ -n "${COIN:-}" ]]; then
+    COINS=("$COIN")
+else
+    COINS=(monero wownero zano)
+fi
+
+if [[ -n "${TARGET:-}" ]]; then
+    TARGETS=("$TARGET")
+else
+    TARGETS=(aarch64-apple-ios aarch64-apple-ios-simulator)
+fi
+
+for COIN in "${COINS[@]}";
 do
     pushd ../monero_c
-        ./build_single.sh ${COIN} aarch64-apple-ios -j$MAKE_JOB_COUNT
-        ./build_single.sh ${COIN} aarch64-apple-ios-simulator -j$MAKE_JOB_COUNT
+        for target in "${TARGETS[@]}"
+        do
+            ./build_single.sh ${COIN} $target -j$MAKE_JOB_COUNT
+        done
     popd
 done
 
-./gen_framework.sh
+# needs xcodebuild, on linux (ci cache) only the dylibs are produced
+if [[ "$(uname)" == "Darwin" ]]; then
+    ./gen_framework.sh
+fi

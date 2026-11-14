@@ -1,8 +1,5 @@
-class MoneroTransactionCreationException implements Exception {
-  MoneroTransactionCreationException(this.message);
+import "package:cw_core/exceptions/cake_exception.dart";
 
-  final String message;
-
-  @override
-  String toString() => message;
+class MoneroTransactionCreationException extends TransactionGenerationException {
+  const MoneroTransactionCreationException(super.message);
 }

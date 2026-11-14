@@ -9,9 +9,10 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
-import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
+import "package:cake_wallet/zcash/zcash.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/hardware/device_connection_type.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -22,6 +23,7 @@ import "package:flutter/widgets.dart";
 import "package:ledger_flutter_plus/ledger_flutter_plus.dart" as sdk;
 import "package:mobx/mobx.dart";
 import "package:permission_handler/permission_handler.dart";
+import "package:cake_wallet/store/app_store.dart";
 
 part "ledger_view_model.g.dart";
 
@@ -56,7 +58,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       return DeviceConnectionType.supportedConnectionTypes(
         WalletType.monero,
         HardwareWalletType.ledger,
-        Platform.isIOS,
+        isIOS: Platform.isIOS,
       ).isNotEmpty;
     }
 
@@ -225,8 +227,10 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
+      case WalletType.zcash:
+        return zcash!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
-        throw Exception("Unexpected wallet type: ${wallet.type} for ledger");
+        throw BadWalletTypeException("Unexpected wallet type: ${wallet.type} for ledger", wallet.type);
     }
   }
 
@@ -242,6 +246,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getLedgerHardwareWalletService(connection);
+      case WalletType.zcash:
+        return zcash!.getLedgerHardwareWalletService(connection);
       default:
         throw UnimplementedError();
     }

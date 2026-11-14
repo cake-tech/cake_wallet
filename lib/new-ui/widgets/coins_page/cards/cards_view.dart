@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:cake_wallet/core/utilities.dart';
+import 'package:cw_core/balance_card_layout.dart';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/di.dart';
@@ -9,7 +11,6 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -60,9 +61,9 @@ class _CardsViewState extends State<CardsView> {
     _selectedIndex = _fallbackSelectedIndex;
     _cardOrderReaction = reaction(
           (_) => widget.dashboardViewModel.cardOrder.values.toList(),
-          (_) => setState(() {
-        _selectedIndex = _fallbackSelectedIndex;
-      }),
+          (_) {
+        if (mounted) setState(() => _selectedIndex = _fallbackSelectedIndex);
+      },
     );
   }
 
@@ -96,20 +97,18 @@ class _CardsViewState extends State<CardsView> {
 
     final isSelected = _selectedIndex == visualIndex;
     final accounts = widget.accountListViewModel?.accounts;
-    final cardLabel = (!_hideAccountInfo && accounts != null && realIndex < accounts.length)
-        ? accounts[realIndex].label
-        : S.of(context).balance;
+    final account = accounts?.firstWhereOrNull((account) => account.id == realIndex);
+    final cardLabel = !_hideAccountInfo && account != null ? account.label : S.of(context).balance;
 
-    void onCardTap() {
+    Future<void> onCardTap() async {
       // printV(visualIndex);
       if (compactMode && visualIndex != 0) {
         widget.onCompactModeBackgroundCardsTapped();
       } else if (!compactMode) {
-        setState(() {
-          if (widget.accountListViewModel != null && !widget.lightningMode)
-            widget.accountListViewModel!.select(widget.accountListViewModel!.accounts[realIndex]);
-          _selectedIndex = visualIndex;
-        });
+        if (account != null && !_hideAccountInfo) {
+          await widget.accountListViewModel!.select(account);
+        }
+        if (mounted) setState(() => _selectedIndex = visualIndex);
       }
     }
 
@@ -149,10 +148,8 @@ class _CardsViewState extends State<CardsView> {
             onTap: onCardTap,
             onLongPress: onCardLongPress,
             child: Observer(builder: (_) {
-              if (realIndex >= (widget.accountListViewModel?.accounts.length ?? 1)) {
-                return Container();
-              }
-              final account = widget.accountListViewModel?.accounts[realIndex];
+              final account = widget.accountListViewModel?.accounts
+                  .firstWhereOrNull((account) => account.id == realIndex);
 
               // The second balance should always be the lightning balance
               // printV(widget.dashboardViewModel.balanceViewModel.formattedBalances.first.availableBalance);
@@ -180,25 +177,17 @@ class _CardsViewState extends State<CardsView> {
 
               // the card designs is empty if widget gets built before it loads.
               // should get populated before user sees anything
-              final CardDesign cardDesign;
-              if (widget.dashboardViewModel.cardDesigns.isEmpty ||
-                  realIndex >= widget.dashboardViewModel.cardDesigns.length)
-                cardDesign = CardDesign.genericDefault;
-              else if (widget.lightningMode)
-                // the lightning design is always the last one (after all bitcoin accounts)
-                cardDesign = widget.dashboardViewModel.cardDesigns.last;
-              else
-                cardDesign = widget.dashboardViewModel.cardDesigns[realIndex];
+              final designIndex = widget.dashboardViewModel.cardAccountIndices.indexOf(
+                widget.lightningMode ? -2 : realIndex,
+              );
+              final cardDesign = designIndex < 0 ||
+                      designIndex >= widget.dashboardViewModel.cardDesigns.length
+                  ? CardDesign.genericDefault
+                  : widget.dashboardViewModel.cardDesigns[designIndex];
 
-              final String accountName;
-              final String accountBalance;
-              if (account == null || _hideAccountInfo) {
-                accountName = "";
-                accountBalance = "";
-              } else {
-                accountName = account.label;
-                accountBalance = account.balance ?? "0.00";
-              }
+              final showAccount = account != null && !_hideAccountInfo;
+              final accountName = showAccount ? account.label : "";
+              final accountBalance = showAccount ? account.balance : null;
 
               final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
                   ? ""
@@ -288,28 +277,13 @@ class _CardsViewState extends State<CardsView> {
   }
 
 
-  int _visibleCardsCount() {
-    if (widget.dashboardViewModel.wallet.type != WalletType.bitcoin) {
-      return widget.dashboardViewModel.cardDesigns.length;
-    }
-
-    if (widget.lightningMode || !widget.dashboardViewModel.isMultiAccountsEnabled) {
-      return 1;
-    }
-
-    return widget.accountListViewModel?.accounts.length ?? 1;
-  }
-
   int? _visualIndexForSelectedAccount(Map<int, int> order) {
     final vm = widget.accountListViewModel;
     if (vm == null || _hideAccountInfo) return null;
 
     final selectedId = vm.selectedAccount?.id;
-    final realIndex = vm.accounts.indexWhere((a) => a.id == selectedId);
-    if (realIndex < 0) return null;
-
     for (final entry in order.entries) {
-      if (entry.value == realIndex) return entry.key;
+      if (entry.value == selectedId) return entry.key;
     }
     return null;
   }
@@ -319,27 +293,15 @@ class _CardsViewState extends State<CardsView> {
       final parentWidth = MediaQuery.of(context).size.width;
       final children = <Widget>[];
 
-      int numCards = _visibleCardsCount();
-      if (numCards == 0) numCards = 1;
-
-      if (_selectedIndex >= numCards) {
-        _selectedIndex = 0;
+      final stack = _hideAccountInfo
+          ? const [0]
+          : BalanceCardLayout.stackFromOrder(widget.dashboardViewModel.cardOrder);
+      if (stack.isEmpty) return const SizedBox.shrink();
+      final numCards = stack.length;
+      if (_selectedIndex < 0 || _selectedIndex >= numCards) {
+        _selectedIndex = numCards - 1;
       }
-
-      Map<int, int> order = widget.dashboardViewModel.cardOrder.length != numCards
-          ? Map<int, int>.fromEntries(
-        List.generate(numCards, (i) => MapEntry(i, i)),
-      )
-          : widget.dashboardViewModel.cardOrder;
-
-      for (int i = min(numCards - 1, maxCards); i >= 0; i--) {
-        int visualIndex = (_selectedIndex - i + numCards) % numCards;
-        if (order[visualIndex] == null) {
-          order = Map<int, int>.fromEntries(
-            List.generate(numCards, (i) => MapEntry(i, i)),
-          );
-        }
-      }
+      final order = {for (int i = 0; i < stack.length; i++) i: stack[i]};
 
       final followIndex = _visualIndexForSelectedAccount(order);
       if (followIndex != null) _selectedIndex = followIndex;

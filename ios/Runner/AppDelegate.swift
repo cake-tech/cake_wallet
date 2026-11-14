@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import CallKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -98,19 +99,40 @@ import Flutter
                     }
 
                     result(nil)
+
+                case "keychain_read_status":
+                    guard let args = call.arguments as? Dictionary<String, Any>,
+                          let key = args["key"] as? String else {
+                        result(nil)
+                        return
+                    }
+
+                    result(keychainReadStatus(key: key))
+
+                case "is_on_phone_call":
+                    result(self?.phoneCallStatus.isOnPhoneCall ?? false)
                 default:
                     result(FlutterMethodNotImplemented)
                 }
             })
+
+            FlutterEventChannel(name: "com.cake_wallet/phone_call_status", binaryMessenger: messenger)
+                .setStreamHandler(phoneCallStatus)
   }
     
     private var textField = UITextField()
+    private let phoneCallStatus = PhoneCallStatusStreamHandler()
     
 private func keyWindow() -> UIWindow? {
     UIApplication.shared.connectedScenes
         .compactMap { $0 as? UIWindowScene }
         .flatMap { $0.windows }
         .first { $0.isKeyWindow }
+}
+
+override var window: UIWindow? {
+    get { super.window ?? keyWindow() }
+    set { super.window = newValue }
 }
 
 private func makeSecure() {
@@ -127,4 +149,45 @@ private func makeSecure() {
     }
 }
 
+}
+
+// OSStatus of the exact query flutter_secure_storage's iOS `read` runs (cake-tech fork ca897a08:
+// no service or access group, synchronizable false, returning data). The plugin discards this
+// status and reports every failure as nil. Only the status leaves this function, never the data.
+private func keychainReadStatus(key: String) -> Int {
+    let query: [CFString: Any] = [
+        kSecClass: kSecClassGenericPassword,
+        kSecAttrAccount: key,
+        kSecAttrSynchronizable: false,
+        kSecReturnData: true,
+    ]
+
+    var ref: AnyObject?
+    return Int(SecItemCopyMatching(query as CFDictionary, &ref))
+}
+
+final class PhoneCallStatusStreamHandler: NSObject, FlutterStreamHandler, CXCallObserverDelegate {
+    private let callObserver = CXCallObserver()
+    private var eventSink: FlutterEventSink?
+
+    var isOnPhoneCall: Bool {
+        callObserver.calls.contains { !$0.hasEnded && ($0.hasConnected || $0.isOutgoing) }
+    }
+
+    func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        eventSink = events
+        callObserver.setDelegate(self, queue: nil)
+        events(isOnPhoneCall)
+        return nil
+    }
+
+    func onCancel(withArguments arguments: Any?) -> FlutterError? {
+        callObserver.setDelegate(nil, queue: nil)
+        eventSink = nil
+        return nil
+    }
+
+    func callObserver(_ callObserver: CXCallObserver, callChanged call: CXCall) {
+        eventSink?(isOnPhoneCall)
+    }
 }
