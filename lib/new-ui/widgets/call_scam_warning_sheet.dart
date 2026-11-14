@@ -26,122 +26,121 @@ class CallScamWarningSheet extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final warningColor = context.customColors.warningOutlineColor;
-    final strings = S.of(context);
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
-      ),
-      child: SafeArea(
-        minimum: const EdgeInsets.only(bottom: 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ModalTopBar(
-              title: "",
-              leadingIcon: const Icon(Icons.close),
-              leadingSemanticLabel: strings.close,
-              onLeadingPressed: Navigator.of(context).pop,
-            ),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: Column(
-                  spacing: 24,
-                  children: [
-                    _Card(
-                      child: Column(
-                        spacing: 24,
-                        children: [
-                          Column(
-                            spacing: 10,
-                            children: [
-                              CakeImageWidget(
-                                imageUrl: "assets/new-ui/warning_filled.svg",
-                                width: 48,
-                                height: 48,
-                                colorFilter: ColorFilter.mode(warningColor, BlendMode.srcIn),
-                              ),
-                              Text(
-                                strings.call_scam_sheet_title,
-                                textAlign: TextAlign.center,
-                                style: textTheme.titleMedium,
-                              ),
-                            ],
-                          ),
-                          Text(
-                            "${strings.call_scam_sheet_never_call(approximatedAppName)}\n\n"
-                            "${strings.call_scam_sheet_urgency}",
-                            textAlign: TextAlign.center,
-                            style: textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+        child: SafeArea(
+          minimum: const EdgeInsets.only(bottom: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ModalTopBar(
+                title: "",
+                leadingIcon: const Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
+                onLeadingPressed: Navigator.of(context).pop,
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Column(
+                    spacing: 24,
+                    children: [
+                      _Card(
+                        child: Column(
+                          spacing: 24,
+                          children: [
+                            Column(
+                              spacing: 10,
+                              children: [
+                                CakeImageWidget(
+                                  imageUrl: "assets/new-ui/warning_filled.svg",
+                                  width: 48,
+                                  height: 48,
+                                  colorFilter: ColorFilter.mode(
+                                    context.customColors.warningOutlineColor,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                                Text(
+                                  S.of(context).call_scam_sheet_title,
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.titleMedium,
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            Text(
+                              "${S.of(context).call_scam_sheet_never_call(approximatedAppName)}\n\n"
+                              "${S.of(context).call_scam_sheet_urgency}",
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    _Card(
-                      child: Text(
-                        strings.call_scam_sheet_contact_support,
-                        textAlign: TextAlign.center,
-                        style: textTheme.bodySmall?.copyWith(color: warningColor),
+                      _Card(
+                        child: Text(
+                          S.of(context).call_scam_sheet_contact_support,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: context.customColors.warningOutlineColor),
+                        ),
                       ),
-                    ),
-                    NewListSections(
-                      sections: {
-                        "": [
-                          ListItemRegularRow(
-                            keyValue: "call_scam_sheet_email",
-                            label: strings.email,
-                            trailingText: _supportEmail,
-                            showArrow: false,
-                            onTap: () => launchUrl(
-                              Uri(scheme: "mailto", path: _supportEmail),
-                              mode: LaunchMode.externalApplication,
+                      NewListSections(
+                        sections: {
+                          "": [
+                            ListItemRegularRow(
+                              keyValue: "call_scam_sheet_email",
+                              label: S.of(context).email,
+                              trailingText: _supportEmail,
+                              showArrow: false,
+                              onTap: () => launchUrl(
+                                Uri(scheme: "mailto", path: _supportEmail),
+                                mode: LaunchMode.externalApplication,
+                              ),
                             ),
-                          ),
-                          ListItemRegularRow(
-                            keyValue: "call_scam_sheet_telegram",
-                            label: "Telegram",
-                            trailingText: _supportTelegram,
-                            showArrow: false,
-                            onTap: () => launchUrl(
-                              Uri.https("t.me", _supportTelegram),
-                              mode: LaunchMode.externalApplication,
+                            ListItemRegularRow(
+                              keyValue: "call_scam_sheet_telegram",
+                              label: "Telegram",
+                              trailingText: _supportTelegram,
+                              showArrow: false,
+                              onTap: () => launchUrl(
+                                Uri.https("t.me", _supportTelegram),
+                                mode: LaunchMode.externalApplication,
+                              ),
                             ),
-                          ),
-                          ListItemRegularRow(
-                            keyValue: "call_scam_sheet_live_chat",
-                            label: strings.live_chat,
-                            onTap: () => Navigator.of(context, rootNavigator: true)
-                                .pushNamed(Routes.supportLiveChat),
-                          ),
-                        ],
-                      },
-                    ),
-                  ],
+                            ListItemRegularRow(
+                              keyValue: "call_scam_sheet_live_chat",
+                              label: S.of(context).live_chat,
+                              onTap: () => Navigator.of(context, rootNavigator: true)
+                                  .pushNamed(Routes.supportLiveChat),
+                            ),
+                          ],
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 24, 18, 0),
-              child: NewPrimaryButton(
-                onPressed: Navigator.of(context).pop,
-                text: strings.i_understand,
-                color: colorScheme.primary,
-                textColor: colorScheme.onPrimary,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 24, 18, 0),
+                child: NewPrimaryButton(
+                  onPressed: Navigator.of(context).pop,
+                  text: S.of(context).i_understand,
+                  color: Theme.of(context).colorScheme.primary,
+                  textColor: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class _Card extends StatelessWidget {

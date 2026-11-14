@@ -16,7 +16,6 @@ import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/pages/settings_page.dart";
 import "package:cake_wallet/new-ui/pages/wallet_accounts_page.dart";
 import "package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart";
-import "package:cake_wallet/new-ui/widgets/call_scam_banner.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_history_section.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/cards/balance_card.dart";
@@ -97,9 +96,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   void didPopNext() => widget.dashboardViewModel.loadSeedBackupReminder();
 
   @override
-  Widget build(BuildContext context) => CallScamBanner(child: Builder(builder: _buildHome));
-
-  Widget _buildHome(BuildContext context) => Container(
+  Widget build(BuildContext context) => Container(
         height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
