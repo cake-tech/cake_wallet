@@ -727,11 +727,16 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         return;
       }
 
+      final refundAddress = await _addressResolver.resolveRefundAddress(
+          s.source, s.depositAmount.currency);
+      final payoutAddress = await _addressResolver.resolvePayoutAddress(
+          s.payoutAddress!, s.payoutAmount.currency);
+
       final req = TradeRequest(
-        refundAddress: await _addressResolver.resolveRefundAddress(
-            s.source, s.depositAmount.currency),
-        payoutAddress: await _addressResolver.resolvePayoutAddress(
-            s.payoutAddress!, s.payoutAmount.currency),
+        refundAddress: refundAddress,
+        payoutAddress: payoutAddress,
+        refundInvoice: await _addressResolver.lightningInvoiceFor(refundAddress),
+        payoutInvoice: await _addressResolver.lightningInvoiceFor(payoutAddress),
         depositAmount: s.depositAmount.cryptoAmount,
         payoutAmount: s.payoutAmount.cryptoAmount,
         isFixedRate: s.isFixedRate,
