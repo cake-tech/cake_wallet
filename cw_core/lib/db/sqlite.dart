@@ -412,7 +412,7 @@ ON Trade (id);
 Future<void> createTradeTable(Database db) async {
   await db.execute("""
 CREATE TABLE Trade (
-    id TEXT PRIMARY KEY NOT NULL,
+    tradeId TEXT PRIMARY KEY NOT NULL,
     provider INTEGER, 
     state TEXT,
     accountIndex INTEGER,

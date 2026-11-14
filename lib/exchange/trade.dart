@@ -36,7 +36,7 @@ class Trade {
   });
 
   static const tableName = "Trade";
-  static const selfIdColumn = "id";
+  static const selfIdColumn = "tradeId";
 
   static const boxName = "Trades";
   static const boxKey = "tradesBoxKey";

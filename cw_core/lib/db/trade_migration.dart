@@ -21,7 +21,7 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
       );
 
       final newRow = {
-        "id": row["id"],
+        "tradeId": row["id"],
         "provider": row["providerRaw"] ?? 0,
         "state": row["stateRaw"] ?? "",
         "depositAmount": depositMoney.serialized,
