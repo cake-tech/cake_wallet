@@ -19,8 +19,14 @@ class AssetsHistorySectionActionButton {
   final String title;
   final String iconPath;
   final VoidCallback onPressed;
+  final String? semanticsLabel;
 
-  const AssetsHistorySectionActionButton(this.title, this.iconPath, this.onPressed);
+  const AssetsHistorySectionActionButton(
+    this.title,
+    this.iconPath,
+    this.onPressed, {
+    this.semanticsLabel,
+  });
 }
 
 class AssetsHistorySectionTab {
@@ -59,13 +65,19 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             AssetsSection(
               dashboardViewModel: widget.dashboardViewModel,
             ),
-           hasAssetsButton ? AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg",
-
-              () {Navigator.of(context).pushNamed(
-                Routes.homeSettings,
-                arguments: widget.dashboardViewModel.balanceViewModel,
-              );
-            }): null),
+            hasAssetsButton
+                ? AssetsHistorySectionActionButton(
+                    "",
+                    "assets/new-ui/options_slider.svg",
+                    () {
+                      Navigator.of(context).pushNamed(
+                        Routes.homeSettings,
+                        arguments: widget.dashboardViewModel.balanceViewModel,
+                      );
+                    },
+                    semanticsLabel: S.current.manage_assets,
+                  )
+                : null),
       AssetsHistorySectionTab(
           S.current.history,
           HistorySection(

@@ -85,7 +85,7 @@ abstract class SolanaWalletBase
 
   Future<void>? _currentRefresh;
 
-  List<SPLToken> _splTokens = [];
+  final ObservableList<SPLToken> _splTokens = ObservableList<SPLToken>();
 
   @override
   WalletAddresses walletAddresses;
@@ -128,7 +128,12 @@ abstract class SolanaWalletBase
       );
 
   Future<void> init() async {
-    _splTokens = await SPLToken.getAllForWallet(walletInfo.name);
+    final tokens = await SPLToken.getAllForWallet(walletInfo.name);
+    runInAction(() {
+      _splTokens
+        ..clear()
+        ..addAll(tokens);
+    });
 
     await _checkForExistingScamTokens();
 
@@ -785,8 +790,10 @@ abstract class SolanaWalletBase
   }
 
   void _upsertCachedToken(SPLToken token) {
-    _splTokens.removeWhere((t) => t.mintAddress == token.mintAddress);
-    _splTokens.add(token);
+    runInAction(() {
+      _splTokens.removeWhere((t) => t.mintAddress == token.mintAddress);
+      _splTokens.add(token);
+    });
   }
 
   Future<void> addInitialTokens() async {
@@ -1002,6 +1009,10 @@ abstract class SolanaWalletBase
       return null;
     }
   }
+
+  @override
+  Future<SolanaBalance?> fetchTokenBalance(CryptoCurrency token) =>
+      _client.getSplTokenBalance(token as SPLToken, solanaAddress, throwOnError: true);
 
   Future<bool?> isTokenVerifiedOnJupiter(String mintAddress) =>
       _client.isTokenVerifiedOnJupiter(mintAddress);

@@ -6,13 +6,6 @@ class EthereumTokens {
   static List<Erc20Token> get tokens {
     final tokens = [
       Erc20Token(
-        name: "USD Coin",
-        symbol: "USDC",
-        contractAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-        decimal: 6,
-        enabled: true,
-      ),
-      Erc20Token(
         name: "USDT Tether",
         symbol: "USDT",
         contractAddress: "0xdac17f958d2ee523a2206206994597c13d831ec7",
@@ -20,11 +13,18 @@ class EthereumTokens {
         enabled: true,
       ),
       Erc20Token(
-        name: "Decentralized Euro",
-        symbol: "DEURO",
-        contractAddress: "0xba3f535bbcccca2a154b573ca6c5a49baae0a3ea",
-        decimal: 18,
+        name: "USD Coin",
+        symbol: "USDC",
+        contractAddress: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        decimal: 6,
         enabled: true,
+      ),
+      Erc20Token(
+        name: "Wrapped BTC",
+        symbol: "WBTC",
+        contractAddress: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+        decimal: 8,
+        enabled: false,
       ),
       Erc20Token(
         name: "Dai",
@@ -41,6 +41,21 @@ class EthereumTokens {
         enabled: false,
       ),
       Erc20Token(
+        name: "Tether Gold",
+        symbol: "XAUT",
+        contractAddress: "0x68749665ff8d2d112fa859aa293f07a622782f38",
+        decimal: 6,
+        enabled: false,
+        iconPath: "assets/images/xaut.webp",
+      ),
+      Erc20Token(
+        name: "SHIBA INU",
+        symbol: "SHIB",
+        contractAddress: "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+        decimal: 18,
+        enabled: false,
+      ),
+      Erc20Token(
         name: "Pepe",
         symbol: "PEPE",
         contractAddress: "0x6982508145454ce325ddbe47a25d4ec3d2311933",
@@ -48,9 +63,9 @@ class EthereumTokens {
         enabled: false,
       ),
       Erc20Token(
-        name: "SHIBA INU",
-        symbol: "SHIB",
-        contractAddress: "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+        name: "Paxos Gold",
+        symbol: "PAXG",
+        contractAddress: "0x45804880de22913dafe09f4980848ece6ecbaf78",
         decimal: 18,
         enabled: false,
       ),
@@ -62,33 +77,18 @@ class EthereumTokens {
         enabled: false,
       ),
       Erc20Token(
+        name: "Decentralized Euro",
+        symbol: "DEURO",
+        contractAddress: "0xba3f535bbcccca2a154b573ca6c5a49baae0a3ea",
+        decimal: 18,
+        enabled: true,
+      ),
+      Erc20Token(
         name: "Matic Token",
         symbol: "MATIC",
         contractAddress: "0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0",
         decimal: 18,
         enabled: false,
-      ),
-      Erc20Token(
-        name: "Wrapped BTC",
-        symbol: "WBTC",
-        contractAddress: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
-        decimal: 8,
-        enabled: false,
-      ),
-      Erc20Token(
-        name: "Paxos Gold",
-        symbol: "PAXG",
-        contractAddress: "0x45804880de22913dafe09f4980848ece6ecbaf78",
-        decimal: 18,
-        enabled: false,
-      ),
-      Erc20Token(
-        name: "Tether Gold",
-        symbol: "XAUT",
-        contractAddress: "0x68749665ff8d2d112fa859aa293f07a622782f38",
-        decimal: 6,
-        enabled: false,
-        iconPath: "assets/images/xaut.webp",
       ),
     ];
 

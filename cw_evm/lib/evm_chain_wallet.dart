@@ -115,7 +115,7 @@ abstract class EVMChainWalletBase
   final String _password;
   final EncryptionFileUtils encryptionFileUtils;
 
-  List<Erc20Token> _erc20Tokens = [];
+  final ObservableList<Erc20Token> _erc20Tokens = ObservableList<Erc20Token>();
 
   late final Credentials _evmChainPrivateKey;
 
@@ -242,7 +242,12 @@ abstract class EVMChainWalletBase
       EVMChainDefaultTokens.getDefaultTokenAddresses(selectedChainId);
 
   Future<void> initErc20Tokens() async {
-    _erc20Tokens = await Erc20Token.getAllForWallet(walletInfo.name, selectedChainId);
+    final tokens = await Erc20Token.getAllForWallet(walletInfo.name, selectedChainId);
+    runInAction(() {
+      _erc20Tokens
+        ..clear()
+        ..addAll(tokens);
+    });
 
     await addInitialTokens();
   }
@@ -259,8 +264,10 @@ abstract class EVMChainWalletBase
   void _upsertCachedToken(Erc20Token token) {
     final lowerAddress = token.contractAddress.toLowerCase();
 
-    _erc20Tokens.removeWhere((t) => t.contractAddress.toLowerCase() == lowerAddress);
-    _erc20Tokens.add(token);
+    runInAction(() {
+      _erc20Tokens.removeWhere((t) => t.contractAddress.toLowerCase() == lowerAddress);
+      _erc20Tokens.add(token);
+    });
   }
 
   String getTransactionHistoryFileName() =>
@@ -1481,6 +1488,10 @@ abstract class EVMChainWalletBase
       rethrow;
     }
   }
+
+  @override
+  Future<EVMChainERC20Balance> fetchTokenBalance(CryptoCurrency token) =>
+      _client.fetchERC20Balances(_evmChainPrivateKey.address, token as Erc20Token);
 
   void _onNewTransaction() {
     _updateBalance();

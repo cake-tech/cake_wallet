@@ -70,7 +70,7 @@ abstract class TronWalletBase
   final String _password;
   final EncryptionFileUtils encryptionFileUtils;
 
-  List<TronToken> _tronTokens = [];
+  final ObservableList<TronToken> _tronTokens = ObservableList<TronToken>();
 
   late final TronPrivateKey _tronPrivateKey;
 
@@ -199,7 +199,12 @@ abstract class TronWalletBase
   }
 
   Future<void> initTronTokens() async {
-    _tronTokens = await TronToken.getAllForWallet(walletInfo.name);
+    final tokens = await TronToken.getAllForWallet(walletInfo.name);
+    runInAction(() {
+      _tronTokens
+        ..clear()
+        ..addAll(tokens);
+    });
   }
 
   TronToken? _findCachedToken(String contractAddress) {
@@ -211,8 +216,10 @@ abstract class TronWalletBase
   }
 
   void _upsertCachedToken(TronToken token) {
-    _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
-    _tronTokens.add(token);
+    runInAction(() {
+      _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
+      _tronTokens.add(token);
+    });
   }
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
@@ -692,6 +699,14 @@ abstract class TronWalletBase
 
   Future<TronToken?> getTronToken(String contractAddress) async =>
       await _client.getTronToken(contractAddress, _tronAddress);
+
+  @override
+  Future<TronBalance> fetchTokenBalance(CryptoCurrency token) => _client.fetchTronTokenBalances(
+        _tronAddress,
+        (token as TronToken).contractAddress,
+        currency: token,
+        throwOnError: true,
+      );
 
   void _setTransactionUpdateTimer() {
     if (_transactionsUpdateTimer?.isActive ?? false) {
