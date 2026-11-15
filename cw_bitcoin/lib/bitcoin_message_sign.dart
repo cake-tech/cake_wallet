@@ -1,19 +1,29 @@
+import "package:bitcoin_base/bitcoin_base.dart" show SegwitAddresType;
+import "package:cw_bitcoin/bitcoin_address_record.dart";
+
 /// A blank address uses the wallet's main key. Any other address has to be
-/// one this wallet can derive. Silent payment addresses are not in that set,
-/// and signing them with the main key would look like proof for the wrong key.
-void assertCanSignBitcoinMessage({
+/// one this wallet can derive a key for. Silent payment and MWEB addresses
+/// have no such key, and signing them with another key would look like proof
+/// for the wrong key.
+BitcoinAddressRecord? getSigningAddressRecord({
   required String? address,
-  required bool heldByWallet,
-  required bool isTaproot,
+  required Iterable<BitcoinAddressRecord> walletAddresses,
 }) {
-  final requested = address != null && address.trim().isNotEmpty;
-  if (!requested) {
-    return;
+  final requested = address?.trim() ?? "";
+  if (requested.isEmpty) {
+    return null;
   }
-  if (!heldByWallet) {
-    throw UnsupportedError('Cannot sign a message for an address this wallet does not hold');
+
+  final record = walletAddresses.where((candidate) => candidate.address == requested).firstOrNull;
+  if (record == null) {
+    throw UnsupportedError("Cannot sign a message for an address this wallet does not hold");
   }
-  if (isTaproot) {
-    throw UnsupportedError('Cannot sign message with Taproot address');
+  if (record.type == SegwitAddresType.p2tr) {
+    throw UnsupportedError("Cannot sign message with Taproot address");
   }
+  if (record.type == SegwitAddresType.mweb) {
+    throw UnsupportedError("Cannot sign message with an MWEB address");
+  }
+
+  return record;
 }

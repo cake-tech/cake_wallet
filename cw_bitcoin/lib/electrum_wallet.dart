@@ -4279,22 +4279,33 @@ abstract class ElectrumWalletBase
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    final requested = address != null && address.trim().isNotEmpty;
-    final addressRecord = requested
-        ? walletAddresses.allAddresses.firstWhereOrNull((addr) => addr.address == address)
-        : null;
-
-    assertCanSignBitcoinMessage(
+  Future<String> signMessage(String message, {String? address}) async {
+    final addressRecord = getSigningAddressRecord(
       address: address,
-      heldByWallet: addressRecord != null,
-      isTaproot: addressRecord?.type == SegwitAddresType.p2tr,
+      walletAddresses: walletAddresses.allAddresses,
     );
+
+    if (walletInfo.isHardwareWallet) {
+      final index = addressRecord?.index ?? 0;
+      final isChange = addressRecord?.isHidden == true ? 1 : 0;
+      final derivationInfo = await walletInfo.getDerivationInfo();
+      final accountPath = derivationInfo.derivationPath;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+
+      final signature = await hardwareWalletService!
+          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
+      return base64Encode(signature);
+    }
 
     final hd = addressRecord != null
         ? _hdForAddressRecord(record: addressRecord).childKey(Bip32KeyIndex(addressRecord.index))
         : mainHd;
 
+    return signMessageWithKey(message, hd);
+  }
+
+  @protected
+  String signMessageWithKey(String message, Bip32Slip10Secp256k1 hd) {
     final priv = ECPrivate.fromHex(hd.privateKey.privKey.toHex());
 
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
