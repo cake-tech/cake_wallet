@@ -80,12 +80,14 @@ class ChartsPage extends StatelessWidget implements PageOpenListener {
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: [
-                SliverPadding(
-                  padding: EdgeInsets.only(top: MediaQuery.viewPaddingOf(context).top),
-                  sliver: CupertinoSliverRefreshControl(
-                    refreshTriggerPullDistance: 160,
-                    refreshIndicatorExtent: 90,
-                    onRefresh: () async => chartsBloc.add(PageRefreshed()),
+                Builder(
+                  builder: (context) => SliverPadding(
+                    padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+                    sliver: CupertinoSliverRefreshControl(
+                      refreshTriggerPullDistance: 160,
+                      refreshIndicatorExtent: 90,
+                      onRefresh: () async => chartsBloc.add(PageRefreshed()),
+                    ),
                   ),
                 ),
                 SliverToBoxAdapter(
