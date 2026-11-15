@@ -332,6 +332,15 @@ abstract class SolanaWalletBase
 
   Future<Set<String>> heldTokenMints() => _client.fetchHeldTokenMints(walletAddresses.address);
 
+  Future<Map<CryptoCurrency, SolanaBalance>> heldTokenBalances() async {
+    final amounts = await _client.fetchHeldTokenAmounts(walletAddresses.address);
+    return {
+      for (final token in _splTokens)
+        if (amounts[token.mintAddress] case final amount?)
+          token: SolanaBalance(Money(amount, token)),
+    };
+  }
+
   Future<PendingTransaction> sendNFT({
     required String mintAddress,
     required String destinationAddress,
@@ -1009,10 +1018,6 @@ abstract class SolanaWalletBase
       return null;
     }
   }
-
-  @override
-  Future<SolanaBalance?> fetchTokenBalance(CryptoCurrency token) =>
-      _client.getSplTokenBalance(token as SPLToken, solanaAddress, throwOnError: true);
 
   Future<bool?> isTokenVerifiedOnJupiter(String mintAddress) =>
       _client.isTokenVerifiedOnJupiter(mintAddress);

@@ -563,15 +563,20 @@ abstract class HomeSettingsViewModelBase with Store {
     final requestId = ++_balanceRequestId;
     final missing = tokens.where((token) => _balance(token) == null).toList();
     if (walletType == WalletType.solana && missing.isNotEmpty) {
+      Map<CryptoCurrency, Balance>? held;
       try {
-        final heldMints = await solana!.getHeldTokenMints(_balanceViewModel.wallet);
-        missing.removeWhere((token) => !heldMints.contains(solana!.getTokenAddress(token)));
+        held = await solana!.getHeldTokenBalances(_balanceViewModel.wallet);
       } catch (e) {
-        printV("Error fetching held token mints: $e");
+        printV("Error fetching held token balances: $e");
       }
       if (requestId != _balanceRequestId) {
         return;
       }
+      for (final token in missing) {
+        _storeIfMissing(token, held?[token]);
+      }
+      // No per-token fallback: it hits the same rate-limited RPC
+      missing.clear();
     }
     isLoadingTokenBalances = missing.isNotEmpty;
     for (final batch in missing.slices(5)) {
@@ -580,13 +585,16 @@ abstract class HomeSettingsViewModelBase with Store {
         return;
       }
       for (final (index, token) in batch.indexed) {
-        final balance = balances[index];
-        if (balance != null && _balance(token) == null) {
-          _tokenBalances[token] = balance;
-        }
+        _storeIfMissing(token, balances[index]);
       }
     }
     isLoadingTokenBalances = false;
+  }
+
+  void _storeIfMissing(CryptoCurrency token, Balance? balance) {
+    if (balance != null && _balance(token) == null) {
+      _tokenBalances[token] = balance;
+    }
   }
 
   Future<Balance?> _fetchTokenBalance(CryptoCurrency token) async {
