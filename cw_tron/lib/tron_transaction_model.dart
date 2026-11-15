@@ -44,13 +44,13 @@ class TronTRC20TransactionModel extends TronTransactionModel {
   });
 
   TronTRC20TransactionModel.fromJson(Map<String, dynamic> json) {
-    transactionId = json['transaction_id'];
-    tokenSymbol = json['token_info'] != null ? json['token_info']['symbol'] : null;
-    decimals = json['token_info'] != null ? json['token_info']['decimals'] : null;
-    timestamp = json['block_timestamp'];
-    from = json['from'];
-    to = json['to'];
-    value = json['value'];
+    transactionId = json['transaction_id'] as String?;
+    tokenSymbol = json['token_info'] != null ? json['token_info']['symbol'] as String? : null;
+    decimals = json['token_info'] != null ? json['token_info']['decimals'] as int? : null;
+    timestamp = json['block_timestamp'] as int?;
+    from = json['from'] as String?;
+    to = json['to'] as String?;
+    value = json['value'] as String?;
   }
 }
 
@@ -95,11 +95,11 @@ class TronTransactionModel {
     if (json['ret'] != null) {
       ret = <Ret>[];
       json['ret'].forEach((v) {
-        ret!.add(Ret.fromJson(v));
+        ret!.add(Ret.fromJson(v as Map<String, dynamic>));
       });
     }
-    txID = json['txID'];
-    blockTimestamp = json['block_timestamp'];
+    txID = json['txID'] as String?;
+    blockTimestamp = json['block_timestamp'] as int?;
     contracts = json['raw_data'] != null
         ? (json['raw_data']['contract'] as List)
             .map((e) => Contract.fromJson(e as Map<String, dynamic>))
@@ -115,8 +115,8 @@ class Ret {
   Ret({this.contractRet, this.fee});
 
   Ret.fromJson(Map<String, dynamic> json) {
-    contractRet = json['contractRet'];
-    fee = json['fee'];
+    contractRet = json['contractRet'] as String?;
+    fee = json['fee'] as int?;
   }
 }
 
@@ -127,8 +127,10 @@ class Contract {
   Contract({this.parameter, this.type});
 
   Contract.fromJson(Map<String, dynamic> json) {
-    parameter = json['parameter'] != null ? Parameter.fromJson(json['parameter']) : null;
-    type = json['type'];
+    parameter = json['parameter'] != null
+        ? Parameter.fromJson(json['parameter'] as Map<String, dynamic>)
+        : null;
+    type = json['type'] as String?;
   }
 }
 
@@ -139,8 +141,8 @@ class Parameter {
   Parameter({this.value, this.typeUrl});
 
   Parameter.fromJson(Map<String, dynamic> json) {
-    value = json['value'] != null ? Value.fromJson(json['value']) : null;
-    typeUrl = json['type_url'];
+    value = json['value'] != null ? Value.fromJson(json['value'] as Map<String, dynamic>) : null;
+    typeUrl = json['type_url'] as String?;
   }
 }
 
@@ -213,13 +215,13 @@ class Value {
       this.assetName});
 
   Value.fromJson(Map<String, dynamic> json) {
-    data = json['data'];
-    ownerAddress = json['owner_address'];
-    contractAddress = json['contract_address'];
-    amount = json['amount'];
+    data = json['data'] as String?;
+    ownerAddress = json['owner_address'] as String?;
+    contractAddress = json['contract_address'] as String?;
+    amount = json['amount'] as int?;
     callValue = int.tryParse(json['call_value']?.toString() ?? "");
-    toAddress = json['to_address'];
-    assetName = json['asset_name'];
+    toAddress = json['to_address'] as String?;
+    assetName = json['asset_name'] as String?;
   }
 
   /// To get the address from the encoded data field

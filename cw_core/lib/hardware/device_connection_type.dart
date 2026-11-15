@@ -1,13 +1,15 @@
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 
 enum DeviceConnectionType {
   usb,
   ble;
 
   static List<DeviceConnectionType> supportedConnectionTypes(
-      WalletType walletType, HardwareWalletType hardwareType,
-      [bool isIOS = false]) {
+    WalletType walletType,
+    HardwareWalletType hardwareType, {
+    bool isIOS = false,
+  }) {
     bool isSupported = false;
     switch (hardwareType) {
       case HardwareWalletType.bitbox:
@@ -23,8 +25,10 @@ enum DeviceConnectionType {
           WalletType.monero,
           WalletType.bitcoin,
           WalletType.litecoin,
+          WalletType.bitcoinCash,
           WalletType.ethereum,
           WalletType.polygon,
+          WalletType.zcash,
         ].contains(walletType);
         break;
       case HardwareWalletType.trezor:
@@ -54,9 +58,9 @@ enum DeviceConnectionType {
   String get iconString {
     switch (this) {
       case ble:
-        return 'assets/images/bluetooth.png';
+        return "assets/images/bluetooth.png";
       case usb:
-        return 'assets/images/usb.png';
+        return "assets/images/usb.png";
     }
   }
 }
