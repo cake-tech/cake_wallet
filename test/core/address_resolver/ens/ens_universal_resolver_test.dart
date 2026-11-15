@@ -61,16 +61,21 @@ void main() {
       );
     });
 
-    test("hashes and encodes non-ASCII labels as UTF-8", () async {
+    test("rejects anything outside visible ASCII without calling the node", () async {
       final node = _FakeNode(() => resolvesTo(vitalik));
-      await resolve(node, "café.eth");
-
-      final data = node.calls.single["data"] as String;
-      expect(data, contains("05636166c3a90365746800"));
-      expect(
-        data,
-        contains("3b3b57dea7369e1df22e06ec6d91162508e400d7af475860638f927e6d1085bb0134a74a"),
-      );
+      final names = [
+        "vitalik‍.eth",
+        "vitalik‌.eth",
+        "vitаlik.eth",
+        "café.eth",
+        "❤❤❤.eth",
+        "nick .eth",
+        "nick\u007f.eth",
+      ];
+      for (final name in names) {
+        expect(await resolve(node, name), "", reason: name);
+      }
+      expect(node.calls, isEmpty);
     });
 
     test("rejects empty and oversized labels without calling the node", () async {

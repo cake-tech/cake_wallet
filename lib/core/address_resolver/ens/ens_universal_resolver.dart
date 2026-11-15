@@ -31,9 +31,15 @@ class EnsUniversalResolver {
   }
 
   static List<Uint8List>? _labels(String name) {
+    if (!_isVisibleAscii(name)) {
+      return null;
+    }
     final labels = name.toLowerCase().split(".").map(utf8.encode).toList();
     return labels.any((label) => label.isEmpty || label.length > 255) ? null : labels;
   }
+
+  static bool _isVisibleAscii(String name) =>
+      name.codeUnits.every((unit) => unit >= 0x21 && unit <= 0x7e);
 
   static Uint8List _namehash(List<Uint8List> labels) => labels.reversed.fold(
         Uint8List(32),
