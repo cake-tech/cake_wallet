@@ -6,6 +6,7 @@ import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet
 import "package:cake_wallet/new-ui/widgets/currency_picker/multi_network_currency_picker.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/pill_grid.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/single_network_currency_picker.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/stablecoins_page.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
@@ -35,6 +36,11 @@ void main() {
             CryptoCurrency.btc,
             CryptoCurrency.usdterc20,
             CryptoCurrency.usdttrc20,
+            CryptoCurrency.usdtTon,
+            CryptoCurrency.usdc,
+            CryptoCurrency.dai,
+            CryptoCurrency.deuro,
+            CryptoCurrency.pyusdEth,
           ],
           onSelected: otherPicks.add,
           symbolResolver: (currency) => currency.title,
@@ -111,6 +117,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(otherPicks, [CryptoCurrency.usdttrc20]);
+    expect(find.byType(CurrencyPickerSheet), findsNothing);
+    expect(sheetClosed, isTrue);
+  });
+
+  testWidgets("picking a More Networks chain from See All closes the whole sheet", (tester) async {
+    await openPicker(tester);
+    await openOtherAssets(tester);
+
+    await tester.tap(
+      find.descendant(of: find.byType(PillGrid), matching: find.text(S.current.picker_see_all)),
+    );
+    await tester.pumpAndSettle();
+    await tester
+        .tap(find.descendant(of: find.byType(StablecoinsPage), matching: find.text("USDT")));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(S.current.picker_more_networks));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text("TON"));
+    await tester.pumpAndSettle();
+
+    expect(otherPicks, [CryptoCurrency.usdtTon]);
     expect(find.byType(CurrencyPickerSheet), findsNothing);
     expect(sheetClosed, isTrue);
   });
