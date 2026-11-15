@@ -14,6 +14,7 @@ class CurrencyPickerRow extends StatelessWidget {
     this.subtitle,
     this.chainPillLabel,
     this.chainBadgePath,
+    this.assetName,
   });
 
   final CryptoCurrency currency;
@@ -23,6 +24,7 @@ class CurrencyPickerRow extends StatelessWidget {
   final String? subtitle;
   final String? chainPillLabel;
   final String? chainBadgePath;
+  final String? assetName;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class CurrencyPickerRow extends StatelessWidget {
                         children: [
                           Flexible(
                             child: Text(
-                              assetNameForCurrency(currency),
+                              assetName ?? assetNameForCurrency(currency),
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context)
                                   .textTheme
@@ -119,6 +121,26 @@ class CurrencyPickerRow extends StatelessWidget {
       ),
     );
   }
+}
+
+class SymbolTrailing extends StatelessWidget {
+  const SymbolTrailing({
+    required this.currency,
+    required this.symbolResolver,
+    super.key,
+  });
+
+  final CryptoCurrency currency;
+  final String Function(CryptoCurrency) symbolResolver;
+
+  @override
+  Widget build(BuildContext context) => Text(
+        symbolResolver(currency),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              letterSpacing: -0.07,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+      );
 }
 
 class _IconWithBadge extends StatelessWidget {

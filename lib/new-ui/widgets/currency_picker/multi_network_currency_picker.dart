@@ -10,6 +10,7 @@ import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_searc
 import 'package:cake_wallet/new-ui/widgets/currency_picker/picker_section_header.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/pill_grid.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/select_network_page.dart';
+import "package:cake_wallet/new-ui/widgets/currency_picker/stablecoins_page.dart";
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
@@ -98,7 +99,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
     Navigator.of(context).pop(currency);
   }
 
-  void _onStablecoinPillTapped(CryptoCurrency tapped) {
+  Future<CryptoCurrency?> _pickStablecoinNetwork(CryptoCurrency tapped) async {
     var variants = widget.args.items
         .where((c) => isTrustedStablecoin(c) && c.title.toUpperCase() == tapped.title.toUpperCase())
         .toList();
@@ -111,22 +112,50 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
     }
 
     if (variants.length <= 1) {
-      _selectCurrency(variants.isNotEmpty ? variants.first : tapped);
-      return;
+      return variants.isNotEmpty ? variants.first : tapped;
     }
 
-    Navigator.of(context).push(
-      PageRouteBuilder<void>(
+    return Navigator.of(context).push(
+      _slideUpRoute(
+        SelectNetworkPage(
+          assetTitle: tapped.title,
+          assetName: stablecoinNameForCurrency(tapped),
+          assetIconPath: tapped.iconPath,
+          variants: variants,
+          currentNetwork: widget.args.currentNetwork,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onStablecoinPillTapped(CryptoCurrency tapped) async {
+    final picked = await _pickStablecoinNetwork(tapped);
+    if (picked != null && mounted) {
+      _selectCurrency(picked);
+    }
+  }
+
+  Future<void> _onSeeAllStablecoins(List<CryptoCurrency> stablecoins) async {
+    final picked = await Navigator.of(context).push(
+      _slideUpRoute(
+        StablecoinsPage(
+          stablecoins: stablecoins,
+          selected: widget.args.selected,
+          symbolResolver: widget.args.symbolResolver,
+          pickNetwork: _pickStablecoinNetwork,
+        ),
+      ),
+    );
+    if (picked != null && mounted) {
+      _selectCurrency(picked);
+    }
+  }
+
+  Route<CryptoCurrency> _slideUpRoute(Widget page) => PageRouteBuilder<CryptoCurrency>(
         opaque: true,
         transitionDuration: const Duration(milliseconds: 250),
         reverseTransitionDuration: const Duration(milliseconds: 250),
-        pageBuilder: (_, __, ___) => SelectNetworkPage(
-          assetTitle: tapped.title,
-          assetFullName: tapped.fullName,
-          assetIconPath: tapped.iconPath,
-          variants: variants,
-          onSelected: widget.args.onSelected,
-        ),
+        pageBuilder: (_, __, ___) => page,
         transitionsBuilder: (_, animation, __, child) => SlideTransition(
           position: animation.drive(
             Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
@@ -134,9 +163,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
           ),
           child: child,
         ),
-      ),
-    );
-  }
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -164,6 +191,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
                 showStablesHeader: widget.args.showStablesHeader,
                 onSelect: _selectCurrency,
                 onStablecoinTap: _onStablecoinPillTapped,
+                onSeeAllStablecoins: _onSeeAllStablecoins,
                 footerHeight: footerHeight,
               ),
               CurrencyPickerFooter(searchController: _searchController),
@@ -186,6 +214,7 @@ class _MultiNetworkPickerBody extends StatefulWidget {
     required this.symbolResolver,
     required this.onSelect,
     required this.onStablecoinTap,
+    required this.onSeeAllStablecoins,
     required this.showStablesHeader,
     required this.footerHeight,
   });
@@ -201,6 +230,7 @@ class _MultiNetworkPickerBody extends StatefulWidget {
   final void Function(CryptoCurrency) onSelect;
   final String Function(CryptoCurrency) symbolResolver;
   final void Function(CryptoCurrency) onStablecoinTap;
+  final void Function(List<CryptoCurrency>) onSeeAllStablecoins;
 
   @override
   State<_MultiNetworkPickerBody> createState() => _MultiNetworkPickerBodyState();
@@ -208,6 +238,7 @@ class _MultiNetworkPickerBody extends StatefulWidget {
 
 class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
   static const int _previewCount = 3;
+  static const int _stablecoinGridSize = 4;
 
   final ScrollController _scrollController = ScrollController();
   bool _moreCryptosSectionExpanded = false;
@@ -304,7 +335,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                     isSelected: selected != null && selected == item,
                     chainPillLabel: _chainPillLabelFor(item),
                     chainBadgePath: _chainBadgePathFor(item),
-                    trailing: _SymbolTrailing(
+                    trailing: SymbolTrailing(
                       currency: item,
                       symbolResolver: symbolResolver,
                     ),
@@ -327,6 +358,16 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
             (isSingleNetwork || hasBuiltInStablecoinSymbol(c)) &&
             seenStablecoinTitles.add(c.title.toUpperCase()))
         .toList(growable: false);
+    final stablecoinGroups = groupStablecoins(stablecoins);
+    final orderedStablecoins = [
+      ...stablecoinGroups.popular,
+      ...stablecoinGroups.euro,
+      ...stablecoinGroups.other,
+    ];
+    final hasMoreStablecoins = stablecoins.length > _stablecoinGridSize;
+    final stablecoinPills = hasMoreStablecoins
+        ? orderedStablecoins.take(_stablecoinGridSize - 1).toList(growable: false)
+        : orderedStablecoins;
 
     final cryptocurrencies = items.where(natives.contains).toList(growable: false);
     final moreCryptos = _computeMoreCryptosSection(items);
@@ -337,7 +378,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
     final section = _selectedSection(
       recents: visibleRecents,
-      stablecoins: stablecoins,
+      stablecoins: stablecoinPills,
       cryptocurrencies: cryptocurrencies,
       moreCryptos: moreCryptos,
       xstocks: xstocks,
@@ -371,9 +412,10 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
             _PickerSection(
               title: S.of(context).picker_section_stablecoins,
               child: PillGrid(
-                items: stablecoins,
+                items: stablecoinPills,
                 selected: section == _SelSection.stablecoins ? selected : null,
                 onTap: onStablecoinTap,
+                onSeeAll: hasMoreStablecoins ? () => widget.onSeeAllStablecoins(stablecoins) : null,
                 symbolResolver: symbolResolver,
               ),
             ),
@@ -388,7 +430,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                       isSelected: section == _SelSection.cryptocurrencies && selected == item,
                       chainPillLabel: _chainPillLabelFor(item),
                       chainBadgePath: _chainBadgePathFor(item),
-                      trailing: _SymbolTrailing(
+                      trailing: SymbolTrailing(
                         currency: item,
                         symbolResolver: symbolResolver,
                       ),
@@ -406,7 +448,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                     CurrencyPickerRow(
                       currency: item,
                       isSelected: section == _SelSection.moreCryptocurrencies && selected == item,
-                      trailing: _SymbolTrailing(
+                      trailing: SymbolTrailing(
                         currency: item,
                         symbolResolver: symbolResolver,
                       ),
@@ -430,7 +472,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                     CurrencyPickerRow(
                       currency: item,
                       isSelected: section == _SelSection.xstocks && selected == item,
-                      trailing: _SymbolTrailing(
+                      trailing: SymbolTrailing(
                         currency: item,
                         symbolResolver: symbolResolver,
                       ),
@@ -458,7 +500,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
                       isSelected: section == _SelSection.allAssets && selected == item,
                       chainPillLabel: _chainPillLabelFor(item),
                       chainBadgePath: _chainBadgePathFor(item),
-                      trailing: _SymbolTrailing(
+                      trailing: SymbolTrailing(
                         currency: item,
                         symbolResolver: symbolResolver,
                       ),
@@ -534,25 +576,6 @@ class _PickerSection extends StatelessWidget {
       ],
     );
   }
-}
-
-class _SymbolTrailing extends StatelessWidget {
-  const _SymbolTrailing({
-    required this.currency,
-    required this.symbolResolver,
-  });
-
-  final CryptoCurrency currency;
-  final String Function(CryptoCurrency) symbolResolver;
-
-  @override
-  Widget build(BuildContext context) => Text(
-      symbolResolver(currency),
-      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            letterSpacing: -0.07,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-    );
 }
 
 class _SeeAllRow extends StatelessWidget {

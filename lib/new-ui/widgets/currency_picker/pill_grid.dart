@@ -1,3 +1,4 @@
+import "package:cake_wallet/generated/i18n.dart";
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -10,18 +11,22 @@ class PillGrid extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.symbolResolver,
+    this.onSeeAll,
   });
 
   final List<CryptoCurrency> items;
   final CryptoCurrency? selected;
   final ValueChanged<CryptoCurrency> onTap;
   final String Function(CryptoCurrency c) symbolResolver;
+  final VoidCallback? onSeeAll;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
       builder: (context, constraints) {
         const gap = 8.0;
         final cardWidth = (constraints.maxWidth - gap) / 2;
+        final onSeeAll = this.onSeeAll;
+        final colors = Theme.of(context).colorScheme;
         return Wrap(
           spacing: gap,
           runSpacing: gap,
@@ -30,10 +35,26 @@ class PillGrid extends StatelessWidget {
               SizedBox(
                 width: cardWidth,
                 child: _PillCard(
-                  currency: item,
+                  leading: TokenImageWidget(imageUrl: item.iconPath ?? "", size: 24),
                   isSelected: selected != null && selected == item,
                   label: symbolResolver(item),
                   onTap: () => onTap(item),
+                ),
+              ),
+            if (onSeeAll != null)
+              SizedBox(
+                width: cardWidth,
+                child: _PillCard(
+                  leading: CakeImageWidget(
+                    imageUrl: "assets/new-ui/dots_grid.svg",
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),
+                  ),
+                  isSelected: false,
+                  label: S.of(context).picker_see_all,
+                  textColor: colors.primary,
+                  onTap: onSeeAll,
                 ),
               ),
           ],
@@ -44,16 +65,18 @@ class PillGrid extends StatelessWidget {
 
 class _PillCard extends StatelessWidget {
   const _PillCard({
-    required this.currency,
+    required this.leading,
     required this.isSelected,
     required this.label,
     required this.onTap,
+    this.textColor,
   });
 
-  final CryptoCurrency currency;
+  final Widget leading;
   final bool isSelected;
   final String label;
   final VoidCallback onTap;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -71,16 +94,14 @@ class _PillCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            TokenImageWidget(
-              imageUrl: currency.iconPath ?? '',
-              size: 24,
-            ),
+            leading,
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: textColor,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.06,
                     ),

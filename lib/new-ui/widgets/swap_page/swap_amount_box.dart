@@ -593,6 +593,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         ? CurrencyPickerArgs(
             items: _pickableAssets(widget.exchangeViewModel.depositCurrencies),
             selected: selected,
+            currentNetwork: widget.exchangeViewModel.wallet.type,
             recentsSource: RecentsSource.trades,
             onSelected: (currency) {
               widget.onCurrencySelected(currency);
@@ -614,6 +615,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
               items: items,
               selected: selected,
               filterByNetwork: widget.filteredNetwork,
+              currentNetwork: widget.exchangeViewModel.wallet.type,
               balanceByAsset: widget.balanceByAsset,
               useSingleNetworkLayout: widget.useSingleNetworkLayout,
               recentsSource: RecentsSource.trades,
