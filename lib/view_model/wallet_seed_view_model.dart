@@ -1,30 +1,32 @@
 import "dart:async";
 import 'dart:math';
 
+import "package:cake_wallet/store/app_store.dart";
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/wallet_info.dart";
 import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
 
 part 'wallet_seed_view_model.g.dart';
 
 class WalletSeedViewModel = WalletSeedViewModelBase with _$WalletSeedViewModel;
 
 abstract class WalletSeedViewModelBase with Store {
-  WalletSeedViewModelBase(WalletBase wallet)
-      : name = wallet.name,
-        seed = wallet.seed!,
-        walletType = wallet.type,
-        _walletInfo = wallet.walletInfo,
+  WalletSeedViewModelBase({required AppStore appStore})
+      : _appStore = appStore,
+        _walletInfo = appStore.wallet!.walletInfo,
+        name = appStore.currentWalletGroupName,
+        seed = appStore.wallet!.seed!,
+        walletType = appStore.wallet!.type,
         currentOptions = ObservableList<String>(),
         verificationIndices = ObservableList<int>() {
     setupSeedVerification();
   }
 
   final WalletInfo _walletInfo;
+  final AppStore _appStore;
 
   @observable
   String name;
@@ -39,6 +41,8 @@ abstract class WalletSeedViewModelBase with Store {
   ///
   /// Either standard ASCII space (U+0020) or the full-width space character (U+3000) used by the Japanese.
   List<String> get seedSplit => seed.split(RegExp(r'\s+'));
+
+  String get currentWalletGroupName => _appStore.currentWalletGroupName;
 
   int get columnCount => seedSplit.length <= 16 ? 2 : 3;
 

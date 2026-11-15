@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/chain_icon.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart';
@@ -145,7 +146,7 @@ class _TopBarState extends State<TopBar> {
                   children: [
                     Expanded(
                       child: WalletInfoBar(
-                        name: widget.dashboardViewModel.wallet.name,
+                        name: widget.dashboardViewModel.name,
                         hardwareWalletType: widget.dashboardViewModel.wallet.hardwareWalletType,
                       ),
                     ),

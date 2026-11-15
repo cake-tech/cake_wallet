@@ -3,6 +3,7 @@ import "dart:async";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart";
 import "package:cake_wallet/store/authentication_store.dart";
@@ -44,6 +45,9 @@ abstract class AppStoreBase with Store {
   @observable
   String? currentRouteName;
 
+  @observable
+  String currentWalletGroupName = "";
+
   WalletListStore walletList;
 
   SettingsStore settingsStore;
@@ -76,12 +80,21 @@ abstract class AppStoreBase with Store {
     unawaited(getIt
         .get<SharedPreferences>()
         .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type)));
+    currentWalletGroupName = "";
+    unawaited(refreshCurrentWalletGroupName());
   }
 
   Future<void> _lastWalletConnectAction = Future.value();
 
   void _queueWalletConnectAction(Future<void> Function() action) {
     _lastWalletConnectAction = _lastWalletConnectAction.then((_) => action());
+  }
+
+  Future<void> refreshCurrentWalletGroupName() async {
+    final current = wallet;
+    if (current == null) return;
+    final name = await groupNameForWallet(current.walletInfo);
+    if (wallet == current) runInAction(() => currentWalletGroupName = name);
   }
 
   Future<void> _setupWalletConnect() async {

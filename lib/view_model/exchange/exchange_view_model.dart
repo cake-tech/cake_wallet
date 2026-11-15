@@ -283,6 +283,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       (currency.tag != null && currency.tag == wallet.currency.tag) ||
       currency.tag == wallet.currency.title;
 
+  String get currentWalletGroupName => _appStore.currentWalletGroupName;
+
   bool get isElectrumWallet => [
         WalletType.bitcoin,
         WalletType.litecoin,

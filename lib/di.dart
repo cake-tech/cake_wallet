@@ -444,6 +444,7 @@ Future<void> setup({
       getIt.get<WalletManager>(),
       getIt.get<WalletListViewModel>(),
       type: type,
+      walletNewVMBuilder: (args) => getIt.get<WalletNewVM>(param1: args),
     ),
   );
 
@@ -977,7 +978,7 @@ Future<void> setup({
   getIt.registerFactory(
       () => SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
 
-  getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => WalletSeedViewModel(appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory<SeedSettingsViewModel>(
       () => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));

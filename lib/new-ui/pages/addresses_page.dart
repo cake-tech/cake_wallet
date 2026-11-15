@@ -313,7 +313,7 @@ class AccountPreviewHeader extends StatelessWidget {
                       style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.primary),
                     ),
                     Text(
-                      dashboardViewModel.wallet.name,
+                      dashboardViewModel.name,
                       style: TextStyle(
                           fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     )

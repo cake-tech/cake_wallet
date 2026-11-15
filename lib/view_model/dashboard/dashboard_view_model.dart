@@ -103,7 +103,6 @@ abstract class DashboardViewModelBase with Store {
         filterItems = [],
         exchangeFilterItems = [],
         subname = '',
-        name = appStore.wallet!.name,
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         cardDesigns = ObservableList<CardDesign>(),
@@ -114,7 +113,6 @@ abstract class DashboardViewModelBase with Store {
     showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
     isMultiAccountsEnabled =
         wallet.hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
-    name = wallet.name;
     type = wallet.type;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
@@ -385,6 +383,9 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
   @computed
+  String get name => appStore.currentWalletGroupName;
+
+  @computed
   bool get requiresManualShield => wallet.type == WalletType.zcash && wallet.isHardwareWallet;
 
   @computed
@@ -608,9 +609,6 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   WalletType type;
-
-  @observable
-  String name;
 
   @observable
   ObservableList<TransactionListItem> transactions;
@@ -1410,7 +1408,6 @@ abstract class DashboardViewModelBase with Store {
 
     this.wallet = wallet;
     type = wallet.type;
-    name = wallet.name;
     isMultiAccountsEnabled =
         wallet.hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
 

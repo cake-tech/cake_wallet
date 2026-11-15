@@ -56,10 +56,10 @@ class NewSwapPage extends StatefulWidget {
     this.balanceViewModel,
   }) {
     depositWalletName = exchangeViewModel.depositCurrency == CryptoCurrency.xmr
-        ? exchangeViewModel.wallet.name
+        ? exchangeViewModel.currentWalletGroupName
         : null;
     receiveWalletName = exchangeViewModel.receiveCurrency == CryptoCurrency.xmr
-        ? exchangeViewModel.wallet.name
+        ? exchangeViewModel.currentWalletGroupName
         : null;
     if (initialCurrency != null) {
       exchangeViewModel.changeDepositCurrency(currency: initialCurrency);
@@ -228,7 +228,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
       );
 
       _disposers.add(reaction(
-        (_) => widget.exchangeViewModel.wallet.name,
+        (_) => widget.exchangeViewModel.currentWalletGroupName,
         (_) => _onWalletNameChange(
           widget.exchangeViewModel,
           widget.exchangeViewModel.receiveCurrency,
@@ -237,7 +237,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
       ));
 
       _disposers.add(reaction(
-        (_) => widget.exchangeViewModel.wallet.name,
+        (_) => widget.exchangeViewModel.currentWalletGroupName,
         (_) => _onWalletNameChange(
           widget.exchangeViewModel,
           widget.exchangeViewModel.depositCurrency,
@@ -654,7 +654,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       title: fromSend != null ? "" : S.of(context).send,
                                       sourceSelectorMode: fromSend != null,
                                       walletName: fromSend != null
-                                          ? widget.exchangeViewModel.wallet.name
+                                          ? widget.exchangeViewModel.currentWalletGroupName
                                           : null,
                                       balanceByAsset:
                                           fromSend != null ? _depositBalanceByAsset() : null,

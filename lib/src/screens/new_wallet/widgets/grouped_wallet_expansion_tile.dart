@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/wallet_type.dart";
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 
@@ -120,15 +121,15 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                             height: 35,
                             width: 6,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
+                              borderRadius: const BorderRadius.only(
                                 topRight: Radius.circular(16),
                                 bottomRight: Radius.circular(16),
                               ),
                               color: currentColor,
                             ),
                           )
-                        : SizedBox(width: 7),
-                    SizedBox(width: 24),
+                        : const SizedBox(width: 7),
+                    const SizedBox(width: 24),
                     CakeImageWidget(
                       imageUrl: getCryptoCurrencyIconForWalletListItem(item.type),
                       width: 32,
@@ -138,7 +139,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 ),
               ),
               title: Text(
-                item.name,
+                walletTypeToDisplayName(item.type),
                 maxLines: 2,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 18,

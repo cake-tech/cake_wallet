@@ -12,6 +12,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_edit_view_model.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_type.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -37,6 +38,15 @@ class WalletEditPage extends BasePage {
   bool get _canRename => pageArguments.isWalletGroup;
 
   bool get _canDelete => !_isMultiWalletGroup && !pageArguments.editingWallet.isCurrent;
+
+
+  String get _displayName {
+    final wallet = pageArguments.editingWallet;
+    final groupName = pageArguments.groupName.trim();
+    return pageArguments.isSingleWalletGroup && groupName.isNotEmpty
+        ? groupName
+        : walletTypeToDisplayName(wallet.type);
+  }
 
   @override
   String get title =>
@@ -68,7 +78,7 @@ class WalletEditPage extends BasePage {
   );
 
   Widget _buildWalletName(BuildContext context) => Text(
-    pageArguments.editingWallet.name,
+    _displayName,
     textAlign: TextAlign.center,
     style: Theme.of(context).textTheme.titleLarge?.copyWith(
       color: Theme.of(context).colorScheme.onSurface,
@@ -146,7 +156,7 @@ class WalletEditPage extends BasePage {
         alertRightActionButtonKey: const ValueKey("wallet_edit_page_confirm_delete_button_key"),
         alertLeftActionButtonKey: const ValueKey("wallet_edit_page_cancel_delete_button_key"),
         alertTitle: S.of(context).delete_wallet,
-        alertContent: S.of(context).delete_wallet_confirm_message(wallet.name),
+        alertContent: S.of(context).delete_wallet_confirm_message(_displayName),
         leftButtonText: S.of(context).cancel,
         rightButtonText: S.of(context).delete,
         actionLeftButton: () => Navigator.of(dialogContext).pop(),
@@ -162,12 +172,12 @@ class WalletEditPage extends BasePage {
     Navigator.of(context).pop();
 
     try {
-      _showProgress(context, S.of(context).wallet_list_removing_wallet(wallet.name));
+      _showProgress(context, S.of(context).wallet_list_removing_wallet(_displayName));
       await walletEditViewModel.remove(wallet);
       await _hideProgress();
     } catch (e) {
       if (!context.mounted) return;
-      _showProgress(context, S.of(context).wallet_list_failed_to_remove(wallet.name, e.toString()));
+      _showProgress(context, S.of(context).wallet_list_failed_to_remove(_displayName, e.toString()));
     }
   }
 
