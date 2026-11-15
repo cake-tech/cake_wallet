@@ -426,6 +426,13 @@ abstract class TronWalletBase
           continue;
         }
 
+        final saved = transactionHistory.transactions[transactionModel.hash];
+        if (!transactionModel.isTrc20TransferCall &&
+            saved != null &&
+            saved.amount.currency.symbol != currency.symbol) {
+          continue;
+        }
+
         // Only a TRC20 transfer moves tokens, any other contract call is a TRX transaction.
         var txCurrency = currency;
         if (transactionModel.isTrc20TransferCall) {
@@ -512,7 +519,8 @@ abstract class TronWalletBase
 
     for (final transactionModel in transactions) {
       try {
-        if (transactionHistory.transactions.containsKey(transactionModel.hash)) {
+        final saved = transactionHistory.transactions[transactionModel.hash];
+        if (saved != null && saved.amount.currency.symbol != currency.symbol) {
           continue;
         }
 
@@ -523,7 +531,11 @@ abstract class TronWalletBase
               ? TransactionDirection.outgoing
               : TransactionDirection.incoming,
           blockTime: transactionModel.date,
-          fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
+          // The TRC20 index has no real fee (its model reports 0), so keep the saved TRX row's.
+          fee: saved?.fee ??
+              (transactionModel.fee != null
+                  ? Money.fromInt(transactionModel.fee!, currency)
+                  : null),
           to: transactionModel.to,
           from: transactionModel.from,
           isPending: false,

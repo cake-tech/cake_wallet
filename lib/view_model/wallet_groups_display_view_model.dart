@@ -117,10 +117,11 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     final walletGroups = List<WalletGroup>.from(_walletManager.walletGroups);
 
     // Iterate through the wallet groups to filter and categorize wallets
-    for (var group in walletGroups) {
+    for (final group in walletGroups) {
       // Handle group wallet filtering
       bool shouldExcludeGroup = false;
-      for (final wallet in group.wallets) {
+      final _wallets = List<WalletInfo>.from(group.wallets);
+      for (final wallet in _wallets) {
         // Selected wallet type must not be present already in the group
         if (wallet.type == type || !await canShareWalletGroup(wallet)) {
           shouldExcludeGroup = true;

@@ -483,7 +483,7 @@ class _BottomActions extends StatelessWidget {
         ),
         Container(
           height: 240,
-          width: MediaQuery.of(context).size.width,
+          width: MediaQuery.sizeOf(context).width,
           margin: const EdgeInsets.only(bottom: 24),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
