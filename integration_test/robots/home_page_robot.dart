@@ -26,7 +26,8 @@ class HomePageRobot extends BaseRobot {
     }
 
     final stack = tester.widget<IndexedStack>(stackFinder.first);
-    final index = stack.children.indexWhere((child) => child is NewHomePage);
+    final index = stack.children
+        .indexWhere((child) => (child is TickerMode ? child.child : child) is NewHomePage);
 
     return index >= 0 && stack.index == index;
   }
