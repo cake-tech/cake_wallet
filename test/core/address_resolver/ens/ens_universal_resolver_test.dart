@@ -21,15 +21,16 @@ class _FakeNode extends RpcService {
 
 void main() {
   const vitalik = "0xd8da6bf26964af9d7eed9e03e53415d37aa96045";
+  const vitalikNode = "ee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835";
+  const resolver = "231b0ee14048e9dccd1d247744d114a4eb5e8e63";
 
   String word(String hex) => hex.padLeft(64, "0");
 
   String resolvesTo(String address) =>
-      "0x${word("40")}${word("231b0ee14048e9dccd1d247744d114a4eb5e8e63")}"
-      "${word("20")}${word(address.substring(2))}";
+      "0x${word("40")}${word(resolver)}${word("20")}${word(address.substring(2))}";
 
-  Future<String> resolve(_FakeNode node, String name) =>
-      EnsUniversalResolver.resolveAddress(Web3Client.custom(node), name, CoinType.ETH);
+  Future<String> resolve(_FakeNode node, String name, [CoinType coinType = CoinType.ETH]) =>
+      EnsUniversalResolver.resolveAddress(Web3Client.custom(node), name, coinType);
 
   group("EnsUniversalResolver", () {
     test("calls resolve(dnsName, addr(node)) on the Universal Resolver", () async {
@@ -38,13 +39,19 @@ void main() {
       expect(await resolve(node, "vitalik.eth"), vitalik);
       expect(node.methods, ["eth_call"]);
       expect(node.calls.single["to"], "0xeeeeeeee14d718c2b47d9923deab1335e144eeee");
-      final data = node.calls.single["data"] as String;
-      expect(data, startsWith("0x9061b923"));
-      expect(data, contains("07766974616c696b0365746800"));
       expect(
-        data,
-        contains("3b3b57deee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835"),
+        node.calls.single["data"],
+        "0x9061b923${word("40")}${word("80")}"
+        "${word("d")}${"07766974616c696b0365746800".padRight(64, "0")}"
+        "${word("24")}${"3b3b57de$vitalikNode".padRight(128, "0")}",
       );
+    });
+
+    test("encodes addr(node, coinType) for other coins", () async {
+      final node = _FakeNode(() => throw const RPCError(3, "execution reverted", "0x77209fe8"));
+      await resolve(node, "vitalik.eth", CoinType.BTC);
+
+      expect(node.calls.single["data"], contains("f1cb7e06$vitalikNode${word("0")}"));
     });
 
     test("lowercases the name before encoding it", () async {
@@ -61,14 +68,22 @@ void main() {
       );
     });
 
-    test("rejects anything outside visible ASCII without calling the node", () async {
+    test("rejects names outside the ENSIP-15 ASCII subset without calling the node", () async {
       final node = _FakeNode(() => resolvesTo(vitalik));
       final names = [
-        "vitalik‍.eth",
-        "vitalik‌.eth",
-        "vitаlik.eth",
-        "café.eth",
-        "❤❤❤.eth",
+        "vitalik\u200d.eth",
+        "vitalik\u200c.eth",
+        "vit\u0430lik.eth",
+        "\u212aick.eth",
+        "caf\u00e9.eth",
+        "\u2764\u2764\u2764.eth",
+        "o'brien.eth",
+        "vitalik!.eth",
+        "a_b.eth",
+        "ab_.eth",
+        "ab--c.eth",
+        "xn--ab.eth",
+        "----.eth",
         "nick .eth",
         "nick\u007f.eth",
       ];
@@ -76,6 +91,15 @@ void main() {
         expect(await resolve(node, name), "", reason: name);
       }
       expect(node.calls, isEmpty);
+    });
+
+    test("accepts the ASCII names ENSIP-15 keeps", () async {
+      final node = _FakeNode(() => resolvesTo(vitalik));
+      final names = ["_ab.eth", "___.eth", r"$.eth", r"abc$123.eth", "---a.eth", "ab-c.eth"];
+      for (final name in names) {
+        expect(await resolve(node, name), vitalik, reason: name);
+      }
+      expect(node.calls, hasLength(names.length));
     });
 
     test("rejects empty and oversized labels without calling the node", () async {
@@ -92,6 +116,13 @@ void main() {
       final node = _FakeNode(() => throw const RPCError(3, "execution reverted", "0x77209fe8"));
 
       expect(await resolve(node, "nobody.eth"), "");
+      expect(node.calls, hasLength(1));
+    });
+
+    test("returns an empty string when the node returns no data", () async {
+      final node = _FakeNode(() => "0x");
+
+      expect(await resolve(node, "vitalik.eth"), "");
       expect(node.calls, hasLength(1));
     });
   });

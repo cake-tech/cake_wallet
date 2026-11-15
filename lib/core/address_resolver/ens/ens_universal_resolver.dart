@@ -31,15 +31,21 @@ class EnsUniversalResolver {
   }
 
   static List<Uint8List>? _labels(String name) {
-    if (!_isVisibleAscii(name)) {
+    final labels = name.split(".");
+    if (!labels.every(_isValidLabel)) {
       return null;
     }
-    final labels = name.toLowerCase().split(".").map(utf8.encode).toList();
-    return labels.any((label) => label.isEmpty || label.length > 255) ? null : labels;
+    return labels.map((label) => utf8.encode(label.toLowerCase())).toList();
   }
 
-  static bool _isVisibleAscii(String name) =>
-      name.codeUnits.every((unit) => unit >= 0x21 && unit <= 0x7e);
+  static bool _isValidLabel(String label) =>
+      label.isNotEmpty &&
+      label.length <= 255 &&
+      _ensAsciiLabel.hasMatch(label) &&
+      !label.startsWith(_labelExtension);
+
+  static final _ensAsciiLabel = RegExp(r"^_*[A-Za-z0-9$-]*$");
+  static final _labelExtension = RegExp(r"..--");
 
   static Uint8List _namehash(List<Uint8List> labels) => labels.reversed.fold(
         Uint8List(32),
@@ -52,9 +58,14 @@ class EnsUniversalResolver {
       ]);
 
   static final _abi = ContractAbi.fromJson(
-    '[{"name":"resolve","type":"function","stateMutability":"view","inputs":[{"name":"","type":"bytes"},{"name":"","type":"bytes"}],"outputs":[{"name":"","type":"bytes"},{"name":"","type":"address"}]},'
-        '{"name":"addr","type":"function","stateMutability":"view","inputs":[{"name":"","type":"bytes32"}],"outputs":[{"name":"","type":"address"}]},'
-        '{"name":"addr","type":"function","stateMutability":"view","inputs":[{"name":"","type":"bytes32"},{"name":"","type":"uint256"}],"outputs":[{"name":"","type":"bytes"}]}]',
+    '[{"name":"resolve","type":"function","stateMutability":"view",'
+        '"inputs":[{"name":"","type":"bytes"},{"name":"","type":"bytes"}],'
+        '"outputs":[{"name":"","type":"bytes"},{"name":"","type":"address"}]},'
+        '{"name":"addr","type":"function","stateMutability":"view",'
+        '"inputs":[{"name":"","type":"bytes32"}],"outputs":[{"name":"","type":"address"}]},'
+        '{"name":"addr","type":"function","stateMutability":"view",'
+        '"inputs":[{"name":"","type":"bytes32"},{"name":"","type":"uint256"}],'
+        '"outputs":[{"name":"","type":"bytes"}]}]',
     "UniversalResolver",
   );
 
