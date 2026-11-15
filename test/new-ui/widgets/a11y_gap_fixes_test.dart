@@ -181,7 +181,8 @@ void main() {
     final appStore = _MockAppStore();
     final settingsStore = _MockSettingsStore();
     final wallet = _MockWallet();
-    when(() => dashboard.cardOrder).thenReturn(ObservableMap<int, int>());
+    when(() => dashboard.cardOrder).thenReturn(ObservableMap<int, int>.of({0: 0}));
+    when(() => dashboard.cardAccountIndices).thenReturn([0]);
     when(() => dashboard.cardDesigns).thenReturn(
       ObservableList.of([CardDesign.genericDefault, CardDesign.genericDefault]),
     );
