@@ -374,6 +374,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: mnemonic,
           seedKey: seedKey,
+          passphrase: credentials["passphrase"] as String?,
           node: node,
         );
       case WalletType.zano:

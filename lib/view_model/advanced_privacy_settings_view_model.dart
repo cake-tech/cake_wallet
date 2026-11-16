@@ -92,7 +92,10 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
 
   bool get isNanoSeedTypeOptionsEnabled => [WalletType.nano].contains(type);
 
-  bool get hasPassphraseOption => [
+  @computed
+  bool get hasPassphraseOption =>
+      (type == WalletType.nano && _settingsStore.nanoSeedType == NanoSeedType.bip39) ||
+      [
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,

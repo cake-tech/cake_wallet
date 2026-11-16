@@ -902,6 +902,7 @@ abstract class NanoUtil {
   Future<List<DerivationInfo>> getDerivationsFromMnemonic({
     String? mnemonic,
     String? seedKey,
+    String? passphrase,
     required Node node,
   });
 }

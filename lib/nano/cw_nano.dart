@@ -361,8 +361,14 @@ class CWNanoUtil extends NanoUtil {
   Future<List<DerivationInfo>> getDerivationsFromMnemonic({
     String? mnemonic,
     String? seedKey,
+    String? passphrase,
     required Node node,
   }) async {
+    // only the BIP39 (HD) derivation takes a passphrase
+    if ((passphrase ?? "").isNotEmpty) {
+      return [DerivationInfo(derivationType: DerivationType.bip39)];
+    }
+
     List<DerivationInfo> list = [];
 
     List<DerivationType> possibleDerivationTypes = await compareDerivationMethods(
