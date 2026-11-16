@@ -62,7 +62,7 @@ abstract class HomeSettingsViewModelBase with Store {
   int _balanceRequestId = 0;
 
   @observable
-  bool isLoadingTokenBalances = false;
+  bool isLoadingTokenBalances = true;
 
   @computed
   List<CryptoCurrency> get enabledTokens =>
