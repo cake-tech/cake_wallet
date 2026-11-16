@@ -192,4 +192,14 @@ void main() {
 
     expect((await Trade.getAll()).single.accountIndex, 0);
   });
+
+  test("persistTrade throws when the save fails, so the swap flow can stop", () async {
+    final creator = TradeCreator(appStore: _App(), registry: _Registry([]));
+    await db!.close();
+
+    await expectLater(
+      creator.persistTrade(_trade("order-id", ExchangeProviderDescription.swapsXyz)),
+      throwsA(anything),
+    );
+  });
 }

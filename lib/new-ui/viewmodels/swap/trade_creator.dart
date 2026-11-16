@@ -45,15 +45,9 @@ class TradeCreator {
     return null;
   }
 
-  Future<void> persistTrade(Trade trade) async {
-    try {
-      await trade
-          .copyWith(walletId: _appStore.wallet!.id, accountIndex: _accountIndexFor(trade))
-          .save();
-    } catch (e, st) {
-      printV("trade save failed! this should NOT happen!\n$e\n$st");
-    }
-  }
+  Future<void> persistTrade(Trade trade) => trade
+      .copyWith(walletId: _appStore.wallet!.id, accountIndex: _accountIndexFor(trade))
+      .save();
 
   int _accountIndexFor(Trade trade) => switch (_appStore.wallet!.type) {
     _ when trade.depositCurrency == CryptoCurrency.btcln => 0,

@@ -883,7 +883,13 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       }
 
       final txHash = s.transaction.evmTxHashFromRawHex ?? s.transaction.id;
-      final trade = await _registerTransaction(s.trade, txHash);
+      final Trade trade;
+      try {
+        trade = await _registerTransaction(s.trade, txHash);
+      } catch (e) {
+        emit(s.toError(e));
+        return;
+      }
       unawaited(_tradeMonitor.recordDeposit(trade.id, txHash));
 
       emit(
