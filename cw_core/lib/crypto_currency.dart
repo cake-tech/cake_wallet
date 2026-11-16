@@ -127,6 +127,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.storj,
     CryptoCurrency.tusd,
     CryptoCurrency.wbtc,
+    CryptoCurrency.cbbtc,
     CryptoCurrency.weth,
     CryptoCurrency.zrx,
     CryptoCurrency.dydx,

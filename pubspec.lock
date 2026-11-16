@@ -1668,8 +1668,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/ledger-bitcoin"
-      ref: "75bba8632c529debf30ee2b1858530009fa6440b"
-      resolved-ref: "75bba8632c529debf30ee2b1858530009fa6440b"
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
+      resolved-ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -1677,8 +1677,8 @@ packages:
     dependency: transitive
     description:
       path: "packages/ledger-ethereum"
-      ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
-      resolved-ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
+      resolved-ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.5"
@@ -1695,7 +1695,7 @@ packages:
     dependency: transitive
     description:
       path: "packages/ledger-litecoin"
-      ref: HEAD
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       resolved-ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
@@ -3146,7 +3146,7 @@ packages:
     source: hosted
     version: "6.5.0"
   yaml:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: yaml
       sha256: f67cdd8e07d3c6329146aaef1ba043542b3134c12489f553ca9a7435d1068aea

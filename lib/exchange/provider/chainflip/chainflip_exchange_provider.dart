@@ -32,6 +32,9 @@ class ChainflipExchangeProvider extends LimitsCacheExchangeProvider {
     CryptoCurrency.usdtArb,
     CryptoCurrency.trx,
     CryptoCurrency.usdttrc20,
+    CryptoCurrency.cbbtc,
+    CryptoCurrency.bnb,
+    CryptoCurrency.usdtbsc,
   ];
 
   static const _baseURL = "chainflip-broker.io";
