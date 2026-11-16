@@ -50,6 +50,8 @@ class CakePayService {
     return result;
   }
 
+  Future<bool> isUnderMaintenance() => cakePayApi.isUnderMaintenance(apiKey: cakePayApiKey);
+
   /// LogIn
   Future<void> logIn(String email) async {
     final userName = await cakePayApi.authenticateUser(email: email, apiKey: cakePayApiKey);

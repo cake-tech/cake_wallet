@@ -25,6 +25,7 @@ enum DeviceConnectionType {
           WalletType.monero,
           WalletType.bitcoin,
           WalletType.litecoin,
+          WalletType.bitcoinCash,
           WalletType.ethereum,
           WalletType.polygon,
           WalletType.zcash,

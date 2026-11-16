@@ -59,6 +59,8 @@ abstract class SettingsStoreBase with Store {
       {required SecureStorage secureStorage,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
+      required bool initialShouldShowChartsInDashboard,
+      required bool initialShouldShowNftsTab,
       required bool initialShowAddressBookPopupEnabled,
       required bool initialShowCiBuildOverlay,
       required SyncStatusDisplayMode initialSyncStatusDisplayMode,
@@ -202,6 +204,8 @@ abstract class SettingsStoreBase with Store {
         walletListAscending = initialWalletListAscending,
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
+        shouldShowChartsInDashboard = initialShouldShowChartsInDashboard,
+        shouldShowNftsTab = initialShouldShowNftsTab,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         showCiBuildOverlay = initialShowCiBuildOverlay,
         syncStatusDisplayMode = initialSyncStatusDisplayMode,
@@ -454,6 +458,16 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
+
+    reaction(
+      (_) => shouldShowChartsInDashboard,
+      (value) => sharedPreferences.setBool(PreferencesKey.shouldShowChartsInDashboard, value),
+    );
+
+    reaction(
+      (_) => shouldShowNftsTab,
+      (value) => sharedPreferences.setBool(PreferencesKey.shouldShowNftsTab, value),
+    );
 
     reaction(
         (_) => showAddressBookPopupEnabled,
@@ -835,6 +849,12 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowMarketPlaceInDashboard;
+
+  @observable
+  bool shouldShowChartsInDashboard;
+
+  @observable
+  bool shouldShowNftsTab;
 
   @observable
   bool showAddressBookPopupEnabled;
@@ -1332,6 +1352,9 @@ abstract class SettingsStoreBase with Store {
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
+    final shouldShowChartsInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ?? true;
+    final shouldShowNftsTab = sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final showCiBuildOverlay = sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? true;
@@ -1680,6 +1703,8 @@ abstract class SettingsStoreBase with Store {
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+      initialShouldShowChartsInDashboard: shouldShowChartsInDashboard,
+      initialShouldShowNftsTab: shouldShowNftsTab,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
       initialShowCiBuildOverlay: showCiBuildOverlay,
       initialSyncStatusDisplayMode: syncStatusDisplayMode,
@@ -1929,6 +1954,11 @@ abstract class SettingsStoreBase with Store {
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
+    shouldShowChartsInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ??
+            shouldShowChartsInDashboard;
+    shouldShowNftsTab =
+        sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? shouldShowNftsTab;
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
