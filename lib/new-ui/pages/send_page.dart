@@ -1171,6 +1171,12 @@ class _NewSendPageState extends State<NewSendPage> {
       printV("Payment flow error: $e");
       _applyPaymentRequest(evaluationResult.request.paymentRequest);
     }
+
+    for (final output in widget.sendViewModel.outputs) {
+      if (output.estimatedFee.currency != widget.sendViewModel.currency) {
+        await output.calculateEstimatedFee();
+      }
+    }
   }
 
   Future<void> _applyIntent(
