@@ -1,6 +1,7 @@
 import "dart:io";
 
 import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/store/settings_store.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/pathForWallet.dart";
@@ -38,11 +39,8 @@ class WalletCreationService {
     _service = getIt.get<WalletService>(param1: type);
   }
 
-  Future<bool> exists(String name) async {
-    final walletName = name.toLowerCase();
-    return (await WalletInfo.getAll())
-        .any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
-  }
+  Future<bool> exists(String name) =>
+      getIt.get<WalletDisplayNames>().isNameTaken(name);
 
   Future<bool> typeExists(WalletType type) async {
     return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.type == type);

@@ -37,4 +37,22 @@ class WalletDisplayNames {
 
   String inFlatList(WalletInfo w) =>
       (_groupSizes[w.groupId] ?? 1) > 1 ? "${groupName(w)} · ${inGroup(w)}" : groupName(w);
+
+
+  Future<bool> isNameTaken(String name, {String? exceptGroupId}) async {
+    final target = name.trim().toLowerCase();
+    final groupNames = {
+      for (final g in await WalletGroupDbEntry.getAll()) g.id: g.name,
+    };
+
+    for (final w in await WalletInfo.getAll()) {
+      if (exceptGroupId != null && w.groupId == exceptGroupId) continue;
+
+      final groupName = groupNames[w.groupId] ?? "";
+      final shown = groupName.isNotEmpty ? groupName : w.name;
+      if (shown.trim().toLowerCase() == target) return true;
+      if (w.name.trim().toLowerCase() == target) return true; // keep the old wallet-name check
+    }
+    return false;
+  }
 }

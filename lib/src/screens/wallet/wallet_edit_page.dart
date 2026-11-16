@@ -126,6 +126,8 @@ class WalletEditPage extends BasePage {
       if (context.mounted) {
         Navigator.of(context).pop();
       }
+    } on WalletNameTakenException {
+      if (context.mounted) showBar<void>(context, S.of(context).wallet_name_exists);
     } catch (e) {
       printV("Failed to rename wallet group: ${e.runtimeType}");
     } finally {

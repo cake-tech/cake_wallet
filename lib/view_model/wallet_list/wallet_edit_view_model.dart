@@ -1,4 +1,5 @@
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import "package:cake_wallet/entities/wallet_group_db_entry.dart";
 import "package:cake_wallet/entities/wallet_manager.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_list_item.dart";
@@ -19,6 +20,8 @@ class WalletEditRenamePending extends WalletEditViewModelState {}
 
 class WalletEditDeletePending extends WalletEditViewModelState {}
 
+class WalletNameTakenException implements Exception {}
+
 abstract class WalletEditViewModelBase with Store {
   WalletEditViewModelBase(this._walletListViewModel, this._walletManager)
       : state = WalletEditViewModelInitialState(),
@@ -37,6 +40,10 @@ abstract class WalletEditViewModelBase with Store {
   Future<void> renameGroup(String walletGroupKey) async {
     final name = newName.trim();
     if (name.isEmpty) return;
+
+    if (await getIt.get<WalletDisplayNames>().isNameTaken(name, exceptGroupId: walletGroupKey)) {
+      throw WalletNameTakenException();
+    }
 
     state = WalletEditRenamePending();
     try {

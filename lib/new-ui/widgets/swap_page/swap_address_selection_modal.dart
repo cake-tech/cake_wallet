@@ -1,3 +1,5 @@
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import "package:cake_wallet/new-ui/widgets/send_page/l2_action_wallet_selector.dart";
@@ -125,7 +127,7 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
                               padding: const EdgeInsets.symmetric(vertical: 6.0),
                               child: WalletRow(
                                 currencyIconPath: currencyIconPath,
-                                walletName: item.name,
+                                walletName: getIt.get<WalletDisplayNames>().groupName(item),
                                 onTap: () {
                                   Navigator.of(context).pop(
                                     SwapAddressSelectionResult(
@@ -305,7 +307,11 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                       spacing: 12,
                       children: [
                         CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24),
-                        Text(widget.wallet.name)
+                        Text(getIt.get<WalletDisplayNames>().groupName(widget.wallet),
+                            style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurface)),
                       ],
                     ),
                     widget.accounts != null
