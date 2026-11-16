@@ -78,8 +78,8 @@ class _NewSwapPageState extends State<NewSwapPage> {
         final newCurr = CryptoCurrency.fromString(widget.initialPaymentRequest!.scheme);
         widget.bloc.add(
           InitialValuesApplied(
-            depositCurrency: newCurr,
-            depositAmount: Money.tryParse(widget.initialPaymentRequest!.amount, newCurr),
+            payoutCurrency: newCurr,
+            payoutAmount: Money.tryParse(widget.initialPaymentRequest!.amount, newCurr),
             payoutAddress: ExternalSwapAddress(widget.initialPaymentRequest!.address),
           ),
         );
