@@ -73,7 +73,7 @@ jobs:
             git clone --branch 3.41.9 --depth 1 https://github.com/flutter/flutter.git "$HOME/flutter"
           fi
           echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
-          flutter --version
+          "$HOME/flutter/bin/flutter" --version
 
       - name: Save flutter sdk
         if: steps.flutter-cache.outputs.cache-hit != 'true'
