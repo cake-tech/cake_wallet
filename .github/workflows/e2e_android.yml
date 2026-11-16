@@ -178,8 +178,8 @@ jobs:
       - name: Boot the emulator and run the no-funds slice
         uses: reactivecircus/android-emulator-runner@v2
         env:
-          GLM_BASE_URL: ${{ secrets.DSPARK_BASE_URL }}
-          GLM_API_KEY: ${{ secrets.DSPARK_API_KEY }}
+          GLM_BASE_URL: https://llm.cakewallet.com/v1
+          GLM_API_KEY: ${{ secrets.LLM_API_KEY || secrets.DSPARK_API_KEY }}
           E2E_SECRET_SEED_BTC: ${{ secrets.E2E_SECRET_SEED_BTC }}
           E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
           E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
