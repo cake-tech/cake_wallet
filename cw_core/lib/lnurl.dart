@@ -82,6 +82,39 @@ Money? getBolt11Amount(String invoice) {
   return Money.fromInt(msat ~/ 1000, CryptoCurrency.btcln);
 }
 
+const _bolt11TimestampLength = 7;
+const _bolt11SignatureLength = 104;
+const _bolt11FieldHeaderLength = 3;
+const _bolt11DescriptionTag = 13;
+
+String? getBolt11Description(String invoice) {
+  try {
+    final request =
+        const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+    if (!_BOLT_PREFIXES.any(request.hrp.startsWith)) {
+      return null;
+    }
+
+    final data = request.data;
+    final fieldsEnd = data.length - _bolt11SignatureLength;
+
+    var index = _bolt11TimestampLength;
+    while (index + _bolt11FieldHeaderLength <= fieldsEnd) {
+      final fieldStart = index + _bolt11FieldHeaderLength;
+      final fieldEnd = fieldStart + ((data[index + 1] << 5) | data[index + 2]);
+      if (fieldEnd > fieldsEnd) {
+        return null;
+      }
+      if (data[index] == _bolt11DescriptionTag) {
+        return utf8.decode(_convert(data.sublist(fieldStart, fieldEnd), 5, 8, false));
+      }
+      index = fieldEnd;
+    }
+  } catch (_) {}
+
+  return null;
+}
+
 class LNURL {
   static Future<Money?> getPayRequestAmount(String lnurl) async {
     final url = decode(lnurl);

@@ -445,6 +445,20 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return sp.hasMatch(address);
   }
 
+  bool isSendToLnurl(Output output) =>
+      wallet.type == WalletType.bitcoin && isLnurlInvoice(_recipientAddress(output));
+
+  String lightningInvoiceMemo(Output output) {
+    if (wallet.type != WalletType.bitcoin) {
+      return "";
+    }
+
+    final address = _recipientAddress(output);
+    return isLightningInvoice(address) ? getBolt11Description(address) ?? "" : "";
+  }
+
+  String _recipientAddress(Output output) =>
+      (output.extractedAddress.isNotEmpty ? output.extractedAddress : output.address).trim();
 
   @computed
   bool get hasCoinControl =>
@@ -1425,8 +1439,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get hasMemos => [WalletType.zcash].contains(wallet.type);
 
+  bool hasMemoFor(Output output) => hasMemos || isSendToLnurl(output);
+
   final Map<WalletType, int> _maxMemoLengths = {
     WalletType.zcash: 512,
+    WalletType.bitcoin: 255,
   };
 
   @computed

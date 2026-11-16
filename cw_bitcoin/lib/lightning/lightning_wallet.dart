@@ -1,4 +1,5 @@
 import 'dart:async';
+import "dart:convert";
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -229,8 +230,9 @@ class LightningWallet {
     String address,
     BigInt? amountSats,
     BitcoinTransactionPriority? priority,
-    bool feesIncluded,
-  ) async {
+    bool feesIncluded, {
+    String? comment,
+  }) async {
     final inputType = await sdk.parse(input: address);
 
     final feePolicy = feesIncluded ? FeePolicy.feesIncluded : FeePolicy.feesExcluded;
@@ -284,22 +286,25 @@ class LightningWallet {
     } else if (inputType is InputType_LightningAddress || inputType is InputType_LnurlPay) {
       const optionalValidateSuccessActionUrl = true;
 
-      PrepareLnurlPayRequest request;
-      if (inputType is InputType_LightningAddress) {
-        request = PrepareLnurlPayRequest(
-          amount: amountSats!,
-          payRequest: inputType.field0.payRequest,
-          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
-          feePolicy: feePolicy,
-        );
-      } else {
-        request = PrepareLnurlPayRequest(
-          amount: amountSats!,
-          payRequest: (inputType as InputType_LnurlPay).field0,
-          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
-          feePolicy: feePolicy,
+      final payRequest = inputType is InputType_LightningAddress
+          ? inputType.field0.payRequest
+          : (inputType as InputType_LnurlPay).field0;
+
+      if (comment != null && utf8.encode(comment).length > payRequest.commentAllowed) {
+        throw TransactionGenerationException(
+          payRequest.commentAllowed == 0
+              ? "The recipient doesn't accept a memo"
+              : "The recipient accepts memos up to ${payRequest.commentAllowed} characters",
         );
       }
+
+      final request = PrepareLnurlPayRequest(
+        amount: amountSats!,
+        payRequest: payRequest,
+        comment: comment,
+        validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+        feePolicy: feePolicy,
+      );
 
       final prepareResponse = await sdk.prepareLnurlPay(request: request);
 
