@@ -59,6 +59,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/exceptions.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/lnurl.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
@@ -426,8 +427,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
 
   @computed
+  bool get canSendWithoutSync => [...electrumWalletTypes, ...evmWalletTypes, WalletType.solana, WalletType.tron].contains(wallet.type);
+
+  @computed
   bool get isReadyForSend =>
-      wallet.syncStatus is SyncedSyncStatus ||
+      canSendWithoutSync || wallet.syncStatus is SyncedSyncStatus ||
       // If silent payments scanning, can still send payments
       (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
 
@@ -444,16 +448,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get hasCoinControl =>
-      [
-        WalletType.bitcoin,
-        WalletType.litecoin,
-        WalletType.monero,
-        WalletType.wownero,
-        WalletType.decred,
-        WalletType.bitcoinCash,
-        WalletType.dogecoin
-      ].contains(wallet.type) &&
-      coinTypeToSpendFrom != UnspentCoinType.lightning;
+      wallet.hasCoinControl && coinTypeToSpendFrom != UnspentCoinType.lightning;
 
   @computed
   bool get hasFees => feesViewModel.hasFees && coinTypeToSpendFrom != UnspentCoinType.lightning;
@@ -952,7 +947,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
             return pendingTransaction;
           } catch (e, s) {
             printV('Jupiter swap error: $e\n$s');
-            throw Exception('Failed to process Jupiter swap: $e');
+            throw TransactionGenerationException('Failed to process Jupiter swap: $e');
           }
         }
       }
@@ -965,7 +960,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final estimateTxAmount = outputs.fold<BigInt>(
             BigInt.zero, (acc, output) => acc + output.cryptoAmountMoney.amount);
         if (estimateTxAmount <= BigInt.zero) {
-          throw Exception('Amount must be greater than 0');
+          throw TransactionGenerationException('Amount must be greater than 0');
         }
       }
 
@@ -985,14 +980,14 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           strictParsing: false,
         );
         if (tradeAmountMoney == null || tradeAmountMoney.sign <= 0) {
-          throw Exception('Trade amount must be greater than 0');
+          throw TransactionGenerationException('Trade amount must be greater than 0');
         }
         final tradeAmountDouble = double.tryParse(tradeAmountMoney.toString()) ?? 0.0;
 
         if (trade.isSendAll == true) {
           if (provider is NearIntentsExchangeProvider) {
             if (txAmountDouble != tradeAmountDouble) {
-              throw Exception(
+              throw TransactionGenerationException(
                   'Transaction amount $txAmountDouble does not match expected trade amount $tradeAmountDouble');
             }
           }
@@ -1001,11 +996,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         if (provider is ThorChainExchangeProvider) {
           final outputCount = pendingTransaction?.outputCount ?? 0;
           if (outputCount > 10) {
-            throw Exception("THORChain does not support more than 10 outputs");
+            throw TransactionGenerationException("THORChain does not support more than 10 outputs");
           }
 
           if (_hasTaprootInput(pendingTransaction)) {
-            throw Exception("THORChain does not support Taproot addresses");
+            throw TransactionGenerationException("THORChain does not support Taproot addresses");
           }
         }
       }
@@ -1097,7 +1092,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   Future<void> commitTransaction(BuildContext context) async {
     if (pendingTransaction == null) {
-      throw Exception("Pending transaction doesn't exist. It should not be happened.");
+      throw TransactionGenerationException("Pending transaction doesn't exist. It should not be happened.");
     }
 
     try {
@@ -1337,7 +1332,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           WalletType.robinhood,
           WalletType.zcash,
         ].contains(wallet.type)) {
-      throw Exception('Priority is null for wallet type: ${wallet.type}');
+      throw BadWalletTypeException('Priority is null for wallet type: ${wallet.type}', wallet.type);
     }
 
     switch (wallet.type) {
@@ -1402,7 +1397,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           // priority: priority,
         );
       default:
-        throw Exception('Unexpected wallet type: ${wallet.type} for send');
+        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for send', wallet.type);
     }
   }
 
@@ -1595,6 +1590,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
       if (error is AmbiguousTokenSymbolException) {
         return S.current.ambiguous_token_symbol_exception(error.symbol);
+      }
+
+      if (error is UnrecognizedTokenProgramException) {
+        return S.current.solana_unrecognized_token_program_exception;
       }
 
       if (errorMessage.contains('found no record of a prior credit')) {

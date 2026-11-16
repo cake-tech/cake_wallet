@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cw_core/amount_converter.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
@@ -31,6 +33,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.usdtArb,
     CryptoCurrency.trx,
     CryptoCurrency.usdttrc20,
+    CryptoCurrency.cbbtc,
+    CryptoCurrency.bnb,
+    CryptoCurrency.usdtbsc,
   ];
 
   static const _baseURL = 'chainflip-broker.io';
@@ -68,8 +73,9 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       required CryptoCurrency to,
       required bool isFixedRateMode}) async {
     try {
-      if (!_supported.contains(from) || !_supported.contains(to)) {
-        throw Exception('No rates found for $from to $to');
+
+      if(!_supported.contains(from) || !_supported.contains(to)) {
+        throw RateNotFoundException(from, to, provider: description);
       }
 
       final assetId = _normalizeCurrency(from);
@@ -81,12 +87,14 @@ class ChainflipExchangeProvider extends ExchangeProvider {
               orElse: () => null)?['minimalAmountNative'] ??
           '0';
 
-      if (minAmount == '0') throw Exception('No rates found for $from to $to');
+    if (minAmount == '0') throw RateNotFoundException(from, to, provider: description);
 
       return Limits(min: _amountFromNative(minAmount.toString(), from));
+    } on ExchangeProviderResponseException {
+      rethrow;
     } catch (e) {
       printV(e.toString());
-      throw Exception('Chainflip failed to fetch limits');
+      throw ExchangeProviderResponseException('Chainflip failed to fetch limits');
     }
   }
 
@@ -108,7 +116,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'apiKey': _affiliateKey,
         'sourceAsset': _normalizeCurrency(from),
         'destinationAsset': _normalizeCurrency(to),
-        'amount': _amountToNative(amount, from),
+        'amount': _amountToNative(_amountString(amount, from), from),
         'commissionBps': _affiliateBps
       };
 
@@ -168,7 +176,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         'apiKey': _affiliateKey,
         'sourceAsset': _normalizeCurrency(request.fromCurrency),
         'destinationAsset': _normalizeCurrency(request.toCurrency),
-        'amount': _amountToNative(double.parse(request.fromAmount), request.fromCurrency),
+        'amount': _amountToNative(request.fromAmount, request.fromCurrency),
         'commissionBps': _affiliateBps
       };
 
@@ -276,7 +284,8 @@ class ChainflipExchangeProvider extends ExchangeProvider {
 
       final statusResponse = await _getStatus(statusParams);
 
-      if (statusResponse == null) throw Exception('Trade not found for id: $id');
+      if (statusResponse == null)
+        throw TradeNotFoundException(id, provider: description);
 
       final status = statusResponse['status'];
       final currentState = _determineState(status['state'].toString());
@@ -346,21 +355,32 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       'usdt.eth' => CryptoCurrency.usdterc20,
       'flip.eth' => CryptoCurrency.flip,
       'wbtc.eth' => CryptoCurrency.wbtc,
+      'cbbtc.eth' => CryptoCurrency.cbbtc,
       'sol.sol' => CryptoCurrency.sol,
       'usdc.sol' => CryptoCurrency.usdcsol,
+      'usdt.sol' => CryptoCurrency.usdtSol,
       'eth.arb' => CryptoCurrency.arbEth,
       'usdc.arb' => CryptoCurrency.usdcArb,
       'usdt.arb' => CryptoCurrency.usdtArb,
       'trx.tron' => CryptoCurrency.trx,
       'usdt.tron' => CryptoCurrency.usdttrc20,
+      'bnb.bsc' => CryptoCurrency.bnb,
+      'usdt.bsc' => CryptoCurrency.usdtbsc,
       _ => null
     };
 
     return currency;
   }
 
-  String _amountToNative(double amount, CryptoCurrency currency) =>
-      (amount * pow(10, currency.decimals)).toInt().toString();
+  String _amountToNative(String amount, CryptoCurrency currency) =>
+      AmountConverter.toBaseUnits(amount, currency.decimals);
+
+  String _amountString(double amount, CryptoCurrency currency) {
+    final text = amount.toString();
+    return text.contains('e') || text.contains('E')
+        ? amount.toStringAsFixed(currency.decimals)
+        : text;
+  }
 
   double _amountFromNative(String amount, CryptoCurrency currency) =>
       double.parse(amount) / pow(10, currency.decimals);
@@ -376,8 +396,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception(
-          'Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw ExchangeProviderResponseException('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
     }
 
     return json.decode(response.body) as Map<String, dynamic>;
@@ -389,8 +408,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     final response = await ProxyWrapper().get(clearnetUri: uri);
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception(
-          'Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw ExchangeProviderResponseCodeException('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}', response.statusCode);
     }
 
     final List<dynamic> jsonList = json.decode(response.body) as List<dynamic>;
@@ -415,8 +433,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     if (response.statusCode == 404) return null;
 
     if ((response.statusCode != 200) || (response.body.contains('error'))) {
-      throw Exception(
-          'Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}');
+      throw ExchangeProviderResponseCodeException('Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}', response.statusCode);
     }
 
     return json.decode(response.body) as Map<String, dynamic>;

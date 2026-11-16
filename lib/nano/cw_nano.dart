@@ -113,7 +113,7 @@ class CWNano extends Nano {
     String? passphrase,
   }) {
     if (mnemonic.split(" ").length == 12 && derivationType != DerivationType.bip39) {
-      throw Exception("Invalid mnemonic for derivation type!");
+      throw BadMnemonicException("Invalid mnemonic for derivation type!");
     }
 
     return NanoRestoreWalletFromSeedCredentials(
@@ -133,7 +133,7 @@ class CWNano extends Nano {
     required DerivationType derivationType,
   }) {
     if (seedKey.length == 128 && derivationType != DerivationType.bip39) {
-      throw Exception("Invalid seed key length for derivation type!");
+      throw BadKeysException("Invalid seed key length for derivation type!");
     }
 
     return NanoRestoreWalletFromKeysCredentials(
@@ -164,7 +164,7 @@ class CWNano extends Nano {
   @override
   Future<void> changeRep(Object wallet, String address) async {
     if ((wallet as NanoWallet).transactionHistory.transactions.isEmpty) {
-      throw Exception("Can't change representative without an existing transaction history");
+      throw NanoChangeRepException("Can't change representative without an existing transaction history");
     }
     return wallet.changeRep(address);
   }
@@ -232,7 +232,7 @@ class CWNanoUtil extends NanoUtil {
     String? publicAddress;
 
     if (seedKey == null && mnemonic == null) {
-      throw Exception("One of seed key OR mnemonic must be provided!");
+      throw ArgumentError("One of seed key OR mnemonic must be provided!");
     }
 
     try {
@@ -253,7 +253,7 @@ class CWNanoUtil extends NanoUtil {
 
       if (derivationType == DerivationType.bip39) {
         if (mnemonic != null) {
-          seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
+          seedKey = await NanoMnemomics.hdMnemonicToSeed(mnemonic);
           publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
         }
       }
@@ -310,7 +310,7 @@ class CWNanoUtil extends NanoUtil {
       nanoClient.connect(node);
 
       if (mnemonic != null) {
-        seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
+        seedKey = await NanoMnemomics.hdMnemonicToSeed(mnemonic);
         publicAddressBip39 = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
 
         seedKey = await NanoDerivations.standardMnemonicToSeed(mnemonic);

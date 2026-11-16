@@ -3,16 +3,16 @@ import 'dart:developer';
 
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_quote.dart';
+import "package:cake_wallet/buy/buy_sell_exceptions.dart";
 import 'package:cake_wallet/buy/pairs_utils.dart';
 import 'package:cake_wallet/buy/payment_method.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -123,10 +123,10 @@ class DFXBuyProvider extends BuyProvider {
       return responseBody['accessToken'] as String;
     } else if (response.statusCode == 403) {
       final responseBody = jsonDecode(response.body);
-      final message = responseBody['message'] ?? 'Service unavailable in your country';
-      throw Exception(message);
+      final message = (responseBody['message'] as String?) ?? 'Service unavailable in your country';
+      throw BuySellProviderResponseException(message);
     } else {
-      throw Exception('Failed to sign up. ${_getErrorMessage(response.statusCode, response.body)}');
+      throw BuySellProviderResponseException('Failed to sign up. ${_getErrorMessage(response.statusCode, response.body)}');
     }
   }
 
@@ -148,7 +148,7 @@ class DFXBuyProvider extends BuyProvider {
       case WalletType.zano:
         return wallet.signMessage(message, address: walletAddress);
       default:
-        throw Exception("WalletType is not available for DFX ${wallet.type}");
+        throw BadWalletTypeException("WalletType is not available for DFX ${wallet.type}",wallet.type);
     }
   }
 
@@ -335,28 +335,9 @@ class DFXBuyProvider extends BuyProvider {
       required bool isBuyAction,
       required String cryptoCurrencyAddress,
       String? countryCode}) async {
-    if (wallet.isHardwareWallet) {
-      if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
-        await Navigator.of(context).pushNamed(
-          Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-            walletType: wallet.walletInfo.type,
-            hardwareWalletType: wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (context, hwwVM) {
-              hwwVM.initWallet(wallet);
-              Navigator.of(context).pop();
-            },
-            isReconnect: false,
-          ),
-        );
-
-        // Recheck to handle tap-backs
-        if (!hardwareWalletVM!.isConnected(wallet.walletInfo.type)) {
-          return;
-        }
-      } else {
-        hardwareWalletVM!.initWallet(wallet);
-      }
+    if (wallet.isHardwareWallet &&
+        !(await hardwareWalletVM!.ensureDeviceConnection(context, wallet))) {
+      return;
     }
 
     try {
@@ -376,7 +357,7 @@ class DFXBuyProvider extends BuyProvider {
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception('Could not launch URL');
+        throw const BuySellLaunchException('Could not launch URL');
       }
     } catch (e) {
       await showPopUp<void>(

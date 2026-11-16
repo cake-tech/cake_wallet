@@ -1,13 +1,13 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:bitbox_flutter/bitbox_manager.dart';
-import 'package:cw_core/hardware/hardware_account_data.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import "package:bitbox_flutter/bitbox_flutter.dart";
+import "package:cw_core/hardware/hardware_account_data.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
 
 class EVMChainBitboxService extends HardwareWalletService {
   EVMChainBitboxService(this.manager, {this.chainId = 1});
 
-  final BitboxManager manager;
+  final BitboxConnection manager;
   final int chainId;
 
   @override
@@ -17,13 +17,16 @@ class EVMChainBitboxService extends HardwareWalletService {
 
     for (final i in indexRange) {
       final derivationPath = "m/44'/60'/0'/0/$i";
-      final address = await manager.getETHAddress(chainId, derivationPath);
+      final address =
+          await BitboxEthereum(manager.ffi, chainId: chainId).getAddress(derivationPath);
 
-      accounts.add(HardwareAccountData(
-        address: address,
-        accountIndex: i,
-        derivationPath: derivationPath,
-      ));
+      accounts.add(
+        HardwareAccountData(
+          address: address,
+          accountIndex: i,
+          derivationPath: derivationPath,
+        ),
+      );
     }
 
     return accounts;

@@ -1,14 +1,14 @@
 [
   {
-    "title": "Safer sends",
-    "description": "Payments that would be split into several transactions are now stopped before sending"
+    "title": "Scam Call Warning",
+    "description": "While you're on a call, a banner reminds you that Monero.com will never call you"
   },
   {
-    "title": "Price Charts",
-    "description": "A new Charts tab to keep an eye on prices"
+    "title": "Smoother App",
+    "description": "Animations, typing and price charts feel smoother, and the app uses less battery"
   },
   {
     "title": "Bug fixes & improvements",
-    "description": "New Cake Tor node, restore height filled in on Rescan, and more"
+    "description": "An option to hide the Charts tab, fixed address search, more private Trocador swaps and more"
   }
 ]

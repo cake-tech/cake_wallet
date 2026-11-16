@@ -60,6 +60,7 @@ jobs:
       STORE_PASS: test@cake_wallet
       KEY_PASS: test@cake_wallet
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      GITHUB_TOKEN: ${{ github.token }}
 
     steps:
       - uses: actions/checkout@v4

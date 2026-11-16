@@ -44,8 +44,11 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   @override
   String get symbol => title;
+
   @override
   String get apiString => "crypto.$title";
+
+  String get network => tag ?? title;
 
   set enabled(bool value) => this.enabled = value;
 
@@ -120,6 +123,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.storj,
     CryptoCurrency.tusd,
     CryptoCurrency.wbtc,
+    CryptoCurrency.cbbtc,
     CryptoCurrency.weth,
     CryptoCurrency.zrx,
     CryptoCurrency.dydx,
@@ -1032,6 +1036,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     'secret': scrt,
     'stellar': xlm,
     'avalanche': avaxc,
+    'avax': avaxc,
     'binance': bnb,
     'tether': usdt,
     'usdcoin': usdc,
