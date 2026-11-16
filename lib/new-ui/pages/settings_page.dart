@@ -1,6 +1,8 @@
 import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item.dart";
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
+import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
@@ -8,10 +10,13 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/src/widgets/picker.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 bool _alwaysVisible(DashboardViewModel _) => true;
@@ -411,10 +416,45 @@ class WalletSettingsPage extends StatelessWidget {
                     },
                   ),
                 ],
+                if (dashboardViewModel.wallet.type == WalletType.bitcoin) ...[
+                  const SizedBox(height: 24),
+                  Observer(
+                    builder: (_) => NewListSections(
+                      sections: {
+                        "wallet_settings_amount_display": [
+                          ListItemSelector(
+                            keyValue: "wallet_settings_bitcoin_amount_display",
+                            label: strings.bitcoin_amount_display,
+                            options: [
+                              dashboardViewModel.settingsStore.displayAmountsInSatoshi.title,
+                            ],
+                            onTap: () => _showBitcoinAmountDisplayPicker(context),
+                          ),
+                        ],
+                      },
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _showBitcoinAmountDisplayPicker(BuildContext context) async {
+    const items = BitcoinAmountDisplayMode.all;
+
+    await showPopUp<void>(
+      context: context,
+      builder: (_) => Picker(
+        items: items,
+        selectedAtIndex: items.indexOf(dashboardViewModel.settingsStore.displayAmountsInSatoshi),
+        mainAxisAlignment: MainAxisAlignment.start,
+        onItemSelected: dashboardViewModel.setDisplayAmountsInSatoshi,
+        displayItem: (mode) => mode.title,
+        isSeparated: false,
       ),
     );
   }
