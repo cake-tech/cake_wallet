@@ -118,6 +118,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
   FiatCurrency get fiat => _appStore.settingsStore.fiatCurrency;
 
+  @override
+  void emitPresentation(SwapPresentationEvent event) {
+    if(isClosed) {
+      return;
+    }
+    super.emitPresentation(event);
+  }
+
   Money get spendingBalance {
     if (state case final SwapStateWithInputs s) {
       return _appStore
