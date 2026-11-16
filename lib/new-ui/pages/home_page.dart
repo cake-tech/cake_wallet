@@ -360,7 +360,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
           HomePromo(
             title: S.of(context).app_backup_banner_title,
             description: S.of(context).app_backup_banner_description,
-            iconPath: "assets/new-ui/app_backup/backup_file_small.svg",
+            iconPath: "assets/new-ui/app_backup/backup_file.svg",
             onTap: _openAppBackup,
             onDismiss: getIt.get<AppBackupPreferences>().dismissHomeBanner,
           ),

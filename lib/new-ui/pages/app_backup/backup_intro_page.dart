@@ -22,7 +22,7 @@ class BackupIntroPage extends StatelessWidget {
             const Center(
               child: CakeImageWidget(
                 imageUrl: "assets/new-ui/app_backup/backup_file.svg",
-                width: 61.607,
+                width: 75,
                 height: 75,
               ),
             ),

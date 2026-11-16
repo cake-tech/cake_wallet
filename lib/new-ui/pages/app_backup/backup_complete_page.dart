@@ -15,31 +15,10 @@ class BackupCompletePage extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             spacing: 24,
             children: [
-              const SizedBox(
-                width: 100,
-                height: 100,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 19,
-                      top: 12.5,
-                      child: CakeImageWidget(
-                        imageUrl: "assets/new-ui/app_backup/backup_file.svg",
-                        width: 61.607,
-                        height: 75,
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: CakeImageWidget(
-                        imageUrl: "assets/new-ui/app_backup/complete_check.svg",
-                        width: 40,
-                        height: 40,
-                      ),
-                    ),
-                  ],
-                ),
+              const CakeImageWidget(
+                imageUrl: "assets/new-ui/app_backup/backup_done.svg",
+                width: 87.5,
+                height: 87.5,
               ),
               AppBackupMessage(title: S.of(context).app_backup_complete),
             ],

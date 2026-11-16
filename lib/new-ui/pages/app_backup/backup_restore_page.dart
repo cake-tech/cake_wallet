@@ -161,9 +161,9 @@ class _BackupRestorePageState extends State<BackupRestorePage> {
                     spacing: 24,
                     children: [
                       const CakeImageWidget(
-                        imageUrl: "assets/new-ui/app_backup/restore_password.svg",
-                        width: 78,
-                        height: 92,
+                        imageUrl: "assets/new-ui/app_backup/backup_password.svg",
+                        width: 90,
+                        height: 90,
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),

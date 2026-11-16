@@ -85,7 +85,7 @@ class _BackupContentsList extends StatelessWidget {
                 ListItemRegularRow(
                   keyValue: "app_backup_file",
                   label: S.of(context).app_backup_file,
-                  iconPath: "assets/new-ui/app_backup/backup_file_small.svg",
+                  iconPath: "assets/new-ui/app_backup/backup_file.svg",
                   showArrow: false,
                   trailingWidget: Text(
                     state.config.totalSize == null ? "..." : formatBackupSize(state.config.totalSize!),

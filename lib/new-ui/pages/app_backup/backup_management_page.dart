@@ -126,7 +126,7 @@ class BackupManagementPage extends StatelessWidget {
                                 subtitle: DateFormat("d MMM yyyy, HH:mm")
                                     .format(state.config.lastBackup!.createdAt),
                                 trailingText: formatBackupSize(state.config.lastBackup!.sizeInBytes),
-                                iconPath: "assets/new-ui/app_backup/backup_file_small.svg",
+                                iconPath: "assets/new-ui/app_backup/backup_file.svg",
                                 showArrow: false,
                                 onLongPress: state.config.lastBackup!.sha256Hash == null
                                     ? null

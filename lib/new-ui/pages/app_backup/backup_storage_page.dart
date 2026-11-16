@@ -30,7 +30,11 @@ class BackupStoragePage extends StatelessWidget {
               child: Column(
                 spacing: 24,
                 children: [
-                  const BackupBoxIllustration(),
+                  const CakeImageWidget(
+                    imageUrl: "assets/new-ui/app_backup/backup_save.svg",
+                    width: 100,
+                    height: 100,
+                  ),
                   Text(
                     S.of(context).app_backup_storage_title,
                     textAlign: TextAlign.center,
@@ -54,57 +58,6 @@ class BackupStoragePage extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      );
-}
-
-class BackupBoxIllustration extends StatelessWidget {
-  const BackupBoxIllustration({super.key});
-
-  @override
-  Widget build(BuildContext context) => SizedBox(
-        width: 100,
-        height: 100,
-        child: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            const CakeImageWidget(
-              imageUrl: "assets/new-ui/app_backup/backup_file.svg",
-              width: 61.607,
-              height: 75,
-            ),
-            Positioned(
-              top: 50,
-              child: Container(
-                width: 95,
-                height: 50,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF785636), Color(0xFFA67344)],
-                    stops: [0, 0.75],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: 50,
-              child: Container(
-                width: 100,
-                height: 10,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(2),
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFFB8875A), Color(0xFF9C6B3F)],
-                  ),
-                ),
-              ),
-            ),
-          ],
         ),
       );
 }

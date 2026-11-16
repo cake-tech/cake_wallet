@@ -35,7 +35,7 @@ class _BackupCreatingPageState extends State<BackupCreatingPage>
                 mainAxisSize: MainAxisSize.min,
                 spacing: 24,
                 children: [
-                  const CupertinoActivityIndicator(radius: 50,),
+                  const CupertinoActivityIndicator(radius: 24,),
                   AppBackupMessage(
                     title: widget.title ?? S.of(context).app_backup_creating,
                     description: S.of(context).app_backup_creating_description,
