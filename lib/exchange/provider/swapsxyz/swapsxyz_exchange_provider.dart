@@ -244,25 +244,38 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
       }
     }
 
+    final decimals = request is FixedRateRequest
+        ? _chainDecimals(request.payoutCurrency, dstChain)
+        : _chainDecimals(request.depositCurrency, srcChain);
+
     final data = await _api.send(
       SwapsXyzQuoteRequest(
         srcChainId: srcChain.chainId.toString(),
         srcToken: srcToken,
         dstChainId: dstChain.chainId.toString(),
         dstToken: dstToken,
-        amount: request.amount.amount.toString(),
+        amount: _toChainUnits(request.amount, decimals).toString(),
         swapDirection: switch (request) {
           FloatingRateRequest() => .exactAmountIn,
           FixedRateRequest() => .exactAmountOut,
         },
       ),
     );
+
+    _checkDecimals(request is FixedRateRequest ? data.amountOut : data.amountIn, decimals);
+
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(
-        Money(data.amountIn.amount, request.depositCurrency),
-        Money(data.amountOut.amount, request.payoutCurrency),
-      ),
+      rate: switch (request) {
+        FloatingRateRequest() => ExchangeRate.fromAmounts(
+          request.amount,
+          data.amountOut.toMoney(request.payoutCurrency),
+        ),
+        FixedRateRequest() => ExchangeRate.fromAmounts(
+          data.amountIn.toMoney(request.depositCurrency),
+          request.amount,
+        ),
+      },
       limits: await getLimits(
         from: request.depositCurrency,
         to: request.payoutCurrency,
@@ -299,6 +312,9 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     final amount = request.isFixedRate
         ? request.payoutAmount
         : request.depositAmount;
+    final decimals = request.isFixedRate
+        ? _chainDecimals(request.payoutCurrency, dstChain)
+        : _chainDecimals(request.depositCurrency, srcChain);
 
     final data = await _api.send(
       SwapsXyzActionRequest(
@@ -310,10 +326,12 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
         dstToken: dstToken,
         slippage: "300",
         swapDirection: request.isFixedRate ? .exactAmountOut : .exactAmountIn,
-        amount: amount.amount.toString(),
+        amount: _toChainUnits(amount, decimals).toString(),
         recipient: recipient,
       ),
     );
+
+    _checkDecimals(request.isFixedRate ? data.amountOut : data.amountIn, decimals);
 
     final txId = data.txId;
 
@@ -427,14 +445,30 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
       state: data.status.toState,
       createdAt: data.srcTx?.timestamp ?? data.dstTx?.timestamp,
       refundAddress: data.sender,
-      depositAmount: _moneyOf(data.srcTx?.paymentToken, trade.depositCurrency),
-      payoutAmount: _moneyOf(data.dstTx?.paymentToken, trade.payoutCurrency),
+      depositAmount: data.srcTx?.paymentToken?.toMoney(trade.depositCurrency),
+      payoutAmount: data.dstTx?.paymentToken?.toMoney(trade.payoutCurrency),
     );
   }
 
-  Money? _moneyOf(SwapsXyzToken? token, CryptoCurrency currency) => token == null
-      ? null
-      : Money(token.amount, currency, token.decimals).copyWith(currency: currency);
+  /// Swaps.xyz counts in the token's on-chain decimals, which aren't always Cake's
+  /// (AVAX is 9 in Cake, 18 on the C-chain)
+  int _chainDecimals(CryptoCurrency currency, SwapsXyzChain chain) =>
+      _tokensCache[chain.chainId]
+          ?.firstWhereOrNull((t) => t.symbol == _normalizeCakeNativeTokenName(currency.title))
+          ?.decimals ??
+      currency.decimals;
+
+  static BigInt _toChainUnits(Money amount, int decimals) => decimals >= amount.decimals
+      ? amount.amount * BigInt.from(10).pow(decimals - amount.decimals)
+      : amount.amount ~/ BigInt.from(10).pow(amount.decimals - decimals);
+
+  static void _checkDecimals(SwapsXyzPayment echoed, int sent) {
+    if (echoed.decimals != sent) {
+      throw Exception(
+        "Swaps.xyz counts ${echoed.symbol} in ${echoed.decimals} decimals, the amount was sent in $sent",
+      );
+    }
+  }
 
   // Load & cache supported chains once
   Future<List<SwapsXyzChain>> _getSupportedChains() async {

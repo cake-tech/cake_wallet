@@ -3,6 +3,8 @@
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
 import "package:cake_wallet/exchange/utils/provider_api.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "swapsxyz_api_schema.g.dart";
@@ -647,6 +649,9 @@ class SwapsXyzPayment {
   final String? swapsXyzCode;
   @JsonKey(name: "usdAmount")
   final double? usdAmount;
+
+  Money toMoney(CryptoCurrency currency) =>
+      Money(amount, currency, decimals).copyWith(currency: currency);
 }
 
 @JsonSerializable(createToJson: false)
@@ -868,6 +873,9 @@ class SwapsXyzToken {
   final bool? isNative;
   @JsonKey(name: "usdAmount")
   final double? usdAmount;
+
+  Money toMoney(CryptoCurrency currency) =>
+      Money(amount, currency, decimals).copyWith(currency: currency);
 }
 
 @JsonSerializable(createToJson: false)
