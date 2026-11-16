@@ -29,7 +29,9 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
         "fundingAddress": row["inputAddress"],
         "refundAddress": row["refundAddress"],
         "payoutAddress": row["payoutAddress"],
-        "accountIndex": 0,
+        "accountIndex": row["fromTitle"] == CryptoCurrency.xmr.title ? -1 : 0,
+        "fromWalletAddress":
+            row["fromTitle"] == CryptoCurrency.xmr.title ? row["fromWalletAddress"] : null,
         "createdAt": row["createdAt"],
         "expiredAt": row["expiredAt"],
         "extraId": row["extraId"],

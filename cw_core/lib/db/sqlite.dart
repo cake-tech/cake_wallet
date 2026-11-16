@@ -433,7 +433,8 @@ CREATE TABLE Trade (
     memo TEXT,
     txId TEXT,
     isRefund INTEGER,
-    chainId INTEGER
+    chainId INTEGER,
+    fromWalletAddress TEXT
 );
 """);
 }

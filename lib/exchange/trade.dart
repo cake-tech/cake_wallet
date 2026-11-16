@@ -68,6 +68,11 @@ class Trade {
   final String? txId;
   final bool? isRefund;
 
+  // legacy field. used only for migrated trades, do not use in new trades
+  String? _fromWalletAddress;
+
+  String? get fromWalletAddress => _fromWalletAddress;
+
   CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
   CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
 
@@ -153,7 +158,8 @@ class Trade {
       "txId": txId,
       "isRefund": isRefund == true ? 1 : 0,
       "fundingAddress": fundingAddress,
-      "refundAddress": refundAddress
+      "refundAddress": refundAddress,
+      "fromWalletAddress": fromWalletAddress,
     };
 
   static Future<Trade> fromSqliteRow(Map<String, dynamic> row) async => Trade(
@@ -186,7 +192,7 @@ class Trade {
       depositAmount: await moneyFromSerialized(row["depositAmount"] as String),
       payoutAmount: await moneyFromSerialized(row["payoutAmount"] as String),
       fundingAddress: row["fundingAddress"] as String,
-    );
+    ).._fromWalletAddress = row["fromWalletAddress"] as String?;
 
   Trade copyWith({
     TradeState? state,
@@ -232,7 +238,7 @@ class Trade {
       memo: memo ?? this.memo,
       txId: txId ?? this.txId,
       isRefund: isRefund ?? this.isRefund,
-    );
+    ).._fromWalletAddress = _fromWalletAddress;
 
 }
 

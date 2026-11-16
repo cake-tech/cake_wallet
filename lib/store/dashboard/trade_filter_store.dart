@@ -240,6 +240,9 @@ abstract class TradeFilterStoreBase with Store {
   }
 
   bool isTradeInAccount(TradeListItem item, WalletBase wallet) => switch (wallet.type) {
+    _ when item.trade.accountIndex == -1 =>
+      item.trade.fromWalletAddress == null ||
+          wallet.walletAddresses.containsAddress(item.trade.fromWalletAddress!),
     .monero => item.trade.accountIndex == monero!.getCurrentAccount(wallet).id,
     .bitcoin => item.trade.accountIndex == wallet.walletInfo.currentAccountIndex,
     _ => true,

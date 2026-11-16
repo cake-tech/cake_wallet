@@ -171,6 +171,20 @@ void main() {
         "inputAddress": "funding-legacy",
         "walletId": "wallet",
         "providerName": "Swapter",
+        "fromWalletAddress": "bc1-legacy",
+        "createdAt": 1700000000000,
+      });
+      await db!.insert("Trade", {
+        "id": "legacy-xmr",
+        "providerRaw": ExchangeProviderDescription.changeNow.raw,
+        "fromTitle": "XMR",
+        "toTitle": "BTC",
+        "stateRaw": TradeState.created.raw,
+        "amount": "1",
+        "receiveAmount": "0.01",
+        "inputAddress": "funding-legacy-xmr",
+        "walletId": "monero_wallet",
+        "fromWalletAddress": "8-subaddress",
         "createdAt": 1700000000000,
       });
 
@@ -202,8 +216,33 @@ void main() {
       await migrated.copyWith(state: TradeState.completed).save();
 
       final all = await Trade.getAll();
-      expect(all, hasLength(1));
-      expect(all.single.state, TradeState.completed);
+      expect(all, hasLength(2));
+      expect((await Trade.getByTradeId("legacy"))!.state, TradeState.completed);
+    });
+
+    test("monero trades keep their wallet address and get account index -1", () async {
+      final migrated = (await Trade.getByTradeId("legacy-xmr"))!;
+
+      expect(migrated.accountIndex, -1);
+      expect(migrated.fromWalletAddress, "8-subaddress");
+    });
+
+    test("other trades drop the wallet address and land in account 0", () async {
+      final migrated = (await Trade.getByTradeId("legacy"))!;
+
+      expect(migrated.accountIndex, 0);
+      expect(migrated.fromWalletAddress, isNull);
+    });
+
+    test("updating a migrated monero trade keeps its wallet address", () async {
+      final migrated = (await Trade.getByTradeId("legacy-xmr"))!;
+
+      await migrated.copyWith(state: TradeState.completed).save();
+
+      final updated = (await Trade.getByTradeId("legacy-xmr"))!;
+      expect(updated.state, TradeState.completed);
+      expect(updated.accountIndex, -1);
+      expect(updated.fromWalletAddress, "8-subaddress");
     });
   });
 }
