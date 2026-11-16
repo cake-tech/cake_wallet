@@ -18,7 +18,8 @@ class TestKeySemanticsRule extends AnalysisRule {
   static const LintCode code = LintCode(
     "require_test_key_semantics_identifier",
     "This test key is invisible to accessibility-tree drivers without a Semantics identifier.",
-    correctionMessage: "Wrap the widget in TestId.merge with the same id.",
+    correctionMessage:
+        "Wrap the widget in TestId.merge with the same id, or TestId.container for a text field.",
     severity: DiagnosticSeverity.WARNING,
   );
 
