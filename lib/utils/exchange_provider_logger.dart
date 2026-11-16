@@ -82,7 +82,7 @@ class ExchangeProviderLogEntry {
       ExchangeProviderDescription.all,
       ExchangeProviderDescription.thorChain,
       ExchangeProviderDescription.swapTrade,
-      ExchangeProviderDescription.letsExchange,
+      ExchangeProviderDescription.whyNot,
       ExchangeProviderDescription.stealthEx,
       ExchangeProviderDescription.chainflip,
       ExchangeProviderDescription.xoSwap,
