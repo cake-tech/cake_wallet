@@ -91,11 +91,16 @@ class _CallScamBannerContent extends StatelessWidget {
               child: Ink(
                 padding: EdgeInsets.fromLTRB(18, topInset + 10, 18, 12),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0x1CB71919), Color(0x54B71919)],
-                  ),
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Theme.of(context).colorScheme.errorContainer
+                      : null,
+                  gradient: Theme.of(context).brightness == Brightness.light
+                      ? null
+                      : const LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0x1CB71919), Color(0x54B71919)],
+                        ),
                   border: Border(
                     bottom: BorderSide(color: Theme.of(context).colorScheme.error, width: 0.4),
                   ),
