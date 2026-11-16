@@ -12,11 +12,13 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/solana/solana.dart";
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import "package:collection/collection.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
@@ -181,9 +183,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
           if (option.findNetwork(sendViewModel.wallet.currency) != null) option.method,
       ];
       if (methods.isEmpty) {
-        throw const CakePayNoDataException(
-          "Payment for this purchase isn’t available on your wallet’s network. Please try a wallet on another network.",
-        );
+        throw CakePayNoDataException(S.current.cake_pay_network_unavailable);
       }
       return methods;
     } on CakePayUnauthorizedException {
@@ -199,8 +199,11 @@ abstract class CakePayBuyCardViewModelBase with Store {
   Future<void> createOrder() async {
     if (!isStablecoinWallet && availableMethods.isEmpty) {
       sendViewModel.state = FailureState(
-          "Unsupported wallet type, please use Bitcoin, Monero, Litecoin, Zcash, Ethereum, "
-          "Polygon, Base, Arbitrum, BNB Chain, Solana or Tron.");
+        S.current.cake_pay_unsupported_network(
+          "Bitcoin, Monero, Litecoin, Zcash, Ethereum, Polygon, Base, Arbitrum, BNB Smart Chain, "
+          "Solana, Tron",
+        ),
+      );
       return;
     }
 
@@ -226,6 +229,9 @@ abstract class CakePayBuyCardViewModelBase with Store {
         return;
       }
       await confirmSending(paymentData);
+      if (sendViewModel.state is! ExecutedSuccessfullyState) {
+        return;
+      }
 
       final orderRecord = Order(
           id: order!.orderId,
@@ -291,20 +297,9 @@ abstract class CakePayBuyCardViewModelBase with Store {
       chain: network.id,
     );
     final contract = quote.contract;
-    final tokens = walletType == WalletType.solana
-        ? solana!.getSPLTokenCurrencies(sendViewModel.wallet).where((token) => token.enabled)
-        : sendViewModel.wallet.balance.keys;
-    final token = contract == null
-        ? null
-        : tokens.firstWhereOrNull(
-            (currency) =>
-                (currency is Erc20Token &&
-                    currency.contractAddress.toLowerCase() == contract.toLowerCase()) ||
-                (currency is TronToken && currency.contractAddress == contract) ||
-                (currency is SPLToken && currency.mintAddress == contract),
-          );
+    final token = contract == null ? null : await _findWalletToken(contract);
     if (token == null) {
-      throw CakePayNoDataException("$coin is not available in this wallet.");
+      throw CakePayNoDataException(S.current.cake_pay_coin_unavailable(coin));
     }
     sendViewModel.selectedCryptoCurrency = token;
     final offeredUntil = quote.offeredUntil;
@@ -316,6 +311,30 @@ abstract class CakePayBuyCardViewModelBase with Store {
       amount: quote.amount,
       address: quote.address,
     );
+  }
+
+  Future<CryptoCurrency?> _findWalletToken(String contract) async {
+    bool isQuoted(CryptoCurrency currency) => switch (currency) {
+          final Erc20Token token => token.contractAddress.toLowerCase() == contract.toLowerCase(),
+          final TronToken token => token.contractAddress == contract,
+          final SPLToken token => token.mintAddress == contract,
+          _ => false,
+        };
+
+    final wallet = sendViewModel.wallet;
+    if (walletType == WalletType.solana) {
+      return solana!
+          .getSPLTokenCurrencies(wallet)
+          .firstWhereOrNull((token) => token.enabled && isQuoted(token));
+    }
+
+    final token = wallet.balance.keys.firstWhereOrNull(isQuoted);
+    if (token != null) {
+      return token;
+    }
+    
+    await wallet.updateBalance();
+    return wallet.balance.keys.firstWhereOrNull(isQuoted);
   }
 
   @action

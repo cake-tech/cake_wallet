@@ -1,3 +1,5 @@
+import "dart:ui" show Locale;
+
 import "package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart";
 import "package:cake_wallet/cake_pay/src/models/cake_pay_card.dart";
 import "package:cake_wallet/cake_pay/src/models/cake_pay_order.dart";
@@ -7,6 +9,7 @@ import "package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart";
 import "package:cake_wallet/cake_pay/src/services/cake_pay_service.dart";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/order/order.dart";
 import "package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart";
 import "package:cake_wallet/view_model/send/output.dart";
@@ -15,6 +18,7 @@ import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/erc20_token.dart";
+import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
 import "package:cw_core/wallet_base.dart";
@@ -36,6 +40,8 @@ class _Orders extends Mock implements Box<Order> {}
 class _OrderRecord extends Mock implements Order {}
 
 class _Output extends Mock implements Output {}
+
+class _PendingTransaction extends Mock implements PendingTransaction {}
 
 class _Balance extends Balance {
   _Balance(CryptoCurrency currency)
@@ -115,7 +121,13 @@ void main() {
     await viewModel.createOrder();
   }
 
-  setUpAll(() {
+  PendingTransaction prepareTransaction() {
+    send.state = ExecutedSuccessfullyState();
+    return _PendingTransaction();
+  }
+
+  setUpAll(() async {
+    await S.delegate.load(const Locale("en"));
     registerFallbackValue(CryptoCurrency.eth);
     registerFallbackValue(WalletType.ethereum);
     registerFallbackValue(InitialExecutionState());
@@ -189,7 +201,8 @@ void main() {
     when(
       () => send.translateErrorMessage(any(), any(), any()),
     ).thenAnswer((invocation) => invocation.positionalArguments.first.toString());
-    when(() => send.createTransaction()).thenAnswer((_) async => null);
+    when(() => send.createTransaction()).thenAnswer((_) async => prepareTransaction());
+    when(() => wallet.updateBalance()).thenAnswer((_) async {});
     when(() => orders.add(any())).thenAnswer((_) async => 0);
     when(createOrderRequest).thenAnswer((_) async => order);
     when(requestQuote).thenAnswer((_) async => quote());
@@ -209,8 +222,10 @@ void main() {
       );
       when(() => wallet.balance)
           .thenReturn(ObservableMap.of({otherUsdc: _Balance(otherUsdc), token: _Balance(token)}));
-      expect(await viewModel.prepareStablecoinOrder(),
-          unorderedEquals([CakePayPaymentMethod.USDC, CakePayPaymentMethod.USDT]));
+      expect(
+        await viewModel.prepareStablecoinOrder(),
+        unorderedEquals([CakePayPaymentMethod.USDC, CakePayPaymentMethod.USDT]),
+      );
       verifyNever(requestQuote);
       verifyNever(() => send.createTransaction());
       viewModel.chooseMethod(CakePayPaymentMethod.USDC);
@@ -218,7 +233,7 @@ void main() {
         expect(currency, same(token));
         verify(() => output.address = _address).called(1);
         verify(() => output.setCryptoAmount("25.061219")).called(1);
-        return null;
+        return prepareTransaction();
       });
       await viewModel.createOrder();
       verify(createOrderRequest).called(1);
@@ -279,7 +294,7 @@ void main() {
   test("marks payment expired when its deadline passes during transaction preparation", () async {
     when(() => send.createTransaction()).thenAnswer((_) async {
       viewModel.expirationTime = DateTime.now().subtract(const Duration(seconds: 1));
-      return null;
+      return prepareTransaction();
     });
     await purchaseStablecoin();
     verify(() => send.createTransaction()).called(1);
@@ -299,11 +314,9 @@ void main() {
     when(requestQuote).thenAnswer((_) async => quote());
     await purchaseStablecoin();
     verify(createOrderRequest).called(2);
-    verify(() => service.getStablecoinQuote(
-          orderId: "order-2",
-          paymentMethod: "USDC",
-          chain: "base",
-        )).called(1);
+    verify(
+      () => service.getStablecoinQuote(orderId: "order-2", paymentMethod: "USDC", chain: "base"),
+    ).called(1);
     verify(() => send.createTransaction()).called(1);
   });
 
@@ -331,7 +344,8 @@ void main() {
     });
   }
 
-  test("keeps the existing insufficient-funds failure from transaction preparation", () async {
+  test("keeps the insufficient-funds failure from transaction preparation and saves no order",
+      () async {
     when(() => send.createTransaction()).thenAnswer((_) async {
       send.state = FailureState("Not enough USDC or gas.");
       return null;
@@ -339,6 +353,18 @@ void main() {
     await purchaseStablecoin();
     expect(state, isA<FailureState>());
     expect((state as FailureState).error, "Not enough USDC or gas.");
+    verifyNever(() => orders.add(any()));
+  });
+
+  test("refreshes the balances when the quoted token hasn't loaded yet", () async {
+    final balances = ObservableMap<CryptoCurrency, Balance>();
+    when(() => wallet.balance).thenReturn(balances);
+    when(() => wallet.updateBalance()).thenAnswer((_) async {
+      balances[token] = _Balance(token);
+    });
+    await purchaseStablecoin();
+    expect(currency, same(token));
+    verify(() => orders.add(any())).called(1);
   });
 
   test("offers only the coin supported on the current network and prepares that payment", () async {
@@ -351,9 +377,9 @@ void main() {
     viewModel.chooseMethod(methods.single);
     await viewModel.createOrder();
     verify(createOrderRequest).called(1);
-    verify(() =>
-            service.getStablecoinQuote(orderId: "order-1", paymentMethod: "USDC", chain: "base"))
-        .called(1);
+    verify(
+      () => service.getStablecoinQuote(orderId: "order-1", paymentMethod: "USDC", chain: "base"),
+    ).called(1);
     verify(() => send.createTransaction()).called(1);
   });
 
@@ -396,7 +422,7 @@ void main() {
     when(() => wallet.currency).thenReturn(CryptoCurrency.nano);
     viewModel = createViewModel();
     await viewModel.createOrder();
-    expect((state as FailureState).error, contains("Unsupported wallet type"));
+    expect((state as FailureState).error, contains("doesn't support your wallet's network"));
     verifyNever(createOrderRequest);
   });
 }
