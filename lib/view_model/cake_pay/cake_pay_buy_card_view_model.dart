@@ -105,6 +105,13 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool get isAmountSufficient =>
       (amount >= min && amount <= max) || (isDenominationSelected && quantity > 0);
 
+  String? get amountError {
+    if (isAmountSufficient) return null;
+    if (amount < min) return S.current.error_text_input_below_minimum_limit;
+    if (amount > max) return S.current.error_text_input_above_maximum_limit;
+    return null;
+  }
+
   @observable
   CakePayPaymentMethod? selectedPaymentMethod;
 
@@ -165,8 +172,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   void onAmountChanged(String input) {
-    if (input.isEmpty) return;
-    amount = double.parse(input.replaceAll(',', '.'));
+    amount = input.isEmpty ? 0 : double.parse(input.replaceAll(',', '.'));
 
     if (card.prepaidRange.isNotEmpty) {
       selectedDenomination = (input.replaceAll(',', '.'), selectedDenomination.$2);
@@ -332,7 +338,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
     if (token != null) {
       return token;
     }
-    
+
     await wallet.updateBalance();
     return wallet.balance.keys.firstWhereOrNull(isQuoted);
   }

@@ -232,9 +232,11 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
         );
       }
     } finally {
-      setState(() {
-        _isLoadingPaymentMethods = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoadingPaymentMethods = false;
+        });
+      }
     }
   }
 }
