@@ -299,7 +299,7 @@ class _CardsViewState extends State<CardsView> {
 
   @override
   Widget build(BuildContext context) => Observer(builder: (context) {
-      final parentWidth = MediaQuery.of(context).size.width;
+      final parentWidth = MediaQuery.sizeOf(context).width;
       final children = <Widget>[];
 
       final stack = _hideAccountInfo
