@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cake_wallet/core/secure_storage.dart';
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/entities/wallet_group_migration.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -102,6 +104,7 @@ class $BackupService {
     } catch (e) {
       printV("Wallet group migration failed: ${e.runtimeType}");
     }
+    await getIt.get<WalletDisplayNames>().refresh();
   }
 
   // checked with .endsWith - so this should be the last part of the filename
@@ -157,6 +160,7 @@ class $BackupService {
     } catch (e) {
       printV("Wallet group migration failed: ${e.runtimeType}");
     }
+    await getIt.get<WalletDisplayNames>().refresh();
   }
 
   Future<void> verifyWallets() async {

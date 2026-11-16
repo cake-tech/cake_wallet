@@ -10,6 +10,7 @@ import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart'
 import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
@@ -447,6 +448,8 @@ Future<void> setup({
       walletNewVMBuilder: (args) => getIt.get<WalletNewVM>(param1: args),
     ),
   );
+
+  getIt.registerLazySingleton<WalletDisplayNames>(WalletDisplayNames.new);
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
     return WalletUnlockPage(getIt.get<WalletUnlockLoadableViewModel>(param1: args), args.callback,

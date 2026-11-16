@@ -39,14 +39,16 @@ abstract class AppStoreBase with Store {
 
   AuthenticationStore authenticationStore;
 
+  String get currentWalletGroupName {
+    final current = wallet;
+    return current == null ? "" : getIt.get<WalletDisplayNames>().groupName(current.walletInfo);
+  }
+
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;
 
   @observable
   String? currentRouteName;
-
-  @observable
-  String currentWalletGroupName = "";
 
   WalletListStore walletList;
 
@@ -80,21 +82,12 @@ abstract class AppStoreBase with Store {
     unawaited(getIt
         .get<SharedPreferences>()
         .setInt(PreferencesKey.currentWalletType, serializeToInt(wallet.type)));
-    currentWalletGroupName = "";
-    unawaited(refreshCurrentWalletGroupName());
   }
 
   Future<void> _lastWalletConnectAction = Future.value();
 
   void _queueWalletConnectAction(Future<void> Function() action) {
     _lastWalletConnectAction = _lastWalletConnectAction.then((_) => action());
-  }
-
-  Future<void> refreshCurrentWalletGroupName() async {
-    final current = wallet;
-    if (current == null) return;
-    final name = await groupNameForWallet(current.walletInfo);
-    if (wallet == current) runInAction(() => currentWalletGroupName = name);
   }
 
   Future<void> _setupWalletConnect() async {

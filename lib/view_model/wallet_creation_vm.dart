@@ -15,6 +15,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/exceptions.dart';
+import "package:cw_core/pathForWallet.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -135,7 +136,8 @@ abstract class WalletCreationVMBase with Store {
       try {
         wallet = await process(credentials);
       } catch (_) {
-        await _removeWalletInfoOfEmptyWalletDir(credentials.walletInfo!, dirPath);
+        await _removeWalletInfoOfEmptyWalletDir(
+            credentials.walletInfo!, await walletDirPathOf(credentials.walletInfo!),);
         rethrow;
       }
 

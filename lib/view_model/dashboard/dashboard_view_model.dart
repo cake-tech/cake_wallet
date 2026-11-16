@@ -5,6 +5,8 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
@@ -114,6 +116,8 @@ abstract class DashboardViewModelBase with Store {
     showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
     isMultiAccountsEnabled =
         wallet.hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
+    _updateName();
+    _namesSub = getIt.get<WalletDisplayNames>().changes.listen((_) => _updateName());
     type = wallet.type;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
@@ -383,8 +387,12 @@ abstract class DashboardViewModelBase with Store {
   bool get isMigratingToIronwood =>
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
-  @computed
-  String get name => appStore.currentWalletGroupName;
+  @observable
+  String name = "";
+
+  StreamSubscription<void>? _namesSub;
+
+  void _updateName() => runInAction(() => name = appStore.currentWalletGroupName);
 
   @computed
   bool get requiresManualShield =>
@@ -1414,6 +1422,7 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+    _updateName();
     if (wallet == null) {
       return;
     }

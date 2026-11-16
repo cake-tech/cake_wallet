@@ -1585,7 +1585,7 @@ abstract class ZcashWalletBase
         hw: 0,
         aIndex: fromKeysCredentials.accountIndex,
       );
-      await saveAccountId(credentials.name, accountId);
+      await saveAccountId(credentials.walletInfo!, accountId);
       final wallet = await open(
         name: credentials.name,
         password: credentials.password!,

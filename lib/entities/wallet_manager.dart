@@ -1,3 +1,5 @@
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_group_db_entry.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -16,6 +18,7 @@ class WalletManager {
 
     walletGroups.removeWhere((g) => g.wallets.isEmpty);
     await _loadGroupNames();
+    await getIt.get<WalletDisplayNames>().refresh();
   }
 
   /// Every wallet has a `groupId` after the migration; `id` is only a safety net.
@@ -51,6 +54,7 @@ class WalletManager {
 
     await WalletGroupDbEntry.updateName(groupKey, trimmedName);
     walletGroups.where((g) => g.groupKey == groupKey).firstOrNull?.setCustomName(trimmedName);
+    await getIt.get<WalletDisplayNames>().refresh();
   }
 
   String? getGroupName(WalletInfo walletInfo) {
