@@ -25,6 +25,7 @@ void main() {
                 selectedTab: 0,
                 tabs: tabs,
                 dashboardViewModel: dashboardViewModel,
+                hideActionButton: false,
               ),
             ],
           ),

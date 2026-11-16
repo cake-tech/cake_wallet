@@ -76,12 +76,15 @@ class HistorySection extends StatelessWidget {
                                       height: 40,
                                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                                     ),
-                                    Text(S.of(context).transactions_will_appear_here,
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                                    Text(
+                                      S.of(context).transactions_will_appear_here,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),

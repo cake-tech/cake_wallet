@@ -105,16 +105,20 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
     return SliverMainAxisGroup(
       slivers: [
         if (tabs.length > 1)
-          AssetsTopBar(
-            onTransactionHistoryOpened: () => openHistoryModal(context),
-            dashboardViewModel: widget.dashboardViewModel,
-            tabs: tabs,
-            onTabChange: (index) {
-              setState(() {
-                _selectedTab = index;
-              });
-            },
-            selectedTab: _selectedTab,
+          Observer(
+            builder: (_) => AssetsTopBar(
+              onTransactionHistoryOpened: () => openHistoryModal(context),
+              dashboardViewModel: widget.dashboardViewModel,
+              tabs: tabs,
+              onTabChange: (index) {
+                setState(() {
+                  _selectedTab = index;
+                });
+              },
+              selectedTab: _selectedTab,
+              hideActionButton: widget.dashboardViewModel.itemsShort.isEmpty &&
+                  tabs[_selectedTab].content is HistorySection,
+            ),
           ),
         if (tabs.length == 1)
           Observer(

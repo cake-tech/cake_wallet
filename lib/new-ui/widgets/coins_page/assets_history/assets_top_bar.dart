@@ -12,6 +12,7 @@ class AssetsTopBar extends StatelessWidget {
     required this.selectedTab,
     required this.tabs,
     required this.dashboardViewModel,
+    required this.hideActionButton,
   });
 
   final void Function(int) onTabChange;
@@ -19,10 +20,11 @@ class AssetsTopBar extends StatelessWidget {
   final int selectedTab;
   final List<AssetsHistorySectionTab> tabs;
   final DashboardViewModel dashboardViewModel;
+  final bool hideActionButton;
 
   @override
   Widget build(BuildContext context) {
-    final actionButton = tabs[selectedTab].actionButton;
+    final actionButton = hideActionButton ? null : tabs[selectedTab].actionButton;
 
     return SliverToBoxAdapter(
       child: Padding(
