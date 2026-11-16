@@ -49,20 +49,16 @@ class _NoPayjoin implements PayjoinManager {
 
 ElectrumAccounts _bitcoinAccounts() => ElectrumAccounts(
   primaryTypes: [SegwitAddresType.p2wpkh],
-  deriveHd: (_, __) => AccountHdKeys()
-    ..set(SegwitAddresType.p2wpkh, receive: _receiveHd, change: _changeHd)
-    ..setLegacy(receive: _receiveHd, change: _changeHd),
+  accountHd: _hd("m/84'/0'/0'"),
+  masterHd: _master,
+  coinType: 0,
 )..getOrCreate(0);
 
 ElectrumAccounts _litecoinAccounts() => ElectrumAccounts(
   primaryTypes: LITECOIN_ADDRESS_TYPES,
-  deriveHd: (_, types) {
-    final hd = AccountHdKeys();
-    for (final type in types) {
-      hd.set(type, receive: _ltcReceiveHd, change: _ltcChangeHd);
-    }
-    return hd..setLegacy(receive: _ltcReceiveHd, change: _ltcChangeHd);
-  },
+  accountHd: _hd("m/84'/2'/0'"),
+  masterHd: _master,
+  coinType: 2,
 )..getOrCreate(0);
 
 class _BitcoinAddresses extends BitcoinWalletAddresses {

@@ -45,9 +45,9 @@ class _NoUnspentsBox implements Box<UnspentCoinsInfo> {
 
 ElectrumAccounts _accounts() => ElectrumAccounts(
   primaryTypes: [SegwitAddresType.p2wpkh],
-  deriveHd: (_, __) => AccountHdKeys()
-    ..set(SegwitAddresType.p2wpkh, receive: _receiveHd, change: _changeHd)
-    ..setLegacy(receive: _receiveHd, change: _changeHd),
+  accountHd: _master.derivePath("m/84'/0'/0'") as Bip32Slip10Secp256k1,
+  masterHd: _master,
+  coinType: 0,
 )..getOrCreate(0);
 
 class _Addresses extends BitcoinWalletAddresses {

@@ -3,20 +3,39 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
-typedef AccountHdDeriver = AccountHdKeys Function(int index, List<BitcoinAddressType> types);
+int purposeForType(BitcoinAddressType type) {
+  switch (type.value) {
+    case 'P2PKH':
+      return 44;
+    case 'P2SH/P2WPKH':
+      return 49;
+    case 'P2WPKH':
+      return 84;
+    case 'P2TR':
+      return 86;
+    default:
+      return 84;
+  }
+}
 
 class ElectrumAccounts {
   ElectrumAccounts({
     required List<BitcoinAddressType> primaryTypes,
-    required AccountHdDeriver deriveHd,
+    required Bip32Slip10Secp256k1 accountHd,
+    Bip32Slip10Secp256k1? masterHd,
+    int? coinType,
     List<BitcoinAddressType> extraTypes = EXTRA_ACCOUNT_ADDRESS_TYPES,
   })  : _primaryTypes = List.unmodifiable(primaryTypes),
         _extraTypes = List.unmodifiable(extraTypes),
-        _deriveHd = deriveHd;
+        _accountHd = accountHd,
+        _masterHd = masterHd,
+        _coinType = coinType;
 
   final List<BitcoinAddressType> _primaryTypes;
   final List<BitcoinAddressType> _extraTypes;
-  final AccountHdDeriver _deriveHd;
+  final Bip32Slip10Secp256k1 _accountHd;
+  final Bip32Slip10Secp256k1? _masterHd;
+  final int? _coinType;
   final Map<int, ElectrumAccount> _byIndex = {};
   final Map<int, AccountHdKeys> _hdByIndex = {};
 
@@ -63,6 +82,45 @@ class ElectrumAccounts {
       _hdByIndex[index]?.receive(type);
 
   bool isLegacyChange(Bip32Slip10Secp256k1 hd) => _hdByIndex[0]?.isLegacyChange(hd) ?? false;
+
+  AccountHdKeys _deriveHd(int index, List<BitcoinAddressType> types) {
+    final hd = AccountHdKeys();
+    final masterHd = _masterHd;
+    final coinType = _coinType;
+
+    if (masterHd != null && coinType != null) {
+      final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
+
+      for (final type in types) {
+        final accountPath = "m/${purposeForType(type)}'/$coinType'/$index'";
+        final accountHd = accountHdByPath[accountPath] ??=
+            masterHd.derivePath(accountPath) as Bip32Slip10Secp256k1;
+
+        hd.set(
+          type,
+          receive: accountHd.childKey(Bip32KeyIndex(0)),
+          change: accountHd.childKey(Bip32KeyIndex(1)),
+        );
+      }
+    } else {
+      for (final type in types) {
+        hd.set(
+          type,
+          receive: _accountHd.childKey(Bip32KeyIndex(0)),
+          change: _accountHd.childKey(Bip32KeyIndex(1)),
+        );
+      }
+    }
+
+    if (index == 0) {
+      hd.setLegacy(
+        receive: _accountHd.childKey(Bip32KeyIndex(0)),
+        change: _accountHd.childKey(Bip32KeyIndex(1)),
+      );
+    }
+
+    return hd;
+  }
 
   @override
   String toString() =>

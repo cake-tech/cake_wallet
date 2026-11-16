@@ -116,29 +116,17 @@ abstract class ElectrumWalletBase
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
 
+    final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     accounts = ElectrumAccounts(
       primaryTypes: supportedAddressTypes(walletInfo.type),
-      deriveHd: (index, types) => _deriveAccountHd(index, types, currency),
+      accountHd: accountHD,
+      masterHd: _masterHD,
+      coinType: currency != null && !isElectrumDerivation ? _coinTypeFor(currency) : null,
     );
 
     final indexes = hasAccountsSupport ? (accountIndexes ?? [currentAccountIndex]) : [0];
     for (final accountIndex in indexes) {
       accounts.getOrCreate(accountIndex);
-    }
-  }
-
-  int _purposeForType(BitcoinAddressType type) {
-    switch (type.value) {
-      case 'P2PKH':
-        return 44;
-      case 'P2SH/P2WPKH':
-        return 49;
-      case 'P2WPKH':
-        return 84;
-      case 'P2TR':
-        return 86;
-      default:
-        return 84;
     }
   }
 
@@ -176,7 +164,7 @@ abstract class ElectrumWalletBase
     }
 
     final coinType = _coinTypeFor(currency);
-    final purpose = _purposeForType(record.type);
+    final purpose = purposeForType(record.type);
     return "m/$purpose'/$coinType'/${record.accountIndex}'";
   }
 
@@ -361,43 +349,6 @@ abstract class ElectrumWalletBase
     );
 
     return current;
-  }
-
-  AccountHdKeys _deriveAccountHd(
-      int accountIndex,
-      List<BitcoinAddressType> types,
-      CryptoCurrency? currency,
-      ) {
-    final hd = AccountHdKeys();
-    final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
-    final canDeriveFromSeed = _masterHD != null && currency != null;
-
-    if (canDeriveFromSeed && !isElectrumDerivation) {
-      final coinType = _coinTypeFor(currency);
-      final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
-
-      for (final type in types) {
-        final accountPath = "m/${_purposeForType(type)}'/$coinType'/$accountIndex'";
-        final accountHd = accountHdByPath[accountPath] ??=
-        _masterHD!.derivePath(accountPath) as Bip32Slip10Secp256k1;
-
-        hd.set(
-          type,
-          receive: accountHd.childKey(Bip32KeyIndex(0)),
-          change: accountHd.childKey(Bip32KeyIndex(1)),
-        );
-      }
-    } else {
-      for (final type in types) {
-        hd.set(type, receive: mainHd, change: sideHd);
-      }
-    }
-
-    if (accountIndex == 0) {
-      hd.setLegacy(receive: mainHd, change: sideHd);
-    }
-
-    return hd;
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) =>

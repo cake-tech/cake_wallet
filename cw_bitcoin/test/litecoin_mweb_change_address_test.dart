@@ -31,21 +31,9 @@ WalletInfo _walletInfo() => WalletInfo.external(
 
 ElectrumAccounts _accounts() => ElectrumAccounts(
   primaryTypes: LITECOIN_ADDRESS_TYPES,
-  deriveHd: (_, types) {
-    final hd = AccountHdKeys();
-    for (final type in types) {
-      hd.set(
-        type,
-        receive: _accountHd.childKey(Bip32KeyIndex(0)),
-        change: _accountHd.childKey(Bip32KeyIndex(1)),
-      );
-    }
-    return hd
-      ..setLegacy(
-        receive: _accountHd.childKey(Bip32KeyIndex(0)),
-        change: _accountHd.childKey(Bip32KeyIndex(1)),
-      );
-  },
+  accountHd: _accountHd,
+  masterHd: _master,
+  coinType: 2,
 )..getOrCreate(0);
 
 LitecoinWalletAddresses _addresses(ElectrumAccounts accounts) {
