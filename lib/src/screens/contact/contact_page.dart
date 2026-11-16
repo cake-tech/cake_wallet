@@ -111,7 +111,7 @@ class ContactPage extends BasePage {
                         onPushPasteButton: (context) => _extractParsedAddress(context),
                         onSelectedContact: (contact) =>
                             contactViewModel.selectCurrency(contact.type),
-                        validator: currency == null ? null : AddressValidator(type: currency),
+                        validator: currency == null ? null : AddressValidator(type: currency).call,
                         selectedCurrency: currency,
                       );
                     },

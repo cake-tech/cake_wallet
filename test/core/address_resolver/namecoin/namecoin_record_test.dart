@@ -14,6 +14,11 @@ void main() {
       expect(NamecoinRecord.isNamecoinIdentifier('d/alice'), isTrue);
     });
 
+    test('preserves explicit namespaces when the raw name ends in .bit', () {
+      expect(NamecoinRecord.normalizeIdentifier('d/alice.bit'), 'd/alice.bit');
+      expect(NamecoinRecord.normalizeIdentifier('id/alice.bit'), 'id/alice.bit');
+    });
+
     test('does not capture unrelated providers or malformed names', () {
       for (final value in [
         'example.com',

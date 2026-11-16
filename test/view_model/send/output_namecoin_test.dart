@@ -10,7 +10,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobx/mobx.dart' hide Output;
+import 'package:mobx/mobx.dart' hide when;
 import 'package:mocktail/mocktail.dart';
 
 class _MockWallet extends Mock implements WalletBase {}

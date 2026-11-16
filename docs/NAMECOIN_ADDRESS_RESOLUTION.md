@@ -7,7 +7,8 @@ OpenAlias record and is not presented as an established Namecoin payment standar
 ## Identifiers and values
 
 Accepted identifiers are `d/name`, `id/name`, and `name.bit`. Identifiers are
-case-normalized, and `.bit` is converted to the corresponding `d/` name.
+case-normalized, and `.bit` is converted to the corresponding `d/` name. Explicit
+`d/` and `id/` namespaces are preserved when the raw name itself ends in `.bit`.
 
 The name value must be a JSON object keyed by Cake Wallet's unique, case-insensitive
 `CryptoCurrency.name`, **not** its display title or network tag. For example:
@@ -78,3 +79,14 @@ The defaults are the three endpoints used for live compatibility checks:
 The servers learn which Namecoin identifier is being resolved. Users can disable Namecoin
 lookup in the address-lookup settings. DNS TXT lookup and `blockchain.name.get_value_proof`
 are not used by this implementation.
+
+## Opt-in live verification
+
+The live test uses the production ElectrumX client and public default servers. It asserts
+that `d/mstrofnone` resolves to its configured BTC address. It is skipped unless explicitly
+enabled, because it depends on external infrastructure and a specific name value:
+
+```sh
+flutter test test/core/address_resolver/namecoin/namecoin_live_test.dart \
+  --dart-define=NAMECOIN_LIVE_TEST=true
+```

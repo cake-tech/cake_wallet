@@ -11,7 +11,10 @@ class NamecoinRecord {
     var value = input.trim().toLowerCase();
     if (value.endsWith('.')) value = value.substring(0, value.length - 1);
 
-    if (value.endsWith('.bit')) value = 'd/${value.substring(0, value.length - 4)}';
+    final hasExplicitNamespace = value.startsWith('d/') || value.startsWith('id/');
+    if (!hasExplicitNamespace && value.endsWith('.bit')) {
+      value = 'd/${value.substring(0, value.length - 4)}';
+    }
     if (!value.startsWith('d/') && !value.startsWith('id/')) return null;
 
     final separator = value.indexOf('/');
