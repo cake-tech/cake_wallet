@@ -72,11 +72,12 @@ jobs:
           if [[ ! -d "$HOME/flutter/bin" ]]; then
             git clone --branch 3.41.9 --depth 1 https://github.com/flutter/flutter.git "$HOME/flutter"
           fi
-          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
           # The runner service starts with a bare PATH: the build needs Homebrew's
           # go, cmake and pod, and gomobile from ~/go/bin.
           echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
           echo "$HOME/go/bin" >> "$GITHUB_PATH"
+          # Last entry wins: the pinned Flutter (and its dart) must come before Homebrew's.
+          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
           "$HOME/flutter/bin/flutter" --version
 
       - name: Save flutter sdk
