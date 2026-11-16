@@ -15,7 +15,7 @@ on:
         type: string
         default: ubuntu-latest
       build_run:
-        description: "pr_test_build run id whose 'android apk' artifact to test (empty = auto-resolve from the head SHA)"
+        description: "pr_test_build run id whose x86_64 APK artifact to test (empty = auto-resolve from the head SHA)"
         type: string
         default: ""
       shard:
@@ -63,7 +63,7 @@ jobs:
     steps:
       - name: Resolve and download the build artifact
         id: resolve
-        # Criterion = OWNING an "android apk" artifact; the run's conclusion can
+        # Criterion = OWNING an x86_64 APK artifact ("<branch>_x86.apk"; "android apk" on older runs); the run's conclusion can
         # be failure after the upload (learned on the 6.5.0 RC). No dev fallback.
         env:
           GH_TOKEN: ${{ github.token }}
@@ -84,7 +84,7 @@ jobs:
               while read -r id status conclusion; do
                 [ -z "$id" ] && continue
                 [ "$status" = "completed" ] || ALL_FINISHED=0
-                if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[].name] | index("android apk") != null')" = "true" ]; then
+                if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[] | select(.expired == false) | .name | select(. == "android apk" or endswith("_x86.apk"))] | length > 0')" = "true" ]; then
                   RUN_ID=$id
                   break
                 fi
@@ -97,7 +97,7 @@ jobs:
                   gh run rerun "$NEWEST" --failed -R "${{ github.repository }}" || true
                   RERUN_TRIED=1
                 else
-                  echo "::error::pr_test_build for ${SHA} finished without an 'android apk' artifact and it is not the packageRelease flake, or its one retry already ran (no dev fallback, per handoff)"
+                  echo "::error::pr_test_build for ${SHA} finished without an x86_64 APK artifact and it is not the packageRelease flake, or its one retry already ran (no dev fallback, per handoff)"
                   exit 1
                 fi
               elif [ -z "$RUNS" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
@@ -112,11 +112,15 @@ jobs:
             done
           fi
           if [ -z "$RUN_ID" ]; then
-            echo "::error::no pr_test_build run with an 'android apk' artifact for this ref (no dev fallback, per handoff)"
+            echo "::error::no pr_test_build run with an x86_64 APK artifact for this ref (no dev fallback, per handoff)"
             exit 1
           fi
           echo "BUILD_RUN=$RUN_ID" >> "$GITHUB_ENV"
-          gh run download "$RUN_ID" -n "android apk" -D apk -R "${{ github.repository }}"
+          ART=$(gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}/artifacts" --jq '[.artifacts[] | select(.expired == false) | .name | select(. == "android apk" or endswith("_x86.apk"))][0] // empty')
+          [ -n "$ART" ] || { echo "::error::run ${RUN_ID} has no x86_64 APK artifact"; exit 1; }
+          gh run download "$RUN_ID" -n "$ART" -D apk -R "${{ github.repository }}"
+          # The build names the x86_64 APK after its branch (<branch>_x86.apk); the suite installs one fixed name.
+          [ -f apk/app-x86_64-release.apk ] || mv "$(ls apk/*_x86.apk | head -n 1)" apk/app-x86_64-release.apk
           test -f apk/app-x86_64-release.apk || { echo "::error::app-x86_64-release.apk missing from artifact"; exit 1; }
           echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
 

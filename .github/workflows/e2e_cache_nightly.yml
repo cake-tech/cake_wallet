@@ -56,14 +56,18 @@ jobs:
           SHA=$(gh api "repos/${{ github.repository }}/commits/dev" --jq .sha)
           RUN_ID=""
           for id in $(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?branch=dev&per_page=10" --jq '.workflow_runs[].id'); do
-            if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[].name] | index("android apk") != null')" = "true" ]; then
+            if [ "$(gh api "repos/${{ github.repository }}/actions/runs/${id}/artifacts" --jq '[.artifacts[] | select(.expired == false) | .name | select(. == "android apk" or endswith("_x86.apk"))] | length > 0')" = "true" ]; then
               RUN_ID=$id
               break
             fi
           done
-          [ -n "$RUN_ID" ] || { echo "::error::no dev pr_test_build run owns an android-apk artifact"; exit 1; }
+          [ -n "$RUN_ID" ] || { echo "::error::no dev pr_test_build run owns an x86_64 APK artifact"; exit 1; }
           echo "BUILD_RUN=$RUN_ID" >> "$GITHUB_ENV"
-          gh run download "$RUN_ID" -n "android apk" -D apk -R "${{ github.repository }}"
+          ART=$(gh api "repos/${{ github.repository }}/actions/runs/${RUN_ID}/artifacts" --jq '[.artifacts[] | select(.expired == false) | .name | select(. == "android apk" or endswith("_x86.apk"))][0] // empty')
+          [ -n "$ART" ] || { echo "::error::run ${RUN_ID} has no x86_64 APK artifact"; exit 1; }
+          gh run download "$RUN_ID" -n "$ART" -D apk -R "${{ github.repository }}"
+          # The build names the x86_64 APK after its branch (<branch>_x86.apk); the suite installs one fixed name.
+          [ -f apk/app-x86_64-release.apk ] || mv "$(ls apk/*_x86.apk | head -n 1)" apk/app-x86_64-release.apk
           test -f apk/app-x86_64-release.apk
 
       # Hosted runners need the udev rule or the action falls back to
