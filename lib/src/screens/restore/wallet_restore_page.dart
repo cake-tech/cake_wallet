@@ -207,7 +207,10 @@ class WalletRestorePage extends BasePage {
                 -1;
       }
 
-      credentials['passphrase'] = seedSettingsViewModel.passphrase;
+      final enteredPassphrase = seedSettingsViewModel.passphrase;
+      credentials['passphrase'] = (enteredPassphrase?.isNotEmpty ?? false)
+          ? enteredPassphrase
+          : walletRestoreViewModel.restoredWalletPassphrase;
 
       credentials['name'] =
           walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;
