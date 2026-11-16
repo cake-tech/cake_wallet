@@ -93,6 +93,14 @@ jobs:
           restore-keys: ios-derived-
 
       - name: Build the simulator app (pinned recipe)
+        # The runner account signs commits by default and has no gpg on PATH;
+        # the dependency patch step commits with `git am`, so switch signing off here only.
+        env:
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: commit.gpgsign
+          GIT_CONFIG_VALUE_0: "false"
+          GIT_CONFIG_KEY_1: tag.gpgsign
+          GIT_CONFIG_VALUE_1: "false"
         run: bash cake-qa/tools/ci/ios_sim_build.sh "$GITHUB_WORKSPACE"
 
       - name: Boot the pinned simulator and install
