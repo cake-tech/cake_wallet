@@ -1,4 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_type.dart';
 
 CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = false, int? chainId}) {
@@ -26,6 +27,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
       return CryptoCurrency.arbEth;
     case WalletType.bsc:
       return CryptoCurrency.bnb;
+    case WalletType.robinhood:
+      return CryptoCurrency.robEth;
     case WalletType.bitcoinCash:
       return CryptoCurrency.bch;
     case WalletType.nano:
@@ -49,8 +52,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type, {bool isTestnet = fal
     case WalletType.zcash:
       return CryptoCurrency.zec;
     case WalletType.none:
-      throw Exception(
-          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency');
+      throw BadWalletTypeException(
+          'Unexpected wallet type: ${type.toString()} for CryptoCurrency walletTypeToCryptoCurrency', type);
   }
 }
 
@@ -66,6 +69,8 @@ CryptoCurrency getCryptoCurrencyByChainId(int chainId) {
       return CryptoCurrency.arbEth;
     case 56:
       return CryptoCurrency.bnb;
+    case 4663:
+      return CryptoCurrency.robEth;
     default:
       return CryptoCurrency.eth;
   }
@@ -85,6 +90,8 @@ int? getChainIdByCryptoCurrency(CryptoCurrency currency) {
       return 42161;
     case CryptoCurrency.bnb:
       return 56;
+    case CryptoCurrency.robEth:
+      return 4663;
     default:
       return null;
   }
@@ -107,6 +114,10 @@ String getCryptoCurrencyIconForWalletListItem(WalletType type,
 
   if (type == WalletType.base) {
     return "assets/new-ui/crypto_full_icons/base.svg";
+  }
+
+  if (type == WalletType.robinhood) {
+    return "assets/new-ui/crypto_full_icons/robinhood.svg";
   }
 
   return walletTypeToCryptoCurrency(type, isTestnet: isTestnet, chainId: chainId).iconPath ?? "";
@@ -133,6 +144,8 @@ String? symbolIconPathForWalletType(WalletType type) {
       return "$prefix/bch-symbol.svg";
     case WalletType.polygon:
       return "$prefix/pol-symbol.svg";
+    case WalletType.robinhood:
+      return "$prefix/rob-symbol.svg";
     case WalletType.solana:
       return "$prefix/sol-symbol.svg";
     case WalletType.tron:

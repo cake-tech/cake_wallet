@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/currency_for_wallet_type.dart";
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +37,7 @@ class ReceiveInfoBox extends StatelessWidget {
       case WalletType.polygon:
       case WalletType.zano:
       case WalletType.bsc:
+      case WalletType.robinhood:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;
         return ReceiveInfoBox(
             iconPath: "",
@@ -43,8 +45,7 @@ class ReceiveInfoBox extends StatelessWidget {
             onDismissed: onDismissed,
             bottomWidget: InfoboxCurrencyRow(
               currencies: supportedCurrencies ?? [],
-              chainIconPath:
-                  "assets/new-ui/chain_badges/${walletTypeToString(type).toLowerCase()}.svg",
+              chainIconPath: walletTypeToCryptoCurrency(type).chainIconPath ?? "",
             ));
       default:
         if (autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.disabled) return null;

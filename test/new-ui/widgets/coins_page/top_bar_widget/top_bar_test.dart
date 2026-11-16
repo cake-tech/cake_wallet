@@ -56,6 +56,7 @@ void _stubDashboardViewModel(
   bool silentPaymentsScanningActive = false,
 }) {
   when(() => dashboardViewModel.hasLightning).thenReturn(hasLightning);
+  when(() => dashboardViewModel.lightningMode).thenReturn(false);
   when(() => dashboardViewModel.isSyncHeavy).thenReturn(isSyncHeavy);
   when(() => dashboardViewModel.isTorEnabled).thenReturn(false);
   when(() => dashboardViewModel.hasMweb).thenReturn(false);
@@ -71,7 +72,6 @@ void _stubDashboardViewModel(
 }
 
 Widget _buildTopBar(DashboardViewModel dashboardViewModel) => TopBar(
-      lightningMode: false,
       onLightningSwitchPress: () {},
       dashboardViewModel: dashboardViewModel,
       onSettingsButtonPress: () {},

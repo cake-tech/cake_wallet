@@ -6,12 +6,14 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_tron/default_tron_tokens.dart';
 import 'package:cw_tron/pending_tron_transaction.dart';
 import 'package:cw_tron/tron_abi.dart';
 import 'package:cw_tron/tron_balance.dart';
+import "package:cw_tron/tron_fee_estimate.dart";
 import 'package:cw_tron/tron_http_provider.dart';
 import 'package:cw_core/tron_token.dart';
 import 'package:cw_tron/tron_transaction_model.dart';
@@ -26,6 +28,8 @@ class TronClient {
   TronProvider? _provider;
   // This is an internal tracker, so we don't have to "refetch".
   int _nativeTxEstimatedFee = 0;
+
+  static const _historyRequestTimeout = Duration(seconds: 30);
 
   Future<List<TronTransactionModel>> fetchTransactions(String address,
       {String? contractAddress}) async {
@@ -43,7 +47,7 @@ class TronClient {
           'Content-Type': 'application/json',
           'TRON-PRO-API-KEY': secrets.tronGridApiKey,
         },
-      );
+      ).timeout(_historyRequestTimeout);
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 &&
@@ -76,15 +80,17 @@ class TronClient {
           'Content-Type': 'application/json',
           'TRON-PRO-API-KEY': secrets.tronGridApiKey,
         },
-      );
+      ).timeout(_historyRequestTimeout);
       final jsonResponse = json.decode(response.body) as Map<String, dynamic>;
 
       if (response.statusCode >= 200 &&
           response.statusCode < 300 &&
           jsonResponse['status'] != false) {
-        return (jsonResponse['data'] as List).map((e) {
-          return TronTRC20TransactionModel.fromJson(e as Map<String, dynamic>);
-        }).toList();
+        return (jsonResponse["data"] as List<dynamic>)
+            .cast<Map<String, dynamic>>()
+            .where((e) => e["type"] == "Transfer")
+            .map(TronTRC20TransactionModel.fromJson)
+            .toList();
       }
 
       return [];
@@ -118,12 +124,13 @@ class TronClient {
     }
   }
 
-  Future<int> getFeeLimit(
+  Future<TronFeeEstimate> getFeeEstimate(
     TransactionRaw rawTransaction,
     TronAddress address,
     TronAddress receiverAddress, {
     int energyUsed = 0,
     bool isEstimatedFeeFlow = false,
+    bool throwOnError = false,
   }) async {
     try {
       // Get the tron chain parameters.
@@ -144,52 +151,40 @@ class TronClient {
       final transactionSize = fakeTransaction.length + 64;
 
       // Assign the calculated size to the variable representing the required bandwidth.
-      int neededBandWidth = transactionSize;
+      final neededBandWidth = transactionSize;
       log('Initial Needed Bandwidth: $neededBandWidth');
-
-      int neededEnergy = energyUsed;
-      log('Initial Needed Energy: $neededEnergy');
+      log("Initial Needed Energy: $energyUsed");
 
       // Fetch account resources to assess the available bandwidth and energy
       final accountResource =
           await _provider!.request(TronRequestGetAccountResource(address: address));
 
-      neededEnergy -= accountResource.howManyEnergy.toInt();
-      log('Account resource energy: ${accountResource.howManyEnergy.toInt()}');
-      log('Needed Energy after deducting from account resource energy: $neededEnergy');
+      final availableEnergy = accountResource.howManyEnergy.toInt();
+      log("Account resource energy: $availableEnergy");
 
-      // Deduct the bandwidth from the account's available bandwidth.
       final BigInt accountBandWidth = accountResource.howManyBandwIth;
-      log('Account resource bandwidth: ${accountResource.howManyBandwIth.toInt()}');
+      log("Account resource bandwidth: ${accountBandWidth.toInt()}");
 
-      if (accountBandWidth >= BigInt.from(neededBandWidth) && !isEstimatedFeeFlow) {
-        log('Account has more bandwidth than required');
-        neededBandWidth = 0;
+      final feeEstimate = TronFeeEstimate.calculate(
+        energyUsed: energyUsed,
+        availableEnergy: availableEnergy,
+        energyPrice: energyInSun.toInt(),
+        bandwidthUsed: neededBandWidth,
+        isBandwidthBurned: isEstimatedFeeFlow || accountBandWidth < BigInt.from(neededBandWidth),
+        bandwidthPrice: bandWidthInSun,
+        memoFee: rawTransaction.data != null ? chainParams.getMemoFee! : 0,
+      );
+
+      log("Fee limit: ${feeEstimate.feeLimit}");
+      log("Estimated burn: ${feeEstimate.estimatedBurn}");
+
+      return feeEstimate;
+    } catch (e) {
+      log("Tron fee estimate failed: $e");
+      if (throwOnError) {
+        rethrow;
       }
-
-      if (neededEnergy < 0) {
-        neededEnergy = 0;
-      }
-
-      final energyBurn = neededEnergy * energyInSun.toInt();
-      log('Energy Burn: $energyBurn');
-
-      final bandWidthBurn = neededBandWidth * bandWidthInSun;
-      log('Bandwidth Burn: $bandWidthBurn');
-
-      int totalBurn = energyBurn + bandWidthBurn;
-      log('Total Burn: $totalBurn');
-
-      /// If there is a note (memo), calculate the memo fee.
-      if (rawTransaction.data != null) {
-        totalBurn += chainParams.getMemoFee!;
-      }
-
-      log('Final total burn: $totalBurn');
-
-      return totalBurn;
-    } catch (_) {
-      return 0;
+      return const TronFeeEstimate.zero();
     }
   }
 
@@ -224,12 +219,13 @@ class TronClient {
       timestamp: block.blockHeader.rawData.timestamp,
     );
 
-    final estimatedFee = await getFeeLimit(
+    final feeEstimate = await getFeeEstimate(
       rawTransaction,
       ownerAddress,
       ownerAddress,
       isEstimatedFeeFlow: true,
     );
+    final estimatedFee = feeEstimate.estimatedBurn;
 
     _nativeTxEstimatedFee = estimatedFee;
 
@@ -256,13 +252,15 @@ class TronClient {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
     }
 
-    return getFeeLimit(
+    final feeEstimate = await getFeeEstimate(
       request.transactionRaw!,
       ownerAddress,
       ownerAddress,
       energyUsed: request.energyUsed ?? 0,
       isEstimatedFeeFlow: true,
     );
+
+    return feeEstimate.estimatedBurn;
   }
 
   Future<PendingTronTransaction> signTransaction({
@@ -281,7 +279,7 @@ class TronClient {
     final isNativeTransaction = amount.currency == CryptoCurrency.trx;
 
     Money totalAmount;
-    TransactionRaw rawTransaction;
+    _PreparedTronTransaction preparedTransaction;
     if (isNativeTransaction) {
       if (sendAll) {
         final accountResource =
@@ -301,7 +299,7 @@ class TronClient {
       } else {
         totalAmount = amount;
       }
-      rawTransaction = await _signNativeTransaction(
+      preparedTransaction = await _signNativeTransaction(
         ownerAddress,
         receiverAddress,
         totalAmount,
@@ -311,7 +309,7 @@ class TronClient {
     } else {
       final tokenAddress = (amount.currency as TronToken).contractAddress;
       totalAmount = amount;
-      rawTransaction = await _signTrcTokenTransaction(
+      preparedTransaction = await _signTrcTokenTransaction(
         ownerAddress,
         receiverAddress,
         totalAmount,
@@ -320,6 +318,7 @@ class TronClient {
       );
     }
 
+    final rawTransaction = preparedTransaction.rawTransaction;
     final signature = ownerPrivKey.sign(rawTransaction.toBuffer());
 
     sendTx() async => await sendTransaction(
@@ -330,12 +329,12 @@ class TronClient {
     return PendingTronTransaction(
         signedTransaction: signature,
         amount: totalAmount,
-        fee: Money(rawTransaction.feeLimit ?? BigInt.zero, CryptoCurrency.trx),
+        fee: Money(BigInt.from(preparedTransaction.estimatedFee), CryptoCurrency.trx),
         sendTransaction: sendTx,
         id: rawTransaction.txID);
   }
 
-  Future<TransactionRaw> _signNativeTransaction(
+  Future<_PreparedTronTransaction> _signNativeTransaction(
     TronAddress ownerAddress,
     TronAddress receiverAddress,
     Money amount,
@@ -372,21 +371,25 @@ class TronClient {
       timestamp: block.blockHeader.rawData.timestamp,
     );
 
-    final feeLimit = await getFeeLimit(rawTransaction, ownerAddress, receiverAddress);
+    final feeEstimate = await getFeeEstimate(rawTransaction, ownerAddress, receiverAddress);
+    final feeLimit = feeEstimate.estimatedBurn;
     final feeLimitToUse = feeLimit != 0 ? feeLimit : defaultFeeLimit;
     final tronBalanceInt = tronBalance.toInt();
 
     if (feeLimit > tronBalanceInt) {
       final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
-      throw Exception(
+      throw TransactionGenerationException(
         'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up.\nTransaction fee: $feeInTrx TRX',
       );
     }
 
-    return rawTransaction.copyWith(feeLimit: BigInt.from(feeLimitToUse));
+    return _PreparedTronTransaction(
+      rawTransaction: rawTransaction.copyWith(feeLimit: BigInt.from(feeLimitToUse)),
+      estimatedFee: feeLimitToUse,
+    );
   }
 
-  Future<TransactionRaw> _signTrcTokenTransaction(
+  Future<_PreparedTronTransaction> _signTrcTokenTransaction(
     TronAddress ownerAddress,
     TronAddress receiverAddress,
     Money amount,
@@ -407,24 +410,36 @@ class TronClient {
 
     if (!request.isSuccess) {
       log("Tron TRC20 error: ${request.error} \n ${request.respose}");
-      throw Exception('An error occurred while creating the transfer request. Please try again.');
+      throw TransactionGenerationException('An error occurred while creating the transfer request. Please try again.');
     }
 
-    final feeLimit = await getFeeLimit(
+    // A zero fee limit gives the call no energy at all, so a missing estimate stops the send.
+    final energyUsed = request.energyUsed;
+    if (energyUsed == null) {
+      throw TransactionGenerationException(
+        "Could not estimate the energy for this transfer. Please try again.",
+      );
+    }
+
+    final feeEstimate = await getFeeEstimate(
       request.transactionRaw!,
       ownerAddress,
       receiverAddress,
-      energyUsed: request.energyUsed ?? 0,
+      energyUsed: energyUsed,
+      throwOnError: true,
     );
 
-    if (feeLimit > tronBalance.toInt()) {
-      final feeInTrx = TronHelper.fromSun(BigInt.parse(feeLimit.toString()));
-      throw Exception(
+    if (feeEstimate.estimatedBurn > tronBalance.toInt()) {
+      final feeInTrx = TronHelper.fromSun(BigInt.from(feeEstimate.estimatedBurn));
+      throw TransactionGenerationException(
         'You don\'t have enough TRX to cover the transaction fee for this transaction. Please top up. Transaction fee: $feeInTrx TRX',
       );
     }
 
-    return request.transactionRaw!.copyWith(feeLimit: BigInt.from(feeLimit));
+    return _PreparedTronTransaction(
+      rawTransaction: request.transactionRaw!.copyWith(feeLimit: BigInt.from(feeEstimate.feeLimit)),
+      estimatedFee: feeEstimate.estimatedBurn,
+    );
   }
 
   Future<String> sendTransaction({
@@ -441,11 +456,11 @@ class TronClient {
       if (txBroadcastResult.isSuccess) {
         return txBroadcastResult.txId!;
       } else {
-        throw Exception(txBroadcastResult.error);
+        throw TransactionSendingException(txBroadcastResult.error??"");
       }
     } catch (e) {
       log('Send block Exception: ${e.toString()}');
-      throw Exception(e);
+      throw TransactionSendingException(e.toString());
     }
   }
 
@@ -466,7 +481,7 @@ class TronClient {
         ),
       );
 
-      final outputResult = request.outputResult?.first ?? BigInt.zero;
+      final outputResult = request.outputResult?.first as BigInt? ?? BigInt.zero;
 
       return TronBalance(Money(outputResult, currency));
     } catch (_) {
@@ -533,4 +548,14 @@ class TronClient {
       return null;
     }
   }
+}
+
+class _PreparedTronTransaction {
+  const _PreparedTronTransaction({
+    required this.rawTransaction,
+    required this.estimatedFee,
+  });
+
+  final TransactionRaw rawTransaction;
+  final int estimatedFee;
 }
