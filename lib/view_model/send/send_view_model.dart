@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import "package:cake_wallet/core/address_resolver/lnurl_pay/lnurlpay_record.dart";
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -458,7 +459,25 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
 
     final address = _recipientAddress(output);
-    return isLnurlInvoice(address) ? address : "";
+    if (isLnurlInvoice(address)) {
+      return address;
+    }
+
+    return output.extractedAddress.isNotEmpty ? _lnurlOfLightningAddress(address) : "";
+  }
+
+  static final _lightningAddressPattern = RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+
+  String _lnurlOfLightningAddress(String address) {
+    if (!_lightningAddressPattern.hasMatch(address)) {
+      return "";
+    }
+
+    try {
+      return LNURL.encode(LNUrlPayRecord.wellKnownUrl(address));
+    } catch (_) {
+      return "";
+    }
   }
 
   int lnurlCommentLimit(Output output) => _lnurlCommentLimits[lnurlRecipient(output)] ?? 0;

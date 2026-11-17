@@ -11,6 +11,7 @@ import "package:cake_wallet/core/anypay/anypay_service.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/entities/contact_base.dart";
 import "package:cake_wallet/entities/contact_record.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/entities/transaction_description.dart";
@@ -106,6 +107,9 @@ class _Bitcoin extends CWBitcoin {
 
   @override
   bool useLightning(Object wallet) => walletUsesLightning;
+
+  @override
+  String getNetworkName(Object wallet) => "mainnet";
 }
 
 class _Funds extends Balance {
@@ -478,6 +482,14 @@ void _copyToClipboard(WidgetTester tester, String text) {
   addTearDown(() => messenger.setMockMethodCallHandler(SystemChannels.platform, null));
 }
 
+Future<void> _chooseInAddressBook(WidgetTester tester, ContactBase contact) async {
+  final addressInput = tester.widget<NewSendAddressInput>(find.byType(NewSendAddressInput));
+  addressInput.addressController.text = contact.address;
+  addressInput.onPushAddressBookButton?.call(tester.element(find.byType(NewSendAddressInput)));
+  addressInput.onSelectedContact?.call(contact);
+  await _settle(tester);
+}
+
 Future<void> _addRecipient(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.add));
   await _settle(tester);
@@ -604,6 +616,48 @@ void main() {
 
       expect(server.requested, [_lnurlUrl]);
       expect(tester.widget<NewSendMemoInput>(_memoInput).maxMemoLength, 255);
+    });
+
+    testWidgets("shows the memo field for a Lightning address chosen in the address book",
+        (tester) async {
+      final walletLightningAddress = WalletContact(
+        "konsti@cake.cash",
+        "My wallet",
+        CryptoCurrency.btc,
+        walletType: WalletType.bitcoin,
+        label: "Active - LN",
+      );
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      final page = _SendPage.bitcoin(coinType: UnspentCoinType.nonMweb);
+      await page.pump(tester);
+
+      await _chooseInAddressBook(tester, walletLightningAddress);
+
+      expect(server.requested, [_lnurlUrl]);
+      expect(tester.widget<NewSendMemoInput>(_memoInput).maxMemoLength, 120);
+
+      await tester.enterText(_amountField, "0.001");
+      await tester.enterText(_memoField, "Thanks for dinner");
+      await _settle(tester);
+      await page.tapSend(tester);
+
+      expect(_onConfirmSheet("Thanks for dinner"), findsOneWidget);
+      expect(page.memosWhenBuilt, ["Thanks for dinner"]);
+    });
+
+    testWidgets("asks nothing of a confirmed recipient that isn't a Lightning address",
+        (tester) async {
+      final page = _SendPage.bitcoin(coinType: UnspentCoinType.nonMweb);
+      await page.pump(tester);
+
+      runInAction(
+        () => page.viewModel.outputs.first.extractedAddress =
+            "bitcoin:$_onChainAddress?label=me@example.com",
+      );
+      await _settle(tester);
+
+      expect(server.requested, isEmpty);
+      expect(_memoInput, findsNothing);
     });
 
     testWidgets("passes the memo to the wallet and shows it before confirming", (tester) async {

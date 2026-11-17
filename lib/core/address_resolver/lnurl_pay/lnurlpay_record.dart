@@ -16,22 +16,8 @@ class LNUrlPayRecord {
       {bool allowRethrow = false}) async {
     if (![CryptoCurrency.btc, CryptoCurrency.btcln].contains(currency)) return null;
 
-    // split the string by the @ symbol:
     try {
-      final List<String> splitStrs = username.split("@");
-      String name = splitStrs.first.toLowerCase();
-      final String domain = splitStrs.last;
-
-      if (splitStrs.length == 3) {
-        // for username like @alice@domain.org instead of alice@domain.org
-        name = splitStrs[1];
-      }
-
-      if (name.isEmpty) {
-        name = "_";
-      }
-
-      final expectedUrl = "https://$domain/.well-known/lnurlp/$name";
+      final expectedUrl = wellKnownUrl(username);
       final response = await ProxyWrapper().get(
         clearnetUri: Uri.parse(expectedUrl),
         headers: <String, String>{"Accept": "application/json"},
@@ -45,6 +31,24 @@ class LNUrlPayRecord {
       printV("error checking well-known username: $e");
     }
     return null;
+  }
+
+  static String wellKnownUrl(String username) {
+    // split the string by the @ symbol:
+    final List<String> splitStrs = username.split("@");
+    String name = splitStrs.first.toLowerCase();
+    final String domain = splitStrs.last;
+
+    if (splitStrs.length == 3) {
+      // for username like @alice@domain.org instead of alice@domain.org
+      name = splitStrs[1];
+    }
+
+    if (name.isEmpty) {
+      name = "_";
+    }
+
+    return "https://$domain/.well-known/lnurlp/$name";
   }
 
   static String formatDomainName(String name) {
