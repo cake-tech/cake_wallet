@@ -224,6 +224,7 @@ class _CardsViewState extends State<CardsView> {
                   : [];
 
               return BalanceCard(
+                excludeAccountName: true,
                 width: effectiveCardWidth,
                 accountName: accountName,
                 accountBalance: accountBalance,

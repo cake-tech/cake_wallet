@@ -34,12 +34,14 @@ class BalanceCard extends StatelessWidget {
       this.capitalizeAssetName = true,
       this.onCustomizeTapped,
       this.accountIndex,
-      this.fiatFirst = false});
+      this.fiatFirst = false,
+      this.excludeAccountName = false});
 
   final double width;
   final double borderRadius;
   final Gradient? gradient;
   final Money? accountBalance;
+  final bool excludeAccountName;
   final String accountName;
   final String balance;
   final String fiatBalance;
@@ -135,7 +137,7 @@ class BalanceCard extends StatelessWidget {
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                           fontWeight: FontWeight.w500,
                                           color: design.colors.textColor),
-                                      child: ExcludeSemantics(excluding: leadText == accountName, child: Text("$accountIndex.")),
+                                      child: ExcludeSemantics(excluding: excludeAccountName && leadText == accountName, child: Text("$accountIndex.")),
                                     ),
                                   ),
                                 AnimatedDefaultTextStyle(
@@ -144,7 +146,7 @@ class BalanceCard extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: design.colors.textColor
                                           .withAlpha(leadText == accountName ? 255 : 128)),
-                                  child: ExcludeSemantics(excluding: leadText == accountName, child: Text(leadText)),
+                                  child: ExcludeSemantics(excluding: excludeAccountName && leadText == accountName, child: Text(leadText)),
                                 ),
                               ],
                             ),
