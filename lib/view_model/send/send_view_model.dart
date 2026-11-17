@@ -449,8 +449,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   final _lnurlCommentLimits = ObservableMap<String, int>();
 
+  bool get _hasLightning =>
+      wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
+
   String lnurlRecipient(Output output) {
-    if (wallet.type != WalletType.bitcoin) {
+    if (!_hasLightning) {
       return "";
     }
 
@@ -471,7 +474,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   String lightningInvoiceMemo(Output output) {
-    if (wallet.type != WalletType.bitcoin) {
+    if (!_hasLightning) {
       return "";
     }
 

@@ -1374,12 +1374,10 @@ class _NewSendPageState extends State<NewSendPage> {
 
   // TODO: make a separate variable for memo in payment request model
   void _applyNote(String note, int selectedOutput) {
-    final output = widget.sendViewModel.outputs[selectedOutput];
-    if (widget.sendViewModel.hasMemoFor(output) &&
-        note.length <= widget.sendViewModel.maxMemoLengthFor(output)) {
-      output.memo = note;
+    if (widget.sendViewModel.hasMemos && note.length <= widget.sendViewModel.maxMemoLength) {
+      widget.sendViewModel.outputs[selectedOutput].memo = note;
     } else {
-      output.note = note;
+      widget.sendViewModel.outputs[selectedOutput].note = note;
     }
   }
 }
