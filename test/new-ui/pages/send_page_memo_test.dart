@@ -34,9 +34,11 @@ import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/link_view_model.dart";
 import "package:cake_wallet/view_model/send/fees_view_model.dart";
+import "package:cake_wallet/view_model/send/output.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart";
 import "package:cake_wallet/view_model/wallet_switcher_view_model.dart";
+import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -92,6 +94,8 @@ class _MockLinkViewModel extends Mock implements LinkViewModel {}
 class _MockWalletSwitcherViewModel extends Mock implements WalletSwitcherViewModel {}
 
 class _MockAuthService extends Mock implements AuthService {}
+
+class _MockZcash extends Mock implements Zcash {}
 
 class _FakeBuildContext extends Fake implements BuildContext {}
 
@@ -261,6 +265,11 @@ class _SendPage {
   }
 
   _SendPage.zcash() {
+    final zcashProxy = _MockZcash();
+    when(
+      () => zcashProxy.createZcashTransactionCredentials(any(), currency: any(named: "currency")),
+    ).thenReturn(Object());
+    zcash = zcashProxy;
     _setUp(
       type: WalletType.zcash,
       funds: [CryptoCurrency.zec],
@@ -500,17 +509,21 @@ void main() {
     registerFallbackValue(WalletType.bitcoin);
     registerFallbackValue(_FakeBuildContext());
     registerFallbackValue(PaymentRequest("", "", "", "", null));
+    registerFallbackValue(CryptoCurrency.zec);
+    registerFallbackValue(<Output>[]);
     registerFallbackValue(bitcoin!.getBitcoinTransactionPriorityMedium());
   });
 
   setUp(() {
     final previousOverrides = HttpOverrides.current;
     final appBitcoin = bitcoin;
+    final appZcash = zcash;
     server = _RecipientServer();
     HttpOverrides.global = server;
     addTearDown(() {
       HttpOverrides.global = previousOverrides;
       bitcoin = appBitcoin;
+      zcash = appZcash;
     });
   });
 
