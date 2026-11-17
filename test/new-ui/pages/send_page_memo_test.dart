@@ -18,6 +18,9 @@ import "package:cake_wallet/entities/wallet_contact.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/pages/send_page.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/recipient_dot_row.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_address_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_amount_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
@@ -131,6 +134,7 @@ class _FakePendingTransaction with PendingTransaction {
 class _RecipientServer extends HttpOverrides {
   final responses = <String, (int, String)>{};
   final requested = <String>[];
+  Future<void>? answersAfter;
 
   @override
   HttpClient createHttpClient(SecurityContext? context) => _RecipientServerClient(this);
@@ -144,6 +148,7 @@ class _RecipientServerClient extends Fake implements HttpClient {
   @override
   Future<HttpClientRequest> openUrl(String method, Uri url) async {
     server.requested.add(url.toString());
+    await server.answersAfter;
     final response = server.responses[url.toString()];
     if (response == null) {
       throw const SocketException("unreachable");
@@ -435,6 +440,12 @@ final _invoiceMemo = find.byType(NewSendInvoiceMemo);
 
 final _invoiceMemoField = find.descendant(of: _invoiceMemo, matching: find.byType(TextField));
 
+final _memoPasteButton = find.descendant(of: _memoInput, matching: find.byType(FloatingIconButton));
+
+final _removeRecipientButton = find.byWidgetPredicate(
+  (widget) => widget is ModernButton && widget.semanticLabel == S.current.remove,
+);
+
 Finder _onConfirmSheet(String text) =>
     find.descendant(of: find.byType(SendConfirmSheet), matching: find.text(text));
 
@@ -446,6 +457,16 @@ Future<void> _settle(WidgetTester tester) async {
 
 Future<void> _enterAddress(WidgetTester tester, String address) async {
   await tester.enterText(_addressField, address);
+  await _settle(tester);
+}
+
+Future<void> _addRecipient(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.add));
+  await _settle(tester);
+}
+
+Future<void> _selectRecipient(WidgetTester tester, int index) async {
+  tester.widget<RecipientDotRow>(find.byType(RecipientDotRow)).onSelected(index);
   await _settle(tester);
 }
 
@@ -485,8 +506,11 @@ void main() {
   });
 
   group("Lightning recipient that takes a comment", () {
-    testWidgets("shows the memo field with the recipient's limit", (tester) async {
+    testWidgets("shows the memo field with the recipient's limit once it has answered",
+        (tester) async {
+      final answer = Completer<void>();
       server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      server.answersAfter = answer.future;
       final page = _SendPage.bitcoin();
       await page.pump(tester);
 
@@ -494,11 +518,13 @@ void main() {
       expect(server.requested, isEmpty);
       expect(_memoInput, findsNothing);
 
-      await tester.enterText(_addressField, _lnurl);
+      await _enterAddress(tester, _lnurl);
+      expect(server.requested, [_lnurlUrl]);
       expect(_memoInput, findsNothing);
+
+      answer.complete();
       await _settle(tester);
 
-      expect(server.requested, [_lnurlUrl]);
       expect(tester.widget<NewSendMemoInput>(_memoInput).maxMemoLength, 120);
       expect(tester.widget<TextField>(_memoField).maxLength, 120);
     });
@@ -541,7 +567,8 @@ void main() {
       expect(page.viewModel.outputs.first.memo, "");
     });
 
-    testWidgets("shows the memo field for a resolved Lightning username", (tester) async {
+    testWidgets("shows the memo field once a username has been resolved to its LNURL",
+        (tester) async {
       server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 255));
       final page = _SendPage.bitcoin();
       await page.pump(tester);
@@ -596,6 +623,107 @@ void main() {
         "The recipient accepts memos up to 40 characters",
       );
     });
+
+    testWidgets("hands the wallet a pasted memo that is over the limit", (tester) async {
+      const pasted = "This pasted memo is far longer than the recipient allows";
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async => call.method == "Clipboard.getData" ? {"text": pasted} : null,
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger
+            .setMockMethodCallHandler(SystemChannels.platform, null),
+      );
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 32));
+      final page = _SendPage.bitcoin();
+      await page.pump(tester);
+
+      await _enterAddress(tester, _lnurl);
+      await tester.enterText(_amountField, "1000");
+      await tester.enterText(_memoField, "Hi");
+      await _settle(tester);
+      tester.widget<FloatingIconButton>(_memoPasteButton).onPressed();
+      await _settle(tester);
+      await page.tapSend(tester);
+
+      expect(tester.widget<TextField>(_memoField).controller!.text, pasted);
+      expect(page.memosWhenBuilt, [pasted]);
+    });
+
+    testWidgets("hands the wallet a memo with emoji as typed", (tester) async {
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 10));
+      final page = _SendPage.bitcoin();
+      await page.pump(tester);
+
+      await _enterAddress(tester, _lnurl);
+      await tester.enterText(_memoField, "😀😀😀😀😀😀");
+      await _settle(tester);
+
+      expect(page.viewModel.outputs.first.memo, "😀😀😀😀😀😀");
+    });
+  });
+
+  group("Lightning recipient among several recipients", () {
+    testWidgets("keeps the memo with the first recipient and drops it when that one changes",
+        (tester) async {
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      server.responses[_otherLnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      final page = _SendPage.bitcoin(coinType: UnspentCoinType.nonMweb);
+      await page.pump(tester);
+
+      await _enterAddress(tester, _otherLnurl);
+      await _enterAddress(tester, _lnurl);
+      await tester.enterText(_memoField, "Thanks for dinner");
+      await _settle(tester);
+      await _addRecipient(tester);
+      await _addRecipient(tester);
+      await _selectRecipient(tester, 0);
+      expect(tester.widget<TextField>(_memoField).controller!.text, "Thanks for dinner");
+
+      await _enterAddress(tester, _otherLnurl);
+
+      expect(tester.widget<TextField>(_memoField).controller!.text, "");
+      expect(page.viewModel.outputs.first.memo, "");
+    });
+
+    testWidgets("offers no memo for a Lightning recipient that isn't the first", (tester) async {
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      final page = _SendPage.bitcoin(coinType: UnspentCoinType.nonMweb);
+      await page.pump(tester);
+
+      await _enterAddress(tester, _lnurl);
+      await _enterAddress(tester, _onChainAddress);
+      await _addRecipient(tester);
+      await _enterAddress(tester, _lnurl);
+
+      expect(server.requested, [_lnurlUrl]);
+      expect(_memoInput, findsNothing);
+    });
+
+    testWidgets("still asks and clears after the first recipient was removed", (tester) async {
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      server.responses[_otherLnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      final page = _SendPage.bitcoin(coinType: UnspentCoinType.nonMweb);
+      await page.pump(tester);
+
+      await _enterAddress(tester, _otherLnurl);
+      await _addRecipient(tester);
+      await _selectRecipient(tester, 0);
+      tester.widget<ModernButton>(_removeRecipientButton).onPressed();
+      await _settle(tester);
+      expect(page.viewModel.outputs, hasLength(1));
+
+      await _enterAddress(tester, _lnurl);
+      expect(server.requested, [_otherLnurlUrl, _lnurlUrl]);
+      await tester.enterText(_memoField, "Thanks for dinner");
+      await _settle(tester);
+      expect(page.viewModel.outputs.first.memo, "Thanks for dinner");
+
+      await _enterAddress(tester, _otherLnurl);
+
+      expect(tester.widget<TextField>(_memoField).controller!.text, "");
+      expect(page.viewModel.outputs.first.memo, "");
+    });
   });
 
   group("Lightning recipient without a known comment limit", () {
@@ -621,6 +749,18 @@ void main() {
       await _enterAddress(tester, LNURL.encode("https://offline.example/lnurlp/bob"));
       expect(server.requested.last, "https://offline.example/lnurlp/bob");
       expect(tester.widget<NewSendMemoInput>(_memoInput).maxMemoLength, 255);
+    });
+
+    testWidgets("shows no memo field for an LNURL that isn't a pay request", (tester) async {
+      const withdrawUrl = "https://cake.cash/withdraw";
+      server.responses[withdrawUrl] = (200, jsonEncode({"tag": "withdrawRequest"}));
+      final page = _SendPage.bitcoin();
+      await page.pump(tester);
+
+      await _enterAddress(tester, LNURL.encode(withdrawUrl));
+
+      expect(server.requested, [withdrawUrl]);
+      expect(_memoInput, findsNothing);
     });
 
     testWidgets("asks nothing of a recipient that isn't https or onion", (tester) async {
@@ -730,6 +870,19 @@ void main() {
   });
 
   group("Zcash recipient", () {
+    testWidgets("keeps the memo when the recipient changes", (tester) async {
+      final page = _SendPage.zcash();
+      await page.pump(tester);
+
+      await _enterAddress(tester, _shieldedZcashAddress);
+      await tester.enterText(_memoField, "Rent for May");
+      await _settle(tester);
+      await _enterAddress(tester, "zs1${"p" * 75}");
+
+      expect(tester.widget<TextField>(_memoField).controller!.text, "Rent for May");
+      expect(page.viewModel.outputs.first.memo, "Rent for May");
+    });
+
     testWidgets("keeps its memo field and shows every memo before confirming", (tester) async {
       final page = _SendPage.zcash();
       await page.pump(tester);

@@ -453,7 +453,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
 
   String lnurlRecipient(Output output) {
-    if (!_hasLightning) {
+    if (!_hasLightning || output != outputs.first) {
       return "";
     }
 

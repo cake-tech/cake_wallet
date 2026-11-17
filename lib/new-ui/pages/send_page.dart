@@ -259,20 +259,10 @@ class _NewSendPageState extends State<NewSendPage> {
 
     _disposers.add(
       reaction(
-        (_) => widget.sendViewModel.hasMemoFor(widget.sendViewModel.outputs[_selectedOutput]),
-        (hasMemo) {
-          if (!hasMemo) {
-            widget.sendViewModel.outputs[_selectedOutput].memo = "";
-          }
-        },
-      ),
-    );
-
-    _disposers.add(
-      reaction(
-        (_) => widget.sendViewModel.lnurlRecipient(widget.sendViewModel.outputs[_selectedOutput]),
+        (_) => widget.sendViewModel.lnurlRecipient(widget.sendViewModel.outputs.first),
         (lnurl) {
-          widget.sendViewModel.outputs[_selectedOutput].memo = "";
+          widget.sendViewModel.outputs.first.memo = "";
+          _memoControllers.first.clear();
           widget.sendViewModel.loadLnurlCommentLimit(lnurl);
         },
       ),
@@ -851,7 +841,7 @@ class _NewSendPageState extends State<NewSendPage> {
       final memo = _memoControllers[_selectedOutput].text;
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
-      if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLengthFor(output)) {
+      if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLength) {
         output.memo = memo;
       }
     });
