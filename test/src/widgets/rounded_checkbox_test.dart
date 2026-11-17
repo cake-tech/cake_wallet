@@ -37,19 +37,5 @@ void main() {
 
       expect(tester.getSemantics(find.byType(RoundedCheckbox)).label, isEmpty);
     });
-
-    testWidgets(
-      "an unchecked box still reports the unchecked state",
-      (tester) async {
-        await _pump(tester, RoundedCheckbox(value: false));
-
-        expect(_checkableNodes, findsOne);
-        expect(
-          tester.getSemantics(find.byType(RoundedCheckbox)),
-          isSemantics(hasCheckedState: true, isChecked: false),
-        );
-      },
-      skip: true,
-    );
   });
 }

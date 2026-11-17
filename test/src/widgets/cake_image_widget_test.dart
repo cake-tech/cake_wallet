@@ -6,6 +6,7 @@ import "package:flutter_test/flutter_test.dart";
 import "../../utils/semantics_helpers.dart";
 
 const _assetPath = "assets/images/2fa.png";
+const _svgAssetPath = "assets/images/2fa_warning_dark.svg";
 
 final _imageNodes = find.semantics.byFlag(SemanticsFlag.isImage);
 
@@ -41,6 +42,34 @@ void main() {
       );
 
       expect(find.semantics.byLabel("Two-factor authentication"), findsOne);
+      expect(screenReaderStops(tester), hasLength(1));
+      expect(
+        screenReaderStops(tester).single,
+        isSemantics(label: "Two-factor authentication", isImage: true),
+      );
+    });
+  });
+
+  group("svg asset", () {
+    testWidgets("a null semanticsLabel keeps the image out of the tree", (tester) async {
+      await _pump(tester, const CakeImageWidget(imageUrl: _svgAssetPath, width: 24, height: 24));
+
+      expect(_imageNodes, findsNothing);
+      expect(_labelledNodes, findsNothing);
+      expect(screenReaderStops(tester), isEmpty);
+    });
+
+    testWidgets("a semanticsLabel makes it an announced image", (tester) async {
+      await _pump(
+        tester,
+        const CakeImageWidget(
+          imageUrl: _svgAssetPath,
+          width: 24,
+          height: 24,
+          semanticsLabel: "Two-factor authentication",
+        ),
+      );
+
       expect(screenReaderStops(tester), hasLength(1));
       expect(
         screenReaderStops(tester).single,

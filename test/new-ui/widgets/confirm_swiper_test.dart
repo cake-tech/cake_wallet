@@ -111,7 +111,13 @@ void main() {
 
       expect(
         screenReaderStops(tester).single,
-        isSemantics(label: _swiperText, hasTapAction: false, isButton: false),
+        isSemantics(
+          label: _swiperText,
+          hasTapAction: false,
+          hasScrollLeftAction: false,
+          hasScrollRightAction: false,
+          isButton: false,
+        ),
       );
 
       await tester.tap(find.byType(ConfirmSwiper));
