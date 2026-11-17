@@ -8,7 +8,6 @@ import "package:cake_wallet/new-ui/viewmodels/morpho/morpho_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/defi/defi_position_view.dart";
 import "package:cake_wallet/new-ui/widgets/defi/defi_provider_logo.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
-import "package:cake_wallet/new-ui/widgets/morpho/morpho_badge.dart";
 import "package:cake_wallet/new-ui/widgets/morpho/morpho_rows.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:flutter/cupertino.dart";
@@ -45,23 +44,10 @@ class MorphoPositionPage extends StatelessWidget {
                 ],
                 S.of(context).deposited: [
                   morphoUsdcRow(
-                    trailingWidget: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        MoneyText(
-                          data.positionValue,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        if (data.apy != null)
-                          Text(
-                            morphoApyText(context, data.apy!),
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                      ],
+                    subtitle: data.apy == null ? null : morphoApyText(context, data.apy!),
+                    trailingWidget: MoneyText(
+                      data.positionValue,
+                      style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ),
                   if (earned != null) morphoUsdcEarnedRow(context, earned, fiatRate),
@@ -71,7 +57,6 @@ class MorphoPositionPage extends StatelessWidget {
                   ? null
                   : () => _push(context, MorphoWithdrawAssetsPage(authService: authService)),
               onDeposit: () => _push(context, MorphoSelectAssetPage(authService: authService)),
-              attribution: const MorphoBadge(),
             );
           },
         ),

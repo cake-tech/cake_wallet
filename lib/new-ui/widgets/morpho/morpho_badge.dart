@@ -9,26 +9,21 @@ class MorphoBadge extends StatelessWidget {
   const MorphoBadge({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final onDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Semantics(
-      button: true,
-      label: S.of(context).powered_by("Morpho"),
-      hint: S.of(context).opens_in_browser,
-      onTap: _openDisclaimer,
-      excludeSemantics: true,
-      child: GestureDetector(
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: S.of(context).powered_by("Morpho"),
+        hint: S.of(context).opens_in_browser,
         onTap: _openDisclaimer,
-        child: CakeImageWidget(
-          imageUrl: onDark
-              ? "assets/new-ui/powered_by_morpho_dark.svg"
-              : "assets/new-ui/powered_by_morpho_light.svg",
-          height: 20,
+        excludeSemantics: true,
+        child: GestureDetector(
+          onTap: _openDisclaimer,
+          child: CakeImageWidget(
+            imageUrl: "assets/new-ui/powered_by_morpho_dark.svg",
+            height: 20,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   static void _openDisclaimer() =>
       launchUrl(MorphoNoticeText.disclaimerUrl, mode: LaunchMode.externalApplication);

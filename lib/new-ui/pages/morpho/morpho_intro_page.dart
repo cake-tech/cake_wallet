@@ -5,7 +5,6 @@ import "package:cake_wallet/new-ui/pages/morpho/morpho_select_asset_page.dart";
 import "package:cake_wallet/new-ui/pages/morpho/morpho_yield_by_asset_sheet.dart";
 import "package:cake_wallet/new-ui/viewmodels/morpho/morpho_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/defi/defi_intro_view.dart";
-import "package:cake_wallet/new-ui/widgets/morpho/morpho_badge.dart";
 import "package:cake_wallet/new-ui/widgets/morpho/morpho_notice_text.dart";
 import "package:cake_wallet/new-ui/widgets/morpho/morpho_rows.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -41,7 +40,6 @@ class MorphoIntroPage extends StatelessWidget {
               ),
             ],
             terms: const MorphoNoticeText(),
-            attribution: const MorphoBadge(),
             onContinue: () => Navigator.of(context).push(
               CupertinoPageRoute<void>(
                 builder: (_) => Material(

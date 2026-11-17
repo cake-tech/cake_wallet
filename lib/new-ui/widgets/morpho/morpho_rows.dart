@@ -27,14 +27,15 @@ ListItemRegularRow morphoVariableYieldRow(
       trailingText: S.of(context).variable,
       trailingWidget: CakeImageWidget(
         imageUrl: "assets/new-ui/info_outline.svg",
-        width: 24,
-        height: 24,
+        width: 16,
+        height: 16,
         color: Theme.of(context).colorScheme.primary,
       ),
       onTap: onTap,
     );
 
 ListItemRegularRow morphoUsdcRow({
+  String? subtitle,
   String? trailingText,
   Widget? trailingWidget,
   VoidCallback? onTap,
@@ -43,8 +44,8 @@ ListItemRegularRow morphoUsdcRow({
 
   return ListItemRegularRow(
     keyValue: "morpho_usdc",
-    label: usdc.fullName ?? usdc.title,
-    subtitle: usdc.title,
+    label: usdc.title,
+    subtitle: subtitle,
     iconPath: usdc.iconPath,
     trailingText: trailingText,
     trailingWidget: trailingWidget,

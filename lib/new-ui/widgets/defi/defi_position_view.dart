@@ -22,7 +22,6 @@ class DefiPositionView extends StatelessWidget {
     this.error,
     this.withdrawDisabled = false,
     this.depositDisabled = false,
-    this.attribution,
     super.key,
   });
 
@@ -37,7 +36,6 @@ class DefiPositionView extends StatelessWidget {
   final String? error;
   final bool withdrawDisabled;
   final bool depositDisabled;
-  final Widget? attribution;
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +66,6 @@ class DefiPositionView extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: theme.colorScheme.error),
                     ),
-                  if (attribution != null) attribution!,
                 ],
               ),
             ),

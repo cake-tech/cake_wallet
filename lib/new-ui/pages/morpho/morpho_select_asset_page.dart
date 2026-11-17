@@ -75,15 +75,16 @@ class MorphoSelectAssetPage extends StatelessWidget {
                             CurrencyPickerRow(
                               currency: MorphoVault.usdcToken,
                               isSelected: false,
+                              subtitle: MorphoVault.usdcToken.title,
                               chainBadgePath: CryptoCurrency.eth.chainIconPath,
                               trailing: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min,
+                                spacing: 4,
                                 children: [
                                   MoneyText(
                                     balance,
-                                    style: textTheme.bodyMedium?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style: textTheme.bodySmall?.copyWith(letterSpacing: -0.06),
                                   ),
                                   if (balanceFiat != null)
                                     MoneyText(
@@ -91,6 +92,7 @@ class MorphoSelectAssetPage extends StatelessWidget {
                                       fractionalDigits: 2,
                                       trimZeros: false,
                                       style: textTheme.bodySmall?.copyWith(
+                                        letterSpacing: -0.06,
                                         color: colorScheme.onSurfaceVariant,
                                       ),
                                     ),
