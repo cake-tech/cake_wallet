@@ -62,6 +62,39 @@ packages:
       url: "https://github.com/google/ansicolor-dart"
     source: git
     version: "2.0.3"
+  app_links:
+    dependency: "direct main"
+    description:
+      path: app_links
+      ref: c27a3af2f0ef3ea54e1b757743fd084aff86db88
+      resolved-ref: c27a3af2f0ef3ea54e1b757743fd084aff86db88
+      url: "https://github.com/malik1004x/app_links"
+    source: git
+    version: "7.0.0"
+  app_links_linux:
+    dependency: transitive
+    description:
+      name: app_links_linux
+      sha256: f5f7173a78609f3dfd4c2ff2c95bd559ab43c80a87dc6a095921d96c05688c81
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
+  app_links_platform_interface:
+    dependency: transitive
+    description:
+      name: app_links_platform_interface
+      sha256: "05f5379577c513b534a29ddea68176a4d4802c46180ee8e2e966257158772a3f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.2"
+  app_links_web:
+    dependency: transitive
+    description:
+      name: app_links_web
+      sha256: af060ed76183f9e2b87510a9480e56a5352b6c249778d07bd2c95fc35632a555
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   archive:
     dependency: "direct main"
     description:
@@ -1493,6 +1526,14 @@ packages:
       url: "https://github.com/grpc/grpc-dart"
     source: git
     version: "4.0.1"
+  gtk:
+    dependency: transitive
+    description:
+      name: gtk
+      sha256: "4ff85b2a16724029dd9e5bbb5a94b6918f9973f74ba571c949d2002801879cf5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
   hashlib:
     dependency: "direct main"
     description:
@@ -2935,7 +2976,7 @@ packages:
     source: git
     version: "2.4.0"
   sqlite3:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: sqlite3
       ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
@@ -3131,7 +3172,7 @@ packages:
     source: git
     version: "1.4.0"
   uni_links:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: uni_links
       ref: "1989db3f5d625e2fffbad7b85a3b1b8c78c6dfa1"
@@ -3491,5 +3532,5 @@ packages:
     source: git
     version: "6.24.0"
 sdks:
-  dart: ">=3.9.0 <4.0.0"
-  flutter: ">=3.19.0"
+  dart: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.1"

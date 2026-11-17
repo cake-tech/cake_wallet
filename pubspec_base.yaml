@@ -44,7 +44,11 @@ dependencies:
   smooth_page_indicator: ^1.0.0+2
   flutter_inappwebview: ^6.1.5
   flutter_spinkit: ^5.1.0
-  app_links: 7.0.0
+  app_links:
+    git:
+      url: https://github.com/malik1004x/app_links
+      ref: c27a3af2f0ef3ea54e1b757743fd084aff86db88
+      path: app_links
   lottie: ^3.3.1
   animate_do: ^2.1.0
   cupertino_icons: ^1.0.5
