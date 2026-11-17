@@ -51,7 +51,7 @@ void main() {
       expect(
         _record(fiat: "1234.56", fiatCurrency: FiatCurrency.sek, languageCode: "de")
             .fiatAvailableBalance,
-        "kr 1.234,56",
+        "SEK 1.234,56",
       );
     });
 

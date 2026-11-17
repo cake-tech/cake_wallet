@@ -32,13 +32,32 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
 
   final String emoji;
 
-  static final _signs = NumberFormat.simpleCurrency(locale: "en");
+  static final _shortSigns = NumberFormat.simpleCurrency(locale: "en");
   static final _amountLead = RegExp(r"^[<>~≈+\-\s]*");
   static final _currencySignAtEnd = RegExp(r"\p{Sc}$", unicode: true);
 
-  String get sign => _signs.simpleCurrencySymbol(title);
+  static const _signsForSharedShortSigns = {
+    "ARS": "ARS",
+    "AUD": r"A$",
+    "CAD": r"CA$",
+    "CLP": "CLP",
+    "CNY": "CN¥",
+    "COP": "COP",
+    "DKK": "DKK",
+    "HKD": r"HK$",
+    "ISK": "ISK",
+    "MXN": r"MX$",
+    "NOK": "NOK",
+    "NZD": r"NZ$",
+    "SEK": "SEK",
+    "SGD": "SGD",
+  };
 
-  String get label => sign == title ? title : "$title ($sign)";
+  String get _shortSign => _shortSigns.simpleCurrencySymbol(title);
+
+  String get sign => _signsForSharedShortSigns[title] ?? _shortSign;
+
+  String get label => _shortSign == title ? title : "$title ($_shortSign)";
 
   String format(String amount) {
     final gap = _currencySignAtEnd.hasMatch(sign) ? "" : " ";
