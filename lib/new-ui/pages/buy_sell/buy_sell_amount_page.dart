@@ -93,7 +93,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                   title: _pageTitle,
                   bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
                       ? null
-                      : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
+                      : "${S.of(context).up_to} ~${widget.buySellViewModel.fiatCurrency.format(widget.buySellViewModel.maxFiatAmount!)}",
                   leadingIcon: const Icon(Icons.close),
                   leadingSemanticLabel: S.of(context).close,
                   onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
@@ -398,6 +398,12 @@ class BuySellAmountPill extends StatelessWidget {
   final VoidCallback onTap;
   final bool isLoading;
 
+  String? get _currencySign {
+    final currency = amount?.currency;
+
+    return currency is FiatCurrency ? currency.sign : currency?.symbol;
+  }
+
   @override
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
@@ -430,14 +436,8 @@ class BuySellAmountPill extends StatelessWidget {
                         spacing: 4,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          if (amount != null)
-                            MoneyText(
-                              amount!,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                              showSymbol: false,
-                            ),
                           Text(
-                            amount?.currency.symbol ?? S.of(context).custom,
+                            _currencySign ?? S.of(context).custom,
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -446,6 +446,12 @@ class BuySellAmountPill extends StatelessWidget {
                                   : Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
                           ),
+                          if (amount != null)
+                            MoneyText(
+                              amount!,
+                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                              showSymbol: false,
+                            ),
                         ],
                       ),
                       if (amount == null)
@@ -515,13 +521,22 @@ class BuySellCurrencyPickerPill extends StatelessWidget {
                             Text(
                               curr.fullName ?? curr.symbol,
                             ),
-                            CurrencySymbolText(
-                              curr,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            if (curr is FiatCurrency)
+                              Text(
+                                (curr as FiatCurrency).label,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              )
+                            else
+                              CurrencySymbolText(
+                                curr,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ],

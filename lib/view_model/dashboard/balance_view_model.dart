@@ -74,29 +74,23 @@ class BalanceRecord {
           .toString()
           .withMaxDecimals(8);
 
-  String get combinedFiatAvailableBalance => fiatCurrency != null
-      ? "$fiatCurrency " +
-          _withLocalSeperator(((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
-                  (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
-              .toStringAsFixed(2))
-      : "";
+  String get combinedFiatAvailableBalance =>
+      _formatFiat(((double.tryParse(fiatAvailableBalanceRaw) ?? 0) +
+              (double.tryParse(fiatSecondAvailableBalanceRaw) ?? 0))
+          .toStringAsFixed(2));
 
-  String get fiatAvailableBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAvailableBalanceRaw)}" : "";
+  String get fiatAvailableBalance => _formatFiat(fiatAvailableBalanceRaw);
 
-  String get fiatAdditionalBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatAdditionalBalanceRaw)}" : "";
+  String get fiatAdditionalBalance => _formatFiat(fiatAdditionalBalanceRaw);
 
-  String get fiatFrozenBalance =>
-      fiatCurrency != null ? "$fiatCurrency ${_withLocalSeperator(fiatFrozenBalanceRaw)}" : "";
+  String get fiatFrozenBalance => _formatFiat(fiatFrozenBalanceRaw);
 
-  String get fiatSecondAvailableBalance => fiatCurrency != null
-      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAvailableBalanceRaw)}"
-      : "";
+  String get fiatSecondAvailableBalance => _formatFiat(fiatSecondAvailableBalanceRaw);
 
-  String get fiatSecondAdditionalBalance => fiatCurrency != null
-      ? "$fiatCurrency ${_withLocalSeperator(fiatSecondAdditionalBalanceRaw)}"
-      : "";
+  String get fiatSecondAdditionalBalance => _formatFiat(fiatSecondAdditionalBalanceRaw);
+
+  String _formatFiat(String rawAmount) =>
+      fiatCurrency?.format(_withLocalSeperator(rawAmount)) ?? "";
 
   String _withLocalSeperator(String rawAmount) =>
       languageCode == null ? rawAmount : rawAmount.withLocalSeperator(languageCode);
@@ -553,14 +547,13 @@ abstract class BalanceViewModelBase with Store {
       return null;
     }
 
-    final fiat = settingsStore.fiatCurrency.title;
     final value = savedDisplayMode == BalanceDisplayMode.hiddenBalance
         ? "●●●●●"
         : calculateFiatAmount(
             price: price,
             cryptoAmount: account.balance.toString(),
           ).withLocalSeperator(settingsStore.languageCode);
-    return "$value $fiat";
+    return settingsStore.fiatCurrency.format(value);
   }
 
   String _getFiatBalance({required double price, Money? cryptoAmount}) {

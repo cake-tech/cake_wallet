@@ -568,8 +568,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             allAmount: widget.sendViewModel.balance,
                                             cryptoCurrencySymbol:
                                                 widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                            fiatCurrencySymbol:
-                                                widget.sendViewModel.fiatCurrency.symbol,
+                                            fiatCurrency: widget.sendViewModel.fiatCurrency,
                                             onAllButtonPressed: () async {
                                               output.setSendAll(
                                                 await widget.sendViewModel.sendingBalance,
@@ -610,7 +609,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                                   keyValue: "",
                                                   label: S.of(context).fees,
                                                   subtitle:
-                                                      "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
+                                                      "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${widget.sendViewModel.fiatCurrency.format(output.estimatedFeeFiatAmount)})",
                                                   // Without fee priorities the row does nothing,
                                                   // so it must not be announced as interactive or
                                                   // show a tappable arrow.
@@ -994,7 +993,7 @@ class _NewSendPageState extends State<NewSendPage> {
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
           amount: "${r.availableBalance} ${r.formattedAssetTitle}",
-          fiat: isFiatDisabled ? null : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
+          fiat: isFiatDisabled ? null : r.fiatCurrency?.format(r.fiatAvailableBalanceRaw),
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
     };

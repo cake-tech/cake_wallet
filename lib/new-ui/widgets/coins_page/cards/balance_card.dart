@@ -28,7 +28,6 @@ class BalanceCard extends StatelessWidget {
       this.balance = "",
       this.fiatBalance = "",
       this.assetName = "",
-      this.fiatCurrencyTitle = "",
       this.designSwitchDuration = const Duration(),
       this.actions = const [],
       this.capitalizeAssetName = true,
@@ -43,7 +42,6 @@ class BalanceCard extends StatelessWidget {
   final String accountName;
   final String balance;
   final String fiatBalance;
-  final String fiatCurrencyTitle;
   final bool fiatFirst;
   final int? accountIndex;
   final bool capitalizeAssetName;
@@ -59,7 +57,7 @@ class BalanceCard extends StatelessWidget {
     final Duration textFadeDuration = Duration(milliseconds: 80);
     final double iconWidth = width * 0.15;
 
-    final name = fiatFirst ? fiatCurrencyTitle : assetName;
+    final name = fiatFirst ? "" : assetName;
     final resolvedAssetName = capitalizeAssetName ? name.toUpperCase() : name.toLowerCase();
 
     final leadText = fiatFirst ? S.of(context).wallet_balance : accountName;

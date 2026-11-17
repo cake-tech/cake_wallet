@@ -1,3 +1,4 @@
+import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cw_core/crypto_amount_format.dart";
@@ -10,7 +11,7 @@ class FiatAmountBar extends StatelessWidget {
     required this.cryptoAmount,
     required this.fiatAmount,
     required this.cryptoCurrencySymbol,
-    required this.fiatCurrencySymbol,
+    required this.fiatCurrency,
     super.key,
     this.onAllButtonPressed,
     this.allAmount,
@@ -27,7 +28,7 @@ class FiatAmountBar extends StatelessWidget {
   final String cryptoAmount;
   final String fiatAmount;
   final String cryptoCurrencySymbol;
-  final String fiatCurrencySymbol;
+  final FiatCurrency fiatCurrency;
   final String? allAmount;
   final Color? foregroundElementColor;
   final Color? textColor;
@@ -38,7 +39,7 @@ class FiatAmountBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final convertedAmount = fiatInputMode
         ? "${cryptoAmount.isEmpty ? "0" : cryptoAmount.withMaxDecimals(8)} $cryptoCurrencySymbol"
-        : "${fiatAmount.isEmpty ? "0" : fiatAmount} $fiatCurrencySymbol";
+        : fiatCurrency.format(fiatAmount.isEmpty ? "0" : fiatAmount);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

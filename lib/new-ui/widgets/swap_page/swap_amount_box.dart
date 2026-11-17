@@ -204,6 +204,16 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                 spacing: 4,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
+                                  if (_fiatInputMode)
+                                    Center(
+                                      child: Text(
+                                        widget.exchangeViewModel.fiat.sign,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ),
                                   Flexible(
                                     child: IntrinsicWidth(
                                       child: Observer(
@@ -251,16 +261,6 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                       ),
                                     ),
                                   ),
-                                  if (_fiatInputMode)
-                                    Center(
-                                      child: Text(
-                                        widget.exchangeViewModel.fiat.title,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
                                 ],
                               ),
                             ),
@@ -397,7 +397,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
                           : widget.exchangeViewModel.roundedDepositAmountFiat(6),
                       cryptoCurrencySymbol: currencyToShow,
-                      fiatCurrencySymbol: widget.exchangeViewModel.fiat.symbol,
+                      fiatCurrency: widget.exchangeViewModel.fiat,
                     );
                   },
                 ),

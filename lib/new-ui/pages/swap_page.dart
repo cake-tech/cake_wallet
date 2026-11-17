@@ -104,7 +104,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           amount: "${r.availableBalance} ${r.formattedAssetTitle}",
           fiat: balanceViewModel.isFiatDisabled
               ? null
-              : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
+              : r.fiatCurrency?.format(r.fiatAvailableBalanceRaw),
           fiatValue:
               balanceViewModel.isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),

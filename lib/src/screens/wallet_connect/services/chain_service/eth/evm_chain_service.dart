@@ -671,7 +671,6 @@ class EvmChainServiceImpl {
         return cryptoPart;
       }
 
-      final fiatSymbol = appStore.settingsStore.fiatCurrency.title;
       final fiatValue = calculateFiatAmount(
         price: price,
         cryptoAmount: feeNative.toString(),
@@ -680,7 +679,7 @@ class EvmChainServiceImpl {
         return cryptoPart;
       }
 
-      return '$cryptoPart (~ $fiatValue $fiatSymbol)';
+      return '$cryptoPart (~ ${appStore.settingsStore.fiatCurrency.format(fiatValue)})';
     } catch (_) {
       return cryptoPart;
     }

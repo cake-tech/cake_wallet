@@ -1,3 +1,4 @@
+import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/new-ui/widgets/money/currency_symbol_text.dart";
 import "package:cw_core/currency.dart";
 import "package:flutter/material.dart";
@@ -50,6 +51,10 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
+            if (_fiatCurrency != null) ...[
+              Text(_fiatCurrency!.sign, maxLines: 1, style: _unitStyle(context)),
+              const SizedBox(width: 8),
+            ],
             IntrinsicWidth(
               child: TextFormField(
                 controller: widget.controller,
@@ -88,18 +93,29 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
                     ),
               ),
             ),
-            const SizedBox(width: 8),
-            CurrencySymbolText(
-              widget.currency,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 45,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
+            if (_fiatCurrency == null) ...[
+              const SizedBox(width: 8),
+              CurrencySymbolText(
+                widget.currency,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: _unitStyle(context),
+              ),
+            ],
           ],
         ),
       );
+
+  FiatCurrency? get _fiatCurrency {
+    final currency = widget.currency;
+
+    return currency is FiatCurrency ? currency : null;
+  }
+
+  TextStyle? _unitStyle(BuildContext context) =>
+      Theme.of(context).textTheme.displayMedium?.copyWith(
+            fontWeight: FontWeight.w400,
+            fontSize: 45,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          );
 }

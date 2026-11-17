@@ -58,7 +58,7 @@ class DisplaySettingsPage extends StatelessWidget {
                       ListItemSelector(
                         keyValue: "display_settings_fiat_currency",
                         label: S.of(context).settings_currency,
-                        options: [_displaySettingsViewModel.fiatCurrencyLabel],
+                        options: [_displaySettingsViewModel.fiatCurrency.label],
                         onTap: () => FiatCurrencyPickerSheet.show(
                           context: context,
                           selected: _displaySettingsViewModel.fiatCurrency,

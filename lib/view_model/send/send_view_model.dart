@@ -420,11 +420,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get pendingTransactionFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFiatAmount ${fiat.title}';
+      isFiatDisabled ? '' : fiat.format(pendingTransactionFiatAmount);
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted =>
-      isFiatDisabled ? '' : '$pendingTransactionFeeFiatAmount ${fiat.title}';
+      isFiatDisabled ? '' : fiat.format(pendingTransactionFeeFiatAmount);
 
   @computed
   bool get canSendWithoutSync => [...electrumWalletTypes, ...evmWalletTypes, WalletType.solana, WalletType.tron].contains(wallet.type);
@@ -1655,9 +1655,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
         // Handle successfully parsed errors with specific values
         return '''${S.current.insufficient_funds_for_tx} \n\n'''
-            '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${feeCurrency} (${parsedErrorMessageResult.balanceUsd} ${fiatFromSettings.name})\n\n'''
-            '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${feeCurrency} (${parsedErrorMessageResult.txCostUsd} ${fiatFromSettings.name})\n\n'''
-            '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${feeCurrency} (${parsedErrorMessageResult.overshotUsd} ${fiatFromSettings.name})''';
+            '''${S.current.balance}: ${parsedErrorMessageResult.balanceEth} ${feeCurrency} (${fiatFromSettings.format(parsedErrorMessageResult.balanceUsd ?? "0")})\n\n'''
+            '''${S.current.transaction_cost}: ${parsedErrorMessageResult.txCostEth} ${feeCurrency} (${fiatFromSettings.format(parsedErrorMessageResult.txCostUsd ?? "0")})\n\n'''
+            '''${S.current.overshot}: ${parsedErrorMessageResult.overshotEth} ${feeCurrency} (${fiatFromSettings.format(parsedErrorMessageResult.overshotUsd ?? "0")})''';
       }
 
       if (errorMessage.contains('max fee per gas less than block base fee')) {

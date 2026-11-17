@@ -1,3 +1,4 @@
+import "package:cake_wallet/entities/fiat_currency.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/typography.dart';
@@ -13,12 +14,14 @@ class EnterAmountWidget extends StatelessWidget {
       required this.amountController,
       required this.onAmountChanged});
 
-  final String minValue;
-  final String maxValue;
-  final String fiatCurrency;
+  final String? minValue;
+  final String? maxValue;
+  final FiatCurrency fiatCurrency;
   final FocusNode amountFieldFocus;
   final TextEditingController amountController;
   final Function(String) onAmountChanged;
+
+  String _limit(String? value) => value == null ? "-" : fiatCurrency.format(value);
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +50,7 @@ class EnterAmountWidget extends StatelessWidget {
               prefixIcon: Padding(
                 padding: const EdgeInsets.only(top: 2.0),
                 child: Text(
-                  '$fiatCurrency: ',
+                  "${fiatCurrency.sign} ",
                   style: Theme.of(context).textTheme.titleMedium!,
                 ),
               ),
@@ -84,11 +87,11 @@ class EnterAmountWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
+              Text(S.of(context).min_amount(_limit(minValue)),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),
-              Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
+              Text(S.of(context).max_amount(_limit(maxValue)),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),

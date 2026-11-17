@@ -61,7 +61,7 @@ abstract class DEuroViewModelBase with Store {
   @computed
   String get pendingTransactionFiatAmountFormatted {
     final amount = transaction == null ? "0.00" : _getDEuroFiatAmount(transaction!.amount);
-    return isFiatDisabled ? "" : "$amount ${fiat.symbol}";
+    return isFiatDisabled ? "" : fiat.format(amount);
   }
 
   @computed
@@ -76,7 +76,7 @@ abstract class DEuroViewModelBase with Store {
         );
       }
     } catch (_) {}
-    return isFiatDisabled ? "" : "$amount ${fiat.symbol}";
+    return isFiatDisabled ? "" : fiat.format(amount);
   }
 
   @computed

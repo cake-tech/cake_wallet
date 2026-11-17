@@ -1,6 +1,7 @@
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/enumerable_item.dart";
+import "package:intl/intl.dart";
 
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> implements Currency {
   const FiatCurrency({
@@ -30,6 +31,20 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   String get apiCountryCode => isoCountryCode ?? countryCode.toUpperCase();
 
   final String emoji;
+
+  static final _signs = NumberFormat.simpleCurrency(locale: "en");
+  static final _amountLead = RegExp(r"^[<>~≈+\-\s]*");
+  static final _currencySignAtEnd = RegExp(r"\p{Sc}$", unicode: true);
+
+  String get sign => _signs.simpleCurrencySymbol(title);
+
+  String get label => sign == title ? title : "$title ($sign)";
+
+  String format(String amount) {
+    final gap = _currencySignAtEnd.hasMatch(sign) ? "" : " ";
+
+    return amount.replaceFirstMapped(_amountLead, (lead) => "${lead[0]}$sign$gap");
+  }
 
   static List<FiatCurrency> get all => _all.values.toList();
 

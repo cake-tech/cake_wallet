@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 class DropdownFilterList extends StatelessWidget {
   const DropdownFilterList({
-    Key? key,
     required this.items,
     required this.selectedItem,
     required this.onItemSelected,
-    this.itemPrefix,
-  }) : super(key: key);
+    required this.itemLabel,
+    super.key,
+  });
 
   final List<String> items;
   final String selectedItem;
-  final String? itemPrefix;
+  final String Function(String item) itemLabel;
   final ValueChanged<String> onItemSelected;
 
   @override
@@ -24,7 +24,7 @@ class DropdownFilterList extends StatelessWidget {
           selectedItemBuilder: (context) => items
               .map(
                 (item) => Text(
-                  '${itemPrefix ?? ''} $item',
+                  itemLabel(item),
                   style: Theme.of(context).textTheme.titleMedium!,
                   maxLines: 1,
                 ),
@@ -36,7 +36,7 @@ class DropdownFilterList extends StatelessWidget {
                   value: item,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '${itemPrefix ?? ''} $item',
+                    itemLabel(item),
                     style: (const TextStyle()).copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,

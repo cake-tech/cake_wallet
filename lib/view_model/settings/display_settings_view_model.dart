@@ -11,7 +11,6 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:flutter/material.dart';
-import "package:intl/intl.dart";
 
 part 'display_settings_view_model.g.dart';
 
@@ -38,13 +37,6 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @computed
   bool get shouldDisplayBalance => balanceDisplayMode == BalanceDisplayMode.displayableBalance;
-
-  @computed
-  String get fiatCurrencyLabel {
-    final code = fiatCurrency.title;
-    final symbol = NumberFormat.simpleCurrency(locale: "en", name: code).currencySymbol;
-    return symbol == code ? code : "$code ($symbol)";
-  }
 
   @computed
   bool get shouldShowMarketPlaceInDashboard => _settingsStore.shouldShowMarketPlaceInDashboard;

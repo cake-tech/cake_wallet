@@ -284,7 +284,7 @@ class SavingsCard extends StatelessWidget {
               ),
               if (fiatCurrency != null)
                 AutoSizeText(
-                  "${fiatCurrency.title} $fiatAmount",
+                  fiatCurrency.format(fiatAmount ?? ""),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,

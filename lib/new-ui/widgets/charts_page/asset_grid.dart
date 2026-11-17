@@ -1,6 +1,7 @@
 import "dart:async";
 
 import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/model/charts/util/price_change_data.dart";
 import "package:cake_wallet/new-ui/model/charts/util/price_change_direction.dart";
@@ -45,7 +46,7 @@ class ChartsAssetGrid extends StatelessWidget {
                   bloc: bloc,
                   currency: curr,
                   price: state.priceFor(curr)?.toStringWithPrecision(fractionalDigits: 2, trimZeros: false, meaningfulDecimals: 2) ?? "...",
-                  ticker: state.fiatTicker,
+                  fiatCurrency: state.fiatCurrency,
                   changeData: state is ChartsLoaded ? state.changeDataFor(curr) : null,
                   favorite: curr == state.pinnedCurrency,
                   isSingleCurrency: state.hasSingleCurrency,
@@ -63,14 +64,14 @@ class ChartsAssetCard extends StatelessWidget {
       {required this.bloc, super.key,
       required this.currency,
       required this.price,
-      required this.ticker,
+      required this.fiatCurrency,
       this.changeData,
       required this.favorite,
       required this.isSingleCurrency,});
 
   final CryptoCurrency currency;
   final String price;
-  final String ticker;
+  final FiatCurrency? fiatCurrency;
   final PriceChangeData? changeData;
   final bool favorite;
   final bool isSingleCurrency;
@@ -207,6 +208,14 @@ class ChartsAssetCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.end,
                           spacing: 4,
                           children: [
+                            if (fiatCurrency != null)
+                              Text(
+                                fiatCurrency!.sign,
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20,),
+                              ),
                             Text(
                               double.tryParse(displayPrice) == null
                                   ? displayPrice
@@ -218,13 +227,6 @@ class ChartsAssetCard extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                                 fontSize: 20,
                               ),
-                            ),
-                            Text(
-                              ticker,
-                              style: TextStyle(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 20,),
                             ),
                           ],
                         ),
