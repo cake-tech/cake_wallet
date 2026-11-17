@@ -52,11 +52,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   final String? scanSecretOverride;
   final String? spendPubkeyOverride;
 
-  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
-      ? hex.decode(scanSecretOverride!)
-      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+  late final List<int> scanSecret =
+      (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
+          ? hex.decode(scanSecretOverride!)
+          : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ??
+              List.filled(32, 0);
 
-  List<int> get spendPubkey =>
+  late final List<int> spendPubkey =
       (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
           ? hex.decode(spendPubkeyOverride!)
           : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ??
@@ -146,7 +148,7 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   }) {
     if (addressType == SegwitAddresType.mweb) {
       if (mwebAddrs.isEmpty) return "";
-      final isChange = accounts[0]?.hd.isChangeBranch(hd) ?? false;
+      final isChange = accounts.isLegacyChange(hd);
       return isChange ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);

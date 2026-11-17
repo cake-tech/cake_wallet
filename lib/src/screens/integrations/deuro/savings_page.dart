@@ -1,8 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/connect_device/connect_device_page.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/info_chip.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/interest_card_widget.dart';
 import 'package:cake_wallet/src/screens/integrations/deuro/widgets/savings_card_widget.dart';
@@ -175,19 +173,8 @@ class DEuroSavingsPage extends BasePage {
 
   Future<void> _requireHardwareWallet(BuildContext context) async {
     if (_dEuroViewModel.wallet.isHardwareWallet) {
-      if (!_dEuroViewModel.hardwareWalletViewModel!.isConnected(_dEuroViewModel.wallet.type)) {
-        await Navigator.of(context).pushNamed(Routes.connectDevices,
-            arguments: ConnectDevicePageParams(
-              walletType: _dEuroViewModel.wallet.type,
-              hardwareWalletType: _dEuroViewModel.wallet.walletInfo.hardwareWalletType!,
-              onConnectDevice: (context, _) {
-                _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
-                Navigator.of(context).pop();
-              },
-            ));
-      } else {
-        _dEuroViewModel.hardwareWalletViewModel!.initWallet(_dEuroViewModel.wallet);
-      }
+      await _dEuroViewModel.hardwareWalletViewModel!
+          .ensureDeviceConnection(context, _dEuroViewModel.wallet);
     }
   }
 

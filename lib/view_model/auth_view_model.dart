@@ -8,7 +8,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import "package:cake_wallet/utils/exception_handler.dart";
 
 part 'auth_view_model.g.dart';
 
@@ -58,10 +57,10 @@ abstract class AuthViewModelBase with Store {
     final bool isSuccessfulAuthenticated;
     try {
       isSuccessfulAuthenticated = await _authService.authenticate(password);
-    } on PinCodeUnreadableException catch (e, s) {
+    } on PinCodeUnreadableException catch (e) {
       final status = e.keychainStatus == null ? "" : " (OSStatus ${e.keychainStatus})";
       state = FailureState("${S.current.auth_store_pin_unreadable}$status");
-      unawaited(ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s)));
+      // unawaited(ExceptionHandler.onError(FlutterErrorDetails(exception: e, stack: s)));
       return;
     }
 
