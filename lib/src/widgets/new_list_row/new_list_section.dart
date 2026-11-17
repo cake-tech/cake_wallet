@@ -77,7 +77,6 @@ class NewListSections extends StatelessWidget {
 
       return ListItemTextFieldWidget(
         testId: item.testId,
-        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         controller: controllers[item.keyValue]!,
