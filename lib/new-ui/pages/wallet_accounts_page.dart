@@ -163,6 +163,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       newItems.add(
         AccountCustomizerListItem(
           card: BalanceCard(
+            excludeAccountName: true,
             accountName: "${account.id + 1}. $accountLabel",
             accountBalance: account.balance,
             fiatBalance:
@@ -388,6 +389,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     for (int i = 0; i < _items.length; i++) {
       _items[i] = AccountCustomizerListItem(
         card: BalanceCard(
+          excludeAccountName: true,
           accountName: _items[i].card.accountName,
           balance: _items[i].card.balance,
           accountIndex: _items[i].card.accountIndex,

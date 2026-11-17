@@ -244,26 +244,32 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets("the account name is left to the wrapping card's label", (tester) async {
-      final handle = tester.ensureSemantics();
-      await tester.pumpWidget(
-        wrap(
-          const BalanceCard(
-            width: 300,
-            design: CardDesign.genericDefault,
-            accountName: "Savings",
-            accountIndex: 1,
-            selected: true,
-            balance: "1.5",
-            assetName: "BTC",
-            fiatBalance: "USD 90,000.00",
+    for (final excluded in [true, false]) {
+      testWidgets("the account name is announced by the card only when nothing wraps it (excluded: $excluded)", (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          wrap(
+            BalanceCard(
+              width: 300,
+              design: CardDesign.genericDefault,
+              accountName: "Savings",
+              accountIndex: 1,
+              selected: true,
+              balance: "1.5",
+              assetName: "BTC",
+              fiatBalance: "USD 90,000.00",
+              excludeAccountName: excluded,
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(find.bySemanticsLabel(RegExp(r"^(Savings|1\.)$")), findsNothing);
-      handle.dispose();
-    });
+        expect(
+          find.bySemanticsLabel(RegExp(r"^(Savings|1\.)$")),
+          excluded ? findsNothing : findsNWidgets(2),
+        );
+        handle.dispose();
+      });
+    }
 
     testWidgets("an unselected card hides its crypto balance and publishes no balance ids", (tester) async {
       final handle = tester.ensureSemantics();
