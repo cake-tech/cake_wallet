@@ -10,6 +10,7 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -96,6 +97,13 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool get isAmountSufficient =>
       (amount >= min && amount <= max) || (isDenominationSelected && quantity > 0);
 
+  String? get amountError {
+    if (isAmountSufficient) return null;
+    if (amount < min) return S.current.error_text_input_below_minimum_limit;
+    if (amount > max) return S.current.error_text_input_above_maximum_limit;
+    return null;
+  }
+
   @observable
   CakePayPaymentMethod? selectedPaymentMethod;
 
@@ -153,8 +161,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   void onAmountChanged(String input) {
-    if (input.isEmpty) return;
-    amount = double.parse(input.replaceAll(',', '.'));
+    amount = input.isEmpty ? 0 : double.parse(input.replaceAll(',', '.'));
 
     if (card.prepaidRange.isNotEmpty) {
       selectedDenomination = (input.replaceAll(',', '.'), selectedDenomination.$2);

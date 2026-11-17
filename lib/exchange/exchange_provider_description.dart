@@ -61,10 +61,10 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       raw: 9,
       image: 'assets/new-ui/trade_providers/swaptrade.svg',
       isCentralized: true);
-  static const letsExchange = ExchangeProviderDescription(
-      title: 'LetsExchange',
+  static const whyNot = ExchangeProviderDescription(
+      title: 'WhyNot',
       raw: 10,
-      image: 'assets/new-ui/trade_providers/letsexchange.svg',
+      image: 'assets/new-ui/trade_providers/whynot.svg',
       isCentralized: true);
   static const stealthEx = ExchangeProviderDescription(
       title: 'StealthEx',
@@ -120,7 +120,7 @@ class ExchangeProviderDescription extends EnumerableItem<int> with Serializable<
       case 9:
         return swapTrade;
       case 10:
-        return letsExchange;
+        return whyNot;
       case 11:
         return stealthEx;
       case 12:

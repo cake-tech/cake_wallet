@@ -169,16 +169,9 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    int? index;
-    try {
-      index = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-          : null;
-    } catch (_) {}
-    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
+  String signMessageWithKey(String message, Bip32Slip10Secp256k1 hd) {
     final priv = ECPrivate.fromWif(
-      WifEncoder.encode(HD.privateKey.raw, netVer: network.wifNetVer),
+      WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer),
       netVersion: network.wifNetVer,
     );
     return priv.signMessage(StringUtils.encode(message));
