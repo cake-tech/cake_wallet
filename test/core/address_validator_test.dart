@@ -147,6 +147,18 @@ void main() {
         expect(validator.isValid('invalid_address'), isFalse);
         expect(validator.isValid('ltc1qzvxlvlk8wsmue0np20eh3d3qxsusxCakeWallet'), isFalse);
       });
+
+      test("validates a Lightning invoice with or without the lightning scheme", () {
+        const invoice =
+            "lnbc10n1p5exazppp5szh273r6nzvwydzsdlg0ws0vhxwnc6nqtqt4sjt0vu6x6l8t5csqdqqcqzzsxqrrsssp5nkup6uht7xlfqaj8lxpe5kx0ejum9p4pvv3nlnndr9ykzge3393s9qxpqysgqufh05a7qs0ezeckvmh7tjkr9ngng96nq274twg20z45ysp7afpdrttm2ky73cpjwpjqsmtzzd79w6lyvszgmkanwn8mj0jcfunrwv3qprg3z3j";
+        final validator = AddressValidator(type: CryptoCurrency.btcln);
+
+        expect(validator.isValid(invoice), isTrue);
+        expect(validator.isValid("lightning:$invoice"), isTrue);
+        expect(validator.isValid(invoice.toUpperCase()), isTrue);
+        expect(validator.isValid("LIGHTNING:${invoice.toUpperCase()}"), isTrue);
+        expect(validator.isValid("bitcoin:$invoice"), isFalse);
+      });
     });
 
     group('silentPaymentAddressPatternMainnet', () {

@@ -13,10 +13,12 @@ class Bech32EncodeException extends CakeException {
   const Bech32EncodeException(super.message);
 }
 
+String _withoutLightningScheme(String invoice) =>
+    invoice.replaceFirst(RegExp("^lightning:", caseSensitive: false), "");
+
 bool isBolt11ZeroInvoice(String invoice) {
   try {
-    final request =
-        const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+    final request = const Bech32Codec().decode(_withoutLightningScheme(invoice), invoice.length);
 
     final prefix =
         _BOLT_PREFIXES.firstWhere(request.hrp.startsWith, orElse: () => "");
@@ -29,8 +31,7 @@ bool isBolt11ZeroInvoice(String invoice) {
 
 /// Get the amount of a Bolt 11 Invoice in
 int? _getAmountBolt11Msat(String invoice) {
-  final request =
-      const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+  final request = const Bech32Codec().decode(_withoutLightningScheme(invoice), invoice.length);
 
   final prefix = _BOLT_PREFIXES.firstWhere(
     request.hrp.startsWith,
@@ -89,8 +90,7 @@ const _bolt11DescriptionTag = 13;
 
 String? getBolt11Description(String invoice) {
   try {
-    final request =
-        const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+    final request = const Bech32Codec().decode(_withoutLightningScheme(invoice), invoice.length);
     if (!_BOLT_PREFIXES.any(request.hrp.startsWith)) {
       return null;
     }
