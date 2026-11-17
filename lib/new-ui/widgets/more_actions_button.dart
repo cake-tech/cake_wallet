@@ -24,26 +24,33 @@ class _MoreActionsButtonState extends State<MoreActionsButton> with SingleTicker
   static const _borderWidth = 1.0;
 
   final _portalController = OverlayPortalController();
-  late final _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 300),
-  )..addStatusListener((status) {
-      if (status == AnimationStatus.dismissed) {
-        setState(_portalController.hide);
-      }
-    });
-  late final _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.easeInOutCubic,
-    reverseCurve: Curves.easeInOutCubic,
-  );
+  late final AnimationController _controller;
+  late final CurvedAnimation _animation;
   LocalHistoryEntry? _historyEntry;
-  bool _upsideDown = false;
   List<ExtraAction> _actions = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.dismissed) {
+          setState(_portalController.hide);
+        }
+      });
+    _animation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOutCubic,
+      reverseCurve: Curves.easeInOutCubic,
+    );
+  }
 
   @override
   void dispose() {
     _historyEntry?.remove();
+    _animation.dispose();
     _controller.dispose();
     super.dispose();
   }

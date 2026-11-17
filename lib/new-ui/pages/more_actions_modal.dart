@@ -21,6 +21,8 @@ import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 bool _trueFunc(_) => true;
 
+bool _isLightningEnabled(DashboardViewModel vm) => vm.hasLightning && vm.wallet.hasLightningSupport;
+
 class ExtraAction {
   const ExtraAction({
     required this.isModal,
@@ -63,7 +65,7 @@ class ExtraAction {
     iconPath: "assets/new-ui/deposit_to_onchain.svg",
     isModal: true,
     modalHeightFactor: 0.6,
-    applicable: (vm) => vm.wallet.hasLightningSupport,
+    applicable: _isLightningEnabled,
     destinationBuilder: (vm) async {
       PaymentRequest? paymentRequest;
       final depositAddress = await bitcoin!.getUnusedSpakDepositAddress(vm.wallet);
@@ -85,7 +87,7 @@ class ExtraAction {
     iconPath: "assets/new-ui/withdraw_to_onchain.svg",
     isModal: true,
     modalHeightFactor: 0.6,
-    applicable: (vm) => vm.wallet.hasLightningSupport,
+    applicable: _isLightningEnabled,
     destinationBuilder: (vm) {
       PaymentRequest? paymentRequest;
       final withdrawAddress = bitcoin!.getUnusedSegwitAddress(vm.wallet);

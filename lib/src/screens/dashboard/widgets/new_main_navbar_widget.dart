@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
@@ -87,8 +88,12 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
-        style: pillTextStyle.copyWith(color: color),
+        style: DefaultTextStyle.of(context).style.merge(pillTextStyle.copyWith(
+              color: color,
+              fontWeight: MediaQuery.boldTextOf(context) ? FontWeight.bold : null,
+            )),
       ),
+      textScaler: MediaQuery.textScalerOf(context),
       maxLines: 1,
       textDirection: TextDirection.ltr,
     )..layout();
@@ -116,7 +121,10 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) => _buildBar(context, constraints.maxWidth));
+
+  Widget _buildBar(BuildContext context, double maxWidth) {
     final theme = Theme.of(context);
     final backgroundColor = theme.colorScheme.surfaceContainer.withAlpha(127);
     final pillColor = theme.colorScheme.onSurface.withAlpha(25);
@@ -129,8 +137,11 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
             .where((action) => action.canShow?.call(widget.dashboardViewModel) ?? true)
             .toList();
 
-        final pillWidth = _estimatePillWidthForAction(context, visibleActions[widget.selectedIndex],
-            color: activeColor);
+        final pillWidth = min(
+          _estimatePillWidthForAction(context, visibleActions[widget.selectedIndex],
+              color: activeColor),
+          max(iconBoxWidth, maxWidth - calcBarWidth(0, visibleActions.length)),
+        );
 
         final barWidth = calcBarWidth(pillWidth, visibleActions.length);
 
@@ -165,6 +176,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                           pillIconHeight: pillIconHeight,
                           pillIconWidth: pillIconWidth,
                           pillIconSpacing: pillIconSpacing,
+                          pillHorizontalPadding: pillHorizontalPadding,
                           pillBorderRadius: pillBorderRadius,
                           contentColor: activeColor,
                           estimateWidthForAction: pillWidth,
@@ -260,6 +272,7 @@ class AnimatedPill extends StatelessWidget {
     required this.currentAction,
     required this.estimateWidthForAction,
     required this.pillIconSpacing,
+    required this.pillHorizontalPadding,
     required this.pillTextStyle,
     required this.pillMoveDuration,
     required this.pillResizeDuration,
@@ -274,6 +287,7 @@ class AnimatedPill extends StatelessWidget {
   final NewMainActions currentAction;
   final double estimateWidthForAction;
   final double pillIconSpacing;
+  final double pillHorizontalPadding;
   final TextStyle pillTextStyle;
   final Duration pillMoveDuration;
   final Duration pillResizeDuration;
@@ -296,26 +310,21 @@ class AnimatedPill extends StatelessWidget {
           ),
           clipBehavior: Clip.hardEdge,
           alignment: Alignment.center,
+          padding: EdgeInsets.only(
+            left: pillIconWidth + pillIconSpacing + 2,
+            right: pillHorizontalPadding - 2,
+          ),
           child: FittedBox(
             fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: pillIconWidth + 2),
-                  // The selected tab's InkWell already announces this name, so the
-                  // pill text must not become a second stop for screen readers.
-                  child: ExcludeSemantics(
-                    child: Text(
-                      currentAction.name(context),
-                      style: pillTextStyle.copyWith(color: contentColor),
-                      overflow: TextOverflow.fade,
-                      softWrap: false,
-                    ),
-                  ),
-                ),
-              ],
+            // The selected tab's InkWell already announces this name, so the
+            // pill text must not become a second stop for screen readers.
+            child: ExcludeSemantics(
+              child: Text(
+                currentAction.name(context),
+                style: pillTextStyle.copyWith(color: contentColor),
+                overflow: TextOverflow.fade,
+                softWrap: false,
+              ),
             ),
           ),
         ));

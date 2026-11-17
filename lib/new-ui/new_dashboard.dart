@@ -129,17 +129,19 @@ class _NewDashboardState extends State<NewDashboard> {
                       spacing:12,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        NewMainNavBar(
-                          dashboardViewModel: widget.dashboardViewModel,
-                          selectedIndex: _selectedPage,
-                          onItemTap: (index) {
-                            setState(() {
-                              _selectedPage = index;
-                            });
-                            if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
-                              page.onPageOpen();
-                            }
-                          },
+                        Flexible(
+                          child: NewMainNavBar(
+                            dashboardViewModel: widget.dashboardViewModel,
+                            selectedIndex: _selectedPage,
+                            onItemTap: (index) {
+                              setState(() {
+                                _selectedPage = index;
+                              });
+                              if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
+                                page.onPageOpen();
+                              }
+                            },
+                          ),
                         ),
                         MoreActionsButton(dashboardViewModel: widget.dashboardViewModel)
                       ],
