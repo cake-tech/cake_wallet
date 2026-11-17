@@ -157,6 +157,7 @@ void main() {
         expect(validator.isValid("lightning:$invoice"), isTrue);
         expect(validator.isValid(invoice.toUpperCase()), isTrue);
         expect(validator.isValid("LIGHTNING:${invoice.toUpperCase()}"), isTrue);
+        expect(validator.isValid("Lightning:$invoice"), isTrue);
         expect(validator.isValid("bitcoin:$invoice"), isFalse);
       });
     });

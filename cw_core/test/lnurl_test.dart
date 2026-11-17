@@ -100,8 +100,9 @@ void main() {
   const zeroAmountInvoice =
       "lnbc1p5564y8pp5vm48jp3w82yjssrtdhvrjacwwzp59hqjm2lq6fud5thfznyuswgqsp54mykkptx9mlqhpe93f9pcgt9p5ml5xhclyn7qsltqy9ldf25j3qqxqyz5vqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjqfvmpdwfesckajzfcf7ff2vqaz9jdgpcsa9xc0fq8ny749dy8y5geapyqr6zgqqqq8hxk2qqae4jsqyugqcqzpgdqq9qyyssqycdyx8r09wgm8vny3n8pf2e0crcdq9mgx3ncxvzsrkljxyrcuwx8zjtje7du40nzdy7x2he67v9asp6ac6ed75r33yyt9pzeepygcmsptc4ve4";
 
-  group("uppercase lightning scheme", () {
+  group("lightning scheme in upper or mixed case", () {
     final uppercaseInvoice = "LIGHTNING:${invoiceWithDescription.toUpperCase()}";
+    const mixedCaseInvoice = "Lightning:$invoiceWithDescription";
 
     test("should identify a zero amount invoice", () {
       expect(isBolt11ZeroInvoice("LIGHTNING:${zeroAmountInvoice.toUpperCase()}"), true);
@@ -110,10 +111,12 @@ void main() {
 
     test("should get the amount", () {
       expect(getBolt11Amount(uppercaseInvoice), Money.fromInt(100, CryptoCurrency.btcln));
+      expect(getBolt11Amount(mixedCaseInvoice), Money.fromInt(100, CryptoCurrency.btcln));
     });
 
     test("should read the description", () {
       expect(getBolt11Description(uppercaseInvoice), "Send to Cake Wallet");
+      expect(getBolt11Description(mixedCaseInvoice), "Send to Cake Wallet");
     });
   });
 
