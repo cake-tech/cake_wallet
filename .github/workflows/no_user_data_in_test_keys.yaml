@@ -1,0 +1,23 @@
+name: No user data in test keys
+
+on: [pull_request]
+
+jobs:
+  PR_test_build:
+    runs-on: puzl-ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that test keys under lib/ interpolate only indexes and enum names
+        run: |
+          GIT_GREP_OUT="$(git grep -nE "_key['\"]" -- lib | perl -ne '
+            next if m{^\S+?:\d+:\s*//};
+            while (/(?:Key|TestId\.(?:merge|container))\(\s*(["\x27])((?:(?!\1).)*?_key)\1/g) {
+              (my $rest = $2) =~ s/\$\{?(?:index|itemIndex|_historyKeyIndex)(?:\+\+)?\}?|\$\{[\w.]*\b(?:type|key|item)\.name\}|\$\{entry\.\$1\}|\$\{updatedTransactions\.length\}|\$\{date\.(?:year|month)\}//g;
+              print if $rest =~ /\$/;
+            }' || true)"
+          [[ "x$GIT_GREP_OUT" == "x" ]] && exit 0
+          echo "$GIT_GREP_OUT"
+          echo "These test keys interpolate a value that may hold user data (a seed word, address, wallet name or transaction id)."
+          echo "Keys ending in _key are published as accessibility identifiers in release builds: use a list index or an enum name."
+          exit 1

@@ -58,7 +58,10 @@ Iterable<String> _dartFiles(String path) => FileSystemEntity.isDirectorySync(pat
 String _wrap(String source, CompilationUnit unit, List<(AstNode, String)> hits) {
   final edits = [
     for (final (widget, id) in hits) ...[
-      (widget.offset, "TestId.merge($id, child: "),
+      (
+        widget.offset,
+        "TestId.${const {"TextField", "TextFormField"}.contains(_name(widget)) ? "container" : "merge"}($id, child: ",
+      ),
       (widget.end, ")"),
     ],
   ];
@@ -110,13 +113,9 @@ class _Finder extends GeneralizingAstVisitor<void> {
     final literal = key != null && const {"Key", "ValueKey"}.contains(_name(key))
         ? _arguments(key)?.firstOrNull
         : null;
-    final tail = switch (literal) {
-      SimpleStringLiteral(:final value) => value,
-      StringInterpolation(:final lastString) => lastString.value,
-      _ => null,
-    };
-
-    return tail != null && tail.endsWith("_key") ? literal!.toSource() : null;
+    return literal is SimpleStringLiteral && literal.value.endsWith("_key")
+        ? literal.toSource()
+        : null;
   }
 
   bool _hasIdentifierAncestor(AstNode node) {

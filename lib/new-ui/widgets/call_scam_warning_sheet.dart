@@ -37,6 +37,7 @@ class CallScamWarningSheet extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ModalTopBar(
+                testId: "call_scam_warning_sheet_top_bar",
                 title: "",
                 leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
