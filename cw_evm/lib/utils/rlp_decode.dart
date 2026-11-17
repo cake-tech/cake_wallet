@@ -1,10 +1,15 @@
 import 'dart:typed_data';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:web3dart/crypto.dart';
 
 /// RLP Decode
 ///
 /// Adapted from https://github.com/ethereumjs/ethereumjs-monorepo/tree/master/packages/rlp
+
+class RlpDecodeException extends CakeException {
+  const RlpDecodeException(super.message);
+}
 
 class _Decoded {
   Uint8List remainder;
@@ -14,7 +19,7 @@ class _Decoded {
 }
 
 int _decodeLength(Uint8List v) {
-  if (v[0] == 0) throw Exception('invalid RLP: extra zeros');
+  if (v[0] == 0) throw RlpDecodeException('invalid RLP: extra zeros');
   return int.parse(bytesToHex(v), radix: 16);
 }
 
@@ -33,7 +38,7 @@ _Decoded _decode(Uint8List input) {
     final data = firstByte == 0x80 ? Uint8List(0) : input.sublist(1, length);
 
     if (length == 2 && data[0] < 0x80) {
-      throw Exception('invalid RLP encoding: invalid prefix, single byte < 0x80 are not prefixed');
+      throw RlpDecodeException('invalid RLP encoding: invalid prefix, single byte < 0x80 are not prefixed');
     }
 
     return _Decoded(data, input.sublist(length));
@@ -42,12 +47,12 @@ _Decoded _decode(Uint8List input) {
     // followed by the length, followed by the string
     final lLength = firstByte - 0xb6;
     if (input.length - 1 < lLength) {
-      throw Exception('invalid RLP: not enough bytes for string length');
+      throw RlpDecodeException('invalid RLP: not enough bytes for string length');
     }
 
     final length = _decodeLength(input.sublist(1, lLength));
     if (length <= 55) {
-      throw Exception('invalid RLP: expected string length to be greater than 55');
+      throw RlpDecodeException('invalid RLP: expected string length to be greater than 55');
     }
 
     final data = input.sublist(lLength, length + lLength);
@@ -71,12 +76,12 @@ _Decoded _decode(Uint8List input) {
 
     final length = _decodeLength(input.sublist(1, lLength));
     if (length < 56) {
-      throw Exception('invalid RLP: encoded list too short');
+      throw RlpDecodeException('invalid RLP: encoded list too short');
     }
 
     final totalLength = lLength + length;
     if (totalLength > input.length) {
-      throw Exception('invalid RLP: total length is larger than the data');
+      throw RlpDecodeException('invalid RLP: total length is larger than the data');
     }
 
     var innerRemainder = input.sublist(lLength, totalLength);
@@ -95,7 +100,7 @@ _Decoded _decode(Uint8List input) {
 List decode(Uint8List input) {
   final decoded = _decode(input);
 
-  if (decoded.remainder.isNotEmpty) throw Exception('invalid RLP: remainder must be zero');
+  if (decoded.remainder.isNotEmpty) throw RlpDecodeException('invalid RLP: remainder must be zero');
 
   return decoded.data;
 }

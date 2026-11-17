@@ -104,11 +104,15 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   @override
   void initState() {
     types = filteredTypes = availableWalletTypes
-        .where((element) =>
-            !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(
-                    element, widget.hardwareWalletType!, Platform.isIOS)
-                .isNotEmpty)
+        .where(
+          (element) =>
+              !widget.isHardwareWallet ||
+              DeviceConnectionType.supportedConnectionTypes(
+                element,
+                widget.hardwareWalletType!,
+                isIOS: Platform.isIOS,
+              ).isNotEmpty,
+        )
         .toList();
     super.initState();
   }
@@ -123,8 +127,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
           children: [
             widget.hardwareWalletType != null
                 ? const NewWalletTypePageHeader()
-                : const CakeImageWidget(
-                    imageUrl: "assets/new-ui/wallet.svg",
+                : CakeImageWidget(
+                    imageUrl: Theme.of(context).brightness == Brightness.dark
+                        ? "assets/new-ui/hero/welcome_wallet_dark.svg"
+                        : "assets/new-ui/hero/welcome_wallet_light.svg",
                     width: 100,
                     height: 100,
                   ),

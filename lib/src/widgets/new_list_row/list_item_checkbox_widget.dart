@@ -41,7 +41,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
 class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+    final row = ListItemStyleWrapper(
       testId: widget.testId,
       iconPath: widget.iconPath,
       onTap: widget.onTap ??
@@ -108,5 +108,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
         );
       },
     );
+
+    return widget.testId == null ? MergeSemantics(child: row) : row;
   }
 }

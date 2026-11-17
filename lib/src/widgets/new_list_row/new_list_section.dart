@@ -77,7 +77,6 @@ class NewListSections extends StatelessWidget {
 
       return ListItemTextFieldWidget(
         testId: item.testId,
-        key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         controller: controllers[item.keyValue]!,
@@ -108,6 +107,7 @@ class NewListSections extends StatelessWidget {
         isLastInSection: isLast,
         showArrow: item.showArrow,
         truncateTrailingText: item.truncateTrailingText,
+        truncateLabel: item.truncateLabel,
         foregroundColor: item.foregroundColor,
         copyableText: item.copyableText,
         trailingIconSize: item.trailingIconSize,
@@ -129,6 +129,7 @@ class NewListSections extends StatelessWidget {
         subtitle: item.subtitle,
         leadingEndWidget: item.leadingEndWidget,
         iconPath: item.iconPath,
+        iconColor: item.iconColor,
         value: item.value,
         onChanged: item.onChanged,
         isFirstInSection: isFirst,
@@ -174,6 +175,7 @@ class NewListSections extends StatelessWidget {
         keyValue: item.keyValue,
         label: item.label,
         options: item.options,
+        optionImagePath: item.optionImagePath,
         onTap: item.onTap,
         selectedIndex: 0,
         isFirstInSection: isFirst,

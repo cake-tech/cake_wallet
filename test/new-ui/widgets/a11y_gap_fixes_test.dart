@@ -13,10 +13,14 @@ import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_s
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_address_type_selector.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_amount_modal.dart";
 import "package:cake_wallet/src/screens/pin_code/pin_code_widget.dart";
+import "package:cake_wallet/src/screens/wallet_list/edit_wallet_button_widget.dart";
 import "package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart";
 import "package:cake_wallet/src/screens/settings/widgets/settings_theme_choice.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/new-ui/widgets/coin_control_page/coin_control_list_item.dart";
+import "package:cake_wallet/src/widgets/new_list_row/list_item_checkbox_widget.dart";
+import "package:cake_wallet/src/widgets/new_list_row/new_simple_checkbox.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/themes/core/theme_store.dart";
@@ -179,7 +183,8 @@ void main() {
     final appStore = _MockAppStore();
     final settingsStore = _MockSettingsStore();
     final wallet = _MockWallet();
-    when(() => dashboard.cardOrder).thenReturn(ObservableMap<int, int>());
+    when(() => dashboard.cardOrder).thenReturn(ObservableMap<int, int>.of({0: 0}));
+    when(() => dashboard.cardAccountIndices).thenReturn([0]);
     when(() => dashboard.cardDesigns).thenReturn(
       ObservableList.of([CardDesign.genericDefault, CardDesign.genericDefault]),
     );
@@ -458,6 +463,89 @@ void main() {
       expect(
         one(tester, "alert_dialog_right_button_key"),
         isSemantics(label: "Confirm", isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
+    });
+  });
+
+  group("unlabelled controls", () {
+    testWidgets("the wallet edit button is a labelled button", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(EditWalletButtonWidget(key: const ValueKey("wallet_edit_key"), width: 120, onTap: () {})),
+      );
+      expect(
+        one(tester, "wallet_edit_key"),
+        isSemantics(label: "Edit", isButton: true, hasTapAction: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets("the coin control checkbox exposes its checked state", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(wrap(NewSimpleCheckbox(value: true, onChanged: (_) {})));
+      expect(
+        tester.getSemantics(find.byType(NewSimpleCheckbox)),
+        isSemantics(hasCheckedState: true, isChecked: true, hasTapAction: true),
+      );
+      handle.dispose();
+    });
+
+    for (final testId in [null, "filter_row_key"]) {
+      testWidgets("a checkbox row is one named, checked stop (testId: $testId)", (tester) async {
+        final handle = tester.ensureSemantics();
+        await tester.pumpWidget(
+          wrap(
+            ListItemCheckboxWidget(
+              keyValue: "incoming",
+              label: "Incoming",
+              value: true,
+              onChanged: (_) {},
+              testId: testId,
+            ),
+          ),
+        );
+        expect(
+          testId == null
+              ? tester.getSemantics(find.byType(ListItemCheckboxWidget))
+              : one(tester, testId),
+          isSemantics(label: "Incoming", hasCheckedState: true, isChecked: true, hasTapAction: true),
+        );
+        expect(
+          tester.semantics.simulatedAccessibilityTraversal().where((node) => node.label.isEmpty),
+          isEmpty,
+        );
+        handle.dispose();
+      });
+    }
+
+    testWidgets("a coin control row is one stop carrying its address and checked state", (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        wrap(
+          CoinControlListItem(
+            note: "",
+            amount: "0.001 BTC",
+            fiatAmount: "65.00 USD",
+            address: "bc1qexampleaddress",
+            isSending: true,
+            isFrozen: false,
+            isChange: false,
+            isSilentPayment: false,
+            isFirst: true,
+            isLast: true,
+            isLoading: false,
+            hasCheckbox: true,
+            onCheckBoxTap: () {},
+          ),
+        ),
+      );
+      final node = tester.getSemantics(find.byType(CoinControlListItem));
+      expect(node, isSemantics(hasCheckedState: true, isChecked: true, hasTapAction: true));
+      expect(node.label, contains("0.001 BTC"));
+      expect(
+        tester.semantics.simulatedAccessibilityTraversal().where((node) => node.label.isEmpty),
+        isEmpty,
       );
       handle.dispose();
     });

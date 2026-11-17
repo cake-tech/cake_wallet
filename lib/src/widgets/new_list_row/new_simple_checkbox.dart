@@ -12,7 +12,10 @@ class NewSimpleCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      container: true,
+      checked: value,
+      child: GestureDetector(
       onTap: () {
         onChanged(!value);
       },
@@ -34,6 +37,7 @@ class NewSimpleCheckbox extends StatelessWidget {
                 size: 20,
               )
             : const SizedBox.shrink(),
+      ),
       ),
     );
   }

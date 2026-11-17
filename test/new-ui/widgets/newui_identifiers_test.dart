@@ -44,6 +44,7 @@ void main() {
     when(() => wallet.type).thenReturn(WalletType.monero);
     when(() => wallet.hardwareWalletType).thenReturn(null);
     when(() => wallet.hasAccountsSupport).thenReturn(true);
+    when(() => wallet.name).thenReturn("Main");
 
     await tester.pumpWidget(
       wrap(SettingsMainPage(dashboardViewModel: dashboardViewModel, authService: _MockAuthService())),
@@ -51,7 +52,6 @@ void main() {
     await tester.pumpAndSettle();
 
     for (final (id, label) in [
-      ("settings_page_wallet_accounts_row_key", S.current.accounts),
       ("settings_page_privacy_row_key", S.current.privacy),
       ("settings_page_display_settings_row_key", S.current.display),
       ("settings_page_security_backup_row_key", S.current.security),
@@ -63,6 +63,10 @@ void main() {
         reason: id,
       );
     }
+    expect(
+      platformNodesWithId(tester, "settings_page_wallet_settings_row_key").single,
+      isSemantics(hasTapAction: true),
+    );
     expect(platformNodesWithId(tester, "settings_page_top_bar_title_key"), hasLength(1));
     expect(platformNodesWithId(tester, "settings_page_top_bar_leading_key"), hasLength(1));
     expect(find.bySemanticsIdentifier(RegExp("lightning_username")), findsNothing);

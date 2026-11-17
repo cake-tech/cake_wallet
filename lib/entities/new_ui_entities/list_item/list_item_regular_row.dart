@@ -16,6 +16,7 @@ class ListItemRegularRow extends ListItem {
     this.bottomWidget,
     this.trailingWidget,
     this.truncateTrailingText = false,
+    this.truncateLabel = false,
     this.foregroundColor,
     this.trailingIconSize,
     this.copyableText,
@@ -39,6 +40,7 @@ class ListItemRegularRow extends ListItem {
   final Widget? bottomWidget;
   final Widget? trailingWidget;
   final bool truncateTrailingText;
+  final bool truncateLabel;
   final Color? subtitleColor;
   final Color? foregroundColor;
   final double? trailingIconSize;

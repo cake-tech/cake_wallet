@@ -166,6 +166,7 @@ class ZkoolTx {
   Map<String, dynamic> toJson() => {
     "tx": {
       "id": _tx.id,
+      "account": _tx.account,
       "txid": base64.encode(_tx.txid),
       "height": _tx.height,
       "time": _tx.time,
@@ -210,6 +211,7 @@ class ZkoolTx {
             (final output) => {
               "id": output.id,
               "pool": output.pool,
+              "vout": output.vout,
               "height": output.height,
               "value": output.value.toString(),
               "address": output.address,
@@ -278,6 +280,7 @@ class ZkoolTx {
     return ZkoolTx(
       zkool_account.Tx(
         id: _asInt(txJson["id"]),
+        account: _asInt(txJson["account"] ?? txAccountJson["account"]),
         txid: _txidFromJson(txJson["txid"]),
         height: _asInt(txJson["height"]),
         time: _asInt(txJson["time"]),
@@ -322,6 +325,7 @@ class ZkoolTx {
           (final a) => zkool_account.TxOutput(
             id: _asInt(a["id"]),
             pool: _asInt(a["pool"]),
+            vout: _asInt(a["vout"]),
             height: _asInt(a["height"]),
             value: BigInt.parse(a["value"].toString()),
             address: a["address"] as String? ?? "",

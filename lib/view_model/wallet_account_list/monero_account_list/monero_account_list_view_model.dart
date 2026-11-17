@@ -1,22 +1,18 @@
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
-import 'package:cake_wallet/wownero/wownero.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
-import 'package:cake_wallet/monero/monero.dart';
+import "package:cake_wallet/monero/monero.dart";
+import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
+import "package:cake_wallet/wownero/wownero.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart";
 
-part 'monero_account_list_view_model.g.dart';
+part "monero_account_list_view_model.g.dart";
 
 class MoneroAccountListViewModel = MoneroAccountListViewModelBase with _$MoneroAccountListViewModel;
 
 abstract class MoneroAccountListViewModelBase with Store implements WalletAccountListViewModel {
-  MoneroAccountListViewModelBase(this._wallet, this.settingsStore);
-
-  final SettingsStore settingsStore;
+  MoneroAccountListViewModelBase(this._wallet);
 
   @override
   AccountListItem? get selectedAccount => selected;
@@ -25,7 +21,6 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
 
   @computed
   List<AccountListItem> get accounts {
-    final hideBalance = settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance;
     if (_wallet.type == WalletType.monero) {
       return monero!
           .getAccountList(_wallet)
@@ -33,7 +28,7 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
           .map((acc) => AccountListItem(
               label: acc.label,
               id: acc.id,
-              balance: hideBalance ? '●●●●●●' : acc.balance,
+              balance: monero!.getAccountFullBalance(acc.id),
               isSelected: acc.id == monero!.getCurrentAccount(_wallet).id))
           .toList();
     }
@@ -45,19 +40,16 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
           .map((acc) => AccountListItem(
               label: acc.label,
               id: acc.id,
-              balance: hideBalance ? '●●●●●●' : acc.balance,
+              balance: wownero!.getAccountFullBalance(acc.id),
               isSelected: acc.id == wownero!.getCurrentAccount(_wallet).id))
           .toList();
     }
 
-    throw Exception('Unexpected wallet type: ${_wallet.type} for monero');
+    throw Exception("Unexpected wallet type: ${_wallet.type} for monero");
   }
 
   @computed
-  AccountListItem get selected {
-    final currentId = monero!.getCurrentAccount(_wallet).id;
-    return accounts.firstWhere((item) => item.id == currentId);
-  }
+  AccountListItem get selected => accounts.firstWhere((item) => item.isSelected);
 
   final WalletBase _wallet;
 
@@ -71,7 +63,7 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
         _wallet,
         item.id,
         item.label,
-        item.balance,
+        item.balance.toString(),
       );
     }
 
@@ -80,7 +72,7 @@ abstract class MoneroAccountListViewModelBase with Store implements WalletAccoun
         _wallet,
         item.id,
         item.label,
-        item.balance,
+        item.balance.toString(),
       );
     }
   }

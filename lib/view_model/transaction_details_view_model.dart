@@ -277,7 +277,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           AddressListItem(
             title: S.current.transaction_details_recipient_address,
             value: recipientAddressForDisplay,
-            key: ValueKey("standard_list_item_transaction_details_recipient_address_key"),
+            key: ValueKey("standard_list_item_transaction_details_saved_recipient_address_key"),
           ),
         );
       }
@@ -506,7 +506,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   String get explorerDescription => S.current.view_transaction_on + Uri.parse(_explorerUrl).host;
 
   void launchExplorer() {
-    launchUrl(Uri.parse(_explorerUrl));
+    launchUrl(Uri.parse(_explorerUrl), mode: LaunchMode.externalApplication);
   }
 
   void addBumpFeesListItems(TransactionInfo tx, String rawTransaction) {

@@ -2,7 +2,6 @@ name: cw_dogecoin
 description: "A new Flutter package project."
 version: 0.0.1
 publish_to: none
-author: Cake Wallet
 homepage: https://cakewallet.com
 
 environment:
@@ -13,10 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   bip39: ^1.0.6
-  bip32: ^2.0.0
-  path_provider: ^2.0.11
   mobx: ^2.6.0
-  flutter_mobx: ^2.3.0
   cw_core:
     path: ../cw_core
   cw_bitcoin:

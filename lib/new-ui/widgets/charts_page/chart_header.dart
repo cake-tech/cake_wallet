@@ -63,7 +63,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                         ),
                       ChartViewCoinHeader(currency: widget.currency, isFavorite: widget.favorite),
                       ChartViewPriceHeader(
-                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2) ?? "...",
+                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2, meaningfulDecimals: 2) ?? "...",
                         ticker: s.fiatTicker,
                         highlight: _viewedPrice != null,
                       ),
@@ -80,7 +80,8 @@ class _ChartHeaderState extends State<ChartHeader> {
                                     ? Text(
                                         _viewedTime!,
                                         style: TextStyle(
-                                          fontFamily: "IBM Plex Mono",
+                                          fontFamily: "IBM Plex Sans",
+                                          fontFeatures: const [FontFeature.tabularFigures()],
                                           fontWeight: FontWeight.w500,
                                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           fontSize: 16,
@@ -108,8 +109,21 @@ class _ChartHeaderState extends State<ChartHeader> {
                                     return;
                                   }
 
-                                  final newPrice =
-                                      response?.lineBarSpots?.firstOrNull?.y.toStringAsFixed(2);
+                                  final spotIndex = response?.lineBarSpots?.firstOrNull?.spotIndex;
+                                  final quote = spotIndex == null
+                                      ? null
+                                      : s.dataFor(widget.currency).elementAtOrNull(spotIndex)?.quote;
+                                  final newPrice = quote == null
+                                      ? null
+                                      : quote.toStringWithPrecision(
+                                          fractionalDigits:
+                                              quote.amount % BigInt.from(10).pow(quote.decimals) ==
+                                                      BigInt.zero
+                                                  ? 0
+                                                  : 2,
+                                          trimZeros: false,
+                                          meaningfulDecimals: 2,
+                                        );
                                   final newTime = DateFormat("M/d/y HH:mm").format(
                                     DateTime.fromMillisecondsSinceEpoch(
                                       response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0,

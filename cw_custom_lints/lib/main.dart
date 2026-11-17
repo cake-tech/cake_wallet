@@ -11,6 +11,7 @@ import "package:cw_custom_lints/restricted_imports/restricted_imports_rule.dart"
 import "package:cw_custom_lints/test_key_interpolation/test_key_interpolation_rule.dart";
 import "package:cw_custom_lints/test_key_semantics/test_key_semantics_fix.dart";
 import "package:cw_custom_lints/test_key_semantics/test_key_semantics_rule.dart";
+import "package:cw_custom_lints/use_cake_exception/use_cake_exception_rule.dart";
 
 final plugin = CwCustomLintsPlugin();
 
@@ -28,6 +29,7 @@ class CwCustomLintsPlugin extends Plugin {
     registry.registerWarningRule(MoneyAmountToStringRule());
     registry.registerWarningRule(TestKeySemanticsRule());
     registry.registerWarningRule(TestKeyInterpolationRule());
+    registry.registerWarningRule(UseCakeExceptionRule());
 
     registry.registerFixForRule(PrintVerboseRule.code, ReplaceWithPrintV.new);
     registry.registerFixForRule(MoneyAmountToStringRule.code, ReplaceWithMoneyToString.new);
