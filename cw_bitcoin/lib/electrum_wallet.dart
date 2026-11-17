@@ -20,6 +20,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_message_sign.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -149,6 +150,10 @@ abstract class ElectrumWalletBase
   /// For LEGACY addresses, returns the wallet's legacy derivation base (derivationInfo.derivationPath)
   /// which is already the account path used historically (e.g. m/0' or m/84'/0'/0').
   String _accountDerivationPathForRecord(BaseBitcoinAddressRecord record) {
+    if (isHardwareWallet && (derivationInfo.derivationPath?.isNotEmpty ?? false)) {
+      return derivationInfo.derivationPath!;
+    }
+
     if (derivationInfo.derivationType == DerivationType.electrum) {
       return derivationInfo.derivationPath ?? electrum_path; // m/0'
     }
@@ -4291,19 +4296,33 @@ abstract class ElectrumWalletBase
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    final addressRecord = address != null
-        ? walletAddresses.allAddresses.firstWhereOrNull((addr) => addr.address == address)
-        : null;
+  Future<String> signMessage(String message, {String? address}) async {
+    final addressRecord = getSigningAddressRecord(
+      address: address,
+      walletAddresses: walletAddresses.allAddresses,
+    );
 
-    if (addressRecord != null && addressRecord.type == SegwitAddresType.p2tr) {
-      throw UnsupportedError("Cannot sign message with Taproot address");
+    if (walletInfo.isHardwareWallet) {
+      final index = addressRecord?.index ?? 0;
+      final isChange = addressRecord?.isHidden == true ? 1 : 0;
+      final derivationInfo = await walletInfo.getDerivationInfo();
+      final accountPath = derivationInfo.derivationPath;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+
+      final signature = await hardwareWalletService!
+          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
+      return base64Encode(signature);
     }
 
     final hd = addressRecord != null
         ? _hdForAddressRecord(record: addressRecord).childKey(Bip32KeyIndex(addressRecord.index))
         : mainHd;
 
+    return signMessageWithKey(message, hd);
+  }
+
+  @protected
+  String signMessageWithKey(String message, Bip32Slip10Secp256k1 hd) {
     final priv = ECPrivate.fromHex(hd.privateKey.privKey.toHex());
 
     String messagePrefix = '\x18Bitcoin Signed Message:\n';

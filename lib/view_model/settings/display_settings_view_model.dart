@@ -1,5 +1,4 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/sync_status_display_mode.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -12,6 +11,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:flutter/material.dart';
+import "package:intl/intl.dart";
 
 part 'display_settings_view_model.g.dart';
 
@@ -40,10 +40,20 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get shouldDisplayBalance => balanceDisplayMode == BalanceDisplayMode.displayableBalance;
 
   @computed
+  String get fiatCurrencyLabel {
+    final code = fiatCurrency.title;
+    final symbol = NumberFormat.simpleCurrency(locale: "en", name: code).currencySymbol;
+    return symbol == code ? code : "$code ($symbol)";
+  }
+
+  @computed
   bool get shouldShowMarketPlaceInDashboard => _settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  BitcoinAmountDisplayMode get displayAmountsInSatoshi => _settingsStore.displayAmountsInSatoshi;
+  bool get shouldShowChartsInDashboard => _settingsStore.shouldShowChartsInDashboard;
+
+  @computed
+  bool get shouldShowNftsTab => _settingsStore.shouldShowNftsTab;
 
   @computed
   MaterialThemeBase get currentTheme => _themeStore.currentTheme;
@@ -104,6 +114,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   }
 
   @computed
+  bool get showThemePreview => availableThemes.length > 1;
+
+  @computed
   List<ThemeAccentColor> get availableAccentColors {
     if (!currentTheme.hasAccentColors) return [];
 
@@ -120,14 +133,7 @@ abstract class DisplaySettingsViewModelBase with Store {
   void setBalanceDisplayMode(BalanceDisplayMode value) => _settingsStore.balanceDisplayMode = value;
 
   @computed
-  bool get showDisplayAmountsInSatoshiSetting => _appStore.wallet?.type == WalletType.bitcoin;
-
-  @computed
   bool get showZcashCardSetting => _appStore.wallet?.type == WalletType.zcash;
-
-  @action
-  void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode value) =>
-      _settingsStore.displayAmountsInSatoshi = value;
 
   @action
   void setShowZcashCard(bool value) => _settingsStore.showZcashMissingFundsCard = value;
@@ -239,6 +245,13 @@ abstract class DisplaySettingsViewModelBase with Store {
   void setShouldShowMarketPlaceInDashbaord(bool value) {
     _settingsStore.shouldShowMarketPlaceInDashboard = value;
   }
+
+  @action
+  void setShouldShowChartsInDashboard(bool value) =>
+      _settingsStore.shouldShowChartsInDashboard = value;
+
+  @action
+  void setShouldShowNftsTab(bool value) => _settingsStore.shouldShowNftsTab = value;
 
   @action
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
