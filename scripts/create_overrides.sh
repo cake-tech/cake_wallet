@@ -60,7 +60,6 @@ package_repo_redirects=(
 
 # package-version|git hash (exact match, or package-* to skip version check)
 version_ref_maps=(
-  "rive_common-*|34ef174e87dc4a29e728babfaad8dd9464b704ae"
   "ffi-2.1.0|6bd0935f29c7294ebb9aab21c06b47b513def933"
   "flutter_rust_bridge-2.11.1|f19087cd0cac019b82d52cfa5153ce81b1b6e902"
   "frontend_server_client-4.1.0|25a38e4d0d2a222e4a17311809527a03481f1b41"

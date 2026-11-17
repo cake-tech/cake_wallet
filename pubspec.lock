@@ -10,12 +10,13 @@ packages:
     source: hosted
     version: "93.0.0"
   adaptive_number:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: adaptive_number
-      sha256: "3a567544e9b5c9c803006f51140ad544aedc79604fd4f3f2c1380003f97c1d77"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: c3f06de08064acca1b04975abcd4c3977c0b5256
+      resolved-ref: c3f06de08064acca1b04975abcd4c3977c0b5256
+      url: "https://github.com/lemoony/adaptive_number_dart"
+    source: git
     version: "1.0.0"
   analyzer:
     dependency: transitive
@@ -26,108 +27,121 @@ packages:
     source: hosted
     version: "10.0.1"
   animated_reorderable_list:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: animated_reorderable_list
-      sha256: "5de5cca556a8c9c8f7b65234ae4b683593dc6e167db498744a5e389302f24d13"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "4a6810d0a912018fb0b193337f46973a478fcc4b"
+      resolved-ref: "4a6810d0a912018fb0b193337f46973a478fcc4b"
+      url: "https://github.com/canopas/animated_reorderable_list"
+    source: git
     version: "1.3.0"
   another_flushbar:
     dependency: "direct main"
     description:
-      name: another_flushbar
-      sha256: "2b99671c010a7d5770acf5cb24c9f508b919c3a7948b6af9646e773e7da7b757"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a334e8e2dfbe3d5e531b63f72164093aa399047b
+      resolved-ref: a334e8e2dfbe3d5e531b63f72164093aa399047b
+      url: "https://github.com/ideployed/another-flushbar"
+    source: git
     version: "1.12.32"
   ansicolor:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: ansicolor
-      sha256: "50e982d500bc863e1d703448afdbf9e5a72eb48840a4f766fa361ffd6877055f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "35e67e6eb2da5e6d726fadfa90ccf437981c1e65"
+      resolved-ref: "35e67e6eb2da5e6d726fadfa90ccf437981c1e65"
+      url: "https://github.com/google/ansicolor-dart"
+    source: git
     version: "2.0.3"
   archive:
     dependency: "direct main"
     description:
-      name: archive
-      sha256: "2fda90592c0afd219c5e285618a98da835cd10df38372666093d25dfe457a2d0"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: e97951d48d2d19309be87b17d4ef4d2d74994d7d
+      resolved-ref: e97951d48d2d19309be87b17d4ef4d2d74994d7d
+      url: "https://github.com/brendan-duncan/archive"
+    source: git
     version: "4.7.1"
   args:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: args
-      sha256: d0481093c50b1da8910eb0bb301626d4d8eb7284aa739614d2b394ee09e3ea04
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/args"
+      ref: "61e677100b06d56a1b3731ab1178ebf9102ecb1f"
+      resolved-ref: "61e677100b06d56a1b3731ab1178ebf9102ecb1f"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "2.7.0"
   asn1lib:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: asn1lib
-      sha256: cfb3cf6a53158918d52dda61bc26f0cc8612a0d3b9dc29e87eaa3423902ca636
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "002be6d46ba2b34121c3f33511a21d48c64085ed"
+      resolved-ref: "002be6d46ba2b34121c3f33511a21d48c64085ed"
+      url: "https://github.com/wstrange/asn1lib"
+    source: git
     version: "1.6.8"
   async:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: async
-      sha256: e2eb0491ba5ddb6177742d2da23904574082139b07c1e33b8503b9f46f3e1a37
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/async"
+      ref: "158d80dc6d17c7b967e655e27a859cbc1c6aa71d"
+      resolved-ref: "158d80dc6d17c7b967e655e27a859cbc1c6aa71d"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "2.13.1"
   auto_size_text:
     dependency: "direct main"
     description:
-      name: auto_size_text
-      sha256: "3f5261cd3fb5f2a9ab4e2fc3fba84fd9fcaac8821f20a1d4e71f557521b22599"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "2178f0821132636bc4f0dea1bc4d40a889d8249b"
+      resolved-ref: "2178f0821132636bc4f0dea1bc4d40a889d8249b"
+      url: "https://github.com/leisim/auto_size_text"
+    source: git
     version: "3.0.0"
   awesome_dialog:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: awesome_dialog
-      sha256: "41c41ae4b30b5c7f26bb3d9f9c87010ed1cab0bb4d4ac0cc513e5799c37e9d82"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: c7923f15d1d22de5c9077fff0bab6f9cc6463540
+      resolved-ref: c7923f15d1d22de5c9077fff0bab6f9cc6463540
+      url: "https://github.com/marcos930807/awesomeDialogs"
+    source: git
     version: "3.2.1"
   base32:
     dependency: "direct main"
     description:
-      name: base32
-      sha256: ddad4ebfedf93d4500818ed8e61443b734ffe7cf8a45c668c9b34ef6adde02e2
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "6ed989354aee7865ee74f3f1802268dd81bb234d"
+      resolved-ref: "6ed989354aee7865ee74f3f1802268dd81bb234d"
+      url: "https://github.com/Daegalus/dart-base32"
+    source: git
     version: "2.1.3"
   base58check:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: base58check
-      sha256: "6c300dfc33e598d2fe26319e13f6243fea81eaf8204cb4c6b69ef20a625319a5"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "240913d11885ee80506ff6f51033ddf527106086"
+      resolved-ref: "240913d11885ee80506ff6f51033ddf527106086"
+      url: "https://github.com/dartcoin/base58check"
+    source: git
     version: "2.0.0"
   base_x:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: base_x
-      sha256: "519abcdafd637d4b6bd7e72fabd8f9264935f804b9b9f6c5d8411c7d52cbf8fd"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: b434cc7890337af7c04004c681018a2f32689217
+      resolved-ref: b434cc7890337af7c04004c681018a2f32689217
+      url: "https://github.com/litaoh/base-x"
+    source: git
     version: "2.0.1"
   basic_utils:
     dependency: "direct main"
     description:
-      name: basic_utils
-      sha256: "2064b21d3c41ed7654bc82cc476fd65542e04d60059b74d5eed490a4da08fc6c"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "6a5034927857a08f3bdf5a177529e361179f6dab"
+      resolved-ref: "6a5034927857a08f3bdf5a177529e361179f6dab"
+      url: "https://github.com/Ephenodrom/Dart-Basic-Utils"
+    source: git
     version: "5.7.0"
   bbqrdart:
     dependency: "direct main"
@@ -148,34 +162,37 @@ packages:
     source: git
     version: "0.2.2"
   bip32:
-    dependency: transitive
-    description:
-      name: bip32
-      sha256: "54787cd7a111e9d37394aabbf53d1fc5e2e0e0af2cd01c459147a97c0e3f8a97"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.0"
-  bip340:
-    dependency: transitive
-    description:
-      name: bip340
-      sha256: "2a92f6ed68959f75d67c9a304c17928b9c9449587d4f75ee68f34152f7f69e87"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  bip39:
-    dependency: transitive
-    description:
-      name: bip39
-      sha256: de1ee27ebe7d96b84bb3a04a4132a0a3007dcdd5ad27dd14aa87a29d97c45edc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.6"
-  bitbox:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
-      ref: Add-Support-For-OP-Return-data
+      ref: b5c6a6e891b89f92529799b42af62b8a8af09eaf
+      resolved-ref: b5c6a6e891b89f92529799b42af62b8a8af09eaf
+      url: "https://github.com/dart-bitcoin/bip32-dart"
+    source: git
+    version: "2.0.0"
+  bip340:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: bbab1a01b6b6ab7c18f26294febb3bee38b24798
+      resolved-ref: bbab1a01b6b6ab7c18f26294febb3bee38b24798
+      url: "https://github.com/fiatjaf/dart-bip340"
+    source: git
+    version: "0.2.0"
+  bip39:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "3633daa2026b98c523ae9a091322be2903f7a8ab"
+      resolved-ref: "3633daa2026b98c523ae9a091322be2903f7a8ab"
+      url: "https://github.com/anicdh/bip39"
+    source: git
+    version: "1.0.6"
+  bitbox:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "57b78afb85bd2c30d3cdb9f7884f3878a62be442"
       resolved-ref: "57b78afb85bd2c30d3cdb9f7884f3878a62be442"
       url: "https://github.com/cake-tech/bitbox-flutter.git"
     source: git
@@ -201,26 +218,29 @@ packages:
   bloc:
     dependency: "direct main"
     description:
-      name: bloc
-      sha256: e03b235924e4f509c27b5d6b2f949200e0a91149a9818b4f65eeb56662b75413
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/bloc"
+      ref: "60892540c1faec3fd01cc8c8fea378a59cf42e3d"
+      resolved-ref: "60892540c1faec3fd01cc8c8fea378a59cf42e3d"
+      url: "https://github.com/felangel/bloc"
+    source: git
     version: "9.2.1"
   bloc_concurrency:
     dependency: "direct main"
     description:
-      name: bloc_concurrency
-      sha256: "86b7b17a0a78f77fca0d7c030632b59b593b22acea2d96972588f40d4ef53a94"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/bloc_concurrency"
+      ref: "13dbe0ce078e7efaebb54b37489879daeb57459d"
+      resolved-ref: "13dbe0ce078e7efaebb54b37489879daeb57459d"
+      url: "https://github.com/felangel/bloc"
+    source: git
     version: "0.3.0"
   bloc_presentation:
     dependency: "direct main"
     description:
-      name: bloc_presentation
-      sha256: b8f5c72e0c6a356767719cd7f56b37f6aec9747598c77cbc986d85244674061a
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/bloc_presentation"
+      ref: e7325b9bf57a1c607034de87a2378ec9bd5c0011
+      resolved-ref: e7325b9bf57a1c607034de87a2378ec9bd5c0011
+      url: "https://github.com/leancodepl/bloc_presentation"
+    source: git
     version: "1.1.2+3"
   blockchain_utils:
     dependency: "direct main"
@@ -232,117 +252,130 @@ packages:
     source: git
     version: "3.3.0"
   bluez:
-    dependency: transitive
-    description:
-      name: bluez
-      sha256: "61a7204381925896a374301498f2f5399e59827c6498ae1e924aaa598751b545"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.8.3"
-  boolean_selector:
-    dependency: transitive
-    description:
-      name: boolean_selector
-      sha256: "8aab1771e1243a5063b8b0ff68042d67334e3feab9e95b9490f9a6ebf73b42ea"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.2"
-  breez_sdk_spark_flutter:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
-      ref: "v0.23.0"
+      ref: f02727e93b61585ea6c5a6a18ebf84b7374a71d3
+      resolved-ref: f02727e93b61585ea6c5a6a18ebf84b7374a71d3
+      url: "https://github.com/canonical/bluez.dart"
+    source: git
+    version: "0.8.3"
+  boolean_selector:
+    dependency: "direct overridden"
+    description:
+      path: "pkgs/boolean_selector"
+      ref: b1312b18df67b0be3101ca15c03dfd8d7c9383bb
+      resolved-ref: b1312b18df67b0be3101ca15c03dfd8d7c9383bb
+      url: "https://github.com/dart-lang/tools"
+    source: git
+    version: "2.1.2"
+  breez_sdk_spark_flutter:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
       resolved-ref: "5943a3e773203f21728f87f1c0779040db8f2c28"
       url: "https://github.com/breez/breez-sdk-spark-flutter"
     source: git
     version: "0.23.0"
   bs58:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: bs58
-      sha256: "3ed24dadf386ca749ff50af678be1131ef569a3583a6f37b87b90c032270c767"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "637d7b4bef20ac4edb553ef20e40725c4a213736"
+      resolved-ref: "637d7b4bef20ac4edb553ef20e40725c4a213736"
+      url: "https://github.com/litaoh/base58"
+    source: git
     version: "1.0.2"
   bs58check:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: bs58check
-      sha256: c4a164d42b25c2f6bc88a8beccb9fc7d01440f3c60ba23663a20a70faf484ea9
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1216b214e26332ccc4a3de4c9eac87de7fd47b5a"
+      resolved-ref: "1216b214e26332ccc4a3de4c9eac87de7fd47b5a"
+      url: "https://github.com/MrCyjaneK/bs58check"
+    source: git
     version: "1.0.2"
   bubble:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: bubble
-      sha256: "75ce03de669476bd3167128fc68c6524851b235cb1d6fd91b9f2b3c3a6228f51"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1a3f3beffebc8aa5b1ca8d4a2e1c169669474e0c"
+      resolved-ref: "1a3f3beffebc8aa5b1ca8d4a2e1c169669474e0c"
+      url: "https://github.com/vi-k/bubble"
+    source: git
     version: "1.3.0"
   buffer:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: buffer
-      sha256: "389da2ec2c16283c8787e0adaede82b1842102f8c8aae2f49003a766c5c6b3d1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "96be675b6f2bbca859a13da6c5f551ffd7eebc1c"
+      resolved-ref: "96be675b6f2bbca859a13da6c5f551ffd7eebc1c"
+      url: "https://github.com/isoos/buffer"
+    source: git
     version: "1.2.3"
   build:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: build
-      sha256: "45d14a0fb23e018d8287c32fc98d726ce466b231928ed9b9200f29bd3ccd39ae"
-      url: "https://pub.dev"
-    source: hosted
+      path: build
+      ref: "565856b394c26a0d4c8cda88b69b6dcfaa2acd1f"
+      resolved-ref: "565856b394c26a0d4c8cda88b69b6dcfaa2acd1f"
+      url: "https://github.com/dart-lang/build"
+    source: git
     version: "4.0.7"
   build_cli_annotations:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: build_cli_annotations
-      sha256: e563c2e01de8974566a1998410d3f6f03521788160a02503b0b1f1a46c7b3d95
-      url: "https://pub.dev"
-    source: hosted
+      path: build_cli_annotations
+      ref: d01ba0ba11a73b4e541ff65508ae55842a8f887f
+      resolved-ref: d01ba0ba11a73b4e541ff65508ae55842a8f887f
+      url: "https://github.com/kevmoo/build_cli"
+    source: git
     version: "2.1.1"
   build_config:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: build_config
-      sha256: d466ed2dc9c6cd1d169948879b84ee061eb5e22c64a7c6089879c6296d272a8d
-      url: "https://pub.dev"
-    source: hosted
+      path: build_config
+      ref: "5e25e60f55686be9d6eec2aaa448802ae1a17a40"
+      resolved-ref: "5e25e60f55686be9d6eec2aaa448802ae1a17a40"
+      url: "https://github.com/dart-lang/build"
+    source: git
     version: "1.3.3"
   build_daemon:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: build_daemon
-      sha256: "39ab65f7c60c19af64b9ef96e6a5d3ab48355f7dddfd98a9079d55a8cb6628fc"
-      url: "https://pub.dev"
-    source: hosted
+      path: build_daemon
+      ref: "02710260aa2bc857a6d865107c09b52eeb924901"
+      resolved-ref: "02710260aa2bc857a6d865107c09b52eeb924901"
+      url: "https://github.com/dart-lang/build"
+    source: git
     version: "4.1.7"
   build_runner:
     dependency: "direct dev"
     description:
-      name: build_runner
-      sha256: "5367e521935b102bdf1e735d2aab461e36b2edca6517662d088dd04cc39f8d16"
-      url: "https://pub.dev"
-    source: hosted
+      path: build_runner
+      ref: "565856b394c26a0d4c8cda88b69b6dcfaa2acd1f"
+      resolved-ref: "565856b394c26a0d4c8cda88b69b6dcfaa2acd1f"
+      url: "https://github.com/dart-lang/build"
+    source: git
     version: "2.15.1"
   built_collection:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: built_collection
-      sha256: "44922ecebd8e3d0cef743dadd3b54df4e87e2a4c52a29465a1872aa9e192caa8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "built_types/built_collection"
+      ref: "404ebe6035a03736e13ea99babf73770c308e465"
+      resolved-ref: "404ebe6035a03736e13ea99babf73770c308e465"
+      url: "https://github.com/dart-lang/build"
+    source: git
     version: "5.1.2"
   built_value:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: built_value
-      sha256: f87ea98192116f7093cb214551ce1929caae0681fdba282b3d8b4462adee7bb7
-      url: "https://pub.dev"
-    source: hosted
+      path: built_value
+      ref: "5582a42fffe6abfbc21ae8998c47350b1ce2c1b3"
+      resolved-ref: "5582a42fffe6abfbc21ae8998c47350b1ce2c1b3"
+      url: "https://github.com/google/built_value.dart"
+    source: git
     version: "8.13.0"
   cake_backup:
     dependency: "direct main"
@@ -354,148 +387,166 @@ packages:
     source: git
     version: "1.0.0+1"
   characters:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: characters
-      sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/characters"
+      ref: b59ecf4ceebe6153e1c0166b7c9a7fdd9458a89d
+      resolved-ref: b59ecf4ceebe6153e1c0166b7c9a7fdd9458a89d
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "1.4.1"
   checked_yaml:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: checked_yaml
-      sha256: "959525d3162f249993882720d52b7e0c833978df229be20702b33d48d91de70f"
-      url: "https://pub.dev"
-    source: hosted
+      path: checked_yaml
+      ref: d30c2fdb0598d548c25705931531842957623fdd
+      resolved-ref: d30c2fdb0598d548c25705931531842957623fdd
+      url: "https://github.com/google/json_serializable.dart"
+    source: git
     version: "2.0.4"
   cli_config:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: cli_config
-      sha256: ac20a183a07002b700f0c25e61b7ee46b23c309d76ab7b7640a028f18e4d99ec
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/cli_config"
+      ref: "378790dd8cdaecd8cb48283de445f7cf80419cc0"
+      resolved-ref: "378790dd8cdaecd8cb48283de445f7cf80419cc0"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "0.2.0"
   cli_util:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: cli_util
-      sha256: ff6785f7e9e3c38ac98b2fb035701789de90154024a75b6cb926445e83197d1c
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/cli_util"
+      ref: d7a7e2ebba2fdc25e78000a1af08508b60beb7fc
+      resolved-ref: d7a7e2ebba2fdc25e78000a1af08508b60beb7fc
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "0.4.2"
   clock:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: clock
-      sha256: fddb70d9b5277016c77a80201021d40a2247104d9f4aa7bab7157b7e3f05b84b
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/clock"
+      ref: "04f7512ab6d7d554e33abd124a41e2aeec97dcbd"
+      resolved-ref: "04f7512ab6d7d554e33abd124a41e2aeec97dcbd"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.1.2"
   code_assets:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: code_assets
-      sha256: bf394f466ba9205f1812a0433b392d6af280f155f56651eda7c18cc32ed493b8
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/code_assets"
+      ref: fca756b953bc94f109039dd553f0bc18de620338
+      resolved-ref: fca756b953bc94f109039dd553f0bc18de620338
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "1.2.1"
   code_builder:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: code_builder
-      sha256: "811709c1badd02fc054039a13f66e0db1961865f9a314175f68c3eaeebec786f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/code_builder"
+      ref: e0c9007561a030031514dfa23ac1e6ddb1b03a42
+      resolved-ref: e0c9007561a030031514dfa23ac1e6ddb1b03a42
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "4.13.0"
   collection:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: collection
-      sha256: "2f5709ae4d3d59dd8f7cd309b4e023046b57d8a6c82130785d2b0e5868084e76"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/collection"
+      ref: dec28c1d477cd191e2af868579817b926b07d9f5
+      resolved-ref: dec28c1d477cd191e2af868579817b926b07d9f5
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "1.19.1"
   connectivity_plus:
     dependency: "direct main"
     description:
-      name: connectivity_plus
-      sha256: b5e72753cf63becce2c61fd04dfe0f1c430cc5278b53a1342dc5ad839eab29ec
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/connectivity_plus/connectivity_plus"
+      ref: "9f03424b7916b195ec6a4bebe4cc1a310ba40d4a"
+      resolved-ref: "9f03424b7916b195ec6a4bebe4cc1a310ba40d4a"
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "6.1.5"
   connectivity_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: connectivity_plus_platform_interface
-      sha256: "3c09627c536d22fd24691a905cdd8b14520de69da52c7a97499c8be5284a32ed"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/connectivity_plus/connectivity_plus_platform_interface"
+      ref: c46ab89942b2be24aedf79555f247c566d99777f
+      resolved-ref: c46ab89942b2be24aedf79555f247c566d99777f
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "2.1.0"
   console:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: console
-      sha256: e04e7824384c5b39389acdd6dc7d33f3efe6b232f6f16d7626f194f6a01ad69a
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: f391b6d289490e1735566c63fe539d1c3fc40818
+      resolved-ref: f391b6d289490e1735566c63fe539d1c3fc40818
+      url: "https://github.com/DirectMyFile/console.dart"
+    source: git
     version: "4.1.0"
   convert:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: convert
-      sha256: b30acd5944035672bc15c6b7a8b47d773e41e2f17de064350988c5d02adb1c68
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/convert"
+      ref: "16f396fcf87da1db940187db3564b3a490015678"
+      resolved-ref: "16f396fcf87da1db940187db3564b3a490015678"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "3.1.2"
   coverage:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: coverage
-      sha256: "956a3de0725ca232ad353565a8290d3357592bf4250f6f298a185e2d949c5d3d"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/coverage"
+      ref: "176ad7aea84d9fccc5c17795568ea2165a0414f9"
+      resolved-ref: "176ad7aea84d9fccc5c17795568ea2165a0414f9"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.15.1"
   cross_file:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: cross_file
-      sha256: f141ea4f277af142a0356955707f6556f37b03947d39d55585981a06ca437bd6
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/cross_file"
+      ref: "40f0b93ca0cfaeef4bbf8fb8e480d6608bfb0700"
+      resolved-ref: "40f0b93ca0cfaeef4bbf8fb8e480d6608bfb0700"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.3.5+5"
   crypto:
     dependency: "direct main"
     description:
-      name: crypto
-      sha256: e3626ae6270383c9e3a549f34c9e4cd26c09ae6a9adaab2bf4737a00340efdc4
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/crypto"
+      ref: "6903c6c7c981bc04b03e827075d49b03f2ef265c"
+      resolved-ref: "6903c6c7c981bc04b03e827075d49b03f2ef265c"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "3.0.8"
   cryptography:
     dependency: "direct main"
     description:
-      name: cryptography
-      sha256: "3eda3029d34ec9095a27a198ac9785630fe525c0eb6a49f3d575272f8e792ef0"
-      url: "https://pub.dev"
-    source: hosted
+      path: cryptography
+      ref: "87f42fad6f7f120feb8e47854164016ceac3dfd0"
+      resolved-ref: "87f42fad6f7f120feb8e47854164016ceac3dfd0"
+      url: "https://github.com/dint-dev/cryptography"
+    source: git
     version: "2.9.0"
   csslib:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: csslib
-      sha256: "09bad715f418841f976c77db72d5398dc1253c21fb9c0c7f0b0b985860b2d58e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/csslib"
+      ref: "91a840b6bc02e5e4b57fb55a047267923b894c89"
+      resolved-ref: "91a840b6bc02e5e4b57fb55a047267923b894c89"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.0.2"
   cupertino_icons:
     dependency: "direct main"
     description:
-      name: cupertino_icons
-      sha256: "41e005c33bd814be4d3096aff55b1908d419fde52ca656c8c47719ec745873cd"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/packages/cupertino_icons"
+      ref: f330175dbf168a7bf94a127c492e025b4cc0bfba
+      resolved-ref: f330175dbf168a7bf94a127c492e025b4cc0bfba
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.0.9"
   cw_bitcoin:
     dependency: "direct main"
@@ -596,44 +647,49 @@ packages:
     source: path
     version: "1.0.0"
   dart_style:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: dart_style
-      sha256: "29f7ecc274a86d32920b1d9cfc7502fa87220da41ec60b55f329559d5732e2b2"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a0f21e86a7a0ba52f11f46e3ed2ad1144616b512
+      resolved-ref: a0f21e86a7a0ba52f11f46e3ed2ad1144616b512
+      url: "https://github.com/dart-lang/dart_style"
+    source: git
     version: "3.1.7"
   dart_varuint_bitcoin:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: dart_varuint_bitcoin
-      sha256: "4f0ccc9733fb54148b9d3688eea822b7aaabf5cc00025998f8c09a1d45b31b4b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "51f9656d5937659c9f034cb0910dd0144459f137"
+      resolved-ref: "51f9656d5937659c9f034cb0910dd0144459f137"
+      url: "https://github.com/dart-bitcoin-lib/dart-varuint-bitcoin"
+    source: git
     version: "1.0.3"
   data_table_2:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: data_table_2
-      sha256: cb31d465dcf1e1598a662d06d3d2c16c73700ae9e837a3d91588f1dda7519abc
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "4db30aa145e4e831e5527708cf77d9ed4d8e9700"
+      resolved-ref: "4db30aa145e4e831e5527708cf77d9ed4d8e9700"
+      url: "https://github.com/maxim-saplin/data_table_2"
+    source: git
     version: "2.7.2"
   dbus:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: dbus
-      sha256: d0c98dcd4f5169878b6cf8f6e0a52403a9dff371a3e2f019697accbf6f44a270
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "2db8509d7f7081025e7246511e823287fdd09abc"
+      resolved-ref: "2db8509d7f7081025e7246511e823287fdd09abc"
+      url: "https://github.com/canonical/dbus.dart"
+    source: git
     version: "0.7.12"
   decimal:
     dependency: "direct overridden"
     description:
-      name: decimal
-      sha256: "24a261d5d5c87e86c7651c417a5dbdf8bcd7080dd592533910e8d0505a279f21"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: bc9771127e4c26f068fc9b016269f0ddabe9b475
+      resolved-ref: bc9771127e4c26f068fc9b016269f0ddabe9b475
+      url: "https://github.com/a14n/dart-decimal"
+    source: git
     version: "2.3.3"
   device_display_brightness:
     dependency: "direct main"
@@ -647,42 +703,47 @@ packages:
   device_info_plus:
     dependency: "direct main"
     description:
-      name: device_info_plus
-      sha256: "77f757b789ff68e4eaf9c56d1752309bd9f7ad557cb105b938a7f8eb89e59110"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/device_info_plus/device_info_plus"
+      ref: "83f86a357da31c7e9c47ee668fe3142bafea9c91"
+      resolved-ref: "83f86a357da31c7e9c47ee668fe3142bafea9c91"
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "9.1.2"
   device_info_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: device_info_plus_platform_interface
-      sha256: e1ea89119e34903dca74b883d0dd78eb762814f97fb6c76f35e9ff74d261a18f
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/device_info_plus/device_info_plus_platform_interface"
+      ref: "1b37ba220c99b16693991042c3fcc69eae98864a"
+      resolved-ref: "1b37ba220c99b16693991042c3fcc69eae98864a"
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "7.0.3"
   devicelocale:
     dependency: "direct main"
     description:
-      name: devicelocale
-      sha256: "9a19798709ac86b4922d6d5a5c64a0c3834a77512d463c4d4b776669a884b53f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "3ed4bcc443a40da200af162f4b97d63d7b00d291"
+      resolved-ref: "3ed4bcc443a40da200af162f4b97d63d7b00d291"
+      url: "https://github.com/magnatronus/flutter-devicelocale"
+    source: git
     version: "0.8.1"
   dio:
     dependency: "direct main"
     description:
-      name: dio
-      sha256: "852ec3b48cc431ac04fff978413c541502b67ffc3e26921e74e3d994694192c1"
-      url: "https://pub.dev"
-    source: hosted
+      path: dio
+      ref: "4684e29dabaa2655606f1620a4ed316ee3f8c963"
+      resolved-ref: "4684e29dabaa2655606f1620a4ed316ee3f8c963"
+      url: "https://github.com/cfug/dio"
+    source: git
     version: "5.11.1"
   dio_web_adapter:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: dio_web_adapter
-      sha256: "3a1b2cd7be71086f38504956e3ebcd2837288d231ff454bafa78021244102bfc"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugins/web_adapter"
+      ref: "96b10c7919ebc1c3c9438e51280aff587b7d773a"
+      resolved-ref: "96b10c7919ebc1c3c9438e51280aff587b7d773a"
+      url: "https://github.com/cfug/dio"
+    source: git
     version: "2.2.2"
   dnssec_proof:
     dependency: "direct main"
@@ -694,76 +755,85 @@ packages:
     source: git
     version: "0.0.1"
   dotenv:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: dotenv
-      sha256: dc4c91d8d5e9e361803fc81e8ea7ba0f35be483b656837ea6b9a3c41df308c68
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "08216384e8a03b0aa55e0fcb81f4d03a52f7ea76"
+      resolved-ref: "08216384e8a03b0aa55e0fcb81f4d03a52f7ea76"
+      url: "https://github.com/mockturtl/dotenv"
+    source: git
     version: "3.0.0"
   dotted_border:
     dependency: "direct main"
     description:
-      name: dotted_border
-      sha256: "108837e11848ca776c53b30bc870086f84b62ed6e01c503ed976e8f8c7df9c04"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a0168f4a4d410087afb378a06deb058cb92a9fb1
+      resolved-ref: a0168f4a4d410087afb378a06deb058cb92a9fb1
+      url: "https://github.com/ajilo297/Flutter-Dotted-Border"
+    source: git
     version: "2.1.0"
   easy_debounce:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: easy_debounce
-      sha256: f082609cfb8f37defb9e37fc28bc978c6712dedf08d4c5a26f820fa10165a236
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: ed3f2aff0f080aa21cecd86e3a7c108340a9f17d
+      resolved-ref: ed3f2aff0f080aa21cecd86e3a7c108340a9f17d
+      url: "https://github.com/magnuswikhog/easy_debounce"
+    source: git
     version: "2.0.3"
   easy_stepper:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: easy_stepper
-      sha256: "4e66c75b437417981b75754128aeac6e321fd57d8f00d474949f16517e9767e8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "6584bc7fe259608023f0316dec1e5630b364813d"
+      resolved-ref: "6584bc7fe259608023f0316dec1e5630b364813d"
+      url: "https://github.com/ma7moud3osman/easy_stepper"
+    source: git
     version: "1.2.0"
   ed25519_edwards:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: ed25519_edwards
-      sha256: f3c3b109a0e470ee35f6346a155cab290578660852237fce10df6bbd92758534
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "82294111b1121bb675682dfa2269c71bd9cde232"
+      resolved-ref: "82294111b1121bb675682dfa2269c71bd9cde232"
+      url: "https://github.com/Tougee/ed25519"
+    source: git
     version: "0.3.2"
   ed25519_hd_key:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: ed25519_hd_key
-      sha256: "31e191ec97492873067e46dc9cc0c7d55170559c83a478400feffa0627acaccf"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: be3939527511af23dbfd97b5abde56215a5ce60d
+      resolved-ref: be3939527511af23dbfd97b5abde56215a5ce60d
+      url: "https://github.com/alepop/dart-ed25519-hd-key"
+    source: git
     version: "2.3.0"
   eip1559:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: eip1559
-      sha256: c2b81ac85f3e0e71aaf558201dd9a4600f051ece7ebacd0c5d70065c9b458004
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: d1888bf05e99cca1638e7fcc10d7f82d21857f9a
+      resolved-ref: d1888bf05e99cca1638e7fcc10d7f82d21857f9a
+      url: "https://github.com/xclud/dart_eip1559"
+    source: git
     version: "0.6.2"
   eip55:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: eip55
-      sha256: "213a9b86add87a5216328e8494b0ab836e401210c4d55eb5e521bd39e39169e1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1dd7172b6d8f7e21f11378a4bf3489a8d1ff890f"
+      resolved-ref: "1dd7172b6d8f7e21f11378a4bf3489a8d1ff890f"
+      url: "https://github.com/xclud/dart_eip55"
+    source: git
     version: "1.0.2"
   encrypt:
     dependency: "direct main"
     description:
-      name: encrypt
-      sha256: c1f224c9a65df6f2cd111baaf31edd2f31d3f094abdb22a3b0bbcc64698ef80d
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "8581b81c060cde1c531e35a6eaa4b7324e9ab813"
+      resolved-ref: "8581b81c060cde1c531e35a6eaa4b7324e9ab813"
+      url: "https://github.com/leocavalcante/encrypt"
+    source: git
     version: "5.0.2"
   ens_dart:
     dependency: "direct main"
@@ -775,44 +845,49 @@ packages:
     source: git
     version: "1.0.0"
   equatable:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: equatable
-      sha256: "3bce007a596ff8b3119c45d68aaef631272537c03d30e5d4534dd24bf4c5eaa2"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: f98a58960545ba72b51d0eacf746af393a0c6b24
+      resolved-ref: f98a58960545ba72b51d0eacf746af393a0c6b24
+      url: "https://github.com/felangel/equatable"
+    source: git
     version: "2.1.0"
   eth_sig_util:
     dependency: "direct main"
     description:
-      name: eth_sig_util
-      sha256: "20fdc5ce3864e70e5ade1c1cd03cce4ef01018db00adab107303f9055d26b01a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "6acd66a126f470b5541f089fdd1c079d35a59c9a"
+      resolved-ref: "6acd66a126f470b5541f089fdd1c079d35a59c9a"
+      url: "https://github.com/wakumo/eth-sig-util"
+    source: git
     version: "0.0.9"
   event:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: event
-      sha256: "5809a742e6274146a23d9cba63c24caf2f4c87a9a781fdf16ef07f052becaf72"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "93e1c474cf736481a0ef07c15a8c8bbdc5f21b60"
+      resolved-ref: "93e1c474cf736481a0ef07c15a8c8bbdc5f21b60"
+      url: "https://github.com/aryehof/dart-event"
+    source: git
     version: "3.1.0"
   fake_async:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: fake_async
-      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/fake_async"
+      ref: "82417ab30b95ff471ded4bf6a3eea005ca97774f"
+      resolved-ref: "82417ab30b95ff471ded4bf6a3eea005ca97774f"
+      url: "https://github.com/dart-lang/test"
+    source: git
     version: "1.3.3"
   fast_base58:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: fast_base58
-      sha256: "9e231dd973fa774d484452bd65d8c09526ba6ab94707b9e712d4d4f79412361e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "46955c19e499ce5c15755f6f573479d5f5218a45"
+      resolved-ref: "46955c19e499ce5c15755f6f573479d5f5218a45"
+      url: "https://github.com/maoxs2/dart_fast_base58"
+    source: git
     version: "0.2.2"
   fast_scanner:
     dependency: "direct main"
@@ -826,26 +901,29 @@ packages:
   ffi:
     dependency: "direct overridden"
     description:
-      name: ffi
-      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/ffi"
+      ref: "6bd0935f29c7294ebb9aab21c06b47b513def933"
+      resolved-ref: "6bd0935f29c7294ebb9aab21c06b47b513def933"
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "2.1.0"
   ffigen:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: ffigen
-      sha256: "3e12e80ccb6539bb3917217bb6f32709220efb737de0d0fa8736da0b7cb507da"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/ffigen"
+      ref: c837526da8808501b53255caea0364eaa2c84afb
+      resolved-ref: c837526da8808501b53255caea0364eaa2c84afb
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "12.0.0"
   file:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file
-      sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/file"
+      ref: "3f7a46606496f826c2f60586ab71c2b7a9bfbf15"
+      resolved-ref: "3f7a46606496f826c2f60586ab71c2b7a9bfbf15"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "7.0.1"
   file_picker:
     dependency: "direct main"
@@ -857,116 +935,130 @@ packages:
     source: git
     version: "8.1.6"
   file_selector:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector
-      sha256: bd15e43e9268db636b53eeaca9f56324d1622af30e5c34d6e267649758c84d9a
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector"
+      ref: "6a84a5421e84466b01ca71db20ab31cfc088e65d"
+      resolved-ref: "6a84a5421e84466b01ca71db20ab31cfc088e65d"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.1.0"
   file_selector_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector_android
-      sha256: "89243030ea4b3463fb402b44d5eeacc4ccb1c46a88870cb2a5080d693200c1ed"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector_android"
+      ref: cde5b36e7eceacdc3268ee758e3834f2817ffb6b
+      resolved-ref: cde5b36e7eceacdc3268ee758e3834f2817ffb6b
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.5.2+6"
   file_selector_ios:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector_ios
-      sha256: "97269e5307a0ab813b1fa2430bada0a96e0afb74848417f8676f64ba5de0051c"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector_ios"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.5.3+6"
   file_selector_linux:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector_linux
-      sha256: da76400e7872ce7637ffdce12749ec24169c25f6195c28372208e65a24bcd2ab
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector_linux"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.9.4+1"
   file_selector_macos:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector_macos
-      sha256: d57c62362766b5e7ae739448650b66c6aab7a68ba7ecc65e04018652645ae0f4
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector_macos"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.9.5+1"
   file_selector_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector_platform_interface
-      sha256: "35e0bd61ebcdb91a3505813b055b09b79dfdc7d0aee9c09a7ba59ae4bb13dc85"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector_platform_interface"
+      ref: "29211e8b56107f477d4521dd30e8ad713007860e"
+      resolved-ref: "29211e8b56107f477d4521dd30e8ad713007860e"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.7.0"
   file_selector_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector_web
-      sha256: "73181fbc5257776d8ecaa6a94ab3c8e920ad143b9132a6d984a9271dfc6928d3"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector_web"
+      ref: "818b310132fc1ef0e0f641d1ddde15158b08cc63"
+      resolved-ref: "818b310132fc1ef0e0f641d1ddde15158b08cc63"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.9.5"
   file_selector_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: file_selector_windows
-      sha256: fbefc5fb92c6d3cbe8d284a2cd971b593bb07d2cd6da8557b81a862250b4acec
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/file_selector/file_selector_windows"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.9.3+6"
   fixed:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: fixed
-      sha256: "9b67adeef364271501738a7ab452f45f3207b69a7d8d5692eaa22d038757b035"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1bdd715b95d8ed9c7fdffa6735bdcf2bf5ff8e65"
+      resolved-ref: "1bdd715b95d8ed9c7fdffa6735bdcf2bf5ff8e65"
+      url: "https://github.com/onepub-dev/fixed"
+    source: git
     version: "5.3.4"
   fixnum:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: fixnum
-      sha256: b6dc7065e46c974bc7c5f143080a6764ec7a4be6da1285ececdc37be96de53be
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/fixnum"
+      ref: "17d1b2cd13991f3cf844886db1c7ad18910a8908"
+      resolved-ref: "17d1b2cd13991f3cf844886db1c7ad18910a8908"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "1.1.1"
   fixnum_nanodart:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: fixnum_nanodart
-      sha256: "4b0132d11ecddc0d2ca64b6d7dee6726db432ed02cac1349d7532a08be5c54fc"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "332e879371f175b52f688383d6ff795609aece85"
+      resolved-ref: "332e879371f175b52f688383d6ff795609aece85"
+      url: "https://github.com/MrCyjaneK/fixnum_nanodart"
+    source: git
     version: "1.0.0"
   fl_chart:
     dependency: "direct main"
     description:
-      name: fl_chart
-      sha256: "9f11b0b87a6b1843f5ca666ade4a62c08da1a6b7f9efeb91bb2c6f3fa6e31a9a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "636904db0b00b7e8479e45e09121085352bd5cb6"
+      resolved-ref: "636904db0b00b7e8479e45e09121085352bd5cb6"
+      url: "https://github.com/imaNNeo/fl_chart"
+    source: git
     version: "1.3.1"
   flex_color_scheme:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flex_color_scheme
-      sha256: ab854146f201d2d62cc251fd525ef023b84182c4a0bfe4ae4c18ffc505b412d3
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: c0e810b1eba7cd2b2be1f5c6130b86672858db3d
+      resolved-ref: c0e810b1eba7cd2b2be1f5c6130b86672858db3d
+      url: "https://github.com/rydmike/flex_color_scheme"
+    source: git
     version: "8.4.0"
   flex_seed_scheme:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flex_seed_scheme
-      sha256: a3183753bbcfc3af106224bff3ab3e1844b73f58062136b7499919f49f3667e7
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: aa7be701ad58dc8e61637373db2bef0f28d2606e
+      resolved-ref: aa7be701ad58dc8e61637373db2bef0f28d2606e
+      url: "https://github.com/rydmike/flex_seed_scheme"
+    source: git
     version: "4.0.1"
   flutter:
     dependency: "direct main"
@@ -976,10 +1068,11 @@ packages:
   flutter_bloc:
     dependency: "direct main"
     description:
-      name: flutter_bloc
-      sha256: cf51747952201a455a1c840f8171d273be009b932c75093020f9af64f2123e38
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/flutter_bloc"
+      ref: "59098d33f3eed63001d3170295d2bfa76fa84351"
+      resolved-ref: "59098d33f3eed63001d3170295d2bfa76fa84351"
+      url: "https://github.com/felangel/bloc"
+    source: git
     version: "9.1.1"
   flutter_daemon:
     dependency: "direct main"
@@ -996,90 +1089,100 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_form_builder:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_form_builder
-      sha256: "1233251b4bc1d5deb245745d2a89dcebf4cdd382e1ec3f21f1c6703b700e574f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: c55646b1d7f995752dbf5a9bd63da7592d342ffb
+      resolved-ref: c55646b1d7f995752dbf5a9bd63da7592d342ffb
+      url: "https://github.com/flutter-form-builder-ecosystem/flutter_form_builder"
+    source: git
     version: "10.3.0+2"
   flutter_hooks:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_hooks
-      sha256: "8ae1f090e5f4ef5cfa6670ce1ab5dddadd33f3533a7f9ba19d9f958aa2a89f42"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/flutter_hooks"
+      ref: "9a2245f922bbd0ec397562fc7dc4b22b98c9199e"
+      resolved-ref: "9a2245f922bbd0ec397562fc7dc4b22b98c9199e"
+      url: "https://github.com/rrousselGit/flutter_hooks"
+    source: git
     version: "0.21.3+1"
   flutter_inappwebview:
     dependency: "direct main"
     description:
-      name: flutter_inappwebview
-      sha256: "80092d13d3e29b6227e25b67973c67c7210bd5e35c4b747ca908e31eb71a46d5"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_inappwebview
+      ref: f67ae1f34868c7660c16a2473f53a7a7bfb6f784
+      resolved-ref: f67ae1f34868c7660c16a2473f53a7a7bfb6f784
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "6.1.5"
   flutter_inappwebview_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_android
-      sha256: "62557c15a5c2db5d195cb3892aab74fcaec266d7b86d59a6f0027abd672cddba"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_inappwebview_android
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      resolved-ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "1.1.3"
   flutter_inappwebview_internal_annotations:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_internal_annotations
-      sha256: e30fba942e3debea7b7e6cdd4f0f59ce89dd403a9865193e3221293b6d1544c6
-      url: "https://pub.dev"
-    source: hosted
+      path: "dev_packages/flutter_inappwebview_internal_annotations"
+      ref: "5be1ade739ab2a385e94a1bd5936c5a2000d52a9"
+      resolved-ref: "5be1ade739ab2a385e94a1bd5936c5a2000d52a9"
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "1.3.0"
   flutter_inappwebview_ios:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_ios
-      sha256: "5818cf9b26cf0cbb0f62ff50772217d41ea8d3d9cc00279c45f8aabaa1b4025d"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_inappwebview_ios
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      resolved-ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "1.1.2"
   flutter_inappwebview_macos:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_macos
-      sha256: c1fbb86af1a3738e3541364d7d1866315ffb0468a1a77e34198c9be571287da1
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_inappwebview_macos
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      resolved-ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "1.1.2"
   flutter_inappwebview_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_platform_interface
-      sha256: cf5323e194096b6ede7a1ca808c3e0a078e4b33cc3f6338977d75b4024ba2500
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_inappwebview_platform_interface
+      ref: "60f1012e804f785421878ba1ee34403458e6baf2"
+      resolved-ref: "60f1012e804f785421878ba1ee34403458e6baf2"
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "1.3.0+1"
   flutter_inappwebview_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_web
-      sha256: "55f89c83b0a0d3b7893306b3bb545ba4770a4df018204917148ebb42dc14a598"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_inappwebview_web
+      ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      resolved-ref: a17ca9d0b8d8d98b53c6759768f1df4d0a058984
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "1.1.2"
   flutter_inappwebview_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_inappwebview_windows
-      sha256: "8b4d3a46078a2cdc636c4a3d10d10f2a16882f6be607962dbfff8874d1642055"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_inappwebview_windows
+      ref: "952aa783912c9b0fd98d01e3c2c707d97512cd63"
+      resolved-ref: "952aa783912c9b0fd98d01e3c2c707d97512cd63"
+      url: "https://github.com/pichillilorenzo/flutter_inappwebview"
+    source: git
     version: "0.6.0"
   flutter_local_authentication:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
+      ref: "75c8681ebef62398a87c8ae0cccb7cfddffa9734"
       resolved-ref: "75c8681ebef62398a87c8ae0cccb7cfddffa9734"
       url: "https://github.com/cake-tech/flutter_local_authentication"
     source: git
@@ -1087,34 +1190,38 @@ packages:
   flutter_local_notifications:
     dependency: "direct main"
     description:
-      name: flutter_local_notifications
-      sha256: "19ffb0a8bb7407875555e5e98d7343a633bb73707bae6c6a5f37c90014077875"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_local_notifications
+      ref: "6c7378ddb1ed7f885e1e80caa3df3bcfb0fe8707"
+      resolved-ref: "6c7378ddb1ed7f885e1e80caa3df3bcfb0fe8707"
+      url: "https://github.com/MaikuB/flutter_local_notifications"
+    source: git
     version: "19.5.0"
   flutter_local_notifications_linux:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_local_notifications_linux
-      sha256: e3c277b2daab8e36ac5a6820536668d07e83851aeeb79c446e525a70710770a5
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_local_notifications_linux
+      ref: "314b432f98bcaef768468e5755317e10213a59bf"
+      resolved-ref: "314b432f98bcaef768468e5755317e10213a59bf"
+      url: "https://github.com/MaikuB/flutter_local_notifications"
+    source: git
     version: "6.0.0"
   flutter_local_notifications_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_local_notifications_platform_interface
-      sha256: "277d25d960c15674ce78ca97f57d0bae2ee401c844b6ac80fcd972a9c99d09fe"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_local_notifications_platform_interface
+      ref: "816a1ddbf733bba3fb8d87ac3a9c2673ec15881b"
+      resolved-ref: "816a1ddbf733bba3fb8d87ac3a9c2673ec15881b"
+      url: "https://github.com/MaikuB/flutter_local_notifications"
+    source: git
     version: "9.1.0"
   flutter_local_notifications_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_local_notifications_windows
-      sha256: "8d658f0d367c48bd420e7cf2d26655e2d1130147bca1eea917e576ca76668aaf"
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_local_notifications_windows
+      ref: ecd66b1515d17e327a62ca4ff8e94f925e97d688
+      resolved-ref: ecd66b1515d17e327a62ca4ff8e94f925e97d688
+      url: "https://github.com/MaikuB/flutter_local_notifications"
+    source: git
     version: "1.0.3"
   flutter_localizations:
     dependency: "direct main"
@@ -1133,42 +1240,47 @@ packages:
   flutter_mobx:
     dependency: "direct main"
     description:
-      name: flutter_mobx
-      sha256: ba5e93467866a2991259dc51cffd41ef45f695c667c2b8e7b087bf24118b50fe
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_mobx
+      ref: "0cadcd03551baaae57788b7288e1245e6408d5cf"
+      resolved-ref: "0cadcd03551baaae57788b7288e1245e6408d5cf"
+      url: "https://github.com/mobxjs/mobx.dart"
+    source: git
     version: "2.3.0"
   flutter_native_splash:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_native_splash
-      sha256: "8321a6d11a8d13977fa780c89de8d257cce3d841eecfb7a4cadffcc4f12d82dc"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "8c65117f0a4adc04f93deeb595a699a0d6dac559"
+      resolved-ref: "8c65117f0a4adc04f93deeb595a699a0d6dac559"
+      url: "https://github.com/jonbhanson/flutter_native_splash"
+    source: git
     version: "2.4.6"
   flutter_plugin_android_lifecycle:
     dependency: "direct main"
     description:
-      name: flutter_plugin_android_lifecycle
-      sha256: "9b78450b89f059e96c9ebb355fa6b3df1d6b330436e0b885fb49594c41721398"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/flutter_plugin_android_lifecycle"
+      ref: "4afc383a6db56cb969af5d8ad02a1a0220758b66"
+      resolved-ref: "4afc383a6db56cb969af5d8ad02a1a0220758b66"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.0.23"
   flutter_riverpod:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_riverpod
-      sha256: "9255e1e3ad6e38906a1b4f8287678f95f378744c5b46b1985588543f3f19046e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/flutter_riverpod"
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      resolved-ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      url: "https://github.com/rrousselGit/riverpod"
+    source: git
     version: "3.3.2"
   flutter_rust_bridge:
     dependency: "direct overridden"
     description:
-      name: flutter_rust_bridge
-      sha256: "37ef40bc6f863652e865f0b2563ea07f0d3c58d8efad803cc01933a4b2ee067e"
-      url: "https://pub.dev"
-    source: hosted
+      path: frb_dart
+      ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      resolved-ref: f19087cd0cac019b82d52cfa5153ce81b1b6e902
+      url: "https://github.com/fzyzcjy/flutter_rust_bridge"
+    source: git
     version: "2.11.1"
   flutter_secure_storage:
     dependency: "direct main"
@@ -1180,61 +1292,67 @@ packages:
     source: git
     version: "8.1.0"
   flutter_secure_storage_linux:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_secure_storage_linux
-      sha256: be76c1d24a97d0b98f8b54bce6b481a380a6590df992d0098f868ad54dc8f688
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_secure_storage_linux
+      ref: "1355e56cd48404fdbb0848979de72ee317b0c6c9"
+      resolved-ref: "1355e56cd48404fdbb0848979de72ee317b0c6c9"
+      url: "https://github.com/mogol/flutter_secure_storage"
+    source: git
     version: "1.2.3"
   flutter_secure_storage_macos:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: flutter_secure_storage_macos
-      ref: "cake-8.1.0"
+      ref: ca897a08677edb443b366352dd7412735e098e7b
       resolved-ref: ca897a08677edb443b366352dd7412735e098e7b
       url: "https://github.com/cake-tech/flutter_secure_storage.git"
     source: git
     version: "3.0.0"
   flutter_secure_storage_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_secure_storage_platform_interface
-      sha256: cf91ad32ce5adef6fba4d736a542baca9daf3beac4db2d04be350b87f69ac4a8
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_secure_storage_platform_interface
+      ref: "3d5466cc3b93196bc9d8287f67f85a45ab6ebd3e"
+      resolved-ref: "3d5466cc3b93196bc9d8287f67f85a45ab6ebd3e"
+      url: "https://github.com/mogol/flutter_secure_storage"
+    source: git
     version: "1.1.2"
   flutter_secure_storage_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_secure_storage_web
-      sha256: f4ebff989b4f07b2656fb16b47852c0aab9fed9b4ec1c70103368337bc1886a9
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_secure_storage_web
+      ref: "62cb9ec42b78fca2a1e64d729423367735134c11"
+      resolved-ref: "62cb9ec42b78fca2a1e64d729423367735134c11"
+      url: "https://github.com/mogol/flutter_secure_storage"
+    source: git
     version: "1.2.1"
   flutter_secure_storage_windows:
     dependency: "direct overridden"
     description:
-      name: flutter_secure_storage_windows
-      sha256: b20b07cb5ed4ed74fc567b78a72936203f587eba460af1df11281c9326cd3709
-      url: "https://pub.dev"
-    source: hosted
+      path: flutter_secure_storage_windows
+      ref: "908d3f3f5fb1ba90927ceebde8b253f413f833d7"
+      resolved-ref: "908d3f3f5fb1ba90927ceebde8b253f413f833d7"
+      url: "https://github.com/mogol/flutter_secure_storage"
+    source: git
     version: "3.1.2"
   flutter_slidable:
     dependency: "direct main"
     description:
-      name: flutter_slidable
-      sha256: a857de7ea701f276fd6a6c4c67ae885b60729a3449e42766bb0e655171042801
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "7dbeb6667bf410d9a8401f0f8412e14669e7338f"
+      resolved-ref: "7dbeb6667bf410d9a8401f0f8412e14669e7338f"
+      url: "https://github.com/letsar/flutter_slidable"
+    source: git
     version: "3.1.2"
   flutter_svg:
     dependency: "direct main"
     description:
-      name: flutter_svg
-      sha256: bce4a000275c0d0ac42f3fdcf0a6162fb95ac30983ba7ee6cffcf60f6ad33611
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/packages/flutter_svg"
+      ref: "5365902aac0a6cb6cf8e8ad862b74c14dfa30e25"
+      resolved-ref: "5365902aac0a6cb6cf8e8ad862b74c14dfa30e25"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.3.4"
   flutter_test:
     dependency: "direct dev"
@@ -1242,12 +1360,13 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_web_bluetooth:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: flutter_web_bluetooth
-      sha256: "71fa37f699032b4416d56aeb5214363ba057f6aed4eba544cc26293e2582b85d"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: ea59a8cb09b7c17a7d452dc505fc7962302d9fa2
+      resolved-ref: ea59a8cb09b7c17a7d452dc505fc7962302d9fa2
+      url: "https://github.com/jeroen1602/flutter_web_bluetooth"
+    source: git
     version: "1.2.0"
   flutter_web_plugins:
     dependency: transitive
@@ -1257,34 +1376,38 @@ packages:
   fluttertoast:
     dependency: "direct main"
     description:
-      name: fluttertoast
-      sha256: "25e51620424d92d3db3832464774a6143b5053f15e382d8ffbfd40b6e795dcf1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: e875d071da02fe6f3090794d1ac623093c3b7074
+      resolved-ref: e875d071da02fe6f3090794d1ac623093c3b7074
+      url: "https://github.com/PonnamKarthik/FlutterToast"
+    source: git
     version: "8.2.12"
   form_builder_validators:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: form_builder_validators
-      sha256: cd9a06b35abaed8bf050467c1239e3ee1c8795f42d4cb6568c08dbb8a4d6bd36
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "7a561b8aff3739d80c54c394f9b0cc9c861a01b8"
+      resolved-ref: "7a561b8aff3739d80c54c394f9b0cc9c861a01b8"
+      url: "https://github.com/flutter-form-builder-ecosystem/form_builder_validators"
+    source: git
     version: "11.3.0"
   freezed_annotation:
     dependency: "direct overridden"
     description:
-      name: freezed_annotation
-      sha256: c2e2d632dd9b8a2b7751117abcfc2b4888ecfe181bd9fca7170d9ef02e595fe2
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/freezed_annotation"
+      ref: "4f7c141c6d2573622b5ea29fe305a8f08db1483b"
+      resolved-ref: "4f7c141c6d2573622b5ea29fe305a8f08db1483b"
+      url: "https://github.com/rrousselGit/freezed"
+    source: git
     version: "2.4.4"
   frontend_server_client:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: frontend_server_client
-      sha256: "404dbf9bce29beafbe9dcb19219447b6f7d49900cd42b8d3b7af102b24508e25"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkg/frontend_server_client"
+      ref: "25a38e4d0d2a222e4a17311809527a03481f1b41"
+      resolved-ref: "25a38e4d0d2a222e4a17311809527a03481f1b41"
+      url: "https://github.com/dart-lang/sdk"
+    source: git
     version: "4.1.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
@@ -1292,252 +1415,283 @@ packages:
     source: sdk
     version: "0.0.0"
   gap:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: gap
-      sha256: ba305c9fb29d48b4ddfc59cbe4a437fc67b2e18824ec7729196289504d50570b
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: e8b21fa2c0cfe4e830a456abe4d7c25e5ecc89cc
+      resolved-ref: e8b21fa2c0cfe4e830a456abe4d7c25e5ecc89cc
+      url: "https://github.com/letsar/gap"
+    source: git
     version: "3.1.0"
   get_it:
     dependency: "direct main"
     description:
-      name: get_it
-      sha256: d85128a5dae4ea777324730dc65edd9c9f43155c109d5cc0a69cab74139fbac1
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "974c0b367c58fd75e78f0d036147a6963392f975"
+      resolved-ref: "974c0b367c58fd75e78f0d036147a6963392f975"
+      url: "https://github.com/fluttercommunity/get_it"
+    source: git
     version: "7.7.0"
   glob:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: glob
-      sha256: "218aeb56050c714f62a3182775320dfa04602b55074873e24e31bbd39bda96fb"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/glob"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.2.0"
   go_router:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: go_router
-      sha256: f02fd7d2a4dc512fec615529824fdd217fecb3a3d3de68360293a551f21634b3
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/go_router"
+      ref: "6d191c59e6f31c0133955c88bede437745659452"
+      resolved-ref: "6d191c59e6f31c0133955c88bede437745659452"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "14.8.1"
   google_identity_services_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: google_identity_services_web
-      sha256: "5d187c46dc59e02646e10fe82665fc3884a9b71bc1c90c2b8b749316d33ee454"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/google_identity_services_web"
+      ref: "41211cf4c9a801f8d8ad527e54062d457a7cfbff"
+      resolved-ref: "41211cf4c9a801f8d8ad527e54062d457a7cfbff"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.3.3+1"
   googleapis_auth:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: googleapis_auth
-      sha256: befd71383a955535060acde8792e7efc11d2fccd03dd1d3ec434e85b68775938
-      url: "https://pub.dev"
-    source: hosted
+      path: googleapis_auth
+      ref: "1631558038c7e30511295512527d8ade2bd64c40"
+      resolved-ref: "1631558038c7e30511295512527d8ade2bd64c40"
+      url: "https://github.com/google/googleapis.dart"
+    source: git
     version: "1.6.0"
   graphs:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: graphs
-      sha256: "741bbf84165310a68ff28fe9e727332eef1407342fca52759cb21ad8177bb8d0"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/graphs"
+      ref: "55dbd6e09042bc1b935c019d8e70b3f41e6b90ea"
+      resolved-ref: "55dbd6e09042bc1b935c019d8e70b3f41e6b90ea"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.3.2"
   grpc:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: grpc
-      sha256: "5b99b7a420937d4361ece68b798c9af8e04b5bc128a7859f2a4be87427694813"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "4f6fe9b1114aa5bd9d97e5d3b5ae2cb354804a1f"
+      resolved-ref: "4f6fe9b1114aa5bd9d97e5d3b5ae2cb354804a1f"
+      url: "https://github.com/grpc/grpc-dart"
+    source: git
     version: "4.0.1"
   hashlib:
     dependency: "direct main"
     description:
-      name: hashlib
-      sha256: d41795742c10947930630118c6836608deeb9047cd05aee32d2baeb697afd66a
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "07848d0ebc5ff67dac0d2ecb638c3f4cd670d0cf"
+      resolved-ref: "07848d0ebc5ff67dac0d2ecb638c3f4cd670d0cf"
+      url: "https://github.com/bitanon/hashlib"
+    source: git
     version: "1.19.2"
   hashlib_codecs:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: hashlib_codecs
-      sha256: "8cea9ccafcfeaa7324d2ae52c61c69f7ff71f4237507a018caab31b9e416e3b1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: b15b231bbced2bb076890f8cfd384f024e9eba71
+      resolved-ref: b15b231bbced2bb076890f8cfd384f024e9eba71
+      url: "https://github.com/bitanon/hashlib_codecs"
+    source: git
     version: "2.6.0"
   hex:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: hex
-      sha256: "4e7cd54e4b59ba026432a6be2dd9d96e4c5205725194997193bf871703b82c4a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "262f0113430f7c5662f0578d86334fce0e008ea7"
+      resolved-ref: "262f0113430f7c5662f0578d86334fce0e008ea7"
+      url: "https://github.com/stevenroose/dart-hex"
+    source: git
     version: "0.2.0"
   hive:
     dependency: "direct main"
     description:
-      name: hive
-      sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
-      url: "https://pub.dev"
-    source: hosted
+      path: hive
+      ref: "470473ffc1ba39f6c90f31ababe0ee63b76b69fe"
+      resolved-ref: "470473ffc1ba39f6c90f31ababe0ee63b76b69fe"
+      url: "https://github.com/hivedb/hive"
+    source: git
     version: "2.2.3"
   hive_flutter:
     dependency: "direct main"
     description:
-      name: hive_flutter
-      sha256: dca1da446b1d808a51689fb5d0c6c9510c0a2ba01e22805d492c73b68e33eecc
-      url: "https://pub.dev"
-    source: hosted
+      path: hive_flutter
+      ref: db56a26d5324a19373a35e365c50d808c6e1ce0c
+      resolved-ref: db56a26d5324a19373a35e365c50d808c6e1ce0c
+      url: "https://github.com/hivedb/hive"
+    source: git
     version: "1.1.0"
   hooks:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: hooks
-      sha256: "9a62a50b50b769a737bc0a8ff381f333529df3ab746b2f6b02e83760231455ba"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/hooks"
+      ref: "5e2b3d1171cabe90bae969cd098c85182c1751b3"
+      resolved-ref: "5e2b3d1171cabe90bae969cd098c85182c1751b3"
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "2.0.2"
   hooks_riverpod:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: hooks_riverpod
-      sha256: dcaf59f0f41489ff08ce61438ada564d67f40cfa37cc7c8589da78fb600c2edc
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/hooks_riverpod"
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      resolved-ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      url: "https://github.com/rrousselGit/riverpod"
+    source: git
     version: "3.3.2"
   html:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: html
-      sha256: "43b67b8f43321ab066817dfac5619596c98bb1b61624e77203bb4351785f9699"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/html"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "0.15.7"
   http:
     dependency: "direct main"
     description:
-      name: http
-      sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/http"
+      ref: "907782f5a792e7a5b0ed92f118c0ad91f3ecde51"
+      resolved-ref: "907782f5a792e7a5b0ed92f118c0ad91f3ecde51"
+      url: "https://github.com/dart-lang/http"
+    source: git
     version: "1.6.0"
   http2:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: http2
-      sha256: "382d3aefc5bd6dc68c6b892d7664f29b5beb3251611ae946a98d35158a82bbfa"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/http2"
+      ref: "5e2281edd25f9addbf26242a0658d8f2dfa1134b"
+      resolved-ref: "5e2281edd25f9addbf26242a0658d8f2dfa1134b"
+      url: "https://github.com/dart-lang/http"
+    source: git
     version: "2.3.1"
   http_multi_server:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: http_multi_server
-      sha256: "361668bdd71f0ae2dc6d17b75a593520f3c414af6534f9eed1aa72049dd71d18"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/http_multi_server"
+      ref: "12171813892ada461f3db5aafb1499cf7cc74cd0"
+      resolved-ref: "12171813892ada461f3db5aafb1499cf7cc74cd0"
+      url: "https://github.com/dart-lang/http"
+    source: git
     version: "3.2.3"
   http_parser:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: http_parser
-      sha256: "178d74305e7866013777bab2c3d8726205dc5a4dd935297175b19a23a2e66571"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/http_parser"
+      ref: "6ecd13a88b82c2fdc8a555f218bafb0ad0370f51"
+      resolved-ref: "6ecd13a88b82c2fdc8a555f218bafb0ad0370f51"
+      url: "https://github.com/dart-lang/http"
+    source: git
     version: "4.1.2"
   image:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image
-      sha256: bc13f61f0f5cb77936e78ae5dae3800f442718dac5d2bc4654f03c239230ed0c
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: bfac224913cf4c88c838a527bd1767f02c4d005f
+      resolved-ref: bfac224913cf4c88c838a527bd1767f02c4d005f
+      url: "https://github.com/brendan-duncan/image"
+    source: git
     version: "4.13.1"
   image_picker:
     dependency: "direct main"
     description:
-      name: image_picker
-      sha256: e71b1bd9e40124041128d60fc3034c7b1598e1bba4e570bba0c70301c817013a
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker"
+      ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
+      resolved-ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.2.4"
   image_picker_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image_picker_android
-      sha256: d5b3e1774af29c9ab00103afb0d4614070f924d2e0057ac867ec98800114793f
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker_android"
+      ref: "5f14a8010690b33f8f71d888dd6a3de665164e21"
+      resolved-ref: "5f14a8010690b33f8f71d888dd6a3de665164e21"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.8.13+17"
   image_picker_for_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image_picker_for_web
-      sha256: "66257a3191ab360d23a55c8241c91a6e329d31e94efa7be9cf7a212e65850214"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker_for_web"
+      ref: "34746bb64150c7bbf319a9eee4164b4a5d733b2e"
+      resolved-ref: "34746bb64150c7bbf319a9eee4164b4a5d733b2e"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "3.1.1"
   image_picker_ios:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image_picker_ios
-      sha256: "4fb88d4350ffc208c2a09fc321db1f80282688716b8cfe10c8c80acc5ae8934a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker_ios"
+      ref: "54706bdee543ca968d543028fd71dda04379cc40"
+      resolved-ref: "54706bdee543ca968d543028fd71dda04379cc40"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.8.13+10"
   image_picker_linux:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image_picker_linux
-      sha256: "1f81c5f2046b9ab724f85523e4af65be1d47b038160a8c8deed909762c308ed4"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker_linux"
+      ref: b26262b5034d59c9575b708a031ecfdfe12e5118
+      resolved-ref: b26262b5034d59c9575b708a031ecfdfe12e5118
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.2.2"
   image_picker_macos:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image_picker_macos
-      sha256: "86f0f15a309de7e1a552c12df9ce5b59fe927e71385329355aec4776c6a8ec91"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker_macos"
+      ref: "7ebd635db5c71197877a48cc31a7edba9a3f067b"
+      resolved-ref: "7ebd635db5c71197877a48cc31a7edba9a3f067b"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.2.2+1"
   image_picker_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image_picker_platform_interface
-      sha256: "2dee4b4e3be429db71472c9c559c981498070a61af1ba82e0e4986fc5dadc042"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker_platform_interface"
+      ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
+      resolved-ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.11.2"
   image_picker_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: image_picker_windows
-      sha256: d248c86554a72b5495a31c56f060cf73a41c7ff541689327b1a7dbccc33adfae
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/image_picker/image_picker_windows"
+      ref: b26262b5034d59c9575b708a031ecfdfe12e5118
+      resolved-ref: b26262b5034d59c9575b708a031ecfdfe12e5118
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "0.2.2"
   in_app_review:
     dependency: "direct main"
     description:
-      name: in_app_review
-      sha256: "364db0c160b37fe7fad9cdaa18f968473924b17368869010af902760421b6bf8"
-      url: "https://pub.dev"
-    source: hosted
+      path: in_app_review
+      ref: a08b2fcb98c74f2fa12b5f3c61b588b763430368
+      resolved-ref: a08b2fcb98c74f2fa12b5f3c61b588b763430368
+      url: "https://github.com/britannio/in_app_review"
+    source: git
     version: "2.0.12"
   in_app_review_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: in_app_review_platform_interface
-      sha256: fed2c755f2125caa9ae10495a3c163aa7fab5af3585a9c62ef4a6920c5b45f10
-      url: "https://pub.dev"
-    source: hosted
+      path: in_app_review_platform_interface
+      ref: "54fcef429fc6f9ed50660d23741ef7e38a684a1f"
+      resolved-ref: "54fcef429fc6f9ed50660d23741ef7e38a684a1f"
+      url: "https://github.com/britannio/in_app_review"
+    source: git
     version: "2.0.5"
   integration_test:
     dependency: "direct dev"
@@ -1547,125 +1701,140 @@ packages:
   intl:
     dependency: "direct main"
     description:
-      name: intl
-      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/intl"
+      ref: a1dd8e1ff32e5b53bdf38511cd5d7524694af95a
+      resolved-ref: a1dd8e1ff32e5b53bdf38511cd5d7524694af95a
+      url: "https://github.com/dart-lang/i18n"
+    source: git
     version: "0.20.2"
   io:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: io
-      sha256: "2635216ca6a737e60de577ffa1a48a0bec76ca8a62917cfc1bb88c14c570646f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/io"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.1.0"
   jni:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: jni
-      sha256: "2e91e6087291affd10b31b6c872f3e3ac7dc5d93b51b5ba485d930c8f08bde6c"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/jni"
+      ref: c9e8118d48d66ae330f067f59ba4a4227d978d8f
+      resolved-ref: c9e8118d48d66ae330f067f59ba4a4227d978d8f
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "1.1.2"
   jni_flutter:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: jni_flutter
-      sha256: "0dd33d67797560f66e961a6053882d4df54bd345bf063b8fe7ea133f7ad8b191"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/jni_flutter"
+      ref: a2a617910fe3b2433eaa94bfb491bb3475a71870
+      resolved-ref: a2a617910fe3b2433eaa94bfb491bb3475a71870
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "1.0.4+1"
   jni_util:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: jni_util
-      sha256: "1ba86da04a5f2bf18fde2edb235587e70c5b0fc5bd4ba955f46b00942c3fc35f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/jni_util"
+      ref: "7990d3a3806fa6c161e2340a95574d3a92d9bca2"
+      resolved-ref: "7990d3a3806fa6c161e2340a95574d3a92d9bca2"
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "1.0.0"
   js:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: js
-      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.7"
+      path: "pkg/js"
+      ref: c70f78e7d682c158c15ca0c26c729b3ccb932284
+      resolved-ref: c70f78e7d682c158c15ca0c26c729b3ccb932284
+      url: "https://github.com/dart-lang/sdk"
+    source: git
+    version: "0.7.2"
   json_annotation:
     dependency: "direct main"
     description:
-      name: json_annotation
-      sha256: "2a743920d81b7910627f68ee2c9ac1fc0bfee32b9fc3403587d7c6791ca12f80"
-      url: "https://pub.dev"
-    source: hosted
+      path: json_annotation
+      ref: "61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc"
+      resolved-ref: "61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc"
+      url: "https://github.com/google/json_serializable.dart"
+    source: git
     version: "4.12.0"
   json_bigint:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: json_bigint
-      sha256: "9e613e731847ab2154d67160682adf104cbd9863741ec2f7abfcf6e77c70592f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "5528e714cb048860a3fd700fd3f2e406828e9cd8"
+      resolved-ref: "5528e714cb048860a3fd700fd3f2e406828e9cd8"
+      url: "https://github.com/ozaner/json_bigint"
+    source: git
     version: "3.1.0"
   json_rpc_2:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: json_rpc_2
-      sha256: "246b321532f0e8e2ba474b4d757eaa558ae4fdd0688fdbc1e1ca9705f9b8ca0e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/json_rpc_2"
+      ref: "88087ae253cab7ff9eccadb3c8cbf550ee071226"
+      resolved-ref: "88087ae253cab7ff9eccadb3c8cbf550ee071226"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "3.0.3"
   json_serializable:
     dependency: "direct dev"
     description:
-      name: json_serializable
-      sha256: ffcd10cde35a93b2abbbcc26bd9971f4ca93763e8abe78d855e3c4177797e501
-      url: "https://pub.dev"
-    source: hosted
+      path: json_serializable
+      ref: "61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc"
+      resolved-ref: "61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc"
+      url: "https://github.com/google/json_serializable.dart"
+    source: git
     version: "6.14.0"
   kepler:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: kepler
-      sha256: "8cf9f7df525bd4e5b192d91e52f1c75832b1fefb27fb4f4a09b1412b0f4f23d0"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: e2c671389c18a5149147f598627c946c311e36b8
+      resolved-ref: e2c671389c18a5149147f598627c946c311e36b8
+      url: "https://github.com/tjcampanella/kepler"
+    source: git
     version: "1.0.3"
   keyboard_actions:
     dependency: "direct main"
     description:
-      name: keyboard_actions
-      sha256: "59483c0ece5e4f0f0d8e9fb2b641dbf20d8788e14f5ee4da2de31a4a3e33f388"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: e197412c52cd75d8a7c7ac74558610c0f92635e4
+      resolved-ref: e197412c52cd75d8a7c7ac74558610c0f92635e4
+      url: "https://github.com/diegoveloper/flutter_keyboard_actions"
+    source: git
     version: "4.2.2"
   leak_tracker:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: leak_tracker
-      sha256: "33e2e26bdd85a0112ec15400c8cbffea70d0f9c3407491f672a2fad47915e2de"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/leak_tracker"
+      ref: "64bae50ca89528f73d6a440c22b7e3e1713bb7f0"
+      resolved-ref: "64bae50ca89528f73d6a440c22b7e3e1713bb7f0"
+      url: "https://github.com/dart-lang/leak_tracker"
+    source: git
     version: "11.0.2"
   leak_tracker_flutter_testing:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: leak_tracker_flutter_testing
-      sha256: "1dbc140bb5a23c75ea9c4811222756104fbcd1a27173f0c34ca01e16bea473c1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/leak_tracker_flutter_testing"
+      ref: "84d523d8ea34ecf889a3f383e206bc231af31686"
+      resolved-ref: "84d523d8ea34ecf889a3f383e206bc231af31686"
+      url: "https://github.com/dart-lang/leak_tracker"
+    source: git
     version: "3.0.10"
   leak_tracker_testing:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: leak_tracker_testing
-      sha256: "8d5a2d49f4a66b49744b23b018848400d23e54caf9463f4eb20df3eb8acb2eb1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/leak_tracker_testing"
+      ref: "84d523d8ea34ecf889a3f383e206bc231af31686"
+      resolved-ref: "84d523d8ea34ecf889a3f383e206bc231af31686"
+      url: "https://github.com/dart-lang/leak_tracker"
+    source: git
     version: "3.0.2"
   ledger_bitcoin:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "packages/ledger-bitcoin"
       ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
@@ -1674,7 +1843,7 @@ packages:
     source: git
     version: "0.0.3"
   ledger_ethereum:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "packages/ledger-ethereum"
       ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
@@ -1692,7 +1861,7 @@ packages:
     source: git
     version: "1.6.0+1"
   ledger_litecoin:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "packages/ledger-litecoin"
       ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
@@ -1710,100 +1879,112 @@ packages:
     source: git
     version: "1.0.8"
   libcrypto:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: libcrypto
-      sha256: "18a97db8d88147b0b60d2755f29b5e4944181c4c1a9f52bd1ecbea1b0a5aab03"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "98be84e0a2c7b423842d1fbbd2d920ff03180235"
+      resolved-ref: "98be84e0a2c7b423842d1fbbd2d920ff03180235"
+      url: "https://github.com/MrCyjaneK/libcrypto"
+    source: git
     version: "0.2.2"
   local_auth:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: local_auth
-      sha256: "434d854cf478f17f12ab29a76a02b3067f86a63a6d6c4eb8fbfdcfe4879c1b7b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/local_auth/local_auth"
+      ref: db8bfed397145b7c5a1ade3c374a74053649ce12
+      resolved-ref: db8bfed397145b7c5a1ade3c374a74053649ce12
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.3.0"
   local_auth_android:
     dependency: "direct main"
     description:
-      name: local_auth_android
-      sha256: a0bdfcc0607050a26ef5b31d6b4b254581c3d3ce3c1816ab4d4f4a9173e84467
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/local_auth/local_auth_android"
+      ref: "1c0be204c45eea42927eb6005bb45f16a8fffb07"
+      resolved-ref: "1c0be204c45eea42927eb6005bb45f16a8fffb07"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.0.56"
   local_auth_darwin:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: local_auth_darwin
-      sha256: "699873970067a40ef2f2c09b4c72eb1cfef64224ef041b3df9fdc5c4c1f91f49"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/local_auth/local_auth_darwin"
+      ref: d3e0285a6bf353f4bed9ba01d2b37a68fa63d741
+      resolved-ref: d3e0285a6bf353f4bed9ba01d2b37a68fa63d741
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.6.1"
   local_auth_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: local_auth_platform_interface
-      sha256: f98b8e388588583d3f781f6806e4f4c9f9e189d898d27f0c249b93a1973dd122
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/local_auth/local_auth_platform_interface"
+      ref: "321a5846838d2bfa5f3dd463e3833b951da0db32"
+      resolved-ref: "321a5846838d2bfa5f3dd463e3833b951da0db32"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.1.0"
   local_auth_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: local_auth_windows
-      sha256: bc4e66a29b0fdf751aafbec923b5bed7ad6ed3614875d8151afe2578520b2ab5
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/local_auth/local_auth_windows"
+      ref: e978e06eb9207e4bd7a56b2139b2906d3150edb5
+      resolved-ref: e978e06eb9207e4bd7a56b2139b2906d3150edb5
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.0.11"
   logger:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: logger
-      sha256: "2a0dc097e7b01d942475bdd552356db2d0f768b05540bd4b2b53f1840f2239a7"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: c4d65c3ecb2dbf275d32fc4ef0f2a7af3d45d0b7
+      resolved-ref: c4d65c3ecb2dbf275d32fc4ef0f2a7af3d45d0b7
+      url: "https://github.com/SourceHorizon/logger"
+    source: git
     version: "2.8.0"
   logging:
     dependency: "direct dev"
     description:
-      name: logging
-      sha256: c8245ada5f1717ed44271ed1c26b8ce85ca3228fd2ffdb75468ab01979309d61
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/logging"
+      ref: "8151b9f57fa3fee10421a19ce24470e143c0dee5"
+      resolved-ref: "8151b9f57fa3fee10421a19ce24470e143c0dee5"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "1.3.0"
   lottie:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: lottie
-      sha256: d20f4d75fcab2f27e039c33d6d0ee923a9da3dc8579d59454188a2714a5cce84
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: ccf57b76ce1ec782de2809f852fc208f7cea506a
+      resolved-ref: ccf57b76ce1ec782de2809f852fc208f7cea506a
+      url: "https://github.com/xvrh/lottie-flutter"
+    source: git
     version: "3.7.0"
   matcher:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: matcher
-      sha256: dc0b7dc7651697ea4ff3e69ef44b0407ea32c487a39fff6a4004fa585e901861
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/matcher"
+      ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      resolved-ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      url: "https://github.com/dart-lang/test"
+    source: git
     version: "0.12.19"
   material_color_utilities:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: material_color_utilities
-      sha256: "9c337007e82b1889149c82ed242ed1cb24a66044e30979c44912381e9be4c48b"
-      url: "https://pub.dev"
-    source: hosted
+      path: dart
+      ref: "5d4397afe1830b09ff99c1cb3cf901038951282a"
+      resolved-ref: "5d4397afe1830b09ff99c1cb3cf901038951282a"
+      url: "https://github.com/material-foundation/material-color-utilities"
+    source: git
     version: "0.13.0"
   memoize:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: memoize
-      sha256: "51481d328c86cbdc59711369179bac88551ca0556569249be5317e66fc796cac"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: f541e50b3be0e7b9e83bbd3858d3a25356140570
+      resolved-ref: f541e50b3be0e7b9e83bbd3858d3a25356140570
+      url: "https://github.com/wrike/memoize_dart"
+    source: git
     version: "3.0.0"
   meta:
     dependency: transitive
@@ -1814,44 +1995,49 @@ packages:
     source: hosted
     version: "1.17.0"
   mime:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: mime
-      sha256: bd47de35f07e27267e69c8c8b22edf9473bfee170a60d60fcc93730c5144b7f6
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/mime"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.1.0"
   mobx:
     dependency: "direct main"
     description:
-      name: mobx
-      sha256: a14558d22e2d3b0edf9151c75b67638c3907123046e96e1d1ee05e23c6a82a56
-      url: "https://pub.dev"
-    source: hosted
+      path: mobx
+      ref: d0f282e919d78d239b750b17aca76f1a1023150b
+      resolved-ref: d0f282e919d78d239b750b17aca76f1a1023150b
+      url: "https://github.com/mobxjs/mobx.dart"
+    source: git
     version: "2.6.1"
   mobx_codegen:
     dependency: "direct dev"
     description:
-      name: mobx_codegen
-      sha256: e90238a74e1e6cd7886228552006db73cd7768ce1584ffa13112332df8565853
-      url: "https://pub.dev"
-    source: hosted
+      path: mobx_codegen
+      ref: dd4c9a348822c68a4955b4d009d0151a8a24be9b
+      resolved-ref: dd4c9a348822c68a4955b4d009d0151a8a24be9b
+      url: "https://github.com/mobxjs/mobx.dart"
+    source: git
     version: "2.7.8"
   mockito:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: mockito
-      sha256: eff30d002f0c8bf073b6f929df4483b543133fcafce056870163587b03f1d422
-      url: "https://pub.dev"
-    source: hosted
+      path: "builder_pkgs/mockito"
+      ref: f550d53994b429f48f2b86f9c70956bf50d4e0c2
+      resolved-ref: f550d53994b429f48f2b86f9c70956bf50d4e0c2
+      url: "https://github.com/dart-lang/build"
+    source: git
     version: "5.6.4"
   mocktail:
     dependency: "direct dev"
     description:
-      name: mocktail
-      sha256: "5e1bf53cc7baa8062a33b84424deb61513858ea05c601b8509e683815b5914aa"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/mocktail"
+      ref: "12989138eb6beb3d1cad330ebfd88fef005a4e3e"
+      resolved-ref: "12989138eb6beb3d1cad330ebfd88fef005a4e3e"
+      url: "https://github.com/felangel/mocktail"
+    source: git
     version: "1.0.5"
   modal_bottom_sheet:
     dependency: "direct main"
@@ -1863,7 +2049,7 @@ packages:
     source: git
     version: "3.0.0"
   monero:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "impls/monero.dart"
       ref: "33671871de3d51696b66ffb3bd94f744e26974f6"
@@ -1872,39 +2058,43 @@ packages:
     source: git
     version: "0.0.0"
   msgpack_dart:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: msgpack_dart
-      sha256: c2d235ed01f364719b5296aecf43ac330f0d7bc865fa134d0d7910a40454dffb
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "2527c0a1e2eabf92a7f5db50983d3ee4ec71ccaa"
+      resolved-ref: "2527c0a1e2eabf92a7f5db50983d3ee4ec71ccaa"
+      url: "https://github.com/knopp/msgpack_dart"
+    source: git
     version: "1.0.1"
   msix:
     dependency: "direct dev"
     description:
-      name: msix
-      sha256: edde648a8133bf301883c869d19d127049683037c65ff64173ba526ac7a8af2f
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1ab4df346a92ef4dc7bf02fd857d2975be04d47c"
+      resolved-ref: "1ab4df346a92ef4dc7bf02fd857d2975be04d47c"
+      url: "https://github.com/YehudaKremer/msix"
+    source: git
     version: "3.16.9"
   mutex:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: mutex
-      sha256: "8827da25de792088eb33e572115a5eb0d61d61a3c01acbc8bcbe76ed78f1a1f2"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "84ca903a3ac863735e3228c75a212133621f680f"
+      resolved-ref: "84ca903a3ac863735e3228c75a212133621f680f"
+      url: "https://github.com/hoylen/dart-mutex"
+    source: git
     version: "3.1.0"
   nanodart:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: nanodart
-      sha256: "4b2f42d60307b54e8cf384d6193a567d07f8efd773858c0d5948246153c13282"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "5c1b352fc02d94a34129f3848bedcec441c2b8c7"
+      resolved-ref: "5c1b352fc02d94a34129f3848bedcec441c2b8c7"
+      url: "https://github.com/appditto/nanodart"
+    source: git
     version: "2.0.0"
   nanoutil:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
       ref: c01a9c552917008d8fbc6b540db657031625b04f
@@ -1913,36 +2103,40 @@ packages:
     source: git
     version: "1.0.3"
   native_toolchain_c:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: native_toolchain_c
-      sha256: f9c168717100ae6d9fee9ffb0be379bf1f8b26b0f6bcbd4fdddcd931993a6a72
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/native_toolchain_c"
+      ref: "7dbb51d78534b3c037f3f063448cc45e5ca80a58"
+      resolved-ref: "7dbb51d78534b3c037f3f063448cc45e5ca80a58"
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "0.19.2"
   nested:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: nested
-      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "23dbf54af127301839927831695800edd5cc3dc0"
+      resolved-ref: "23dbf54af127301839927831695800edd5cc3dc0"
+      url: "https://github.com/rrousselGit/nested"
+    source: git
     version: "1.0.0"
   nm:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: nm
-      sha256: "2c9aae4127bdc8993206464fcc063611e0e36e72018696cd9631023a31b24254"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "6568c7666071f56177e45333c80dc1978ae14483"
+      resolved-ref: "6568c7666071f56177e45333c80dc1978ae14483"
+      url: "https://github.com/canonical/nm.dart"
+    source: git
     version: "0.5.0"
   node_preamble:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: node_preamble
-      sha256: "6e7eac89047ab8a8d26cf16127b5ed26de65209847630400f9aefd7cd5c730db"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: ddd4f12ddddf94ad53ec17a742008c23ad666cef
+      resolved-ref: ddd4f12ddddf94ad53ec17a742008c23ad666cef
+      url: "https://github.com/mbullington/node_preamble.dart"
+    source: git
     version: "2.0.2"
   nostr_tools:
     dependency: "direct main"
@@ -1954,12 +2148,13 @@ packages:
     source: git
     version: "1.0.9"
   objective_c:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: objective_c
-      sha256: b7fb95a6d9a4f009edd63dc5ac69f07420b23a16161c6dd8660290b59c602e8e
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/objective_c"
+      ref: "7990d3a3806fa6c161e2340a95574d3a92d9bca2"
+      resolved-ref: "7990d3a3806fa6c161e2340a95574d3a92d9bca2"
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "9.5.0"
   on_chain:
     dependency: "direct main"
@@ -1971,111 +2166,124 @@ packages:
     source: git
     version: "3.7.0"
   package_config:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: package_config
-      sha256: f096c55ebb7deb7e384101542bfba8c52696c1b56fca2eb62827989ef2353bbc
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/package_config"
+      ref: "9c533582195b12ea006dc7188767b5a288b4c5c8"
+      resolved-ref: "9c533582195b12ea006dc7188767b5a288b4c5c8"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.2.0"
   package_info_plus:
     dependency: "direct main"
     description:
-      name: package_info_plus
-      sha256: "16eee997588c60225bda0488b6dcfac69280a6b7a3cf02c741895dd370a02968"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/package_info_plus/package_info_plus"
+      ref: "9f03424b7916b195ec6a4bebe4cc1a310ba40d4a"
+      resolved-ref: "9f03424b7916b195ec6a4bebe4cc1a310ba40d4a"
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "8.3.1"
   package_info_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: package_info_plus_platform_interface
-      sha256: "202a487f08836a592a6bd4f901ac69b3a8f146af552bbd14407b6b41e1c3f086"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/package_info_plus/package_info_plus_platform_interface"
+      ref: "9f03424b7916b195ec6a4bebe4cc1a310ba40d4a"
+      resolved-ref: "9f03424b7916b195ec6a4bebe4cc1a310ba40d4a"
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "3.2.1"
   path:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: path
-      sha256: "75cca69d1490965be98c73ceaea117e8a04dd21217b37b292c9ddbec0d955bc5"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/path"
+      ref: "010a343e71238b3ed7fcd55dad5869ecaa40991a"
+      resolved-ref: "010a343e71238b3ed7fcd55dad5869ecaa40991a"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "1.9.1"
   path_drawing:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: path_drawing
-      sha256: bbb1934c0cbb03091af082a6389ca2080345291ef07a5fa6d6e078ba8682f977
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "27ce967273429ce505962d4cf68c17a5b16b5aef"
+      resolved-ref: "27ce967273429ce505962d4cf68c17a5b16b5aef"
+      url: "https://github.com/dnfield/flutter_path_drawing"
+    source: git
     version: "1.0.1"
   path_parsing:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: path_parsing
-      sha256: "883402936929eac138ee0a45da5b0f2c80f89913e6dc3bf77eb65b84b409c6ca"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/packages/path_parsing"
+      ref: "3c3181c2cfcd0557e12a95ace0e347141f63e384"
+      resolved-ref: "3c3181c2cfcd0557e12a95ace0e347141f63e384"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.1.0"
   path_provider:
     dependency: "direct main"
     description:
-      name: path_provider
-      sha256: a7f4874f987173da295a61c181b8ee71dab59b332a486b391babf26a1b884825
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/path_provider/path_provider"
+      ref: aa964a3ed6d97e4e9778feed85fa9ef1255a0477
+      resolved-ref: aa964a3ed6d97e4e9778feed85fa9ef1255a0477
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.1.6"
   path_provider_android:
     dependency: "direct main"
     description:
-      name: path_provider_android
-      sha256: "69cbd515a62b94d32a7944f086b2f82b4ac40a1d45bebfc00813a430ab2dabcd"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/path_provider/path_provider_android"
+      ref: f52df418da6ef2ba666112b4b9e87d9a1c43a0d0
+      resolved-ref: f52df418da6ef2ba666112b4b9e87d9a1c43a0d0
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.3.1"
   path_provider_foundation:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: path_provider_foundation
-      sha256: "2a376b7d6392d80cd3705782d2caa734ca4727776db0b6ec36ef3f1855197699"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/path_provider/path_provider_foundation"
+      ref: "2ada7838737b6ea374c3ef1fffba95bd097eed92"
+      resolved-ref: "2ada7838737b6ea374c3ef1fffba95bd097eed92"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.6.0"
   path_provider_linux:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: path_provider_linux
-      sha256: "58c2005f147315b11e9b4a7bc889cd5203e250cba8e3f012dae259b4972b5c16"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/path_provider/path_provider_linux"
+      ref: af136ccab198bc7dfa25f5fa5ace23fdbcdaadc7
+      resolved-ref: af136ccab198bc7dfa25f5fa5ace23fdbcdaadc7
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.2.2"
   path_provider_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: path_provider_platform_interface
-      sha256: "484838772624c3a4b94f1e44a3e19897fee738f2d5c4ce448443b0417f7c9dda"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/path_provider/path_provider_platform_interface"
+      ref: aa964a3ed6d97e4e9778feed85fa9ef1255a0477
+      resolved-ref: aa964a3ed6d97e4e9778feed85fa9ef1255a0477
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.1.3"
   path_provider_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: path_provider_windows
-      sha256: bd6f00dbd873bfb70d0761682da2b3a2c2fccc2b9e84c495821639601d81afe7
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/path_provider/path_provider_windows"
+      ref: "47a92dbdea9bc433779c76b404af9c5ab6fa40cc"
+      resolved-ref: "47a92dbdea9bc433779c76b404af9c5ab6fa40cc"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.3.0"
   pausable_timer:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: pausable_timer
-      sha256: "6ef1a95441ec3439de6fb63f39a011b67e693198e7dae14e20675c3c00e86074"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "41e21b6444749a5d8cdb720128c9be66168b83cf"
+      resolved-ref: "41e21b6444749a5d8cdb720128c9be66168b83cf"
+      url: "https://github.com/llucax/pausable_timer"
+    source: git
     version: "3.1.0+3"
   payjoin_flutter:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
       ref: b28c825b1d63381e8c2b25ef2ccabacbf833ce53
@@ -2086,170 +2294,191 @@ packages:
   pedantic:
     dependency: "direct dev"
     description:
-      name: pedantic
-      sha256: "67fc27ed9639506c856c840ccce7594d0bdcd91bc8d53d6e52359449a1d50602"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: bdcb962e3d2bda31a0e6dadb58b670aa633046e9
+      resolved-ref: bdcb962e3d2bda31a0e6dadb58b670aa633046e9
+      url: "https://github.com/google/pedantic"
+    source: git
     version: "1.11.1"
   permission_handler:
     dependency: "direct main"
     description:
-      name: permission_handler
-      sha256: "59adad729136f01ea9e35a48f5d1395e25cba6cea552249ddbe9cf950f5d7849"
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler
+      ref: "441c53c4e02ac9b6417f758495a4b04618c6e600"
+      resolved-ref: "441c53c4e02ac9b6417f758495a4b04618c6e600"
+      url: "https://github.com/baseflow/flutter-permission-handler"
+    source: git
     version: "11.4.0"
   permission_handler_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_android
-      sha256: d3971dcdd76182a0c198c096b5db2f0884b0d4196723d21a866fc4cdea057ebc
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler_android
+      ref: "1dd6dc265a8f7b8b8dd0dd04f7202b8c17e4aa59"
+      resolved-ref: "1dd6dc265a8f7b8b8dd0dd04f7202b8c17e4aa59"
+      url: "https://github.com/baseflow/flutter-permission-handler"
+    source: git
     version: "12.1.0"
   permission_handler_apple:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_apple
-      sha256: "82d31c9b321c45785ccd73bce9c63af17037116193b4000b998a4363059adb6e"
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler_apple
+      ref: a022af3ca5f7c9c65b5914d1352dd4b7bc36d299
+      resolved-ref: a022af3ca5f7c9c65b5914d1352dd4b7bc36d299
+      url: "https://github.com/baseflow/flutter-permission-handler"
+    source: git
     version: "9.6.5"
   permission_handler_html:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_html
-      sha256: "6ea98b3f17f60d3b527f2647ed2ab4dc0f6bfe25b22cb1c363f5d8f62252f6ac"
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler_html
+      ref: f93a58bb2b993b831f48cf1ec0b3537905643e7e
+      resolved-ref: f93a58bb2b993b831f48cf1ec0b3537905643e7e
+      url: "https://github.com/baseflow/flutter-permission-handler"
+    source: git
     version: "0.1.4+1"
   permission_handler_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_platform_interface
-      sha256: ed86a61c190258fdd65de395ea0632822e3415c1faec38eae0c31b479c28a531
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler_platform_interface
+      ref: "90cedc2c60f9ea19542f59d30db9261493072984"
+      resolved-ref: "90cedc2c60f9ea19542f59d30db9261493072984"
+      url: "https://github.com/baseflow/flutter-permission-handler"
+    source: git
     version: "4.4.1"
   permission_handler_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_windows
-      sha256: "210031f00c32d61038fb4175d82dd874a426bfbae2c2af774bd4e5abb5cac755"
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler_windows
+      ref: dd5055571a1f8cddcaae714e54d3f6c347e50ec5
+      resolved-ref: dd5055571a1f8cddcaae714e54d3f6c347e50ec5
+      url: "https://github.com/baseflow/flutter-permission-handler"
+    source: git
     version: "0.2.4"
   petitparser:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: petitparser
-      sha256: "07c8f0b1913bcde1ff0d26e57ace2f3012ccbf2b204e070290dad3bb22797646"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "3d3c2155df8c427027660f8ca37ddc6e7b894748"
+      resolved-ref: "3d3c2155df8c427027660f8ca37ddc6e7b894748"
+      url: "https://github.com/petitparser/dart-petitparser"
+    source: git
     version: "6.1.0"
   pinenacl:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: pinenacl
-      sha256: "57e907beaacbc3c024a098910b6240758e899674de07d6949a67b52fd984cbdf"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "30c38f30a34137aa748217cf2d6fc978740d8da8"
+      resolved-ref: "30c38f30a34137aa748217cf2d6fc978740d8da8"
+      url: "https://github.com/ilap/pinenacl-dart"
+    source: git
     version: "0.6.0"
   platform:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: platform
-      sha256: "5d6b1b0036a5f331ebc77c850ebc8506cbc1e9416c27e59b439f917a902a4984"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/platform"
+      ref: "07aff972869412010a73bbe33af0909bc0536e78"
+      resolved-ref: "07aff972869412010a73bbe33af0909bc0536e78"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "3.1.6"
   plugin_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: plugin_platform_interface
-      sha256: "4820fbfdb9478b1ebae27888254d445073732dae3d6ea81f0b7e06d5dedc3f02"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/plugin_platform_interface"
+      ref: bb97da8ec627466fdb45cdd36e2c0e35dee40e9e
+      resolved-ref: bb97da8ec627466fdb45cdd36e2c0e35dee40e9e
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.1.8"
   pointycastle:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: pointycastle
-      sha256: "4be0097fcf3fd3e8449e53730c631200ebc7b88016acecab2b0da2f0149222fe"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: c7009dbf7785f4ff865ddb4eefdaed8c18ef3baa
+      resolved-ref: c7009dbf7785f4ff865ddb4eefdaed8c18ef3baa
+      url: "https://github.com/bcgit/pc-dart"
+    source: git
     version: "3.9.1"
   polyseed:
     dependency: "direct main"
     description:
-      name: polyseed
-      sha256: ccc6ba0ed3976837e770a324a6295fbf3d7c0d05fc0fa1906e36479b07c2675b
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1a8280ac2b6f01d202d8bff71527fe1ce498c4ed"
+      resolved-ref: "1a8280ac2b6f01d202d8bff71527fe1ce498c4ed"
+      url: "https://github.com/cake-tech/polyseed_dart"
+    source: git
     version: "0.0.7"
   pool:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: pool
-      sha256: "4177f68c237ea2128d1bee66ac17b2ce05ba3dbaafcbdd54c5d40a39d0b6b11c"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/pool"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.5.3"
   posix:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: posix
-      sha256: "613646d076944f3acc125830af935b48d4b8a57a388691547bbfd25b434f4d63"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: b913390e4e4686afd20686138d0f188e942e78e8
+      resolved-ref: b913390e4e4686afd20686138d0f188e942e78e8
+      url: "https://github.com/onepub-dev/dart_posix"
+    source: git
     version: "6.5.4"
   process:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: process
-      sha256: "4242ba3508d37e01808bdf71ad1d5bb93a8d671bf2e7450e6b1b353fb0808891"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/process"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "5.0.6"
   protobuf:
     dependency: "direct overridden"
     description:
-      name: protobuf
-      sha256: "68645b24e0716782e58948f8467fd42a880f255096a821f9e7d0ec625b00c84d"
-      url: "https://pub.dev"
-    source: hosted
+      path: protobuf
+      ref: a852ba4e4b6f319c655fc938864dac8442b7c4ad
+      resolved-ref: a852ba4e4b6f319c655fc938864dac8442b7c4ad
+      url: "https://github.com/google/protobuf.dart"
+    source: git
     version: "3.1.0"
   provider:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: provider
-      sha256: "4e82183fa20e5ca25703ead7e05de9e4cceed1fbd1eadc1ac3cb6f565a09f272"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/provider"
+      ref: "558bdcd26ddb2b922bec06e3fa0d91bc59479baf"
+      resolved-ref: "558bdcd26ddb2b922bec06e3fa0d91bc59479baf"
+      url: "https://github.com/rrousselGit/provider"
+    source: git
     version: "6.1.5+1"
   pub_semver:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: pub_semver
-      sha256: "261236774e8b1d69cfc6b9eabbc96c40f25e7a2d6b171f3385d4f65d5734fb24"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/pub_semver"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.2.1"
   pubspec_parse:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: pubspec_parse
-      sha256: "9ac81c01ffd6a9cf9b2713288834fbaaf6aebde05ffdf02d380e68b8e06f27d8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/pubspec_parse"
+      ref: afaaac4c421527c4c5ff4d6c366433525e4b9622
+      resolved-ref: afaaac4c421527c4c5ff4d6c366433525e4b9622
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.7.0"
   qr:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: qr
-      sha256: "2c0189dca64a3ab08dda7acd7911c89af2374f08eb4eaded3e8ef4609f3b9c8b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a0b4ac89122966d2c4f9a616d011c1b5d3bd064e
+      resolved-ref: a0b4ac89122966d2c4f9a616d011c1b5d3bd064e
+      url: "https://github.com/kevmoo/qr.dart"
+    source: git
     version: "3.0.3"
   qr_flutter:
     dependency: "direct main"
@@ -2263,58 +2492,65 @@ packages:
   quick_actions:
     dependency: "direct main"
     description:
-      name: quick_actions
-      sha256: "1d3397c1ce5cd91b732c675bc82571d316d6de8241d774927b4ea3680c860e1a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/quick_actions/quick_actions"
+      ref: "36e088a75b9b10977c4858828f2b3fec43b0670b"
+      resolved-ref: "36e088a75b9b10977c4858828f2b3fec43b0670b"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.1.1"
   quick_actions_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: quick_actions_android
-      sha256: "6fbdda87fbedd0602b91f35d870c2cbcb6d053bc863efb76c6e7f60f1d8e3fd6"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/quick_actions/quick_actions_android"
+      ref: c05ab81dddf0f145c57b43df80903ce17ba84baf
+      resolved-ref: c05ab81dddf0f145c57b43df80903ce17ba84baf
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.0.30"
   quick_actions_ios:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: quick_actions_ios
-      sha256: fe090ae5b9673c7031ca307371f611061a731adda6a5c9574aed9439475218cf
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/quick_actions/quick_actions_ios"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.2.5"
   quick_actions_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: quick_actions_platform_interface
-      sha256: "1fec7068db5122cd019e9340d3d7be5d36eab099695ef3402c7059ee058329a4"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/quick_actions/quick_actions_platform_interface"
+      ref: "761812665448c7e5a1bd5810aeabfac1ac027038"
+      resolved-ref: "761812665448c7e5a1bd5810aeabfac1ac027038"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.1.0"
   quiver:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: quiver
-      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "6ec3568dee63ae02e8676e28a6df0157f4d20e84"
+      resolved-ref: "6ec3568dee63ae02e8676e28a6df0157f4d20e84"
+      url: "https://github.com/google/quiver-dart"
+    source: git
     version: "3.2.2"
   rational:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: rational
-      sha256: cb808fb6f1a839e6fc5f7d8cb3b0a10e1db48b3be102de73938c627f0b636336
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "09b5adc5be7a27c349a36b73d0d616b133ad8730"
+      resolved-ref: "09b5adc5be7a27c349a36b73d0d616b133ad8730"
+      url: "https://github.com/a14n/dart-rational"
+    source: git
     version: "2.2.3"
   record_use:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: record_use
-      sha256: "2551bd8eecfe95d14ae75f6021ad0248be5c27f138c2ec12fcb52b500b3ba1ed"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/record_use"
+      ref: abe17706806e8aa3cdafcbdab02cbbb5d1d2f884
+      resolved-ref: abe17706806e8aa3cdafcbdab02cbbb5d1d2f884
+      url: "https://github.com/dart-lang/native"
+    source: git
     version: "0.6.0"
   reown_core:
     dependency: transitive
@@ -2345,39 +2581,43 @@ packages:
     source: path
     version: "0.0.1"
   rive:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: rive
-      sha256: "2551a44fa766a7ed3f52aa2b94feda6d18d00edc25dee5f66e72e9b365bb6d6c"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "2dbfe918a3d38340f378ab2734b1c97ebcb4ab26"
+      resolved-ref: "2dbfe918a3d38340f378ab2734b1c97ebcb4ab26"
+      url: "https://github.com/MrCyjaneK/rive-flutter-no-lfs"
+    source: git
     version: "0.13.20"
   rive_common:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: rive_common
-      sha256: "2ba42f80d37a4efd0696fb715787c4785f8a13361e8aea9227c50f1e78cf763a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      resolved-ref: "34ef174e87dc4a29e728babfaad8dd9464b704ae"
+      url: "https://github.com/malik1004x/rive_common"
+    source: git
     version: "0.4.15"
   riverpod:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: riverpod
-      sha256: "17100416c51db7810c71a7bb2c34d1f881faa0074fd452afb0c4db6f8f126c76"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/riverpod"
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      resolved-ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      url: "https://github.com/rrousselGit/riverpod"
+    source: git
     version: "3.3.2"
   riverpod_annotation:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: riverpod_annotation
-      sha256: "674dbb26e2db3d9253166faf4758c796af14146b8fbcf5e7102bc8a04cd359b8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/riverpod_annotation"
+      ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      resolved-ref: eb3651b42e368fc9a227aeffc9736fdc9a82f1b7
+      url: "https://github.com/rrousselGit/riverpod"
+    source: git
     version: "4.0.3"
   rlz:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: rust_builder
       ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
@@ -2388,26 +2628,29 @@ packages:
   rxdart:
     dependency: "direct main"
     description:
-      name: rxdart
-      sha256: "5c3004a4a8dbb94bd4bf5412a4def4acdaa12e12f269737a5751369e12d1a962"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/rxdart"
+      ref: "6852efa646198d8a75fcaee52a5227682f8016e7"
+      resolved-ref: "6852efa646198d8a75fcaee52a5227682f8016e7"
+      url: "https://github.com/ReactiveX/rxdart"
+    source: git
     version: "0.28.0"
   searchable_listview:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: searchable_listview
-      sha256: "2a24584e1b8022572fb9edda8ffd31d7bc400a6001f3da69e50c2ee85b2e7bde"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "87c203ac2737c3103929e2a2cd0f23becc4c3334"
+      resolved-ref: "87c203ac2737c3103929e2a2cd0f23becc4c3334"
+      url: "https://github.com/koukibadr/Searchable-Listview"
+    source: git
     version: "2.19.5"
   sec:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sec
-      sha256: "8bbd56df884502192a441b5f5d667265498f2f8728a282beccd9db79e215f379"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1a53c7983d0e8b5e3842eff85cebc27fd474d8f0"
+      resolved-ref: "1a53c7983d0e8b5e3842eff85cebc27fd474d8f0"
+      url: "https://github.com/xclud/dart_sec"
+    source: git
     version: "1.1.0"
   sensitive_clipboard:
     dependency: "direct main"
@@ -2419,116 +2662,130 @@ packages:
     source: git
     version: "1.0.0"
   sha3:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sha3
-      sha256: "6f78c8c1d873b0eef9c0fbc92da6470c46e84e1e3473ff6a2723fb93074119e5"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "6d879eb52dec2b5e110d11957f5512ceb0eaa664"
+      resolved-ref: "6d879eb52dec2b5e110d11957f5512ceb0eaa664"
+      url: "https://github.com/maoxs2/dart_sha3"
+    source: git
     version: "0.2.1"
   share_plus:
     dependency: "direct main"
     description:
-      name: share_plus
-      sha256: fce43200aa03ea87b91ce4c3ac79f0cecd52e2a7a56c7a4185023c271fbfa6da
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/share_plus/share_plus"
+      ref: "8e5fab7bfb1685f5a56f53020a49b2ff5bece25d"
+      resolved-ref: "8e5fab7bfb1685f5a56f53020a49b2ff5bece25d"
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "10.1.4"
   share_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: share_plus_platform_interface
-      sha256: cc012a23fc2d479854e6c80150696c4a5f5bb62cb89af4de1c505cf78d0a5d0b
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/share_plus/share_plus_platform_interface"
+      ref: b5d24a0e3927314e50be041c9f5b7da487d69313
+      resolved-ref: b5d24a0e3927314e50be041c9f5b7da487d69313
+      url: "https://github.com/fluttercommunity/plus_plugins"
+    source: git
     version: "5.0.2"
   shared_preferences:
     dependency: "direct main"
     description:
-      name: shared_preferences
-      sha256: "6e8bf70b7fef813df4e9a36f658ac46d107db4b4cfe1048b477d4e453a8159f5"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/shared_preferences/shared_preferences"
+      ref: "064b0b26568728342a550dc876b0a0e0f2fbaa84"
+      resolved-ref: "064b0b26568728342a550dc876b0a0e0f2fbaa84"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.5.3"
   shared_preferences_android:
     dependency: "direct main"
     description:
-      name: shared_preferences_android
-      sha256: e8d4762b1e2e8578fc4d0fd548cebf24afd24f49719c08974df92834565e2c53
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/shared_preferences/shared_preferences_android"
+      ref: "371106fe7d9864a157fc9366f57d0b0e64fab932"
+      resolved-ref: "371106fe7d9864a157fc9366f57d0b0e64fab932"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.4.23"
   shared_preferences_foundation:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shared_preferences_foundation
-      sha256: "2ec3934efa51e46117f23031cc141b8fc878e8525b94ec1ea4f7f586cf1b47ea"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/shared_preferences/shared_preferences_foundation"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.5.7"
   shared_preferences_linux:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shared_preferences_linux
-      sha256: "580abfd40f415611503cae30adf626e6656dfb2f0cee8f465ece7b6defb40f2f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/shared_preferences/shared_preferences_linux"
+      ref: cdd6e1368ffdf6a4fc9c0c11b72cfc5388f90f2d
+      resolved-ref: cdd6e1368ffdf6a4fc9c0c11b72cfc5388f90f2d
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.4.1"
   shared_preferences_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shared_preferences_platform_interface
-      sha256: "649dc798a33931919ea356c4305c2d1f81619ea6e92244070b520187b5140ef9"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/shared_preferences/shared_preferences_platform_interface"
+      ref: "371106fe7d9864a157fc9366f57d0b0e64fab932"
+      resolved-ref: "371106fe7d9864a157fc9366f57d0b0e64fab932"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.4.2"
   shared_preferences_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shared_preferences_web
-      sha256: c49bd060261c9a3f0ff445892695d6212ff603ef3115edbb448509d407600019
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/shared_preferences/shared_preferences_web"
+      ref: cb4fb13e19756cbbcb523bc33fbf7b7a5923e787
+      resolved-ref: cb4fb13e19756cbbcb523bc33fbf7b7a5923e787
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.4.3"
   shared_preferences_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shared_preferences_windows
-      sha256: "94ef0f72b2d71bc3e700e025db3710911bd51a71cefb65cc609dd0d9a982e3c1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/shared_preferences/shared_preferences_windows"
+      ref: cdd6e1368ffdf6a4fc9c0c11b72cfc5388f90f2d
+      resolved-ref: cdd6e1368ffdf6a4fc9c0c11b72cfc5388f90f2d
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.4.1"
   shelf:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shelf
-      sha256: e75e9cf311d7fd712048038cc17c25199c38536c20330d53e7db058b543d5a48
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/shelf"
+      ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      resolved-ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      url: "https://github.com/dart-lang/shelf"
+    source: git
     version: "1.4.3"
   shelf_packages_handler:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shelf_packages_handler
-      sha256: "89f967eca29607c933ba9571d838be31d67f53f6e4ee15147d5dc2934fee1b1e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/shelf_packages_handler"
+      ref: "25861e55406c1f66cce066b6ed575f420b480e45"
+      resolved-ref: "25861e55406c1f66cce066b6ed575f420b480e45"
+      url: "https://github.com/dart-lang/shelf"
+    source: git
     version: "3.0.2"
   shelf_static:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shelf_static
-      sha256: "480504af9e5323899c5be26a4f6c2fc4437d50954d39842f0290f4ae733d57b4"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/shelf_static"
+      ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      resolved-ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      url: "https://github.com/dart-lang/shelf"
+    source: git
     version: "1.2.0"
   shelf_web_socket:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: shelf_web_socket
-      sha256: "3632775c8e90d6c9712f883e633716432a27758216dfb61bd86a8321c0580925"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/shelf_web_socket"
+      ref: "2a7442f7d6d3e63fdc7b387128619b263dcb7e78"
+      resolved-ref: "2a7442f7d6d3e63fdc7b387128619b263dcb7e78"
+      url: "https://github.com/dart-lang/shelf"
+    source: git
     version: "3.0.0"
   sky_engine:
     dependency: transitive
@@ -2538,10 +2795,11 @@ packages:
   smooth_page_indicator:
     dependency: "direct main"
     description:
-      name: smooth_page_indicator
-      sha256: b21ebb8bc39cf72d11c7cfd809162a48c3800668ced1c9da3aade13a32cf6c1c
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "519df3304d58c9d77e91725318076bc3aaa6e852"
+      resolved-ref: "519df3304d58c9d77e91725318076bc3aaa6e852"
+      url: "https://github.com/Milad-Akarie/smooth_page_indicator"
+    source: git
     version: "1.2.1"
   socks5_proxy:
     dependency: "direct main"
@@ -2553,7 +2811,7 @@ packages:
     source: git
     version: "2.1.0"
   socks_socket:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
       ref: e6232c53c1595469931ababa878759a067c02e94
@@ -2562,229 +2820,256 @@ packages:
     source: git
     version: "1.1.1"
   source_gen:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: source_gen
-      sha256: a603f1fb984a7391ae5978d1b92bfaaa08b350dca5c825256f925818f7943bf5
-      url: "https://pub.dev"
-    source: hosted
+      path: source_gen
+      ref: "98cbdb6b17cdccabb0fec6e37fd66e2790d05092"
+      resolved-ref: "98cbdb6b17cdccabb0fec6e37fd66e2790d05092"
+      url: "https://github.com/dart-lang/source_gen"
+    source: git
     version: "4.2.4"
   source_helper:
-    dependency: transitive
-    description:
-      name: source_helper
-      sha256: "5e6f216fdf6376c9f3852381ae037499797a3385377d388b011dac98d303c67c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.3.13"
-  source_map_stack_trace:
-    dependency: transitive
-    description:
-      name: source_map_stack_trace
-      sha256: c0713a43e323c3302c2abe2a1cc89aa057a387101ebd280371d6a6c9fa68516b
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.2"
-  source_maps:
-    dependency: transitive
-    description:
-      name: source_maps
-      sha256: "14c2945847669b44089bb1222f66873d7ff7103c58911917f2a63c5a62327898"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.14"
-  source_span:
-    dependency: transitive
-    description:
-      name: source_span
-      sha256: "56a02f1f4cd1a2d96303c0144c93bd6d909eea6bee6bf5a0e0b685edbd4c47ab"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.10.2"
-  sp_scanner:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
-      ref: "sp_v4.0.1"
+      ref: "760e41a7742d211543cbbf510fc588e96d0cc0a2"
+      resolved-ref: "760e41a7742d211543cbbf510fc588e96d0cc0a2"
+      url: "https://github.com/google/source_helper.dart"
+    source: git
+    version: "1.3.13"
+  source_map_stack_trace:
+    dependency: "direct overridden"
+    description:
+      path: "pkgs/source_map_stack_trace"
+      ref: "56db6f3d085fa4e70b0286b30989654a5db90c94"
+      resolved-ref: "56db6f3d085fa4e70b0286b30989654a5db90c94"
+      url: "https://github.com/dart-lang/tools"
+    source: git
+    version: "2.1.2"
+  source_maps:
+    dependency: "direct overridden"
+    description:
+      path: "pkgs/source_maps"
+      ref: "0580d20e398b9395bb9ae751a1211f4ee38697ec"
+      resolved-ref: "0580d20e398b9395bb9ae751a1211f4ee38697ec"
+      url: "https://github.com/dart-lang/tools"
+    source: git
+    version: "0.10.14"
+  source_span:
+    dependency: "direct overridden"
+    description:
+      path: "pkgs/source_span"
+      ref: e501121027c0a9014161ff79cbf519c1813e3153
+      resolved-ref: e501121027c0a9014161ff79cbf519c1813e3153
+      url: "https://github.com/dart-lang/tools"
+    source: git
+    version: "1.10.2"
+  sp_scanner:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "40ed3ce8319744907bef3b25bc6e0af8428c8724"
       resolved-ref: "40ed3ce8319744907bef3b25bc6e0af8428c8724"
       url: "https://github.com/cake-tech/sp_scanner"
     source: git
     version: "0.0.1"
   sqflite:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqflite
-      sha256: "564cfed0746fe53140c23b70b308e045c3b31f17778f2f326ccb7d804ea0250a"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqflite
+      ref: "094cc31b82df7f9ba04f330f13b50e345f777079"
+      resolved-ref: "094cc31b82df7f9ba04f330f13b50e345f777079"
+      url: "https://github.com/tekartik/sqflite"
+    source: git
     version: "2.4.2+1"
   sqflite_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqflite_android
-      sha256: "881e28efdcc9950fd8e9bb42713dcf1103e62a2e7168f23c9338d82db13dec40"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqflite_android
+      ref: "7e7159b59572e04024258417072428d1cffca1cc"
+      resolved-ref: "7e7159b59572e04024258417072428d1cffca1cc"
+      url: "https://github.com/tekartik/sqflite"
+    source: git
     version: "2.4.2+3"
   sqflite_common:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqflite_common
-      sha256: "1581ffbf7a0e333b380d6a30737d78516b826cb35beb7fb0bf8a3ea0c678b465"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqflite_common
+      ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      resolved-ref: "018def1518b3ce9efcb25bbf57809153e9252da7"
+      url: "https://github.com/tekartik/sqflite"
+    source: git
     version: "2.5.8"
   sqflite_common_ffi:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqflite_common_ffi
-      sha256: cd0c7f7de39a08f2d54ef144d9058c46eca8461879aaa648025643455c1e5a20
-      url: "https://pub.dev"
-    source: hosted
+      path: sqflite_common_ffi
+      ref: "7482da6f456feb715eecdff8a6287bb30d01481f"
+      resolved-ref: "7482da6f456feb715eecdff8a6287bb30d01481f"
+      url: "https://github.com/tekartik/sqflite"
+    source: git
     version: "2.4.0+3"
   sqflite_darwin:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqflite_darwin
-      sha256: "279832e5cde3fe99e8571879498c9211f3ca6391b0d818df4e17d9fff5c6ccb3"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqflite_darwin
+      ref: e2d87c863f33e8981dfb589d4784ab14d8f5cc77
+      resolved-ref: e2d87c863f33e8981dfb589d4784ab14d8f5cc77
+      url: "https://github.com/tekartik/sqflite"
+    source: git
     version: "2.4.2"
   sqflite_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqflite_platform_interface
-      sha256: "8dd4515c7bdcae0a785b0062859336de775e8c65db81ae33dd5445f35be61920"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqflite_platform_interface
+      ref: "03e86a1aa7f8ebea7c40d2b02248cadc7630c2f0"
+      resolved-ref: "03e86a1aa7f8ebea7c40d2b02248cadc7630c2f0"
+      url: "https://github.com/tekartik/sqflite"
+    source: git
     version: "2.4.0"
   sqlite3:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqlite3
-      sha256: "4c7fe79840389aaeaf05fd093f795b631b5a98e2bd28d54e555c100f4a9c7a1c"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqlite3
+      ref: "8adb539d0ee71d4db29378c82a345aeb1301d649"
+      resolved-ref: "8adb539d0ee71d4db29378c82a345aeb1301d649"
+      url: "https://github.com/simolus3/sqlite3.dart"
+    source: git
     version: "3.5.2"
   sqlite3_flutter_libs:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqlite3_flutter_libs
-      sha256: "69c80d812ef2500202ebd22002cbfc1b6565e9ff56b2f971e757fac5d42294df"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqlite3_flutter_libs
+      ref: "808a60becaa3f9fae41e0590b853c3283b5f6afb"
+      resolved-ref: "808a60becaa3f9fae41e0590b853c3283b5f6afb"
+      url: "https://github.com/simolus3/sqlite3.dart"
+    source: git
     version: "0.5.40"
   stack_trace:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: stack_trace
-      sha256: "8b27215b45d22309b5cddda1aa2b19bdfec9df0e765f2de506401c071d38d1b1"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/stack_trace"
+      ref: "07648c8269244506d83c15dc8cc50aa53d24bf35"
+      resolved-ref: "07648c8269244506d83c15dc8cc50aa53d24bf35"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.12.1"
   state_notifier:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: state_notifier
-      sha256: b8677376aa54f2d7c58280d5a007f9e8774f1968d1fb1c096adcb4792fba29bb
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/state_notifier"
+      ref: "061abfc682881d5da4716b211cd4e7d41805a9ac"
+      resolved-ref: "061abfc682881d5da4716b211cd4e7d41805a9ac"
+      url: "https://github.com/rrousselGit/state_notifier"
+    source: git
     version: "1.0.0"
   stream_channel:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: stream_channel
-      sha256: "969e04c80b8bcdf826f8f16579c7b14d780458bd97f56d107d3950fdbeef059d"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/stream_channel"
+      ref: "5265a85f307ce7be94553378589205df97736a1b"
+      resolved-ref: "5265a85f307ce7be94553378589205df97736a1b"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.1.4"
   stream_transform:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: stream_transform
-      sha256: a00e5f18bffc764f923e7dec1038527f7fe7a1791361a7117f0358193f13d53a
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/stream_transform"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.1.2"
   string_scanner:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: string_scanner
-      sha256: "921cd31725b72fe181906c6a94d987c78e3b98c2e205b397ea399d4054872b43"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/string_scanner"
+      ref: "3815ff3fd2aee5212586c3fc4d2bcf08584c98f3"
+      resolved-ref: "3815ff3fd2aee5212586c3fc4d2bcf08584c98f3"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.4.1"
   swm_chart:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: swm_chart
-      sha256: "9c11363172adb74d046b6bc43ff82b05f7ee8a9e3d71277c6014a1bb38afaa27"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "001261cef2261561d986fc3ce35dc61678198a24"
+      resolved-ref: "001261cef2261561d986fc3ce35dc61678198a24"
+      url: "https://github.com/KSD-CO/swm-chart"
+    source: git
     version: "0.6.1"
   sync_http:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sync_http
-      sha256: "7f0cd72eca000d2e026bcd6f990b81d0ca06022ef4e32fb257b30d3d1014a961"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "39509d69fd5a9c3da46eab48fcafdf62e6ad4580"
+      resolved-ref: "39509d69fd5a9c3da46eab48fcafdf62e6ad4580"
+      url: "https://github.com/google/sync_http.dart"
+    source: git
     version: "0.3.1"
   synchronized:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: synchronized
-      sha256: "63896c27e81b28f8cb4e69ead0d3e8f03f1d1e5fc531a3e579cabed6a2c7c9e5"
-      url: "https://pub.dev"
-    source: hosted
+      path: synchronized
+      ref: b38010355b23e3baed85e263ca7f9e222d57b00a
+      resolved-ref: b38010355b23e3baed85e263ca7f9e222d57b00a
+      url: "https://github.com/tekartik/synchronized.dart"
+    source: git
     version: "3.4.0+1"
   term_glyph:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: term_glyph
-      sha256: "7f554798625ea768a7518313e58f83891c7f5024f88e46e7182a4558850a4b8e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/term_glyph"
+      ref: c90e95b1f2a130b2e951466719b28c3d13b8dab5
+      resolved-ref: c90e95b1f2a130b2e951466719b28c3d13b8dab5
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.2.2"
   test:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: test
-      sha256: "280d6d890011ca966ad08df7e8a4ddfab0fb3aa49f96ed6de56e3521347a9ae7"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/test"
+      ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      resolved-ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      url: "https://github.com/dart-lang/test"
+    source: git
     version: "1.30.0"
   test_api:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: test_api
-      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/test_api"
+      ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      resolved-ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      url: "https://github.com/dart-lang/test"
+    source: git
     version: "0.7.10"
   test_core:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: test_core
-      sha256: "0381bd1585d1a924763c308100f2138205252fb90c9d4eeaf28489ee65ccde51"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/test_core"
+      ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      resolved-ref: "45e4ef287d70dad449f13d4f284f9faea2d9188b"
+      url: "https://github.com/dart-lang/test"
+    source: git
     version: "0.6.16"
   timezone:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: timezone
-      sha256: dd14a3b83cfd7cb19e7888f1cbc20f258b8d71b54c06f79ac585f14093a287d1
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "64db18e450c10247e23ee36546865007b01cf135"
+      resolved-ref: "64db18e450c10247e23ee36546865007b01cf135"
+      url: "https://github.com/srawlins/timezone"
+    source: git
     version: "0.10.1"
   toastification:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: toastification
-      sha256: e06b82a66dffb866af2923cc04012f52ae96ec50ab9215efa07be8d6ec6486fb
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: a8b614709bee6f39216ee3f9046b65007f3f2201
+      resolved-ref: a8b614709bee6f39216ee3f9046b65007f3f2201
+      url: "https://github.com/payam-zahedi/toastification"
+    source: git
     version: "3.2.2"
   torch_dart:
     dependency: "direct main"
@@ -2821,7 +3106,7 @@ packages:
     source: git
     version: "0.1.0"
   trezor_usb_transport:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: trezor_usb_transport
       ref: "591d4b8c821b9c10561f848b866324a9a8dcb489"
@@ -2830,20 +3115,22 @@ packages:
     source: git
     version: "0.0.1"
   tuple:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: tuple
-      sha256: a97ce2013f240b2f3807bcbaf218765b6f301c3eff91092bcfa23a039e7dd151
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "91bcce6e0672c4b071d270aafde5cd86103668dd"
+      resolved-ref: "91bcce6e0672c4b071d270aafde5cd86103668dd"
+      url: "https://github.com/google/tuple.dart"
+    source: git
     version: "2.0.2"
   typed_data:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: typed_data
-      sha256: f9049c039ebfeb4cf7a7104a675823cd72dba8297f264b6637062516699fa006
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/typed_data"
+      ref: "5ed932323581a4791672c25fe154c622b535c264"
+      resolved-ref: "5ed932323581a4791672c25fe154c622b535c264"
+      url: "https://github.com/dart-lang/core"
+    source: git
     version: "1.4.0"
   uni_links:
     dependency: "direct main"
@@ -2855,20 +3142,22 @@ packages:
     source: git
     version: "0.5.1"
   uni_links_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: uni_links_platform_interface
-      sha256: "929cf1a71b59e3b7c2d8a2605a9cf7e0b125b13bc858e55083d88c62722d4507"
-      url: "https://pub.dev"
-    source: hosted
+      path: uni_links_platform_interface
+      ref: cdd7a217d351a32c418afad18f8ea6893cfed05a
+      resolved-ref: cdd7a217d351a32c418afad18f8ea6893cfed05a
+      url: "https://github.com/avioli/uni_links"
+    source: git
     version: "1.0.0"
   uni_links_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: uni_links_web
-      sha256: "7539db908e25f67de2438e33cc1020b30ab94e66720b5677ba6763b25f6394df"
-      url: "https://pub.dev"
-    source: hosted
+      path: uni_links_web
+      ref: cf9d2b64dc3e890015d1dd6df7b6414123835663
+      resolved-ref: cf9d2b64dc3e890015d1dd6df7b6414123835663
+      url: "https://github.com/avioli/uni_links"
+    source: git
     version: "0.1.0"
   universal_ble:
     dependency: "direct overridden"
@@ -2880,28 +3169,31 @@ packages:
     source: git
     version: "2.0.0"
   universal_io:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: universal_io
-      sha256: f63cbc48103236abf48e345e07a03ce5757ea86285ed313a6a032596ed9301e2
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: ed92942d149674621e7ae4ac46325e55ecee9368
+      resolved-ref: ed92942d149674621e7ae4ac46325e55ecee9368
+      url: "https://github.com/dart-io-packages/universal_io"
+    source: git
     version: "2.3.1"
   universal_platform:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: universal_platform
-      sha256: "64e16458a0ea9b99260ceb5467a214c1f298d647c659af1bff6d3bf82536b1ec"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: f4fc405630cdd541d78457b0b4521b89456ea068
+      resolved-ref: f4fc405630cdd541d78457b0b4521b89456ea068
+      url: "https://github.com/gskinnerTeam/flutter-universal-platform"
+    source: git
     version: "1.1.0"
   unorm_dart:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: unorm_dart
-      sha256: b4f4d2aff27d65a5fc37f400d4c09e55d7535359315acbe3b895a9add4de3a23
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: e2b0de9ce5c168f4d14abeebed4c21ce86eecffd
+      resolved-ref: e2b0de9ce5c168f4d14abeebed4c21ce86eecffd
+      url: "https://github.com/yshrsmz/unorm-dart"
+    source: git
     version: "0.3.3"
   ur:
     dependency: "direct main"
@@ -2915,154 +3207,173 @@ packages:
   url_launcher:
     dependency: "direct main"
     description:
-      name: url_launcher
-      sha256: f6a7e5c4835bb4e3026a04793a4199ca2d14c739ec378fdfe23fc8075d0439f8
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher"
+      ref: "3fe6a0149acebc9cb8707cf508d13f59fc372986"
+      resolved-ref: "3fe6a0149acebc9cb8707cf508d13f59fc372986"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "6.3.2"
   url_launcher_android:
     dependency: "direct main"
     description:
-      name: url_launcher_android
-      sha256: "6fc2f56536ee873eeb867ad176ae15f304ccccc357848b351f6f0d8d4a40d193"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher_android"
+      ref: "7287c7b7f1d51e8842f49df46dbd0af3bd1c1077"
+      resolved-ref: "7287c7b7f1d51e8842f49df46dbd0af3bd1c1077"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "6.3.14"
   url_launcher_ios:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: url_launcher_ios
-      sha256: "8faa1aab294f1ab4040b43660c887b0418d5fa4f0cffef76a484e6aa1092eb4a"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher_ios"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "6.4.2"
   url_launcher_linux:
     dependency: "direct main"
     description:
-      name: url_launcher_linux
-      sha256: ab360eb661f8879369acac07b6bb3ff09d9471155357da8443fd5d3cf7363811
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher_linux"
+      ref: "73d2f3eb966d36a44cbb943ea0e96dda3a2f8da2"
+      resolved-ref: "73d2f3eb966d36a44cbb943ea0e96dda3a2f8da2"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "3.1.1"
   url_launcher_macos:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: url_launcher_macos
-      sha256: "5e835a3b869c2d70325349c81c5a45c28e20791265b67b2669da6b08c5cd5201"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher_macos"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "3.2.6"
   url_launcher_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: url_launcher_platform_interface
-      sha256: "552f8a1e663569be95a8190206a38187b531910283c3e982193e4f2733f01029"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher_platform_interface"
+      ref: ef349bec8ee9d5fa3f69d73aa78ab9bb84ae0aa7
+      resolved-ref: ef349bec8ee9d5fa3f69d73aa78ab9bb84ae0aa7
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.3.2"
   url_launcher_web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: url_launcher_web
-      sha256: "85c81589622fbc87c1c683aaea164d3604a7777495a79d91e39ffcdec39ddb34"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher_web"
+      ref: "67ec0d36293eb963590e0606c8bede379be4d142"
+      resolved-ref: "67ec0d36293eb963590e0606c8bede379be4d142"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "2.4.3"
   url_launcher_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: url_launcher_windows
-      sha256: "6c5ad3f22cd4c38e089b81963b3cd7bb83b111b2df5dce008bb066162f42e429"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/url_launcher/url_launcher_windows"
+      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "3.1.6"
   uuid:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: uuid
-      sha256: "9b129329f58692f6e6578329498a8fe9fbe98f090beb764ffbb8ee2eadd01dcd"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: d602950818e4b11d097d26f5408b461f38248130
+      resolved-ref: d602950818e4b11d097d26f5408b461f38248130
+      url: "https://github.com/Daegalus/dart-uuid"
+    source: git
     version: "4.6.0"
   vector_graphics:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: vector_graphics
-      sha256: "06081e4f2d8f17c306aa58989520694b463ad411bc7c7b93e76afa3e41ca17ac"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/vector_graphics"
+      ref: "832d5f2252fd9e1cc203737d2c7d70215e8f5770"
+      resolved-ref: "832d5f2252fd9e1cc203737d2c7d70215e8f5770"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.3.1"
   vector_graphics_codec:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: vector_graphics_codec
-      sha256: "023f3afd1b08d040406e7ccc324f5173c04762a59e374f29d04cef00a4940742"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/vector_graphics_codec"
+      ref: "2eb4c718b6e44dc5d75a3d5496ae2eda7a7d7885"
+      resolved-ref: "2eb4c718b6e44dc5d75a3d5496ae2eda7a7d7885"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.2.0"
   vector_graphics_compiler:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: vector_graphics_compiler
-      sha256: "4c9d2e7121eea8b4f160e6e435900a0ae7214cfc97c2d6cf84c25532b789b50d"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/vector_graphics_compiler"
+      ref: "10f15b38407ff0e0074d47bb612e84d1b14ec4ca"
+      resolved-ref: "10f15b38407ff0e0074d47bb612e84d1b14ec4ca"
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.3.4"
   vector_math:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: vector_math
-      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "13f185f7e97d559e003f5ac79201da12f9a01049"
+      resolved-ref: "13f185f7e97d559e003f5ac79201da12f9a01049"
+      url: "https://github.com/google/vector_math.dart"
+    source: git
     version: "2.2.0"
   vm_service:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: vm_service
-      sha256: "89b11d62e1040ee681af3b4f1c97a803ecbf010c6e8b9c5896ee5b08c3bf7b78"
-      url: "https://pub.dev"
-    source: hosted
-    version: "15.4.0"
+      path: "pkg/vm_service"
+      ref: c70f78e7d682c158c15ca0c26c729b3ccb932284
+      resolved-ref: c70f78e7d682c158c15ca0c26c729b3ccb932284
+      url: "https://github.com/dart-lang/sdk"
+    source: git
+    version: "15.1.0"
   wakelock_plus:
     dependency: "direct main"
     description:
-      name: wakelock_plus
-      sha256: "61713aa82b7f85c21c9f4cd0a148abd75f38a74ec645fcb1e446f882c82fd09b"
-      url: "https://pub.dev"
-    source: hosted
+      path: wakelock_plus
+      ref: e7301f64397c946fac4ee66acdfb545b666f4a43
+      resolved-ref: e7301f64397c946fac4ee66acdfb545b666f4a43
+      url: "https://github.com/fluttercommunity/wakelock_plus"
+    source: git
     version: "1.3.3"
   wakelock_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: wakelock_plus_platform_interface
-      sha256: "0618d1799f0b28bcf98255b4ee8313e6fc4d38589dc4ee5fe5840d57d1aff6da"
-      url: "https://pub.dev"
-    source: hosted
+      path: wakelock_plus_platform_interface
+      ref: "302991238a66dd1f6b1e50b38f58d97d177cd9ab"
+      resolved-ref: "302991238a66dd1f6b1e50b38f58d97d177cd9ab"
+      url: "https://github.com/fluttercommunity/wakelock_plus"
+    source: git
     version: "1.6.0"
   wallet:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: wallet
-      sha256: "687fd89a16557649b26189e597792962f405797fc64113e8758eabc2c2605c32"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: aa5ba16f7a8a3a7789ca78330ce3877913f29a83
+      resolved-ref: aa5ba16f7a8a3a7789ca78330ce3877913f29a83
+      url: "https://github.com/xclud/dart_wallet"
+    source: git
     version: "0.0.13"
   watcher:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: watcher
-      sha256: "1398c9f081a753f9226febe8900fce8f7d0a67163334e1c94a2438339d79d635"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/watcher"
+      ref: "67a0fea10d8402d427aca8aff95cdc3b16004fc2"
+      resolved-ref: "67a0fea10d8402d427aca8aff95cdc3b16004fc2"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "1.2.1"
   web:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: web
-      sha256: "868d88a33d8a87b18ffc05f9f030ba328ffefba92d6c127917a2ba740f9cfe4a"
-      url: "https://pub.dev"
-    source: hosted
+      path: web
+      ref: "222164b5010cb0324d4132666f1d43750ffc6448"
+      resolved-ref: "222164b5010cb0324d4132666f1d43750ffc6448"
+      url: "https://github.com/dart-lang/web"
+    source: git
     version: "1.1.1"
   web3dart:
     dependency: "direct overridden"
@@ -3074,95 +3385,106 @@ packages:
     source: git
     version: "2.7.2"
   web_socket:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: web_socket
-      sha256: "34d64019aa8e36bf9842ac014bb5d2f5586ca73df5e4d9bf5c936975cae6982c"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/web_socket"
+      ref: "31da3556357cd9ba9205e20c9299a1d48c149382"
+      resolved-ref: "31da3556357cd9ba9205e20c9299a1d48c149382"
+      url: "https://github.com/dart-lang/http"
+    source: git
     version: "1.0.1"
   web_socket_channel:
     dependency: "direct overridden"
     description:
-      name: web_socket_channel
-      sha256: d645757fb0f4773d602444000a8131ff5d48c9e47adfe9772652dd1a4f2d45c8
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/web_socket_channel"
+      ref: "63c477b466f650e8f5505d6d78dc283c2c2f9845"
+      resolved-ref: "63c477b466f650e8f5505d6d78dc283c2c2f9845"
+      url: "https://github.com/dart-lang/http"
+    source: git
     version: "3.0.3"
   webdriver:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: webdriver
-      sha256: "28b82ec894fed45dd71c23ba62d1af973ed97dd59a4f5790a4d38b0b13e5657e"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "1da600f34cd79fbc4742587f61b2edb0502bbb43"
+      resolved-ref: "1da600f34cd79fbc4742587f61b2edb0502bbb43"
+      url: "https://github.com/google/webdriver.dart"
+    source: git
     version: "3.2.0"
   webkit_inspection_protocol:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: webkit_inspection_protocol
-      sha256: "87d3f2333bb240704cd3f1c6b5b7acd8a10e7f0bc28c28dcf14e782014f4a572"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "82f0c1c46dfdba5edf7c5fa84456233121dd69e1"
+      resolved-ref: "82f0c1c46dfdba5edf7c5fa84456233121dd69e1"
+      url: "https://github.com/google/webkit_inspection_protocol.dart"
+    source: git
     version: "1.2.1"
   win32:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: win32
-      sha256: d7cb55e04cd34096cd3a79b3330245f54cb96a370a1c27adb3c84b917de8b08e
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/win32"
+      ref: "64b0a07ab7e1e3e7db6fca60c6b121d6cfd73709"
+      resolved-ref: "64b0a07ab7e1e3e7db6fca60c6b121d6cfd73709"
+      url: "https://github.com/halildurmus/win32"
+    source: git
     version: "5.15.0"
   win32_registry:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: win32_registry
-      sha256: "21ec76dfc731550fd3e2ce7a33a9ea90b828fdf19a5c3bcf556fa992cfa99852"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: fd20025f9b6f0ce6937b3e7e4b923e51ae11e40f
+      resolved-ref: fd20025f9b6f0ce6937b3e7e4b923e51ae11e40f
+      url: "https://github.com/halildurmus/win32_registry"
+    source: git
     version: "1.1.5"
   x25519:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: x25519
-      sha256: "5108a324e1704a04f174507cf162cfce345f99585573356236c6421a4df45324"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: f205825e1075c92964864e7216187b0a668d32c3
+      resolved-ref: f205825e1075c92964864e7216187b0a668d32c3
+      url: "https://github.com/Tougee/curve25519"
+    source: git
     version: "0.1.2"
   xdg_directories:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: xdg_directories
-      sha256: "7a3f37b05d989967cdddcbb571f1ea834867ae2faa29725fd085180e0883aa15"
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/xdg_directories"
+      ref: b33972233ecb894f2fd3d61a74dd1c300fac10c2
+      resolved-ref: b33972233ecb894f2fd3d61a74dd1c300fac10c2
+      url: "https://github.com/flutter/packages"
+    source: git
     version: "1.1.0"
   xml:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: xml
-      sha256: b015a8ad1c488f66851d762d3090a21c600e479dc75e68328c52774040cf9226
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "83796f3dd0923590561d9d169d6ee2db46580099"
+      resolved-ref: "83796f3dd0923590561d9d169d6ee2db46580099"
+      url: "https://github.com/renggli/dart-xml"
+    source: git
     version: "6.5.0"
   yaml:
     dependency: "direct overridden"
     description:
-      name: yaml
-      sha256: f67cdd8e07d3c6329146aaef1ba043542b3134c12489f553ca9a7435d1068aea
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/yaml"
+      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "3.1.4"
   yaml_edit:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: yaml_edit
-      sha256: "07c9e63ba42519745182b88ca12264a7ba2484d8239958778dfe4d44fe760488"
-      url: "https://pub.dev"
-    source: hosted
+      path: "pkgs/yaml_edit"
+      ref: "119a499068a903222fbbefdea18ea59efdd417b9"
+      resolved-ref: "119a499068a903222fbbefdea18ea59efdd417b9"
+      url: "https://github.com/dart-lang/tools"
+    source: git
     version: "2.2.4"
   zkool:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       path: "."
       ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
@@ -3172,4 +3494,4 @@ packages:
     version: "6.35.0"
 sdks:
   dart: ">=3.11.0 <4.0.0"
-  flutter: ">=3.41.0"
+  flutter: ">=3.19.0"
