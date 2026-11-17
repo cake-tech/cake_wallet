@@ -1,5 +1,10 @@
 import "package:breez_sdk_spark_flutter/breez_sdk_spark.dart";
+import "package:cw_bitcoin/electrum_transaction_info.dart";
 import "package:cw_bitcoin/lightning/utils.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/transaction_direction.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 
 Payment _lightningPayment(
@@ -106,20 +111,24 @@ void main() {
     test("redacts sent and received comments in a payment dump", () {
       expect(
         redactPaymentComments(
-          r'LnurlPayInfo { ln_address: Some("konsti@cake.cash"), comment: Some("Thanks \"a\" lot"), '
-          r'domain: Some("cake.cash") }, LnurlReceiveMetadata { sender_comment: Some("Happy birthday") }',
+          r'LnurlPayInfo { ln_address: Some("konsti@cake.cash"), '
+          r'comment: Some("Thanks \"a\" lot"), domain: Some("cake.cash") }, '
+          r'LnurlReceiveMetadata { sender_comment: Some("Happy birthday") }',
         ),
-        r'LnurlPayInfo { ln_address: Some("konsti@cake.cash"), comment: Some("<redacted>"), '
-        r'domain: Some("cake.cash") }, LnurlReceiveMetadata { sender_comment: Some("<redacted>") }',
+        r'LnurlPayInfo { ln_address: Some("konsti@cake.cash"), '
+        r'comment: Some("<redacted>"), domain: Some("cake.cash") }, '
+        r'LnurlReceiveMetadata { sender_comment: Some("<redacted>") }',
       );
     });
 
     test("redacts the comment in a sync record", () {
       expect(
         redactPaymentComments(
-          r'{"lnurl_pay_info": Object {"comment": String("Thanks"), "domain": String("cake.cash")}}',
+          r'{"lnurl_pay_info": Object {"comment": String("Thanks"), '
+          r'"domain": String("cake.cash")}}',
         ),
-        r'{"lnurl_pay_info": Object {"comment": String("<redacted>"), "domain": String("cake.cash")}}',
+        r'{"lnurl_pay_info": Object {"comment": String("<redacted>"), '
+        r'"domain": String("cake.cash")}}',
       );
     });
 
@@ -132,6 +141,26 @@ void main() {
       for (final line in lines) {
         expect(redactPaymentComments(line), line);
       }
+    });
+  });
+
+  group("stored Lightning payment", () {
+    test("keeps its memo when the history is saved and loaded", () {
+      final payment = ElectrumTransactionInfo(
+        WalletType.bitcoin,
+        id: "payment",
+        amount: Money.fromInt(1000, CryptoCurrency.btcln),
+        fee: Money.fromInt(1, CryptoCurrency.btcln),
+        direction: TransactionDirection.incoming,
+        isPending: false,
+        date: DateTime(2026, 11, 17, 12),
+        confirmations: 0,
+        additionalInfo: {"isLightning": true, "memo": "Happy birthday"},
+      );
+
+      final loaded = ElectrumTransactionInfo.fromJson(payment.toJson(), WalletType.bitcoin);
+
+      expect(loaded.additionalInfo["memo"], "Happy birthday");
     });
   });
 }
