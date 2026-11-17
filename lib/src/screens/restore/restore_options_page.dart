@@ -163,6 +163,7 @@ class RestoreOptionsPage extends BasePage {
       Navigator.pushNamed(context, Routes.restoreWallet, arguments: params)
           .then((_) => _isScanning.value = false);
     } catch (e) {
+      if (mounted) setState(() => isRestoring = false);
       _showQRScanError(context, e.toString());
     }
   }

@@ -835,6 +835,7 @@ Future<void> _updateMoneroPriority(SharedPreferences sharedPreferences) async {
 Future<void> _validateWalletInfoBoxData() async {
   try {
     final root = await getAppDir();
+    final existingIds = (await WalletInfo.getAll()).map((info) => info.id).toSet();
 
     for (var type in WalletType.values) {
       if (type == WalletType.none) {
@@ -874,9 +875,8 @@ Future<void> _validateWalletInfoBoxData() async {
         }
 
         final id = prefix + '_' + name;
-        final exist = (await WalletInfo.getAll()).any((el) => el.id == id);
 
-        if (exist) {
+        if (existingIds.contains(id)) {
           continue;
         }
 
@@ -894,6 +894,7 @@ Future<void> _validateWalletInfoBoxData() async {
         );
 
         await walletInfo.save();
+        existingIds.add(id);
       }
     }
   } catch (_) {}

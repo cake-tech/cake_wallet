@@ -72,6 +72,9 @@ List<TinyTransactionDetails> ttDetails = [];
 Future<List<Subaddress>> getAllSubaddresses() async {
   try {
     await txHistoryMutex.acquire();
+    if (currentWallet == null) {
+      return [];
+    }
     txhistory = currentWallet!.history();
     final txCount = txhistory!.count();
     if (lastTxCount != txCount && lastWptr != currentWallet!.ffiAddress()) {

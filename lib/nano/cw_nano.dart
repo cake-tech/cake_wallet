@@ -253,7 +253,7 @@ class CWNanoUtil extends NanoUtil {
 
       if (derivationType == DerivationType.bip39) {
         if (mnemonic != null) {
-          seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
+          seedKey = await NanoMnemomics.hdMnemonicToSeed(mnemonic);
           publicAddress = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
         }
       }
@@ -310,7 +310,7 @@ class CWNanoUtil extends NanoUtil {
       nanoClient.connect(node);
 
       if (mnemonic != null) {
-        seedKey = await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
+        seedKey = await NanoMnemomics.hdMnemonicToSeed(mnemonic);
         publicAddressBip39 = await NanoDerivations.hdSeedToAddress(seedKey, index: 0);
 
         seedKey = await NanoDerivations.standardMnemonicToSeed(mnemonic);

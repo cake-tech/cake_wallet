@@ -6,5 +6,6 @@ abstract class ZcashHardwareWalletService extends HardwareWalletService {
 
   final zkool_coin.Coin? coin;
 
-  ZcashHardwareWalletService withCoin(zkool_coin.Coin coin) => throw UnimplementedError();
+  ZcashHardwareWalletService withCoin(zkool_coin.Coin coin, {int? account}) =>
+      throw UnimplementedError();
 }
