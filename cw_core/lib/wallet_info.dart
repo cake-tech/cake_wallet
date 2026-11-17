@@ -1,4 +1,5 @@
 import 'dart:async';
+import "dart:io";
 
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/db/sqlite.dart';
@@ -843,6 +844,23 @@ class WalletInfo {
   static Future<int> delete(WalletInfo walletInfo) async {
     final deleted = await db!.delete(tableName, where: 'id = ?', whereArgs: [walletInfo.id]);
     return deleted;
+  }
+
+
+  /// A failed wallet creation or restore can leave the row that the wallet's `init()` saved
+  /// with no wallet files on disk, so the wallet shows in the list but can't be opened.
+  /// Deletes the row when [dirPath] is missing or empty, and keeps it otherwise.
+  static Future<void> removeWalletInfoOfEmptyWalletDir(WalletInfo walletInfo, String dirPath) async {
+    try {
+      final dir = Directory(dirPath);
+      if (dir.existsSync() && dir.listSync().isNotEmpty) {
+        return;
+      }
+
+      await WalletInfo.delete(walletInfo);
+    } catch (e) {
+      printV("Failed to remove the WalletInfo of the failed wallet creation: $e");
+    }
   }
 
   static Future<List<WalletInfo>> selectList(String where, List<dynamic> whereArgs,

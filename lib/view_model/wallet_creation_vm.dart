@@ -1,5 +1,3 @@
-import "dart:io";
-
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
@@ -135,7 +133,7 @@ abstract class WalletCreationVMBase with Store {
       try {
         wallet = await process(credentials);
       } catch (_) {
-        await _removeWalletInfoOfEmptyWalletDir(credentials.walletInfo!, dirPath);
+        await WalletInfo.removeWalletInfoOfEmptyWalletDir(credentials.walletInfo!, dirPath);
         rethrow;
       }
 
@@ -156,23 +154,6 @@ abstract class WalletCreationVMBase with Store {
         message = e.message;
       }
       state = FailureState(message);
-    }
-  }
-
-  /// A failed [process] can leave the WalletInfo row that the wallet's `init()` saved
-  /// without any wallet file on disk, so the wallet shows up in the list but can never be
-  /// opened. Drop that row when nothing was written to [dirPath]. Anything in the directory
-  /// means the coin got as far as writing its files, and then the row is kept as before.
-  Future<void> _removeWalletInfoOfEmptyWalletDir(WalletInfo walletInfo, String dirPath) async {
-    try {
-      final dir = Directory(dirPath);
-      if (dir.existsSync() && dir.listSync().isNotEmpty) {
-        return;
-      }
-
-      await WalletInfo.delete(walletInfo);
-    } catch (e) {
-      printV("Failed to remove the WalletInfo of the failed wallet creation: $e");
     }
   }
 

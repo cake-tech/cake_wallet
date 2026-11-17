@@ -293,9 +293,15 @@ class WalletRestoreCubit extends Cubit<WalletRestoreState> {
 
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
 
-      final wallet = state.mode == WalletRestoreMode.keys
-          ? await _walletCreationService.restoreFromKeys(credentials, isTestnet: state.useTestnet)
-          : await _walletCreationService.restoreFromSeed(credentials, isTestnet: state.useTestnet);
+      final WalletBase wallet;
+      try {
+        wallet = state.mode == WalletRestoreMode.keys
+            ? await _walletCreationService.restoreFromKeys(credentials, isTestnet: state.useTestnet)
+            : await _walletCreationService.restoreFromSeed(credentials, isTestnet: state.useTestnet);
+      } catch (_) {
+        await WalletInfo.removeWalletInfoOfEmptyWalletDir(credentials.walletInfo!, dirPath);
+        rethrow;
+      }
 
       credentials.walletInfo!.isNonSeedWallet = wallet.seed == null;
       credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
