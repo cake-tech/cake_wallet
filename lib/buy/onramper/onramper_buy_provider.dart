@@ -51,6 +51,8 @@ class OnRamperBuyProvider extends BuyProvider {
 
   String? recommendedPaymentType;
 
+  FiatCurrency? recommendedFiat;
+
   String get _apiKey => secrets.onramperApiKey;
 
   String get _exchangeHelperApiKey => secrets.exchangeHelperApiKey;
@@ -98,7 +100,7 @@ class OnRamperBuyProvider extends BuyProvider {
     };
   }
 
-  Future<String?> getRecommendedPaymentType(bool isBuyAction) async {
+  Future<void> fetchRecommendedDefaults(bool isBuyAction) async {
     final params = {'type': isBuyAction ? 'buy' : 'sell'};
 
     final url = Uri.https(_baseApiUrl, '$supported$defaultsAll', params);
@@ -113,21 +115,26 @@ class OnRamperBuyProvider extends BuyProvider {
         final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
         final recommended = data['message']['recommended'] as Map<String, dynamic>;
 
-        final recommendedPaymentType = recommended['paymentMethod'] as String?;
+        recommendedPaymentType = recommended['paymentMethod'] as String?;
 
-        return recommendedPaymentType;
+        // the recommendation is a source -> target pair, so which side is the
+        // fiat one flips with the action
+        final fiat = recommended[isBuyAction ? 'source' : 'target'] as String?;
+        recommendedFiat =
+            fiat == null ? null : FiatCurrency.tryDeserialize(raw: fiat.toUpperCase());
       } else {
         final responseBody = jsonDecode(response.body) as Map<String, dynamic>;
-        printV('Failed to fetch available payment types: ${responseBody['message']}');
+        printV('Failed to fetch recommended defaults: ${responseBody['message']}');
       }
     } catch (e) {
-      printV('Failed to fetch available payment types: $e');
+      printV('Failed to fetch recommended defaults: $e');
     }
-    return null;
   }
 
   Future<List<PaymentMethod>> getAvailablePaymentTypes(
       String fiatCurrency, CryptoCurrency cryptoCurrency, bool isBuyAction) async {
+    await fetchRecommendedDefaults(isBuyAction);
+
     final normalizedCryptoCurrency = cryptoCurrency.title + _getNormalizeNetwork(cryptoCurrency);
 
     final sourceCurrency = (isBuyAction ? fiatCurrency : normalizedCryptoCurrency).toLowerCase();
@@ -149,8 +156,6 @@ class OnRamperBuyProvider extends BuyProvider {
         final allAvailablePaymentMethods = message
             .map((item) => PaymentMethod.fromOnramperJson(item as Map<String, dynamic>))
             .toList();
-
-        recommendedPaymentType = await getRecommendedPaymentType(isBuyAction);
 
         return allAvailablePaymentMethods;
       } else {
@@ -208,7 +213,7 @@ class OnRamperBuyProvider extends BuyProvider {
     String? paymentMethod;
 
     if (paymentType == PaymentType.all)
-      paymentMethod = null;
+      paymentMethod = recommendedPaymentType ?? (isBuyAction ? "creditcard" : null);
     else if (paymentType == PaymentType.unknown)
       paymentMethod = customPaymentMethodType;
     else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
@@ -254,8 +259,14 @@ class OnRamperBuyProvider extends BuyProvider {
 
           if (rampMetaData == null) continue;
 
-          final quote = Quote.fromOnramperJson(item, isBuyAction, _onrampMetadata,
-              _getPaymentTypeByString(paymentMethod), customPaymentMethodType);
+          final quotePaymentType = _getPaymentTypeByString(paymentMethod);
+          final quote = Quote.fromOnramperJson(
+            item,
+            isBuyAction,
+            _onrampMetadata,
+            quotePaymentType,
+            quotePaymentType == PaymentType.unknown ? paymentMethod : customPaymentMethodType,
+          );
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
