@@ -161,10 +161,10 @@ class LNURL {
     }
   }
 
-  static Future<int?> getPayRequestCommentAllowed(Uri payRequestUrl) async {
+  static Future<int?> getPayRequestCommentAllowed(Uri url) async {
     try {
       final response =
-          await ProxyWrapper().get(clearnetUri: payRequestUrl).timeout(const Duration(seconds: 10));
+          await ProxyWrapper().get(clearnetUri: url).timeout(const Duration(seconds: 10));
 
       return response.statusCode == 200 ? parsePayRequestCommentAllowed(response.body) : null;
     } catch (_) {
@@ -175,11 +175,12 @@ class LNURL {
   static int? parsePayRequestCommentAllowed(String payRequest) {
     try {
       final body = jsonDecode(payRequest) as Map;
-      if (body["tag"] != "payRequest") {
-        return null;
-      }
 
-      return (body["commentAllowed"] as num?)?.toInt() ?? 0;
+      return switch (body["tag"]) {
+        "payRequest" => (body["commentAllowed"] as num?)?.toInt() ?? 0,
+        String _ => 0,
+        _ => null,
+      };
     } catch (_) {
       return null;
     }

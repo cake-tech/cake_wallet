@@ -178,12 +178,15 @@ void main() {
       expect(LNURL.parsePayRequestCommentAllowed(payRequest), 0);
     });
 
-    test("should return null for a response that is not a readable pay request", () {
-      expect(LNURL.parsePayRequestCommentAllowed('{"status":"ERROR","reason":"Not found"}'), null);
+    test("should read another kind of LNURL as not accepting comments", () {
       expect(
         LNURL.parsePayRequestCommentAllowed('{"tag":"withdrawRequest","commentAllowed":255}'),
-        null,
+        0,
       );
+    });
+
+    test("should return null for a response that can't be read", () {
+      expect(LNURL.parsePayRequestCommentAllowed('{"status":"ERROR","reason":"Not found"}'), null);
       expect(
         LNURL.parsePayRequestCommentAllowed('{"tag":"payRequest","commentAllowed":"255"}'),
         null,
