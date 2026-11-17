@@ -53,6 +53,7 @@ class _NoUnspentsBox implements Box<UnspentCoinsInfo> {
 
 ElectrumAccounts _accounts() => ElectrumAccounts(
   primaryTypes: [SegwitAddresType.p2wpkh],
+  currency: CryptoCurrency.btc,
   accountHd: _master.derivePath("m/84'/0'/0'") as Bip32Slip10Secp256k1,
   masterHd: _master,
   coinType: 0,
