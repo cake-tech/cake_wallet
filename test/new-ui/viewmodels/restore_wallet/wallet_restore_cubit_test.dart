@@ -399,12 +399,16 @@ class _FakeZcash extends Fake implements zec.Zcash {
     required String privateKey,
     required String password,
     required int height,
+    int accountIndex = 0,
+    HardwareWalletType? hardwareWalletType,
   }) =>
       _RecordedCredentials("zcash.keys", {
         "name": name,
         "privateKey": privateKey,
         "password": password,
         "height": height,
+        "accountIndex": accountIndex,
+        "hardwareWalletType": hardwareWalletType,
       });
 }
 

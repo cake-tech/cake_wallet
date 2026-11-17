@@ -518,6 +518,8 @@ class WalletRestoreCubit extends Cubit<WalletRestoreState> {
             privateKey: options["private_key"] as String,
             password: password,
             height: height,
+            accountIndex: restoredWallet?.accountIndex ?? 0,
+            hardwareWalletType: hardwareWalletType,
           );
         default:
           break;
