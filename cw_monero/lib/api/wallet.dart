@@ -140,7 +140,11 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
   // or other errors because of forced null check.
   if (currentWallet == null) return "<wallet not ready ($accountIndex:$addressIndex)>";
 
-  // printV("getaddress: ${accountIndex}/${addressIndex}: ${monero.Wallet_numSubaddresses(wptr!, accountIndex: accountIndex)}: ${monero.Wallet_address(wptr!, accountIndex: accountIndex, addressIndex: addressIndex)}");
+  addressCache[currentWallet!.ffiAddress()] ??= {};
+  addressCache[currentWallet!.ffiAddress()]![accountIndex] ??= {};
+  final cached = addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex];
+  if (cached != null) return cached;
+
   // this could be a while loop, but I'm in favor of making it if to not cause freezes
   if (currentWallet!.numSubaddresses(accountIndex: accountIndex) - 1 < addressIndex) {
     if (currentWallet!.numSubaddressAccounts() < accountIndex) {
@@ -149,8 +153,6 @@ String getAddress({int accountIndex = 0, int addressIndex = 0}) {
       currentWallet!.addSubaddress(accountIndex: accountIndex);
     }
   }
-  addressCache[currentWallet!.ffiAddress()] ??= {};
-  addressCache[currentWallet!.ffiAddress()]![accountIndex] ??= {};
   addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex] ??=
       currentWallet!.address(accountIndex: accountIndex, addressIndex: addressIndex);
   return addressCache[currentWallet!.ffiAddress()]![accountIndex]![addressIndex]!;

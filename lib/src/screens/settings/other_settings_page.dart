@@ -215,10 +215,6 @@ class OtherSettingsPage extends BasePage {
                     label: '[dev] secure storage preferences',
                     onTap: () => Navigator.of(context).pushNamed(Routes.devSecurePreferences)),
                 ListItemRegularRow(
-                    keyValue: '[dev] background sync logs',
-                    label: '[dev] background sync logs',
-                    onTap: () => Navigator.of(context).pushNamed(Routes.devBackgroundSyncLogs)),
-                ListItemRegularRow(
                     keyValue: '[dev] socket health logs',
                     label: '[dev] socket health logs',
                     onTap: () => Navigator.of(context).pushNamed(Routes.devSocketHealthLogs)),
