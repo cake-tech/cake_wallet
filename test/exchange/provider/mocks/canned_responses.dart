@@ -133,6 +133,32 @@ const whyNotTransaction = '{"is_float":true,"status":"wait","type":"cex",'
 
 const whyNotNotFound = '{"error":"Transaction not found"}';
 
+// ── WhyNot - eth to btc, fixed ───────────────────────────────────────────────────────────
+//
+// info-revert takes the amount to receive and answers with the amount to send. Its
+// min_amount / max_amount are on the receive side, only deposit_min_amount /
+// deposit_max_amount are in the deposit currency - see fixtures/whynot/info_revert.json.
+
+const whyNotFixedTradeId = "le-trade-fixed-1";
+const whyNotFixedDepositAddress = "0xwhynotfixeddepositaddress";
+
+const whyNotInfoRevert = '{"deposit_min_amount":"0.1","deposit_max_amount":"100",'
+    '"min_amount":"0.0025","max_amount":"2.5","amount":"4","fee":"0","rate":"0.025",'
+    '"profit":"0","withdrawal_fee":"0","extra_fee_amount":"0","rate_id":"le-rate-fixed-1",'
+    '"rate_id_expired_at":"1785333936912","applied_promo_code_id":null,"networks_from":[],'
+    '"networks_to":[],"deposit_amount_usdt":"12000","expired_at":"1785333936912",'
+    '"base_amount":"4"}';
+
+const whyNotTransactionRevert = '{"is_float":false,"status":"wait","type":"cex",'
+    '"coin_from":"ETH","coin_to":"BTC","deposit_amount":"4",'
+    '"withdrawal_amount":"0.1","withdrawal":"$payoutAddress","withdrawal_extra_id":null,'
+    '"return":"$refundAddress","return_extra_id":null,"coin_from_network":"ETH",'
+    '"coin_to_network":"BTC","deposit":"$whyNotFixedDepositAddress",'
+    '"deposit_extra_id":null,"rate":"0.025","fee":"0","revert":true,'
+    '"transaction_id":"$whyNotFixedTradeId","expired_at":$whyNotExpiredAtSeconds,'
+    '"created_at":"$whyNotCreatedAt","hash_in":null,"hash_out":null,'
+    '"confirmations":0,"need_confirmations":2,"aml_error_signals":[],"error_code":""}';
+
 // ── Trocador - btc to xmr, floating ──────────────────────────────────────────────────────
 
 const trocadorTradeId = "tr-trade-1";

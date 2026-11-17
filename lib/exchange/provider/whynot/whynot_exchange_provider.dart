@@ -52,8 +52,8 @@ class WhyNotExchangeProvider extends ExchangeProvider {
     final responseData = await _getInfo(params, isFixedRateMode);
 
     return ExchangeLimits(
-      min: Money.safeParse(responseData.minAmount, from),
-      max: Money.safeParse(responseData.maxAmount, from),
+      min: Money.safeParse(responseData.depositMinAmount, from),
+      max: Money.safeParse(responseData.depositMaxAmount, from),
     );
   }
 
@@ -70,7 +70,7 @@ class WhyNotExchangeProvider extends ExchangeProvider {
       affiliateId: _affiliateId,
     );
 
-    final responseData = await _getInfo(params, false);
+    final responseData = await _getInfo(params, request is FixedRateRequest);
 
     return ProviderRate(
       provider: description,
@@ -85,8 +85,8 @@ class WhyNotExchangeProvider extends ExchangeProvider {
         ),
       },
       limits: ExchangeLimits(
-        min: Money.safeParse(responseData.minAmount, request.depositCurrency),
-        max: Money.safeParse(responseData.maxAmount, request.depositCurrency),
+        min: Money.safeParse(responseData.depositMinAmount, request.depositCurrency),
+        max: Money.safeParse(responseData.depositMaxAmount, request.depositCurrency),
       ),
     );
   }

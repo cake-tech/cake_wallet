@@ -186,6 +186,35 @@ void main() {
         DateTime.fromMillisecondsSinceEpoch(whyNotExpiredAtSeconds * 1000, isUtc: true),
       );
     });
+
+    test("the info-revert body gives 0.1 - 100 eth to send and a rate id", () {
+      final info = WhyNotInfoResponse.fromJson(_map(whyNotInfoRevert));
+
+      expect(Money.parse(info.depositMinAmount, CryptoCurrency.eth), Money.parse("0.1", CryptoCurrency.eth));
+      expect(Money.parse(info.depositMaxAmount, CryptoCurrency.eth), Money.parse("100", CryptoCurrency.eth));
+      expect(info.rateId, "le-rate-fixed-1");
+    });
+
+    test("4 eth to receive 0.1 btc prices one eth at 0.025 btc", () {
+      final info = WhyNotInfoResponse.fromJson(_map(whyNotInfoRevert));
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse(info.amount, CryptoCurrency.eth),
+        Money.parse("0.1", CryptoCurrency.btc),
+      );
+
+      expect(rate.quote, Money.parse("0.025", CryptoCurrency.btc));
+    });
+
+    test("the transaction-revert body is the fixed trade", () {
+      final transaction = WhyNotTransactionResponse.fromJson(_map(whyNotTransactionRevert));
+
+      expect(transaction.transactionId, whyNotFixedTradeId);
+      expect(transaction.isFloat, isFalse);
+      expect(transaction.depositAmount, "4");
+      expect(transaction.withdrawalAmount, "0.1");
+      expect(transaction.deposit, whyNotFixedDepositAddress);
+      expect(transaction.withdrawal, payoutAddress);
+    });
   });
 
   group("Trocador", () {

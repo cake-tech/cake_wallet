@@ -38,6 +38,7 @@ void main() {
     swapTradeScenario(),
     trocadorScenario(),
     whyNotScenario(),
+    whyNotFixedScenario(),
     xoSwapScenario(),
   ];
 

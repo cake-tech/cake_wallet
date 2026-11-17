@@ -100,6 +100,8 @@ class WhyNotInfoRequest {
 @JsonSerializable(createToJson: false)
 class WhyNotInfoResponse {
   const WhyNotInfoResponse({
+    required this.depositMinAmount,
+    required this.depositMaxAmount,
     required this.minAmount,
     required this.maxAmount,
     required this.amount,
@@ -114,6 +116,10 @@ class WhyNotInfoResponse {
   factory WhyNotInfoResponse.fromJson(Map<String, dynamic> json) =>
       _$WhyNotInfoResponseFromJson(json);
 
+  @JsonKey(name: "deposit_min_amount")
+  final String depositMinAmount;
+  @JsonKey(name: "deposit_max_amount")
+  final String depositMaxAmount;
   @JsonKey(name: "min_amount")
   final String minAmount;
   @JsonKey(name: "max_amount")

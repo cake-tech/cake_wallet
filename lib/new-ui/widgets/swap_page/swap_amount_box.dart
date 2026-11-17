@@ -77,7 +77,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       }
 
       final amount = widget.isReceiverCard ? state.payoutAmount : state.depositAmount;
-      final hasSwapAll = state is SwapInputState && state.hasSwapAll;
+      final hasSwapAll = state is SwapInputState && state.hasSwapAll && !widget.bloc.spendingBalance.isZero;
       final Currency inputCurrency = _fiatInputMode ? widget.bloc.fiat : amount.currency;
       return Column(
         spacing: 12,

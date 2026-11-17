@@ -10,6 +10,8 @@ void main() {
       final raw = fixtureMap("whynot", "info");
       final info = WhyNotInfoResponse.fromJson(raw);
 
+      expect(info.depositMinAmount, raw["deposit_min_amount"]);
+      expect(info.depositMaxAmount, raw["deposit_max_amount"]);
       expect(info.minAmount, raw["min_amount"]);
       expect(info.maxAmount, raw["max_amount"]);
       expect(info.amount, raw["amount"]);
@@ -25,6 +27,8 @@ void main() {
       final raw = fixtureMap("whynot", "info_revert");
       final info = WhyNotInfoResponse.fromJson(raw);
 
+      expect(info.depositMinAmount, raw["deposit_min_amount"]);
+      expect(info.depositMaxAmount, raw["deposit_max_amount"]);
       expect(info.minAmount, raw["min_amount"]);
       expect(info.maxAmount, raw["max_amount"]);
       expect(info.amount, raw["amount"]);
@@ -37,6 +41,20 @@ void main() {
     test("rate_id_expired_at is a number on info and a string on info_revert", () {
       expect(fixtureMap("whynot", "info")["rate_id_expired_at"], isA<num>());
       expect(fixtureMap("whynot", "info_revert")["rate_id_expired_at"], isA<String>());
+    });
+
+    test("info's limits are all on the deposit side", () {
+      final info = WhyNotInfoResponse.fromJson(fixtureMap("whynot", "info"));
+
+      expect(info.minAmount, info.depositMinAmount);
+      expect(info.maxAmount, info.depositMaxAmount);
+    });
+
+    test("info_revert's min and max are on the receive side, only deposit_* are in the deposit currency", () {
+      final info = WhyNotInfoResponse.fromJson(fixtureMap("whynot", "info_revert"));
+
+      expect(info.minAmount, isNot(info.depositMinAmount));
+      expect(info.maxAmount, isNot(info.depositMaxAmount));
     });
 
     test("the floating quote has no rate id, so nothing to pass to the create call", () {
