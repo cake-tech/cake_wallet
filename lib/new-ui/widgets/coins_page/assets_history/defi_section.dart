@@ -1,4 +1,5 @@
 import "package:cake_wallet/new-ui/widgets/everstake/everstake_defi_tile.dart";
+import "package:cake_wallet/new-ui/widgets/morpho/morpho_defi_tile.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cw_core/wallet_base.dart";
 import "package:flutter/material.dart";
@@ -13,7 +14,13 @@ class DefiSection extends StatelessWidget {
   Widget build(BuildContext context) => const SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.fromLTRB(18, 18, 18, 64),
-          child: EverstakeDefiTile(),
+          child: Column(
+            spacing: 12,
+            children: [
+              EverstakeDefiTile(),
+              MorphoDefiTile(),
+            ],
+          ),
         ),
       );
 }

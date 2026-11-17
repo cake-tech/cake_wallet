@@ -1,8 +1,8 @@
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/defi/defi_earned_text.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
-import "package:cake_wallet/themes/core/custom_theme_colors.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:flutter/cupertino.dart";
@@ -71,34 +71,33 @@ ListItemRegularRow defiEarnedRow(
   Money earned,
   ExchangeRate? fiatRate, {
   bool? isHiddenAmount,
-}) {
-  final fiat = fiatRate?.convert(earned);
-  const color = CustomThemeColors.syncGreen;
-
-  return ListItemRegularRow(
-    keyValue: "defi_earned",
-    label: S.of(context).earned,
-    showArrow: false,
-    trailingWidget: Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        if (fiat != null)
-          MoneyText(
-            fiat,
-            fractionalDigits: 2,
-            trimZeros: false,
+}) =>
+    ListItemRegularRow(
+      keyValue: "defi_earned",
+      label: S.of(context).earned,
+      showArrow: false,
+      trailingWidget: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        spacing: 4,
+        children: [
+          DefiEarnedText(
+            earned,
+            fiatRate: fiatRate,
             isHiddenAmount: isHiddenAmount,
-            style: const TextStyle(fontSize: 14, color: color),
+            style: TextStyle(fontSize: fiatRate == null ? 14 : 12),
           ),
-        MoneyText(
-          earned,
-          isHiddenAmount: isHiddenAmount,
-          style: TextStyle(fontSize: fiat == null ? 14 : 12, color: color),
-        ),
-      ],
-    ),
-  );
-}
+          if (fiatRate != null)
+            MoneyText(
+              earned,
+              isHiddenAmount: isHiddenAmount,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+        ],
+      ),
+    );
 
 ListItemRegularRow defiAmountRow(
   BuildContext context, {

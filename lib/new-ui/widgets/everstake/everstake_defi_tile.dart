@@ -6,11 +6,11 @@ import "package:cake_wallet/new-ui/pages/everstake/everstake_intro_page.dart";
 import "package:cake_wallet/new-ui/pages/everstake/everstake_position_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/everstake/everstake_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/fiat_rate/fiat_rate_cubit.dart";
+import "package:cake_wallet/new-ui/widgets/defi/defi_earned_text.dart";
+import "package:cake_wallet/new-ui/widgets/defi/defi_provider_logo.dart";
 import "package:cake_wallet/new-ui/widgets/defi/defi_provider_tile.dart";
-import "package:cake_wallet/new-ui/widgets/everstake/everstake_logo.dart";
 import "package:cake_wallet/new-ui/widgets/everstake/everstake_rows.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
-import "package:cake_wallet/themes/core/custom_theme_colors.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/cupertino.dart";
@@ -64,7 +64,6 @@ class EverstakeDefiTile extends StatelessWidget {
 
               final amount = data.positionAmount;
               final amountFiat = fiatRate?.convert(amount);
-              final earnedFiat = fiatRate?.convert(data.earned);
 
               return _tile(
                 subtitle: (style) => MoneyText(amount, style: style),
@@ -81,18 +80,7 @@ class EverstakeDefiTile extends StatelessWidget {
                     else if (data.stakedBalance.isZero)
                       Text(S.of(context).withdrawal_pending, style: style)
                     else
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text("+", style: style.copyWith(color: CustomThemeColors.syncGreen)),
-                          MoneyText(
-                            earnedFiat ?? data.earned,
-                            fractionalDigits: earnedFiat == null ? 8 : 2,
-                            trimZeros: earnedFiat == null,
-                            style: style.copyWith(color: CustomThemeColors.syncGreen),
-                          ),
-                        ],
-                      ),
+                      DefiEarnedText(data.earned, fiatRate: fiatRate, style: style),
                   ],
                 ),
                 onTap: () => _open(
@@ -111,7 +99,7 @@ class EverstakeDefiTile extends StatelessWidget {
     VoidCallback? onTap,
   }) =>
       DefiProviderTile(
-        logo: const EverstakeLogo(),
+        logo: const DefiProviderLogo("assets/images/everstake.png"),
         name: "Everstake",
         trailing: trailing,
         subtitle: subtitle,

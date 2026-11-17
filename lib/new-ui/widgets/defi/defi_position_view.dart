@@ -18,6 +18,7 @@ class DefiPositionView extends StatelessWidget {
     required this.sections,
     required this.onWithdraw,
     required this.onDeposit,
+    this.showSectionHeaders = false,
     this.error,
     this.withdrawDisabled = false,
     this.depositDisabled = false,
@@ -31,6 +32,7 @@ class DefiPositionView extends StatelessWidget {
   final Map<String, List<ListItem>> sections;
   final VoidCallback? onWithdraw;
   final VoidCallback onDeposit;
+  final bool showSectionHeaders;
   final String? error;
   final bool withdrawDisabled;
   final bool depositDisabled;
@@ -57,7 +59,7 @@ class DefiPositionView extends StatelessWidget {
                 spacing: 24,
                 children: [
                   DefiAmountHeader(amount, fiatRate: fiatRate),
-                  NewListSections(sections: sections),
+                  NewListSections(sections: sections, showHeader: showSectionHeaders),
                   if (error != null)
                     Text(
                       error!,

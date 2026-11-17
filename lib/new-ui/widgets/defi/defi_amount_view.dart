@@ -16,26 +16,28 @@ class DefiAmountView extends StatefulWidget {
     required this.maxAmount,
     required this.maxLabel,
     required this.maxChipLabel,
-    required this.hint,
     required this.fiatRate,
     required this.onContinue,
+    this.hint,
     this.error,
     this.isLoading = false,
     this.disabled = false,
     this.onChanged,
+    this.attribution,
     super.key,
   });
 
   final Money maxAmount;
   final String maxLabel;
   final String maxChipLabel;
-  final String hint;
   final ExchangeRate? fiatRate;
   final void Function(Money amount, {required bool isMax}) onContinue;
+  final String? hint;
   final String? error;
   final bool isLoading;
   final bool disabled;
   final VoidCallback? onChanged;
+  final Widget? attribution;
 
   @override
   State<DefiAmountView> createState() => _DefiAmountViewState();
@@ -203,15 +205,17 @@ class _DefiAmountViewState extends State<DefiAmountView> {
                     child: Column(
                       spacing: 8,
                       children: [
-                        Text(
-                          widget.hint,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.onSurfaceVariant,
+                        if (widget.attribution != null) widget.attribution!,
+                        if (widget.hint != null)
+                          Text(
+                            widget.hint!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                        ),
                         NewPrimaryButton(
                           onPressed: () => widget.onContinue(amount!, isMax: _useMax),
                           isLoading: widget.isLoading,

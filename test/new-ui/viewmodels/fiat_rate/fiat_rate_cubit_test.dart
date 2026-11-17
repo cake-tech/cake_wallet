@@ -84,4 +84,20 @@ void main() {
       Money.parse("2300", FiatCurrency.eur),
     );
   });
+
+  test("converts at the exact price, not one rounded to cents", () {
+    settingsStore.fiatCurrency = FiatCurrency.eur;
+    fiatConversionStore.prices[CryptoCurrency.usdc] = 0.8634;
+    final cubit = FiatRateCubit(
+      currency: CryptoCurrency.usdc,
+      settingsStore: settingsStore,
+      fiatConversionStore: fiatConversionStore,
+    );
+    addTearDown(cubit.close);
+
+    expect(
+      cubit.state!.convert(Money.parse("100", CryptoCurrency.usdc)),
+      Money.parse("86.34", FiatCurrency.eur),
+    );
+  });
 }
