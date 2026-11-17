@@ -1,8 +1,11 @@
+import "dart:convert";
+
 import "package:breez_sdk_spark_flutter/breez_sdk_spark.dart";
 import "package:cw_bitcoin/electrum_transaction_info.dart";
 import "package:cw_bitcoin/lightning/utils.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/exceptions.dart";
 import "package:cw_core/transaction_direction.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -35,7 +38,29 @@ Payment _lightningPayment(
       ),
     );
 
+Matcher _refusesWithLimit(int limit) => throwsA(
+      isA<TransactionMemoNotAcceptedException>()
+          .having((exception) => exception.maxLength, "maxLength", limit),
+    );
+
 void main() {
+  group("ensureCommentAccepted", () {
+    test("accepts no comment and a comment within the limit", () {
+      ensureCommentAccepted(null, 0);
+      ensureCommentAccepted("Thanks", 6);
+    });
+
+    test("refuses a comment the recipient has no room for", () {
+      expect(() => ensureCommentAccepted("Thanks", 0), _refusesWithLimit(0));
+      expect(() => ensureCommentAccepted("Thanks!", 6), _refusesWithLimit(6));
+    });
+
+    test("measures the comment in bytes", () {
+      ensureCommentAccepted("спасибо", 14);
+      expect(() => ensureCommentAccepted("спасибо", 13), _refusesWithLimit(13));
+    });
+  });
+
   group("lightningPaymentMemo", () {
     test("returns the comment sent with an LNURL payment", () {
       final payment = _lightningPayment(
@@ -158,7 +183,11 @@ void main() {
         additionalInfo: {"isLightning": true, "memo": "Happy birthday"},
       );
 
-      final loaded = ElectrumTransactionInfo.fromJson(payment.toJson(), WalletType.bitcoin);
+      final saved = jsonEncode(payment.toJson());
+      final loaded = ElectrumTransactionInfo.fromJson(
+        jsonDecode(saved) as Map<String, dynamic>,
+        WalletType.bitcoin,
+      );
 
       expect(loaded.additionalInfo["memo"], "Happy birthday");
     });

@@ -1,4 +1,7 @@
+import "dart:convert";
+
 import "package:breez_sdk_spark_flutter/breez_sdk_spark.dart";
+import "package:cw_core/exceptions.dart";
 import "package:cw_core/lnurl.dart";
 
 String getLnurlOfLightningAddress(String lightningAddress) {
@@ -7,6 +10,12 @@ String getLnurlOfLightningAddress(String lightningAddress) {
   final name = parts.first;
   final domain = parts.last;
   return LNURL.encode("https://$domain/.well-known/lnurlp/$name");
+}
+
+void ensureCommentAccepted(String? comment, int commentAllowed) {
+  if (comment != null && utf8.encode(comment).length > commentAllowed) {
+    throw TransactionMemoNotAcceptedException(commentAllowed);
+  }
 }
 
 String? lightningPaymentMemo(Payment payment) {

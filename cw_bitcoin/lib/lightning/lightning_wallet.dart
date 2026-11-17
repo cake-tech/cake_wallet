@@ -1,5 +1,4 @@
 import 'dart:async';
-import "dart:convert";
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -12,7 +11,6 @@ import "package:cw_bitcoin/lightning/utils.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
-import "package:cw_core/exceptions.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -293,9 +291,7 @@ class LightningWallet {
           ? inputType.field0.payRequest
           : (inputType as InputType_LnurlPay).field0;
 
-      if (comment != null && utf8.encode(comment).length > payRequest.commentAllowed) {
-        throw TransactionMemoNotAcceptedException(payRequest.commentAllowed);
-      }
+      ensureCommentAccepted(comment, payRequest.commentAllowed);
 
       final request = PrepareLnurlPayRequest(
         amount: amountSats!,
