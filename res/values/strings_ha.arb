@@ -511,6 +511,7 @@
   "export_logs": "Fitar da log",
   "export_outputs": "Fitar da abubuwan fitarwa",
   "export_payjoin_logs": "Fitar da log ɗin Payjoin",
+  "export_trezor_logs": "Fitar da log ɗin Trezor",
   "extend_session": "Tsawaita Zama",
   "external": "Na waje",
   "external_wallet": "Wallet na waje",

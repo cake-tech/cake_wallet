@@ -512,6 +512,7 @@
   "export_logs": "Xuất nhật ký",
   "export_outputs": "Xuất đầu ra",
   "export_payjoin_logs": "Xuất nhật ký Payjoin",
+  "export_trezor_logs": "Xuất nhật ký Trezor",
   "extend_session": "Gia hạn phiên",
   "external": "Bên ngoài",
   "external_wallet": "Ví ngoài",

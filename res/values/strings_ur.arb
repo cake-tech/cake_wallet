@@ -511,6 +511,7 @@
   "export_logs": "لاگز برآمد کریں",
   "export_outputs": "آؤٹ پٹس ایکسپورٹ کریں",
   "export_payjoin_logs": "Payjoin لاگز ایکسپورٹ کریں",
+  "export_trezor_logs": "Trezor لاگز ایکسپورٹ کریں",
   "extend_session": "سیشن میں توسیع کریں",
   "external": "بیرونی",
   "external_wallet": "بیرونی والیٹ",

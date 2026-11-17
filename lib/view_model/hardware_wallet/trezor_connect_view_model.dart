@@ -12,6 +12,7 @@ import "package:cake_wallet/new-ui/widgets/hardware_wallet/proceed_on_device_she
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
 import "package:cw_core/encryption_file_utils.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/hardware/device_connection_type.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
 import "package:cw_core/key.dart";
@@ -26,8 +27,6 @@ import "package:mobx/mobx.dart";
 import "package:permission_handler/permission_handler.dart";
 import "package:trezor_connect/trezor_connect.dart" as connect_sdk;
 import "package:trezor_flutter/trezor_flutter.dart" as sdk;
-import "package:cw_core/exceptions/cake_exception.dart";
-
 
 part "trezor_connect_view_model.g.dart";
 
@@ -221,9 +220,12 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     _reconnectWalletId = null;
     final reusedSettings = reconnectWalletId != null ? _sessionSettings[reconnectWalletId] : null;
 
+    final _logFile = await logFile;
     try {
       final trezorInterface =
           device.connectionType == HardwareWalletConnectionType.ble ? trezorBLE : trezorUSB;
+
+      printV("Establishing connection to ${device.name}(${device.connectionType})", file: _logFile);
       final connection = await trezorInterface.connect(device.device);
 
       _connectionChangeSubscription ??=
@@ -247,6 +249,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       }
 
       Future<String> onPinCode() async {
+        printV("Trezor Pairing Pin requested", file: _logFile);
         _pinCompleter = Completer<String?>();
         paringState = TrezorParingState.enterPin;
 
@@ -266,6 +269,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         onPinCode,
       );
 
+      printV("Creating channel", file: _logFile);
       await _client!.createChannel();
 
       final hasAutoPairingCredentials =
@@ -289,7 +293,9 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
             final auto = await clientV2.getAutoPairingCredentials();
             _state!.setPairingCredentials([auto]);
             await _saveState();
-          } catch (_) {}
+          } catch (e) {
+            printV("Unable to get AutoPairingCredentials credentials: $e", file: _logFile);
+          }
         }
       }
 
@@ -297,6 +303,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         final passphrase = settings.passphraseOnDevice
             ? const sdk.TrezorPassphrase.onDevice()
             : sdk.TrezorPassphrase.value(settings.passphrase ?? "");
+        printV("Creating passphrase session", file: _logFile);
         await _client!.createSession(passphrase);
       }
 
@@ -305,7 +312,13 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       paringState = TrezorParingState.success;
       return true;
     } catch (e) {
-      await _client?.connection.disconnect();
+      printV("Error during connecting: $e", file: _logFile);
+
+      try {
+        await _client?.connection.disconnect();
+      } catch (e) {
+        printV("Error during disconnecting: $e", file: _logFile);
+      }
       _client = null;
       _sessionWalletId = null;
       _lastUsedSettings = null;
@@ -317,7 +330,6 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       }
       // rethrow;
       paringState = TrezorParingState.fail(e.toString());
-      printV(e);
       return false;
     } finally {
       isConnecting = false;
@@ -347,7 +359,7 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       case WalletType.monero:
         return monero!.getTrezorHardwareWalletService(_client!);
       case WalletType.bitcoin:
-        return bitcoin!.getTrezorHardwareWalletService(null, _client!, true);
+        return bitcoin!.getTrezorHardwareWalletService(null, _client, true);
       case WalletType.litecoin:
         return bitcoin!.getTrezorHardwareWalletService(trezorConnect, null, false);
       case WalletType.ethereum:
@@ -377,13 +389,14 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       case WalletType.polygon:
         return evm!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       default:
-        throw BadWalletTypeException('Unexpected wallet type: ${wallet.type} for trezor', wallet.type);
+        throw BadWalletTypeException("Unexpected wallet type: ${wallet.type} for trezor", wallet.type);
     }
   }
 
   final EncryptionFileUtils _encryptionFileUtils = encryptionFileUtilsFor(true);
   static const String _secureStorageKey = "com.cakewallet.trezor/thp_state";
 
+  static Future<String> get logFile async => "${(await getAppDir()).path}/trezor.log";
   Future<String> get _thpJsonFile async => "${(await getAppDir()).path}/thp_state.json.enc";
 
   Future<sdk.ThpState> _getState() async {
@@ -417,13 +430,15 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
       );
       _state = state;
       return state;
-    } catch (_) {
+    } catch (e) {
+      printV(e, file: await logFile);
       rethrow;
     }
   }
 
   Future<void> _connectionChangeListener(sdk.BleConnectionState event) async {
-    printV("Trezor Device State Changed: $event");
+    final _logFile = await logFile;
+    printV("Trezor Device State Changed: $event", file: _logFile);
     if (event != sdk.BleConnectionState.disconnected || isConnecting) {
       return;
     }
@@ -440,7 +455,9 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         if (state == sdk.BleConnectionState.connected) {
           return;
         }
-      } catch (_) {}
+      } catch (e) {
+        printV(e, file: _logFile);
+      }
     }
 
     if (identical(_client, client)) {
@@ -453,7 +470,8 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
     if (wallet.type == WalletType.monero) {
       try {
         await monero!.syncTrezor(wallet);
-      } catch (_) {
+      } catch (e) {
+        printV(e, file: await logFile);
         return false;
       }
     }

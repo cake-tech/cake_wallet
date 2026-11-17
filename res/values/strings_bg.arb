@@ -511,6 +511,7 @@
   "export_logs": "Експортиране на логове",
   "export_outputs": "Експортиране на изходи",
   "export_payjoin_logs": "Експортиране на Payjoin логове",
+  "export_trezor_logs": "Експортиране на Trezor логове",
   "extend_session": "Удължи сесията",
   "external": "Външен",
   "external_wallet": "Външен портфейл",

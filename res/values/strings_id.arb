@@ -511,6 +511,7 @@
   "export_logs": "Ekspor log",
   "export_outputs": "Ekspor keluaran",
   "export_payjoin_logs": "Ekspor log Payjoin",
+  "export_trezor_logs": "Ekspor log Trezor",
   "extend_session": "Perpanjang Sesi",
   "external": "Eksternal",
   "external_wallet": "Dompet eksternal",

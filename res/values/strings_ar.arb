@@ -511,6 +511,7 @@
   "export_logs": "تصدير السجلات",
   "export_outputs": "تصدير المخرجات",
   "export_payjoin_logs": "تصدير سجلات Payjoin",
+  "export_trezor_logs": "تصدير سجلات Trezor",
   "extend_session": "تمديد الجلسة",
   "external": "خارجي",
   "external_wallet": "محفظة خارجية",

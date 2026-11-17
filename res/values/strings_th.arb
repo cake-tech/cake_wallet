@@ -511,6 +511,7 @@
   "export_logs": "ส่งออกบันทึก",
   "export_outputs": "ส่งออกเอาต์พุต",
   "export_payjoin_logs": "ส่งออกล็อก Payjoin",
+  "export_trezor_logs": "ส่งออกล็อก Trezor",
   "extend_session": "ขยายเซสชัน",
   "external": "ภายนอก",
   "external_wallet": "กระเป๋าเงินภายนอก",

@@ -548,6 +548,7 @@
   "export_logs": "Export logs",
   "export_outputs": "Export outputs",
   "export_payjoin_logs": "Export Payjoin logs",
+  "export_trezor_logs": "Export Trezor Logs",
   "extend_session": "Extend Session",
   "external": "External",
   "external_wallet": "External wallet",

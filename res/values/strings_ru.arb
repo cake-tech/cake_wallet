@@ -511,6 +511,7 @@
   "export_logs": "Экспорт журналов",
   "export_outputs": "Экспорт выходов",
   "export_payjoin_logs": "Экспорт журналов Payjoin",
+  "export_trezor_logs": "Экспорт журналов Trezor",
   "extend_session": "Продлить сессию",
   "external": "Внешний",
   "external_wallet": "Внешний кошелёк",

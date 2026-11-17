@@ -511,6 +511,7 @@
   "export_logs": "မှတ်တမ်းများကို ထုတ်ယူရန်",
   "export_outputs": "Outputs များကို ထုတ်ယူရန်",
   "export_payjoin_logs": "Payjoin မှတ်တမ်းများကို တင်ပို့ပါ",
+  "export_trezor_logs": "Trezor မှတ်တမ်းများကို တင်ပို့ပါ",
   "extend_session": "စက်ရှင် သက်တမ်းတိုးရန်",
   "external": "ပြင်ပ",
   "external_wallet": "ပြင်ပ Wallet",

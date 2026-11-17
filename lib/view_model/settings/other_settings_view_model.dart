@@ -1,24 +1,25 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
-import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/utils/package_info.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
-import 'package:collection/collection.dart';
-import 'package:cw_core/balance.dart';
+import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/entities/auto_generate_subaddress_status.dart";
+import "package:cake_wallet/entities/priority_for_wallet_type.dart";
+import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/utils/package_info.dart";
+import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
+import "package:cake_wallet/view_model/send/send_view_model.dart";
+import "package:collection/collection.dart";
+import "package:cw_core/balance.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:mobx/mobx.dart';
+import "package:cw_core/pathForWallet.dart";
+import "package:cw_core/transaction_history.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/transaction_priority.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:mobx/mobx.dart";
 
-part 'other_settings_view_model.g.dart';
+part "other_settings_view_model.g.dart";
 
 class OtherSettingsViewModel = OtherSettingsViewModelBase with _$OtherSettingsViewModel;
 
@@ -26,9 +27,8 @@ abstract class OtherSettingsViewModelBase with Store {
   OtherSettingsViewModelBase(this._settingsStore, this._wallet, this.sendViewModel)
       : walletType = _wallet.type,
         chainId = _wallet.chainId,
-        currentVersion = '' {
-    PackageInfo.fromPlatform()
-        .then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
+        currentVersion = "" {
+    PackageInfo.fromPlatform().then((packageInfo) => currentVersion = packageInfo.version);
 
     final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
     final priorities = priorityForWalletType(_wallet.type);
@@ -55,7 +55,7 @@ abstract class OtherSettingsViewModelBase with Store {
     final priority = _settingsStore.getPriority(walletType, chainId: chainId);
 
     if (priority == null) {
-      throw BadWalletTypeException('Unexpected type ${walletType.toString()}', walletType);
+      throw BadWalletTypeException("Unexpected type ${walletType.toString()}", walletType);
     }
 
     return priority;
@@ -79,7 +79,7 @@ abstract class OtherSettingsViewModelBase with Store {
         WalletType.litecoin,
         WalletType.bitcoinCash,
         WalletType.dogecoin,
-        WalletType.decred
+        WalletType.decred,
       ].contains(_wallet.type);
 
   @computed
@@ -185,21 +185,26 @@ abstract class OtherSettingsViewModelBase with Store {
 
   bool get hasPayjoin => _wallet.hasPayjoinSupport;
 
+  bool get isTrezorWallet => _wallet.hardwareWalletType == HardwareWalletType.trezor;
+
   bool get hasLightning => _wallet.hasLightningSupport;
 
   Future<File?> getLightningLog() async {
     final path = await pathForWalletDir(name: _wallet.name, type: walletType);
     final logFile = File("$path/lightning.log");
 
-    if (await logFile.exists()) return logFile;
-    return null;
+    return logFile.existsSync() ? logFile : null;
   }
 
   Future<File?> getPayjoinLog() async {
     final path = await pathForWalletDir(name: _wallet.name, type: walletType);
     final logFile = File("$path/payjoin.log");
 
-    if (await logFile.exists()) return logFile;
-    return null;
+    return logFile.existsSync() ? logFile : null;
+  }
+
+  Future<File?> getTrezorLog() async {
+    final logFile = File(await TrezorConnectViewModelBase.logFile);
+    return logFile.existsSync() ? logFile : null;
   }
 }

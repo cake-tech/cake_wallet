@@ -511,6 +511,7 @@
   "export_logs": "Günlükleri dışa aktar",
   "export_outputs": "Çıktıları dışa aktar",
   "export_payjoin_logs": "Payjoin günlüklerini dışa aktar",
+  "export_trezor_logs": "Trezor günlüklerini dışa aktar",
   "extend_session": "Oturumu Uzat",
   "external": "Harici",
   "external_wallet": "Harici cüzdan",
