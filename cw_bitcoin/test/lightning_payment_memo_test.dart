@@ -88,4 +88,50 @@ void main() {
       expect(lightningPaymentMemo(payment), null);
     });
   });
+
+  group("redactPaymentComments", () {
+    test("redacts the comment in a callback url", () {
+      expect(
+        redactPaymentComments(
+          "Making GET request to: https://cake.cash/callback?amount=1000&comment=Thanks+for+dinner",
+        ),
+        "Making GET request to: https://cake.cash/callback?amount=1000&comment=<redacted>",
+      );
+      expect(
+        redactPaymentComments("https://cake.cash/callback?comment=Hi%21&amount=1000 done"),
+        "https://cake.cash/callback?comment=<redacted>&amount=1000 done",
+      );
+    });
+
+    test("redacts sent and received comments in a payment dump", () {
+      expect(
+        redactPaymentComments(
+          r'LnurlPayInfo { ln_address: Some("konsti@cake.cash"), comment: Some("Thanks \"a\" lot"), '
+          r'domain: Some("cake.cash") }, LnurlReceiveMetadata { sender_comment: Some("Happy birthday") }',
+        ),
+        r'LnurlPayInfo { ln_address: Some("konsti@cake.cash"), comment: Some("<redacted>"), '
+        r'domain: Some("cake.cash") }, LnurlReceiveMetadata { sender_comment: Some("<redacted>") }',
+      );
+    });
+
+    test("redacts the comment in a sync record", () {
+      expect(
+        redactPaymentComments(
+          r'{"lnurl_pay_info": Object {"comment": String("Thanks"), "domain": String("cake.cash")}}',
+        ),
+        r'{"lnurl_pay_info": Object {"comment": String("<redacted>"), "domain": String("cake.cash")}}',
+      );
+    });
+
+    test("leaves other lines alone", () {
+      const lines = [
+        "Emitting payment event: Payment { comment: None, sender_comment: None }",
+        "Making GET request to: https://cake.cash/.well-known/lnurlp/konsti",
+        'description: Some("Send to Cake Wallet")',
+      ];
+      for (final line in lines) {
+        expect(redactPaymentComments(line), line);
+      }
+    });
+  });
 }

@@ -78,8 +78,9 @@ class LightningWallet {
         if (!logFile.existsSync()) {
           logFile.createSync(recursive: true);
         }
+        final line = redactPaymentComments(logEntry.line);
         logFile.writeAsStringSync(
-          "${DateTime.now().toUtc().toIso8601String()} [${logEntry.level}] ${logEntry.line}\n",
+          "${DateTime.now().toUtc().toIso8601String()} [${logEntry.level}] $line\n",
           mode: FileMode.append,
         );
       } catch (e) {

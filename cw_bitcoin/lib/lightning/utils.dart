@@ -22,3 +22,9 @@ String? lightningPaymentMemo(Payment payment) {
   final lnurlPayInfo = details.lnurlPayInfo;
   return lnurlPayInfo != null ? lnurlPayInfo.comment : details.description;
 }
+
+final _commentInUrl = RegExp(r"(?<=[?&]comment=)[^&\s]*");
+final _commentInDebugOutput = RegExp(r'(?<=comment"?: (?:Some|String)\(")(?:[^"\\]|\\.)*(?=")');
+
+String redactPaymentComments(String logLine) =>
+    logLine.replaceAll(_commentInUrl, "<redacted>").replaceAll(_commentInDebugOutput, "<redacted>");
