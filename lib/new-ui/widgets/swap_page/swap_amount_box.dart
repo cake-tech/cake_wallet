@@ -213,7 +213,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                               widget.exchangeViewModel.isFixedRateMode &&
                                               widget.exchangeViewModel.receiveAmount.isNotEmpty &&
                                               widget.exchangeViewModel.depositAmount.isEmpty;
-                                          return TestId.merge(
+                                          return TestId.container(
                                               widget.isReceiverCard
                                                   ? "swap_page_receive_amount_field_key"
                                                   : "swap_page_deposit_amount_field_key",

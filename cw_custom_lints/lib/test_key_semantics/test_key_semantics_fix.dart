@@ -14,7 +14,7 @@ class WrapInTestIdMerge extends ResolvedCorrectionProducer {
   static const _fixKind = FixKind(
     "dart.fix.wrapInTestIdMerge",
     DartFixKindPriority.standard,
-    "Wrap in TestId.merge()",
+    "Wrap in TestId.merge() or TestId.container()",
   );
 
   @override
@@ -41,7 +41,12 @@ class WrapInTestIdMerge extends ResolvedCorrectionProducer {
         );
 
     await builder.addDartFileEdit(file, (builder) {
-      builder.addSimpleInsertion(widget.offset, "TestId.merge(${literal.toSource()}, child: ");
+      final wrapper = const {"TextField", "TextFormField"}.contains(
+        widget.constructorName.type.name.lexeme,
+      )
+          ? "container"
+          : "merge";
+      builder.addSimpleInsertion(widget.offset, "TestId.$wrapper(${literal.toSource()}, child: ");
       builder.addSimpleInsertion(widget.end, ")");
 
       if (!hasImport) {
