@@ -511,6 +511,7 @@
   "export_logs": "I-export ang mga log",
   "export_outputs": "I-export ang mga output",
   "export_payjoin_logs": "I-export ang mga Payjoin log",
+  "export_trezor_logs": "I-export ang mga Trezor log",
   "extend_session": "Palawigin ang session",
   "external": "Panlabas",
   "external_wallet": "Panlabas na wallet",

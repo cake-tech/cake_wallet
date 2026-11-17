@@ -511,6 +511,7 @@
   "export_logs": "ログをエクスポート",
   "export_outputs": "アウトプットをエクスポート",
   "export_payjoin_logs": "Payjoinログをエクスポート",
+  "export_trezor_logs": "Trezorログをエクスポート",
   "extend_session": "セッションを延長",
   "external": "外部",
   "external_wallet": "外部ウォレット",

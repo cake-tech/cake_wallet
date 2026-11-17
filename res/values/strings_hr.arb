@@ -511,6 +511,7 @@
   "export_logs": "Izvezi zapise",
   "export_outputs": "Izvoz izlaza",
   "export_payjoin_logs": "Izvezi Payjoin zapise",
+  "export_trezor_logs": "Izvezi Trezor zapise",
   "extend_session": "Produži sesiju",
   "external": "Vanjski",
   "external_wallet": "Vanjski novčanik",

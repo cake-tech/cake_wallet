@@ -511,6 +511,7 @@
   "export_logs": "导出日志",
   "export_outputs": "导出输出",
   "export_payjoin_logs": "导出 Payjoin 日志",
+  "export_trezor_logs": "导出 Trezor 日志",
   "extend_session": "延长会话",
   "external": "外部",
   "external_wallet": "外部钱包",

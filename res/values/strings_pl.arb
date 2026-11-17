@@ -511,6 +511,7 @@
   "export_logs": "Eksportuj logi",
   "export_outputs": "Eksportuj wyjścia",
   "export_payjoin_logs": "Eksportuj logi Payjoin",
+  "export_trezor_logs": "Eksportuj logi Trezor",
   "extend_session": "Przedłuż sesję",
   "external": "Zewnętrzny",
   "external_wallet": "Zewnętrzny portfel",

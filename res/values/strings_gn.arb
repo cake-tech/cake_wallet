@@ -513,6 +513,7 @@
   "export_logs": "Emondo registro-kuéra",
   "export_outputs": "Emondo outputs",
   "export_payjoin_logs": "Emondo okápe Payjoin registro-kuéra",
+  "export_trezor_logs": "Emondo okápe Trezor registro-kuéra",
   "extend_session": "Embotuichave Sesión",
   "external": "Okápegua",
   "external_wallet": "Billetera externa",

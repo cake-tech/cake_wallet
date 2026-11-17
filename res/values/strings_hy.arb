@@ -511,6 +511,7 @@
   "export_logs": "Արտահանել տեղեկամատյանները",
   "export_outputs": "Արտահանել ելքերը",
   "export_payjoin_logs": "Արտահանել Payjoin-ի մատյանները",
+  "export_trezor_logs": "Արտահանել Trezor-ի մատյանները",
   "extend_session": "Երկարացնել սեսիան",
   "external": "Արտաքին",
   "external_wallet": "Արտաքին դրամապանակ",

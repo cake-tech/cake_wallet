@@ -511,6 +511,7 @@
   "export_logs": "Exportovat protokoly",
   "export_outputs": "Exportovat výstupy",
   "export_payjoin_logs": "Exportovat protokoly Payjoin",
+  "export_trezor_logs": "Exportovat protokoly Trezor",
   "extend_session": "Prodloužit relaci",
   "external": "Externí",
   "external_wallet": "Externí peněženka",
