@@ -416,6 +416,19 @@ class PayjoinStorage {
     return rows.map(_fromRow).toList();
   }
 
+  /// Sessions in [walletId] with a stored original transaction and no
+  /// recorded fallback, i.e. whose original may still be broadcast.
+  Future<List<PayjoinSession>> readFallbackCandidates(String walletId) async {
+    final rows = await _db.query(
+      _tableName,
+      where: "walletId = ? AND originalPsbt IS NOT NULL AND originalPsbt != '' "
+          "AND usedFallback = 0",
+      whereArgs: [walletId],
+      orderBy: "rowid ASC",
+    );
+    return rows.map(_fromRow).toList();
+  }
+
   Future<List<PayjoinSession>> readAllSessions(String walletId) async {
     final rows = await _db.query(
       _tableName,

@@ -17,11 +17,13 @@ import "package:cw_bitcoin/payjoin/payjoin_session_errors.dart";
 import "package:cw_bitcoin/payjoin/storage.dart";
 import "package:cw_bitcoin/pending_bitcoin_transaction.dart";
 import "package:cw_bitcoin/psbt/utils.dart";
+import "package:cw_bitcoin/psbt/v0_deserialize.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/cake_hive.dart";
 import "package:cw_core/pathForWallet.dart";
 import "package:cw_core/payjoin_session.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:ledger_bitcoin/psbt.dart";
 import "package:payjoin/payjoin.dart" as pj;
 
 class PayjoinManager {
@@ -1271,6 +1273,11 @@ class PayjoinManager {
     if (direct != null) {
       return direct;
     }
+
+    final fallback = await _detectFallback(txId);
+    if (fallback != null) {
+      return fallback;
+    }
     if (outputAddresses.isEmpty) {
       return null;
     }
@@ -1301,6 +1308,63 @@ class PayjoinManager {
       "Receiver(${matched.receiver}) backfilled txId=$txId via output-address match",
     );
     return matched;
+  }
+
+  /// Returns the session whose original transaction is [txId] after
+  /// marking it as completed by fallback, or null when [txId] is no
+  /// session's original.
+  Future<PayjoinSession?> _detectFallback(String txId) async {
+    for (final session in await _payjoinStorage.readFallbackCandidates(_wallet.id)) {
+      final endpoint = session.isSenderSession ? session.pjUri : session.receiver;
+      if (endpoint == null) {
+        continue;
+      }
+      final data = session.originalPsbt!;
+      if (_originalTx(data)?.txId() != txId) {
+        continue;
+      }
+
+      if (session.isSenderSession) {
+        _runningSenders.remove(endpoint)
+          ?..cancel()
+          ..dispose();
+        await _payjoinStorage.markSenderSessionComplete(endpoint, txId, usedFallback: true);
+      } else {
+        _runningReceivers.remove(endpoint)
+          ?..cancel()
+          ..dispose();
+        var total = 0;
+        for (final output in _originalTx(data)!.outputs) {
+          if (_wallet.isMine(output.scriptPubKey)) {
+            total += output.amount.toInt();
+          }
+        }
+        await _payjoinStorage.markReceiverSessionComplete(
+          endpoint,
+          txId,
+          total.toString(),
+          usedFallback: true,
+        );
+      }
+      writePayjoinLog("Fallback($endpoint) original transaction $txId seen in history");
+      return _payjoinStorage.getSessionByEndpoint(endpoint);
+    }
+    return null;
+  }
+
+  /// Parses stored fallback data: a base64 PSBT v0 or `RAW:`-prefixed hex.
+  /// A PSBT's unsigned-tx txid is final for segwit inputs.
+  BtcTransaction? _originalTx(String data) {
+    try {
+      if (data.startsWith("RAW:")) {
+        return BtcTransaction.fromRaw(data.substring(4));
+      }
+      final psbt = PsbtV2()..deserializeV0(base64.decode(data));
+      return BtcTransaction.fromRaw(BytesUtils.toHexString(psbt.extractUnsignedTX(false)));
+    } catch (e) {
+      writePayjoinLog("[WARNING] Original tx parse: $e");
+      return null;
+    }
   }
 
   Future<String> generateExportData() async {
