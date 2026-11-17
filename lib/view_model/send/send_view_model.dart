@@ -1743,6 +1743,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     if (error is TransactionInputNotSupported) {
       return S.current.tx_invalid_input;
     }
+    if (error is TransactionMemoNotAcceptedException) {
+      return error.maxLength == 0
+          ? S.current.lightning_memo_not_accepted
+          : S.current.lightning_memo_too_long(error.maxLength.toString());
+    }
 
     if (wallet.type == WalletType.bitcoin) {
       final lnError = getLightningErrorMessage(error);

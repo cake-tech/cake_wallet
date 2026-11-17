@@ -11,6 +11,7 @@ import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
+import "package:cw_core/exceptions.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -291,11 +292,7 @@ class LightningWallet {
           : (inputType as InputType_LnurlPay).field0;
 
       if (comment != null && utf8.encode(comment).length > payRequest.commentAllowed) {
-        throw TransactionGenerationException(
-          payRequest.commentAllowed == 0
-              ? "The recipient doesn't accept a memo"
-              : "The recipient accepts memos up to ${payRequest.commentAllowed} characters",
-        );
+        throw TransactionMemoNotAcceptedException(payRequest.commentAllowed);
       }
 
       final request = PrepareLnurlPayRequest(

@@ -638,6 +638,8 @@
   "lightning_deposit_desc": "Lightning'e yatırdığınızda, bu cüzdandaki zincir üstü Bitcoin'inizi Lightning hesabınıza takas etmiş olursunuz.",
   "lightning_deposit_disclaimer": "Yeni Lightning bakiyesi, Bitcoin işlemi tamamen onaylanana kadar kullanılamayacak.",
   "lightning_external_disclaimer": "Fonları gönderene kadar bu sayfayı kapatmayın; aksi takdirde yatırma işlemi devam etmez.",
+  "lightning_memo_not_accepted": "Alıcı memo kabul etmiyor",
+  "lightning_memo_too_long": "Alıcı en fazla ${limit} karakterlik memoları kabul ediyor",
   "lightning_mode": "Yıldırım modu",
   "lightning_username_desc": "Özel bir ad seçerek veya aşağıda rastgele oluşturulmuş bir adı kullanarak bir Lightning kullanıcı adı ile Lightning ödemelerini kolayca alın.",
   "lightning_username_desc_completed": "Bu kullanıcı adını herhangi bir Lightning cüzdanından ödeme almak için kullanabilirsiniz.",
