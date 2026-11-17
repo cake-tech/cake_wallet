@@ -271,7 +271,10 @@ class _NewSendPageState extends State<NewSendPage> {
     _disposers.add(
       reaction(
         (_) => widget.sendViewModel.lnurlRecipient(widget.sendViewModel.outputs[_selectedOutput]),
-        widget.sendViewModel.loadLnurlCommentLimit,
+        (lnurl) {
+          widget.sendViewModel.outputs[_selectedOutput].memo = "";
+          widget.sendViewModel.loadLnurlCommentLimit(lnurl);
+        },
       ),
     );
 

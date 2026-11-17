@@ -219,6 +219,7 @@ class _RecipientServerResponse extends StreamView<List<int>> implements HttpClie
 }
 
 const _lnurlUrl = "https://cake.cash/.well-known/lnurlp/konsti";
+const _otherLnurlUrl = "https://cake.cash/.well-known/lnurlp/seth";
 const _onChainAddress = "bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq";
 const _invoiceWithMemo =
     "lnbc1u1p5564nxpp5mrklx2pjaggkcfs9r5tfk84wszzy9gypcnrt9yjq7n6uf95s70xqsp59fph78twjra598n2mll2arw5enluy7a4uf4y9a94ddd30hm98njsxq9z0rgqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qcqzpgdql2djkuepqw3hjqsmpddjjq4mpd3kx2aq9qyyssq3nf60ey9fgkf0elu2y8j96rx5pm4gx2a976h8yadx83dyg0ltnysrxhep8e2p3yvz4kf597qk3rttgdy72wwqq0mwr8hdht3pqpchyqq0aa9v0";
@@ -226,6 +227,7 @@ const _invoiceWithoutMemo =
     "lnbc10n1p5exazppp5szh273r6nzvwydzsdlg0ws0vhxwnc6nqtqt4sjt0vu6x6l8t5csqdqqcqzzsxqrrsssp5nkup6uht7xlfqaj8lxpe5kx0ejum9p4pvv3nlnndr9ykzge3393s9qxpqysgqufh05a7qs0ezeckvmh7tjkr9ngng96nq274twg20z45ysp7afpdrttm2ky73cpjwpjqsmtzzd79w6lyvszgmkanwn8mj0jcfunrwv3qprg3z3j";
 
 final _lnurl = LNURL.encode(_lnurlUrl);
+final _otherLnurl = LNURL.encode(_otherLnurlUrl);
 final _shieldedZcashAddress = "zs1${"q" * 75}";
 
 String _payRequest({int? commentAllowed}) => jsonEncode({
@@ -501,7 +503,7 @@ void main() {
       expect(tester.widget<TextField>(_memoField).maxLength, 120);
     });
 
-    testWidgets("keeps the memo for this recipient only", (tester) async {
+    testWidgets("drops the memo when the recipient becomes an on-chain address", (tester) async {
       server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 120));
       final page = _SendPage.bitcoin();
       await page.pump(tester);
@@ -518,6 +520,25 @@ void main() {
       await _enterAddress(tester, _lnurl);
       expect(server.requested, [_lnurlUrl]);
       expect(tester.widget<TextField>(_memoField).controller!.text, "");
+    });
+
+    testWidgets("drops the memo when another Lightning recipient is entered", (tester) async {
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      server.responses[_otherLnurlUrl] = (200, _payRequest(commentAllowed: 120));
+      final page = _SendPage.bitcoin();
+      await page.pump(tester);
+
+      await _enterAddress(tester, _otherLnurl);
+      await _enterAddress(tester, _lnurl);
+      await tester.enterText(_memoField, "Thanks for dinner");
+      await _settle(tester);
+      expect(page.viewModel.outputs.first.memo, "Thanks for dinner");
+
+      await _enterAddress(tester, _otherLnurl);
+
+      expect(server.requested, [_otherLnurlUrl, _lnurlUrl]);
+      expect(tester.widget<TextField>(_memoField).controller!.text, "");
+      expect(page.viewModel.outputs.first.memo, "");
     });
 
     testWidgets("shows the memo field for a resolved Lightning username", (tester) async {
