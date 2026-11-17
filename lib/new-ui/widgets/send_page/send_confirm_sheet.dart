@@ -128,6 +128,8 @@ class SendTransactionDetails extends StatelessWidget {
   const SendTransactionDetails(
       {super.key, required this.sendViewModel, required this.isPage, this.title, this.iconPath});
 
+  static const _memoLinesPerRecipient = 3;
+
   final SendViewModel sendViewModel;
   final bool isPage;
   final String? title;
@@ -257,13 +259,13 @@ class SendTransactionDetails extends StatelessWidget {
 
       final outputs = sendViewModel.outputs;
 
-      final memo = [
+      final memos = [
         for (final (index, output) in outputs.indexed)
           if (sendViewModel.confirmationMemo(output).isNotEmpty)
             outputs.length == 1
                 ? sendViewModel.confirmationMemo(output)
                 : "${index + 1}: ${sendViewModel.confirmationMemo(output)}",
-      ].join("\n");
+      ];
 
       return SingleChildScrollView(
         child: Padding(
@@ -369,7 +371,7 @@ class SendTransactionDetails extends StatelessWidget {
                           dropdownText: "${outputs.length} ${S.of(context).addresses}"),
                   ],
                 ),
-              if (memo.isNotEmpty)
+              if (memos.isNotEmpty)
                 MergeSemantics(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,9 +393,17 @@ class SendTransactionDetails extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
-                          child: Text(
-                            memo,
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (final memo in memos)
+                                Text(
+                                  memo,
+                                  maxLines: _memoLinesPerRecipient,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                ),
+                            ],
                           ),
                         ),
                       ),

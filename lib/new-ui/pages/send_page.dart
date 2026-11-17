@@ -262,7 +262,7 @@ class _NewSendPageState extends State<NewSendPage> {
         (_) => widget.sendViewModel.lnurlRecipient(widget.sendViewModel.outputs.first),
         (lnurl) {
           widget.sendViewModel.outputs.first.memo = "";
-          _memoControllers.first.clear();
+          _memoControllers.first.text = "";
           widget.sendViewModel.loadLnurlCommentLimit(lnurl);
         },
       ),

@@ -460,6 +460,15 @@ Future<void> _enterAddress(WidgetTester tester, String address) async {
   await _settle(tester);
 }
 
+void _copyToClipboard(WidgetTester tester, String text) {
+  final messenger = tester.binding.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(
+    SystemChannels.platform,
+    (call) async => call.method == "Clipboard.getData" ? {"text": text} : null,
+  );
+  addTearDown(() => messenger.setMockMethodCallHandler(SystemChannels.platform, null));
+}
+
 Future<void> _addRecipient(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.add));
   await _settle(tester);
@@ -626,14 +635,7 @@ void main() {
 
     testWidgets("hands the wallet a pasted memo that is over the limit", (tester) async {
       const pasted = "This pasted memo is far longer than the recipient allows";
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        (call) async => call.method == "Clipboard.getData" ? {"text": pasted} : null,
-      );
-      addTearDown(
-        () => tester.binding.defaultBinaryMessenger
-            .setMockMethodCallHandler(SystemChannels.platform, null),
-      );
+      _copyToClipboard(tester, pasted);
       server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 32));
       final page = _SendPage.bitcoin();
       await page.pump(tester);
@@ -656,10 +658,31 @@ void main() {
       await page.pump(tester);
 
       await _enterAddress(tester, _lnurl);
+      await tester.enterText(_amountField, "1000");
       await tester.enterText(_memoField, "😀😀😀😀😀😀");
       await _settle(tester);
+      await page.tapSend(tester);
 
-      expect(page.viewModel.outputs.first.memo, "😀😀😀😀😀😀");
+      expect(page.memosWhenBuilt, ["😀😀😀😀😀😀"]);
+    });
+
+    testWidgets("keeps the refusal of a long memo on screen", (tester) async {
+      final longMemo = "word " * 120;
+      _copyToClipboard(tester, longMemo);
+      server.responses[_lnurlUrl] = (200, _payRequest(commentAllowed: 255));
+      final page = _SendPage.bitcoin()..prepareError = TransactionMemoNotAcceptedException(255);
+      await page.pump(tester);
+
+      await _enterAddress(tester, _lnurl);
+      await tester.enterText(_amountField, "1000");
+      tester.widget<FloatingIconButton>(_memoPasteButton).onPressed();
+      await _settle(tester);
+      await page.tapSend(tester);
+
+      final refusal = _onConfirmSheet("The recipient accepts memos up to 255 characters");
+      final screenHeight = tester.view.physicalSize.height / tester.view.devicePixelRatio;
+      expect(page.memosWhenBuilt, [longMemo]);
+      expect(tester.getRect(refusal).bottom, lessThan(screenHeight));
     });
   });
 
@@ -904,7 +927,8 @@ void main() {
 
       expect(page.memosWhenBuilt, ["Rent for May", "Gift"]);
       expect(_onConfirmSheet("Memo"), findsOneWidget);
-      expect(_onConfirmSheet("1: Rent for May\n2: Gift"), findsOneWidget);
+      expect(_onConfirmSheet("1: Rent for May"), findsOneWidget);
+      expect(_onConfirmSheet("2: Gift"), findsOneWidget);
       expect(server.requested, isEmpty);
     });
   });
