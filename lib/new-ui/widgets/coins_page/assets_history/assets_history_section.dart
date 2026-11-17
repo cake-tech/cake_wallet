@@ -3,9 +3,8 @@ import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/assets_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_top_bar.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
+import "package:cake_wallet/new-ui/widgets/coins_page/assets_history/nfts_modal.dart";
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/dashboard/pages/nft_listing_page.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/nft_view_model.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +44,6 @@ class AssetsHistorySection extends StatefulWidget {
 class _AssetsHistorySectionState extends State<AssetsHistorySection> {
   List<AssetsHistorySectionTab> tabs = [];
   int _selectedTab = 0;
-  late final ReactionDisposer _nftsTabReaction;
 
   void reloadTabs() {
     final oldTabLength = tabs.length;
@@ -53,17 +51,13 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
         (widget.dashboardViewModel.hasMweb && widget.dashboardViewModel.mwebEnabled);
     final hasAssetsButton = widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled;
     final hasDefiTab = DefiSection.supportsWallet(widget.dashboardViewModel.wallet);
-    final hasNftTab = widget.dashboardViewModel.showNftsTab &&
-        isNFTACtivatedChain(
-          widget.dashboardViewModel.wallet.type,
-          chainId: widget.dashboardViewModel.wallet.chainId,
-        );
     tabs = [
       if (hasAssetsTab)
         AssetsHistorySectionTab(
             S.current.assets,
             AssetsSection(
               dashboardViewModel: widget.dashboardViewModel,
+              onOpenNfts: () => openNftsModal(context),
             ),
            hasAssetsButton ? AssetsHistorySectionActionButton(S.current.tokens, "assets/new-ui/options_slider.svg",
 
@@ -82,7 +76,7 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
           S.current.history,
           HistorySection(
             detailsAsPage: false,
-            roundedTopSection: hasAssetsTab || hasDefiTab || hasNftTab,
+            roundedTopSection: hasAssetsTab || hasDefiTab,
             dashboardViewModel: widget.dashboardViewModel,
             short: true,
           ),
@@ -90,9 +84,6 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
               S.current.all_pascal_case, "assets/new-ui/arrow_right.svg", () {
             openHistoryModal(context);
           })),
-      if (hasNftTab)
-        AssetsHistorySectionTab(
-            S.current.nfts, NFTListingPage(nftViewModel: widget.nftViewModel), null)
     ];
     if (oldTabLength != tabs.length) {
       setState(() {
@@ -110,13 +101,6 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
       reloadTabs();
     });
     reaction((_) => widget.dashboardViewModel.mwebEnabled, (_) => reloadTabs());
-    _nftsTabReaction = reaction((_) => widget.dashboardViewModel.showNftsTab, (_) => reloadTabs());
-  }
-
-  @override
-  void dispose() {
-    _nftsTabReaction();
-    super.dispose();
   }
 
   @override
@@ -158,4 +142,10 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
             ));
     widget.dashboardViewModel.changeAllFilterItems(true);
   }
+
+  Future<void> openNftsModal(BuildContext context) =>
+      CupertinoScaffold.showCupertinoModalBottomSheet<void>(
+        context: context,
+        builder: (_) => NFTsModal(nftViewModel: widget.nftViewModel),
+      );
 }

@@ -56,6 +56,13 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
             final data = state.data!;
             final withdrawal = data.withdrawRequest.requested;
             final canClaim = data.canClaimWithdrawal;
+            final timing = [
+              if (data.activationTime != null && !data.pendingActivation.isZero)
+                everstakeActivationRow(context, data.activationTime!),
+              if (!withdrawal.isZero && !canClaim && data.withdrawalTime != null)
+                everstakeWithdrawalTimeRow(context, data.withdrawalTime!),
+            ];
+            final serviceFee = everstakeServiceFeeRow(context, data.poolFee);
 
             return DefiPositionView(
               name: "Everstake",
@@ -86,14 +93,9 @@ class _EverstakePositionPageState extends State<EverstakePositionPage> {
                       labelColor: canClaim ? Theme.of(context).colorScheme.primary : null,
                       onTap: canClaim && !state.isBusy ? _claimWithdrawal : null,
                     ),
+                  if (timing.isEmpty) serviceFee,
                 ],
-                "terms": [
-                  if (data.activationTime != null && !data.pendingActivation.isZero)
-                    everstakeActivationRow(context, data.activationTime!),
-                  if (!withdrawal.isZero && !canClaim && data.withdrawalTime != null)
-                    everstakeWithdrawalTimeRow(context, data.withdrawalTime!),
-                  everstakeServiceFeeRow(context, data.poolFee),
-                ],
+                if (timing.isNotEmpty) "terms": [...timing, serviceFee],
               },
               error: _claimError,
               onWithdraw: data.withdrawableBalance.isZero
