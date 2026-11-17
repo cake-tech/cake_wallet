@@ -40,6 +40,9 @@ public class MainActivity extends FlutterFragmentActivity {
 
         new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(),
                 PHONE_CALL_STATUS_CHANNEL).setStreamHandler(new PhoneCallStatusStreamHandler(this));
+
+        new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), AppBackupChannel.CHANNEL)
+                .setMethodCallHandler(new AppBackupChannel(this));
     }
 
     private void handle(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {

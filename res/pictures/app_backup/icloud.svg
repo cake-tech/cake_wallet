@@ -1,0 +1,10 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="24" rx="5.4" fill="white"/>
+<path d="M7.4 16.6H16.9C18.6 16.6 20 15.25 20 13.55C20 11.95 18.78 10.66 17.22 10.51C16.86 8.33 14.95 6.7 12.66 6.7C10.86 6.7 9.29 7.73 8.53 9.24C6.02 9.37 4 11.4 4 13.92C4 15.4 5.52 16.6 7.4 16.6Z" fill="url(#paint0_linear_icloud)"/>
+<defs>
+<linearGradient id="paint0_linear_icloud" x1="12" y1="6.7" x2="12" y2="16.6" gradientUnits="userSpaceOnUse">
+<stop stop-color="#3DB4FF"/>
+<stop offset="1" stop-color="#1E7AF0"/>
+</linearGradient>
+</defs>
+</svg>

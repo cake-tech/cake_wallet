@@ -158,6 +158,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+        <provider
+            android:name=".AppBackupFileProvider"
+            android:authorities="${applicationId}.app_backup_fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/app_backup_paths" />
+        </provider>
     </application>
 
     <queries>
@@ -165,5 +174,6 @@
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="https" />
         </intent>
+        <package android:name="com.google.android.apps.docs" />
     </queries>
 </manifest>

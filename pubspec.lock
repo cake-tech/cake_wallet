@@ -242,6 +242,14 @@ packages:
       url: "https://github.com/felangel/bloc"
     source: git
     version: "0.3.0"
+  bloc_presentation:
+    dependency: "direct main"
+    description:
+      name: bloc_presentation
+      sha256: b8f5c72e0c6a356767719cd7f56b37f6aec9747598c77cbc986d85244674061a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2+3"
   blockchain_utils:
     dependency: "direct main"
     description:
@@ -938,8 +946,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
-      resolved-ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
+      ref: "5a4eb5cc393734c2f069f7cd29fdb3933988e90d"
+      resolved-ref: "5a4eb5cc393734c2f069f7cd29fdb3933988e90d"
       url: "https://github.com/cake-tech/flutter_file_picker.git"
     source: git
     version: "8.1.6"
@@ -2652,8 +2660,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: rust_builder
-      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
-      resolved-ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      resolved-ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
       url: "https://github.com/cake-tech/zkool2.git"
     source: git
     version: "0.0.1"
@@ -3509,11 +3517,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
-      resolved-ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
+      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      resolved-ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
       url: "https://github.com/cake-tech/zkool2.git"
     source: git
-    version: "6.35.0"
+    version: "6.31.0"
 sdks:
   dart: ">=3.10.0 <4.0.0"
   flutter: ">=3.38.0"
