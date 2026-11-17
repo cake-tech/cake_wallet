@@ -52,6 +52,7 @@ class ZcashManualShieldModal extends StatelessWidget {
             child: Column(
               children: [
                 ModalTopBar(
+                  testId: "zcash_manual_shield_modal_top_bar",
                   title: S.of(context).shield_device_funds,
                   trailingIcon: const Icon(Icons.close),
                   onTrailingPressed: Navigator.of(context).pop,
