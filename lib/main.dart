@@ -231,6 +231,9 @@ Future<void> initializeAppAtRoot({bool reInitializing = false}) async {
 
 Future<void> initializeAppConfigs({bool loadWallet = true}) async {
   setRootDirFromEnv();
+  if (db == null) {
+    await initDb();
+  }
   final appDir = await getAppDir();
   CakeHive.init(appDir.path);
 
@@ -537,7 +540,7 @@ class TopLevelErrorWidget extends StatelessWidget {
 
 @pragma('vm:entry-point')
 Future<void> backgroundSync() async {
-  bool shouldUnmark = false;
+  final daemon = FlutterDaemon();
   try {
     printV("Background sync triggered");
     printV("- WidgetsFlutterBinding.ensureInitialized()");
@@ -545,24 +548,18 @@ Future<void> backgroundSync() async {
     printV("- DartPluginRegistrant.ensureInitialized()");
     DartPluginRegistrant.ensureInitialized();
     printV("- FlutterDaemon.markBackgroundSync()");
-    final val = await FlutterDaemon().markBackgroundSync();
+    final val = await daemon.markBackgroundSync();
     if (val) {
       printV("Background sync already in progress");
       return;
     }
-    shouldUnmark = true;
     printV("Starting background sync");
     final backgroundSync = BackgroundSync();
     await initializeAppConfigs(loadWallet: false);
     await backgroundSync.sync();
     printV("Background sync completed");
   } finally {
-    if (shouldUnmark) {
-      printV("Unmarking background sync");
-      await FlutterDaemon().unmarkBackgroundSync();
-    } else {
-      printV("Not unmarking background sync");
-    }
+    await daemon.finishBackgroundSync();
   }
 }
 

@@ -53,7 +53,11 @@ PODS:
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
+  - file_selector_ios (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
+  - flutter_daemon (0.0.1):
+    - Flutter
   - flutter_inappwebview_ios (0.0.1):
     - Flutter
     - flutter_inappwebview_ios/Core (= 0.0.1)
@@ -164,7 +168,9 @@ DEPENDENCIES:
   - dnssec_proof (from `.symlinks/plugins/dnssec_proof/ios`)
   - fast_scanner (from `.symlinks/plugins/fast_scanner/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
+  - file_selector_ios (from `.symlinks/plugins/file_selector_ios/ios`)
   - Flutter (from `Flutter`)
+  - flutter_daemon (from `.symlinks/plugins/flutter_daemon/ios`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - flutter_local_authentication (from `.symlinks/plugins/flutter_local_authentication/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
@@ -229,8 +235,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fast_scanner/ios"
   file_picker:
     :path: ".symlinks/plugins/file_picker/ios"
+  file_selector_ios:
+    :path: ".symlinks/plugins/file_selector_ios/ios"
   Flutter:
     :path: Flutter
+  flutter_daemon:
+    :path: ".symlinks/plugins/flutter_daemon/ios"
   flutter_inappwebview_ios:
     :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
   flutter_local_authentication:
@@ -305,7 +315,9 @@ SPEC CHECKSUMS:
   dnssec_proof: d461cac7bd3301eb7447f87936745a0c1ae0a67e
   fast_scanner: 2cb1ad3e69e645e9980fb4961396ce5804caa3e3
   file_picker: 9b3292d7c8bc68c8a7bf8eb78f730e49c8efc517
+  file_selector_ios: ec57ec07954363dd730b642e765e58f199bb621a
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_daemon: 1f73d3b052e376c039b65c6130df7f79e55b33c9
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   flutter_local_authentication: 989278c681612f1ee0e36019e149137f114b9d7f
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
@@ -324,7 +336,7 @@ SPEC CHECKSUMS:
   quick_actions_ios: 500fcc11711d9f646739093395c4ae8eec25f779
   reown_yttrium: cee334ade64725b1d83f7b34c706a6aae2696d58
   rive_common: dd421daaf9ae69f0125aa761dd96abd278399952
-  rlz: 3f4022361f540a5c26d9d2474fea1d2455b69d8d
+  rlz: c8363e00b6b220494d78e8c3f8e02244de65fb6b
   SDWebImage: 9f177d83116802728e122410fb25ad88f5c7608a
   sensitive_clipboard: 161e9abc3d56b3131309d8a321eb4690a803c16b
   share_plus: 50da8cb520a8f0f65671c6c6a99b3617ed10a58a
@@ -341,6 +353,6 @@ SPEC CHECKSUMS:
   wakelock_plus: e29112ab3ef0b318e58cfa5c32326458be66b556
   YttriumWrapper: 31e937fe9fbe0f1314d2ca6be9ce9b379a059966
 
-PODFILE CHECKSUM: 18601c2df1b9c6704d6a786e4e6777ae88178c28
+PODFILE CHECKSUM: 033f6f7d386c316c852204cccb2cc40fbd60d842
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0
