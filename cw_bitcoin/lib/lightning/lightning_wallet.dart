@@ -8,6 +8,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import "package:cw_bitcoin/exceptions.dart";
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
+import "package:cw_bitcoin/lightning/utils.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
@@ -501,6 +502,8 @@ class LightningWallet {
       preimage = details.htlcDetails.preimage;
     }
 
+    final memo = lightningPaymentMemo(payment);
+
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: payment.id,
@@ -513,6 +516,7 @@ class LightningWallet {
       additionalInfo: {
         "isLightning": true,
         if (preimage != null) "preimage": preimage,
+        if (memo != null && memo.isNotEmpty) "memo": memo,
       },
     );
   }

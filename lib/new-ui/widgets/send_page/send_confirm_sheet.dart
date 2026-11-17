@@ -257,6 +257,14 @@ class SendTransactionDetails extends StatelessWidget {
 
       final outputs = sendViewModel.outputs;
 
+      final memo = [
+        for (final (index, output) in outputs.indexed)
+          if (sendViewModel.confirmationMemo(output).isNotEmpty)
+            outputs.length == 1
+                ? sendViewModel.confirmationMemo(output)
+                : "${index + 1}: ${sendViewModel.confirmationMemo(output)}",
+      ].join("\n");
+
       return SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -360,6 +368,37 @@ class SendTransactionDetails extends StatelessWidget {
                           ),
                           dropdownText: "${outputs.length} ${S.of(context).addresses}"),
                   ],
+                ),
+              if (memo.isNotEmpty)
+                MergeSemantics(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 12,
+                    children: [
+                      Text(
+                        S.of(context).memo,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            memo,
+                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               Container(
                 decoration: BoxDecoration(

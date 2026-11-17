@@ -205,7 +205,8 @@ class TxDetailRowDefinition {
       title: S.current.memo,
       valueGetter: (vm) => vm.transactionInfo.additionalInfo["memo"] as String,
       applicable: (vm) =>
-          vm.wallet.type == WalletType.zcash && vm.transactionInfo.additionalInfo["memo"] != null,
+          (vm.wallet.type == WalletType.zcash || isLightning(vm.transactionInfo)) &&
+          vm.transactionInfo.additionalInfo["memo"] != null,
     ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_asset_id_key",

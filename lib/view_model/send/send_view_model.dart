@@ -479,6 +479,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return isLightningInvoice(address) ? getBolt11Description(address) ?? "" : "";
   }
 
+  String confirmationMemo(Output output) =>
+      hasMemoFor(output) ? output.memo : lightningInvoiceMemo(output);
+
   String _recipientAddress(Output output) =>
       (output.extractedAddress.isNotEmpty ? output.extractedAddress : output.address).trim();
 
