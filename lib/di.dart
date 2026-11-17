@@ -302,7 +302,6 @@ import 'buy/meld/meld_buy_provider.dart';
 import 'dogecoin/dogecoin.dart';
 import 'new-ui/viewmodels/card_customizer/card_customizer_bloc.dart';
 import 'new-ui/widgets/addresses_page/address_info.dart';
-import 'src/screens/buy/buy_sell_page.dart';
 
 
 final getIt = GetIt.instance;

@@ -7,7 +7,6 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_api_schema.dart";
 import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
-import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
