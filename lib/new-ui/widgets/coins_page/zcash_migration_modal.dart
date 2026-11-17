@@ -146,7 +146,7 @@ class ZcashMigrationModal extends StatelessWidget {
 
   void _launchDocs() {
     try {
-      launchUrl(Uri.parse("https://docs.cakewallet.com/cryptos/zcash/ironwood-migration"));
+      launchUrl(Uri.parse("https://docs.cakewallet.com/cryptos/zcash/ironwood-migration"), mode: LaunchMode.externalApplication);
     } catch (_) {}
   }
 }

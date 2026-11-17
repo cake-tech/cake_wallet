@@ -26,11 +26,6 @@ abstract class SupportViewModelBase with Store {
               linkTitle: 'cakewallet.com',
               link: 'https://cakewallet.com'),
           LinkListItem(
-              title: 'Forum',
-              icon: 'assets/images/discourse.png',
-              linkTitle: 'forum.cakewallet.com',
-              link: 'https://forum.cakewallet.com'),
-          LinkListItem(
               title: 'GitHub',
               icon: 'assets/images/github.png',
               hasIconColor: true,

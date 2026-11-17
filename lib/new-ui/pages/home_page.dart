@@ -7,6 +7,10 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
+import "package:cake_wallet/new-ui/pages/account_education_page.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cw_core/sync_status.dart";
 import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
 import "package:cake_wallet/new-ui/pages/send_page.dart";
 import "package:cake_wallet/new-ui/pages/settings_page.dart";
@@ -93,7 +97,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery.sizeOf(context).height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -109,16 +113,18 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
             CustomScrollView(
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                    sliver: CupertinoSliverRefreshControl(
-                      refreshTriggerPullDistance: 160,
-                      refreshIndicatorExtent: 90,
-                      onRefresh: () {
-                        unawaited(widget.nftViewModel.getNFTAssetByWallet());
+                  Builder(
+                    builder: (context) => SliverPadding(
+                      padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+                      sliver: CupertinoSliverRefreshControl(
+                        refreshTriggerPullDistance: 160,
+                        refreshIndicatorExtent: 90,
+                        onRefresh: () {
+                          unawaited(widget.nftViewModel.getNFTAssetByWallet());
 
-                        return widget.dashboardViewModel.refreshDashboard();
-                      },
+                          return widget.dashboardViewModel.refreshDashboard();
+                        },
+                      ),
                     ),
                   ),
                   SliverToBoxAdapter(
@@ -214,6 +220,14 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                 ),
                               ],
                             ),
+                            if (AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) &&
+                                widget.dashboardViewModel.accountListViewModel != null &&
+                                !_lightningMode)
+                              AccountsPromo(
+                                settingsStore: widget.dashboardViewModel.settingsStore,
+                                walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
+                                onTap: _openAccountsFromPromo,
+                              ),
                             Column(
                               children: [
                                 CoinActionRow(
@@ -241,21 +255,23 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                     child: SizedBox(height: 80.0),
                   )
                 ]),
-            Container(
-              height: (MediaQuery.of(context).padding.top),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: <Color>[
-                    Theme.of(context).colorScheme.surface.withAlpha(5),
-                    Theme.of(context).colorScheme.surface.withAlpha(25),
-                    Theme.of(context).colorScheme.surface.withAlpha(50),
-                    Theme.of(context).colorScheme.surface.withAlpha(100),
-                    Theme.of(context).colorScheme.surface.withAlpha(150),
-                    Theme.of(context).colorScheme.surface.withAlpha(175),
-                    Theme.of(context).colorScheme.surface.withAlpha(200),
-                  ],
+            Builder(
+              builder: (context) => Container(
+                height: MediaQuery.paddingOf(context).top,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: <Color>[
+                      Theme.of(context).colorScheme.surface.withAlpha(5),
+                      Theme.of(context).colorScheme.surface.withAlpha(25),
+                      Theme.of(context).colorScheme.surface.withAlpha(50),
+                      Theme.of(context).colorScheme.surface.withAlpha(100),
+                      Theme.of(context).colorScheme.surface.withAlpha(150),
+                      Theme.of(context).colorScheme.surface.withAlpha(175),
+                      Theme.of(context).colorScheme.surface.withAlpha(200),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -264,11 +280,18 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
       );
 
   Future<void> openCardCustomizer() async {
+    if (!_checkReadyToManage()) return;
     await CardCustomizer.show(
       context: context,
       dashboardViewModel: widget.dashboardViewModel,
+      account: !widget.dashboardViewModel.lightningMode &&
+              widget.dashboardViewModel.isMultiAccountsEnabled
+          ? widget.dashboardViewModel.accountListViewModel?.selectedAccount
+          : null,
       lightningMode: widget.dashboardViewModel.lightningMode,
     );
+    await widget.dashboardViewModel.accountListViewModel?.reload();
+    await widget.dashboardViewModel.loadCardDesigns();
   }
 
   void openSeedBackupReminder() {
@@ -283,7 +306,9 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
   }
 
   Future<void> openAccountCustomizer() async {
-    if (widget.dashboardViewModel.accountListViewModel == null) return;
+    if (widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
+
+    final page = getIt.get<WalletAccountsPage>(param1: widget.dashboardViewModel);
 
     await CupertinoScaffold.showCupertinoModalBottomSheet(
       barrierColor: Colors.black.withAlpha(60),
@@ -292,10 +317,36 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
         parentContext: context,
         heightMode: ModalHeightModes.fullScreen,
         rootPage: Material(
-          child: getIt.get<WalletAccountsPage>(param1: widget.dashboardViewModel),
+          child: page,
         ),
       ),
     );
     await widget.dashboardViewModel.loadCardDesigns();
+  }
+
+  Future<void> _openAccountsFromPromo() async {
+    if (!AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) ||
+        widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
+
+    await AccountEducationPage(
+      settingsStore: widget.dashboardViewModel.settingsStore,
+    ).show(context);
+    if (mounted) await openAccountCustomizer();
+  }
+
+  bool _checkReadyToManage() {
+    if (widget.dashboardViewModel.status is! SyncedSyncStatus) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertWithOneAction(
+          alertTitle: S.of(context).wallet_is_syncing,
+          alertContent: S.of(context).cannot_manage_accounts_during_sync,
+          buttonText: S.of(context).ok,
+          buttonAction: Navigator.of(context).pop,
+        ),
+      );
+      return false;
+    }
+    return true;
   }
 }

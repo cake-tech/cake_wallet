@@ -7,6 +7,7 @@ import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -159,11 +160,11 @@ class AnonPayApi {
 
     final responseJSON = json.decode(response.body) as List<dynamic>;
     if (response.statusCode != 200) {
-      throw Exception('Unexpected http status: ${response.statusCode}');
+      throw ServerResponseException('Unexpected http status: ${response.statusCode}');
     }
 
     if (responseJSON.isEmpty) {
-      throw Exception('No data');
+      throw ServerResponseException('No data');
     }
 
     final coinJson = responseJSON.first as Map<String, dynamic>;

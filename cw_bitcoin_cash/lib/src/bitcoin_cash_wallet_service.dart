@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:bip39/bip39.dart';
+import 'package:bitcoin_base/bitcoin_base.dart';
+import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
@@ -15,7 +18,7 @@ class BitcoinCashWalletService extends WalletService<
     BitcoinCashNewWalletCredentials,
     BitcoinCashRestoreWalletFromSeedCredentials,
     BitcoinCashRestoreWalletFromWIFCredentials,
-    BitcoinCashNewWalletCredentials> {
+    BitcoinRestoreWalletFromHardware> {
   BitcoinCashWalletService(this.unspentCoinsInfoSource, this.isDirect);
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
@@ -50,7 +53,7 @@ class BitcoinCashWalletService extends WalletService<
   Future<BitcoinCashWallet> openWallet(String name, String password) async {
     final walletInfo = await WalletInfo.get(name, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException(name: name, type: getType());
     }
 
     try {
@@ -83,7 +86,7 @@ class BitcoinCashWalletService extends WalletService<
     File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
     final walletInfo = await WalletInfo.get(wallet, getType());
     if (walletInfo == null) {
-      throw Exception('Wallet not found');
+      throw WalletNotFoundException(name: wallet, type: getType());
     }
     await WalletInfo.delete(walletInfo);
 
@@ -99,9 +102,26 @@ class BitcoinCashWalletService extends WalletService<
   }
 
   @override
-  Future<BitcoinCashWallet> restoreFromHardwareWallet(BitcoinCashNewWalletCredentials credentials) {
-    throw UnimplementedError(
-        "Restoring a Bitcoin Cash wallet from a hardware wallet is not yet supported!");
+  Future<BitcoinCashWallet> restoreFromHardwareWallet(
+    BitcoinRestoreWalletFromHardware credentials,
+  ) async {
+    final derivationInfo = await credentials.walletInfo!.getDerivationInfo();
+    derivationInfo.derivationPath = credentials.hwAccountData.derivationPath;
+    await derivationInfo.save();
+    await credentials.walletInfo!.save();
+
+    final wallet = BitcoinCashWallet(
+      password: credentials.password!,
+      xpub: credentials.hwAccountData.xpub,
+      walletInfo: credentials.walletInfo!,
+      derivationInfo: derivationInfo,
+      unspentCoinsInfo: unspentCoinsInfoSource,
+      encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      addressPageType: P2pkhAddressType.p2pkh,
+    );
+    await wallet.save();
+    await wallet.init();
+    return wallet;
   }
 
   @override

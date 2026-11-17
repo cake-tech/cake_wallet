@@ -57,7 +57,6 @@ class _MoreActionsButtonState extends State<MoreActionsButton> with SingleTicker
 
   void _expand() {
     HapticFeedback.mediumImpact();
-    _upsideDown = Random().nextInt(10000) == 0;
     _actions =
         ExtraAction.all.where((action) => action.applicable(widget.dashboardViewModel)).toList();
     _historyEntry = LocalHistoryEntry(onRemove: _animateClosed);
