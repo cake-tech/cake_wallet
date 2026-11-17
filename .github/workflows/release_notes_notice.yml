@@ -1,0 +1,125 @@
+name: Release notes notice
+
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: release-notes-notice
+  cancel-in-progress: false
+
+jobs:
+  add-notice:
+    if: github.repository == 'cake-tech/cake_wallet'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Add the notice to every release older than Latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python3 {0}
+        run: |
+          import json
+          import subprocess
+          import sys
+          import time
+
+          REPO = "cake-tech/cake_wallet"
+          IMAGE = "https://github.com/user-attachments/assets/207101cc-2c4c-4836-a6a3-568d0b6e67e6"
+          LATEST_URL = "https://github.com/cake-tech/cake_wallet/releases/latest"
+          BLOCK = (
+              f'<p align="center"><a href="{LATEST_URL}"><img src="{IMAGE}"'
+              ' alt="Download the latest version" width="373"></a></p>\n'
+              "\n"
+              "> **Always install the latest version**\n"
+              ">\n"
+              "> Each release includes the newest security fixes and scam protections."
+              " If you don't see a green **Latest** label next to this release's version number,"
+              f" it isn't the newest one: [get the latest release here]({LATEST_URL}).\n"
+              ">\n"
+              "> If anyone asks you to install an older version, don't."
+              " They may be trying to get around those protections.\n"
+              "\n"
+          )
+          MAX_EDITS = 5
+
+
+          def gh(*args, payload=None, tolerate=()):
+              result = subprocess.run(["gh", *args], input=payload, capture_output=True, text=True)
+              if result.returncode == 0:
+                  return result.stdout
+              error = result.stderr.strip()[:500]
+              if any(code in error for code in tolerate):
+                  print(f"gh {' '.join(args)}: {error}")
+                  return None
+              sys.exit(f"gh {' '.join(args)} failed: {error}")
+
+
+          def has_notice(body):
+              return IMAGE in body or "Always install the latest version" in body
+
+
+          def with_notice(body):
+              newline = "\r\n" if "\r\n" in body else "\n"
+              return BLOCK.replace("\n", newline) + body
+
+
+          def latest_release():
+              out = gh("api", f"repos/{REPO}/releases/latest", tolerate=("HTTP 404",))
+              return json.loads(out) if out else None
+
+
+          def main():
+              latest = latest_release()
+              if latest is None:
+                  print("No release is marked Latest, nothing to do.")
+                  return
+              lines = gh("api", "--paginate", f"repos/{REPO}/releases?per_page=100", "--jq", ".[]")
+              releases = [json.loads(line) for line in lines.split("\n") if line.strip()]
+              targets = [
+                  r for r in releases
+                  if not r["draft"]
+                  and r["id"] != latest["id"]
+                  and r["published_at"]
+                  and r["published_at"] < latest["published_at"]
+                  and not has_notice(r["body"] or "")
+              ]
+              print(f"Latest is {latest['tag_name']}. Missing the notice: {[r['tag_name'] for r in targets]}")
+              if len(targets) > MAX_EDITS:
+                  sys.exit(f"Refusing to edit {len(targets)} releases in one run (limit {MAX_EDITS}).")
+              refused = []
+              for r in targets:
+                  fresh = json.loads(gh("api", f"repos/{REPO}/releases/{r['id']}"))
+                  body = fresh["body"] or ""
+                  if fresh["draft"] or has_notice(body):
+                      continue
+                  current = latest_release()
+                  if current is None or current["id"] != latest["id"]:
+                      sys.exit("The Latest release changed during this run. Run the workflow again.")
+                  new_body = with_notice(body)
+                  payload = json.dumps({"body": new_body, "make_latest": "false"})
+                  path = f"repos/{REPO}/releases/{r['id']}"
+                  saved = gh("api", "-X", "PATCH", path, "--input", "-", payload=payload,
+                             tolerate=("HTTP 403", "HTTP 404"))
+                  if saved is None:
+                      refused.append(r["tag_name"])
+                      continue
+                  if json.loads(saved)["body"] != new_body:
+                      sys.exit(f"{r['tag_name']}: the saved notes don't match what was sent.")
+                  print(f"{r['tag_name']}: notice added")
+                  time.sleep(1)
+              if targets:
+                  current = latest_release()
+                  if current is None or current["id"] != latest["id"]:
+                      sys.exit("The Latest release changed while releases were being edited. Check which one is Latest.")
+              if refused:
+                  sys.exit(f"GitHub refused to edit {refused}. Nothing was changed on them.")
+
+
+          if __name__ == "__main__":
+              main()

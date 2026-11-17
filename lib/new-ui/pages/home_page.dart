@@ -1,5 +1,3 @@
-import "dart:async";
-
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/auth_service.dart";
 import "package:cake_wallet/di.dart";
@@ -97,7 +95,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   @override
   Widget build(BuildContext context) => Container(
-        height: MediaQuery.of(context).size.height,
+        height: MediaQuery.sizeOf(context).height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -113,16 +111,14 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
             CustomScrollView(
                 physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                 slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                    sliver: CupertinoSliverRefreshControl(
-                      refreshTriggerPullDistance: 160,
-                      refreshIndicatorExtent: 90,
-                      onRefresh: () {
-                        unawaited(widget.nftViewModel.getNFTAssetByWallet());
-
-                        return widget.dashboardViewModel.refreshDashboard();
-                      },
+                  Builder(
+                    builder: (context) => SliverPadding(
+                      padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+                      sliver: CupertinoSliverRefreshControl(
+                        refreshTriggerPullDistance: 160,
+                        refreshIndicatorExtent: 90,
+                        onRefresh: () => widget.dashboardViewModel.refreshDashboard(),
+                      ),
                     ),
                   ),
                   SliverToBoxAdapter(
@@ -253,21 +249,23 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                     child: SizedBox(height: 80.0),
                   )
                 ]),
-            Container(
-              height: (MediaQuery.of(context).padding.top),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: <Color>[
-                    Theme.of(context).colorScheme.surface.withAlpha(5),
-                    Theme.of(context).colorScheme.surface.withAlpha(25),
-                    Theme.of(context).colorScheme.surface.withAlpha(50),
-                    Theme.of(context).colorScheme.surface.withAlpha(100),
-                    Theme.of(context).colorScheme.surface.withAlpha(150),
-                    Theme.of(context).colorScheme.surface.withAlpha(175),
-                    Theme.of(context).colorScheme.surface.withAlpha(200),
-                  ],
+            Builder(
+              builder: (context) => Container(
+                height: MediaQuery.paddingOf(context).top,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: <Color>[
+                      Theme.of(context).colorScheme.surface.withAlpha(5),
+                      Theme.of(context).colorScheme.surface.withAlpha(25),
+                      Theme.of(context).colorScheme.surface.withAlpha(50),
+                      Theme.of(context).colorScheme.surface.withAlpha(100),
+                      Theme.of(context).colorScheme.surface.withAlpha(150),
+                      Theme.of(context).colorScheme.surface.withAlpha(175),
+                      Theme.of(context).colorScheme.surface.withAlpha(200),
+                    ],
+                  ),
                 ),
               ),
             ),
