@@ -196,16 +196,20 @@ abstract class UnspentCoinsListViewModelBase with Store {
 
   @action
   Future<int> getSendingBalance(UnspentCoinType overrideCoinTypeToSpendFrom) async {
-    // return items.where((element) => element.isSending).fold(0, (previousValue, element) => previousValue + element.value);
-    // go through all unspent coins and add up the value minus frozen and non sending:
-    int total = 0;
     await _updateUnspents();
-    Set<String> seen = {};
-    for (final item in _getSpecificUnspents(overrideCoinTypeToSpendFrom)) {
-      if (seen.contains(item.toString())) continue;
-      seen.add(item.toString());
-      if (item.isFrozen || !item.isSending) continue;
-      total += item.value;
+    return _sendingTotal(overrideCoinTypeToSpendFrom);
+  }
+
+  int? selectedCoinsTotal(UnspentCoinType coinTypeToSpendFrom) =>
+      isAllSelected ? null : _sendingTotal(coinTypeToSpendFrom);
+
+  int _sendingTotal(UnspentCoinType coinTypeToSpendFrom) {
+    var total = 0;
+    final seen = <String>{};
+    for (final coin in _getSpecificUnspents(coinTypeToSpendFrom)) {
+      if (seen.add(coin.toString()) && !coin.isFrozen && coin.isSending) {
+        total += coin.value;
+      }
     }
     return total;
   }

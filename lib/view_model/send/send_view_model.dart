@@ -357,6 +357,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   String get balance {
+    final selectedCoinsTotal = _selectedCoinsTotal;
+    if (selectedCoinsTotal != null) {
+      return _formatCoinTotal(selectedCoinsTotal);
+    }
+
     if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
       return balanceViewModel.balances.values.first.secondAvailableBalance;
     } else if (walletType == WalletType.litecoin &&
@@ -373,6 +378,21 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     return _appStore.amountParsingProxy
         .asDisplayString(wallet.balance[selectedCryptoCurrency]!.available);
+  }
+
+  int? get _selectedCoinsTotal {
+    if (!hasCoinControl || selectedCryptoCurrency == CryptoCurrency.btcln) {
+      return null;
+    }
+
+    return unspentCoinsListViewModel.selectedCoinsTotal(coinTypeToSpendFrom);
+  }
+
+  String _formatCoinTotal(int total) {
+    final currency = walletTypeToCryptoCurrency(walletType);
+    return walletType == WalletType.bitcoin
+        ? _appStore.amountParsingProxy.getDisplayCryptoString(total, currency)
+        : currency.formatAmount(BigInt.from(total));
   }
 
   @action
@@ -400,18 +420,18 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     switch (wallet.type) {
       case WalletType.bitcoin:
         if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
-        return _appStore.amountParsingProxy.getDisplayCryptoString(
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
-            walletTypeToCryptoCurrency(walletType));
+        return _formatCoinTotal(
+          await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
+        );
       case WalletType.litecoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
       case WalletType.monero:
       case WalletType.wownero:
       case WalletType.decred:
-        final sendingBalance =
-            await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
-        return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
+        return _formatCoinTotal(
+          await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom),
+        );
       default:
         return balance;
     }
