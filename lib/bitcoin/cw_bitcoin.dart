@@ -392,7 +392,7 @@ class CWBitcoin extends Bitcoin {
       if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
       } else if (dType == DerivationType.bip39) {
-        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
       for (DerivationInfo dInfo in electrum_derivations[dType]!) {
@@ -542,7 +542,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   HardwareWalletService getBitboxHardwareWalletService(
-      bitbox.BitboxManager manager, bool isBitcoin) {
+      bitbox.BitboxConnection manager, bool isBitcoin) {
     if (isBitcoin) return BitcoinBitboxService(manager);
     return LitecoinBitboxService(manager);
   }
@@ -884,28 +884,28 @@ class CWBitcoin extends Bitcoin {
   @override
   String? getBreezSdkError(Object exception) {
     if (exception is SdkError_SparkError) {
-      return (exception as SdkError_SparkError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_InvalidUuid) {
-      return (exception as SdkError_InvalidUuid).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_InvalidInput) {
-      return (exception as SdkError_InvalidInput).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_NetworkError) {
-      return (exception as SdkError_NetworkError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_StorageError) {
-      return (exception as SdkError_StorageError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_ChainServiceError) {
-      return (exception as SdkError_ChainServiceError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_LnurlError) {
-      return (exception as SdkError_LnurlError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_Generic) {
-      return (exception as SdkError_Generic).field0.toString();
+      return exception.field0.toString();
     }
     return null;
   }

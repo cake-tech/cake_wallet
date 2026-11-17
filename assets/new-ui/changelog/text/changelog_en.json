@@ -1,18 +1,22 @@
 [
   {
-    "title": "Robinhood Chain",
-    "description": "Create Robinhood Chain wallets to send, receive and swap, with USDG and more tokens built in"
+    "title": "Zcash on Cupcake",
+    "description": "Sign ZEC transactions offline with our air-gapped Cupcake app by scanning QR codes"
   },
   {
-    "title": "Price Charts",
-    "description": "A new Charts tab to keep an eye on the prices of your assets"
+    "title": "Easier Swaps",
+    "description": "Swap from any asset without switching wallets first, plus the new WhyNot provider and more coins on Chainflip"
   },
   {
-    "title": "Bitcoin Accounts & Faster Sync",
-    "description": "Split your Bitcoin wallet into multiple accounts, and get up to date faster while history loads in the background"
+    "title": "Tron Upgrades",
+    "description": "Connect your Tron wallet to dApps with WalletConnect, and send USDT and other tokens using rented energy"
+  },
+  {
+    "title": "Bitcoin Cash on Ledger",
+    "description": "Connect your Ledger to receive and send BCH"
   },
   {
     "title": "Bug fixes & improvements",
-    "description": "Lightning amounts in sats, more Tor nodes, Monero core update, smoother Bitcoin wallets and more"
+    "description": "An option to hide the Charts and NFTs tabs, sending without waiting for sync on most wallets, a smoother app and more"
   }
 ]

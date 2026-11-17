@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -227,7 +228,7 @@ abstract class TronWalletBase
 
     if (privateKey != null) return TronPrivateKey(privateKey);
 
-    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
+    final seed = bip39MnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     // Derive a TRON private key from the seed
     final bip44 = Bip44.fromSeed(seed, Bip44Coins.tron);
@@ -257,7 +258,7 @@ abstract class TronWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("${walletInfo.type.name.toUpperCase()} Node connection failed");
+        throw ConnectionException("${walletInfo.type.name.toUpperCase()} Node connection failed");
       }
 
       _getEstimatedFees();
@@ -340,7 +341,7 @@ abstract class TronWalletBase
         (currency) =>
             currency.title == tronCredentials.currency.title &&
             currency.tag == tronCredentials.currency.tag,
-        orElse: () => throw Exception(
+        orElse: () => throw TransactionGenerationException(
             'Currency ${tronCredentials.currency.title} ${tronCredentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
@@ -426,6 +427,13 @@ abstract class TronWalletBase
 
         // Filter out spam transactions that involve receiving TRC10 assets transaction, we deal with TRX and TRC20 transactions
         if (transactionModel.contracts?.first.type == "TransferAssetContract") {
+          continue;
+        }
+
+        final saved = transactionHistory.transactions[transactionModel.hash];
+        if (!transactionModel.isTrc20TransferCall &&
+            saved != null &&
+            saved.amount.currency.symbol != currency.symbol) {
           continue;
         }
 
@@ -515,7 +523,8 @@ abstract class TronWalletBase
 
     for (final transactionModel in transactions) {
       try {
-        if (transactionHistory.transactions.containsKey(transactionModel.hash)) {
+        final saved = transactionHistory.transactions[transactionModel.hash];
+        if (saved != null && saved.amount.currency.symbol != currency.symbol) {
           continue;
         }
 
@@ -526,7 +535,11 @@ abstract class TronWalletBase
               ? TransactionDirection.outgoing
               : TransactionDirection.incoming,
           blockTime: transactionModel.date,
-          fee: transactionModel.fee != null ? Money.fromInt(transactionModel.fee!, currency) : null,
+          // The TRC20 index has no real fee (its model reports 0), so keep the saved TRX row's.
+          fee: saved?.fee ??
+              (transactionModel.fee != null
+                  ? Money.fromInt(transactionModel.fee!, currency)
+                  : null),
           to: transactionModel.to,
           from: transactionModel.from,
           isPending: false,

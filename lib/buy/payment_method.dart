@@ -108,7 +108,7 @@ extension PaymentTypeTitle on PaymentType {
       case PaymentType.pixPay:
         return 'PIX Pay';
       case PaymentType.moonpayCashApp:
-        return 'Cash App';
+        return 'Cash App Pay';
       case PaymentType.moonpayBalance:
         return 'MoonPay Balance';
       default:

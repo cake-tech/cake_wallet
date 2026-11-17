@@ -3,11 +3,12 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/erc20_token.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/node.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -194,7 +195,7 @@ abstract class EVMChainWalletBase
   @action
   Future<void> selectChain(int chainId, {required Node node}) async {
     if (EvmChainRegistry().getChainConfig(chainId) == null) {
-      throw Exception('Chain config not found for chainId: $chainId');
+      throw BadChainIdException('Chain config not found for chainId: $chainId');
     }
 
     if (selectedChainId == chainId) return;
@@ -807,7 +808,7 @@ abstract class EVMChainWalletBase
       final isConnected = _client.connect(node);
 
       if (!isConnected) {
-        throw Exception("${walletInfo.type.name.toUpperCase()} Node connection failed");
+        throw ConnectionException("${walletInfo.type.name.toUpperCase()} Node connection failed");
       }
 
       _client.setListeners(_evmChainPrivateKey.address, _onNewTransaction);
@@ -866,8 +867,8 @@ abstract class EVMChainWalletBase
             currency.title == _credentials.currency.title &&
             (currency.tag == _credentials.currency.tag ||
                 currency.tag == _credentials.currency.title),
-        orElse: () => throw Exception(
-            'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+        orElse: () => throw BadCurrencyException(
+            'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.', _credentials.currency));
 
     final currencyBalance = balance[transactionCurrency]!;
     final toAddress = _credentials.outputs.first.isParsedAddress
@@ -1031,7 +1032,7 @@ abstract class EVMChainWalletBase
     }
 
     if (requiredNative > nativeBal) {
-      throw Exception('Not enough ${nativeCurrency.title} to cover value and fees.');
+      throw TransactionGenerationException('Not enough ${nativeCurrency.title} to cover value and fees.');
     }
 
     final cleanAddress = sourceTokenAddress?.toLowerCase() ?? '';
@@ -1045,14 +1046,14 @@ abstract class EVMChainWalletBase
           .where((k) => k is Erc20Token && k.contractAddress.toLowerCase() == cleanAddress);
 
       if (matchingTokens.isEmpty) {
-        throw Exception('Insufficient token balance (Token not found in wallet).');
+        throw TransactionGenerationException('Insufficient token balance (Token not found in wallet).');
       }
 
       final tokenKey = matchingTokens.first;
       final tokenBalance = balance[tokenKey]?.available ?? Money.zero(tokenKey);
 
       if (tokenBalance < Money(sourceTokenAmount, tokenKey)) {
-        throw Exception('Insufficient ${tokenKey.symbol} balance to cover the transaction amount.');
+        throw TransactionGenerationException('Insufficient ${tokenKey.symbol} balance to cover the transaction amount.');
       }
     }
 
@@ -1077,7 +1078,7 @@ abstract class EVMChainWalletBase
         useBlinkProtection: useBlinkProtection,
       );
     } catch (_) {
-      throw Exception('Failed to create the transaction.');
+      throw TransactionGenerationException('Failed to create the transaction.');
     }
   }
 
@@ -1394,7 +1395,7 @@ abstract class EVMChainWalletBase
       return EthPrivateKey.fromHex(privateKey);
     }
 
-    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
+    final seed = bip39MnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     final root = bip32.BIP32.fromSeed(seed);
 
@@ -1438,7 +1439,11 @@ abstract class EVMChainWalletBase
     final newToken = createNewErc20TokenObject(token, iconPath);
 
     if (newToken.enabled) {
-      balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
+      try {
+        balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
+      } catch (_) {
+        balance[newToken] = EVMChainERC20Balance(Money.zero(newToken));
+      }
 
       await newToken.save();
     } else {
@@ -1531,7 +1536,7 @@ abstract class EVMChainWalletBase
     // Get chainId from wallet type, use saved chainId if available (for chain switching)
     final defaultChainId = registry.getChainConfigByWalletType(walletInfo.type)?.chainId;
     if (defaultChainId == null) {
-      throw Exception('Chain config not found for wallet type: ${walletInfo.type}');
+      throw BadWalletTypeException('Chain config not found for wallet type: ${walletInfo.type}', walletInfo.type);
     }
 
     // Use saved chainId if available, otherwise default to wallet type's chainId
@@ -1539,7 +1544,7 @@ abstract class EVMChainWalletBase
 
     final chainConfig = registry.getChainConfig(chainId);
     if (chainConfig == null) {
-      throw Exception('Chain config not found for chainId: $chainId');
+      throw BadChainIdException('Chain config not found for chainId: $chainId');
     }
 
     final client = EVMChainClientFactory.createClient(chainId);
