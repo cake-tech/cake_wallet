@@ -216,7 +216,7 @@ jobs:
             nohup node cake-qa/tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
             sleep 2
             adb kill-server; adb start-server; i=0; until adb shell true >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 30 ]; then break; fi; sleep 2; done
-            CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; SUITE="${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}"; GREP="${{ inputs.grep }}"; if [ -n "${{ inputs.shard }}" ]; then cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"} --shard "${{ inputs.shard }}"; else cd cake-qa && CW_PACKAGE="$CW_PACKAGE" npx e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"}; fi
+            CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; SUITE="${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}"; GREP="${{ inputs.grep }}"; if [ -n "${{ inputs.shard }}" ]; then cd cake-qa && CW_PACKAGE="$CW_PACKAGE" node node_modules/.bin/e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"} --shard "${{ inputs.shard }}"; else cd cake-qa && CW_PACKAGE="$CW_PACKAGE" node node_modules/.bin/e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"}; fi
 
       - name: Redact seed-like word runs from the results
         if: always()

@@ -19,7 +19,7 @@ on:
         type: string
         default: ""
       suite:
-        description: "test file/glob to run (empty = the project's default selection)"
+        description: "test file/glob to run (empty = the no-funds slice)"
         type: string
         default: ""
       grep:
@@ -154,7 +154,7 @@ jobs:
           E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
           E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
           CW_IOS_DEVICE: qa-e2e
-          SUITE: ${{ inputs.suite }}
+          SUITE: ${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}
           GREP: ${{ inputs.grep }}
         run: |
           set -euo pipefail
@@ -163,7 +163,9 @@ jobs:
           ARGS=(--target sim --reporter list,junit,markdown)
           if [ -n "${{ inputs.shard }}" ]; then ARGS+=(--shard "${{ inputs.shard }}"); fi
           if [ -n "$GREP" ]; then ARGS+=(--grep "$GREP"); fi
-          if [ -n "$SUITE" ]; then npx e2e run "$SUITE" "${ARGS[@]}"; else npx e2e run "${ARGS[@]}"; fi
+          # node directly, not npx: npm rewrites its process title and on macOS the overflow
+          # exposes the job's environment (the wallet seeds) to `ps`.
+          node node_modules/.bin/e2e run "$SUITE" "${ARGS[@]}"
 
       - name: Shut down and delete the simulator
         if: always()
