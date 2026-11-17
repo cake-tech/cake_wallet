@@ -1203,6 +1203,7 @@
   "show_nfts_tab": "Hiển thị tab NFT",
   "show_recovery_phrase": "Cho tôi xem Cụm từ khôi phục của tôi",
   "show_recovery_phrase_and_keys": "Hiển thị cụm từ và khóa khôi phục của tôi",
+  "show_scam_warning_during_calls": "Hiển thị cảnh báo lừa đảo trong cuộc gọi",
   "show_seed": "Hiển thị cụm từ khôi phục",
   "show_tabs": "Hiển thị tab",
   "show_zcash_card": "Hiển thị thẻ thông báo thiếu tiền Zcash",

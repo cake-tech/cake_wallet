@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "Prikaži karticu NFT",
   "show_recovery_phrase": "Pokaži mi moju frazu za oporavak",
   "show_recovery_phrase_and_keys": "Prikaži moju frazu za oporavak i ključeve",
+  "show_scam_warning_during_calls": "Prikaži upozorenje o prijevari tijekom poziva",
   "show_seed": "Prikaži seed",
   "show_tabs": "Prikaži kartice",
   "show_zcash_card": "Prikaži karticu o nedostajućim sredstvima za Zcash",

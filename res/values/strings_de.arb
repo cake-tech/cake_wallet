@@ -1249,6 +1249,7 @@
   "show_nfts_tab": "NFT-Tab anzeigen",
   "show_recovery_phrase": "Wiederherstellungsphrase anzeigen",
   "show_recovery_phrase_and_keys": "Wiederherstellungsphrase und Schlüssel anzeigen",
+  "show_scam_warning_during_calls": "Betrugswarnung bei Anrufen anzeigen",
   "show_seed": "Seed anzeigen",
   "show_seed_confirmation": "Wiederherstellungsphrase dieser Wallet anzeigen?",
   "show_tabs": "Tabs anzeigen",

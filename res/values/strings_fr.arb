@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "Afficher l'onglet NFT",
   "show_recovery_phrase": "Montre-moi ma phrase de récupération",
   "show_recovery_phrase_and_keys": "Afficher ma phrase et mes clés de récupération",
+  "show_scam_warning_during_calls": "Afficher l'avertissement d'arnaque pendant les appels",
   "show_seed": "Afficher la seed",
   "show_tabs": "Afficher les onglets",
   "show_zcash_card": "Afficher la carte des fonds manquants Zcash",

@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "NFT'ler sekmesini göster",
   "show_recovery_phrase": "Bana Kurtarma İfademi göster",
   "show_recovery_phrase_and_keys": "Kurtarma İfademi ve Anahtarlarımı Göster",
+  "show_scam_warning_during_calls": "Aramalar sırasında dolandırıcılık uyarısını göster",
   "show_seed": "Seed'i göster",
   "show_tabs": "Sekmeleri Göster",
   "show_zcash_card": "Zcash eksik fonlar kartını göster",

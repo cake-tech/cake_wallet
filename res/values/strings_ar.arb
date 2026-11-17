@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "إظهار علامة التبويب NFTs",
   "show_recovery_phrase": "أرني عبارة الاسترداد الخاصة بي",
   "show_recovery_phrase_and_keys": "إظهار عبارة الاسترداد والمفاتيح",
+  "show_scam_warning_during_calls": "إظهار تحذير الاحتيال أثناء المكالمات",
   "show_seed": "عرض عبارة الاسترداد",
   "show_tabs": "إظهار علامات التبويب",
   "show_zcash_card": "إظهار بطاقة الأموال المفقودة في Zcash",

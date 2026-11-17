@@ -93,6 +93,13 @@ class SecurityBackupPage extends BasePage {
                       onChanged: (val) {
                         _securitySettingsViewModel.setIsAppSecure(val);
                       }),
+                if (DeviceInfo.instance.isMobile)
+                  ListItemToggle(
+                    keyValue: "security_backup_page_call_scam_warning_button_key",
+                    label: S.of(context).show_scam_warning_during_calls,
+                    value: _securitySettingsViewModel.shouldShowCallScamWarning,
+                    onChanged: _securitySettingsViewModel.setShouldShowCallScamWarning,
+                  ),
                 if (FeatureFlag.duressPinEnabled)
                   ListItemToggle(
                       keyValue: "security_backup_page_duress_pin_button_key",

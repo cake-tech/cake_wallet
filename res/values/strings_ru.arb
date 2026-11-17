@@ -1203,6 +1203,7 @@
   "show_nfts_tab": "Показать вкладку NFT",
   "show_recovery_phrase": "Покажите мне мою фразу восстановления",
   "show_recovery_phrase_and_keys": "Показать мою фразу восстановления и ключи",
+  "show_scam_warning_during_calls": "Показывать предупреждение о мошенничестве во время звонков",
   "show_seed": "Показать seed-фразу",
   "show_tabs": "Показать вкладки",
   "show_zcash_card": "Показать карточку zcash о недостающих средствах",

@@ -1203,6 +1203,7 @@
   "show_nfts_tab": "「NFT」タブを表示",
   "show_recovery_phrase": "私のリカバリーフレーズを見せてください",
   "show_recovery_phrase_and_keys": "リカバリーフレーズとキーを表示する",
+  "show_scam_warning_during_calls": "通話中に詐欺警告を表示",
   "show_seed": "シードを表示",
   "show_tabs": "タブを表示",
   "show_zcash_card": "zcash の不足資金カードを表示する",

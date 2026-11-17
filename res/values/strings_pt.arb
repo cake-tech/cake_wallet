@@ -1204,6 +1204,7 @@
   "show_nfts_tab": "Mostrar guia NFTs",
   "show_recovery_phrase": "Mostre-me minha frase de recuperação",
   "show_recovery_phrase_and_keys": "Mostrar minha frase e chaves de recuperação",
+  "show_scam_warning_during_calls": "Mostrar aviso de golpe durante chamadas",
   "show_seed": "Mostrar seed",
   "show_tabs": "Mostrar guias",
   "show_zcash_card": "Mostrar cartão de fundos em falta do zcash",

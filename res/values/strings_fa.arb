@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "نمایش تب NFTs",
   "show_recovery_phrase": "عبارت بازیابی من را به من نشان دهید",
   "show_recovery_phrase_and_keys": "نمایش عبارت و کلیدهای بازیابی من",
+  "show_scam_warning_during_calls": "نمایش هشدار کلاهبرداری در حین تماس",
   "show_seed": "نمایش عبارت بازیابی",
   "show_tabs": "نمایش برگه ها",
   "show_zcash_card": "نمایش کارت کمبود موجودی zcash",

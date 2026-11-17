@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "NFTs တဘ်ကို ပြပါ",
   "show_recovery_phrase": "ကျွန်ုပ်၏ Recovery Phrase ကိုပြပါ။",
   "show_recovery_phrase_and_keys": "ကျွန်ုပ်၏ Recovery Phrase & Keys ကိုပြပါ။",
+  "show_scam_warning_during_calls": "ခေါ်ဆိုမှုများအတွင်း လိမ်လည်မှုသတိပေးချက်ကို ပြပါ",
   "show_seed": "Seed ကိုပြပါ",
   "show_tabs": "တဘ်များကို ပြပါ",
   "show_zcash_card": "Zcash ရန်ပုံငွေမလုံလောက်မှု ကတ်ကို ပြပါ",

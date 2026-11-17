@@ -1203,6 +1203,7 @@
   "show_nfts_tab": "Mostrar pestaña NFT",
   "show_recovery_phrase": "Muéstrame mi frase de recuperación",
   "show_recovery_phrase_and_keys": "Mostrar mi frase y claves de recuperación",
+  "show_scam_warning_during_calls": "Mostrar advertencia de estafa durante las llamadas",
   "show_seed": "Mostrar frase semilla",
   "show_tabs": "Mostrar pestañas",
   "show_zcash_card": "Mostrar tarjeta de fondos faltantes de Zcash",

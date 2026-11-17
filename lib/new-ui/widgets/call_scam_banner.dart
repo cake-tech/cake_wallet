@@ -8,9 +8,15 @@ import "package:cw_core/phone_call_native.dart";
 import "package:flutter/material.dart";
 
 class CallScamBanner extends StatefulWidget {
-  const CallScamBanner({required this.navigatorKey, required this.child, super.key});
+  const CallScamBanner({
+    required this.navigatorKey,
+    required this.enabled,
+    required this.child,
+    super.key,
+  });
 
   final GlobalKey<NavigatorState> navigatorKey;
+  final bool enabled;
   final Widget child;
 
   @override
@@ -19,28 +25,50 @@ class CallScamBanner extends StatefulWidget {
 
 class _CallScamBannerState extends State<CallScamBanner> {
   late final AppLifecycleListener _lifecycleListener;
-  late final StreamSubscription<bool> _phoneCallSubscription;
+  StreamSubscription<bool>? _phoneCallSubscription;
   bool _isOnPhoneCall = false;
 
   @override
   void initState() {
     super.initState();
     _lifecycleListener = AppLifecycleListener(onResume: _checkPhoneCall);
-    _phoneCallSubscription = phoneCallStatusNative.listen(_setOnPhoneCall);
-    _checkPhoneCall();
+    _updatePhoneCallDetection();
+  }
+
+  @override
+  void didUpdateWidget(CallScamBanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enabled != oldWidget.enabled) {
+      _updatePhoneCallDetection();
+    }
   }
 
   @override
   void dispose() {
-    _phoneCallSubscription.cancel();
+    _phoneCallSubscription?.cancel();
     _lifecycleListener.dispose();
     super.dispose();
   }
 
-  Future<void> _checkPhoneCall() async => _setOnPhoneCall(await isOnPhoneCallNative());
+  void _updatePhoneCallDetection() {
+    if (widget.enabled) {
+      _phoneCallSubscription = phoneCallStatusNative.listen(_setOnPhoneCall);
+      _checkPhoneCall();
+    } else {
+      _phoneCallSubscription?.cancel();
+      _phoneCallSubscription = null;
+      _isOnPhoneCall = false;
+    }
+  }
+
+  Future<void> _checkPhoneCall() async {
+    if (widget.enabled) {
+      _setOnPhoneCall(await isOnPhoneCallNative());
+    }
+  }
 
   void _setOnPhoneCall(bool isOnPhoneCall) {
-    if (mounted && isOnPhoneCall != _isOnPhoneCall) {
+    if (mounted && widget.enabled && isOnPhoneCall != _isOnPhoneCall) {
       setState(() => _isOnPhoneCall = isOnPhoneCall);
     }
   }

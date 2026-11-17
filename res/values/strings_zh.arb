@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "显示 NFT 选项卡",
   "show_recovery_phrase": "显示我的恢复短语",
   "show_recovery_phrase_and_keys": "显示我的恢复短语和按键",
+  "show_scam_warning_during_calls": "通话时显示诈骗警告",
   "show_seed": "显示助记词",
   "show_tabs": "显示选项卡",
   "show_zcash_card": "显示 zcash 资金缺失卡片",

@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "แสดงแท็บ NFT",
   "show_recovery_phrase": "แสดงวลีการกู้คืนของฉัน",
   "show_recovery_phrase_and_keys": "แสดงวลีและคีย์การกู้คืนของฉัน",
+  "show_scam_warning_during_calls": "แสดงคำเตือนการหลอกลวงระหว่างการโทร",
   "show_seed": "แสดง Seed",
   "show_tabs": "แสดงแท็บ",
   "show_zcash_card": "แสดงการ์ดเงินที่ขาดหายของ zcash",

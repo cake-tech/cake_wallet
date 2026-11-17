@@ -1251,6 +1251,7 @@
   "show_nfts_tab": "Show NFTs tab",
   "show_recovery_phrase": "Show me my Recovery Phrase",
   "show_recovery_phrase_and_keys": "Show my Recovery Phrase & Keys",
+  "show_scam_warning_during_calls": "Show scam warning during calls",
   "show_seed": "Show seed",
   "show_seed_confirmation": "View seed of this wallet?",
   "show_tabs": "Show Tabs",

@@ -1202,6 +1202,7 @@
   "show_nfts_tab": "Zobrazit kartu NFT",
   "show_recovery_phrase": "Ukažte mi moji zotavovací frázi",
   "show_recovery_phrase_and_keys": "Zobrazit moji frázi a klíče pro obnovení",
+  "show_scam_warning_during_calls": "Zobrazit upozornění na podvod během hovorů",
   "show_seed": "Zobrazit seed",
   "show_tabs": "Zobrazit karty",
   "show_zcash_card": "Zobrazit kartu chybějících prostředků zcash",
