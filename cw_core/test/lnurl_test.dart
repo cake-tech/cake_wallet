@@ -158,4 +158,50 @@ void main() {
       expect(getBolt11Description("alice@cake.cash"), null);
     });
   });
+
+  group("pay request comment limit", () {
+    const lnurl =
+        "lnurl1dp68gurn8ghj7cmpddjjucmpwd5z7tnhv4kxctttdehhwm30d3h82unvwqhkkmmwwd6xj9vpzq4";
+
+    test("should read the limit of a pay request", () {
+      const payRequest = '{"tag":"payRequest","callback":"https://cake.cash/callback",'
+          '"minSendable":1000,"maxSendable":100000000,"metadata":"[]","commentAllowed":255}';
+      expect(LNURL.parsePayRequestCommentAllowed(payRequest), 255);
+    });
+
+    test("should read a pay request without a limit as not accepting comments", () {
+      const payRequest = '{"tag":"payRequest","callback":"https://cake.cash/callback",'
+          '"minSendable":1000,"maxSendable":100000000,"metadata":"[]"}';
+      expect(LNURL.parsePayRequestCommentAllowed(payRequest), 0);
+    });
+
+    test("should return null for a response that is not a readable pay request", () {
+      expect(LNURL.parsePayRequestCommentAllowed('{"status":"ERROR","reason":"Not found"}'), null);
+      expect(
+        LNURL.parsePayRequestCommentAllowed('{"tag":"withdrawRequest","commentAllowed":255}'),
+        null,
+      );
+      expect(
+        LNURL.parsePayRequestCommentAllowed('{"tag":"payRequest","commentAllowed":"255"}'),
+        null,
+      );
+      expect(LNURL.parsePayRequestCommentAllowed("<html>Bad gateway</html>"), null);
+    });
+
+    test("should only return a pay request url for an https or onion LNURL", () {
+      final url = Uri.parse("https://cake.cash/.well-known/lnurlp/konsti");
+      expect(LNURL.payRequestUrl(lnurl), url);
+      expect(LNURL.payRequestUrl("lightning:$lnurl"), url);
+      expect(LNURL.payRequestUrl(lnurl.toUpperCase()), url);
+      expect(
+        LNURL.payRequestUrl(LNURL.encode("http://cakewalletpay.onion/lnurlp/konsti")),
+        Uri.parse("http://cakewalletpay.onion/lnurlp/konsti"),
+      );
+
+      expect(LNURL.payRequestUrl(LNURL.encode("http://192.168.1.1/lnurlp/konsti")), null);
+      expect(LNURL.payRequestUrl(lnurl.substring(0, lnurl.length - 4)), null);
+      expect(LNURL.payRequestUrl("konsti@cake.cash"), null);
+      expect(LNURL.payRequestUrl(""), null);
+    });
+  });
 }

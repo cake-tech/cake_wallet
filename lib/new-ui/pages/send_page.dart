@@ -268,6 +268,13 @@ class _NewSendPageState extends State<NewSendPage> {
       ),
     );
 
+    _disposers.add(
+      reaction(
+        (_) => widget.sendViewModel.lnurlRecipient(widget.sendViewModel.outputs[_selectedOutput]),
+        widget.sendViewModel.loadLnurlCommentLimit,
+      ),
+    );
+
     if (widget.initialRawInput != null || widget.initialPaymentRequest != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) {
@@ -607,7 +614,8 @@ class _NewSendPageState extends State<NewSendPage> {
                                         Observer(
                                           builder: (_) => NewSendMemoInput(
                                             memoController: _memoControllers[_selectedOutput],
-                                            maxMemoLength: widget.sendViewModel.maxMemoLength,
+                                            maxMemoLength:
+                                                widget.sendViewModel.maxMemoLengthFor(output),
                                             memoLength: output.memo.length,
                                           ),
                                         ),
@@ -840,7 +848,7 @@ class _NewSendPageState extends State<NewSendPage> {
       final memo = _memoControllers[_selectedOutput].text;
       final output = widget.sendViewModel.outputs[_selectedOutput];
 
-      if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLength) {
+      if (memo != output.memo && memo.length <= widget.sendViewModel.maxMemoLengthFor(output)) {
         output.memo = memo;
       }
     });
@@ -1368,7 +1376,7 @@ class _NewSendPageState extends State<NewSendPage> {
   void _applyNote(String note, int selectedOutput) {
     final output = widget.sendViewModel.outputs[selectedOutput];
     if (widget.sendViewModel.hasMemoFor(output) &&
-        note.length <= widget.sendViewModel.maxMemoLength) {
+        note.length <= widget.sendViewModel.maxMemoLengthFor(output)) {
       output.memo = note;
     } else {
       output.note = note;

@@ -445,8 +445,30 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return sp.hasMatch(address);
   }
 
-  bool isSendToLnurl(Output output) =>
-      wallet.type == WalletType.bitcoin && isLnurlInvoice(_recipientAddress(output));
+  static const _lnurlCommentLimitWhenUnknown = 255;
+
+  final _lnurlCommentLimits = ObservableMap<String, int>();
+
+  String lnurlRecipient(Output output) {
+    if (wallet.type != WalletType.bitcoin) {
+      return "";
+    }
+
+    final address = _recipientAddress(output);
+    return isLnurlInvoice(address) ? address : "";
+  }
+
+  int lnurlCommentLimit(Output output) => _lnurlCommentLimits[lnurlRecipient(output)] ?? 0;
+
+  Future<void> loadLnurlCommentLimit(String lnurl) async {
+    final url = LNURL.payRequestUrl(lnurl);
+    if (url == null || _lnurlCommentLimits.containsKey(lnurl)) {
+      return;
+    }
+
+    _lnurlCommentLimits[lnurl] =
+        await LNURL.getPayRequestCommentAllowed(url) ?? _lnurlCommentLimitWhenUnknown;
+  }
 
   String lightningInvoiceMemo(Output output) {
     if (wallet.type != WalletType.bitcoin) {
@@ -1439,11 +1461,12 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get hasMemos => [WalletType.zcash].contains(wallet.type);
 
-  bool hasMemoFor(Output output) => hasMemos || isSendToLnurl(output);
+  bool hasMemoFor(Output output) => hasMemos || lnurlCommentLimit(output) > 0;
+
+  int maxMemoLengthFor(Output output) => hasMemos ? maxMemoLength : lnurlCommentLimit(output);
 
   final Map<WalletType, int> _maxMemoLengths = {
     WalletType.zcash: 512,
-    WalletType.bitcoin: 255,
   };
 
   @computed

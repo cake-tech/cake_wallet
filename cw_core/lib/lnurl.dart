@@ -150,6 +150,41 @@ class LNURL {
     }
   }
 
+  static Uri? payRequestUrl(String lnurl) {
+    try {
+      final url = decode(lnurl);
+      final isOnion = url.host.endsWith(".onion") || url.host.endsWith(".onion.");
+
+      return url.scheme == "https" || (url.scheme == "http" && isOnion) ? url : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<int?> getPayRequestCommentAllowed(Uri payRequestUrl) async {
+    try {
+      final response =
+          await ProxyWrapper().get(clearnetUri: payRequestUrl).timeout(const Duration(seconds: 10));
+
+      return response.statusCode == 200 ? parsePayRequestCommentAllowed(response.body) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static int? parsePayRequestCommentAllowed(String payRequest) {
+    try {
+      final body = jsonDecode(payRequest) as Map;
+      if (body["tag"] != "payRequest") {
+        return null;
+      }
+
+      return (body["commentAllowed"] as num?)?.toInt() ?? 0;
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<LNURLWithdrawRequest?> getWithdrawRequest(String lnurl) async {
     final url = decode(lnurl);
     final response = await ProxyWrapper().get(clearnetUri: url);
