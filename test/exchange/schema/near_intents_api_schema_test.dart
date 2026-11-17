@@ -220,6 +220,7 @@ void main() {
   group("StatusToState", () {
     test("maps every status to a trade state", () {
       expect(NearIntentsStatus.pendingDeposit.toState, TradeState.pending);
+      expect(NearIntentsStatus.knownDepositTx.toState, TradeState.pending);
       expect(NearIntentsStatus.processing.toState, TradeState.processing);
       expect(NearIntentsStatus.success.toState, TradeState.success);
       expect(NearIntentsStatus.incompleteDeposit.toState, TradeState.underpaid);
@@ -227,8 +228,7 @@ void main() {
       expect(NearIntentsStatus.failed.toState, TradeState.failed);
     });
 
-    test("the states with no mapping fall through to not found", () {
-      expect(NearIntentsStatus.knownDepositTx.toState, TradeState.notFound);
+    test("an unknown status falls through to not found", () {
       expect(NearIntentsStatus.unknown.toState, TradeState.notFound);
     });
 

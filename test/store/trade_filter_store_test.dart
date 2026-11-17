@@ -1,90 +1,115 @@
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
+import "package:cake_wallet/exchange/trade.dart";
+import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/trade_filter_store.dart";
+import "package:cake_wallet/view_model/dashboard/trade_list_item.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter_test/flutter_test.dart";
 
-/// The store only reads `wallet` off the app store, and none of these cases
-/// need one.
-class _NoWallet extends Fake implements AppStore {
+class _Wallet extends Fake implements WalletBase {
   @override
-  Null get wallet => null;
+  String get id => "wallet";
+
+  @override
+  WalletType get type => WalletType.litecoin;
 }
 
+class _App extends Fake implements AppStore {}
+
+// xmrto and morphToken are long gone and all is the parent toggle, everything else must be
+// wired into the store, or its trades never show
+final _providers = ExchangeProviderDescription.values
+    .where(
+      (provider) => !{
+        ExchangeProviderDescription.all,
+        ExchangeProviderDescription.xmrto,
+        ExchangeProviderDescription.morphToken,
+      }.contains(provider),
+    )
+    .toList();
+
+final _trades = [
+  for (final provider in _providers)
+    TradeListItem(
+      trade: Trade(
+        id: provider.title,
+        provider: provider,
+        state: TradeState.created,
+        depositAmount: Money.parse("0.01", CryptoCurrency.btc),
+        payoutAmount: Money.parse("1", CryptoCurrency.xmr),
+        fundingAddress: "funding",
+        payoutAddress: "payout",
+        refundAddress: "refund",
+        walletId: "wallet",
+        accountIndex: 0,
+      ),
+      appStore: _App(),
+      key: ValueKey(provider.title),
+    ),
+];
+
+List<ExchangeProviderDescription> _shown(TradeFilterStore store) =>
+    store.filtered(trades: _trades, wallet: _Wallet()).map((item) => item.trade.provider).toList();
+
 void main() {
-  group("TradeFilterStore filters", () {
-    test("every provider it offers reports its own state", () {
-      // The regression: providers past thorChain were missing from the lookup,
-      // so they read as permanently off and their trades never showed.
-      final store = TradeFilterStore(_NoWallet());
-      final providers = store.filters.single.children;
+  group("TradeFilterStore", () {
+    test("starts with every provider on", () {
+      final store = TradeFilterStore();
 
-      expect(providers, isNotEmpty);
-      expect(
-        providers.where((provider) => provider.value).length,
-        providers.length,
-        reason: "all providers start enabled, so none may read as off",
-      );
+      expect(store.enabledProvidersCount, _providers.length);
+      expect(store.displayAllTrades, isTrue);
+      expect(_shown(store), _providers);
     });
 
-    test("the late-added providers are among them", () {
-      final store = TradeFilterStore(_NoWallet());
-      final keys = store.filters.single.children.map((child) => child.key);
+    test("toggling a provider turns only that one off, and back on", () {
+      final store = TradeFilterStore();
 
-      for (final provider in [
-        ExchangeProviderDescription.whyNot,
-        ExchangeProviderDescription.stealthEx,
-        ExchangeProviderDescription.xoSwap,
-        ExchangeProviderDescription.swapTrade,
-        ExchangeProviderDescription.swapsXyz,
-        ExchangeProviderDescription.nearIntents,
-      ]) {
-        expect(keys, contains(provider.title));
+      for (final provider in _providers) {
+        store.toggleDisplayExchange(provider);
+
+        expect(store.enabledProvidersCount, _providers.length - 1, reason: provider.title);
+        expect(store.displayAllTrades, isFalse, reason: provider.title);
+
+        store.toggleDisplayExchange(provider);
+
+        expect(store.enabledProvidersCount, _providers.length, reason: provider.title);
+        expect(store.displayAllTrades, isTrue, reason: provider.title);
       }
     });
 
-    test("toggling one is reflected in what it reports", () {
-      final store = TradeFilterStore(_NoWallet());
+    test("a provider that is off hides its own trades and no others", () {
+      final store = TradeFilterStore();
 
-      for (final provider in store.filters.single.children) {
-        store.toggleFilter(provider);
+      for (final provider in _providers) {
+        store.toggleDisplayExchange(provider);
 
-        final now = store.filters.single.children
-            .firstWhere((child) => child.key == provider.key);
+        expect(_shown(store), [..._providers]..remove(provider), reason: provider.title);
 
-        expect(now.value, isFalse, reason: "${provider.key} did not turn off");
-
-        store.toggleFilter(now);
-
-        final back = store.filters.single.children
-            .firstWhere((child) => child.key == provider.key);
-
-        expect(back.value, isTrue, reason: "${provider.key} did not turn back on");
+        store.toggleDisplayExchange(provider);
       }
     });
 
-    test("the parent reports how many children are on", () {
-      final store = TradeFilterStore(_NoWallet());
-      final total = store.filters.single.children.length;
+    test("all turns everything off when everything is on", () {
+      final store = TradeFilterStore()..toggleDisplayExchange(ExchangeProviderDescription.all);
 
-      expect(store.filters.single.enabledChildren, total);
-
-      store.toggleFilter(store.filters.single.children.first);
-      expect(store.filters.single.enabledChildren, total - 1);
+      expect(store.enabledProvidersCount, 0);
+      expect(store.displayAllTrades, isFalse);
+      expect(_shown(store), isEmpty);
     });
 
-    test("setAllFilters is idempotent, unlike a toggle", () {
-      final store = TradeFilterStore(_NoWallet());
+    test("all turns everything back on when any provider is off", () {
+      final store = TradeFilterStore()
+        ..toggleDisplayExchange(ExchangeProviderDescription.changeNow)
+        ..toggleDisplayExchange(ExchangeProviderDescription.all);
 
-      store.setAllFilters(value: false);
-      expect(store.filters.single.enabledChildren, 0);
-
-      // A toggle would turn everything back on here.
-      store.setAllFilters(value: false);
-      expect(store.filters.single.enabledChildren, 0);
-
-      store.setAllFilters(value: true);
-      store.setAllFilters(value: true);
-      expect(store.filters.single.enabledChildren, store.filters.single.children.length);
+      expect(store.enabledProvidersCount, _providers.length);
+      expect(store.displayAllTrades, isTrue);
+      expect(_shown(store), _providers);
     });
   });
 }

@@ -44,7 +44,7 @@ class ProviderApi {
   final Map<String, String> headers;
 
 
-  Future<Uri> _getUri(String path, Map<String, dynamic> queryParams) async {
+  Future<Uri> _getUri(String path, Map<String, dynamic>? queryParams) async {
     if(onionAuthority == null || !CakeTor.instance!.started) return Uri.https(authority, path, queryParams);
 
 
@@ -77,7 +77,7 @@ class ProviderApi {
         headers: headers,
       ),
       HttpMethod.post => await _proxy.post(
-        clearnetUri: await _getUri(request.path(), {}),
+        clearnetUri: await _getUri(request.path(), null),
         headers: {...headers, "Content-Type": "application/json"},
         body: json.encode(request.toJson()),
       ),

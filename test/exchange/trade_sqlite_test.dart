@@ -100,12 +100,13 @@ void main() {
       await createTradeTable(db!);
     });
 
-    test("uses the textual id as the only key", () async {
+    test("uses the textual tradeId as the only key", () async {
       final columns = await db!.rawQuery("PRAGMA table_info(Trade)");
-      final pk = columns.where((c) => (c["pk"] as int) > 0).map((c) => c["name"]).toList();
+      final pk = columns.where((c) => (c["pk"] as int) > 0).toList();
 
-      expect(pk, ["id"]);
-      expect(columns.map((c) => c["name"]), isNot(contains("tradeId")));
+      expect(pk.map((c) => c["name"]), ["tradeId"]);
+      expect(pk.single["type"], "TEXT");
+      expect(columns.map((c) => c["name"]), isNot(contains("id")));
       expect(
         await db!.rawQuery("SELECT name FROM sqlite_master WHERE name = 'idx_trade_id_unique'"),
         isEmpty,
@@ -198,7 +199,7 @@ void main() {
       );
     });
 
-    test("moves the rows over with id as the primary key", () async {
+    test("moves the rows over with tradeId as the primary key", () async {
       final migrated = (await Trade.getByTradeId("legacy"))!;
 
       expect(migrated.depositAmount, Money.parse("0.1", CryptoCurrency.btc));
@@ -207,7 +208,7 @@ void main() {
       expect(migrated.providerName, "Swapter");
 
       final columns = await db!.rawQuery("PRAGMA table_info(Trade)");
-      expect(columns.where((c) => (c["pk"] as int) > 0).map((c) => c["name"]), ["id"]);
+      expect(columns.where((c) => (c["pk"] as int) > 0).map((c) => c["name"]), ["tradeId"]);
     });
 
     test("saving a migrated trade updates it instead of duplicating it", () async {
