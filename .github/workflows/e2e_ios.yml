@@ -154,6 +154,7 @@ jobs:
           E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
           E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
           CW_IOS_DEVICE: qa-e2e
+          CW_IOS_APP: ${{ github.workspace }}/build/ios/iphonesimulator/Runner.app
           SUITE: ${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}
           GREP: ${{ inputs.grep }}
         run: |
