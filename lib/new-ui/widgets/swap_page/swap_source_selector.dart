@@ -1,4 +1,5 @@
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:flutter/material.dart";
 
@@ -40,10 +41,9 @@ class SwapSourceSelector extends StatelessWidget {
             ),
             child: Row(
               children: [
-                CakeImageWidget(
+                TokenImageWidget(
                   imageUrl: currencyIconPath,
-                  width: 24,
-                  height: 24,
+                  size: 24,
                 ),
                 const SizedBox(width: 8),
                 Text(
