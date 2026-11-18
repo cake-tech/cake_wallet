@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-const arbDir = 'res/values';
+const defaultArbDir = 'res/values';
 const sourceLang = 'en';
-const baselinePath = 'tool/i18n_baseline.json';
+const defaultBaselinePath = 'tool/i18n_baseline.json';
 
 const scriptRanges = <String, List<List<int>>>{
   'hi': [[0x0900, 0x097F]],
@@ -70,7 +70,7 @@ Map<String, String> readStrings(String path) {
   };
 }
 
-List<String> localeCodes() {
+List<String> localeCodes(String arbDir) {
   final codes = <String>[];
   for (final entity in Directory(arbDir).listSync()) {
     final name = entity.uri.pathSegments.last;
@@ -138,7 +138,7 @@ bool endsSamePunctuation(String en, String value, String lang) {
 bool isProperNounLike(String en) =>
     !en.contains(' ') && (en.length <= 6 || RegExp(r'[a-z][A-Z]').hasMatch(en));
 
-void checkLocale(String lang, Map<String, String> source) {
+void checkLocale(String lang, Map<String, String> source, String arbDir) {
   final path = '$arbDir/strings_$lang.arb';
   Map<String, String> target;
   try {
@@ -266,14 +266,14 @@ List<Finding> checkString(String lang, String key, String en, String value) {
   return found;
 }
 
-Set<String> loadBaseline() {
+Set<String> loadBaseline(String baselinePath) {
   final file = File(baselinePath);
   if (!file.existsSync()) return {};
   final data = json.decode(file.readAsStringSync()) as Map<String, dynamic>;
   return (data['accepted'] as List<dynamic>).cast<String>().toSet();
 }
 
-void writeBaseline(Set<String> ids) {
+void writeBaseline(Set<String> ids, String baselinePath) {
   final sorted = ids.toList()..sort();
   File(baselinePath).writeAsStringSync(
       const JsonEncoder.withIndent('  ').convert({'accepted': sorted}) + '\n');
@@ -284,11 +284,17 @@ void main(List<String> args) {
   var strict = false;
   var updateBaseline = false;
   var pruneBaseline = false;
+  var arbDir = defaultArbDir;
+  var baselinePath = defaultBaselinePath;
 
   for (final arg in args) {
     if (arg == '--strict') strict = true;
     if (arg == '--update-baseline') updateBaseline = true;
     if (arg == '--prune-baseline') pruneBaseline = true;
+    final arbArg = RegExp(r'^--arb-dir=(.+)$').firstMatch(arg);
+    if (arbArg != null) arbDir = arbArg.group(1)!;
+    final baseArg = RegExp(r'^--baseline=(.+)$').firstMatch(arg);
+    if (baseArg != null) baselinePath = baseArg.group(1)!;
     final langArg = RegExp(r'^--lang=(.+)$').firstMatch(arg);
     if (langArg != null) langs = langArg.group(1)!.split(',');
   }
@@ -300,27 +306,27 @@ void main(List<String> args) {
   }
   final source = readStrings(sourcePath);
 
-  final available = localeCodes().where((l) => l != sourceLang).toList();
+  final available = localeCodes(arbDir).where((l) => l != sourceLang).toList();
   if (langs.isEmpty) langs = available;
   for (final lang in langs) {
     if (!available.contains(lang)) {
       stderr.writeln('No ARB file for locale "$lang" in $arbDir/');
       exit(2);
     }
-    checkLocale(lang, source);
+    checkLocale(lang, source, arbDir);
   }
 
-  final baseline = loadBaseline();
+  final baseline = loadBaseline(baselinePath);
   final freshErrors = _errors.where((f) => !baseline.contains(f.id)).toList();
   final freshWarnings = _warnings.where((f) => !baseline.contains(f.id)).toList();
 
   if (updateBaseline) {
-    writeBaseline({...baseline, ..._errors.map((f) => f.id), ..._warnings.map((f) => f.id)});
+    writeBaseline({...baseline, ..._errors.map((f) => f.id), ..._warnings.map((f) => f.id)}, baselinePath);
     stdout.writeln('Baseline updated: ${baselinePath}');
     return;
   }
   if (pruneBaseline) {
-    writeBaseline({..._errors.map((f) => f.id), ..._warnings.map((f) => f.id)});
+    writeBaseline({..._errors.map((f) => f.id), ..._warnings.map((f) => f.id)}, baselinePath);
     stdout.writeln('Baseline rebuilt from current findings: ${baselinePath}');
     return;
   }

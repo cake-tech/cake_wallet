@@ -27,3 +27,7 @@ jobs:
       - name: Lint translations
         if: github.event_name == 'pull_request'
         run: dart tool/i18n_lint.dart
+
+      - name: Test the lint fixtures
+        if: github.event_name == 'pull_request'
+        run: bash tool/i18n_lint_selftest.sh
