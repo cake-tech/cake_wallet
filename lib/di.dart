@@ -10,6 +10,7 @@ import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart'
 import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
@@ -435,11 +436,7 @@ Future<void> setup({
 
   final walletList = await WalletInfo.getAll();
 
-  getIt.registerFactory<WalletManager>(
-    () => WalletManager(
-      getIt.get<SharedPreferences>(),
-    ),
-  );
+  getIt.registerFactory<WalletManager>(() => WalletManager());
 
   getIt.registerFactoryParam<WalletGroupsDisplayViewModel, WalletType, void>(
     (type, _) => WalletGroupsDisplayViewModel(
@@ -448,8 +445,11 @@ Future<void> setup({
       getIt.get<WalletManager>(),
       getIt.get<WalletListViewModel>(),
       type: type,
+      walletNewVMBuilder: (args) => getIt.get<WalletNewVM>(param1: args),
     ),
   );
+
+  getIt.registerLazySingleton<WalletDisplayNames>(WalletDisplayNames.new);
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
     return WalletUnlockPage(getIt.get<WalletUnlockLoadableViewModel>(param1: args), args.callback,
@@ -860,26 +860,21 @@ Future<void> setup({
   getIt.registerFactoryParam<WalletEditViewModel, WalletListViewModel, void>(
     (WalletListViewModel walletListViewModel, _) => WalletEditViewModel(
       walletListViewModel,
-      getIt.get<WalletLoadingService>(),
       getIt.get<WalletManager>(),
     ),
   );
 
-  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) {
-    return WalletEditPage(
+  getIt.registerFactoryParam<WalletEditPage, WalletEditPageArguments, void>((arguments, _) => WalletEditPage(
       pageArguments: WalletEditPageArguments(
         walletEditViewModel: getIt.get<WalletEditViewModel>(param1: arguments.walletListViewModel),
         authService: getIt.get<AuthService>(),
-        walletNewVM: getIt.get<WalletNewVM>(
-          param1: NewWalletArguments(type: arguments.editingWallet.type),
-        ),
         editingWallet: arguments.editingWallet,
         isWalletGroup: arguments.isWalletGroup,
+        isSingleWalletGroup: arguments.isSingleWalletGroup,
         groupName: arguments.groupName,
         walletGroupKey: arguments.walletGroupKey,
       ),
-    );
-  });
+    ));
 
   getIt.registerFactory<NanoAccountListViewModel>(() {
     final wallet = getIt.get<AppStore>().wallet!;
@@ -986,7 +981,7 @@ Future<void> setup({
   getIt.registerFactory(
       () => SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
 
-  getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => WalletSeedViewModel(appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory<SeedSettingsViewModel>(
       () => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));

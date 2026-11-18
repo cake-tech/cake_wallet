@@ -435,8 +435,9 @@ class WalletInfo {
       this.receiveInfoboxDismissed,
       this.showCombinedBalance,
       this.favoriteTokenAddress,
-      this.showSeedBackupReminder)
-      : _yatLastUsedAddressController = StreamController<String>.broadcast();
+      this.showSeedBackupReminder,
+      this.groupId,
+      )   : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external({
     required String id,
@@ -461,6 +462,7 @@ class WalletInfo {
     bool? receiveInfoboxDismissed,
     bool? showCombinedBalance,
     String? favoriteTokenAddress,
+    String? groupId,
   }) {
     final wi = WalletInfo(
       0,
@@ -488,6 +490,7 @@ class WalletInfo {
       showCombinedBalance ?? true,
       favoriteTokenAddress?.isNotEmpty == true ? favoriteTokenAddress : null,
       false,
+      groupId,
     );
 
     if (type == WalletType.bitcoin) {
@@ -519,6 +522,7 @@ class WalletInfo {
   bool receiveInfoboxDismissed;
   bool showCombinedBalance;
   String? favoriteTokenAddress;
+  String? groupId;
   bool showSeedBackupReminder;
 
   Future<Map<String, String>> getAddresses() async {
@@ -789,6 +793,7 @@ class WalletInfo {
         "accountDiscoveryLimit": accountDiscoveryLimit,
         "isMultiAccountsEnabled":
             isMultiAccountsEnabled == null ? null : (isMultiAccountsEnabled! ? 1 : 0),
+        "groupId": groupId,
       };
 
   factory WalletInfo.fromJson(Map<String, dynamic> json) {
@@ -819,7 +824,8 @@ class WalletInfo {
         json['receiveInfoboxDismissed'] != 0,
         json["showCombinedBalance"] != 0,
         json["favoriteTokenAddress"] as String? ?? null,
-        json["showSeedBackupReminder"] == 1);
+        json["showSeedBackupReminder"] == 1,
+        json["groupId"] as String?,);
     info.network = json['network'] as String?;
     info.accountDiscoveryLimit = json['accountDiscoveryLimit'] as int?;
     final rawIsMultiAccountsEnabled = json['isMultiAccountsEnabled'];
@@ -862,6 +868,14 @@ class WalletInfo {
 
   static Future<WalletInfo?> get(String name, WalletType type) async {
     final list = await selectList('name = ? AND type = ?', [name, type.index]);
+    if (list.isEmpty) {
+      return null;
+    }
+    return list[0];
+  }
+
+  static Future<WalletInfo?> getById(String id) async {
+    final list = await selectList("id = ?", [id]);
     if (list.isEmpty) {
       return null;
     }

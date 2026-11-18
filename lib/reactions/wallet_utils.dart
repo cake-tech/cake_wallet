@@ -1,4 +1,28 @@
+import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+
+/// Whether [wallet] may share a wallet group with wallets of other types
+/// (the add-to-group picker rule). Hardware wallets are not checked here.
+Future<bool> canShareWalletGroup(WalletInfo wallet) async {
+  if (!isBIP39Wallet(wallet.type) || wallet.isNonSeedWallet) return false;
+
+  final derivationType = (await wallet.getDerivationInfo()).derivationType;
+  switch (wallet.type) {
+    case WalletType.nano:
+      return derivationType != DerivationType.nano;
+    case WalletType.bitcoin:
+    case WalletType.litecoin:
+      return derivationType != DerivationType.electrum;
+    case WalletType.monero:
+    case WalletType.zano:
+      return derivationType == DerivationType.bip39;
+    case WalletType.decred:
+      return derivationType == DerivationType.bip39 ||
+          derivationType == DerivationType.unknown;
+    default:
+      return true;
+  }
+}
 
 bool isBIP39Wallet(WalletType walletType) {
   switch (walletType) {
@@ -27,6 +51,20 @@ bool isBIP39Wallet(WalletType walletType) {
       return false;
   }
 }
+
+const alwaysBip39Types = {
+  WalletType.ethereum,
+  WalletType.polygon,
+  WalletType.base,
+  WalletType.arbitrum,
+  WalletType.bsc,
+  WalletType.robinhood,
+  WalletType.solana,
+  WalletType.tron,
+  WalletType.zcash,
+  WalletType.bitcoinCash,
+  WalletType.dogecoin,
+};
 
 bool isElectrumWallet(WalletType walletType) {
   switch (walletType) {

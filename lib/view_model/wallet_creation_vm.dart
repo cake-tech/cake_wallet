@@ -4,9 +4,10 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/entities/wallet_group_db_entry.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/generate_name.dart';
-import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
+import 'package:cake_wallet/entities/wallet_group_migration.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/nano/nano.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -14,7 +15,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/restore/restore_wallet.dart';
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cw_core/exceptions.dart';
-import 'package:cw_core/pathForWallet.dart';
+import "package:cw_core/pathForWallet.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_credentials.dart';
@@ -23,6 +24,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:polyseed/polyseed.dart';
+import "package:uuid/uuid.dart";
 
 part 'wallet_creation_vm.g.dart';
 
@@ -71,6 +73,8 @@ abstract class WalletCreationVMBase with Store {
 
   Future<bool> typeExists(WalletType type) => walletCreationService.typeExists(type);
 
+  String? get joinGroupId => null;
+
   bool _isCreating = false;
   Future<void> create({dynamic options}) async {
     try {
@@ -102,9 +106,6 @@ abstract class WalletCreationVMBase with Store {
       }
 
       await walletCreationService.checkIfExists(name);
-      final dirPath = await pathForWalletDir(name: name, type: type);
-      final path = await pathForWallet(name: name, type: type);
-
       final credentials = getCredentials(options);
 
       final di = ((credentials.derivationInfo?.derivationPath ?? "") == "")
@@ -115,14 +116,14 @@ abstract class WalletCreationVMBase with Store {
       credentials.derivationInfo = di;
 
       credentials.walletInfo = WalletInfo.external(
-        id: WalletBase.idFor(name, type),
+        id: const Uuid().v4(),
         name: name,
         type: type,
         isRecovery: isRecovery,
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
-        path: path,
-        dirPath: dirPath,
+        path: "",
+        dirPath: "",
         address: '',
         showIntroCakePayCard:
             (!await walletCreationService.typeExists(type)) && type != WalletType.haven,
@@ -135,15 +136,21 @@ abstract class WalletCreationVMBase with Store {
       try {
         wallet = await process(credentials);
       } catch (_) {
-        await _removeWalletInfoOfEmptyWalletDir(credentials.walletInfo!, dirPath);
+        await _removeWalletInfoOfEmptyWalletDir(
+            credentials.walletInfo!, await walletDirPathOf(credentials.walletInfo!),);
         rethrow;
       }
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
-      credentials.walletInfo!.hashedWalletIdentifier = createHashedWalletIdentifier(wallet);
       credentials.walletInfo!.address = wallet.walletAddresses.address;
-      await credentials.walletInfo!.save();
+      final createdGroupId = await assignWalletGroup(credentials.walletInfo!, joinGroupId: joinGroupId);
+      try {
+        await credentials.walletInfo!.save();
+      } catch (_) {
+        if (createdGroupId != joinGroupId) await WalletGroupDbEntry.delete(createdGroupId);
+        rethrow;
+      }
       await wallet.save();
       await _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowedCreate();

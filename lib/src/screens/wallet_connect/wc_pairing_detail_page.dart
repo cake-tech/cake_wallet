@@ -83,7 +83,7 @@ class WCCDetailsWidget extends BasePage {
     }
 
     final iconUrl = metadata.icons.isNotEmpty ? metadata.icons.first : null;
-    final walletName = getIt.get<AppStore>().wallet?.name ?? '';
+    final walletName = getIt.get<AppStore>().currentWalletGroupName ?? '';
 
     return SafeArea(
       child: SingleChildScrollView(

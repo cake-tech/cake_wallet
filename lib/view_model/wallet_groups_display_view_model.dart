@@ -1,13 +1,19 @@
 import 'dart:async';
 
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/new_wallet_arguments.dart";
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cake_wallet/entities/seed_type.dart";
 import 'package:cake_wallet/entities/wallet_group.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/reactions/wallet_utils.dart';
+import "package:cake_wallet/src/widgets/seed_language_picker.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import "package:cake_wallet/view_model/wallet_new_vm.dart";
 import 'package:cake_wallet/wallet_types.g.dart';
+import "package:cw_core/generate_name.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -24,7 +30,9 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     this._walletManager,
     this.walletListViewModel, {
     required this.type,
-  }) : isFetchingMnemonic = false {
+        required WalletNewVM Function(NewWalletArguments) walletNewVMBuilder,
+  }) : _walletNewVMBuilder = walletNewVMBuilder,
+        isFetchingMnemonic = false {
     reaction((_) => _appStore.wallet, (_) => unawaited(updateWalletInfoSourceList()));
     unawaited(updateWalletInfoSourceList());
   }
@@ -34,6 +42,11 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   final WalletManager _walletManager;
   final WalletLoadingService _walletLoadingService;
   final WalletListViewModel walletListViewModel;
+
+  final WalletNewVM Function(NewWalletArguments) _walletNewVMBuilder;
+
+  @observable
+  bool isCreatingWallet = false;
 
   @observable
   ObservableList<WalletGroup> multiWalletGroups = ObservableList<WalletGroup>();
@@ -51,30 +64,28 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   bool isFetchingMnemonic;
 
   @computed
-  bool get hasNoFilteredWallet {
-    return singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
-  }
+  bool get hasNoFilteredWallet => singleWalletsList.isEmpty && multiWalletGroups.isEmpty;
 
   @action
   Future<String?> getSelectedWalletMnemonic() async {
-    WalletListItem walletToUse;
+    final walletInfo = selectedWalletGroup != null
+        ? selectedWalletGroup!.wallets.first
+        : selectedSingleWallet!;
 
-    bool isGroupSelected = selectedWalletGroup != null;
-
-    if (isGroupSelected) {
-      walletToUse = convertWalletInfoToWalletListItem(selectedWalletGroup!.wallets.first);
-    } else {
-      walletToUse = convertWalletInfoToWalletListItem(selectedSingleWallet!);
+    // Already open: read its seed instead of opening a second copy.
+    final current = _appStore.wallet;
+    if (current != null && current.walletInfo.id == walletInfo.id) {
+      return current.seed;
     }
 
     try {
       isFetchingMnemonic = true;
-      final wallet = await _walletLoadingService.load(
-        walletToUse.type,
-        walletToUse.name,
-      );
-
-      return wallet.seed;
+      final wallet = await _walletLoadingService.load(walletInfo);
+      try {
+        return wallet.seed;
+      } finally {
+        await wallet.close(shouldCleanup: false);
+      }
     } catch (e) {
       return null;
     } finally {
@@ -111,41 +122,11 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       bool shouldExcludeGroup = false;
       final _wallets = List<WalletInfo>.from(group.wallets);
       for (final wallet in _wallets) {
-        // Check for non-BIP39 wallet types
-        final bool isNonBIP39Wallet = !isBIP39Wallet(wallet.type);
-
-        // Check for nano derivation type
-        final di = await wallet.getDerivationInfo();
-        bool isNanoDerivationType =
-            wallet.type == WalletType.nano && di.derivationType == DerivationType.nano;
-
-        // Check for electrum derivation type
-        bool isElectrumDerivationType =
-            (wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin) &&
-                di.derivationType == DerivationType.electrum;
-
-        // Check that selected wallet type is not present already in group
-        bool isSameTypeAsSelectedWallet = wallet.type == type;
-
-        bool isNonSeedWallet = wallet.isNonSeedWallet;
-
-        bool isNotBip39CoinWallet =
-            (wallet.type == WalletType.monero || wallet.type == WalletType.zano) &&
-                di.derivationType != DerivationType.bip39;
-
-        bool isNotDecredBip39Wallet = wallet.type == WalletType.decred &&
-            di.derivationType != DerivationType.bip39 &&
-            di.derivationType != DerivationType.unknown;
-
-        // Exclude if any of these conditions are true
-        shouldExcludeGroup = shouldExcludeGroup ||
-            isNonBIP39Wallet ||
-            isNanoDerivationType ||
-            isElectrumDerivationType ||
-            isSameTypeAsSelectedWallet ||
-            isNonSeedWallet ||
-            isNotBip39CoinWallet ||
-            isNotDecredBip39Wallet;
+        // Selected wallet type must not be present already in the group
+        if (wallet.type == type || !await canShareWalletGroup(wallet)) {
+          shouldExcludeGroup = true;
+          break;
+        }
       }
 
       if (shouldExcludeGroup) continue;
@@ -161,6 +142,42 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         multiWalletGroups.add(group);
       }
     }
+  }
+
+  @action
+  Future<String?> addWalletToSelectedGroup(String mnemonic) async {
+    isCreatingWallet = true;
+    try {
+      final walletNewVM = _walletNewVMBuilder(NewWalletArguments(
+        type: type,
+        mnemonic: mnemonic,
+        isChildWallet: true,
+        parentGroupId: selectedWalletGroup?.groupKey ?? selectedSingleWallet?.groupId,
+      ));
+
+
+      walletNewVM.seedSettingsViewModel.setMoneroSeedType(MoneroSeedType.bip39);
+      walletNewVM.name = await _generateUniqueName(walletNewVM);
+
+      await walletNewVM.create(
+        options: walletNewVM.hasLanguageSelector ? ["English", MoneroSeedType.bip39] : null,
+      );
+
+      final state = walletNewVM.state;
+      return state is FailureState ? state.error : null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      isCreatingWallet = false;
+    }
+  }
+
+  Future<String> _generateUniqueName(WalletNewVM walletNewVM) async {
+    for (var attempt = 0; attempt < 20; attempt++) {
+      final name = await generateName();
+      if (!await walletNewVM.nameExists(name)) return name;
+    }
+    throw Exception("Could not generate a unique wallet name");
   }
 
   WalletListItem convertWalletInfoToWalletListItem(WalletInfo info) {

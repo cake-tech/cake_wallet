@@ -278,7 +278,8 @@ class WalletInfo extends HiveObject {
         false,
         true,
         null,
-        false)
+        false,
+        null,)
       ..network = network;
     final wiId = await walletInfo.save();
     for (final address in usedAddresses ?? <String>[]) {
@@ -307,10 +308,11 @@ class WalletInfo extends HiveObject {
   static Future<void> migrateAllToSqlite(final Box<WalletInfo> box) async {
     printV('Migrating WalletInfo to SQLite: start');
     final sw = Stopwatch()..start();
-    final list = box.values.toList();
-    for (final wi in list) {
+    for (final wi in box.values.toList()) {
       try {
-        await wi.migrateToSqlite();
+        if (await newWi.WalletInfo.getById(wi.id) == null) {
+          await wi.migrateToSqlite();
+        }
         await wi.delete();
       } catch (e) {
         printV('Error migrating WalletInfo ${wi.id}: $e');

@@ -71,7 +71,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -206,6 +206,15 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: "BOOLEAN DEFAULT FALSE",
         );
       }
+      if (oldVersion <= 15) {
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "groupId",
+          definition: "TEXT DEFAULT NULL",
+        );
+        await _createWalletGroupTable(db);
+      }
     },
     onCreate: (Database db, int version) async {
       await db.execute('''
@@ -237,7 +246,8 @@ CREATE TABLE WalletInfo (
   favoriteTokenAddress TEXT DEFAULT NULL,
   accountDiscoveryLimit INTEGER DEFAULT NULL,
   isMultiAccountsEnabled INTEGER DEFAULT NULL,
-  showSeedBackupReminder BOOLEAN DEFAULT FALSE
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE,
+  groupId TEXT DEFAULT NULL
 );
 ''');
 
@@ -313,6 +323,7 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createWalletGroupTable(db);
     },
   );
 }
@@ -579,6 +590,19 @@ CREATE TABLE IF NOT EXISTS TronToken (
   await db.execute("""
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trontoken_wallet_contract
 ON TronToken (walletName, contractAddress);
+""");
+}
+
+Future<void> _createWalletGroupTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS walletGroup (
+  id TEXT NOT NULL PRIMARY KEY,
+  name TEXT,
+  iconType TEXT,
+  iconValue TEXT,
+  iconColor TEXT,
+  iconBg TEXT
+);
 """);
 }
 

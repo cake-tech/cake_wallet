@@ -43,7 +43,7 @@ class WCConnectionRequestSheet extends StatelessWidget {
 
     final metadata = requester.metadata;
     final iconUrl = metadata.icons.isNotEmpty ? metadata.icons.first : null;
-    final walletName = appStore.wallet?.name ?? '';
+    final walletName = appStore.currentWalletGroupName ?? '';
     final address = _resolveAddress();
     final isScam = verifyContext?.validation.scam ?? false;
 

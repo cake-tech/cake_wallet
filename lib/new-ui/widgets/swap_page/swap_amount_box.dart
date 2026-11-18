@@ -414,7 +414,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             _middleTruncate(widget.exchangeViewModel.receiveAddress, 8, 8)
                         : widget.exchangeViewModel.isSendFromExternal
                             ? S.of(context).external
-                            : widget.exchangeViewModel.wallet.name;
+                            : widget.exchangeViewModel.currentWalletGroupName;
                     return Row(
                       spacing: 8,
                       children: [

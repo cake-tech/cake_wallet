@@ -1,12 +1,14 @@
-import 'package:cake_wallet/core/wallet_loading_service.dart';
-import 'package:cake_wallet/entities/wallet_manager.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
+import "package:cake_wallet/entities/wallet_group_db_entry.dart";
+import "package:cake_wallet/entities/wallet_manager.dart";
+import "package:cake_wallet/view_model/wallet_list/wallet_list_item.dart";
+import "package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:mobx/mobx.dart";
 
-part 'wallet_edit_view_model.g.dart';
+part "wallet_edit_view_model.g.dart";
 
 class WalletEditViewModel = WalletEditViewModelBase with _$WalletEditViewModel;
 
@@ -18,13 +20,12 @@ class WalletEditRenamePending extends WalletEditViewModelState {}
 
 class WalletEditDeletePending extends WalletEditViewModelState {}
 
+class WalletNameTakenException implements Exception {}
+
 abstract class WalletEditViewModelBase with Store {
-  WalletEditViewModelBase(
-    this._walletListViewModel,
-    this._walletLoadingService,
-    this._walletManager,
-  )   : state = WalletEditViewModelInitialState(),
-        newName = '';
+  WalletEditViewModelBase(this._walletListViewModel, this._walletManager)
+      : state = WalletEditViewModelInitialState(),
+        newName = "";
 
   @observable
   WalletEditViewModelState state;
@@ -33,45 +34,48 @@ abstract class WalletEditViewModelBase with Store {
   String newName;
 
   final WalletListViewModel _walletListViewModel;
-  final WalletLoadingService _walletLoadingService;
   final WalletManager _walletManager;
 
   @action
-  Future<void> changeName(
-    WalletListItem walletItem, {
-    String? password,
-    String? walletGroupKey,
-    bool isWalletGroup = false,
-  }) async {
-    state = WalletEditRenamePending();
+  Future<void> renameGroup(String walletGroupKey) async {
+    final name = newName.trim();
+    if (name.isEmpty) return;
 
-    if (isWalletGroup) {
-      await _walletManager.updateWalletGroups();
-
-      _walletManager.setGroupName(walletGroupKey!, newName);
-    } else {
-      await _walletLoadingService.renameWallet(
-        walletItem.type,
-        walletItem.name,
-        newName,
-        password: password,
-      );
+    if (await getIt.get<WalletDisplayNames>().isNameTaken(name, exceptGroupId: walletGroupKey)) {
+      throw WalletNameTakenException();
     }
 
-    _walletListViewModel.updateList();
+    state = WalletEditRenamePending();
+    try {
+      await _walletManager.updateWalletGroups();
+      await _walletManager.setGroupName(walletGroupKey, name);
+      await _walletListViewModel.updateList();
+    } finally {
+      resetState();
+    }
   }
 
   @action
-  Future<void> remove(WalletListItem wallet) async {
+  Future<void> remove(WalletListItem item) async {
     state = WalletEditDeletePending();
-    final walletService = getIt.get<WalletService>(param1: wallet.type);
-    await walletService.remove(wallet.name);
-    resetState();
-    _walletListViewModel.updateList();
+    try {
+      final walletInfo = await WalletInfo.getById(item.key);
+      if (walletInfo == null) return; // already removed
+
+      await getIt.get<WalletService>(param1: walletInfo.type).remove(walletInfo);
+
+      // remove group if it is empty
+      final groupId = walletInfo.groupId;
+      if (groupId != null && !(await WalletInfo.getAll()).any((w) => w.groupId == groupId)) {
+        await WalletGroupDbEntry.delete(groupId);
+      }
+
+      await _walletListViewModel.updateList();
+    } finally {
+      resetState();
+    }
   }
 
   @action
-  void resetState() {
-    state = WalletEditViewModelInitialState();
-  }
+  void resetState() => state = WalletEditViewModelInitialState();
 }

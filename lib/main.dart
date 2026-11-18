@@ -20,6 +20,8 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/node_check.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import "package:cake_wallet/entities/wallet_display_name.dart";
+import "package:cake_wallet/entities/wallet_group_migration.dart";
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -354,6 +356,14 @@ Future<void> initialSetup({
     contactSource: contactSource,
     havenSeedStore: havenSeedStore,
   );
+
+  if (loadWallet) {
+    try {
+      await migrateLegacyWalletsToGroups(sharedPreferences);
+    } catch (e) {
+      printV("Wallet group migration failed: ${e.runtimeType}");
+    }
+  }
   await setup(
     contactSource: contactSource,
     ordersSource: ordersSource,
@@ -366,6 +376,8 @@ Future<void> initialSetup({
     navigatorKey: navigatorKey,
     secureStorage: secureStorage,
   );
+
+  await getIt.get<WalletDisplayNames>().refresh();
   final settingsStore = getIt<SettingsStore>();
   await checkCurrentNodes(sharedPreferences, settingsStore);
 

@@ -1240,7 +1240,7 @@ abstract class EVMChainWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+    if (!(await WalletKeysFile.hasKeysFile(walletInfo))) {
       await saveKeysFile(_password, encryptionFileUtils);
       saveKeysFile(_password, encryptionFileUtils, true);
     }
@@ -1494,8 +1494,8 @@ abstract class EVMChainWalletBase
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
 
     Map<String, dynamic>? data;
     try {
@@ -1519,8 +1519,7 @@ abstract class EVMChainWalletBase
       );
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );

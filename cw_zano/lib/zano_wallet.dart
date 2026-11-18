@@ -38,7 +38,6 @@ import 'package:cw_zano/zano_wallet_service.dart';
 import 'package:cw_zano/zano_utils.dart';
 import 'package:cw_zano/api/model/balance.dart';
 import 'package:cw_zano/bip39_seed.dart';
-import 'package:path/path.dart' as p;
 
 import 'package:mobx/mobx.dart';
 
@@ -162,7 +161,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = await pathForWalletOf(credentials.walletInfo!);
     final strength = credentials.seedPhraseLength == 24 ? 256 : 128;
     final providedMnemonic =
         credentials is ZanoNewWalletCredentials ? credentials.mnemonic : null;
@@ -193,7 +192,7 @@ abstract class ZanoWalletBase
     final wallet = ZanoWallet(credentials.walletInfo!,
         await credentials.walletInfo!.getDerivationInfo(), credentials.password!, encryptionFileUtils);
     await wallet.initWallet();
-    final path = await pathForWallet(name: credentials.name, type: credentials.walletInfo!.type);
+    final path = await pathForWalletOf(credentials.walletInfo!);
     final passphrase = credentials.passphrase ?? '';
     final CreateWalletResult createWalletResult;
     final isBip39 = isBip39Seed(credentials.mnemonic);
@@ -244,7 +243,7 @@ abstract class ZanoWalletBase
       required String password,
       required WalletInfo walletInfo,
       required EncryptionFileUtils encryptionFileUtils}) async {
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final path = await walletFilePathOf(walletInfo);
     final wallet =
         ZanoWallet(walletInfo, await walletInfo.getDerivationInfo(), password, encryptionFileUtils);
 
@@ -542,49 +541,6 @@ abstract class ZanoWalletBase
     _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveIntervalSeconds), (_) async {
       await save();
     });
-  }
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-    final currentWalletPath = '$currentWalletDirPath/$name';
-    final currentCacheFile = File(currentWalletPath);
-    final currentKeysFile = File('$currentWalletPath.keys');
-    final currentAddressListFile = File('$currentWalletPath.address.txt');
-    final currentPendingKiFile = File('$currentWalletPath.outkey2ki');
-    final currentSecretsFile = File(p.join(currentWalletDirPath, 'zano-secrets.json.bin'));
-    final currentCakeKeysFile = File('$currentWalletPath$_cakeKeysFileSuffix');
-    final currentCakeKeysBackupFile = File('$currentWalletPath$_cakeKeysFileSuffix.backup');
-
-    final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
-    final newWalletPath = '$newWalletDirPath/$newWalletName';
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentCacheFile.existsSync()) {
-      await currentCacheFile.copy(newWalletPath);
-    }
-    if (currentKeysFile.existsSync()) {
-      await currentKeysFile.copy('$newWalletPath.keys');
-    }
-    if (currentAddressListFile.existsSync()) {
-      await currentAddressListFile.copy('$newWalletPath.address.txt');
-    }
-    if (currentPendingKiFile.existsSync()) {
-      await currentPendingKiFile.copy('$newWalletPath.outkey2ki');
-    }
-    if (currentSecretsFile.existsSync()) {
-      await currentSecretsFile.copy(p.join(newWalletDirPath, 'zano-secrets.json.bin'));
-    }
-    if (currentCakeKeysFile.existsSync()) {
-      await currentCakeKeysFile.copy('$newWalletPath$_cakeKeysFileSuffix');
-    }
-    if (currentCakeKeysBackupFile.existsSync()) {
-      await currentCakeKeysBackupFile.copy('$newWalletPath$_cakeKeysFileSuffix.backup');
-    }
-
-    // Delete the old wallet *directory*. pathForWallet() is the wallet file
-    // (.../<name>/<name>); Directory(filePath).delete leaves seed sidecars.
-    await Directory(currentWalletDirPath).delete(recursive: true);
   }
 
   @override

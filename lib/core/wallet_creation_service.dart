@@ -1,6 +1,10 @@
+import "dart:io";
+
 import 'package:cake_wallet/di.dart';
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/store/settings_store.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/pathForWallet.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,11 +39,8 @@ class WalletCreationService {
     _service = getIt.get<WalletService>(param1: type);
   }
 
-  Future<bool> exists(String name) async {
-    final walletName = name.toLowerCase();
-    return (await WalletInfo.getAll())
-        .any((walletInfo) => walletInfo.name.toLowerCase() == walletName);
-  }
+  Future<bool> exists(String name) =>
+      getIt.get<WalletDisplayNames>().isNameTaken(name);
 
   Future<bool> typeExists(WalletType type) async {
     return (await WalletInfo.getAll()).any((walletInfo) => walletInfo.type == type);
@@ -57,13 +58,13 @@ class WalletCreationService {
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
     }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, credentials.password!);
 
     if (_hasSeedPhraseLengthOption) {
       credentials.seedPhraseLength = settingsStore.seedPhraseLength.value;
     }
-    final wallet = await _service!.create(credentials, isTestnet: isTestnet);
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.create(credentials, isTestnet: isTestnet));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -107,10 +108,10 @@ class WalletCreationService {
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
     }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, credentials.password!);
 
-    final wallet = await _service!.restoreFromKeys(credentials, isTestnet: isTestnet);
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.restoreFromKeys(credentials, isTestnet: isTestnet));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -126,10 +127,10 @@ class WalletCreationService {
     if (credentials.password == null) {
       credentials.password = generateWalletPassword();
     }
-    await keyService.saveWalletPassword(
-        password: credentials.password!, walletName: credentials.name);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, credentials.password!);
 
-    final wallet = await _service!.restoreFromSeed(credentials, isTestnet: isTestnet);
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.restoreFromSeed(credentials, isTestnet: isTestnet));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -143,8 +144,10 @@ class WalletCreationService {
     await checkIfExists(credentials.name);
     final password = generateWalletPassword();
     credentials.password = password;
-    await keyService.saveWalletPassword(password: password, walletName: credentials.name);
-    final wallet = await _service!.restoreFromHardwareWallet(credentials);
+    await keyService.saveWalletPasswordForWallet(credentials.walletInfo!, password);
+
+    final wallet = await _discardOnFailure(
+        credentials.walletInfo!, () => _service!.restoreFromHardwareWallet(credentials));
 
     if (wallet.type == WalletType.monero) {
       await sharedPreferences.setBool(
@@ -152,5 +155,21 @@ class WalletCreationService {
     }
 
     return wallet;
+  }
+
+  Future<WalletBase> _discardOnFailure(
+      WalletInfo walletInfo, Future<WalletBase> Function() run) async {
+    try {
+      return await run();
+    } catch (_) {
+      if (isUuidWallet(walletInfo)) {
+        try {
+          final dir = Directory(await walletDirPathOf(walletInfo));
+          if (dir.existsSync()) await dir.delete(recursive: true);
+          await keyService.deleteWalletPasswordForWallet(walletInfo);
+        } catch (_) {}
+      }
+      rethrow;
+    }
   }
 }
