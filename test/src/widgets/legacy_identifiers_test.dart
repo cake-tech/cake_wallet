@@ -88,10 +88,13 @@ void main() {
     );
     await tester.pump();
 
-    expect(platformNodesWithId(tester, "wallet_list_single_wallet_0_key").single, isSemantics(label: "Alice Savings"));
+    expect(
+      platformNodesWithId(tester, "wallet_list_single_wallet_0_key").single,
+      isSemantics(label: "Alice Savings, Bitcoin, Current wallet"),
+    );
     expect(
       platformNodesWithId(tester, "wallet_list_single_wallet_1_key").single,
-      isSemantics(label: "Bob Spending", hasTapAction: true),
+      isSemantics(label: "Bob Spending, Litecoin", hasTapAction: true),
     );
     expect(
       platformNodesWithId(tester, "wallet_list_single_wallet_1_edit_button_key").single,
