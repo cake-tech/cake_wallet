@@ -166,7 +166,9 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
           MoneyText.optional(widget.buySellViewModel.amountForQuote(quote)),
           if (fiatAmount != null)
             Text(
-              "= ${widget.buySellViewModel.fiatCurrency.format(fiatAmount.toStringWithPrecision(fractionalDigits: 2, trimZeros: false))}",
+              widget.buySellViewModel.fiatCurrency.format(
+                "= ${fiatAmount.toStringWithPrecision(fractionalDigits: 2, trimZeros: false)}",
+              ),
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
         ],

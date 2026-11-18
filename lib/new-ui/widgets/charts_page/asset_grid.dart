@@ -19,6 +19,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class ChartsAssetGrid extends StatelessWidget {
   const ChartsAssetGrid({required this.bloc, super.key});
@@ -91,6 +92,15 @@ class ChartsAssetCard extends StatelessWidget {
       return price;
     }
   }
+
+  Widget _fiatSign(BuildContext context) => Text(
+        fiatCurrency!.sign,
+        style: TextStyle(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          fontWeight: FontWeight.w500,
+          fontSize: 20,
+        ),
+      );
 
   @override
   Widget build(BuildContext context) => LongPressPopupBuilder(
@@ -204,31 +214,30 @@ class ChartsAssetCard extends StatelessWidget {
                       child: FittedBox(
                         alignment: Alignment.centerRight,
                         fit: BoxFit.scaleDown,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          spacing: 4,
-                          children: [
-                            if (fiatCurrency != null)
+                        child: Observer(
+                          warnWhenNoObservables: false,
+                          builder: (context) => Row(
+                            textDirection: TextDirection.ltr,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            spacing: fiatCurrency?.signTouchesAmount == true ? 0 : 4,
+                            children: [
+                              if (fiatCurrency?.signAfterAmount == false) _fiatSign(context),
                               Text(
-                                fiatCurrency!.sign,
-                                style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 20,),
+                                double.tryParse(displayPrice) == null
+                                    ? displayPrice
+                                    : displayPrice.withLocalSeperator(
+                                        getIt.get<AppStore>().settingsStore.languageCode,
+                                      ),
+                                style: const TextStyle(
+                                  fontFamily: "IBM Plex Sans",
+                                  fontFeatures: [FontFeature.tabularFigures()],
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                ),
                               ),
-                            Text(
-                              double.tryParse(displayPrice) == null
-                                  ? displayPrice
-                                  : displayPrice.withLocalSeperator(
-                                      getIt.get<AppStore>().settingsStore.languageCode),
-                              style: const TextStyle(
-                                fontFamily: "IBM Plex Sans",
-                                fontFeatures: [FontFeature.tabularFigures()],
-                                fontWeight: FontWeight.w500,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ],
+                              if (fiatCurrency?.signAfterAmount == true) _fiatSign(context),
+                            ],
+                          ),
                         ),
                       ),
                     ),

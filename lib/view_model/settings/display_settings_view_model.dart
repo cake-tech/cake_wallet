@@ -30,6 +30,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
 
   @computed
+  bool get showFiatIsoCode => _settingsStore.showFiatIsoCode;
+
+  @computed
   String get languageCode => _settingsStore.languageCode;
 
   @computed
@@ -232,6 +235,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setFiatCurrency(FiatCurrency value) => _settingsStore.fiatCurrency = value;
+
+  @action
+  void setShowFiatIsoCode(bool value) => _settingsStore.showFiatIsoCode = value;
 
   @action
   void setShouldShowMarketPlaceInDashbaord(bool value) {

@@ -16,12 +16,14 @@ class FiatCurrencyPickerSheet extends StatefulWidget {
     required this.onSelected,
     this.cryptoOption,
     this.onCryptoSelected,
+    this.header,
   });
 
   final Object? selected;
   final ValueChanged<FiatCurrency> onSelected;
   final CryptoCurrency? cryptoOption;
   final ValueChanged<CryptoCurrency>? onCryptoSelected;
+  final Widget? header;
 
   static const _popularOrder = <FiatCurrency>[
     FiatCurrency.usd,
@@ -37,6 +39,7 @@ class FiatCurrencyPickerSheet extends StatefulWidget {
     required ValueChanged<FiatCurrency> onSelected,
     CryptoCurrency? cryptoOption,
     ValueChanged<CryptoCurrency>? onCryptoSelected,
+    Widget? header,
   }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -49,6 +52,7 @@ class FiatCurrencyPickerSheet extends StatefulWidget {
         onSelected: onSelected,
         cryptoOption: cryptoOption,
         onCryptoSelected: onCryptoSelected,
+        header: header,
       ),
     );
   }
@@ -134,6 +138,7 @@ class _FiatCurrencyPickerSheetState extends State<FiatCurrencyPickerSheet> {
                       all: filteredAll,
                       onSelectedFiat: _selectFiatCurrency,
                       onSelectedCrypto: _selectCryptoCurrency,
+                      header: widget.header,
                     ),
             ),
             CurrencyPickerSearchField(
@@ -157,6 +162,7 @@ class FiatCurrencyPickerBody extends StatelessWidget {
     required this.all,
     required this.onSelectedFiat,
     required this.onSelectedCrypto,
+    this.header,
   });
 
   final Object? selected;
@@ -165,6 +171,7 @@ class FiatCurrencyPickerBody extends StatelessWidget {
   final List<FiatCurrency> all;
   final void Function(FiatCurrency) onSelectedFiat;
   final void Function(CryptoCurrency) onSelectedCrypto;
+  final Widget? header;
 
   @override
   Widget build(BuildContext context) {
@@ -175,6 +182,10 @@ class FiatCurrencyPickerBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       children: [
+        if (header != null) ...[
+          header!,
+          const SizedBox(height: 16),
+        ],
         if (selectedFiat != null || selectedCrypto != null) ...[
           _SectionHeader(label: S.of(context).picker_section_selected),
           CurrencyPickerListContainer(

@@ -40,47 +40,50 @@ class EnterAmountWidget extends StatelessWidget {
                 border: Border(
                     bottom: BorderSide(
                         width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant))),
-            child: BaseTextFormField(
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-              controller: amountController,
-              keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-              hintText: '0.00',
-              maxLines: 1,
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Text(
-                  "${fiatCurrency.sign} ",
-                  style: Theme.of(context).textTheme.titleMedium!,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: BaseTextFormField(
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+                controller: amountController,
+                keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                hintText: '0.00',
+                maxLines: 1,
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    fiatCurrency.signAsPrefix,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
+                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(top: 2, right: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('QTY ', style: Theme.of(context).textTheme.titleMedium!),
+                      Text('1',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+                textStyle: Theme.of(context).textTheme.titleMedium!,
+                placeholderTextStyle: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'^\d+(\.|\,)?\d{0,2}'),
+                  ),
+                ],
               ),
-              prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-              suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-              suffixIcon: Padding(
-                padding: const EdgeInsets.only(top: 2, right: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('QTY ', style: Theme.of(context).textTheme.titleMedium!),
-                    Text('1',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium!
-                            .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                  ],
-                ),
-              ),
-              textStyle: Theme.of(context).textTheme.titleMedium!,
-              placeholderTextStyle: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              inputFormatters: [
-                FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-                FilteringTextInputFormatter.allow(
-                  RegExp(r'^\d+(\.|\,)?\d{0,2}'),
-                ),
-              ],
             ),
           ),
           const SizedBox(height: 4),

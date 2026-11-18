@@ -32,37 +32,115 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
 
   final String emoji;
 
-  static final _shortSigns = NumberFormat.simpleCurrency(locale: "en");
-  static final _amountLead = RegExp(r"^[<>~≈+\-\s]*");
-  static final _currencySignAtEnd = RegExp(r"\p{Sc}$", unicode: true);
+  static bool Function() showsIsoCode = () => false;
 
-  static const _signsForSharedShortSigns = {
-    "ARS": "ARS",
+  static final _amountLead = RegExp(r"^[<>~≈=+\-\s]*");
+  static final _endsWithLetterOrDot = RegExp(r"[\p{L}.]$", unicode: true);
+  static const _leftToRightIsolate = "\u2066";
+  static const _firstStrongIsolate = "\u2068";
+  static const _popDirectionalIsolate = "\u2069";
+
+  static const _symbolSigns = {
+    "AMD": "֏",
+    "ARS": r"AR$",
     "AUD": r"A$",
-    "CAD": r"CA$",
+    "BDT": "৳",
+    "BGN": "лв",
+    "BRL": r"R$",
+    "CAD": r"C$",
+    "CHF": "CHF",
     "CLP": "CLP",
     "CNY": "CN¥",
-    "COP": "COP",
-    "DKK": "DKK",
+    "COP": r"COL$",
+    "CZK": "Kč",
+    "DKK": "Dkr",
+    "EGP": "E£",
+    "EUR": "€",
+    "GBP": "£",
+    "GHS": "GH₵",
+    "GTQ": "Q",
     "HKD": r"HK$",
-    "ISK": "ISK",
+    "HRK": "kn",
+    "HUF": "Ft",
+    "IDR": "Rp",
+    "ILS": "₪",
+    "INR": "₹",
+    "IRR": "Rls",
+    "ISK": "Ikr",
+    "JPY": "¥",
+    "KES": "Sh",
+    "KRW": "₩",
+    "MAD": "د.م",
     "MXN": r"MX$",
-    "NOK": "NOK",
+    "MYR": "RM",
+    "NGN": "₦",
+    "NOK": "NKr",
     "NZD": r"NZ$",
-    "SEK": "SEK",
-    "SGD": "SGD",
+    "PHP": "₱",
+    "PKR": "Rs",
+    "PLN": "zł",
+    "RON": "Lei",
+    "RUB": "₽",
+    "SAR": "﷼",
+    "SEK": "kr",
+    "SGD": r"S$",
+    "THB": "฿",
+    "TRY": "₺",
+    "TWD": r"NT$",
+    "UAH": "₴",
+    "USD": r"$",
+    "VEF": "Bs.",
+    "VND": "₫",
+    "ZAR": "R",
   };
 
-  String get _shortSign => _shortSigns.simpleCurrencySymbol(title);
+  static const _symbolSignsAfterAmount = {
+    "BGN",
+    "CHF",
+    "CNY",
+    "CZK",
+    "DKK",
+    "EUR",
+    "HRK",
+    "HUF",
+    "ISK",
+    "MAD",
+    "NOK",
+    "PLN",
+    "RON",
+    "RUB",
+    "SEK",
+    "VND",
+  };
 
-  String get sign => _signsForSharedShortSigns[title] ?? _shortSign;
+  String get symbolSign => _symbolSigns[title] ?? title;
 
-  String get label => _shortSign == title ? title : "$title ($_shortSign)";
+  String get sign => showsIsoCode() ? title : symbolSign;
 
-  String format(String amount) {
-    final gap = _currencySignAtEnd.hasMatch(sign) ? "" : " ";
+  bool get signAfterAmount => !showsIsoCode() && _symbolSignsAfterAmount.contains(title);
 
-    return amount.replaceFirstMapped(_amountLead, (lead) => "${lead[0]}$sign$gap");
+  bool get signTouchesAmount => !signAfterAmount && !_endsWithLetterOrDot.hasMatch(sign);
+
+  String get signAsPrefix => _endsWithLetterOrDot.hasMatch(sign) ? "$sign " : sign;
+
+  String get label => symbolSign == title ? title : "$title ($symbolSign)";
+
+  String get isolatedSymbolSign => "$_firstStrongIsolate$symbolSign$_popDirectionalIsolate";
+
+  String get _isolatedSign =>
+      Bidi.hasAnyRtl(sign) ? "$_firstStrongIsolate$sign$_popDirectionalIsolate" : sign;
+
+  String format(String amount) =>
+      amount.isEmpty ? amount : "$_leftToRightIsolate${_withSign(amount)}$_popDirectionalIsolate";
+
+  String _withSign(String amount) {
+    if (signAfterAmount) {
+      return "$amount $_isolatedSign";
+    }
+
+    final gap = signTouchesAmount ? "" : " ";
+
+    return amount.replaceFirstMapped(_amountLead, (lead) => "${lead[0]}$_isolatedSign$gap");
   }
 
   static List<FiatCurrency> get all => _all.values.toList();

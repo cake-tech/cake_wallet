@@ -5,6 +5,7 @@ import 'package:cake_wallet/new-ui/widgets/charts_page/change_pill.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cw_core/crypto_amount_format.dart';
 import 'package:flutter/material.dart';
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class ChangeDisplay extends StatelessWidget {
   const ChangeDisplay({super.key, required this.changeData, required this.fiatCurrency});
@@ -26,9 +27,11 @@ class ChangeDisplay extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: 10,
         children: [
-          Text(
-            _change,
-            style: TextStyle(fontSize: 16, color: changeData.direction.colorOf(context)),
+          Observer(
+            builder: (context) => Text(
+              _change,
+              style: TextStyle(fontSize: 16, color: changeData.direction.colorOf(context)),
+            ),
           ),
           ChangePill(changePercentage: changeData.percentage, direction: changeData.direction)
         ],

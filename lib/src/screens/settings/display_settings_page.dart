@@ -63,6 +63,7 @@ class DisplaySettingsPage extends StatelessWidget {
                           context: context,
                           selected: _displaySettingsViewModel.fiatCurrency,
                           onSelected: _displaySettingsViewModel.setFiatCurrency,
+                          header: _CurrencyFormatSelector(_displaySettingsViewModel),
                         ),
                       ),
                   ],
@@ -241,6 +242,45 @@ class DisplaySettingsPage extends StatelessWidget {
       _displaySettingsViewModel.setBackgroundImage(pickedFile.path);
     }
   }
+}
+
+class _CurrencyFormatSelector extends StatelessWidget {
+  const _CurrencyFormatSelector(this.viewModel);
+
+  final DisplaySettingsViewModel viewModel;
+
+  String _formatName(BuildContext context, bool isoCode) {
+    final currency = viewModel.fiatCurrency;
+
+    return isoCode
+        ? "${S.of(context).iso_code} (${currency.title})"
+        : "${S.of(context).symbol} (${currency.isolatedSymbolSign})";
+  }
+
+  @override
+  Widget build(BuildContext context) => Observer(
+        builder: (_) => NewListSections(
+          sections: {
+            "currency_format": [
+              ListItemSelector(
+                keyValue: "display_settings_currency_format",
+                label: S.of(context).currency_format,
+                options: [_formatName(context, viewModel.showFiatIsoCode)],
+                onTap: () => showPopUp<void>(
+                  context: context,
+                  builder: (_) => Picker<bool>(
+                    items: const [false, true],
+                    selectedAtIndex: viewModel.showFiatIsoCode ? 1 : 0,
+                    onItemSelected: viewModel.setShowFiatIsoCode,
+                    displayItem: (isoCode) => _formatName(context, isoCode),
+                    isSeparated: false,
+                  ),
+                ),
+              ),
+            ],
+          },
+        ),
+      );
 }
 
 class _SettingsGroup extends StatelessWidget {

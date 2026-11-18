@@ -47,13 +47,14 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
   @override
   Widget build(BuildContext context) => Center(
         child: Row(
+          textDirection: TextDirection.ltr,
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.baseline,
           textBaseline: TextBaseline.alphabetic,
           children: [
-            if (_fiatCurrency != null) ...[
+            if (_fiatCurrency?.signAfterAmount == false) ...[
               Text(_fiatCurrency!.sign, maxLines: 1, style: _unitStyle(context)),
-              const SizedBox(width: 8),
+              if (!_fiatCurrency!.signTouchesAmount) const SizedBox(width: 8),
             ],
             IntrinsicWidth(
               child: TextFormField(
@@ -101,6 +102,10 @@ class _FloatingAmountInputState extends State<FloatingAmountInput> {
                 overflow: TextOverflow.ellipsis,
                 style: _unitStyle(context),
               ),
+            ],
+            if (_fiatCurrency?.signAfterAmount == true) ...[
+              const SizedBox(width: 8),
+              Text(_fiatCurrency!.sign, maxLines: 1, style: _unitStyle(context)),
             ],
           ],
         ),

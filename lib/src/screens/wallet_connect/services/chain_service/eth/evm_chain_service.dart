@@ -679,7 +679,7 @@ class EvmChainServiceImpl {
         return cryptoPart;
       }
 
-      return '$cryptoPart (~ ${appStore.settingsStore.fiatCurrency.format(fiatValue)})';
+      return '$cryptoPart (${appStore.settingsStore.fiatCurrency.format('~ $fiatValue')})';
     } catch (_) {
       return cryptoPart;
     }
