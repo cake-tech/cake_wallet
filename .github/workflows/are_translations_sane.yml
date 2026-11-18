@@ -2,14 +2,17 @@ name: Are translations sane
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
-  arb:
-    runs-on: ubuntu-24.04
+  PR_test_build:
+    runs-on: puzl-ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check ARB files are valid JSON
+      - name: Check for translations
+        if: github.event_name == 'pull_request'
         run: |
           for i in res/values/strings_*.arb;
           do
@@ -17,9 +20,10 @@ jobs:
             cat $i | jq || exit 1
           done
 
-      - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
         with:
-          sdk: stable
+          sdk: 3.5.4
 
       - name: Lint translations
+        if: github.event_name == 'pull_request'
         run: dart tool/i18n_lint.dart

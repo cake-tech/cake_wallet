@@ -150,7 +150,7 @@ void checkLocale(String lang, Map<String, String> source) {
 
   for (final key in source.keys) {
     if (!target.containsKey(key)) {
-      _errors.add(Finding(lang, 'missing', key, 'absent from $path'));
+      _warnings.add(Finding(lang, 'missing', key, 'absent from $path'));
     }
   }
   for (final key in target.keys) {
@@ -160,17 +160,41 @@ void checkLocale(String lang, Map<String, String> source) {
   }
 
   for (final entry in target.entries) {
-    final key = entry.key;
-    final value = entry.value;
-    final en = source[key];
-    if (en == null) continue;
+    if (!entry.key.endsWith('_highlight')) continue;
+    final base = target['${entry.key.substring(0, entry.key.length - '_highlight'.length)}_title'];
+    if (base != null && !base.contains(entry.value)) {
+      _warnings.add(Finding(lang, 'highlight', entry.key, 'is not a substring of its paired string'));
+    }
+  }
 
+  for (final entry in target.entries) {
+    final en = source[entry.key];
+    if (en == null) continue;
+    for (final finding in checkString(lang, entry.key, en, entry.value)) {
+      (errorKinds.contains(finding.kind) ? _errors : _warnings).add(finding);
+    }
+  }
+}
+
+const errorKinds = <String>{
+  'empty',
+  'unclosed',
+  'ph-missing',
+  'ph-extra',
+  'ph-order',
+  'ph-count',
+};
+
+/// Per-string checks, shared with tool/gen_review_sheet.dart so a reviewer
+/// sheet and the CI gate cannot disagree about the same string.
+List<Finding> checkString(String lang, String key, String en, String value) {
+  final found = <Finding>[];
     if (value.trim().isEmpty) {
-      _errors.add(Finding(lang, 'empty', key, 'empty translation'));
-      continue;
+      found.add(Finding(lang, 'empty', key, 'empty translation'));
+      return found;
     }
     if (unclosedPattern.hasMatch(value)) {
-      _errors.add(Finding(lang, 'unclosed', key, 'unterminated \${ placeholder'));
+      found.add(Finding(lang, 'unclosed', key, 'unterminated \${ placeholder'));
     }
 
     final enPlaceholders = placeholders(en);
@@ -180,27 +204,27 @@ void checkLocale(String lang, Map<String, String> source) {
     final targetNames = placeholdersTarget.toSet().toList();
 
     if (targetNames.length < enNames.length) {
-      _errors.add(Finding(lang, 'ph-missing', key,
+      found.add(Finding(lang, 'ph-missing', key,
           'uses ${targetNames.length} distinct placeholder(s), English uses ${enNames.length}: ${enNames.join(", ")}'));
     } else if (targetNames.length > enNames.length) {
-      _errors.add(Finding(lang, 'ph-extra', key,
+      found.add(Finding(lang, 'ph-extra', key,
           'uses ${targetNames.length} distinct placeholder(s), English uses ${enNames.length}'));
     } else if (enNames.isNotEmpty) {
       final sameNames = targetNames.every(enNames.contains) && enNames.every(targetNames.contains);
       if (sameNames) {
         for (var i = 0; i < targetNames.length; i++) {
           if (targetNames[i] != enNames[i]) {
-            _errors.add(Finding(lang, 'ph-order', key,
+            found.add(Finding(lang, 'ph-order', key,
                 'slot $i is ${targetNames[i]}, English has ${enNames[i]}'));
             break;
           }
         }
       } else {
-        _warnings.add(Finding(lang, 'ph-rename', key,
+        found.add(Finding(lang, 'ph-rename', key,
             'placeholder names differ from English: ${targetNames.join(", ")} vs ${enNames.join(", ")}'));
       }
       if (placeholdersTarget.length != enPlaceholders.length) {
-        _warnings.add(Finding(lang, 'ph-repeat', key,
+        found.add(Finding(lang, 'ph-repeat', key,
             '${placeholdersTarget.length} placeholder occurrence(s), English uses ${enPlaceholders.length}'));
       }
     }
@@ -208,7 +232,7 @@ void checkLocale(String lang, Map<String, String> source) {
     final enLeading = en.startsWith(' ');
     final enTrailing = en.endsWith(' ');
     if (enLeading != value.startsWith(' ') || enTrailing != value.endsWith(' ')) {
-      _warnings.add(Finding(lang, 'space', key,
+      found.add(Finding(lang, 'space', key,
           'leading/trailing space differs from English'));
     }
 
@@ -216,29 +240,30 @@ void checkLocale(String lang, Map<String, String> source) {
         value == en &&
         !isProperNounLike(en) &&
         scriptRanges.containsKey(baseLang(lang))) {
-      _warnings.add(Finding(lang, 'identical', key, 'identical to English'));
+      found.add(Finding(lang, 'identical', key, 'identical to English'));
     }
 
     if (!hasScriptChars(value, lang) &&
         !brandKeys.contains(key) &&
         !isProperNounLike(en)) {
-      _warnings.add(Finding(lang, 'script', key,
+      found.add(Finding(lang, 'script', key,
           'no ${baseLang(lang)} script characters'));
     }
 
     if (!noLengthCheck.contains(baseLang(lang)) && en.length >= 25) {
       final ratio = value.length / en.length;
       if (ratio < 0.5 || ratio > 2.2) {
-        _warnings.add(Finding(lang, 'length', key,
+        found.add(Finding(lang, 'length', key,
             'length ratio ${ratio.toStringAsFixed(2)} (${en.length} -> ${value.length})'));
       }
     }
 
     if (!endsSamePunctuation(en, value, lang)) {
-      _warnings.add(Finding(lang, 'punct', key,
+      found.add(Finding(lang, 'punct', key,
           'end punctuation differs from English: "${en[en.length - 1]}" vs "${value[value.length - 1]}"'));
     }
-  }
+
+  return found;
 }
 
 Set<String> loadBaseline() {

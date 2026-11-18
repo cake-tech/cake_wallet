@@ -49,7 +49,7 @@ int tierOf(String screen) {
 }
 
 Map<String, Set<String>> collectCallSites() {
-  final callPattern = RegExp(r'S\.(?:of\(context\)|current)\.([A-Za-z0-9_]+)');
+  final callPattern = RegExp(r'S\.(?:of\([^)]*\)|current)\s*\.\s*([A-Za-z0-9_]+)');
   final result = <String, Set<String>>{};
   for (final entity in Directory(libRoot).listSync(recursive: true)) {
     if (entity is! File || !entity.path.endsWith('.dart')) continue;
@@ -65,28 +65,28 @@ Map<String, Set<String>> collectCallSites() {
 }
 
 List<String> flagsFor(String lang, String key, String? en, String? value) {
-  final flags = <String>[];
   if (en == null) return ['stale'];
   if (value == null) return ['missing'];
-  if (value.trim().isEmpty) return ['empty'];
-  if (lint.placeholders(en).join() != lint.placeholders(value).join()) {
-    flags.add('placeholder');
-  }
-  if (value == en && !lint.brandKeys.contains(key) && !lint.isProperNounLike(en)) {
-    if (lint.scriptRanges.containsKey(lint.baseLang(lang))) flags.add('english');
-  }
-  if (!lint.hasScriptChars(value, lang) &&
-      !lint.brandKeys.contains(key) &&
-      !lint.isProperNounLike(en)) {
-    flags.add('no-script');
-  }
-  if (en.startsWith(' ') != value.startsWith(' ') ||
-      en.endsWith(' ') != value.endsWith(' ')) {
-    flags.add('space');
-  }
-  if (en.length > 12) {
-    final ratio = value.length / en.length;
-    if (ratio < 0.4 || ratio > 2.5) flags.add('length');
+
+  const labels = <String, String>{
+    'empty': 'empty',
+    'unclosed': 'placeholder',
+    'ph-missing': 'placeholder',
+    'ph-extra': 'placeholder',
+    'ph-order': 'placeholder',
+    'ph-rename': 'placeholder',
+    'ph-repeat': 'placeholder',
+    'space': 'space',
+    'identical': 'english',
+    'script': 'no-script',
+    'length': 'length',
+    'punct': 'punct',
+  };
+
+  final flags = <String>[];
+  for (final finding in lint.checkString(lang, key, en, value)) {
+    final label = labels[finding.kind];
+    if (label != null && !flags.contains(label)) flags.add(label);
   }
   return flags;
 }
