@@ -30,7 +30,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
   bool _allProvidersExpanded = false;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => SafeArea(bottom:false,child:Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
           gradient: LinearGradient(
@@ -42,7 +42,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SafeArea(
+        child: SafeArea(top:false,
           child: Column(
             children: [
               ModalTopBar(
@@ -138,7 +138,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
             ],
           ),
         ),
-      );
+      ));
 
   String get _pageTitle =>
       "${widget.buySellViewModel.mode == BuySellPageMode.buy ? S.current.buy : S.current.sell} ${widget.buySellViewModel.cryptoCurrency.fullName ?? ""}";
@@ -146,7 +146,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
   ListItem quoteListItem(Quote quote) {
     final fiatAmount = widget.buySellViewModel.fiatAmountForQuote(quote);
     return ListItemRegularRow(
-      keyValue: quote.provider.title,
+      keyValue: quote.provider.title+(quote.rampName??""),
       label: quote.rampName ?? quote.provider.title,
       secondaryLabel: quote.rampName != null ? quote.provider.title : null,
       subtitle: quote.badges.isEmpty ? null : quote.badges.join(" - "),
