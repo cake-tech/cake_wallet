@@ -137,6 +137,13 @@ class DisplaySettingsPage extends StatelessWidget {
                       value: !_displaySettingsViewModel.disableTradeOption,
                       onChanged: (show) => _displaySettingsViewModel.setDisableTradeOption(!show),
                     ),
+                    if (DeviceInfo.instance.isMobile)
+                      ListItemToggle(
+                        keyValue: "display_settings_show_phone_call_warning",
+                        label: S.of(context).show_phone_call_warning,
+                        value: _displaySettingsViewModel.shouldShowCallScamWarning,
+                        onChanged: _displaySettingsViewModel.setShouldShowCallScamWarning,
+                      ),
                     ListItemToggle(
                       keyValue: "display_settings_show_nfts_tab",
                       label: S.of(context).show_nfts_tab,

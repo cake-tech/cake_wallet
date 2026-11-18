@@ -11,12 +11,14 @@ class CallScamBanner extends StatefulWidget {
   const CallScamBanner({
     required this.navigatorKey,
     required this.enabled,
+    required this.onDontShowAgain,
     required this.child,
     super.key,
   });
 
   final GlobalKey<NavigatorState> navigatorKey;
   final bool enabled;
+  final VoidCallback onDontShowAgain;
   final Widget child;
 
   @override
@@ -82,7 +84,10 @@ class _CallScamBannerState extends State<CallScamBanner> {
         if (_isOnPhoneCall)
           _CallScamBannerContent(
             topInset: mediaQuery.padding.top,
-            onTap: () => CallScamWarningSheet.show(widget.navigatorKey.currentContext!),
+            onTap: () => CallScamWarningSheet.show(
+              widget.navigatorKey.currentContext!,
+              onDontShowAgain: widget.onDontShowAgain,
+            ),
           )
         else
           const SizedBox.shrink(),

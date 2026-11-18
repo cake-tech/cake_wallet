@@ -20,9 +20,6 @@ abstract class SecuritySettingsViewModelBase with Store {
   bool get isAppSecure => _settingsStore.isAppSecure;
 
   @computed
-  bool get shouldShowCallScamWarning => _settingsStore.shouldShowCallScamWarning;
-
-  @computed
   bool get allowBiometricalAuthentication => _settingsStore.allowBiometricalAuthentication;
 
   @computed
@@ -45,9 +42,6 @@ abstract class SecuritySettingsViewModelBase with Store {
 
   @action
   void setIsAppSecure(bool value) => _settingsStore.isAppSecure = value;
-
-  @action
-  void setShouldShowCallScamWarning(bool value) => _settingsStore.shouldShowCallScamWarning = value;
 
   @action
   void setAllowBiometricalAuthentication(bool value) =>

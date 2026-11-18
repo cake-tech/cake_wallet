@@ -443,6 +443,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
                     builder: (_) => CallScamBanner(
                       navigatorKey: navigatorKey,
                       enabled: settingsStore.shouldShowCallScamWarning,
+                      onDontShowAgain: () => settingsStore.shouldShowCallScamWarning = false,
                       child: child!,
                     ),
                   ),

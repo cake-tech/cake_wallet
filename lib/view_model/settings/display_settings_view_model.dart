@@ -56,6 +56,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get shouldShowNftsTab => _settingsStore.shouldShowNftsTab;
 
   @computed
+  bool get shouldShowCallScamWarning => _settingsStore.shouldShowCallScamWarning;
+
+  @computed
   MaterialThemeBase get currentTheme => _themeStore.currentTheme;
 
   @computed
@@ -252,6 +255,9 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setShouldShowNftsTab(bool value) => _settingsStore.shouldShowNftsTab = value;
+
+  @action
+  void setShouldShowCallScamWarning(bool value) => _settingsStore.shouldShowCallScamWarning = value;
 
   @action
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;
