@@ -367,7 +367,8 @@ abstract class ElectrumWalletBase
         ? {0: balance[currency] ?? ElectrumBalance.zero(currency)}
         : saved ?? _balancesFromAddressRecords();
 
-    _updateAccountBalances(() => accounts.setBalances(balances));
+    accounts.setBalances(balances);
+    _syncCurrentAccountBalance();
   }
 
   Map<int, ElectrumBalance> _balancesFromAddressRecords() {
@@ -389,7 +390,8 @@ abstract class ElectrumWalletBase
 
   void _updateAccountBalancesFromUnspents() {
     if (!_hasCompleteUnspentSet) return;
-    _updateAccountBalances(() => accounts.setBalancesFromCoins(unspentCoins));
+    accounts.setBalancesFromCoins(unspentCoins);
+    _syncCurrentAccountBalance();
   }
 
   Map<int, Set<String>> get addressesSetByAccount {
@@ -563,11 +565,6 @@ abstract class ElectrumWalletBase
   }
 
   @action
-  void _updateAccountBalances(void Function() update) {
-    update();
-    _syncCurrentAccountBalance();
-  }
-
   void _syncCurrentAccountBalance() {
     if (type != WalletType.bitcoin) return;
     balance[currency] = currentAccount?.balance ?? ElectrumBalance.zero(currency);

@@ -1,6 +1,5 @@
 import "package:bitcoin_base/bitcoin_base.dart";
 import "package:blockchain_utils/blockchain_utils.dart";
-import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_unspent.dart";
 import "package:cw_bitcoin/electrum_account_balance_calculator.dart";
 import "package:cw_bitcoin/electrum_balance.dart";
@@ -44,12 +43,13 @@ class ElectrumAccounts {
   final Bip32Slip10Secp256k1 _accountHd;
   final Bip32Slip10Secp256k1? _masterHd;
   final int? _coinType;
-  final Map<int, ElectrumAccount> _byIndex = {};
+  final ObservableMap<int, ElectrumAccount> _byIndex = ObservableMap<int, ElectrumAccount>();
   final Map<int, AccountHdKeys> _hdByIndex = {};
 
   List<int> get indexes => _byIndex.keys.toList()..sort();
 
-  List<ElectrumAccount> get all => [for (final index in indexes) _byIndex[index]!];
+  List<ElectrumAccount> get all =>
+      _byIndex.values.toList()..sort((a, b) => a.index.compareTo(b.index));
 
   ElectrumAccount? operator [](int index) => _byIndex[index];
 
@@ -73,7 +73,7 @@ class ElectrumAccounts {
     );
 
     _hdByIndex[index] = _deriveHd(index, account.supportedTypes);
-    _byIndex[index] = account;
+    runInAction(() => _byIndex[index] = account);
 
     printV("[ELECTRUM ACCOUNTS] added account $index "
         '(${account.supportedTypes.map((t) => t.value).join('/')}), now $indexes');
@@ -84,7 +84,8 @@ class ElectrumAccounts {
 
   void remove(int index) {
     _hdByIndex.remove(index);
-    if (_byIndex.remove(index) != null) {
+    final removed = runInAction(() => _byIndex.remove(index));
+    if (removed != null) {
       printV("[ELECTRUM ACCOUNTS] removed account $index, now $indexes");
     }
   }
@@ -111,9 +112,6 @@ class ElectrumAccounts {
   void setBalancesFromCoins(Iterable<BitcoinUnspent> coins) =>
       setBalances(AccountBalanceCalculator.fromCoins(coins, currency: currency));
 
-  void setBalancesFromAddressRecords(Iterable<BaseBitcoinAddressRecord> records) =>
-      setBalances(AccountBalanceCalculator.fromAddressRecords(records, currency: currency));
-
   void setBalancesFromTotals({
     Map<int, int> confirmed = const {},
     Map<int, int> unconfirmed = const {},
@@ -129,18 +127,6 @@ class ElectrumAccounts {
   Map<String, String> balancesToJson() => {
         for (final account in all) "${account.index}": account._balance.value.toJSON(),
       };
-
-  static Map<int, ElectrumBalance>? balancesFromJson(Object? source, CryptoCurrency currency) {
-    if (source is! Map) return null;
-
-    final balances = <int, ElectrumBalance>{};
-    for (final entry in source.entries) {
-      final index = int.tryParse(entry.key.toString());
-      final balance = ElectrumBalance.fromJSON(entry.value as String?, currency);
-      if (index != null && balance != null) balances[index] = balance;
-    }
-    return balances;
-  }
 
   AccountHdKeys _deriveHd(int index, List<BitcoinAddressType> types) {
     final hd = AccountHdKeys();
