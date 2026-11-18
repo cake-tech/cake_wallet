@@ -42,7 +42,7 @@ void main() {
 
     await contactRobot.isDisplayed();
 
-    await dashboardRobot.openHomeTab();
+    await contactRobot.goBack();
     await homePageRobot.isDisplayed();
 
     await homePageRobot.openSendSheet();
