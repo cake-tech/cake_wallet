@@ -90,6 +90,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
             children: [
               Observer(
                 builder: (_) => ModalTopBar(
+                  testId: "buy_sell_amount_page_top_bar",
                   title: _pageTitle,
                   bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
                       ? null

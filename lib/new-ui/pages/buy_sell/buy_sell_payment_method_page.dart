@@ -31,6 +31,7 @@ class BuySellPaymentMethodPage extends StatelessWidget {
           child: Column(
             children: [
               ModalTopBar(
+                testId: "buy_sell_payment_method_page_top_bar",
                 title: S.of(context).payment_method,
                 leadingIcon: const Icon(Icons.arrow_back_ios_new),
                 onLeadingPressed: Navigator.of(context).pop,

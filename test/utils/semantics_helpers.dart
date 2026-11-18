@@ -5,7 +5,7 @@ List<SemanticsNode> platformNodesWithId(WidgetTester tester, String identifier) 
   final result = <SemanticsNode>[];
 
   void visit(SemanticsNode node) {
-    if (!node.isMergedIntoParent && node.identifier == identifier) {
+    if (!node.isMergedIntoParent && node.getSemanticsData().identifier == identifier) {
       result.add(node);
     }
     node.visitChildren((child) {
