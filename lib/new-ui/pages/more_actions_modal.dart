@@ -25,6 +25,7 @@ bool _isLightningEnabled(DashboardViewModel vm) => vm.hasLightning && vm.wallet.
 
 class ExtraAction {
   const ExtraAction({
+    required this.key,
     required this.isModal,
     required this.destinationBuilder,
     required this.name,
@@ -33,6 +34,7 @@ class ExtraAction {
     this.applicable = _trueFunc,
   });
 
+  final Key key;
   final String Function(DashboardViewModel) name;
   final String iconPath;
   final bool Function(DashboardViewModel) applicable;
@@ -41,6 +43,7 @@ class ExtraAction {
   final FutureOr<Widget> Function(DashboardViewModel) destinationBuilder;
 
   static final buy = ExtraAction(
+    key: const ValueKey("more_actions_buy_button_key"),
     name: (vm) =>
         "${S.current.buy} ${vm.wallet.balance.length > 1 && vm.wallet.type != WalletType.bitcoin ? S.current.crypto : vm.wallet.currency.fullName}",
     iconPath: "assets/new-ui/buy_more_actions.svg",
@@ -51,6 +54,7 @@ class ExtraAction {
   );
 
   static final sell = ExtraAction(
+    key: const ValueKey("more_actions_sell_button_key"),
     name: (vm) =>
         "${S.current.sell} ${vm.wallet.balance.length > 1 && vm.wallet.type != WalletType.bitcoin ? S.current.crypto : vm.wallet.currency.fullName}",
     iconPath: "assets/new-ui/buy.svg",
@@ -61,6 +65,7 @@ class ExtraAction {
   );
 
   static final depositFromOnChain = ExtraAction(
+    key: const ValueKey("more_actions_deposit_from_on_chain_button_key"),
     name: (vm) => S.current.deposit_from_on_chain,
     iconPath: "assets/new-ui/deposit_to_onchain.svg",
     isModal: true,
@@ -83,6 +88,7 @@ class ExtraAction {
   );
 
   static final withdrawToOnChain = ExtraAction(
+    key: const ValueKey("more_actions_withdraw_to_on_chain_button_key"),
     name: (vm) => S.current.withdraw_to_onchain,
     iconPath: "assets/new-ui/withdraw_to_onchain.svg",
     isModal: true,
@@ -106,6 +112,7 @@ class ExtraAction {
   );
 
   static final cakePay = ExtraAction(
+    key: const ValueKey("more_actions_cake_pay_button_key"),
     isModal: false,
     destinationBuilder: (_) => getIt.get<CakePayCardsPage>(),
     name: (_) => S.current.gift_cards_and_debit_cards,
@@ -113,6 +120,7 @@ class ExtraAction {
   );
 
   static final contacts = ExtraAction(
+    key: const ValueKey("more_actions_contacts_button_key"),
     isModal: false,
     destinationBuilder: (_) => getIt.get<ContactListPage>(),
     name: (_) => S.current.contacts,
@@ -189,6 +197,7 @@ class MoreActionsGrid extends StatelessWidget {
         itemCount: actions.length,
         itemBuilder: (context, index) => ExtraActionButton(
           actions[index],
+          key: actions[index].key,
           dashboardViewModel: dashboardViewModel,
           onOpened: onActionOpened,
         ),

@@ -149,7 +149,10 @@ class _NewDashboardState extends State<NewDashboard> {
                               },
                             ),
                           ),
-                          MoreActionsButton(dashboardViewModel: widget.dashboardViewModel)
+                          MoreActionsButton(
+                            key: const ValueKey("dashboard_page_more_actions_button_key"),
+                            dashboardViewModel: widget.dashboardViewModel,
+                          ),
                         ],
                       ),
                     ),
