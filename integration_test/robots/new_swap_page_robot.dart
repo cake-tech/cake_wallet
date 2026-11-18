@@ -1,10 +1,18 @@
+import "dart:math";
+
 import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/fiat_conversion_service.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/limits_state.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/fiat_amount_bar.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_options_page.dart";
 import "package:cake_wallet/src/widgets/primary_button.dart";
 import "package:cake_wallet/view_model/send/send_view_model_state.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -15,6 +23,7 @@ import "package:flutter_test/flutter_test.dart";
 import "../core/base_robot.dart";
 import "../core/test_config.dart";
 import "../core/test_wallets.dart";
+import "fiat_currency_picker_robot.dart";
 
 class NewSwapPageRobot extends BaseRobot {
   NewSwapPageRobot(super.tester);
@@ -69,6 +78,98 @@ class NewSwapPageRobot extends BaseRobot {
     final received = await pumpUntil(() => _bestRate() > 0, timeout: timeout);
 
     expect(received, true, reason: "No provider quote arrived within ${timeout.inSeconds}s");
+  }
+
+  double get depositCryptoAmount {
+    final page = tester.widget<NewSwapPage>(find.byType(NewSwapPage));
+    return double.parse(page.exchangeViewModel.depositAmountCanonical);
+  }
+
+  Future<void> useDepositFiatInput({bool enabled = true}) async {
+    // Finish editing so the text-selection toolbar cannot intercept the switch tap.
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle();
+    final card = find.byWidgetPredicate(
+      (widget) => widget is SwapAmountBox && !widget.isReceiverCard,
+    );
+    final bar = find.descendant(of: card, matching: find.byType(FiatAmountBar));
+    if (tester.state<SwapAmountBoxState>(card).fiatInputMode != enabled) {
+      final button = find.descendant(of: bar, matching: find.byType(IconButton)).first;
+      await tester.ensureVisible(button);
+      await settle();
+      await tester.tap(button);
+    }
+    final changed = await pumpUntil(
+      () => tester.widget<FiatAmountBar>(bar).fiatInputMode == enabled,
+    );
+    expect(
+      changed,
+      true,
+      reason: "The deposit input did not switch modes: "
+          "state=${tester.state<SwapAmountBoxState>(card).fiatInputMode}, "
+          "rendered=${tester.widget<FiatAmountBar>(bar).fiatInputMode}",
+    );
+  }
+
+  Future<void> changeFiatCurrency(FiatCurrency currency) async {
+    final header = find
+        .descendant(
+          of: find.byType(NewSwapPage),
+          matching: find.byType(ModalTopBar),
+        )
+        .first;
+    await tapWhenVisible(find.descendant(of: header, matching: find.byType(ModernButton)).last);
+    await pumpUntilFound(find.byType(SwapOptionsPage));
+    await tapByKey("curr");
+    final picker = FiatCurrencyPickerRobot(tester);
+    await picker.isDisplayed();
+    await picker.choose(currency);
+    await goBack();
+    await isDisplayed();
+  }
+
+  Future<void> confirmFiatConversion(FiatCurrency fiat, {bool receiver = true}) async {
+    final page = tester.widget<NewSwapPage>(find.byType(NewSwapPage));
+    final model = page.exchangeViewModel;
+    final crypto = receiver ? model.receiveCurrency : model.depositCurrency;
+    // Fetch independently of the cache being tested; rates may move during the journey.
+    final price = await FiatConversionService.fetchPrice(
+      crypto: crypto,
+      fiat: fiat,
+      torOnly: false,
+    );
+    expect(price, greaterThan(0), reason: "Independent $crypto/$fiat price is unavailable");
+    final card = find.byWidgetPredicate(
+      (widget) => widget is SwapAmountBox && widget.isReceiverCard == receiver,
+    );
+    final bar = find.descendant(of: card, matching: find.byType(FiatAmountBar));
+    final matched = await pumpUntil(
+      () {
+        if (!tester.any(bar)) {
+          return false;
+        }
+        final value = tester.widget<FiatAmountBar>(bar);
+        final amount = double.tryParse(receiver ? model.receiveAmount : model.depositAmount) ?? 0;
+        final displayed = double.tryParse(value.fiatAmount);
+        return amount > 0 &&
+            value.fiatCurrencySymbol == fiat.symbol &&
+            displayed != null &&
+            (displayed - amount * price).abs() <= max(0.05, amount * price * 0.02);
+      },
+      timeout: const Duration(seconds: 90),
+    );
+    final value = tester.widget<FiatAmountBar>(bar);
+    expect(
+      matched,
+      true,
+      reason: "$crypto conversion shows ${value.fiatAmount} ${value.fiatCurrencySymbol}, "
+          "independent rate is $price $fiat per coin",
+    );
+    expect(
+      find.descendant(of: bar, matching: find.text("${value.fiatAmount} ${fiat.symbol}")),
+      findsOneWidget,
+    );
+    tester.printToConsole("Verified $crypto conversion: ${value.fiatAmount} ${fiat.symbol}");
   }
 
   Future<void> enterMinimumViableDepositAmount() async {

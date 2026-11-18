@@ -20,7 +20,6 @@ import 'package:cake_wallet/reactions/on_wallet_sync_status_change.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -128,11 +127,7 @@ void startCurrentWalletChangeReaction(
         return;
       }
 
-      fiatConversionStore.prices[wallet.currency] = 0;
-      fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          crypto: wallet.currency,
-          fiat: settingsStore.fiatCurrency,
-          torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+      await fiatConversionStore.fetchPrice(wallet.currency, force: true);
 
       Iterable<CryptoCurrency>? currencies;
       if (isEVMCompatibleChain(wallet.type)) {
@@ -150,10 +145,7 @@ void startCurrentWalletChangeReaction(
       if (currencies != null) {
         for (final currency in currencies) {
           () async {
-            fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-                crypto: currency,
-                fiat: settingsStore.fiatCurrency,
-                torOnly: settingsStore.fiatApiMode == FiatApiMode.torOnly);
+            await fiatConversionStore.fetchPrice(currency, force: true);
           }.call();
         }
       }

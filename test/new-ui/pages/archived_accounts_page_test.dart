@@ -45,7 +45,8 @@ import "package:mobx/mobx.dart" show Observable, runInAction;
 import "package:mocktail/mocktail.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
-class _MockAccountEditOrCreateViewModel extends Mock implements WalletAccountEditOrCreateViewModel {}
+class _MockAccountEditOrCreateViewModel extends Mock
+    implements WalletAccountEditOrCreateViewModel {}
 
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
 
@@ -290,7 +291,8 @@ void main() {
         BalanceViewModel(
           appStore: appStore,
           settingsStore: settingsStore,
-          fiatConversionStore: FiatConversionStore()..prices[currency] = 20,
+          fiatConversionStore: FiatConversionStore(settingsStore: settingsStore)
+            ..prices[currency] = 20,
         ),
       );
       await tester.runAsync(() async {

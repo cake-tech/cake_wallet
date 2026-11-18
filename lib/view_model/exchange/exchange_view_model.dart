@@ -8,13 +8,11 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/create_trade_result.dart';
-import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/lightning_invoice_service.dart';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
-import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
@@ -225,7 +223,8 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
     if (isElectrumWallet) {
       bitcoin!.updateFeeRates(wallet);
     }
-    fetchFiatPrice(receiveCurrency);
+    unawaited(fetchFiatPrice(depositCurrency));
+    unawaited(fetchFiatPrice(receiveCurrency));
 
     updateDepositAvailableAmount();
   }
@@ -421,7 +420,6 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @computed
   SyncStatus get status => wallet.syncStatus;
 
-
   @computed
   List<WalletContact> get walletContactsToShow => contactListViewModel.walletContacts
       .where((element) => element.type == receiveCurrency)
@@ -612,18 +610,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   @computed
   bool get isFiatDisabled => feesViewModel.isFiatDisabled;
 
-  @action
-  Future<void> fetchFiatPrice(CryptoCurrency currency) async {
-    if (fiatConversionStore.prices[currency] != null) {
-      return;
-    }
-
-    fiatConversionStore.prices[currency] = await FiatConversionService.fetchPrice(
-      crypto: currency,
-      fiat: fiat,
-      torOnly: _settingsStore.fiatApiMode == FiatApiMode.torOnly,
-    );
-  }
+  Future<void> fetchFiatPrice(CryptoCurrency currency) => fiatConversionStore.fetchPrice(currency);
 
   @computed
   String get receiveAmountFiatFormatted {
@@ -809,7 +796,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void setReceiveAmountFromFiat({required String fiatAmount}) {
     final _enteredAmount = double.tryParse(fiatAmount.sanitized()) ?? 0.0;
     final price = fiatConversionStore.prices[receiveCurrency];
-    if (price == null || price == 0.0) return;
+    if (price == null || !price.isFinite || price <= 0) return;
 
     final crypto = _enteredAmount / price;
     final _receiveAmountTmp = crypto.toString().withMaxDecimals(receiveCurrency.decimals);
@@ -822,7 +809,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   void setDepositAmountFromFiat({required String fiatAmount}) {
     final _enteredAmount = double.tryParse(fiatAmount.sanitized()) ?? 0.0;
     final price = fiatConversionStore.prices[depositCurrency];
-    if (price == null || price == 0.0) return;
+    if (price == null || !price.isFinite || price <= 0) return;
 
     final crypto = _enteredAmount / price;
     final depositAmountTmp = crypto.toString().withMaxDecimals(depositCurrency.decimals);
