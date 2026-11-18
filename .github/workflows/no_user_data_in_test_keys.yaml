@@ -13,7 +13,7 @@ jobs:
           GIT_GREP_OUT="$(git grep -nE "_key['\"]" -- lib | perl -ne '
             next if m{^\S+?:\d+:\s*//};
             while (/(?:Key|TestId\.(?:merge|container))\(\s*(["\x27])((?:(?!\1).)*?_key)\1/g) {
-              (my $rest = $2) =~ s/\$\{?(?:index|itemIndex|_historyKeyIndex)(?:\+\+)?\}?|\$\{[\w.]*\b(?:type|key|item)\.name\}|\$\{entry\.\$1\}|\$\{updatedTransactions\.length\}|\$\{date\.(?:year|month)\}|\$\{[\w.]+\.indexOf\([\w.]+\)\}//g;
+              (my $rest = $2) =~ s/\$\{?(?:index|itemIndex|_historyKeyIndex)(?:\+\+)?\}?|\$\{[\w.]*\b(?:type|key)\.name\}|\$\{entry\.\$1\}|\$\{updatedTransactions\.length\}|\$\{date\.(?:year|month)\}|\$\{[\w.]+\.indexOf\([\w.]+\)\}//g;
               print if $rest =~ /\$/;
             }' || true)"
           [[ "x$GIT_GREP_OUT" == "x" ]] && exit 0
