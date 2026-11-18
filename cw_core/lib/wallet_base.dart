@@ -115,6 +115,8 @@ abstract class WalletBase<BalanceType extends Balance, HistoryType extends Trans
   Future<void>? updateBalance();
   Future<void> updateTransactionsHistory() async {}
 
+  Future<BalanceType?> fetchTokenBalance(CryptoCurrency token) async => null;
+
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => null;
 
   Future<void> renameWalletFiles(String newWalletName) =>

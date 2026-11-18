@@ -1,3 +1,4 @@
+import "dart:async";
 import 'dart:convert';
 
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
@@ -13,11 +14,15 @@ import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/zano/zano.dart';
+import "package:collection/collection.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/balance.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
+import "package:cw_core/zano_asset.dart";
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -33,25 +38,16 @@ abstract class HomeSettingsViewModelBase with Store {
         isValidatingContractAddress = false,
         showCombinedBalance = _balanceViewModel.wallet.walletInfo.showCombinedBalance,
         favoriteToken = _balanceViewModel.wallet.currency {
-    _updateTokensList();
     _updateLocalFavoriteToken();
 
-    // React to wallet changes
-    reaction((_) => _balanceViewModel.wallet, (_) {
-      _updateTokensList();
-    });
-    reaction((_) {
-      final wallet = _balanceViewModel.wallet;
-      if (isEVMCompatibleChain(wallet.type)) {
-        final selectedChainId = evm!.getSelectedChainId(wallet);
-        final erc20Currencies = evm!.getERC20Currencies(wallet);
-        return '${wallet.currency.title}_${selectedChainId}_${erc20Currencies.length}';
-      }
-      return null;
-    }, (_) async {
-      await Future.delayed(const Duration(milliseconds: 200));
-      _updateTokensList();
-    });
+    _walletTokensReaction = reaction(
+      (_) => _walletTokens(),
+      (_) {
+        _updateTokensList();
+        unawaited(_loadTokenBalances());
+      },
+      fireImmediately: true,
+    );
   }
 
   final SettingsStore _settingsStore;
@@ -59,9 +55,80 @@ abstract class HomeSettingsViewModelBase with Store {
 
   final ObservableSet<CryptoCurrency> tokens;
 
+  final ObservableMap<CryptoCurrency, Balance> _tokenBalances = ObservableMap();
+  final ObservableSet<CryptoCurrency> _toggledOff = ObservableSet();
+  Map<String, int> _defaultTokenRanks = {};
+  late final ReactionDisposer _walletTokensReaction;
+  int _balanceRequestId = 0;
+
+  @observable
+  bool isLoadingTokenBalances = true;
+
   @computed
   List<CryptoCurrency> get enabledTokens =>
       [_balanceViewModel.wallet.currency, ...tokens.where((item) => item.enabled).toList()];
+
+  ({List<CryptoCurrency> holdings, List<CryptoCurrency> popular, List<CryptoCurrency> other})
+      get tokenSections {
+    final holdings = <CryptoCurrency>[];
+    final popular = <CryptoCurrency>[];
+    final other = <CryptoCurrency>[];
+
+    for (final token in tokens) {
+      if (heldBalance(token) != null) {
+        holdings.add(token);
+      } else if (_isDefaultToken(token)) {
+        popular.add(token);
+      } else {
+        other.add(token);
+      }
+    }
+
+    return (holdings: holdings, popular: popular, other: other);
+  }
+
+  List<CryptoCurrency> visiblePopular(List<CryptoCurrency> popular) {
+    bool isOn(CryptoCurrency token) => token.enabled || _toggledOff.contains(token);
+    var topUp = 3 - popular.where(isOn).length;
+    return [
+      for (final token in popular)
+        if (isOn(token) || topUp-- > 0) token,
+    ];
+  }
+
+  void clearToggledOff() => _toggledOff.clear();
+
+  bool isVerified(CryptoCurrency token) =>
+      token is ZanoAsset ? token.isInGlobalWhitelist : _isDefaultToken(token);
+
+  Money? heldBalance(CryptoCurrency token) {
+    final balance = _balance(token);
+    return balance == null || (balance.available.isZero && balance.unavailable.isZero)
+        ? null
+        : balance.available;
+  }
+
+  CryptoCurrency _balanceKey(CryptoCurrency token, Iterable<CryptoCurrency> keys) {
+    if (token is ZanoAsset) {
+      return keys.firstWhereOrNull((key) => key is ZanoAsset && key.assetId == token.assetId) ??
+          token;
+    }
+    return token;
+  }
+
+  Balance? _balance(CryptoCurrency token) {
+    final balances = _balanceViewModel.wallet.balance;
+    return balances[_balanceKey(token, balances.keys)] ??
+        _tokenBalances[_balanceKey(token, _tokenBalances.keys)];
+  }
+
+  bool _isDefaultToken(CryptoCurrency token) =>
+      checkIfTokenIsWhitelisted(getTokenAddressBasedOnWallet(token)!);
+
+  void dispose() {
+    _walletTokensReaction();
+    _balanceRequestId++;
+  }
 
   WalletType get walletType => _balanceViewModel.wallet.type;
 
@@ -74,17 +141,11 @@ abstract class HomeSettingsViewModelBase with Store {
   @observable
   bool isValidatingContractAddress;
 
-  @observable
-  String searchText = '';
-
   @computed
   SortBalanceBy get sortBalanceBy => _settingsStore.sortBalanceBy;
 
   @action
-  void setSortBalanceBy(SortBalanceBy value) {
-    _settingsStore.sortBalanceBy = value;
-    _updateTokensList();
-  }
+  void setSortBalanceBy(SortBalanceBy value) => _settingsStore.sortBalanceBy = value;
 
   @computed
   bool get pinNativeToken => _settingsStore.pinNativeTokenAtTop;
@@ -212,9 +273,10 @@ abstract class HomeSettingsViewModelBase with Store {
     }
   }
 
-  bool checkIfTokenIsWhitelisted(String contractAddress) {
-    // get the default tokens for each currency type:
-    List<String> defaultTokenAddresses = [];
+  bool checkIfTokenIsWhitelisted(String contractAddress) =>
+      _defaultTokenRanks.containsKey(contractAddress.toLowerCase());
+
+  List<String> _defaultTokenAddresses() {
     switch (_balanceViewModel.wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -222,14 +284,11 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.arbitrum:
       case WalletType.bsc:
       case WalletType.robinhood:
-        defaultTokenAddresses = evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
-        break;
+        return evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
       case WalletType.solana:
-        defaultTokenAddresses = solana!.getDefaultTokenContractAddresses();
-        break;
+        return solana!.getDefaultTokenContractAddresses();
       case WalletType.tron:
-        defaultTokenAddresses = tron!.getDefaultTokenContractAddresses();
-        break;
+        return tron!.getDefaultTokenContractAddresses();
       case WalletType.zano:
       case WalletType.banano:
       case WalletType.monero:
@@ -243,13 +302,8 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.decred:
       case WalletType.dogecoin:
       case WalletType.zcash:
-        return false;
+        return [];
     }
-
-    // check if the contractAddress is in the defaultTokenAddresses
-    bool isInWhitelist = defaultTokenAddresses
-        .any((element) => element.toLowerCase() == contractAddress.toLowerCase());
-    return isInWhitelist;
   }
 
   bool checkIfTokenSymbolMatchesDefaultToken(String symbol) {
@@ -431,6 +485,13 @@ abstract class HomeSettingsViewModelBase with Store {
   }
 
   void changeTokenAvailability(CryptoCurrency token, bool value) async {
+    if (!value) {
+      _toggledOff.add(token);
+      final balance = _balance(token);
+      if (balance != null) {
+        _tokenBalances[_balanceKey(token, _tokenBalances.keys)] = balance;
+      }
+    }
     token.enabled = value;
 
     if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
@@ -455,56 +516,93 @@ abstract class HomeSettingsViewModelBase with Store {
     _refreshTokensList();
   }
 
+  List<CryptoCurrency> _walletTokens() {
+    final wallet = _balanceViewModel.wallet;
+    if (isEVMCompatibleChain(wallet.type)) {
+      return evm!.getERC20Currencies(wallet);
+    }
+    if (wallet.type == WalletType.solana) {
+      return solana!.getSPLTokenCurrencies(wallet);
+    }
+    if (wallet.type == WalletType.tron) {
+      return tron!.getTronTokenCurrencies(wallet);
+    }
+    if (wallet.type == WalletType.zano) {
+      return zano!.getZanoAssets(wallet);
+    }
+    return [];
+  }
+
   @action
   void _updateTokensList() {
-    int _sortFunc(CryptoCurrency e1, CryptoCurrency e2) {
-      int index1 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e1);
-      int index2 = _balanceViewModel.formattedBalances.indexWhere((element) => element.asset == e2);
+    _defaultTokenRanks = {
+      for (final (index, address) in _defaultTokenAddresses().indexed) address.toLowerCase(): index,
+    };
 
-      if (e1.enabled && !e2.enabled) {
-        return -1;
-      } else if (e2.enabled && !e1.enabled) {
-        return 1;
-      } else if (!e1.enabled && !e2.enabled) {
-        // if both are disabled then sort alphabetically
-        return e1.name.compareTo(e2.name);
+    int popularityRank(CryptoCurrency token) =>
+        _defaultTokenRanks[getTokenAddressBasedOnWallet(token)!.toLowerCase()] ??
+        _defaultTokenRanks.length;
+
+    int byPopularity(CryptoCurrency a, CryptoCurrency b) {
+      final byRank = popularityRank(a).compareTo(popularityRank(b));
+      if (byRank != 0) {
+        return byRank;
       }
-
-      return index1.compareTo(index2);
+      if (a.isPotentialScam != b.isPotentialScam) {
+        return a.isPotentialScam ? 1 : -1;
+      }
+      return a.title.compareTo(b.title);
     }
 
     tokens.clear();
+    tokens.addAll(_walletTokens()..sort(byPopularity));
+  }
 
-    if (isEVMCompatibleChain(_balanceViewModel.wallet.type)) {
-      tokens.addAll(evm!
-          .getERC20Currencies(_balanceViewModel.wallet)
-          .where((element) => _matchesSearchText(element))
-          .toList()
-        ..sort(_sortFunc));
+  @action
+  Future<void> _loadTokenBalances() async {
+    final requestId = ++_balanceRequestId;
+    final missing = tokens.where((token) => _balance(token) == null).toList();
+    if (walletType == WalletType.solana && missing.isNotEmpty) {
+      Map<CryptoCurrency, Balance>? held;
+      try {
+        held = await solana!.getHeldTokenBalances(_balanceViewModel.wallet);
+      } catch (e) {
+        printV("Error fetching held token balances: $e");
+      }
+      if (requestId != _balanceRequestId) {
+        return;
+      }
+      for (final token in missing) {
+        _storeIfMissing(token, held?[token]);
+      }
+      // No per-token fallback: it hits the same rate-limited RPC
+      missing.clear();
     }
-
-    if (_balanceViewModel.wallet.type == WalletType.solana) {
-      tokens.addAll(solana!
-          .getSPLTokenCurrencies(_balanceViewModel.wallet)
-          .where((element) => _matchesSearchText(element))
-          .toList()
-        ..sort(_sortFunc));
+    isLoadingTokenBalances = missing.isNotEmpty;
+    for (final batch in missing.slices(5)) {
+      final balances = await Future.wait(batch.map(_fetchTokenBalance));
+      if (requestId != _balanceRequestId) {
+        return;
+      }
+      for (final (index, token) in batch.indexed) {
+        _storeIfMissing(token, balances[index]);
+      }
     }
+    isLoadingTokenBalances = false;
+  }
 
-    if (_balanceViewModel.wallet.type == WalletType.tron) {
-      tokens.addAll(tron!
-          .getTronTokenCurrencies(_balanceViewModel.wallet)
-          .where((element) => _matchesSearchText(element))
-          .toList()
-        ..sort(_sortFunc));
+  void _storeIfMissing(CryptoCurrency token, Balance? balance) {
+    if (balance != null && _balance(token) == null) {
+      _tokenBalances[token] = balance;
     }
+  }
 
-    if (_balanceViewModel.wallet.type == WalletType.zano) {
-      tokens.addAll(zano!
-          .getZanoAssets(_balanceViewModel.wallet)
-          .where((element) => _matchesSearchText(element))
-          .toList()
-        ..sort(_sortFunc));
+  Future<Balance?> _fetchTokenBalance(CryptoCurrency token) async {
+    try {
+      return await _balanceViewModel.wallet.fetchTokenBalance(token);
+    } catch (e) {
+      printV("Error fetching ${token.title} balance: $e");
+      return null;
     }
   }
 
@@ -553,22 +651,12 @@ abstract class HomeSettingsViewModelBase with Store {
     tokens.addAll(_tokens);
   }
 
-  @action
-  void changeSearchText(String text) {
-    searchText = text;
-    _updateTokensList();
-  }
-
-  bool _matchesSearchText(CryptoCurrency asset) {
-    final address = getTokenAddressBasedOnWallet(asset);
-
-    // The homes settings would only be displayed for either of Tron, EVM or Solana Wallets.
-    if (address == null) return false;
-
-    return searchText.isEmpty ||
-        asset.fullName!.toLowerCase().contains(searchText.toLowerCase()) ||
-        asset.title.toLowerCase().contains(searchText.toLowerCase()) ||
-        address == searchText;
+  bool matchesSearch(CryptoCurrency asset, String query) {
+    final text = query.trim().toLowerCase();
+    return text.isEmpty ||
+        asset.fullName!.toLowerCase().contains(text) ||
+        asset.title.toLowerCase().contains(text) ||
+        getTokenAddressBasedOnWallet(asset)!.toLowerCase() == text;
   }
 
   String? getTokenAddressBasedOnWallet(CryptoCurrency asset) {

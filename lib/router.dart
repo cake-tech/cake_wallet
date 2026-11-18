@@ -829,9 +829,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<AnimatedURPage>(param1: settings.arguments));
 
     case Routes.homeSettings:
-      return CupertinoPageRoute<void>(
-        builder: (_) => getIt.get<HomeSettingsPage>(param1: settings.arguments),
-      );
+      final page = getIt.get<HomeSettingsPage>(param1: settings.arguments);
+      return CupertinoPageRoute<void>(builder: (_) => page);
 
     case Routes.editToken:
       final args = settings.arguments as Map<String, dynamic>;
