@@ -43,7 +43,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+    return MergeSemantics(child: ListItemStyleWrapper(
         testId: widget.testId,
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
@@ -95,6 +95,6 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
               ),
             ],
           );
-        });
+        }));
   }
 }

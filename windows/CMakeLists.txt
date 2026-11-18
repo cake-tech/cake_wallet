@@ -81,17 +81,10 @@ install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}
 install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libwallet2_api_c.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "monero_libwallet2_api_c.dll"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/x86_64-w64-mingw32/libmonero_wallet2_api_c.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libmonero_wallet2_api_c.dll"
   COMPONENT Runtime)
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/wownero/x86_64-w64-mingw32_libwallet2_api_c.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "wownero_libwallet2_api_c.dll"
-  COMPONENT Runtime)
-
-
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libssp-0.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libssp-0.dll"
-  COMPONENT Runtime)
-
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/monero/x86_64-w64-mingw32_libwinpthread-1.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libwinpthread-1.dll"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/monero_c/release/x86_64-w64-mingw32/libwownero_wallet2_api_c.dll" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" RENAME "libwownero_wallet2_api_c.dll"
   COMPONENT Runtime)
 
 if(PLUGIN_BUNDLED_LIBRARIES)

@@ -265,7 +265,7 @@ class _CardsViewState extends State<CardsView> {
     }
   }
 
-  double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878,
+  double get effectiveCardWidth => min(MediaQuery.sizeOf(context).width * 0.878,
       responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);
 
   double _getBoxHeight(int numCards, double overlapAmount) {
@@ -290,7 +290,7 @@ class _CardsViewState extends State<CardsView> {
 
   @override
   Widget build(BuildContext context) => Observer(builder: (context) {
-      final parentWidth = MediaQuery.of(context).size.width;
+      final parentWidth = MediaQuery.sizeOf(context).width;
       final children = <Widget>[];
 
       final stack = _hideAccountInfo

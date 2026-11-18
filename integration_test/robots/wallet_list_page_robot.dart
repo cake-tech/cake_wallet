@@ -53,7 +53,8 @@ class WalletListPageRobot extends BaseRobot {
     }
 
     final stack = tester.widget<IndexedStack>(stackFinder.first);
-    final index = stack.children.indexWhere((child) => child is WalletListPage);
+    final index = stack.children
+        .indexWhere((child) => (child is TickerMode ? child.child : child) is WalletListPage);
 
     return index >= 0 && stack.index == index;
   }

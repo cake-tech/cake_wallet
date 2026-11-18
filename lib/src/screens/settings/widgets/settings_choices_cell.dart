@@ -73,7 +73,7 @@ class SettingsChoicesCell extends StatelessWidget {
                         children: items.map((dynamic e) {
                           final isSelected = choicesListItem.selectedItem == e;
                           return Expanded(
-                            child: TestId.merge(testId == null ? null : "${testId}_${items.indexOf(e)}_key", child: GestureDetector(
+                            child: TestId.merge(testId == null ? null : "${testId}_${items.indexOf(e)}_key", child: Semantics(button: true, selected: isSelected, inMutuallyExclusiveGroup: true, child: GestureDetector(
                               onTap: () => choicesListItem.onItemSelected.call(e),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -93,6 +93,7 @@ class SettingsChoicesCell extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                            ),
                             ),
                             ),
                           );

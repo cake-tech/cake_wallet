@@ -362,6 +362,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } else if (walletType == WalletType.litecoin &&
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return balanceViewModel.balances.values.first.availableBalance;
+    } else if (isMwebAvailable && coinTypeToSpendFrom == UnspentCoinType.any) {
+      return balanceViewModel.balances.values.first.combinedAvailableBalance;
     }
 
     // Handle case where balance might not be available yet (e.g., during chain switch)
