@@ -169,6 +169,10 @@ class TronToken extends CryptoCurrency {
   }
 
   @override
+  bool isSameAsset(CryptoCurrency walletCurrency) =>
+      walletCurrency is TronToken && walletCurrency.contractAddress == contractAddress;
+
+  @override
   bool operator ==(other) =>
       (other is TronToken && other.contractAddress == contractAddress) ||
       (other is CryptoCurrency && other.title == title);

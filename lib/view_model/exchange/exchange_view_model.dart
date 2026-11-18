@@ -247,11 +247,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       }).timeout(Duration(seconds: 20));
     } else if (isEVMCompatibleChain(wallet.type)) {
       final currency = depositCurrency;
-      final balanceCurrency = wallet.balance.keys.firstWhereOrNull(
-        (c) =>
-            c.title == depositCurrency.title &&
-            (c.tag == depositCurrency.tag || c.tag == depositCurrency.title),
-      );
+      final balanceCurrency = _depositBalanceCurrency;
       final balanceForCurrency = balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
       if (depositCurrency == currency && balanceForCurrency != null) {
         depositAvailableAmount =
@@ -486,17 +482,16 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
   bool get shouldDisplayTOTP2FAForExchangesToExternalWallet =>
       _settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets;
 
+  CryptoCurrency? get _depositBalanceCurrency =>
+      wallet.balance.keys.firstWhereOrNull(depositCurrency.isSameAsset);
+
   @computed
   String? get balanceDisplay {
     CryptoCurrency? balanceCurrency;
     if (isEVMCompatibleChain(wallet.type) ||
         wallet.type == WalletType.solana ||
         wallet.type == WalletType.tron) {
-      balanceCurrency = wallet.balance.keys.firstWhereOrNull(
-        (c) =>
-            c.title == depositCurrency.title &&
-            (c.tag == depositCurrency.tag || c.tag == depositCurrency.title),
-      );
+      balanceCurrency = _depositBalanceCurrency;
     } else {
       balanceCurrency = depositCurrency;
     }
@@ -551,9 +546,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
 
     if (depositCurrency == wallet.currency) return true;
 
-    return wallet.balance.keys.any((c) =>
-        c.title == depositCurrency.title &&
-        (c.tag == depositCurrency.tag || c.tag == depositCurrency.title));
+    return _depositBalanceCurrency != null;
   }
 
   bool get isMoneroWallet => wallet.type == WalletType.monero;
@@ -1417,11 +1410,7 @@ abstract class ExchangeViewModelBase extends WalletChangeListenerViewModel with 
       changeDepositAmount(
           amount: wallet.currency.formatAmount(BigInt.from(amount)), isCanonical: true);
     } else if (isEVMCompatibleChain(wallet.type)) {
-      final balanceCurrency = wallet.balance.keys.firstWhereOrNull(
-        (currency) =>
-            currency.title == depositCurrency.title &&
-            (currency.tag == depositCurrency.tag || currency.tag == depositCurrency.title),
-      );
+      final balanceCurrency = _depositBalanceCurrency;
 
       final balanceForCurrency = balanceCurrency != null ? wallet.balance[balanceCurrency] : null;
       if (balanceForCurrency == null) {

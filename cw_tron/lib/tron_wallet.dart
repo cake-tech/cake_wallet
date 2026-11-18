@@ -334,12 +334,7 @@ abstract class TronWalletBase
 
     final hasMultiDestination = outputs.length > 1;
 
-    final transactionCurrency = balance.keys.firstWhere(
-        (currency) =>
-            currency.title == tronCredentials.currency.title &&
-            currency.tag == tronCredentials.currency.tag,
-        orElse: () => throw TransactionGenerationException(
-            'Currency ${tronCredentials.currency.title} ${tronCredentials.currency.tag} is not accessible in the wallet, try to enable it first.'));
+    final transactionCurrency = resolveTransactionCurrency(tronCredentials.currency, balance.keys);
 
     final walletBalanceForCurrency = balance[transactionCurrency]!.balance;
 
@@ -378,6 +373,17 @@ abstract class TronWalletBase
 
     return pendingTransaction;
   }
+
+  static CryptoCurrency resolveTransactionCurrency(
+    CryptoCurrency requestedCurrency,
+    Iterable<CryptoCurrency> availableCurrencies,
+  ) =>
+      availableCurrencies.firstWhere(
+        requestedCurrency.isSameAsset,
+        orElse: () => throw TransactionGenerationException(
+          "Currency ${requestedCurrency.title} ${requestedCurrency.tag} is not accessible in the wallet, try to enable it first.",
+        ),
+      );
 
   @override
   Future<void> updateTransactionsHistory() async {
