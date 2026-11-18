@@ -7,6 +7,7 @@ import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_bitcoin/litecoin_wallet_addresses.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -49,6 +50,7 @@ class _NoPayjoin implements PayjoinManager {
 
 ElectrumAccounts _bitcoinAccounts() => ElectrumAccounts(
   primaryTypes: [SegwitAddresType.p2wpkh],
+  currency: CryptoCurrency.btc,
   accountHd: _hd("m/84'/0'/0'"),
   masterHd: _master,
   coinType: 0,
@@ -56,6 +58,7 @@ ElectrumAccounts _bitcoinAccounts() => ElectrumAccounts(
 
 ElectrumAccounts _litecoinAccounts() => ElectrumAccounts(
   primaryTypes: LITECOIN_ADDRESS_TYPES,
+  currency: CryptoCurrency.ltc,
   accountHd: _hd("m/84'/2'/0'"),
   masterHd: _master,
   coinType: 2,

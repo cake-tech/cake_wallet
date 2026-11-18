@@ -1140,11 +1140,28 @@ class _NewSendPageState extends State<NewSendPage> {
     final parsed = PaymentRequest.fromString(pasted);
     final parsedAmount = parsed.amount == "0" ? "" : parsed.amount;
     final merged = parsed.copyWith(
-      amount: parsedAmount.isNotEmpty ? parsedAmount : _amountControllers[_selectedOutput].text,
+      amount: parsedAmount.isNotEmpty ? parsedAmount : _typedCryptoAmount(),
       note: parsed.note.isNotEmpty ? parsed.note : _memoControllers[_selectedOutput].text,
     );
 
     await _runAnyPayFlow(paymentRequest: merged);
+  }
+
+  String _typedCryptoAmount() {
+    final output = widget.sendViewModel.outputs[_selectedOutput];
+    if (output.isFiatEntry) {
+      return "";
+    }
+
+    final typed = _amountControllers[_selectedOutput].text;
+    if (output.sendAll) {
+      return typed;
+    }
+
+    return widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+      typed.sanitized(),
+      widget.sendViewModel.selectedCryptoCurrency,
+    );
   }
 
   Future<void> _handleEvaluation(

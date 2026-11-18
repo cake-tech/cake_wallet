@@ -3,6 +3,7 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/electrum_account.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_bitcoin/litecoin_wallet_addresses.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -31,6 +32,7 @@ WalletInfo _walletInfo() => WalletInfo.external(
 
 ElectrumAccounts _accounts() => ElectrumAccounts(
   primaryTypes: LITECOIN_ADDRESS_TYPES,
+  currency: CryptoCurrency.ltc,
   accountHd: _accountHd,
   masterHd: _master,
   coinType: 2,
