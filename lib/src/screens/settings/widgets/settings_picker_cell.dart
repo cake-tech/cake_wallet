@@ -10,7 +10,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
     required this.items,
     this.displayItem,
     this.images,
-    this.imageSize,
     this.searchHintText,
     this.isGridView = false,
     this.matchingCriteria,
@@ -32,7 +31,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
                 mainAxisAlignment: MainAxisAlignment.start,
                 onItemSelected: (ItemType item) => onItemSelected?.call(item),
                 images: images ?? const <Image>[],
-                imageSize: imageSize,
                 isSeparated: false,
                 hintText: searchHintText,
                 isGridView: isGridView,
@@ -47,7 +45,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final void Function(ItemType item)? onItemSelected;
   final String Function(ItemType item)? displayItem;
   final List<Image>? images;
-  final Size? imageSize;
   final String? searchHintText;
   final bool isGridView;
   final bool Function(ItemType, String)? matchingCriteria;
