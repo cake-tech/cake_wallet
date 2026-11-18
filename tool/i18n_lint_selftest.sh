@@ -15,7 +15,10 @@ write_en() {
 {
   "greeting": "Hello",
   "trade": "Trade ${id} of ${title} not found.",
-  "both": "From ${from} to ${to}"
+  "both": "From ${from} to ${to}",
+  "slide_title": "Accounts are created in order",
+  "slide_description": "The order of creation is shown alongside the account name",
+  "slide_highlight": "Accounts"
 }
 JSON
 }
@@ -25,7 +28,10 @@ write_clean() {
 {
   "greeting": "हैलो",
   "trade": "ट्रेड ${id} का ${title} नहीं मिला।",
-  "both": "${from} से ${to} तक"
+  "both": "${from} से ${to} तक",
+  "slide_title": "खाते क्रम में बनाए जाते हैं",
+  "slide_description": "बनाने का क्रम खाते के नाम के साथ दिखता है",
+  "slide_highlight": "खाते"
 }
 JSON
 }
@@ -83,10 +89,27 @@ json.dump(d, open(p, "w"), ensure_ascii=False)
 PY
 }
 
+bad_highlight_fixture() {
+  write_clean
+  python3 - "$arb/strings_xx.arb" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["slide_highlight"] = "नहीं है"
+json.dump(d, open(p, "w"), ensure_ascii=False)
+PY
+}
+
 check "clean locale passes" 0 clean_fixture
 check "missing key warns" 0 missing_fixture
 check "placeholder reorder fails" 1 order_fixture
 check "dropped placeholder fails" 1 dropped_fixture
+
+# highlight must appear in the paired title or description (warning only)
+write_en
+bad_highlight_fixture
+out="$(cd "$root" && dart tool/i18n_lint.dart --arb-dir="$arb" --lang=xx --baseline="$tmp/empty3.json" 2>&1)"
+if echo "$out" | grep -q "highlight"; then echo "ok   highlight mismatch warns"; else echo "FAIL highlight warning"; echo "$out" | tail -3; failures=$((failures + 1)); fi
 
 # baseline filtering: accept the reorder, then it must pass
 write_en

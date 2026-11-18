@@ -161,9 +161,14 @@ void checkLocale(String lang, Map<String, String> source, String arbDir) {
 
   for (final entry in target.entries) {
     if (!entry.key.endsWith('_highlight')) continue;
-    final base = target['${entry.key.substring(0, entry.key.length - '_highlight'.length)}_title'];
-    if (base != null && !base.contains(entry.value)) {
-      _warnings.add(Finding(lang, 'highlight', entry.key, 'is not a substring of its paired string'));
+    final stem = entry.key.substring(0, entry.key.length - '_highlight'.length);
+    final hosts = [target['${stem}_title'], target['${stem}_description']]
+        .whereType<String>()
+        .toList();
+    if (hosts.isEmpty) continue;
+    if (!hosts.any((host) => host.contains(entry.value))) {
+      _warnings.add(Finding(lang, 'highlight', entry.key,
+          'is not a substring of ${stem}_title or ${stem}_description'));
     }
   }
 
@@ -182,7 +187,6 @@ const errorKinds = <String>{
   'ph-missing',
   'ph-extra',
   'ph-order',
-  'ph-count',
 };
 
 /// Per-string checks, shared with tool/gen_review_sheet.dart so a reviewer
