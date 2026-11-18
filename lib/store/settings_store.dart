@@ -61,6 +61,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShouldShowChartsInDashboard,
       required bool initialShouldShowNftsTab,
+      required bool initialShouldShowCallScamWarning,
       required bool initialShowAddressBookPopupEnabled,
       required bool initialShowCiBuildOverlay,
       required SyncStatusDisplayMode initialSyncStatusDisplayMode,
@@ -206,6 +207,7 @@ abstract class SettingsStoreBase with Store {
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         shouldShowChartsInDashboard = initialShouldShowChartsInDashboard,
         shouldShowNftsTab = initialShouldShowNftsTab,
+        shouldShowCallScamWarning = initialShouldShowCallScamWarning,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         showCiBuildOverlay = initialShowCiBuildOverlay,
         syncStatusDisplayMode = initialSyncStatusDisplayMode,
@@ -467,6 +469,11 @@ abstract class SettingsStoreBase with Store {
     reaction(
       (_) => shouldShowNftsTab,
       (value) => sharedPreferences.setBool(PreferencesKey.shouldShowNftsTab, value),
+    );
+
+    reaction(
+      (_) => shouldShowCallScamWarning,
+      (value) => sharedPreferences.setBool(PreferencesKey.shouldShowCallScamWarning, value),
     );
 
     reaction(
@@ -855,6 +862,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowNftsTab;
+
+  @observable
+  bool shouldShowCallScamWarning;
 
   @observable
   bool showAddressBookPopupEnabled;
@@ -1355,6 +1365,8 @@ abstract class SettingsStoreBase with Store {
     final shouldShowChartsInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ?? true;
     final shouldShowNftsTab = sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? true;
+    final shouldShowCallScamWarning =
+        sharedPreferences.getBool(PreferencesKey.shouldShowCallScamWarning) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final showCiBuildOverlay = sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? true;
@@ -1705,6 +1717,7 @@ abstract class SettingsStoreBase with Store {
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShouldShowChartsInDashboard: shouldShowChartsInDashboard,
       initialShouldShowNftsTab: shouldShowNftsTab,
+      initialShouldShowCallScamWarning: shouldShowCallScamWarning,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
       initialShowCiBuildOverlay: showCiBuildOverlay,
       initialSyncStatusDisplayMode: syncStatusDisplayMode,
@@ -1959,6 +1972,9 @@ abstract class SettingsStoreBase with Store {
             shouldShowChartsInDashboard;
     shouldShowNftsTab =
         sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? shouldShowNftsTab;
+    shouldShowCallScamWarning =
+        sharedPreferences.getBool(PreferencesKey.shouldShowCallScamWarning) ??
+            shouldShowCallScamWarning;
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;

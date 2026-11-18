@@ -439,7 +439,14 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
                 data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
                 child: MoneySettingsProvider(
                   settingsStore: settingsStore,
-                  child: CallScamBanner(navigatorKey: navigatorKey, child: child!),
+                  child: Observer(
+                    builder: (_) => CallScamBanner(
+                      navigatorKey: navigatorKey,
+                      enabled: settingsStore.shouldShowCallScamWarning,
+                      onDontShowAgain: () => settingsStore.shouldShowCallScamWarning = false,
+                      child: child!,
+                    ),
+                  ),
                 ),
               ),
               theme: theme,

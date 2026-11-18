@@ -3,27 +3,65 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
+import "package:cake_wallet/src/widgets/base_alert_dialog.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/wallet_type_utils.dart";
 import "package:flutter/material.dart";
 import "package:url_launcher/url_launcher.dart";
 
 class CallScamWarningSheet extends StatelessWidget {
-  const CallScamWarningSheet({super.key});
+  const CallScamWarningSheet({required this.onDontShowAgain, super.key});
+
+  final VoidCallback onDontShowAgain;
 
   static const _supportEmail = "support@cakewallet.com";
   static const _supportTelegram = "cakewallet_bot";
 
-  static Future<void> show(BuildContext context) => showModalBottomSheet<void>(
+  static Future<void> show(BuildContext context, {required VoidCallback onDontShowAgain}) =>
+      showModalBottomSheet<void>(
         context: context,
         isScrollControlled: true,
         useRootNavigator: true,
         useSafeArea: true,
         backgroundColor: Colors.transparent,
-        builder: (_) => const CallScamWarningSheet(),
+        builder: (_) => CallScamWarningSheet(onDontShowAgain: onDontShowAgain),
       );
+
+  Future<void> _confirmDontShowAgain(BuildContext context) async {
+    final confirmed = await showPopUp<bool>(
+      context: context,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: S.of(dialogContext).are_you_sure,
+        alertContent: "",
+        alertContentTextWidget: Text(
+          S.of(dialogContext).call_scam_warning_disable_confirmation,
+          textAlign: TextAlign.center,
+          style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+              ),
+        ),
+        leftButtonText: S.of(dialogContext).yes,
+        rightButtonText: S.of(dialogContext).cancel,
+        leftAlertButtonStyle: AlertButtonStyle.secondary(dialogContext),
+        rightAlertButtonStyle: AlertButtonStyle(
+          backgroundColor: Theme.of(dialogContext).colorScheme.primary,
+          textColor: Theme.of(dialogContext).colorScheme.onPrimary,
+          fontWeight: FontWeight.w500,
+        ),
+        actionLeftButton: () => Navigator.of(dialogContext).pop(true),
+        actionRightButton: () => Navigator.of(dialogContext).pop(false),
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      Navigator.of(context).pop();
+      onDontShowAgain();
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Container(
@@ -130,11 +168,22 @@ class CallScamWarningSheet extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(18, 24, 18, 0),
-                child: NewPrimaryButton(
-                  onPressed: Navigator.of(context).pop,
-                  text: S.of(context).i_understand,
-                  color: Theme.of(context).colorScheme.primary,
-                  textColor: Theme.of(context).colorScheme.onPrimary,
+                child: Column(
+                  spacing: 12,
+                  children: [
+                    NewPrimaryButton(
+                      onPressed: () => _confirmDontShowAgain(context),
+                      text: S.of(context).dont_show_again,
+                      color: Theme.of(context).colorScheme.surfaceContainer,
+                      textColor: Theme.of(context).colorScheme.primary,
+                    ),
+                    NewPrimaryButton(
+                      onPressed: Navigator.of(context).pop,
+                      text: S.of(context).i_understand,
+                      color: Theme.of(context).colorScheme.primary,
+                      textColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ],
                 ),
               ),
             ],
