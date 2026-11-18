@@ -1,10 +1,7 @@
-import 'package:cw_core/hive_type_ids.dart';
-import 'package:hive/hive.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 
-part 'payjoin_session.part.dart';
-
-// @HiveType(typeId: PAYJOIN_SESSION_TYPE_ID)
-class PayjoinSession extends HiveObject {
+class PayjoinSession {
   PayjoinSession({
     required this.walletId,
     this.receiver,
@@ -22,45 +19,58 @@ class PayjoinSession extends HiveObject {
     }
   }
 
-  static const typeId = PAYJOIN_SESSION_TYPE_ID;
-  static const boxName = 'PayjoinSessions';
-
-  // @HiveField(0)
   final String walletId;
 
-  // @HiveField(1)
   final String? sender;
 
-  // @HiveField(2)
   final String? receiver;
 
-  // @HiveField(3)
   final String? pjUri;
 
-  // @HiveField(4)
   String status;
 
-  // @HiveField(5)
   DateTime? inProgressSince;
 
-  // @HiveField(6)
   String? txId;
 
-  // @HiveField(7)
   String? rawAmount;
 
-  // @HiveField(8)
   String? error;
+
+  String? originalPsbt;
+
+  bool usedFallback = false;
+
+  String? recipientAddress;
 
   bool get isSenderSession => sender != null;
 
-  BigInt get amount => BigInt.parse(rawAmount ?? "0");
-  set amount(BigInt amount) => rawAmount = amount.toString();
+  Money get amount => Money.parse(rawAmount ?? "0", CryptoCurrency.btc, isBaseUnit: true);
+
+  set amount(Money amount) => rawAmount = amount.toStringWithPrecision(useBaseUnit: true);
 }
 
 enum PayjoinSessionStatus {
   created,
+  waiting,
   inProgress,
   success,
+  cancelled,
   unrecoverable,
+}
+
+/// How an earlier send already used a payjoin endpoint. A BIP77 endpoint is
+/// a single-use receiver mailbox, so a payment request whose `pj=` appears
+/// here must not start another payjoin.
+enum PayjoinEndpointUse {
+  /// An earlier send is still open; finish it (or broadcast its fallback)
+  /// instead of paying again.
+  pending,
+
+  /// An earlier send completed, by payjoin or by its fallback.
+  paid,
+
+  /// An earlier send was cancelled after its original transaction reached
+  /// the receiver, who can still broadcast it.
+  cancelled,
 }

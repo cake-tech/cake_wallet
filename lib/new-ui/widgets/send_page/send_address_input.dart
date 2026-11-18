@@ -47,18 +47,102 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
   FocusNode? node;
   GlobalKey<FormFieldState<String>> formFieldKey = GlobalKey<FormFieldState<String>>();
 
+  // Guards against re-entrant normalization when we rewrite the controller
+  // text from inside the listener (which would otherwise re-trigger the
+  // listener with the stripped address and cause feedback loops).
+  bool _isNormalizing = false;
+
+  // Field text as of the previous listener call, to tell a whole URI being
+  // inserted at once (system paste, programmatic set) from typing.
+  String _lastText = '';
+
   @override
   void initState() {
     super.initState();
     node = widget.focusNode ?? FocusNode();
     node!.addListener(_onFocusChange);
-    widget.addressController
-        .addListener(() => formFieldKey.currentState?.didChange(widget.addressController.text));
+    _lastText = widget.addressController.text;
+    widget.addressController.addListener(_onAddressChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant NewSendAddressInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The send page hands each recipient its own controller.
+    if (oldWidget.addressController != widget.addressController) {
+      oldWidget.addressController.removeListener(_onAddressChanged);
+      _lastText = widget.addressController.text;
+      widget.addressController.addListener(_onAddressChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.addressController.removeListener(_onAddressChanged);
+    super.dispose();
   }
 
   void _onFocusChange() {
     if (mounted) {
       setState(() {});
+    }
+  }
+
+  void _onAddressChanged() {
+    if (_isNormalizing) return;
+    final raw = widget.addressController.text;
+    final previous = _lastText;
+    _lastText = raw;
+
+    // Detect a payment URI (BIP21, ERC-681, etc.) system-pasted directly
+    // into the field.
+    // The strict address validator would otherwise reject the full URI as
+    // "not recognized", and the payjoin `pj=`/`amount=` params would never
+    // reach the send view model. Normalize by collapsing the field to the
+    // bare address and dispatching the original URI via [onURIScanned].
+    // Only when the URI arrived in one edit: while typing, `bitcoin:b` is
+    // already a valid URI and must not collapse to `b`.
+    if (raw.length - previous.length > 1 && _isPaymentUri(raw)) {
+      _isNormalizing = true;
+      try {
+        final uri = Uri.parse(raw);
+        final bare = uri.path;
+        if (bare.isNotEmpty && bare != raw) {
+          if (!_isTokenTransfer(uri)) widget.addressController.text = bare;
+          // Defer the callback so the controller/text-field rebuild settles
+          // before downstream handlers mutate state based on it.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) widget.onURIScanned?.call(uri);
+          });
+        }
+        formFieldKey.currentState?.didChange(widget.addressController.text);
+      } finally {
+        _isNormalizing = false;
+        _lastText = widget.addressController.text;
+      }
+      return;
+    }
+
+    formFieldKey.currentState?.didChange(raw);
+  }
+
+  /// Returns true if [input] looks like a payment URI such as
+  /// `bitcoin:bc1q...`, `bitcoin:bc1q...?amount=0.001&pj=https://...` (BIP21)
+  /// or `ethereum:0x...@1?value=...` (ERC-681). Query parameters are
+  /// optional: a bare address never parses as a URI with both a non-empty
+  /// scheme and a non-empty path.
+  /// An ERC-681 token transfer (`ethereum:0xToken@1/transfer?address=...`):
+  /// its path is the token contract, not the recipient, so it must not be
+  /// put into the field. [onURIScanned] resolves the recipient instead.
+  bool _isTokenTransfer(Uri uri) => uri.path.contains('/transfer');
+
+  bool _isPaymentUri(String input) {
+    if (!input.contains(':')) return false;
+    try {
+      final uri = Uri.parse(input);
+      return uri.scheme.isNotEmpty && uri.path.isNotEmpty;
+    } catch (_) {
+      return false;
     }
   }
 
@@ -201,41 +285,43 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
     if (code == null) return;
     if (code.isEmpty) return;
 
-    try {
-      final uri = Uri.parse(code);
-      // probably should remove this and let the `onURIScanned` handle it, but for now,
-      // will fix that it takes the token contract address
-      if (!uri.path.contains("/transfer")) {
-        widget.addressController.text = uri.path;
-      }
-      widget.onURIScanned?.call(uri);
-    } catch (_) {
-      widget.addressController.text = code;
-    }
+    if (_applyScannedOrPasted(code)) return;
+
+    widget.addressController.text = code;
+    widget.onPushPasteButton?.call(context);
   }
 
   Future<void> _pasteAddress(BuildContext context) async {
     final clipboard = await Clipboard.getData('text/plain');
     final address = clipboard?.text ?? '';
 
-    if (address.isNotEmpty) {
-      // if it has query parameters then it's a valid uri
-      // added because Uri.parse(address) can parse a normal address string and would still be valid
-      if (address.contains("=")) {
-        try {
-          final uri = Uri.parse(address);
-          widget.addressController.text = uri.path;
-          widget.onURIScanned?.call(uri);
-          return;
-        } catch (_) {
-          widget.addressController.text = address;
-        }
-      } else {
-        widget.addressController.text = address;
-      }
-    }
+    if (address.isEmpty) return;
 
+    if (_applyScannedOrPasted(address)) return;
+
+    widget.addressController.text = address;
     widget.onPushPasteButton?.call(context);
+  }
+
+  /// Normalizes a scanned/pasted string that turns out to be a payment URI
+  /// (BIP21, ERC-681, etc.). Sets the visible field text to the bare address
+  /// and dispatches the full URI through [onURIScanned] so the send view
+  /// model receives the `amount=`/`pj=` parameters.
+  ///
+  /// Returns true if [input] was recognized as a payment URI and handled.
+  bool _applyScannedOrPasted(String input) {
+    if (!_isPaymentUri(input)) return false;
+    try {
+      final uri = Uri.parse(input);
+      // Bare on-chain address goes in the visible field; the full URI
+      // (including `pj=`, `amount=`, ERC681 contract path, etc.) is delivered
+      // via onURIScanned so the send view model can parse it.
+      if (!_isTokenTransfer(uri)) widget.addressController.text = uri.path;
+      widget.onURIScanned?.call(uri);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _presetAddressBookPicker(BuildContext context) async {

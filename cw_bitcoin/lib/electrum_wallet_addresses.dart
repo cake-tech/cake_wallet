@@ -533,12 +533,17 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   @action
-  BaseBitcoinAddressRecord generateNewAddress({String label = ''}) {
+  BaseBitcoinAddressRecord generateNewAddress({String label = '', BitcoinAddressType? type}) {
     if (addressPageType is LightningAddressType) {
       throw ArgumentError("Lightning addresses cannot be rotated");
     }
 
-    if (addressPageType == SilentPaymentsAddresType.p2sp && silentAddress != null) {
+    // Silent payment path is only valid when no explicit type override is
+    // requested; callers that need a payjoin-compatible type (e.g. p2wpkh)
+    // must bypass this branch and fall through to the regular derivation.
+    if (type == null &&
+        addressPageType == SilentPaymentsAddresType.p2sp &&
+        silentAddress != null) {
       final currentSilentAddressIndex = silentAddresses
               .where((addressRecord) => addressRecord.type != SegwitAddresType.p2tr)
               .length -
@@ -563,27 +568,29 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return address;
     }
 
+    final effectiveType = type ?? addressPageType;
     final accountIndex = walletInfo.type == WalletType.bitcoin ? currentAccountIndex : 0;
 
     final newAddressIndex = firstFreeIndex(
-      _takenStandardIndexes(isHidden: false, type: addressPageType, accountIndex: accountIndex),
+      _takenStandardIndexes(isHidden: false, type: effectiveType, accountIndex: accountIndex),
     );
 
     final hd = _hdForAddressGeneration(
       isHidden: false,
-      type: addressPageType,
+      type: effectiveType,
       isLegacyDerivation: false,
       accountIndex: accountIndex,
     );
+
     final address = BitcoinAddressRecord(
-      getAddress(index: newAddressIndex, hd: hd, addressType: addressPageType),
+      getAddress(index: newAddressIndex, hd: hd, addressType: effectiveType),
       index: newAddressIndex,
       accountIndex: accountIndex,
       isHidden: false,
       isHiddenChecked: true,
       isLegacyDerivation: false,
       name: label,
-      type: addressPageType,
+      type: effectiveType,
       network: network,
     );
     Future.delayed(Duration.zero, () {

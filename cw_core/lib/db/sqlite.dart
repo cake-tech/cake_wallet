@@ -71,7 +71,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -206,6 +206,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           definition: "BOOLEAN DEFAULT FALSE",
         );
       }
+      if (oldVersion <= 15) {
+        await _createPayjoinTables(db);
+      }
     },
     onCreate: (Database db, int version) async {
       await db.execute('''
@@ -313,8 +316,45 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createPayjoinTables(db);
     },
   );
+}
+
+Future<void> _createPayjoinTables(Database db) async {
+  await db.execute("""
+  CREATE TABLE IF NOT EXISTS PayjoinSession (
+    sessionId TEXT NOT NULL PRIMARY KEY,
+    walletId TEXT NOT NULL,
+    sender TEXT,
+    receiver TEXT,
+    pjUri TEXT,
+    status TEXT NOT NULL,
+    inProgressSince INTEGER,
+    txId TEXT,
+    rawAmount TEXT,
+    error TEXT,
+    originalPsbt TEXT,
+    usedFallback INTEGER NOT NULL DEFAULT 0,
+    recipientAddress TEXT
+  );
+  """);
+  await db.execute("""
+  CREATE INDEX IF NOT EXISTS idx_payjoinsession_wallet
+  ON PayjoinSession (walletId);
+  """);
+  await db.execute("""
+  CREATE INDEX IF NOT EXISTS idx_payjoinsession_txid
+  ON PayjoinSession (txId);
+  """);
+  await db.execute("""
+  CREATE TABLE IF NOT EXISTS PayjoinSessionEvents (
+    sessionKey TEXT NOT NULL,
+    seq INTEGER NOT NULL,
+    event TEXT NOT NULL,
+    PRIMARY KEY (sessionKey, seq)
+  );
+  """);
 }
 
 Future<void> _createChartsTables(Database db) async {

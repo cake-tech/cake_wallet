@@ -111,8 +111,8 @@ import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/hardware/hardware_account_data.dart';
 import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:cw_core/node.dart';
-import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -165,6 +165,8 @@ import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/litecoin_trezor_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/payjoin/payjoin_event_store.dart';
+import 'package:cw_bitcoin/payjoin/storage.dart';
 import 'package:mobx/mobx.dart';
 import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
@@ -217,7 +219,7 @@ abstract class Bitcoin {
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet, String label);
   Future<void> updateAddress(Object wallet,String address, String label);
-  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri});
+  Object createBitcoinTransactionCredentials(List<Output> outputs, {required TransactionPriority priority, int? feeRate, UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, String? payjoinUri, bool shouldSaveRecipientAddress = false});
 
   String getAddress(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
@@ -234,7 +236,7 @@ abstract class Bitcoin {
   List<Unspent> getUnspents(Object wallet, {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any});
   Future<void> updateUnspents(Object wallet);
   WalletService createBitcoinWalletService(
-      Box<UnspentCoinsInfo> unspentCoinSource, Box<PayjoinSession> payjoinSessionSource, bool isDirect);
+      Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   WalletService createLitecoinWalletService(Box<UnspentCoinsInfo> unspentCoinSource, bool isDirect);
   TransactionPriority getBitcoinTransactionPriorityMedium();
   TransactionPriority getBitcoinTransactionPriorityCustom();
@@ -296,8 +298,19 @@ abstract class Bitcoin {
 
   void updatePayjoinState(Object wallet, bool state);
   String getPayjoinEndpoint(Object wallet);
+  Future<void> ensurePayjoinSession(Object wallet, {bool shouldSaveRecipientAddress = false});
+  void cancelPayjoinSession(Object wallet, String sessionId);
+  Future<void> fallbackBroadcastPayjoin(Object wallet, String sessionId);
   void resumePayjoinSessions(Object wallet);
   void stopPayjoinSessions(Object wallet);
+  Future<bool> isSelfSendPayjoinUri(Object wallet, String? pjUriString);
+  Future<PayjoinEndpointUse?> getPayjoinEndpointUse(Object wallet, String? pjUriString);
+  void configurePayjoinMailroom(Object wallet, List<String> relays, List<String> directories);
+  Future<List<PayjoinSession>> getAllPayjoinSessions();
+  Future<List<String>> getPayjoinSessionEvents(PayjoinSession session);
+  Stream<void> getPayjoinSessionChanges();
+  Future<List<MapEntry<String, PayjoinSession>>> getAllPayjoinSessionsWithKeys();
+  Future<PayjoinSession?> getPayjoinSessionByKey(String key);
   Map<String, String> getSilentPaymentKeys(Object wallet);
   List<String>? getTransactionAddresses(Object wallet, TransactionInfo tx);
   String getNetworkName(Object wallet);

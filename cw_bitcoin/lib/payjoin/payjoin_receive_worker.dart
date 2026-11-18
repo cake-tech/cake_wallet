@@ -1,226 +1,586 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:isolate';
-import 'dart:typed_data';
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:cw_bitcoin/payjoin/mailroom_manager.dart";
+import "package:cw_bitcoin/payjoin/payjoin_session_errors.dart";
+import "package:cw_bitcoin/payjoin/payjoin_signer.dart";
+import "package:cw_bitcoin/payjoin/post_via_relay.dart";
+import "package:cw_bitcoin/payjoin/relay_response.dart";
+import "package:cw_bitcoin/psbt/signer.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:flutter/foundation.dart";
+import "package:payjoin/payjoin.dart" as pj;
 
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/payjoin/manager.dart';
-import 'package:cw_bitcoin/payjoin/payjoin_session_errors.dart';
-import 'package:cw_bitcoin/psbt/signer.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/tor/abstract.dart';
-import 'package:payjoin_flutter/bitcoin_ffi.dart';
-import 'package:payjoin_flutter/common.dart';
-import 'package:payjoin_flutter/receive.dart';
-import 'package:payjoin_flutter/src/generated/frb_generated.dart' as pj;
-import 'package:http/http.dart' as very_insecure_http_do_not_use; // for errors
+/// Maximum wall-clock duration a receiver worker will keep polling for an
+/// original payload before giving up. Matches the v2 protocol's typical
+/// receiver session lifetime; longer-running sessions should be restarted by
+/// the user with a fresh endpoint.
+const _maxReceiverSessionDuration = Duration(hours: 24);
 
-enum PayjoinReceiverRequestTypes {
-  processOriginalTx,
-  proposalSent,
-  getCandidateInputs,
-  checkIsOwned,
-  checkIsReceiverOutput,
-  processPsbt;
+class _IsScriptOwned extends pj.IsScriptOwned {
+  _IsScriptOwned(this.fn);
+
+  final bool Function(Uint8List) fn;
+
+  @override
+  bool callback(Uint8List script) => fn(script);
+}
+
+class _IsOutputKnown extends pj.IsOutputKnown {
+  _IsOutputKnown(this.fn);
+
+  final bool Function(pj.OutPoint) fn;
+
+  @override
+  bool callback(pj.OutPoint outpoint) => fn(outpoint);
+}
+
+class _IsInputOwned extends pj.IsInputOwned {
+  _IsInputOwned(this.fn);
+
+  final bool Function(pj.OutPoint) fn;
+
+  @override
+  bool callback(pj.OutPoint outpoint) => fn(outpoint);
+}
+
+class _ProcessPsbt extends pj.ProcessPsbt {
+  _ProcessPsbt(this.fn);
+
+  final String Function(String) fn;
+
+  @override
+  String callback(String psbt) => fn(psbt);
 }
 
 class PayjoinReceiverWorker {
-  final SendPort sendPort;
-  final pendingRequests = <String, Completer<dynamic>>{};
+  PayjoinReceiverWorker({
+    required MailroomManager mailroomManager,
+    required this.utxos,
+    required this.isMineChecker,
+    required this.isOutpointOwned,
+    required this.getMaxFeeRateSatPerVb,
+    this.directory,
+    pj.JsonReceiverSessionPersister? persister,
+    void Function()? onProposalReceived,
+  })  : _mailroomManager = mailroomManager,
+        _persister = persister,
+        _onProposalReceived = onProposalReceived;
 
-  PayjoinReceiverWorker._(this.sendPort);
-  static final client = ProxyWrapper().getHttpIOClient();
-  static Future<void> run(List<Object> args) async {
-    await pj.core.init();
-    CakeTor.instance = await CakeTorInstance.getInstance();
+  final client = ProxyWrapper().getHttpIOClient();
+  final MailroomManager _mailroomManager;
+  final List<UtxoWithPrivateKey> utxos;
+  final bool Function(Uint8List) isMineChecker;
 
-    final sendPort = args[0] as SendPort;
-    final receiverJson = args[1] as String;
+  // Consults the wallet's full tracked UTXO set (frozen, unconfirmed,
+  // marked-sending included) at check time — NOT the spendable snapshot in
+  // [utxos] — so checkInputsNotOwned can't be bypassed by referencing a
+  // wallet-owned outpoint that falls outside that snapshot.
+  final bool Function(String txid, int vout) isOutpointOwned;
 
-    final worker = PayjoinReceiverWorker._(sendPort);
-    final receivePort = ReceivePort();
+  // Upper bound on the effective fee rate the receiver pays for its own
+  // input. The sender picks `minfeerate` freely and the receiver's share is
+  // deducted from its own output, so this is what limits a fee drain. Read
+  // when the proposal is built, since a session can wait for hours.
+  final int Function() getMaxFeeRateSatPerVb;
 
-    sendPort.send(receivePort.sendPort);
-    receivePort.listen(worker.handleMessage);
+  // The session's payjoin directory (its `pj=` endpoint). Relays on the same
+  // host are never used: one operator holding both OHTTP roles could link
+  // this client's IP to the payjoin payload.
+  final String? directory;
+  final pj.JsonReceiverSessionPersister? _persister;
+  final void Function()? _onProposalReceived;
+  bool _cancelled = false;
+  bool _disposed = false;
 
+  /// Wall-clock deadline shared by every relay round-trip of one session
+  /// (polling and the final proposal post), so relay retry loops inside
+  /// [_postViaRelay] can't spin past the receiver session lifetime.
+  DateTime _sessionDeadline = DateTime.now().add(_maxReceiverSessionDuration);
+
+  /// Signals the polling loops to stop at the next iteration. Does not release
+  /// resources — call [dispose] for that.
+  void cancel() => _cancelled = true;
+
+  /// Releases the underlying HTTP client (sockets, TLS state). Idempotent.
+  /// Safe to call from any terminal path; the polling loops will throw on the
+  /// next iteration if [cancel] has also been called.
+  void dispose() {
+    if (_disposed) {
+      return;
+    }
+    _disposed = true;
+    client.close();
+  }
+
+  /// Resumes a receiver session from its persisted event log. Used when the
+  /// worker is re-spawned after a wallet switch / app restart and the
+  /// directory + ohttpKeys are no longer at hand (they live inside the
+  /// replayed FFI state). Requires a persister to have been supplied at
+  /// construction time.
+  Future<String> resume() {
     try {
-      final receiver = Receiver.fromJson(json: receiverJson);
-
-      final uncheckedProposal = await worker.receiveUncheckedProposal(receiver);
-
-      final originalTx = await uncheckedProposal.extractTxToScheduleBroadcast();
-      sendPort.send({
-        'type': PayjoinReceiverRequestTypes.processOriginalTx,
-        'tx': BytesUtils.toHexString(originalTx),
-      });
-
-      final payjoinProposal = await worker.processPayjoinProposal(
-        uncheckedProposal,
-      );
-      final psbt = await worker.sendFinalProposal(payjoinProposal);
-      sendPort.send({
-        'type': PayjoinReceiverRequestTypes.proposalSent,
-        'psbt': psbt,
-      });
-    } catch (e) {
-      if (e is HttpException ||
-          (e is very_insecure_http_do_not_use.ClientException &&
-              e.message.contains("Software caused connection abort"))) {
-        sendPort.send(PayjoinSessionError.recoverable(e.toString()));
-      } else {
-        sendPort.send(PayjoinSessionError.unrecoverable(e.toString()));
+      if (_cancelled) {
+        throw const CancelException();
       }
-    }
-  }
-
-  void handleMessage(dynamic message) async {
-    if (message is Map<String, dynamic>) {
-      final requestId = message['requestId'] as String?;
-      if (requestId != null && pendingRequests.containsKey(requestId)) {
-        pendingRequests[requestId]!.complete(message['result']);
-        pendingRequests.remove(requestId);
+      _sessionDeadline = DateTime.now().add(_maxReceiverSessionDuration);
+      final persister = _persister;
+      if (persister == null) {
+        throw StateError("Cannot resume receiver without a persister");
       }
-    }
-  }
-
-  Future<dynamic> _sendRequest(PayjoinReceiverRequestTypes type,
-      [Map<String, dynamic> data = const {}]) async {
-    final completer = Completer<dynamic>();
-    final requestId = DateTime.now().millisecondsSinceEpoch.toString();
-    pendingRequests[requestId] = completer;
-
-    sendPort.send({
-      ...data,
-      'type': type,
-      'requestId': requestId,
-    });
-
-    return completer.future;
-  }
-
-  Future<UncheckedProposal> receiveUncheckedProposal(Receiver session) async {
-    while (true) {
-      printV("Polling for Proposal (${session.id()})");
-      final extractReq = await session.extractReq(
-        ohttpRelay: await PayjoinManager.randomOhttpRelayUrl(),
-      );
-      final request = extractReq.$1;
-
-      final url = Uri.parse(request.url.asString());
-      final httpRequest = await client.post(url,
-          headers: {'Content-Type': request.contentType}, body: request.body);
-
-      final proposal = await session.processRes(body: httpRequest.bodyBytes, ctx: extractReq.$2);
-      if (proposal != null) return proposal;
-      sleep(Duration(seconds: 2));
-    }
-  }
-
-  Future<String> sendFinalProposal(PayjoinProposal finalProposal) async {
-    final req = await finalProposal.extractReq(
-      ohttpRelay: await PayjoinManager.randomOhttpRelayUrl(),
-    );
-    final proposalReq = req.$1;
-    final proposalCtx = req.$2;
-
-    final request = await client.post(
-      Uri.parse(proposalReq.url.asString()),
-      headers: {"Content-Type": proposalReq.contentType},
-      body: proposalReq.body,
-    );
-
-    await finalProposal.processRes(
-      res: request.bodyBytes,
-      ohttpContext: proposalCtx,
-    );
-
-    return await finalProposal.psbt();
-  }
-
-  Future<PayjoinProposal> processPayjoinProposal(UncheckedProposal proposal) async {
-    await proposal.extractTxToScheduleBroadcast();
-    // TODO Handle this. send to the main port on a timer?
-
-    try {
-      // Receive Check 1: can broadcast
-      final pj1 = await proposal.assumeInteractiveReceiver();
-
-      // Receive Check 2: original PSBT has no receiver-owned inputs
-      final pj2 = await pj1.checkInputsNotOwned(
-        isOwned: (inputScript) async {
-          final result = await _sendRequest(
-            PayjoinReceiverRequestTypes.checkIsOwned,
-            {'input_script': inputScript},
-          );
-          return result as bool;
-        },
-      );
-      // Receive Check 3: sender inputs have not been seen before (prevent probing attacks)
-      final pj3 = await pj2.checkNoInputsSeenBefore(isKnown: (input) => false);
-
-      // Identify receiver outputs
-      final pj4 = await pj3.identifyReceiverOutputs(
-        isReceiverOutput: (outputScript) async {
-          final result = await _sendRequest(
-            PayjoinReceiverRequestTypes.checkIsReceiverOutput,
-            {'output_script': outputScript},
-          );
-          return result as bool;
-        },
-      );
-      final pj5 = await pj4.commitOutputs();
-
-      final listUnspent = await _sendRequest(PayjoinReceiverRequestTypes.getCandidateInputs);
-      final unspent = listUnspent as List<UtxoWithPrivateKey>;
-      if (unspent.isEmpty) throw RecoverableError('No unspent outputs available');
-
-      final candidateInputs = await Future.wait(unspent.map(_inputPairFromUtxo));
-
-      // Prefer a UTXO that avoids the Unnecessary Input Heuristic (UIH2);
-      // fall back to the first candidate if none preserves privacy.
-      InputPair selectedUtxo = candidateInputs.first;
-      try {
-        selectedUtxo = await pj5.tryPreservingPrivacy(candidateInputs: candidateInputs);
-      } catch (_) {}
-
-      final pj6 = await pj5.contributeInputs(replacementInputs: [selectedUtxo]);
-      final pj7 = await pj6.commitInputs();
-
-      // Finalize proposal
-      final payjoinProposal = await pj7.finalizeProposal(
-        processPsbt: (String psbt) async {
-          final result =
-              await _sendRequest(PayjoinReceiverRequestTypes.processPsbt, {'psbt': psbt});
-          return result as String;
-        },
-        // TODO set maxFeeRateSatPerVb
-        maxFeeRateSatPerVb: BigInt.from(10000),
-      );
-      return payjoinProposal;
+      if (persister.load().isEmpty) {
+        throw StateError("Cannot resume receiver: event log is empty");
+      }
+      return _runFromReplay(persister);
     } catch (e) {
-      printV('Error occurred while finalizing proposal: $e');
+      printV("PayjoinReceiverWorker resume error: $e");
       rethrow;
     }
   }
 
-  Future<InputPair> _inputPairFromUtxo(UtxoWithPrivateKey utxo) async {
-    final txout = TxOut(
-      value: utxo.utxo.value,
-      scriptPubkey: Uint8List.fromList(utxo.ownerDetails.address.toScriptPubKey().toBytes()),
-    );
+  Future<String> _runFromReplay(
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    final replayResult = pj.replayReceiverEventLog(persister: persister);
+    final state = replayResult.state();
+    replayResult.dispose();
 
-    final psbtin = PsbtInput(witnessUtxo: txout, redeemScript: null, witnessScript: null);
-
-    final previousOutput = OutPoint(txid: utxo.utxo.txHash, vout: utxo.utxo.vout);
-
-    final txin = TxIn(
-      previousOutput: previousOutput,
-      scriptSig: await Script.newInstance(rawOutputScript: []),
-      witness: [],
-      sequence: 0,
-    );
-
-    return InputPair.newInstance(txin: txin, psbtin: psbtin);
+    if (state is pj.InitializedReceiveSession) {
+      return _processFromInitialized(state.inner, persister);
+    }
+    if (state is pj.UncheckedOriginalPayloadReceiveSession) {
+      _onProposalReceived?.call();
+      final maybeInputsOwned = state.inner.assumeInteractiveReceiver().save(persister: persister);
+      return _processFromMaybeInputsOwned(maybeInputsOwned, persister);
+    }
+    if (state is pj.MaybeInputsOwnedReceiveSession) {
+      _onProposalReceived?.call();
+      return _processFromMaybeInputsOwned(state.inner, persister);
+    }
+    if (state is pj.ClosedReceiveSession) {
+      throw const PayjoinSessionError("Session already completed");
+    }
+    // Resume from any deeper intermediate state by extracting the inner
+    // type and walking the processing chain forward.
+    final proposal = await _resumeFromState(state, persister);
+    return _sendFinalProposal(proposal, persister);
   }
+
+  /// Dispatches on every concrete [ReceiveSession] variant, extracts the
+  /// inner state object, and feeds it into the processing chain.  Each step
+  /// that has already been completed (because the event log is past it) is
+  /// skipped; the first unprocessed step picks up from there.
+  Future<pj.PayjoinProposal> _resumeFromState(
+    pj.ReceiveSession state,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    if (state is pj.MaybeInputsSeenReceiveSession) {
+      return _runProcessingChain(state.inner, persister);
+    }
+    if (state is pj.OutputsUnknownReceiveSession) {
+      return _runProcessingChain(state.inner, persister);
+    }
+    if (state is pj.WantsOutputsReceiveSession) {
+      return _runProcessingChain(state.inner, persister);
+    }
+    if (state is pj.WantsInputsReceiveSession) {
+      return _runProcessingChain(state.inner, persister);
+    }
+    if (state is pj.WantsFeeRangeReceiveSession) {
+      return _runProcessingChain(state.inner, persister);
+    }
+    if (state is pj.ProvisionalProposalReceiveSession) {
+      return _runProcessingChain(state.inner, persister);
+    }
+    if (state is pj.PayjoinProposalReceiveSession) {
+      return state.inner;
+    }
+    // Terminal / non-resumable states
+    if (state is pj.HasReplyableExceptionReceiveSession) {
+      await _replyWithError(state.inner, persister);
+      throw const UnrecoverableError("Rejected the sender's proposal");
+    }
+    if (state is pj.MonitorReceiveSession) {
+      throw const RecoverableError("session in Monitor state");
+    }
+    if (state is pj.ReceiverPendingFallbackReceiveSession) {
+      throw const RecoverableError("session in PendingFallback state");
+    }
+    throw RecoverableError(
+      "Cannot continue from unexpected session state: ${state.runtimeType}",
+    );
+  }
+
+  Future<String> _processFromInitialized(
+    pj.Initialized initialized,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    final uncheckedProposal = await _pollForProposal(initialized, persister);
+    _onProposalReceived?.call();
+    final maybeInputsOwned =
+        uncheckedProposal.assumeInteractiveReceiver().save(persister: persister);
+
+    return _processFromMaybeInputsOwned(maybeInputsOwned, persister);
+  }
+
+  Future<String> _processFromMaybeInputsOwned(
+    pj.MaybeInputsOwned maybeInputsOwned,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    final payjoinProposal = await _processPayjoinProposal(maybeInputsOwned, persister);
+    return _sendFinalProposal(payjoinProposal, persister);
+  }
+
+  Future<pj.UncheckedOriginalPayload> _pollForProposal(
+    pj.Initialized initialized,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    var consecutiveFailures = 0;
+    while (true) {
+      if (_cancelled) {
+        throw const CancelException();
+      }
+      if (DateTime.now().isAfter(_sessionDeadline)) {
+        throw const RecoverableError("Payjoin receiver session expired before a proposal arrived");
+      }
+      printV("Polling for Proposal");
+      try {
+        final relayResponse = await _postViaRelay(
+          (relay) => initialized.createPollRequest(ohttpRelay: relay),
+          deadline: _sessionDeadline,
+        );
+        final transition = initialized.processResponse(
+          body: relayResponse.bodyBytes,
+          ctx: relayResponse.ohttpCtx,
+        );
+        final outcome = transition.save(persister: persister);
+        consecutiveFailures = 0;
+
+        if (outcome is pj.ProgressInitializedTransitionOutcome) {
+          return outcome.inner;
+        }
+        initialized = (outcome as pj.StasisInitializedTransitionOutcome).inner;
+      } on pj.TransientReceiverPersistedException catch (e) {
+        printV("Poll retry: $e");
+      } catch (e) {
+        throw _classify(e);
+      }
+      await Future.delayed(nextRelayBackoff(consecutiveFailures++));
+    }
+  }
+
+  Future<pj.PayjoinProposal> _processPayjoinProposal(
+    pj.MaybeInputsOwned maybeInputsOwned,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    try {
+      final checkOwned = _wrapSync(
+        () => maybeInputsOwned.checkInputsNotOwned(
+          isOwned: _IsInputOwned(
+            (outpoint) => isOutpointOwned(outpoint.txid, outpoint.vout),
+          ),
+        ),
+        "checkInputsNotOwned",
+      );
+      final maybeInputsSeen = checkOwned.save(persister: persister);
+      return _runProcessingChain(maybeInputsSeen, persister);
+    } catch (e) {
+      if (e is PayjoinSessionError) {
+        rethrow;
+      }
+      final error = _classify(e);
+      if (error is UnrecoverableError) {
+        await _replyIfRejected(persister);
+        throw error;
+      }
+      throw RecoverableError("_processPayjoinProposal failed at step: $e");
+    }
+  }
+
+  /// Walks the receive processing chain from whatever state [current] is at,
+  /// advancing through every subsequent step until a [PayjoinProposal] is
+  /// produced.  Each type-check block is skipped when the state has already
+  /// progressed past that point (the chain is safe to call from any entry).
+  Future<pj.PayjoinProposal> _runProcessingChain(
+    dynamic current,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    try {
+      // MaybeInputsSeen → OutputsUnknown
+      if (current is pj.MaybeInputsSeen) {
+        final checkSeen = _wrapSync(
+          () => current.checkNoInputsSeenBefore(
+            isKnown: _IsOutputKnown((_) => false),
+          ),
+          "checkNoInputsSeenBefore",
+        );
+        current = checkSeen.save(persister: persister);
+      }
+
+      // OutputsUnknown → WantsOutputs
+      if (current is pj.OutputsUnknown) {
+        final identifyOutputs = _wrapSync(
+          () => current.identifyReceiverOutputs(
+            isReceiverOutput: _IsScriptOwned(isMineChecker),
+          ),
+          "identifyReceiverOutputs",
+        );
+        current = identifyOutputs.save(persister: persister);
+      }
+
+      // WantsOutputs → WantsInputs
+      if (current is pj.WantsOutputs) {
+        final transition = current.commitOutputs();
+        current = transition.save(persister: persister);
+      }
+
+      // WantsInputs → WantsFeeRange
+      if (current is pj.WantsInputs) {
+        final candidateInputs = _buildInputPairs();
+        if (candidateInputs.isEmpty) {
+          throw const RecoverableError("No unspent outputs available");
+        }
+        pj.InputPair selectedUtxo = candidateInputs.first;
+        try {
+          selectedUtxo = current.tryPreservingPrivacy(
+            candidateInputs: candidateInputs,
+          );
+        } catch (_) {}
+        current = current.contributeInputs(
+          replacementInputs: [selectedUtxo],
+        );
+        final commitTransition = current.commitInputs();
+        current = commitTransition.save(persister: persister);
+      }
+
+      // WantsFeeRange → ProvisionalProposal
+      if (current is pj.WantsFeeRange) {
+        final maxFeeRate = getMaxFeeRateSatPerVb();
+        printV("[pjReceiver] applyFeeRange maxEffectiveFeeRate=$maxFeeRate sat/vB");
+        final applyFeeRangeTransition = _wrapSync(
+          () => current.applyFeeRange(
+            minFeeRateSatPerVb: null,
+            maxEffectiveFeeRateSatPerVb: maxFeeRate,
+          ),
+          "applyFeeRange",
+        );
+        current = applyFeeRangeTransition.save(persister: persister);
+      }
+
+      // ProvisionalProposal → PayjoinProposal
+      if (current is pj.ProvisionalProposal) {
+        printV("PSBT to sign received (len=${current.psbtToSign().length})");
+        final finalizeTransition = _wrapSync(
+          () => current.finalizeProposal(
+            processPsbt: _ProcessPsbt(
+              (psbt) => signPsbtSync(psbt, utxos),
+            ),
+          ),
+          "finalizeProposal",
+        );
+        current = finalizeTransition.save(persister: persister);
+      }
+
+      if (current is pj.PayjoinProposal) {
+        return current;
+      }
+
+      throw RecoverableError("Unexpected state in chain: ${current.runtimeType}");
+    } catch (e) {
+      if (e is PayjoinSessionError) {
+        rethrow;
+      }
+      final error = _classify(e);
+      if (error is UnrecoverableError) {
+        await _replyIfRejected(persister);
+        throw error;
+      }
+      throw RecoverableError("_processPayjoinProposal failed at step: $e");
+    }
+  }
+
+  List<pj.InputPair> _buildInputPairs() {
+    printV("PayjoinReceiverWorker: building input pairs from ${utxos.length} utxos");
+    return buildInputPairs(utxos);
+  }
+
+  /// Weight of a P2TR key-spend input with the default sighash, as
+  /// rust-payjoin computes it: outpoint + sequence (160 WU), empty scriptSig
+  /// length (4 WU) and a single 64-byte signature witness (66 WU). It can't
+  /// predict this itself for an unsigned input.
+  static const int p2trKeySpendInputWeight = 230;
+
+  /// Candidate receiver inputs, one per UTXO whose type the payjoin library
+  /// and our signer/finalizer can handle. Every other UTXO is skipped, so a
+  /// single unsupported coin can't fail the whole contribution:
+  /// - P2PKH: the FFI input can't carry the `non_witness_utxo` it needs, and
+  ///   with only a `witness_utxo` the finalizer would treat it as segwit.
+  /// - P2WSH and other scripts: weight can't be predicted before signing.
+  @visibleForTesting
+  static List<pj.InputPair> buildInputPairs(List<UtxoWithAddress> utxos) {
+    final pairs = <pj.InputPair>[];
+    for (final utxo in utxos) {
+      final btcUtxo = utxo.utxo;
+      final type = btcUtxo.scriptType;
+      final Uint8List? redeemScript;
+      final int? expectedWeight;
+      if (type == SegwitAddresType.p2wpkh) {
+        redeemScript = null;
+        expectedWeight = null;
+      } else if (type == P2shAddressType.p2wpkhInP2sh) {
+        // rust-payjoin needs the redeem script to recognise nested P2WPKH
+        // (and predicts its weight from it); the finalizer reuses it for the
+        // scriptSig.
+        redeemScript =
+            Uint8List.fromList(utxo.public().toP2wpkhAddress().toScriptPubKey().toBytes());
+        expectedWeight = null;
+      } else if (type == SegwitAddresType.p2tr) {
+        redeemScript = null;
+        expectedWeight = p2trKeySpendInputWeight;
+      } else {
+        printV("PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout} "
+            "(unsupported type ${type.value})");
+        continue;
+      }
+
+      try {
+        pairs.add(
+          pj.InputPair(
+            txin: pj.TxIn(
+              previousOutput: pj.OutPoint(
+                txid: btcUtxo.txHash,
+                vout: btcUtxo.vout,
+              ),
+              scriptSig: Uint8List(0),
+              sequence: 0,
+              witness: [],
+            ),
+            psbtin: pj.PsbtInput(
+              witnessUtxo: pj.TxOut(
+                valueSat: btcUtxo.value.toInt(),
+                scriptPubkey:
+                    Uint8List.fromList(utxo.ownerDetails.address.toScriptPubKey().toBytes()),
+              ),
+              redeemScript: redeemScript,
+              witnessScript: null,
+            ),
+            expectedWeight: expectedWeight == null ? null : pj.Weight(weightUnits: expectedWeight),
+          ),
+        );
+      } catch (e) {
+        printV("PayjoinReceiverWorker: skipping ${btcUtxo.txHash}:${btcUtxo.vout}: $e");
+      }
+    }
+    return pairs;
+  }
+
+  Future<String> _sendFinalProposal(
+    pj.PayjoinProposal proposal,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    try {
+      final relayResponse = await _postViaRelay(
+        (relay) => proposal.createPostRequest(ohttpRelay: relay),
+        deadline: _sessionDeadline,
+      );
+      final transition = proposal.processResponse(
+        body: relayResponse.bodyBytes,
+        ohttpContext: relayResponse.ohttpCtx,
+      );
+      transition.save(persister: persister);
+    } catch (e) {
+      throw _classify(e);
+    }
+    return proposal.psbt();
+  }
+
+  /// A rejected processing step leaves the session in `HasReplyableException`;
+  /// answer the sender right away instead of on the next resume.
+  Future<void> _replyIfRejected(pj.JsonReceiverSessionPersister persister) async {
+    final pj.ReceiveSession state;
+    try {
+      final replayResult = pj.replayReceiverEventLog(persister: persister);
+      state = replayResult.state();
+      replayResult.dispose();
+    } catch (e) {
+      printV("[pjReceiver] replay before error reply failed: $e");
+      return;
+    }
+    if (state is pj.HasReplyableExceptionReceiveSession) {
+      await _replyWithError(state.inner, persister);
+    }
+  }
+
+  /// Tells the sender its proposal was rejected, so it stops polling and
+  /// broadcasts its original transaction instead of waiting for the session
+  /// to expire. Best effort: the session is over either way.
+  Future<void> _replyWithError(
+    pj.HasReplyableException state,
+    pj.JsonReceiverSessionPersister persister,
+  ) async {
+    try {
+      final relayResponse = await _postViaRelay(
+        (relay) => state.createErrorRequest(ohttpRelay: relay),
+        deadline: _sessionDeadline,
+      );
+      state
+          .processErrorResponse(
+            body: relayResponse.bodyBytes,
+            ohttpContext: relayResponse.ohttpCtx,
+          )
+          .save(persister: persister);
+      printV("[pjReceiver] sent error reply to the sender");
+    } catch (e) {
+      printV("[pjReceiver] error reply failed: $e");
+    }
+  }
+
+  /// Maps an error from the payjoin library (or a relay pick) onto the
+  /// session error model. Transient errors persisted nothing and may be
+  /// retried; fatal ones closed the session in the event log, and an expired
+  /// session can never send another request.
+  PayjoinSessionError _classify(Object e) {
+    if (e is PayjoinSessionError) {
+      return e;
+    }
+    if (e is pj.ReceiverCreateRequestException) {
+      return UnrecoverableError(e.isExpired() ? "Session expired" : "Cannot create request: $e");
+    }
+    if (e is pj.FatalReceiverPersistedException || e is pj.StorageReceiverPersistedException) {
+      return UnrecoverableError("$e");
+    }
+    return RecoverableError("$e");
+  }
+
+  T _wrapSync<T>(T Function() fn, String step) {
+    try {
+      return fn();
+    } catch (e) {
+      throw RecoverableError("$step failed: $e");
+    }
+  }
+
+  Future<PayjoinRelayResponse> _postViaRelay(
+    pj.RequestResponse Function(String relay) buildRequest, {
+    required DateTime deadline,
+  }) =>
+      postViaRelay(
+        client: client,
+        mailroomManager: _mailroomManager,
+        directory: directory,
+        buildRequest: (relay) {
+          final requestResponse = buildRequest(relay);
+          return (request: requestResponse.request, ohttpCtx: requestResponse.clientResponse);
+        },
+        deadline: deadline,
+        isCancelled: () => _cancelled,
+        cancelledError: const CancelException(),
+        expiredError: const RecoverableError(
+          "Payjoin receiver session expired before relay connectivity returned",
+        ),
+        logTag: "pjReceiver",
+      );
+}
+
+class CancelException extends PayjoinSessionError {
+  const CancelException() : super("Payjoin receiver session cancelled");
 }

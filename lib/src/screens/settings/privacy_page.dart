@@ -55,14 +55,6 @@ class PrivacyPage extends BasePage {
                         onChanged: (val) {
                           _privacySettingsViewModel.setShouldSaveRecipientAddress(val);
                         }),
-                    if (_privacySettingsViewModel.canUsePayjoin)
-                      ListItemToggle(
-                          keyValue: "use_payjoin",
-                          label: S.of(context).use_payjoin,
-                          value: _privacySettingsViewModel.usePayjoin,
-                          onChanged: (val) {
-                            _privacySettingsViewModel.setUsePayjoin(val);
-                          }),
                     if (_privacySettingsViewModel.canUseLightning)
                       ListItemToggle(
                           keyValue: "enable_lightning",
