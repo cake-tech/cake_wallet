@@ -73,7 +73,10 @@ jobs:
   build:
     needs: [torch, monero]
     if: github.event.pull_request.head.repo.fork == false
-    runs-on: macos-26
+    # The repository variable IOS_BUILD_RUNNER (JSON) picks the runner: ["self-hosted","cake-m5-ultra"] is the Mac
+    # Studio pool (a throwaway VM per job, Xcode 27.1). Unset, it falls back to GitHub's xcode-27 image, whose
+    # default is the same Xcode 27.1, so the iOS SDK never depends on which pool built the archive.
+    runs-on: ${{ fromJSON(vars.IOS_BUILD_RUNNER || '"xcode-27"') }}
 
     outputs:
       build_number: ${{ steps.config.outputs.build_number }}
@@ -88,6 +91,12 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Show the runner and Xcode
+        run: |
+          echo "runner: $RUNNER_NAME ($RUNNER_ENVIRONMENT)"
+          sw_vers -productVersion
+          xcodebuild -version
 
       - name: Configure git
         run: |
@@ -308,10 +317,17 @@ jobs:
 
   testflight:
     needs: build
-    runs-on: macos-26
+    # Exports with the Xcode that built the archive (27.1, either pool). From April 2027 App Store Connect only
+    # accepts builds made with the iOS 27 SDK (ITMS-90725).
+    runs-on: xcode-27
     environment: testflight
 
     steps:
+      - name: Select Xcode 27.1
+        run: |
+          sudo xcode-select -s /Applications/Xcode_27.1.app
+          xcodebuild -version
+
       - name: Download unsigned archive
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
