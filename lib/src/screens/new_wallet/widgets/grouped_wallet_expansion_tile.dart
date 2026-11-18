@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
@@ -89,7 +90,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
               )
             : leadingWidget,
         trailing: trailingWidget ?? (childWallets.isEmpty ? SizedBox.shrink() : null),
-        title: GestureDetector(
+        title: Semantics(identifier: TestId.fromKey(tileKey), child: GestureDetector(
           onTap: onTitleTapped,
           child: Text(
             title,
@@ -100,13 +101,15 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 ),
             textAlign: TextAlign.left,
           ),
-        ),
+        )),
         children: childWallets.map(
           (item) {
             final currentColor = item.isCurrent
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface;
-            return ListTile(
+            return TestId.container(
+                TestId.fromKey(tileKey)?.replaceFirst(RegExp(r"_key$"), "_wallet_${childWallets.indexOf(item)}_key"),
+                child: ListTile(
               contentPadding: EdgeInsets.zero,
               key: ValueKey(item.name),
               trailing: childTrailingWidget?.call(item),
@@ -146,7 +149,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                       color: effectiveTextColor,
                     ),
               ),
-            );
+            ));
           },
         ).toList(),
       ),

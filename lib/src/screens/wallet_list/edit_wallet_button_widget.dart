@@ -1,3 +1,4 @@
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class EditWalletButtonWidget extends StatelessWidget {
@@ -20,7 +21,7 @@ class EditWalletButtonWidget extends StatelessWidget {
       width: width,
       child: Row(
         children: [
-          TextButton(
+          TestId.merge(TestId.fromKey(key), child: TextButton(
             onPressed: onTap,
             style: TextButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.surface, shape: CircleBorder()),
@@ -29,7 +30,7 @@ class EditWalletButtonWidget extends StatelessWidget {
               size: 14,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-          ),
+          )),
           if (isGroup) ...{
             Icon(
               isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
