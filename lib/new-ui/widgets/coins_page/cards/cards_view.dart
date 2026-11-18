@@ -83,6 +83,11 @@ class _CardsViewState extends State<CardsView> {
           (widget.dashboardViewModel.wallet.type == WalletType.bitcoin &&
               !widget.dashboardViewModel.isMultiAccountsEnabled);
 
+  bool get _hideFiatBalance =>
+      !widget.dashboardViewModel.hasBalance &&
+      !widget.dashboardViewModel.balanceViewModel.showCombinedBalance &&
+      widget.dashboardViewModel.balanceViewModel.displayMode != BalanceDisplayMode.hiddenBalance;
+
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
       Map<int, int> order, bool compactMode, double overlapAmount) {
     final baseTop = overlapAmount * (numCards - 1);
@@ -231,7 +236,7 @@ class _CardsViewState extends State<CardsView> {
                 fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                     widget.dashboardViewModel.settingsStore.fiatCurrency.title,
                 fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
-                fiatBalance: walletFiatBalance,
+                fiatBalance: _hideFiatBalance ? "" : walletFiatBalance,
                 selected: _selectedIndex == visualIndex,
                 onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
                 design: cardDesign,

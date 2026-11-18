@@ -3,10 +3,9 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:flutter/material.dart';
 
 class HistoryTopBar extends StatelessWidget {
-  const HistoryTopBar({super.key, required this.onTap, required this.roundedBottom});
+  const HistoryTopBar({super.key, required this.onTap});
 
   final VoidCallback onTap;
-  final bool roundedBottom;
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +23,7 @@ class HistoryTopBar extends StatelessWidget {
               padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(18),
-                        bottom: roundedBottom ? Radius.circular(18) : Radius.zero),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
                     color: Theme.of(context).colorScheme.surfaceContainer),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
@@ -48,14 +45,11 @@ class HistoryTopBar extends StatelessWidget {
                           )
                         ],
                       ),
-                      if (!roundedBottom)
-                        Container(
-                          height: 1,
-                          width: double.infinity,
-                          color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175),
-                        )
-                      else
-                        Container(height: 2)
+                      Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: Theme.of(context).colorScheme.outlineVariant.withAlpha(175),
+                      ),
                     ],
                   ),
                 ),
