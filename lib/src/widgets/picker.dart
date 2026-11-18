@@ -369,7 +369,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       ],
     );
 
-    return TestId.merge("picker_items_index_${itemIndex}_button_key", child:     Semantics(button: true, selected: false, inMutuallyExclusiveGroup: true, child: GestureDetector(
+    return TestId.merge("picker_items_index_${itemIndex}_button_key", child: Semantics(button: true, selected: false, inMutuallyExclusiveGroup: true, child: GestureDetector(
       key: ValueKey('picker_items_index_${itemIndex}_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
@@ -458,7 +458,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
       ],
     );
 
-    return TestId.merge("picker_items_index_${itemIndex}_selected_item_button_key", child:     Semantics(button: true, selected: true, inMutuallyExclusiveGroup: true, child: GestureDetector(
+    return TestId.merge("picker_items_index_${itemIndex}_selected_item_button_key", child: Semantics(button: true, selected: true, inMutuallyExclusiveGroup: true, child: GestureDetector(
       key: ValueKey('picker_items_index_${itemIndex}_selected_item_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
