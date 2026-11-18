@@ -362,6 +362,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     transactions.clear();
+    _historyKeyIndex = 0;
 
     final filteredTransactions = wallet.type == WalletType.bitcoin
         ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet)
@@ -1536,6 +1537,7 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
     transactions.clear();
+    _historyKeyIndex = 0;
     if (wallet.type == WalletType.monero) {
       final _accountTransactions = monero!
           .getTransactionHistory(wallet)
