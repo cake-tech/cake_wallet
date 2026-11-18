@@ -140,6 +140,16 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     return balanceForAsset(widget.balanceByAsset, selected);
   }
 
+  Widget _fiatSign(BuildContext context) => Center(
+        child: Text(
+          widget.exchangeViewModel.fiat.sign,
+          style: TextStyle(
+            fontSize: 16,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final currencyToShow = (widget.currency is CryptoCurrency)
@@ -201,9 +211,19 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           children: [
                             Expanded(
                               child: Row(
-                                spacing: 4,
+                                textDirection: TextDirection.ltr,
+                                mainAxisAlignment: Directionality.of(context) == TextDirection.rtl
+                                    ? MainAxisAlignment.end
+                                    : MainAxisAlignment.start,
+                                spacing: _fiatInputMode &&
+                                        widget.exchangeViewModel.fiat.signTouchesAmount
+                                    ? 0
+                                    : 4,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
+                                  if (_fiatInputMode &&
+                                      !widget.exchangeViewModel.fiat.signAfterAmount)
+                                    _fiatSign(context),
                                   Flexible(
                                     child: IntrinsicWidth(
                                       child: Observer(
@@ -251,16 +271,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                       ),
                                     ),
                                   ),
-                                  if (_fiatInputMode)
-                                    Center(
-                                      child: Text(
-                                        widget.exchangeViewModel.fiat.title,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
+                                  if (_fiatInputMode &&
+                                      widget.exchangeViewModel.fiat.signAfterAmount)
+                                    _fiatSign(context),
                                 ],
                               ),
                             ),
@@ -397,7 +410,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                           ? widget.exchangeViewModel.roundedReceiveAmountFiat(6)
                           : widget.exchangeViewModel.roundedDepositAmountFiat(6),
                       cryptoCurrencySymbol: currencyToShow,
-                      fiatCurrencySymbol: widget.exchangeViewModel.fiat.symbol,
+                      fiatCurrency: widget.exchangeViewModel.fiat,
                     );
                   },
                 ),

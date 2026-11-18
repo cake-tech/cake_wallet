@@ -167,7 +167,7 @@ class CakePayBuyCardPage extends BasePage {
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                       if (card.prepaidRange.isNotEmpty)
                         PrepaidRangeAmountWidget(
-                          fiatCurrency: card.fiatCurrency.title,
+                          fiatCurrency: card.fiatCurrency,
                           prepaidRanges: card.prepaidRange,
                           amountFieldFocus: _amountFieldFocus,
                           amountController: _amountController,
@@ -176,7 +176,7 @@ class CakePayBuyCardPage extends BasePage {
                         )
                       else if (card.denominationItems.isNotEmpty)
                         DenominationsAmountWidget(
-                          fiatCurrency: card.fiatCurrency.title,
+                          fiatCurrency: card.fiatCurrency,
                           denominations: card.denominationItems,
                           amountFieldFocus: _amountFieldFocus,
                           amountController: _amountController,
@@ -188,9 +188,9 @@ class CakePayBuyCardPage extends BasePage {
                         )
                       else
                         EnterAmountWidget(
-                          minValue: card.minValue ?? '-',
-                          maxValue: card.maxValue ?? '-',
-                          fiatCurrency: card.fiatCurrency.title,
+                          minValue: card.minValue,
+                          maxValue: card.maxValue,
+                          fiatCurrency: card.fiatCurrency,
                           amountFieldFocus: _amountFieldFocus,
                           amountController: _amountController,
                           onAmountChanged: cakePayBuyCardViewModel.onAmountChanged,

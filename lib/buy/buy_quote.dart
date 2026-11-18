@@ -100,7 +100,7 @@ class Quote extends SelectableOption {
 
   @override
   String get topLeftSubTitle => this.rate > 0
-      ? '1 ${cryptoCurrency.toString()} = ${formatWithCommas(rate.toStringAsFixed(2))} ${fiatCurrency.toString()}'
+      ? '1 ${cryptoCurrency.toString()} = ${fiatCurrency.format(formatWithCommas(rate.toStringAsFixed(2)))}'
       : '';
 
   @override
@@ -108,7 +108,7 @@ class Quote extends SelectableOption {
     if (limits != null) {
       final min = limits!.min;
       final max = limits!.max;
-      return 'min: ${formatWithCommas(min?.toString())} ${fiatCurrency.toString()} | max: ${max == double.infinity ? '' : '${formatWithCommas(max?.toString())} ${fiatCurrency.toString()}'}';
+      return 'min: ${fiatCurrency.format(formatWithCommas(min?.toString()))} | max: ${max == double.infinity ? '' : fiatCurrency.format(formatWithCommas(max?.toString()))}';
     }
     return '';
   }
@@ -124,7 +124,8 @@ class Quote extends SelectableOption {
 
   String get quoteTitle => '${provider.title} - ${paymentType.name}';
 
-  String get formatedFee => '$feeAmount ${isBuyAction ? fiatCurrency : cryptoCurrency}';
+  String get formatedFee =>
+      isBuyAction ? fiatCurrency.format("$feeAmount") : "$feeAmount $cryptoCurrency";
 
   set setIsSelected(bool isSelected) => _isSelected = isSelected;
 

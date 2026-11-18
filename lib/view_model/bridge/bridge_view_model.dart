@@ -7,6 +7,7 @@ import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/core/wallet_change_listener_view_model.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
+import "package:cake_wallet/entities/fiat_currency.dart";
 import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dart';
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
@@ -107,7 +108,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   String get sourceAddress => wallet.walletAddresses.address;
 
   @computed
-  String get fiatCurrencyTitle => settingsStore.fiatCurrency.title;
+  FiatCurrency get fiatCurrency => settingsStore.fiatCurrency;
 
   @computed
   List<ChainInfo> get availableDestinationChains {
@@ -202,7 +203,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         ),
       );
 
-      return '(${fiatCurrencyTitle} $fiatFeeFormatted)';
+      return '(${fiatCurrency.format(fiatFeeFormatted)})';
     } catch (_) {
       return '';
     }

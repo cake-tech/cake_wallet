@@ -1,6 +1,7 @@
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/enumerable_item.dart";
+import "package:intl/intl.dart";
 
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> implements Currency {
   const FiatCurrency({
@@ -30,6 +31,117 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> impl
   String get apiCountryCode => isoCountryCode ?? countryCode.toUpperCase();
 
   final String emoji;
+
+  static bool Function() showsIsoCode = () => false;
+
+  static final _amountLead = RegExp(r"^[<>~≈=+\-\s]*");
+  static final _endsWithLetterOrDot = RegExp(r"[\p{L}.]$", unicode: true);
+  static const _leftToRightIsolate = "\u2066";
+  static const _firstStrongIsolate = "\u2068";
+  static const _popDirectionalIsolate = "\u2069";
+
+  static const _symbolSigns = {
+    "AMD": "֏",
+    "ARS": r"AR$",
+    "AUD": r"A$",
+    "BDT": "৳",
+    "BGN": "лв",
+    "BRL": r"R$",
+    "CAD": r"C$",
+    "CHF": "CHF",
+    "CLP": "CLP",
+    "CNY": "CN¥",
+    "COP": r"COL$",
+    "CZK": "Kč",
+    "DKK": "Dkr",
+    "EGP": "E£",
+    "EUR": "€",
+    "GBP": "£",
+    "GHS": "GH₵",
+    "GTQ": "Q",
+    "HKD": r"HK$",
+    "HRK": "kn",
+    "HUF": "Ft",
+    "IDR": "Rp",
+    "ILS": "₪",
+    "INR": "₹",
+    "IRR": "Rls",
+    "ISK": "Ikr",
+    "JPY": "¥",
+    "KES": "Sh",
+    "KRW": "₩",
+    "MAD": "د.م",
+    "MXN": r"MX$",
+    "MYR": "RM",
+    "NGN": "₦",
+    "NOK": "NKr",
+    "NZD": r"NZ$",
+    "PHP": "₱",
+    "PKR": "Rs",
+    "PLN": "zł",
+    "RON": "Lei",
+    "RUB": "₽",
+    "SAR": "﷼",
+    "SEK": "kr",
+    "SGD": r"S$",
+    "THB": "฿",
+    "TRY": "₺",
+    "TWD": r"NT$",
+    "UAH": "₴",
+    "USD": r"$",
+    "VEF": "Bs.",
+    "VND": "₫",
+    "ZAR": "R",
+  };
+
+  static const _symbolSignsAfterAmount = {
+    "BGN",
+    "CHF",
+    "CNY",
+    "CZK",
+    "DKK",
+    "EUR",
+    "HRK",
+    "HUF",
+    "ISK",
+    "MAD",
+    "NOK",
+    "PLN",
+    "RON",
+    "RUB",
+    "SEK",
+    "VND",
+  };
+
+  String get symbolSign => _symbolSigns[title] ?? title;
+
+  String get sign => showsIsoCode() ? title : symbolSign;
+
+  bool get signAfterAmount => !showsIsoCode() && _symbolSignsAfterAmount.contains(title);
+
+  bool get signTouchesAmount => !signAfterAmount && !_endsWithLetterOrDot.hasMatch(sign);
+
+  String get signAsPrefix => _endsWithLetterOrDot.hasMatch(sign) ? "$sign " : sign;
+
+  String get label => symbolSign == title ? title : "$title ($symbolSign)";
+
+  String get isolatedSymbolSign => "$_firstStrongIsolate$symbolSign$_popDirectionalIsolate";
+
+  String get _isolatedSign =>
+      Bidi.hasAnyRtl(sign) ? "$_firstStrongIsolate$sign$_popDirectionalIsolate" : sign;
+
+  String format(String amount) =>
+      amount.isEmpty ? amount : "$_leftToRightIsolate${_withSign(amount)}$_popDirectionalIsolate";
+
+  String _withSign(String amount) {
+    if (signAfterAmount) {
+      return "$amount $_isolatedSign";
+    }
+
+    final gap = signTouchesAmount ? "" : " ";
+
+    return amount.replaceFirstMapped(_amountLead, (lead) => "${lead[0]}$_isolatedSign$gap");
+  }
 
   static List<FiatCurrency> get all => _all.values.toList();
 

@@ -61,7 +61,7 @@ class AnyPaySwapFooter extends StatelessWidget {
                       TextSpan(text: "$depositAmount $depositSymbol"),
                       if (showFiat)
                         TextSpan(
-                          text: "  ≈ ${exchangeViewModel.fiat.symbol}$depositFiat",
+                          text: "  ${exchangeViewModel.fiat.format("≈ $depositFiat")}",
                           style: TextStyle(color: colors.onSurfaceVariant),
                         ),
                     ],

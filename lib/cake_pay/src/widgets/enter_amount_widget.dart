@@ -1,3 +1,4 @@
+import "package:cake_wallet/entities/fiat_currency.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/typography.dart';
@@ -13,12 +14,14 @@ class EnterAmountWidget extends StatelessWidget {
       required this.amountController,
       required this.onAmountChanged});
 
-  final String minValue;
-  final String maxValue;
-  final String fiatCurrency;
+  final String? minValue;
+  final String? maxValue;
+  final FiatCurrency fiatCurrency;
   final FocusNode amountFieldFocus;
   final TextEditingController amountController;
   final Function(String) onAmountChanged;
+
+  String _limit(String? value) => value == null ? "-" : fiatCurrency.format(value);
 
   @override
   Widget build(BuildContext context) {
@@ -37,58 +40,61 @@ class EnterAmountWidget extends StatelessWidget {
                 border: Border(
                     bottom: BorderSide(
                         width: 1.0, color: Theme.of(context).colorScheme.onSurfaceVariant))),
-            child: BaseTextFormField(
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-              controller: amountController,
-              keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-              hintText: '0.00',
-              maxLines: 1,
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(top: 2.0),
-                child: Text(
-                  '$fiatCurrency: ',
-                  style: Theme.of(context).textTheme.titleMedium!,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: BaseTextFormField(
+                isDense: true,
+                contentPadding: EdgeInsets.zero,
+                controller: amountController,
+                keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                hintText: '0.00',
+                maxLines: 1,
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    fiatCurrency.signAsPrefix,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
+                prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
+                suffixIcon: Padding(
+                  padding: const EdgeInsets.only(top: 2, right: 4),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('QTY ', style: Theme.of(context).textTheme.titleMedium!),
+                      Text('1',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+                textStyle: Theme.of(context).textTheme.titleMedium!,
+                placeholderTextStyle: Theme.of(context)
+                    .textTheme
+                    .titleMedium!
+                    .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                inputFormatters: [
+                  FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'^\d+(\.|\,)?\d{0,2}'),
+                  ),
+                ],
               ),
-              prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-              suffixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
-              suffixIcon: Padding(
-                padding: const EdgeInsets.only(top: 2, right: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('QTY ', style: Theme.of(context).textTheme.titleMedium!),
-                    Text('1',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleMedium!
-                            .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                  ],
-                ),
-              ),
-              textStyle: Theme.of(context).textTheme.titleMedium!,
-              placeholderTextStyle: Theme.of(context)
-                  .textTheme
-                  .titleMedium!
-                  .copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              inputFormatters: [
-                FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-                FilteringTextInputFormatter.allow(
-                  RegExp(r'^\d+(\.|\,)?\d{0,2}'),
-                ),
-              ],
             ),
           ),
           const SizedBox(height: 4),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(S.of(context).min_amount(minValue) + ' $fiatCurrency',
+              Text(S.of(context).min_amount(_limit(minValue)),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),
-              Text(S.of(context).max_amount(maxValue) + ' $fiatCurrency',
+              Text(S.of(context).max_amount(_limit(maxValue)),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       )),

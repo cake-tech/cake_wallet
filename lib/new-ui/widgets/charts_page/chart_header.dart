@@ -73,7 +73,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                         valueListenable: _viewedPrice,
                         builder: (context, viewedPrice, _) => ChartViewPriceHeader(
                           price: viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2, meaningfulDecimals: 2) ?? "...",
-                          ticker: s.fiatTicker,
+                          fiatCurrency: s.fiatCurrency,
                           highlight: viewedPrice != null,
                         ),
                       ),
@@ -102,7 +102,7 @@ class _ChartHeaderState extends State<ChartHeader> {
                                           )
                                         : ChangeDisplay(
                                             changeData: s.changeDataFor(widget.currency),
-                                            ticker: s.fiatTicker,
+                                            fiatCurrency: s.fiatCurrency,
                                           ),
                                   )
                                 : const SizedBox.shrink(),

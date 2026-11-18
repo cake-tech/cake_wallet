@@ -7,6 +7,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import "package:flutter_mobx/flutter_mobx.dart";
 
 class AssetTile extends StatelessWidget {
   const AssetTile(
@@ -160,12 +161,15 @@ class AssetTile extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Text(
-                      showSecondary
-                          ? balance.fiatSecondAvailableBalance
-                          : balance.fiatAvailableBalance,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
+                    Observer(
+                      warnWhenNoObservables: false,
+                      builder: (_) => Text(
+                        showSecondary
+                            ? balance.fiatSecondAvailableBalance
+                            : balance.fiatAvailableBalance,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                     ),
                   ],

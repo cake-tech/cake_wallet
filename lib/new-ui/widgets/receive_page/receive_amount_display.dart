@@ -78,6 +78,12 @@ class ReceiveAmountDisplay extends StatelessWidget {
   }
 
   String _getFiatAmount() {
-    return "${walletAddressListViewModel.fiatAmount} ${walletAddressListViewModel.selectedCurrency is FiatCurrency && walletAddressListViewModel.selectedCurrencyFiatAmount.isNotEmpty ? walletAddressListViewModel.selectedCurrency.name : walletAddressListViewModel.fiatCurrency.name}";
+    final selectedCurrency = walletAddressListViewModel.selectedCurrency;
+    final fiatCurrency = selectedCurrency is FiatCurrency &&
+            walletAddressListViewModel.selectedCurrencyFiatAmount.isNotEmpty
+        ? selectedCurrency
+        : walletAddressListViewModel.fiatCurrency;
+
+    return fiatCurrency.format(walletAddressListViewModel.fiatAmount);
   }
 }

@@ -93,7 +93,7 @@ class _NewBuySellAmountPageState extends State<NewBuySellAmountPage> {
                   title: _pageTitle,
                   bottomText: !_customAmountMode || widget.buySellViewModel.maxFiatAmount == null
                       ? null
-                      : "${S.of(context).up_to} ~${widget.buySellViewModel.maxFiatAmount} ${widget.buySellViewModel.fiatCurrency.title}",
+                      : "${S.of(context).up_to} ${widget.buySellViewModel.fiatCurrency.format("~${widget.buySellViewModel.maxFiatAmount!}")}",
                   leadingIcon: const Icon(Icons.close),
                   leadingSemanticLabel: S.of(context).close,
                   onLeadingPressed: Navigator.of(context, rootNavigator: true).pop,
@@ -398,6 +398,35 @@ class BuySellAmountPill extends StatelessWidget {
   final VoidCallback onTap;
   final bool isLoading;
 
+  String? get _currencySign {
+    final currency = amount?.currency;
+
+    return currency is FiatCurrency ? currency.sign : currency?.symbol;
+  }
+
+  bool get _signAfterAmount {
+    final currency = amount?.currency;
+
+    return currency is FiatCurrency && currency.signAfterAmount;
+  }
+
+  bool get _signTouchesAmount {
+    final currency = amount?.currency;
+
+    return currency is FiatCurrency && currency.signTouchesAmount;
+  }
+
+  Widget _sign(BuildContext context) => Text(
+        _currencySign ?? S.of(context).custom,
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: amount == null
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
@@ -427,25 +456,18 @@ class BuySellAmountPill extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Row(
-                        spacing: 4,
+                        textDirection: TextDirection.ltr,
+                        spacing: _signTouchesAmount ? 0 : 4,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          if (!_signAfterAmount) _sign(context),
                           if (amount != null)
                             MoneyText(
                               amount!,
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                               showSymbol: false,
                             ),
-                          Text(
-                            amount?.currency.symbol ?? S.of(context).custom,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: amount == null
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
+                          if (_signAfterAmount) _sign(context),
                         ],
                       ),
                       if (amount == null)
@@ -515,13 +537,22 @@ class BuySellCurrencyPickerPill extends StatelessWidget {
                             Text(
                               curr.fullName ?? curr.symbol,
                             ),
-                            CurrencySymbolText(
-                              curr,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            if (curr is FiatCurrency)
+                              Text(
+                                (curr as FiatCurrency).label,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
+                              )
+                            else
+                              CurrencySymbolText(
+                                curr,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                               ),
-                            ),
                           ],
                         ),
                       ],

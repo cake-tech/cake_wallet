@@ -100,7 +100,7 @@ class _BuySellRedirectingPageState extends State<BuySellRedirectingPage> {
                                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
-                                  "${widget.buySellViewModel.fiatAmount} ${widget.buySellViewModel.fiatCurrency} → ${widget.buySellViewModel.amountForQuote(widget.buySellViewModel.selectedQuote!)?.toStringWithSymbol(fractionalDigits: 8)}",
+                                  "${widget.buySellViewModel.fiatCurrency.format(widget.buySellViewModel.fiatAmount)} → ${widget.buySellViewModel.amountForQuote(widget.buySellViewModel.selectedQuote!)?.toStringWithSymbol(fractionalDigits: 8)}",
                                 ),
                               ],
                             ),

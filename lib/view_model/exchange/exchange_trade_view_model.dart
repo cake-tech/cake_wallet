@@ -147,12 +147,12 @@ abstract class ExchangeTradeViewModelBase with Store {
   @computed
   String get pendingTransactionFiatAmountValueFormatted => sendViewModel.isFiatDisabled
       ? ""
-      : "${sendViewModel.pendingTransactionFiatAmount} ${sendViewModel.fiat.title}";
+      : sendViewModel.fiat.format(sendViewModel.pendingTransactionFiatAmount);
 
   @computed
   String get pendingTransactionFeeFiatAmountFormatted => sendViewModel.isFiatDisabled
       ? ""
-      : "${sendViewModel.pendingTransactionFeeFiatAmount} ${sendViewModel.fiat.title}";
+      : sendViewModel.fiat.format(sendViewModel.pendingTransactionFeeFiatAmount);
 
 
   ExchangeProvider? _provider;
@@ -181,7 +181,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     } catch (_) {
       printV('Error calculating receive amount fiat formatted: $_');
     }
-    return isFiatDisabled ? '' : '$amount ${fiat.title}';
+    return isFiatDisabled ? '' : fiat.format(amount);
   }
 
   @computed
@@ -199,7 +199,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     } catch (_) {
       printV('Error calculating send amount fiat formatted: $_');
     }
-    return isFiatDisabled ? '' : '$amount ${fiat.title}';
+    return isFiatDisabled ? '' : fiat.format(amount);
   }
 
   void setUpOutput() {

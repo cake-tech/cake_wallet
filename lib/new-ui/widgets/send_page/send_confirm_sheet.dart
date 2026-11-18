@@ -190,11 +190,6 @@ class SendTransactionDetails extends StatelessWidget {
 
   String sumStr<T>(List<T> list, double Function(T) picker) => sumBy(list, picker).toString();
 
-  String sumWithUnit<T>(List<T> list, double Function(T) picker, String unit, {int? decimals}) {
-    final str = sumStr(list, picker);
-    return "${decimals == null ? str : str.withDecimals(decimals)} $unit";
-  }
-
   Widget _buildOverlaidContent(BuildContext context) => GeneratingTransactionOverlay(
         sendViewModel: sendViewModel,
         child: _buildMainContent(context),
@@ -227,21 +222,25 @@ class SendTransactionDetails extends StatelessWidget {
             ))
           : sendViewModel.amountParsingProxy.asDisplayString(transaction.fee);
 
+      final fiat = sendViewModel.fiatCurrency;
+
       final fiatAmount = (transaction == null)
-          ? sumWithUnit(
+          ? fiat.format(sumStr(
               sendViewModel.outputs,
               (o) => double.tryParse(o.fiatAmount.replaceAll(",", "")) ?? 0,
-              sendViewModel.fiatCurrency.title,
-              decimals: 2)
+            ).withDecimals(2))
           : sendViewModel.pendingTransactionFiatAmountFormatted;
 
-      final fiatFee = (transaction == null)
-          ? sumWithUnit(
+      final rawFiatFee = (transaction == null)
+          ? sumStr(
               sendViewModel.outputs,
               (o) => double.tryParse(o.estimatedFeeFiatAmount.replaceAll(",", "")) ?? 0,
-              sendViewModel.fiatCurrency.title,
-              decimals: 2)
-          : sendViewModel.pendingTransactionFeeFiatAmountFormatted;
+            ).withDecimals(2)
+          : sendViewModel.pendingTransactionFeeFiatAmount;
+
+      final fiatFee = (transaction != null && sendViewModel.isFiatDisabled)
+          ? ""
+          : fiat.format(rawFiatFee.withLocalSeperator(sendViewModel.languageCode));
 
       final showAddress = !sendViewModel.outputs.any((e) =>
           RegExp(AddressValidator.bolt11InvoiceMatcher).hasMatch(e.address.toLowerCase()) ||
@@ -344,8 +343,9 @@ class SendTransactionDetails extends StatelessWidget {
                                             : item.address,
                                         amount:
                                             "${item.roundedCryptoAmount(8).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.currency.title}",
-                                        fiatAmount:
-                                            "${item.fiatAmount.withDecimals(2).withLocalSeperator(sendViewModel.languageCode)} ${sendViewModel.fiatCurrency.title}",
+                                        fiatAmount: fiat.format(item.fiatAmount
+                                            .withDecimals(2)
+                                            .withLocalSeperator(sendViewModel.languageCode)),
                                       ),
                                       if (item != outputs.last)
                                         Container(
@@ -389,7 +389,7 @@ class SendTransactionDetails extends StatelessWidget {
                                       fontWeight: FontWeight.w400,
                                       color: Theme.of(context).colorScheme.onSurfaceVariant),
                                 ),
-                                Text(fiatFee.withLocalSeperator(sendViewModel.languageCode),
+                                Text(fiatFee,
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w400,
