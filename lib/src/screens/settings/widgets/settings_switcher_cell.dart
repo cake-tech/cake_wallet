@@ -26,17 +26,21 @@ class SettingsSwitcherCell extends StandardListRow {
   final double? height;
 
   @override
-  Widget buildTrailing(BuildContext context) => StandardSwitch(
-        value: value,
-        onTapped: () => onValueChange?.call(context, !value),
-        backgroundColor: switchBackgroundColor,
+  Widget buildTrailing(BuildContext context) => Semantics(
+        container: onTap != null,
+        label: onTap != null ? title : null,
+        child: StandardSwitch(
+          value: value,
+          onTapped: () => onValueChange?.call(context, !value),
+          backgroundColor: switchBackgroundColor,
+        ),
       );
 
   @override
   Widget build(BuildContext context) {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
-    return TestId.merge(testId ?? TestId.fromKey(key), child: Container(
+    final row = TestId.merge(testId ?? TestId.fromKey(key), child: Container(
       height: height,
       padding: padding ?? EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
@@ -67,6 +71,7 @@ class SettingsSwitcherCell extends StandardListRow {
       ),
     ),
     );
+    return onTap == null ? MergeSemantics(child: row) : row;
   }
 
   @override
