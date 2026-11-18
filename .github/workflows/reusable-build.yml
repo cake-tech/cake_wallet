@@ -411,6 +411,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload armeabi-v7a apk
+        id: upload_v7a
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.apks.outputs.branch }}_v7a.apk
@@ -430,16 +431,25 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.SLACK_APK_CHANNEL }}
           RUN_URL: https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          APKS_UPLOADED: ${{ steps.upload_v7a.outcome == 'success' }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
           if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
             echo "::notice::No slack token or channel configured, skipping the report"
             exit 0
           fi
 
-          label=$(printf '%s' "$BRANCH_NAME" | tr '\n\r' ' ' | tr -d '<>|')
-          text=$(printf ':cw: <%s|%s>' "$RUN_URL" "$label")
-          if [[ -n "$message" ]]; then
-            text=$(printf '%s\n%s' "$text" "$message")
+          if [[ "$APKS_UPLOADED" == "true" ]]; then
+            label=$(printf '%s' "$BRANCH_NAME" | tr '\n\r' ' ' | tr -d '<>|')
+            text=$(printf ':cw: <%s|%s>' "$RUN_URL" "$label")
+            if [[ -n "$message" ]]; then
+              text=$(printf '%s\n%s' "$text" "$message")
+            fi
+          else
+            title=$(printf '%s' "$PR_TITLE" | tr '\n\r' ' ' | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g')
+            text=$(printf ':x: Build failed for PR <%s|#%s>: %s' "$PR_URL" "$PR_NUMBER" "$title")
           fi
 
           response=$(curl -sS -X POST https://slack.com/api/chat.postMessage \

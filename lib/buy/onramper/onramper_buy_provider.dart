@@ -213,7 +213,7 @@ class OnRamperBuyProvider extends BuyProvider {
     String? paymentMethod;
 
     if (paymentType == PaymentType.all)
-      paymentMethod = null;
+      paymentMethod = recommendedPaymentType ?? (isBuyAction ? "creditcard" : null);
     else if (paymentType == PaymentType.unknown)
       paymentMethod = customPaymentMethodType;
     else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
@@ -259,8 +259,14 @@ class OnRamperBuyProvider extends BuyProvider {
 
           if (rampMetaData == null) continue;
 
-          final quote = Quote.fromOnramperJson(item, isBuyAction, _onrampMetadata,
-              _getPaymentTypeByString(paymentMethod), customPaymentMethodType);
+          final quotePaymentType = _getPaymentTypeByString(paymentMethod);
+          final quote = Quote.fromOnramperJson(
+            item,
+            isBuyAction,
+            _onrampMetadata,
+            quotePaymentType,
+            quotePaymentType == PaymentType.unknown ? paymentMethod : customPaymentMethodType,
+          );
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);
