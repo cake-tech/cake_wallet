@@ -2,9 +2,12 @@ name: No restricted imports in lib directory
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   check_restricted_imports:
-    runs-on: ubuntu-24.04
+    runs-on: puzl-ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4

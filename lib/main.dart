@@ -4,6 +4,7 @@ import 'dart:ui';
 
 import 'package:cake_wallet/anonpay/anonpay_invoice_info.dart';
 import 'package:cake_wallet/app_scroll_behavior.dart';
+import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/background_sync.dart';
 import 'package:cake_wallet/core/node_switching_service.dart';
@@ -23,6 +24,7 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/locales/locale.dart';
+import "package:cake_wallet/new-ui/widgets/call_scam_banner.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_provider.dart";
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
@@ -65,6 +67,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daemon/flutter_daemon.dart';
+import "package:flutter_localizations/flutter_localizations.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:quick_actions/quick_actions.dart';
@@ -102,6 +105,12 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         // Convert the shortcut type to a URI and add it to the stream
         final uri = Uri.parse('cakewallet://quickaction/$shortcutType');
         quickActionsStream.sink.add(uri);
+      }).then((_) {
+        // On Android initialize() reads the launch shortcut from the intent and calls the handler
+        // before returning, so no shortcut by now means there isn't one. iOS delivers it later.
+        if (Platform.isAndroid && !initialShortcutCompleter.isCompleted) {
+          initialShortcutCompleter.complete(null);
+        }
       });
 
       quickActions.setShortcutItems(<ShortcutItem>[
@@ -114,7 +123,8 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
             localizedSubtitle: 'Receive funds')
       ]);
 
-      // Fallback in case the initial shortcut is not received (normal cold start)
+      // Fallback in case the initial shortcut is not received (normal cold start on iOS, or if
+      // initialize() fails on Android)
       Future<void>.delayed(const Duration(milliseconds: 500), () {
         if (!initialShortcutCompleter.isCompleted) {
           initialShortcutCompleter.complete(null);
@@ -124,7 +134,6 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       initialShortcutCompleter.complete(null);
     }
 
-    final initialQuickAction = await initialShortcutCompleter.future;
     FlutterError.onError = ExceptionHandler.onError;
 
     /// A callback that is invoked when an unhandled error occurs in the root
@@ -176,6 +185,9 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       zcash?.unlockDatabase(zcashPassword);
     }
 
+    // Awaited only now so the fallback timeout runs concurrently with the startup work above
+    final initialQuickAction = await initialShortcutCompleter.future;
+
     // Basically when we're running a test
     if (topLevelKey != null) {
       runApp(
@@ -188,17 +200,22 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
         ),
       );
     } else {
-      runApp(App(
-          key: topLevelKey,
-          initialQuickAction: initialQuickAction,
-          quickActionsStream: quickActionsStream.stream));
+      runApp(
+        CiBuildOverlay(
+          settingsStore: getIt.get<SettingsStore>(),
+          child: App(
+              key: topLevelKey,
+              initialQuickAction: initialQuickAction,
+              quickActionsStream: quickActionsStream.stream),
+        ),
+      );
     }
 
     isAppRunning = true;
   }, (error, stackTrace) async {
     if (!isAppRunning) {
       runApp(
-        TopLevelErrorWidget(error: error, stackTrace: stackTrace),
+        CiBuildOverlay(child: TopLevelErrorWidget(error: error, stackTrace: stackTrace)),
       );
     }
 
@@ -308,7 +325,7 @@ Future<void> initializeAppConfigs({bool loadWallet = true}) async {
     payjoinSessionSource: payjoinSessionSource,
     anonpayInvoiceInfo: anonpayInvoiceInfo,
     havenSeedStore: havenSeedStore,
-    initialMigrationVersion: 70,
+    initialMigrationVersion: 72,
   );
 }
 
@@ -329,6 +346,7 @@ Future<void> initialSetup({
   required int initialMigrationVersion,
 }) async {
   LanguageService.loadLocaleList();
+  await GlobalMaterialLocalizations.delegate.load(const Locale("en"));
   await defaultSettingsMigration(
     secureStorage: secureStorage,
     version: initialMigrationVersion,
@@ -419,14 +437,17 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
               debugShowCheckedModeBanner: false,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
-                child: MoneySettingsProvider(settingsStore: settingsStore, child: child!),
+                child: MoneySettingsProvider(
+                  settingsStore: settingsStore,
+                  child: CallScamBanner(navigatorKey: navigatorKey, child: child!),
+                ),
               ),
               theme: theme,
               darkTheme: darkTheme,
               themeMode: themeMode,
               localizationsDelegates: localizationDelegates,
               supportedLocales: S.delegate.supportedLocales,
-              locale: Locale(appStore.settingsStore.languageCode),
+              locale: localeFromLanguageCode(appStore.settingsStore.languageCode),
               onGenerateRoute: (settings) => Router.createRoute(settings),
               initialRoute: initialRoute,
               scrollBehavior: AppScrollBehavior(),

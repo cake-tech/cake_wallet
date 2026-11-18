@@ -14,11 +14,13 @@ class ListItemSelectorWidget extends StatelessWidget {
     this.isFirstInSection = false,
     this.isLastInSection = false,
     this.onTap,
+    this.optionImagePath,
   });
 
   final String keyValue;
   final String label;
   final List<String> options;
+  final String? optionImagePath;
   final int selectedIndex;
   final ValueChanged<int> onChanged;
   final bool isFirstInSection;
@@ -32,30 +34,37 @@ class ListItemSelectorWidget extends StatelessWidget {
         onTap: onTap,
         isFirstInSection: isFirstInSection,
         isLastInSection: isLastInSection,
-        builder: (context, textStyle, labelStyle) {
-          return Row(
+        builder: (context, textStyle, labelStyle) => Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(child: Text(label, style: textStyle)),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Row(
-                  spacing: 8,
-                  children: [
-                    Text(
-                      options[selectedIndex],
-                      style: labelStyle,
-                    ),
-                    CakeImageWidget(
-                      imageUrl: "assets/new-ui/chooser.svg",
-                      colorFilter:
-                          ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
-                    ),
-                  ],
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 8,
+                    children: [
+                      if (optionImagePath != null)
+                        CakeImageWidget(imageUrl: optionImagePath, width: 18, height: 18),
+                      Flexible(
+                        child: Text(
+                          options[selectedIndex],
+                          style: labelStyle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      CakeImageWidget(
+                        imageUrl: "assets/new-ui/chooser.svg",
+                        colorFilter:
+                            ColorFilter.mode(theme.colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
-          );
-        });
+          ));
   }
 }

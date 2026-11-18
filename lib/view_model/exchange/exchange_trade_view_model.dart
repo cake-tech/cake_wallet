@@ -18,6 +18,7 @@ import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart'
 import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
 import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/whynot_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -32,6 +33,7 @@ import 'package:cake_wallet/view_model/send/fees_view_model.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/payment_uris.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -51,8 +53,7 @@ abstract class ExchangeTradeViewModelBase with Store {
     required this.fiatConversionStore,
   })  : trade = tradesStore.trade!,
         isSwapsXYZCanSendFromExternal =
-            _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet),
-        items = ObservableList<ExchangeTradeItem>() {
+            _checkIfSwapsXYZCanSendFromExternal(tradesStore.trade!, wallet) {
     setUpOutput();
     switch (trade.provider) {
       case ExchangeProviderDescription.changeNow:
@@ -73,6 +74,9 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
       case ExchangeProviderDescription.swapTrade:
         _provider = SwapTradeExchangeProvider();
+        break;
+      case ExchangeProviderDescription.whyNot:
+        _provider = WhyNotExchangeProvider();
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
@@ -97,7 +101,6 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
     }
 
-    _updateItems();
 
     if (_provider != null) {
       _updateTrade();
@@ -151,8 +154,6 @@ abstract class ExchangeTradeViewModelBase with Store {
       ? ""
       : "${sendViewModel.pendingTransactionFeeFiatAmount} ${sendViewModel.fiat.title}";
 
-  @observable
-  ObservableList<ExchangeTradeItem> items;
 
   ExchangeProvider? _provider;
 
@@ -252,105 +253,9 @@ abstract class ExchangeTradeViewModelBase with Store {
       await trade.save();
       tradesStore.setTrade(trade);
 
-      _updateItems();
     } catch (e) {
       printV(e.toString());
     }
-  }
-
-  void _updateItems() {
-    final tradeFrom = trade.from;
-    final tradeTo = trade.to;
-
-    final tagFrom = tradeFrom?.tag != null ? "${tradeFrom!.tag} " : "";
-    final tagTo = tradeTo?.tag != null ? "${tradeTo!.tag} " : "";
-
-    items.clear();
-
-    if (trade.provider != ExchangeProviderDescription.thorChain)
-      items.add(
-        ExchangeTradeItem(
-          title: "${trade.provider.title} ${S.current.id}",
-          data: "${trade.id}",
-          isCopied: true,
-          isReceiveDetail: true,
-          isExternalSendDetail: false,
-        ),
-      );
-
-    if (tradeFrom != null && tradeTo != null) {
-      items.addAll([
-        ExchangeTradeItem(
-          title: S.current.amount,
-          data:
-              "${_amountParsingProxy.getDisplayCryptoAmount(trade.amount, tradeFrom)} ${_amountParsingProxy.getCryptoSymbol(tradeFrom)}",
-          isCopied: false,
-          isReceiveDetail: false,
-          isExternalSendDetail: true,
-        ),
-        ExchangeTradeItem(
-          title: "${S.current.you_will_receive_estimated_amount}:",
-          data:
-              "${_amountParsingProxy.getDisplayCryptoAmount(trade.receiveAmount ?? "0", tradeTo)} ${_amountParsingProxy.getCryptoSymbol(tradeTo)}",
-          isCopied: true,
-          isReceiveDetail: true,
-          isExternalSendDetail: false,
-        ),
-        ExchangeTradeItem(
-          title: "${S.current.send_to_this_address("$tradeFrom", tagFrom)}:",
-          data: trade.inputAddress ?? '',
-          isCopied: false,
-          isReceiveDetail: false,
-          isExternalSendDetail: true,
-        ),
-      ]);
-
-      items.add(
-        isSwapsXYZCanSendFromExternal
-            ? ExchangeTradeItem(
-                title: S.current.send_to_this_address('${tradeFrom}', tagFrom) + ':',
-                data: trade.inputAddress ?? '',
-                isCopied: false,
-                isReceiveDetail: false,
-                isExternalSendDetail: true)
-            : ExchangeTradeItem(
-                title: 'Smart contract call (no address required)',
-                data: 'Wallet will execute a contract call. On-chain transaction',
-                isCopied: false,
-                isReceiveDetail: false,
-                isExternalSendDetail: true),
-      );
-    }
-
-    final isExtraIdExist = trade.extraId != null && trade.extraId!.isNotEmpty;
-
-    if (isExtraIdExist) {
-      final title = tradeFrom == CryptoCurrency.xrp
-          ? S.current.destination_tag
-          : [CryptoCurrency.xlm, CryptoCurrency.ton].contains(tradeFrom)
-              ? S.current.memo
-              : S.current.extra_id;
-
-      items.add(
-        ExchangeTradeItem(
-          title: title,
-          data: trade.extraId ?? "",
-          isCopied: true,
-          isReceiveDetail: !isExtraIdExist,
-          isExternalSendDetail: isExtraIdExist,
-        ),
-      );
-    }
-
-    items.add(
-      ExchangeTradeItem(
-        title: "${S.current.arrive_in_this_address("${tradeTo}", tagTo)}:",
-        data: trade.payoutAddress ?? "",
-        isCopied: true,
-        isReceiveDetail: true,
-        isExternalSendDetail: false,
-      ),
-    );
   }
 
   String? checkIfCanSend(Trade? trade, WalletBase wallet) {
@@ -377,7 +282,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         _isTokenBelongingToWallet(CryptoCurrency.arbEth) ||
         _isTokenBelongingToWallet(CryptoCurrency.trx) ||
         _isTokenBelongingToWallet(CryptoCurrency.sol) ||
-        _isTokenBelongingToWallet(CryptoCurrency.bnb);
+        _isTokenBelongingToWallet(CryptoCurrency.bnb) ||
+        _isTokenBelongingToWallet(CryptoCurrency.robEth);
 
     if (!canSend) {
       return 'Wallet currency ${wallet.currency.title} does not match trade from currency ${tradeFrom.title} or is not a supported token for this wallet.';
@@ -446,23 +352,34 @@ abstract class ExchangeTradeViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
-        return _createERC681URI(fromCurrency, inputAddress, amount);
+      case WalletType.robinhood:
+        return _createERC681URI(fromCurrency, inputAddress, amount, uriWalletType);
       case WalletType.solana:
+        final mintAddress = TokenUtilities.findSolanaTokenMint(fromCurrency);
+        if (!identical(fromCurrency, CryptoCurrency.sol) &&
+            (mintAddress == null || mintAddress.isEmpty)) {
+          return null;
+        }
         return SolanaURI(
           amount: amount,
           address: inputAddress,
-          contractAddress: TokenUtilities.findSolanaTokenMint(fromCurrency),
+          contractAddress: mintAddress,
         );
       case WalletType.tron:
+        final contractAddress = TokenUtilities.findTronTokenContract(fromCurrency);
+        if (!identical(fromCurrency, CryptoCurrency.trx) &&
+            (contractAddress == null || contractAddress.isEmpty)) {
+          return null;
+        }
         return TronURI(
           amount: amount,
           address: inputAddress,
-          contractAddress: TokenUtilities.findTronTokenContract(fromCurrency),
+          contractAddress: contractAddress,
         );
       case WalletType.monero:
         return MoneroURI(address: inputAddress, amount: amount);
       case WalletType.wownero:
-        return MoneroURI(address: inputAddress, amount: amount);
+        return WowneroURI(address: inputAddress, amount: amount);
       case WalletType.litecoin:
         return LitecoinURI(amount: amount, address: inputAddress);
       case WalletType.nano:
@@ -481,32 +398,36 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   @action
-  PaymentURI? _createERC681URI(CryptoCurrency currency, String address, String amount) {
-    final chainId = TokenUtilities.getChainId(currency);
-    final isNativeToken = TokenUtilities.isNativeToken(currency);
+  PaymentURI? _createERC681URI(
+    CryptoCurrency currency,
+    String address,
+    String amount,
+    WalletType walletType,
+  ) {
+    final nativeCurrency = walletTypeToCryptoCurrency(walletType);
+    final chainId = getChainIdByCryptoCurrency(nativeCurrency)!;
 
-    if (isNativeToken) {
+    if (identical(currency, nativeCurrency)) {
       return ERC681URI(
         chainId: chainId,
         address: address,
         amount: amount,
         contractAddress: null,
       );
-    } else {
-      final erc20Token = TokenUtilities.findErc20Token(currency, wallet) ??
-          TokenUtilities.findErc20TokenForSwap(currency);
+    }
 
-      if (erc20Token != null) {
-        return ERC681URI(
-          chainId: chainId,
-          address: address,
-          amount: amount,
-          contractAddress: erc20Token.contractAddress,
-          tokenDecimals: erc20Token.decimal,
-        );
-      }
+    final erc20Token = TokenUtilities.findErc20TokenForSwap(currency);
+    if (erc20Token == null || erc20Token.contractAddress.isEmpty) {
       return null;
     }
+
+    return ERC681URI(
+      chainId: chainId,
+      address: address,
+      amount: amount,
+      contractAddress: erc20Token.contractAddress,
+      tokenDecimals: erc20Token.decimal,
+    );
   }
 
   @computed

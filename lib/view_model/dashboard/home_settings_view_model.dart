@@ -194,10 +194,10 @@ abstract class HomeSettingsViewModelBase with Store {
         return false;
       }
 
-      bool isPotentialScamViaMoralis = await _isPotentialScamTokenViaMoralis(
-        contractAddress,
-        getChainNameBasedOnWalletType(_balanceViewModel.wallet.type),
-      );
+      final moralisChainName = evm!.getMoralisChainName(_balanceViewModel.wallet);
+
+      final isPotentialScamViaMoralis = moralisChainName != null &&
+          await _isPotentialScamTokenViaMoralis(contractAddress, moralisChainName);
 
       bool isUnverifiedContract = await _isContractUnverified(
         contractAddress,
@@ -221,6 +221,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         defaultTokenAddresses = evm!.getDefaultTokenContractAddresses(_balanceViewModel.wallet);
         break;
       case WalletType.solana:
@@ -262,6 +263,7 @@ abstract class HomeSettingsViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         defaultTokenSymbols = evm!.getDefaultTokenSymbols(_balanceViewModel.wallet);
         break;
       case WalletType.solana:

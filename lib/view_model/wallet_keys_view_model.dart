@@ -6,18 +6,16 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_monero/monero_wallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cake_wallet/reactions/wallet_connect.dart';
 
 part 'wallet_keys_view_model.g.dart';
 
@@ -118,7 +116,7 @@ abstract class WalletKeysViewModelBase with Store {
       final langName = PolyseedLang.getByPhrase(_wallet.seed!).nameEnglish;
 
       if (_wallet.type == WalletType.monero) {
-        return (_wallet as MoneroWalletBase).seedLegacy(langName);
+        return monero!.getLegacySeed(_wallet, langName);
       } else if (_wallet.type == WalletType.wownero) {
         return wownero!.getLegacySeed(_wallet, langName);
       }
@@ -174,6 +172,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.tron:
         items.addAll([
@@ -324,6 +323,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'arbitrum-wallet';
       case WalletType.bsc:
         return 'bsc-wallet';
+      case WalletType.robinhood:
+        return "robinhood-wallet";
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:
@@ -339,7 +340,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.zcash:
         return 'zcash-wallet';
       case WalletType.none:
-        throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
+        throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys', _wallet.type);
     }
   }
 

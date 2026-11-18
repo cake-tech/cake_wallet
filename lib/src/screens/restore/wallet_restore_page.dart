@@ -102,6 +102,7 @@ class WalletRestorePage extends BasePage {
                       builder: (context) {
                         return walletRestoreViewModel.passphraseAvailable
                             ? StandardCheckbox(
+                                key: const ValueKey("wallet_restore_has_passphrase_checkbox_key"),
                                 captionColor: Theme.of(context).colorScheme.onSecondaryContainer,
                                 value: walletRestoreViewModel.hasPassphrase,
                                 caption: S.of(context).wallet_has_passphrase,

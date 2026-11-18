@@ -8,14 +8,18 @@ void startOnCurrentNodeChangeReaction(AppStore appStore) {
   _onCurrentNodeChangeReaction?.reaction.dispose();
   appStore.settingsStore.nodes.observe((change) async {
     try {
-      await appStore.wallet!.connectToNode(node: change.newValue!);
+      if(change.newValue?.type == appStore.wallet!.type) {
+        await appStore.wallet!.connectToNode(node: change.newValue!);
+      }
     } catch (e) {
       printV(e.toString());
     }
   });
   appStore.settingsStore.powNodes.observe((change) async {
     try {
-      await appStore.wallet!.connectToPowNode(node: change.newValue!);
+      if(change.newValue?.type == appStore.wallet!.type) {
+        await appStore.wallet!.connectToPowNode(node: change.newValue!);
+      }
     } catch (e) {
       printV(e.toString());
     }

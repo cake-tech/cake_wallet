@@ -108,6 +108,9 @@ com.cakewallet.cake_wallet
 C5:40:53:AB:0F:10:D9:54:17:62:A3:DA:76:65:AE:3D:BA:5E:7C:74:3A:B4:F1:08:A5:34:9D:62:AC:10:6E:F5
 ```
 
+For signed checksums, the release key, and verification steps for every platform, see
+[Verifying Cake Wallet downloads](docs/VERIFY.md).
+
 # Support
 
 We have 24/7 free support. Please contact support@cakewallet.com
@@ -116,9 +119,13 @@ We have excellent user guides, which are also open-source and open for contribut
 
 # Build Instructions
 
-More instructions to follow
+Building Cake Wallet for each platform is covered in the platform-specific guides under `docs/builds/`:
 
-For instructions on how to build for Android: please view file `howto-build-android.md`
+- [Building for Android](docs/builds/ANDROID.md)
+- [Building for iOS](docs/builds/IOS.md)
+- [Building for Linux](docs/builds/LINUX.md)
+- [Building for macOS](docs/builds/MACOS.md)
+- [Building for Windows](docs/builds/WINDOWS.md)
 
 # Contributing
 
@@ -186,4 +193,4 @@ The only parts to be translated, if needed, are the values m and s after the var
 
 ---
 
-Copyright (C) 2018-2023 Cake Labs LLC
+Copyright (C) 2018-2025 Cake Labs LLC

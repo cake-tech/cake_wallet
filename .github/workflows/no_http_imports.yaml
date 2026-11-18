@@ -2,9 +2,12 @@ name: No http imports
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   PR_test_build:
-    runs-on: ubuntu-24.04
+    runs-on: puzl-ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4

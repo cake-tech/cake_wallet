@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/cake_pay/src/cake_pay_exceptions.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_source_description.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/cake_pay/src/models/cake_pay_vendor.dart';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
@@ -95,6 +97,13 @@ abstract class CakePayBuyCardViewModelBase with Store {
   bool get isAmountSufficient =>
       (amount >= min && amount <= max) || (isDenominationSelected && quantity > 0);
 
+  String? get amountError {
+    if (isAmountSufficient) return null;
+    if (amount < min) return S.current.error_text_input_below_minimum_limit;
+    if (amount > max) return S.current.error_text_input_above_maximum_limit;
+    return null;
+  }
+
   @observable
   CakePayPaymentMethod? selectedPaymentMethod;
 
@@ -152,8 +161,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
 
   @action
   void onAmountChanged(String input) {
-    if (input.isEmpty) return;
-    amount = double.parse(input.replaceAll(',', '.'));
+    amount = input.isEmpty ? 0 : double.parse(input.replaceAll(',', '.'));
 
     if (card.prepaidRange.isNotEmpty) {
       selectedDenomination = (input.replaceAll(',', '.'), selectedDenomination.$2);
@@ -199,7 +207,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
           method: selectedPaymentMethod,
           order: order); // TODO should hande other currencies if added
       if (paymentData == null || order == null)
-        throw Exception('Payment data or order is not available.');
+        throw CakePayNoDataException('Payment data or order is not available.');
 
       await confirmSending(paymentData);
       expirationTime = order!.paymentData.expirationTime;
@@ -221,6 +229,8 @@ abstract class CakePayBuyCardViewModelBase with Store {
       orders.add(orderRecord);
       updateRemainingTime();
       _startExpirationTimer();
+    } on CakePayUnauthorizedException {
+      rethrow;
     } catch (e) {
       sendViewModel.state = FailureState(
           sendViewModel.translateErrorMessage(e, walletType, sendViewModel.wallet.currency));
@@ -244,7 +254,7 @@ abstract class CakePayBuyCardViewModelBase with Store {
   @action
   Future<void> simulatePayment() async {
     if (order == null) {
-      throw Exception('Order is not created yet.');
+      throw CakePayNoDataException('Order is not created yet.');
     }
 
     try {
@@ -274,8 +284,6 @@ abstract class CakePayBuyCardViewModelBase with Store {
       formattedRemainingTime = formatDuration(remainingTime!);
     }
   }
-
-  Future<void> logout() async => await _cakePayService.logout();
 
   void _startExpirationTimer() {
     _timer?.cancel();

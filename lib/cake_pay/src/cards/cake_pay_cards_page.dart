@@ -1,5 +1,6 @@
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import "package:cake_wallet/cake_pay/src/widgets/cake_pay_maintenance_widget.dart";
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_search_bar_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/user_card_item.dart';
 import 'package:cake_wallet/entities/country.dart';
@@ -168,12 +169,10 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
               child: TabViewWrapper(
                   labelStyle: TextStyle(
                       color: titleColor,
-                      fontFamily: 'Lato',
                       fontSize: 20,
                       fontWeight: FontWeight.w600),
                   unselectedLabelStyle: TextStyle(
                       color: titleColor?.withAlpha(150) ?? Colors.white70,
-                      fontFamily: 'Lato',
                       fontSize: 20,
                       fontWeight: FontWeight.w400),
                   indicatorColor: titleColor,
@@ -454,7 +453,12 @@ class _ShopTabState extends State<_ShopTab> {
           child: Observer(builder: (_) {
             final vendors = viewModel.cakePayVendors;
 
-            if (viewModel.vendorsState is! CakePayVendorLoadedState) {
+            if (viewModel.isUnderMaintenance == true) {
+              return const CakePayMaintenanceWidget();
+            }
+
+            if (viewModel.isUnderMaintenance == null ||
+                viewModel.vendorsState is! CakePayVendorLoadedState) {
               return const _Loading();
             }
 
@@ -477,11 +481,18 @@ class _ShopTabState extends State<_ShopTab> {
                     if (i >= vendors.length) return const _Loading();
                     final vendor = vendors[i];
                     return CardItem(
-                        logoUrl: vendor.card?.cardImageUrl,
-                        title: vendor.name,
-                        subTitle: vendor.card?.description ?? '',
-                        onTap: () => Navigator.pushNamed(context, Routes.cakePayBuyCardPage,
-                            arguments: [vendor]));
+                      logoUrl: vendor.card?.cardImageUrl,
+                      title: vendor.name,
+                      subTitle: vendor.card?.description ?? '',
+                      onTap: () async {
+                        await Navigator.pushNamed(
+                          context,
+                          Routes.cakePayBuyCardPage,
+                          arguments: [vendor],
+                        );
+                        await viewModel.checkAuth();
+                      },
+                    );
                   },
                 ),
               ],

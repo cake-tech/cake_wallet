@@ -1,4 +1,5 @@
 import 'package:cw_core/enumerable_item.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 
 class OrderProviderDescription extends EnumerableItem<int> with Serializable<int> {
   const OrderProviderDescription({
@@ -17,7 +18,7 @@ class OrderProviderDescription extends EnumerableItem<int> with Serializable<int
       case 0:
         return cakePay;
       default:
-        throw Exception('Invalid OrderProviderDescription $raw');
+        throw DeserializeException('Invalid OrderProviderDescription $raw');
     }
   }
 }

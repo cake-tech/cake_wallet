@@ -13,20 +13,23 @@ class ModalTopBar extends StatelessWidget {
       this.leadingIcon,
       this.trailingIcon,
       this.padding,
+      this.bottomText,
       this.leadingWidget,
       this.trailingWidget,
+      this.titleLeadingWidget,
       this.leadingSemanticLabel,
       this.trailingSemanticLabel}) {
     if (leadingIcon != null && leadingWidget != null) {
-      throw Exception("Cannot have both leadingIcon and leadingWidget");
+      throw ArgumentError("Cannot have both leadingIcon and leadingWidget");
     }
     if (trailingIcon != null && trailingWidget != null) {
-      throw Exception("Cannot have both trailingIcon and trailingWidget");
+      throw ArgumentError("Cannot have both trailingIcon and trailingWidget");
     }
   }
 
   final String title;
   final String? subtitle;
+  final String? bottomText;
   final VoidCallback onLeadingPressed;
   final VoidCallback onTrailingPressed;
   final Widget? leadingIcon;
@@ -34,6 +37,7 @@ class ModalTopBar extends StatelessWidget {
   final Widget? trailingIcon;
   final Widget? leadingWidget;
   final Widget? trailingWidget;
+  final Widget? titleLeadingWidget;
 
   /// Accessible name for the leading chrome button. Required (and must be
   /// non-empty) whenever a [leadingIcon] is supplied, because the icon alone
@@ -50,32 +54,67 @@ class ModalTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasBottomText = bottomText != null && bottomText!.isNotEmpty;
+    final titleContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: Semantics(
+            key: ValueKey(title),
+            header: title.isNotEmpty,
+            // Android reads the heading from headingLevel since the
+            // Flutter 3.41 engine; header: alone only covers iOS.
+            headingLevel: title.isNotEmpty ? 1 : null,
+            child: titleLeadingWidget == null
+                ? Text(
+                    title,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontSize: hasBottomText ? 16 : 18,
+                        ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: 12,
+                    children: [
+                      ExcludeSemantics(child: titleLeadingWidget),
+                      Flexible(
+                        child: Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontSize: hasBottomText ? 16 : 18,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+        if (hasBottomText)
+          Text(
+            bottomText!,
+            style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+      ],
+    );
     return Padding(
       padding: padding ?? EdgeInsets.all(18),
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
           Positioned(
-            top: 6,
+            top: hasBottomText ? -4 : 6,
+            left: titleLeadingWidget == null ? null : buttonSize + 8,
+            right: titleLeadingWidget == null ? null : buttonSize + 8,
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               spacing: 4,
               children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: Semantics(
-                    key: ValueKey(title),
-                    header: title.isNotEmpty,
-                    // Android reads the heading from headingLevel since the
-                    // Flutter 3.41 engine; header: alone only covers iOS.
-                    headingLevel: title.isNotEmpty ? 1 : null,
-                    child: Text(
-                      title,
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                  ),
-                ),
+                if (titleLeadingWidget == null) titleContent else Expanded(child: titleContent),
                 if (subtitle != null && subtitle!.isNotEmpty)
                   Text(subtitle!,
                       style: Theme.of(context)
