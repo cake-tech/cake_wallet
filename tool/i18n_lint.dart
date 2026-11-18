@@ -162,13 +162,25 @@ void checkLocale(String lang, Map<String, String> source, String arbDir) {
   for (final entry in target.entries) {
     if (!entry.key.endsWith('_highlight')) continue;
     final stem = entry.key.substring(0, entry.key.length - '_highlight'.length);
-    final hosts = [target['${stem}_title'], target['${stem}_description']]
-        .whereType<String>()
-        .toList();
+    final hostKeys = ['${stem}_title', '${stem}_description'];
+    // The slide, not the key name, decides which text a highlight is drawn
+    // inside: accounts_education_order_highlight sits in the description. The
+    // pairing is unambiguous in English, so derive it there and require the
+    // translation to highlight the same host. Accept either host when English
+    // itself is ambiguous or the key has no English counterpart.
+    final enHighlight = source[entry.key];
+    final enMatches = (enHighlight == null || enHighlight.isEmpty)
+        ? const <String>[]
+        : hostKeys
+            .where((key) => (source[key] ?? '').contains(enHighlight))
+            .toList();
+    final pairedKeys = enMatches.isEmpty ? hostKeys : enMatches;
+    final hosts =
+        pairedKeys.map((key) => target[key]).whereType<String>().toList();
     if (hosts.isEmpty) continue;
     if (!hosts.any((host) => host.contains(entry.value))) {
       _warnings.add(Finding(lang, 'highlight', entry.key,
-          'is not a substring of ${stem}_title or ${stem}_description'));
+          'is not a substring of ${pairedKeys.join(" or ")}'));
     }
   }
 

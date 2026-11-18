@@ -18,7 +18,10 @@ write_en() {
   "both": "From ${from} to ${to}",
   "slide_title": "Accounts are created in order",
   "slide_description": "The order of creation is shown alongside the account name",
-  "slide_highlight": "Accounts"
+  "slide_highlight": "Accounts",
+  "order_title": "Accounts are numbered",
+  "order_description": "Creation order appears next to the account name",
+  "order_highlight": "Creation order"
 }
 JSON
 }
@@ -31,7 +34,10 @@ write_clean() {
   "both": "${from} से ${to} तक",
   "slide_title": "खाते क्रम में बनाए जाते हैं",
   "slide_description": "बनाने का क्रम खाते के नाम के साथ दिखता है",
-  "slide_highlight": "खाते"
+  "slide_highlight": "खाते",
+  "order_title": "खाते क्रमांकित हैं",
+  "order_description": "निर्माण का क्रम नाम के साथ दिखता है",
+  "order_highlight": "निर्माण का क्रम"
 }
 JSON
 }
@@ -100,6 +106,19 @@ json.dump(d, open(p, "w"), ensure_ascii=False)
 PY
 }
 
+# English pairs order_highlight with order_description, so a translation whose
+# highlight only matches the title must still be reported.
+wrong_host_fixture() {
+  write_clean
+  python3 - "$arb/strings_xx.arb" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["order_highlight"] = "क्रमांकित"
+json.dump(d, open(p, "w"), ensure_ascii=False)
+PY
+}
+
 check "clean locale passes" 0 clean_fixture
 check "missing key warns" 0 missing_fixture
 check "placeholder reorder fails" 1 order_fixture
@@ -110,6 +129,12 @@ write_en
 bad_highlight_fixture
 out="$(cd "$root" && dart tool/i18n_lint.dart --arb-dir="$arb" --lang=xx --baseline="$tmp/empty3.json" 2>&1)"
 if echo "$out" | grep -q "highlight"; then echo "ok   highlight mismatch warns"; else echo "FAIL highlight warning"; echo "$out" | tail -3; failures=$((failures + 1)); fi
+
+# highlight must sit in the host the slide pairs it with, not just any host
+write_en
+wrong_host_fixture
+out="$(cd "$root" && dart tool/i18n_lint.dart --arb-dir="$arb" --lang=xx --baseline="$tmp/empty5.json" 2>&1)"
+if echo "$out" | grep -q "order_highlight.*order_description"; then echo "ok   highlight in the wrong host warns"; else echo "FAIL cross-host highlight"; echo "$out" | tail -3; failures=$((failures + 1)); fi
 
 # baseline filtering: accept the reorder, then it must pass
 write_en
