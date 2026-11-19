@@ -182,29 +182,34 @@ class CreatePinWelcomePage extends BasePage {
                                 ?.copyWith(fontWeight: FontWeight.w500),
                             textAlign: TextAlign.center,
                           ),
+                        // The headline above is width-bounded; keep this
+                        // row inside the same box (Tamil "பெறுநர்").
                         if (!isMoneroOnly)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AnimatedTypingText(
-                                words: [S.current.payments, S.current.privacy, S.current.security],
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                cursorColor: Theme.of(context).colorScheme.primary,
-                                cursorHeight: 28,
-                                cursorWidth: 4,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                S.current.made_easy,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AnimatedTypingText(
+                                  words: [S.current.payments, S.current.privacy, S.current.security],
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                  cursorColor: Theme.of(context).colorScheme.primary,
+                                  cursorHeight: 28,
+                                  cursorWidth: 4,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  S.current.made_easy,
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
                       ],
                     ),
