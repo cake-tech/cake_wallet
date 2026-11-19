@@ -443,7 +443,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
-      inputsOwnershipFullyResolved: data['inputsOwnershipFullyResolved'] as bool? ?? false,
+      // Records written before this field existed have no ownership flag. On
+      // the old model a missing input tx was stored as fee == null, so that
+      // is the legacy "missing data" marker: only those re-queue.
+      inputsOwnershipFullyResolved:
+          data['inputsOwnershipFullyResolved'] as bool? ?? (data['fee'] != null),
       additionalInfo: additionalInfo,
     );
   }

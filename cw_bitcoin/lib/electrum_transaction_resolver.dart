@@ -474,6 +474,7 @@ class ElectrumTransactionResolver {
         // Parents may not be resolved yet, so the build can fail to find the
         // owning account; don't drop one found earlier.
         info.accountIndex ??= existingTxInfo.accountIndex;
+        info.additionalInfo = {...existingTxInfo.additionalInfo, ...info.additionalInfo};
       }
 
       _wallet.transactionHistory.addOne(info);
@@ -841,6 +842,7 @@ class ElectrumTransactionResolver {
         refetched.unspents = tx.unspents;
         refetched.isReceivedSilentPayment = tx.isReceivedSilentPayment;
         refetched.accountIndex ??= tx.accountIndex;
+        refetched.additionalInfo = {...tx.additionalInfo, ...refetched.additionalInfo};
 
         _wallet.transactionHistory.addOne(refetched);
         updated = true;

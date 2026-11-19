@@ -91,7 +91,13 @@ abstract class ElectrumWalletBase
     List<int>? accountIndexes,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
-            currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType,),
+          currency,
+          network,
+          seedBytes,
+          xpub,
+          derivationInfo,
+          walletInfo.hardwareWalletType,
+        ),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -351,7 +357,7 @@ abstract class ElectrumWalletBase
   Future<WalletInfoAccount> loadCurrentAccount() async {
     final accountInfos = await walletInfo.getAccounts();
     final current = accountInfos.firstWhere(
-          (account) => account.accountIndex == currentAccountIndex,
+      (account) => account.accountIndex == currentAccountIndex,
       orElse: () => accountInfos.first,
     );
 
@@ -438,7 +444,6 @@ abstract class ElectrumWalletBase
 
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
-
     final isNewAccount = !accounts.contains(accountIndex);
     if (isNewAccount) {
       accountBalances[accountIndex] = ElectrumBalance.zero(currency);
@@ -486,6 +491,8 @@ abstract class ElectrumWalletBase
             }
           }
         }
+
+        _transactionResolver.resolvePending();
 
         await updateAllUnspents();
       } catch (e) {
@@ -666,7 +673,6 @@ abstract class ElectrumWalletBase
   static const int _autoSaveInterval = 1;
 
   Future<void> init() async {
-
     await walletAddresses.init();
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
@@ -2449,8 +2455,7 @@ abstract class ElectrumWalletBase
     for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
-      if (inputTransaction == null ||
-          _parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
+      if (inputTransaction == null || _parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
         throw RbfException("Missing input transaction for fee calculation");
       }
       final vout = input.txIndex;
@@ -4004,6 +4009,7 @@ abstract class ElectrumWalletBase
           await updateBalance();
 
           await _fetchAddressHistory(address, await getCurrentChainTip());
+          _transactionResolver.resolvePending();
         } catch (e, s) {
           printV("sub error: $e");
           _onError?.call(FlutterErrorDetails(
@@ -4757,7 +4763,7 @@ abstract class ElectrumWalletBase
         isChange: record.isHidden,
         isLegacy: record.isLegacyDerivation,
       ) ??
-          (record.isHidden ? sideHd : mainHd);
+      (record.isHidden ? sideHd : mainHd);
 }
 
 class ScanNode {
@@ -5248,7 +5254,8 @@ class PublicKeyWithDerivationPath {
     }
     if (cursor + 4 != raw.length) return null;
 
-    final hash = QuickCrypto.sha256DoubleHash([...raw.sublist(0, 4), ...body, ...raw.sublist(cursor)]);
+    final hash =
+        QuickCrypto.sha256DoubleHash([...raw.sublist(0, 4), ...body, ...raw.sublist(cursor)]);
     return (txId: BytesUtils.toHexString(hash.reversed.toList()), witnesses: witnesses);
   } catch (_) {
     return null;
