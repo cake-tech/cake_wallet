@@ -265,7 +265,8 @@ jobs:
           if-no-files-found: ignore
 
       - name: PR comment with counts, cost and cache hit rate
-        if: always() && github.event_name == 'pull_request'
+        # A cancelled run has no summary and must not overwrite the last real result.
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         uses: actions/github-script@v7
         with:
           script: |
