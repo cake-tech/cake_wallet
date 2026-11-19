@@ -147,6 +147,10 @@ Edit the applicable `strings_XX.arb` file in `res/values/` and open a pull reque
 - Russian
 - Ukrainian
 - Hindi
+- Bengali
+- Marathi
+- Tamil
+- Telugu
 - Japanese
 - Chinese
 - Korean
