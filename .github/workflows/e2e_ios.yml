@@ -3,6 +3,10 @@
 # [self-hosted, macOS, cake-qa]. REPORT-ONLY like the Android lane
 # (continue-on-error at job level; never a required check).
 #
+# Dispatch-only: the runner is a persistent machine, so it must not build
+# every PR. A pull_request trigger can come back once the lane runs in an
+# ephemeral VM.
+#
 # One e2e job at a time per simulator: the concurrency group is global, so
 # runs on the single studio runner serialise instead of colliding.
 name: E2E (iOS)
@@ -30,12 +34,9 @@ on:
         description: "unused today (the lane builds its own simulator .app); kept for symmetry with the Android lane"
         type: string
         default: ""
-  pull_request:
-    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: e2e-ios
@@ -43,7 +44,6 @@ concurrency:
 
 jobs:
   e2e-ios:
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.fork == false
     # [self-hosted, macOS, cake-qa] — registered via tools/ci/setup_macos_runner.sh.
     runs-on: [self-hosted, macOS, cake-qa]
     environment: qa
@@ -211,22 +211,3 @@ jobs:
           name: e2e-trace-ios
           path: ${{ runner.temp }}/e2e-trace-ios.tgz.enc
           if-no-files-found: ignore
-
-      - name: PR comment with counts, cost and cache hit rate
-        if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const marker = '<!-- qa-e2e-ios -->';
-            let body = `${marker}\n#### QA e2e iOS (report-only lane)\n\n_run produced no summary — see the \`e2e-results-ios\` artifact._`;
-            try {
-              const md = fs.readFileSync('cake-qa/.e2e/summary.md', 'utf8').split('\n').slice(0, 6).join('\n');
-              body = `${marker}\n#### QA e2e iOS (report-only lane)\n\n${md}\n\nArtifact: this run's \`e2e-results-ios\`.`;
-            } catch {}
-            const { owner, repo } = context.repo;
-            const issue_number = context.payload.pull_request.number;
-            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 100 });
-            const prev = comments.find((c) => c.body && c.body.includes(marker));
-            if (prev) await github.rest.issues.updateComment({ owner, repo, comment_id: prev.id, body });
-            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
