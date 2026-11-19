@@ -19,12 +19,6 @@ abstract class TradesStoreBase with Store {
   @observable
   List<TradeListItem> trades;
 
-  @observable
-  Trade? trade;
-
-  @action
-  void setTrade(Trade trade) => this.trade = trade;
-
   @action
   Future<void> updateTradeList() async {
     try {
