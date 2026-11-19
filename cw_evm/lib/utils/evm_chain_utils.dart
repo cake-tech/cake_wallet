@@ -1,8 +1,29 @@
 import "package:cw_evm/evm_chain_transaction_priority.dart";
-import "package:web3dart/web3dart.dart" show EtherAmount, EtherUnit;
+import "package:web3dart/web3dart.dart" show EtherAmount, EtherUnit, EthPrivateKey;
 
 /// Utility class for chain-specific EVM chain operations
 class EVMChainUtils {
+  static final BigInt _secp256k1Order = BigInt.parse(
+    "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141",
+    radix: 16,
+  );
+
+  /// Whether [privateKey] restores a usable wallet. It accepts exactly what wallets have
+  /// always been restored from, any even-length hex (optionally 0x-prefixed) that
+  /// [EthPrivateKey.fromHex] parses, so a key that restored on an earlier version still
+  /// restores here. It rejects hex that does not parse and keys that are zero modulo the
+  /// secp256k1 order, which have no key pair and could never sign anything.
+  static bool isValidPrivateKey(String privateKey) {
+    final EthPrivateKey key;
+    try {
+      key = EthPrivateKey.fromHex(privateKey);
+    } catch (_) {
+      return false;
+    }
+
+    return key.privateKeyInt % _secp256k1Order != BigInt.zero;
+  }
+
   static int getTotalPriorityFee(EVMChainTransactionPriority priority, int chainId) =>
       switch (chainId) {
         1 => _ethereumPriorityFee(priority),

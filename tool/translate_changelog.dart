@@ -10,7 +10,21 @@ const changelogsFilePath = "./assets/new-ui/changelog/text";
 /// Names Google Translate must leave alone. Without this it turned "Ledger" into an accounting
 /// ledger in 11 languages, translated "BTC Map", and made "spend sats" "spend sessions" in German.
 /// Add new brand and product names here when a changelog mentions them.
-const doNotTranslate = ["BitBox02 Nova", "BTC Map", "MoonPay", "Arbitrum", "Ledger", "sats"];
+const doNotTranslate = [
+  "BitBox02 Nova",
+  "BTC Map",
+  "MoonPay",
+  "Arbitrum",
+  "Ledger",
+  "sats",
+  "Cake Wallet",
+  "Bitcoin Cash",
+  "Cupcake",
+  "Tron",
+  "WalletConnect",
+  "WhyNot",
+  "Chainflip",
+];
 
 final _doNotTranslatePattern =
     RegExp(doNotTranslate.map((name) => "\\b${RegExp.escape(name)}\\b").join("|"));
