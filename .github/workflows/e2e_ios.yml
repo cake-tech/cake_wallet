@@ -41,11 +41,25 @@ jobs:
     # REPORT-ONLY, permanently until Seth says otherwise.
     continue-on-error: true
     timeout-minutes: 90
+    outputs:
+      built: ${{ steps.pack.outputs.built }}
     steps:
       - name: Checkout the app
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+
+      # Same protoc as pr_test_build_ios.yml: the Rust pods' build scripts need it.
+      - name: Install protoc
+        env:
+          PROTOC_VERSION: "35.1"
+        run: |
+          set -euo pipefail
+          curl -sSL --retry 3 --retry-delay 5 -o "$RUNNER_TEMP/protoc.zip" \
+            "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-osx-universal_binary.zip"
+          unzip -q -o "$RUNNER_TEMP/protoc.zip" -d "$RUNNER_TEMP/protoc"
+          echo "$RUNNER_TEMP/protoc/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/protoc/bin/protoc" --version
 
       - name: Build the simulator app
         env:
@@ -57,7 +71,10 @@ jobs:
         run: bash scripts/ci/ios_sim_build.sh "$GITHUB_WORKSPACE"
 
       - name: Pack the app
-        run: tar -C build/ios/iphonesimulator -czf "$RUNNER_TEMP/Runner.app.tgz" Runner.app
+        id: pack
+        run: |
+          tar -C build/ios/iphonesimulator -czf "$RUNNER_TEMP/Runner.app.tgz" Runner.app
+          echo "built=true" >> "$GITHUB_OUTPUT"
 
       - name: Hand the app to the suite job
         uses: actions/upload-artifact@v4
@@ -69,6 +86,8 @@ jobs:
 
   e2e:
     needs: build
+    # build is report-only, so it "succeeds" even when it fails: run only when it handed over an app.
+    if: needs.build.outputs.built == 'true'
     runs-on: [self-hosted, cake-m5-ultra]
     environment: qa
     # REPORT-ONLY, permanently until Seth says otherwise.
