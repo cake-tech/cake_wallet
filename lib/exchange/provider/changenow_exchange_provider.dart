@@ -15,6 +15,7 @@ import 'package:cake_wallet/utils/distribution_info.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/crypto_currency.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cake_wallet/utils/exchange_provider_logger.dart';
 
@@ -328,6 +329,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         return 'arbitrum';
       case CryptoCurrency.nano:
         return 'nano';
+      case CryptoCurrency.usdtAvax:
+      case CryptoCurrency.usdcAvax:
+        return "avaxc";
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : currency.title.toLowerCase();
     }
@@ -336,6 +340,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   String _normalizeCurrency(CryptoCurrency currency) {
     if (currency.title == "USDC" && currency.tag == "POLY") {
       throw "Only Bridged USDC (USDC.e) is allowed in ChangeNow";
+    }
+    if (currency.title == "USDT" && currency.tag == "OP") {
+      throw BadCurrencyException("ChangeNow's USDT on Optimism is not USDT0", currency);
     }
     switch (currency) {
       case CryptoCurrency.zec:

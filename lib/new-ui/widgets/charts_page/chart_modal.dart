@@ -13,6 +13,7 @@ import "package:cake_wallet/src/screens/buy/buy_sell_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
+import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -85,29 +86,30 @@ class ChartModal extends StatelessWidget {
                         action: () => openBuySellPage(context, BuySellPageMode.sell),
                       ),
                     ],
-                    CoinActionButton(
-                      icon: CakeImageWidget(
-                        imageUrl: "assets/new-ui/exchange.svg",
-                        colorFilter: ColorFilter.mode(
-                          Theme.of(context).colorScheme.primary,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                      label: S.of(context).swap,
-                      action: () {
-                        final page = getIt.get<NewSwapPage>(param2: currency);
-                        showCupertinoModalBottomSheet(
-                          context: context,
-                          barrierColor: Colors.black.withAlpha(85),
-                          builder: (context) => Material(
-                            child: ModalNavigator(
-                              rootPage: page,
-                              parentContext: context,
-                            ),
+                    if (swapCurrency != null)
+                      CoinActionButton(
+                        icon: CakeImageWidget(
+                          imageUrl: "assets/new-ui/exchange.svg",
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).colorScheme.primary,
+                            BlendMode.srcIn,
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                        label: S.of(context).swap,
+                        action: () {
+                          final page = getIt.get<NewSwapPage>(param2: swapCurrency);
+                          showCupertinoModalBottomSheet(
+                            context: context,
+                            barrierColor: Colors.black.withAlpha(85),
+                            builder: (context) => Material(
+                              child: ModalNavigator(
+                                rootPage: page,
+                                parentContext: context,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     CoinActionButton(
                       icon: CakeImageWidget(
                         width: 36,
@@ -155,4 +157,14 @@ class ChartModal extends StatelessWidget {
   }
 
   bool get canOpenBuySell => getIt.get<AppStore>().wallet!.balance.containsKey(currency);
+
+  CryptoCurrency? get swapCurrency {
+    const excluded = ExchangeViewModelBase.excludedCurrencies;
+    if (!excluded.contains(currency)) {
+      return currency;
+    }
+    return CryptoCurrency.all
+        .where((c) => c.title == currency.title && !excluded.contains(c))
+        .firstOrNull;
+  }
 }
