@@ -2,6 +2,7 @@ import "package:bitcoin_base/bitcoin_base.dart";
 import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
+import "package:cw_bitcoin/electrum_account.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
@@ -20,8 +21,6 @@ final Bip32Slip10Secp256k1 _p2wpkhReceiveHd = _hd("m/84'/0'/0'/0");
 final Bip32Slip10Secp256k1 _p2wpkhChangeHd = _hd("m/84'/0'/0'/1");
 final Bip32Slip10Secp256k1 _p2pkhReceiveHd = _hd("m/44'/0'/0'/0");
 final Bip32Slip10Secp256k1 _p2pkhChangeHd = _hd("m/44'/0'/0'/1");
-final Bip32Slip10Secp256k1 _legacyReceiveHd = _hd("m/0'/0");
-final Bip32Slip10Secp256k1 _legacyChangeHd = _hd("m/0'/1");
 
 BitcoinAddressRecord _record(
   int index, {
@@ -77,34 +76,26 @@ class _NoPayjoin implements PayjoinManager {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+ElectrumAccounts _accounts({required Bip32Slip10Secp256k1 legacyAccountHd}) => ElectrumAccounts(
+  primaryTypes: [SegwitAddresType.p2wpkh, P2pkhAddressType.p2pkh],
+  accountHd: legacyAccountHd,
+  masterHd: _master,
+  coinType: 0,
+)..getOrCreate(0);
+
 class _Addresses extends BitcoinWalletAddresses {
   _Addresses(
-    super.walletInfo, {
-    required List<BitcoinAddressRecord> records,
-    required Bip32Slip10Secp256k1 legacyReceiveHd,
-    required Bip32Slip10Secp256k1 legacyChangeHd,
-  }) : super(
-          mainHdByTypeAndAccount: {
-            0: {
-              SegwitAddresType.p2wpkh: _p2wpkhReceiveHd,
-              P2pkhAddressType.p2pkh: _p2pkhReceiveHd,
-            },
-          },
-          sideHdByTypeAndAccount: {
-            0: {
-              SegwitAddresType.p2wpkh: _p2wpkhChangeHd,
-              P2pkhAddressType.p2pkh: _p2pkhChangeHd,
-            },
-          },
-          accountIndexes: [0],
-          currentAccountIndex: 0,
-          legacyMainHd: legacyReceiveHd,
-          legacySideHd: legacyChangeHd,
-          network: BitcoinNetwork.mainnet,
-          isHardwareWallet: false,
-          payjoinManager: _NoPayjoin(),
-          initialAddresses: records,
-        );
+      super.walletInfo, {
+        required List<BitcoinAddressRecord> records,
+        required Bip32Slip10Secp256k1 legacyAccountHd,
+      }) : super(
+    accounts: _accounts(legacyAccountHd: legacyAccountHd),
+    currentAccountIndex: 0,
+    network: BitcoinNetwork.mainnet,
+    isHardwareWallet: false,
+    payjoinManager: _NoPayjoin(),
+    initialAddresses: records,
+  );
 
   @override
   Future<void> saveAddressesInBox() async {}
@@ -130,8 +121,7 @@ Future<_Addresses> _addresses(
   final _Addresses addresses = _Addresses(
     walletInfo,
     records: records,
-    legacyReceiveHd: legacyIsSameChain ? _p2wpkhReceiveHd : _legacyReceiveHd,
-    legacyChangeHd: legacyIsSameChain ? _p2wpkhChangeHd : _legacyChangeHd,
+    legacyAccountHd: legacyIsSameChain ? _hd("m/84'/0'/0'") : _hd("m/0'"),
   );
   await walletInfo.getManualAddresses();
   return addresses;
