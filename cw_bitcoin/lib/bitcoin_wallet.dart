@@ -131,7 +131,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
-          accountIndexes: accountIndexes
+          accountIndexes: accountIndexes,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -340,7 +340,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     }
 
     final accountIndexes =
-    (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
+        (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
 
     return BitcoinWallet(
       mnemonic: mnemonic,
@@ -900,17 +900,19 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     required int feeRate,
   }) async {
     final previousInputs = ongoing?.recovery.fundingInputs ?? const <CpfpInput>[];
+    // A rebuild stays in the account its exit started in, not whichever one is selected now.
+    final accountIndex = ongoing?.accountIndex ?? currentAccountIndex;
     // Leaves the operators already moved on-chain recover cooperatively, with no funding.
     final requiredSat = quote.funding?.singleUtxoSats ?? BigInt.zero;
     final freshCoins = previousInputs.isEmpty && requiredSat > BigInt.zero
-        ? _selectUnilateralExitFunding(requiredSat, feeRate)
+        ? _selectUnilateralExitFunding(requiredSat, feeRate, accountIndex: accountIndex)
         : <UtxoWithPrivateKey>[];
 
     Future<RecoverFundsResponse> build(List<UtxoWithPrivateKey> coins) =>
         lightningWallet!.unilateralExitWithSigner(
           quote: quote,
           fundingInputs: [...previousInputs, ...coins.map(_cpfpInputOf)],
-          signPsbt: _signUnilateralExitPsbt,
+          signPsbt: (psbtBytes) => _signUnilateralExitPsbt(psbtBytes, accountIndex: accountIndex),
         );
 
     try {
@@ -920,7 +922,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         rethrow;
       }
 
-      return build(_selectUnilateralExitFunding(e.requiredSats, feeRate));
+      return build(
+        _selectUnilateralExitFunding(e.requiredSats, feeRate, accountIndex: accountIndex),
+      );
     }
   }
 
@@ -933,11 +937,24 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   /// Largest coins first, until they cover the quote plus the extra input
   /// weight every coin after the first adds.
-  List<UtxoWithPrivateKey> _selectUnilateralExitFunding(BigInt requiredSat, int feeRate) {
+  List<UtxoWithPrivateKey> _selectUnilateralExitFunding(
+    BigInt requiredSat,
+    int feeRate, {
+    required int accountIndex,
+  }) {
     const p2wpkhInputVbytes = 68;
 
-    final candidates = getUtxoWithPrivateKeys(confirmedOnly: true)
-        .where((input) => input.utxo.scriptType == SegwitAddresType.p2wpkh)
+    // Covering [count] coins needs the quote plus the extra weight of every coin after the first.
+    BigInt neededFor(int count) =>
+        requiredSat + BigInt.from((count - 1) * p2wpkhInputVbytes * feeRate);
+
+    final candidates = _unspentCoinsOfAccount(accountIndex)
+        .where((coin) =>
+            coin.isSending &&
+            !coin.isFrozen &&
+            (coin.confirmations ?? 0) > 0 &&
+            coin.bitcoinAddressRecord.type == SegwitAddresType.p2wpkh)
+        .map((coin) => UtxoWithPrivateKey.fromUnspent(coin, this))
         .toList()
       ..sort((a, b) => b.utxo.value.compareTo(a.utxo.value));
 
@@ -945,9 +962,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     var total = BigInt.zero;
 
     for (final input in candidates) {
-      final needed = requiredSat + BigInt.from(selected.length * p2wpkhInputVbytes * feeRate);
-
-      if (total >= needed) {
+      // Stop as soon as the coins already picked cover the quote for their own count.
+      if (selected.isNotEmpty && total >= neededFor(selected.length)) {
         break;
       }
 
@@ -955,7 +971,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       total += input.utxo.value;
     }
 
-    final needed = requiredSat + BigInt.from((selected.length - 1) * p2wpkhInputVbytes * feeRate);
+    final needed = neededFor(selected.length);
 
     if (selected.isEmpty || total < needed) {
       throw UnilateralExitFundingShortfallException(neededSat: needed.toInt());
@@ -964,13 +980,19 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return selected;
   }
 
-  /// Signs every unfinalized input paying to one of this account's P2WPKH coins: the
+  Iterable<BitcoinUnspent> _unspentCoinsOfAccount(int accountIndex) =>
+      unspentCoins.where((coin) => coin.bitcoinAddressRecord.accountIndex == accountIndex);
+
+  /// Signs every unfinalized input paying to one of [accountIndex]'s P2WPKH coins: the
   /// funding coins, and on a rebuild the CPFP change the exit sent back to them, which is
   /// frozen and so not among the spendable coins.
-  Future<Uint8List> _signUnilateralExitPsbt(Uint8List psbtBytes) async {
+  Future<Uint8List> _signUnilateralExitPsbt(
+    Uint8List psbtBytes, {
+    required int accountIndex,
+  }) async {
     final psbt = PsbtV2()..deserializeV0(psbtBytes);
     final keysByScript = {
-      for (final coin in unspentCoinsForCurrentAccount
+      for (final coin in _unspentCoinsOfAccount(accountIndex)
           .where((coin) => coin.bitcoinAddressRecord.type == SegwitAddresType.p2wpkh))
         BytesUtils.toHexString(
           UtxoWithPrivateKey.fromUnspent(coin, this)

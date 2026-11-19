@@ -289,6 +289,7 @@ class OtherSettingsPage extends BasePage {
 
     final choice = await showModalBottomSheet<({int feeRate, List<String>? leafIds})>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => SparkUnilateralExitSheet(
@@ -315,6 +316,7 @@ class OtherSettingsPage extends BasePage {
         }
 
         showModalBottomSheet<void>(
+          useRootNavigator: true,
           isScrollControlled: true,
           isDismissible: false,
           enableDrag: false,

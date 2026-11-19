@@ -154,8 +154,21 @@ class LightningWallet {
   /// while they are reachable.
   Future<void> consolidateLeavesForExit() async {
     if (_leafMultiplicity != 0) {
+      final previousMultiplicity = _leafMultiplicity;
       _leafMultiplicity = 0;
-      await _reconnect();
+
+      try {
+        await _reconnect();
+      } catch (_) {
+        // A failed reconnect leaves no SDK, so bring the wallet back at its previous leaf
+        // size before reporting the merge as failed. Later calls need a live SDK.
+        _leafMultiplicity = previousMultiplicity;
+        try {
+          await _reconnect();
+        } catch (_) {}
+
+        rethrow;
+      }
     }
 
     final response = await sdk.optimizeLeaves(
