@@ -160,9 +160,15 @@ class CakePayService {
         // Orders come newest first, so stop paging once the order shows up.
         while (hasNextPage) {
           final result = await cakePayApi.getMyOrders(token: token, page: page);
-          if (CakePayUserCard.fromOrders(result.orders).any((card) => card.orderId == orderId)) {
-            return true;
+
+          // Check the raw orders so an order without codes yet still ends the search, even
+          // though `fromOrders` drops it from My Cards.
+          for (final order in result.orders) {
+            if (order['order_id'] == orderId) {
+              return CakePayUserCard.fromOrders([order]).isNotEmpty;
+            }
           }
+
           hasNextPage = result.hasNextPage;
           page++;
         }
