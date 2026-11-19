@@ -77,6 +77,15 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   String? get restoredWalletPassphrase =>
       restoredWallet?.restoreMode == WalletRestoreMode.seed ? restoredWallet?.passphrase : null;
 
+  // The passphrase explicitly entered on this page. Deliberately separate from the shared
+  // SeedSettingsStore, which may still hold a value from an abandoned new-wallet flow.
+  String? _enteredPassphrase;
+
+  void setEnteredPassphrase(String? passphrase) => _enteredPassphrase = passphrase;
+
+  String? get restorePassphrase =>
+      (_enteredPassphrase?.isNotEmpty ?? false) ? _enteredPassphrase : restoredWalletPassphrase;
+
   static const moneroSeedMnemonicLength = 25;
   static const decredSeedMnemonicLength = 15;
 
