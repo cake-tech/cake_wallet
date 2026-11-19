@@ -126,7 +126,15 @@ jobs:
 
       - name: Simulator runtime
         # The VM template carries Xcode but no simulator runtime.
-        run: xcrun simctl list runtimes | grep -q '^iOS' || xcodebuild -downloadPlatform iOS
+        run: |
+          set -euo pipefail
+          available() {
+            xcrun simctl list runtimes -j | python3 -c "
+          import json,sys
+          sys.exit(0 if any(r.get('platform')=='iOS' and r.get('isAvailable') for r in json.load(sys.stdin)['runtimes']) else 1)"
+          }
+          available || xcodebuild -downloadPlatform iOS
+          available
 
       - name: Boot the simulator and install
         run: |
