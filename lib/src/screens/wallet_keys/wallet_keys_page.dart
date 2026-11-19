@@ -4,6 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/seed_detail_boxes.dart';
 import 'package:cake_wallet/src/widgets/seedphrase_grid_widget.dart';
 import 'package:cake_wallet/src/widgets/text_info_box.dart';
 import 'package:cake_wallet/src/widgets/warning_box_widget.dart';
@@ -12,7 +13,6 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -180,11 +180,19 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
     return Column(
       children: [
         if (isLegacySeedOnly || isLegacySeed || widget.walletKeysViewModel.shouldShowHeightBox) ...[
-          _buildHeightBox(),
+          FutureBuilder<String?>(
+            future: widget.walletKeysViewModel.restoreHeight,
+            builder: (context, snapshot) => BlockHeightBox(
+              height: snapshot.data,
+              isLoading: snapshot.connectionState == ConnectionState.waiting,
+            ),
+          ),
           const SizedBox(height: 20),
         ],
-        (_buildPassphraseBox() ?? Container()),
-        if (widget.walletKeysViewModel.passphrase.isNotEmpty) const SizedBox(height: 20),
+        if (widget.walletKeysViewModel.passphrase.isNotEmpty) ...[
+          PassphraseBox(passphrase: widget.walletKeysViewModel.passphrase),
+          const SizedBox(height: 20),
+        ],
         Expanded(
           child: SeedPhraseGridWidget(
             list: isLegacySeed
@@ -227,129 +235,6 @@ class _WalletKeysPageBodyState extends State<WalletKeysPageBody>
         ),
         SizedBox(height: 20),
       ],
-    );
-  }
-
-  Widget _buildHeightBox() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: Theme.of(context).colorScheme.surfaceContainer,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            S.of(context).block_height,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-                ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: FutureBuilder<String?>(
-              future: widget.walletKeysViewModel.restoreHeight,
-              builder: (context, snapshot) {
-                final textToDisplay = snapshot.connectionState == ConnectionState.waiting
-                    ? 'Fetching...'
-                    : (snapshot.data ?? '---');
-
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      textToDisplay,
-                      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                    ),
-                    if (snapshot.connectionState == ConnectionState.done && snapshot.data != null)
-                      GestureDetector(
-                        onTap: () => _onCopy(S.of(context).block_height, snapshot.data!, context),
-                        child: Icon(
-                          Icons.copy,
-                          size: 16,
-                          color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
-                        ),
-                      ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget? _buildPassphraseBox() {
-    if (widget.walletKeysViewModel.passphrase.isEmpty) return null;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: Theme.of(context).colorScheme.surfaceContainer,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            S.of(context).passphrase_view_keys,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-                ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Observer(
-                    builder: (BuildContext context) {
-                      return Text(
-                        (widget.walletKeysViewModel.obscurePassphrase)
-                            ? "*****"
-                            : widget.walletKeysViewModel.passphrase,
-                        style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Observer(
-                  builder: (BuildContext context) {
-                    return GestureDetector(
-                      onTap: () {
-                        widget.walletKeysViewModel.obscurePassphrase =
-                            !widget.walletKeysViewModel.obscurePassphrase;
-                      },
-                      child: Icon(
-                        widget.walletKeysViewModel.obscurePassphrase
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        size: 16,
-                        color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.7),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 

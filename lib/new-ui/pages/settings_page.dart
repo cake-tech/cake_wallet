@@ -166,11 +166,11 @@ class SettingsPageSectionsResolver {
           strings.privacy,
           Routes.privacyPage,
         ),
-        SettingsListItem(
-          'assets/new-ui/settings_row_icons/seed.svg',
-          strings.recovery_and_keys,
-          Routes.showKeysDisclaimer,
-        ),
+        // SettingsListItem(
+        //   'assets/new-ui/settings_row_icons/seed.svg',
+        //   strings.recovery_and_keys,
+        //   Routes.showKeysDisclaimer,
+        // ),
         SettingsListItem(
           'assets/new-ui/settings_row_icons/other.svg',
           strings.other,
@@ -179,7 +179,12 @@ class SettingsPageSectionsResolver {
       ];
 
   List<SettingsListItem> appSettings() => [
-        SettingsListItem(
+    SettingsListItem(
+        "assets/new-ui/settings_row_icons/seed.svg", S.current.recovery_and_keys, Routes.recovery,
+        requireAuth: true,
+        use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
+
+    SettingsListItem(
           "assets/new-ui/settings_row_icons/connections.svg",
           S.current.connections,
           Routes.connectionSync,
@@ -194,13 +199,13 @@ class SettingsPageSectionsResolver {
           S.current.security,
           Routes.securityBackupPage,
         ),
-        SettingsListItem(
-          "assets/new-ui/settings_row_icons/backup.svg",
-          S.current.backup,
-          Routes.backup,
-          requireAuth: true,
-          use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        ),
+        // SettingsListItem(
+        //   "assets/new-ui/settings_row_icons/backup.svg",
+        //   S.current.backup,
+        //   Routes.backup,
+        //   requireAuth: true,
+        //   use2fa: (vm) => vm.settingsStore.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
+        // ),
       ];
 
   List<SettingsListItem> supportAndAbout(S strings) => [

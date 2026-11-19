@@ -24,6 +24,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/db/sqlite.dart';
+import 'package:cw_keychain/cw_keychain.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_mobx/flutter_mobx.dart";
 import 'package:path/path.dart' as p;
@@ -251,6 +252,24 @@ class OtherSettingsPage extends BasePage {
                     onTap: () async {
                       final dbDebugMarker = await sqliteDebugMarkerFile();
                       dbDebugMarker.create();
+                    }),
+                ListItemRegularRow(
+                    keyValue: "[dev] add fake unsupported keychain item",
+                    label: "[dev] add fake unsupported keychain item",
+                    onTap: () async {
+                      final keychain = CwKeychain();
+                      if (!(await keychain.available())) {
+                        return;
+                      }
+                      await keychain.putFakeUnsupported();
+                      await showPopUp(
+                          context: context,
+                          builder: (context) => AlertWithOneAction(
+                              alertTitle: "done",
+                              alertContent:
+                                  "there's a fake item, version 999, name chuj, wallet type 2, in keychain",
+                              buttonText: "okay :3",
+                              buttonAction: Navigator.of(context).pop));
                     }),
               ]
       })),

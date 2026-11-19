@@ -4,9 +4,10 @@ import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 class AlertWithOneAction extends BaseAlertDialog {
   AlertWithOneAction({
     required this.alertTitle,
-    required this.alertContent,
     required this.buttonText,
     required this.buttonAction,
+    this.alertContent = "",
+    this.child,
     this.alertBarrierDismissible = true,
     this.headerTitleText,
     this.headerImageProfileUrl,
@@ -16,6 +17,8 @@ class AlertWithOneAction extends BaseAlertDialog {
 
   final String alertTitle;
   final String alertContent;
+  @override
+  final Widget? child;
   final String buttonText;
   final VoidCallback buttonAction;
   final bool alertBarrierDismissible;
