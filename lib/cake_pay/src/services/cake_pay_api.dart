@@ -23,6 +23,7 @@ class CakePayApi {
   static final logoutPath = '/api/accounts/logout';
   static final orderPath = '/api/orders/order';
   static final simulatePaymentPath = '/api/orders/simulate-payment';
+  static const statusPath = "/api/core/status";
 
   /// AuthenticateUser
   Future<String> authenticateUser({required String email, required String apiKey}) async {
@@ -299,5 +300,21 @@ class CakePayApi {
     return (bodyJson['results'] as List)
         .map((e) => CakePayVendor.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  Future<bool> isUnderMaintenance({required String apiKey}) async {
+    final uri = Uri.https(baseCakePayUri, statusPath);
+    final headers = {"Accept": "application/json", "Authorization": "Api-Key $apiKey"};
+
+    final response = await ProxyWrapper().get(clearnetUri: uri, headers: headers);
+
+    if (response.statusCode != 200) {
+      throw CakePayResponseException(
+        "Failed to fetch status: statusCode - ${response.statusCode}, response - ${response.body}",
+      );
+    }
+
+    final bodyJson = json.decode(response.body) as Map<String, dynamic>;
+    return bodyJson["maintenance"] == true;
   }
 }

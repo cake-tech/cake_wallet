@@ -109,6 +109,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     bool? useLightning,
     String? cachedLightningAddress,
+    List<int>? accountIndexes,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -130,6 +131,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
+          accountIndexes: accountIndexes
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -160,12 +162,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
-      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
-      accountIndexes: [currentAccountIndex],
+      accounts: accounts,
       currentAccountIndex: currentAccountIndex,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
       network: networkParam ?? network,
       masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -341,6 +339,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
+    final accountIndexes =
+    (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
+
     return BitcoinWallet(
       mnemonic: mnemonic,
       xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
@@ -364,6 +365,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
       payjoinBox: payjoinBox,
+      accountIndexes: accountIndexes,
     );
   }
 
@@ -1215,32 +1217,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    if (walletInfo.isHardwareWallet) {
-      final addressEntry = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
-          : null;
-      final index = addressEntry?.index ?? 0;
-      final isChange = addressEntry?.isHidden == true ? 1 : 0;
-      final derivationInfo = await walletInfo.getDerivationInfo();
-      final accountPath = derivationInfo.derivationPath;
-      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
-
-      final signature = await hardwareWalletService!
-          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
-      return base64Encode(signature);
-    }
-
-    return super.signMessage(message, address: address);
-  }
-
-  @override
   bool receiveOptionAvailable(ReceivePageOption option) {
     final isExtraAccount = currentAccountIndex > 0;
 
     if (option == BitcoinReceivePageOption.lightning) {
-      // Lightning is tied to the primary account only
-      return !isExtraAccount && hasLightningSupport && isLightningInitialized;
+      return hasLightningSupport && isLightningInitialized;
     }
 
     if (option == BitcoinReceivePageOption.silent_payments) {

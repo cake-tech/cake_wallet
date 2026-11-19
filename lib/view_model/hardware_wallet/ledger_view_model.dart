@@ -2,6 +2,7 @@ import "dart:async";
 import "dart:io";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
+import "package:cake_wallet/bitcoin_cash/bitcoin_cash.dart";
 import "package:cake_wallet/entities/hardware_wallet/hardware_wallet_device.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -223,6 +224,7 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
       case WalletType.bitcoin:
         return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.litecoin:
+      case WalletType.bitcoinCash:
         return bitcoin!.setHardwareWalletService(wallet, getHardwareWalletService(wallet.type));
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -243,6 +245,8 @@ abstract class LedgerViewModelBase extends HardwareWalletViewModel with Store {
         return bitcoin!.getLedgerHardwareWalletService(connection, true);
       case WalletType.litecoin:
         return bitcoin!.getLedgerHardwareWalletService(connection, false);
+      case WalletType.bitcoinCash:
+        return bitcoinCash!.getLedgerHardwareWalletService(connection);
       case WalletType.ethereum:
       case WalletType.polygon:
         return evm!.getLedgerHardwareWalletService(connection);
