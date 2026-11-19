@@ -1097,7 +1097,8 @@ Future<void> setup({
 
   getIt.registerFactory(() => MwebNodePage(getIt.get<MwebSettingsViewModel>()));
 
-  getIt.registerFactory(() => OtherSettingsPage(getIt.get<OtherSettingsViewModel>()));
+  getIt.registerFactory(
+      () => OtherSettingsPage(getIt.get<OtherSettingsViewModel>(), getIt.get<AuthService>()));
 
   getIt.registerFactory(() => AboutPage(appVersion: getIt.get<SettingsStore>().appVersion));
 

@@ -13,6 +13,10 @@ class ElectrumResponseException extends ServerResponseException {
   const ElectrumResponseException(super.message);
 }
 
+class PackageBroadcastException extends ServerResponseException {
+  const PackageBroadcastException(super.message);
+}
+
 class PayjoinException extends CakeException {
   const PayjoinException(super.message);
 }

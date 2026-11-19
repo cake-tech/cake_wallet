@@ -1,6 +1,7 @@
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/address_validator.dart";
 import "package:cake_wallet/entities/priority_for_wallet_type.dart";
+import "package:cake_wallet/entities/spark_exit_history.dart";
 import "package:cake_wallet/entities/transaction_description.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
@@ -74,6 +75,12 @@ class TxDetailRowDefinition {
   }) listItemBuilder;
 
   static final List<TxDetailRowDefinition> defs = [
+    TxDetailRowDefinition(
+      keyString: "standard_list_item_spark_exit_step_key",
+      title: S.current.spark_exit_step_details_title,
+      valueGetter: (vm) => SparkExitHistory.explanationFor(vm.transactionInfo.additionalInfo),
+      applicable: (vm) => SparkExitHistory.isSparkExit(vm.transactionInfo.additionalInfo),
+    ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_date_key",
       title: S.current.transaction_details_date,
@@ -302,8 +309,8 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   String get note {
     final descriptionKey = "${transactionInfo.txHash}_${wallet.walletAddresses.primaryAddress}";
-    final description = transactionDescriptionBox.values
-      .firstWhereOrNull((val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
+    final description = transactionDescriptionBox.values.firstWhereOrNull(
+      (val) => val.id == descriptionKey || val.id == transactionInfo.txHash,
     );
     return description?.transactionNote ?? "";
   }
@@ -428,6 +435,11 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   String get formattedTitle {
+    final sparkExitTitle = SparkExitHistory.titleFor(transactionInfo.additionalInfo);
+    if (sparkExitTitle != null) {
+      return sparkExitTitle;
+    }
+
     if (transactionInfo.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
     }
