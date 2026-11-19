@@ -183,6 +183,7 @@ class DisplaySettingsPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         onItemSelected: _displaySettingsViewModel.onLanguageSelected,
         images: items.map((code) => Image.asset(_flagPath(code))).toList(),
+        imageSize: const Size(42, 26),
         hintText: S.of(context).search_language,
         matchingCriteria: (code, searchText) =>
             LanguageService.list[code]?.toLowerCase().contains(searchText) ?? false,
