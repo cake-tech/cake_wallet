@@ -18,4 +18,9 @@ class MultisigConfig {
 
   final int threshold;
   final List<MultisigSigner> signers;
+
+  Map<String, dynamic> toJson() => {
+    "threshold": threshold,
+    "signers": signers.map((s) => s.toJson()).toList(),
+  };
 }

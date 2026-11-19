@@ -8,6 +8,13 @@ class BitcoinMultisigSigner extends MultisigSigner {
     required super.name,
   });
 
+  factory BitcoinMultisigSigner.fromJson(Map<String, dynamic> json) => BitcoinMultisigSigner(
+        xPub: json["xPub"] as String,
+        masterFingerprint: json["masterFingerprint"] as String,
+        derivationPath: json["derivationPath"] as String,
+        name: json["name"] as String,
+      );
+
   final String xPub;
   final String masterFingerprint;
 
@@ -29,6 +36,13 @@ class BitcoinMultisigConfig extends MultisigConfig {
   const BitcoinMultisigConfig({required super.threshold, required this.signers})
       : super(signers: signers);
 
+  factory BitcoinMultisigConfig.fromJson(Map<String, dynamic> json) =>
+      BitcoinMultisigConfig(
+        threshold: json["threshold"] as int,
+        signers: (json["signers"] as List).map((e) =>
+            BitcoinMultisigSigner.fromJson(e as Map<String, dynamic>)).toList(),
+      );
+
   @override
   final List<BitcoinMultisigSigner> signers;
 
@@ -44,6 +58,13 @@ class BitcoinMultisigConfig extends MultisigConfig {
     final body = "wsh(sortedmulti($threshold,$keys))";
     return "$body#${_DescriptorChecksum.compute(body)}";
   }
+
+  @override
+  Map<String, dynamic> toJson() => {
+        "threshold": threshold,
+        "descriptor": toDescriptor(),
+        "signers": signers.map((e) => e.toJson()).toList(),
+      };
 }
 
 /// BIP-380 output descriptor checksum.
