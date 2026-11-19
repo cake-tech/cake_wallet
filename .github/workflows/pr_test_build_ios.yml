@@ -92,12 +92,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Show the runner and Xcode
-        run: |
-          echo "runner: $RUNNER_NAME ($RUNNER_ENVIRONMENT)"
-          sw_vers -productVersion
-          xcodebuild -version
-
       - name: Configure git
         run: |
           git config --global user.email "ci@cakewallet.com"
