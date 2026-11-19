@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/scrollable_with_bottom_section.dart';
 import 'package:flutter/gestures.dart';
@@ -86,6 +87,13 @@ class CreatePinWelcomePage extends BasePage {
       cakeLogoThemed = cakeLogoLight;
     }
 
+    // The headline lives in a Positioned with only `top` set, which Flutter
+    // lays out with unbounded width: text there can neither wrap nor shrink,
+    // so a long word (Tamil "வரவேற்கிறோம்") is painted past both screen edges
+    // with no overflow report. Bound it to the visible width.
+    final headlineWidth =
+        MediaQuery.sizeOf(context).width.clamp(0.0, imageMaxWidth) - 32;
+
     return PopScope(
       canPop: false,
       child: SafeArea(
@@ -113,10 +121,20 @@ class CreatePinWelcomePage extends BasePage {
                   ),
                   Positioned(
                     top: (imageMaxWidth / imageAspectRatio) * 0.57,
+                    // Positioned with only `top` gets unbounded width; `width`
+                    // keeps the headline inside the screen.
+                    width: headlineWidth,
                     child: Column(
                       children: <Widget>[
-                        Text(
+                        // A single long word (Tamil "வரவேற்கிறோம்") cannot wrap:
+                        // the Text keeps the box width and paints the glyphs
+                        // past it, so the word is cut off at both screen
+                        // edges without any overflow report. Shrink instead.
+                        AutoSizeText(
                           S.current.welcome,
+                          maxLines: 1,
+                          minFontSize: 24,
+                          wrapWords: false,
                           style: Theme.of(context).textTheme.displayLarge?.copyWith(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 60,
@@ -127,6 +145,7 @@ class CreatePinWelcomePage extends BasePage {
                         ),
                         SizedBox(height: 16),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
@@ -163,29 +182,34 @@ class CreatePinWelcomePage extends BasePage {
                                 ?.copyWith(fontWeight: FontWeight.w500),
                             textAlign: TextAlign.center,
                           ),
+                        // The headline above is width-bounded; keep this
+                        // row inside the same box (Tamil "பெறுநர்").
                         if (!isMoneroOnly)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              AnimatedTypingText(
-                                words: [S.current.payments, S.current.privacy, S.current.security],
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    ),
-                                cursorColor: Theme.of(context).colorScheme.primary,
-                                cursorHeight: 28,
-                                cursorWidth: 4,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                S.current.made_easy,
-                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                              ),
-                            ],
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AnimatedTypingText(
+                                  words: [S.current.payments, S.current.privacy, S.current.security],
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                  cursorColor: Theme.of(context).colorScheme.primary,
+                                  cursorHeight: 28,
+                                  cursorWidth: 4,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  S.current.made_easy,
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                ),
+                              ],
+                            ),
                           ),
                       ],
                     ),

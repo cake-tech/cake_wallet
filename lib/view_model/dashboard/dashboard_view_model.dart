@@ -1386,14 +1386,7 @@ abstract class DashboardViewModelBase with Store {
   void toggleLightningMode() {
     lightningMode = !lightningMode;
 
-    // Lightning belongs to the primary account only
-    if (lightningMode) {
-      unawaited(_selectPrimaryAccount().then((_) async {
-        if (!lightningMode && isMultiAccountsEnabled) {
-          await loadCardDesigns();
-        }
-      }));
-    } else {
+    if (!lightningMode) {
       unawaited(loadCardDesigns());
     }
   }
