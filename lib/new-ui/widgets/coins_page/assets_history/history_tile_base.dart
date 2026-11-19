@@ -111,19 +111,25 @@ class HistoryTileBase extends StatelessWidget {
                     padding: EdgeInsets.only(right: 4),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      spacing: 8,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (title != null)
-                              Text(title!,
-                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface))
-                            else if (titleWidget != null)
-                              titleWidget!,
-                            Text(date,
-                                style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                          ],
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (title != null)
+                                Text(title!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style:
+                                        TextStyle(color: Theme.of(context).colorScheme.onSurface))
+                              else if (titleWidget != null)
+                                titleWidget!,
+                              Text(date,
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                            ],
+                          ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,

@@ -43,18 +43,26 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.solana ||
       balanceViewModel.wallet.type == WalletType.tron;
 
+  bool get hasSignedAmount =>
+      displayMode != BalanceDisplayMode.hiddenBalance && !transaction.amount.isZero;
+
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
-    if (balanceViewModel.wallet.type == WalletType.bitcoin) {
-      return _appStore.amountParsingProxy
-          .asDisplayStringWithSymbol(transaction.amount)
-          .withLocalSeperator(_appStore.settingsStore.languageCode);
+
+    final amount = balanceViewModel.wallet.type == WalletType.bitcoin
+        ? _appStore.amountParsingProxy
+            .asDisplayStringWithSymbol(transaction.amount)
+            .withLocalSeperator(_appStore.settingsStore.languageCode)
+        : transaction.amount.toStringWithSymbol(fractionalDigits: 8);
+
+    if (!hasSignedAmount) {
+      return amount;
     }
 
-    return transaction.amount.toStringWithSymbol(fractionalDigits: 8);
+    return transaction.direction == TransactionDirection.incoming ? "+$amount" : "-$amount";
   }
 
-  String get formattedTitle {
+  String formattedTitle({String note = ""}) {
 
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
@@ -73,6 +81,11 @@ class TransactionListItem extends ActionListItem with Keyable {
           ? S.current.receiving
           : S.current.sending;
       return status.isNotEmpty ? "$baseString $status" : "$baseString...";
+    }
+
+    final singleLineNote = note.replaceAll(RegExp(r"\s+"), " ").trim();
+    if (singleLineNote.isNotEmpty && displayMode != BalanceDisplayMode.hiddenBalance) {
+      return singleLineNote;
     }
 
     if (transaction.direction == TransactionDirection.incoming) {

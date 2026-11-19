@@ -8,6 +8,7 @@ import "package:cake_wallet/store/dashboard/payjoin_transactions_store.dart";
 import "package:cake_wallet/store/dashboard/trade_filter_store.dart";
 import "package:cake_wallet/store/dashboard/trades_store.dart";
 import "package:cake_wallet/store/dashboard/transaction_filter_store.dart";
+import "package:cake_wallet/store/dashboard/transaction_notes_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
@@ -50,6 +51,8 @@ class _MockAnonpayTransactionsStore extends Mock implements AnonpayTransactionsS
 
 class _MockPayjoinTransactionsStore extends Mock implements PayjoinTransactionsStore {}
 
+class _MockTransactionNotesStore extends Mock implements TransactionNotesStore {}
+
 class _MockKeyService extends Mock implements KeyService {}
 
 class _MockWallet extends Mock
@@ -81,6 +84,7 @@ class _DashboardViewModelProbe extends DashboardViewModelBase {
     required super.ordersStore,
     required super.anonpayTransactionsStore,
     required super.payjoinTransactionsStore,
+    required super.transactionNotesStore,
     required super.sharedPreferences,
     required super.keyService,
   });
@@ -198,6 +202,7 @@ void main() {
       ordersStore: _MockOrdersStore(),
       anonpayTransactionsStore: _MockAnonpayTransactionsStore(),
       payjoinTransactionsStore: _MockPayjoinTransactionsStore(),
+      transactionNotesStore: _MockTransactionNotesStore(),
       sharedPreferences: sharedPreferences,
       keyService: _MockKeyService(),
     );

@@ -89,6 +89,7 @@ class HistorySection extends StatelessWidget {
                             final transaction = item.transaction;
                             final transactionType =
                                 dashboardViewModel.getTransactionType(transaction);
+                            final note = dashboardViewModel.historyNote(transaction);
 
                             if (item.hasTokens && item.assetOfTransaction == null) {
                               return Container();
@@ -117,9 +118,10 @@ class HistorySection extends StatelessWidget {
                               },
                               child: HistoryTile(
                                 key: ValueKey("home_page_transaction_${transaction.id}_key"),
-                                title: item.formattedTitle + transactionType,
+                                title: item.formattedTitle(note: note) + transactionType,
                                 date: _formatTransactionDate(item.date, localeName),
                                 amount: item.formattedCryptoAmount,
+                                signedAmount: item.hasSignedAmount,
                                 amountFiat: item.formattedFiatAmount,
                                 hasTokens: item.hasTokens,
                                 chainIconPath: _getChainIconPath(),

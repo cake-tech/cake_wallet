@@ -139,6 +139,7 @@ class PreferencesKey {
   static const shouldShowMarketPlaceInDashboard = 'should_show_marketplace_in_dashboard';
   static const shouldShowChartsInDashboard = "should_show_charts_in_dashboard";
   static const shouldShowNftsTab = "should_show_nfts_tab";
+  static const showTransactionNotesInHistory = "show_transaction_notes_in_history";
   static const showAddressBookPopupEnabled = 'show_address_book_popup_enabled';
   static const isNewInstall = 'is_new_install';
   static const serviceStatusShaKey = 'service_status_sha_key';

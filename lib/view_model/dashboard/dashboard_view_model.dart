@@ -41,6 +41,7 @@ import 'package:cake_wallet/store/dashboard/payjoin_transactions_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
+import "package:cake_wallet/store/dashboard/transaction_notes_store.dart";
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
@@ -94,6 +95,7 @@ abstract class DashboardViewModelBase with Store {
       required this.ordersStore,
       required this.anonpayTransactionsStore,
       required this.payjoinTransactionsStore,
+      required this.transactionNotesStore,
       required this.sharedPreferences,
       required this.keyService})
       : hasTradeAction = true,
@@ -646,6 +648,9 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   String get address => wallet.walletAddresses.address;
+
+  @computed
+  String get primaryAddress => wallet.walletAddresses.primaryAddress;
 
   @computed
   bool get isTorEnabled => settingsStore.currentBuiltinTor;
@@ -1276,6 +1281,8 @@ abstract class DashboardViewModelBase with Store {
 
   PayjoinTransactionsStore payjoinTransactionsStore;
 
+  TransactionNotesStore transactionNotesStore;
+
   // Map<String, List<FilterItem>> filterItems;
 
   List<FilterItem> filterItems;
@@ -1736,6 +1743,10 @@ abstract class DashboardViewModelBase with Store {
 
     return '';
   }
+
+  String historyNote(TransactionInfo transaction) => settingsStore.showTransactionNotesInHistory
+      ? transactionNotesStore.noteOf(transaction.txHash, primaryAddress)
+      : "";
 
   Future<void> refreshDashboard() async {
     reconnect();

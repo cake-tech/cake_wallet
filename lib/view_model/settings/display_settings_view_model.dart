@@ -56,6 +56,9 @@ abstract class DisplaySettingsViewModelBase with Store {
   bool get shouldShowNftsTab => _settingsStore.shouldShowNftsTab;
 
   @computed
+  bool get showTransactionNotesInHistory => _settingsStore.showTransactionNotesInHistory;
+
+  @computed
   MaterialThemeBase get currentTheme => _themeStore.currentTheme;
 
   @computed
@@ -252,6 +255,10 @@ abstract class DisplaySettingsViewModelBase with Store {
 
   @action
   void setShouldShowNftsTab(bool value) => _settingsStore.shouldShowNftsTab = value;
+
+  @action
+  void setShowTransactionNotesInHistory(bool value) =>
+      _settingsStore.showTransactionNotesInHistory = value;
 
   @action
   void setShowAddressBookPopup(bool value) => _settingsStore.showAddressBookPopupEnabled = value;

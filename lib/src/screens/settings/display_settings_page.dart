@@ -121,6 +121,21 @@ class DisplaySettingsPage extends StatelessWidget {
               ),
             ),
             _SettingsGroup(
+              title: S.of(context).transaction_history,
+              child: NewListSections(
+                sections: {
+                  "transaction_history": [
+                    ListItemToggle(
+                      keyValue: "display_settings_show_notes_on_history",
+                      label: S.of(context).show_notes_on_history,
+                      value: _displaySettingsViewModel.showTransactionNotesInHistory,
+                      onChanged: _displaySettingsViewModel.setShowTransactionNotesInHistory,
+                    ),
+                  ],
+                },
+              ),
+            ),
+            _SettingsGroup(
               title: S.of(context).other_preferences,
               child: NewListSections(
                 sections: {

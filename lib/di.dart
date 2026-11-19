@@ -170,6 +170,7 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
+import "package:cake_wallet/store/dashboard/transaction_notes_store.dart";
 import 'package:cake_wallet/store/seed_settings_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
@@ -367,6 +368,9 @@ Future<void> setup({
   getIt.registerSingleton<TradesStore>(TradesStore(appStore: getIt.get<AppStore>()));
   getIt.registerSingleton<OrdersStore>(
       OrdersStore(ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerSingleton<TransactionNotesStore>(
+    TransactionNotesStore(transactionDescriptionSource: _transactionDescriptionBox),
+  );
   getIt.registerSingleton<BridgeTransfersStore>(BridgeTransfersStore());
   getIt
       .registerFactory(() => PayjoinTransactionsStore(payjoinSessionSource: _payjoinSessionSource));
@@ -556,6 +560,7 @@ Future<void> setup({
       settingsStore: settingsStore,
       anonpayTransactionsStore: getIt.get<AnonpayTransactionsStore>(),
       payjoinTransactionsStore: getIt.get<PayjoinTransactionsStore>(),
+      transactionNotesStore: getIt.get<TransactionNotesStore>(),
       sharedPreferences: getIt.get<SharedPreferences>(),
       keyService: getIt.get<KeyService>()));
 

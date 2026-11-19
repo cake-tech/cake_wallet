@@ -25,4 +25,7 @@ class BlackThemeCustomColors extends CustomThemeColors {
 
   @override
   Color get toggleColorOffState => const Color(0xFF454148);
+
+  @override
+  Color get receivedAmountColor => const Color(0xFF55CD74);
 }
