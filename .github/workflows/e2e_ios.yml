@@ -53,6 +53,8 @@ jobs:
     steps:
       - name: Checkout the app (this repo, PR ref)
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Checkout the QA project (cake-qa, via deploy key)
         uses: actions/checkout@v4
@@ -61,6 +63,7 @@ jobs:
           ref: ${{ inputs.qa_ref || 'main' }}
           path: cake-qa
           ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+          persist-credentials: false
 
       - name: Node
         uses: actions/setup-node@v4
@@ -175,17 +178,39 @@ jobs:
           xcrun simctl shutdown "$UDID" || true
           xcrun simctl delete "$UDID" || true
 
-      - name: Upload results
+      - name: Redact seed-like word runs from the results
+        id: redact
         if: always()
+        run: node cake-qa/tools/qa/redact.mjs cake-qa/.e2e
+
+      - name: Upload results
+        if: always() && steps.redact.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: e2e-results-ios
           path: |
             cake-qa/.e2e/junit.xml
             cake-qa/.e2e/summary.md
-            cake-qa/.e2e/report.json
-            cake-qa/.e2e/artifacts
           if-no-files-found: warn
+
+      - name: Encrypt the agent trace and screenshots
+        if: always() && steps.redact.outcome == 'success'
+        working-directory: cake-qa/.e2e
+        env:
+          QA_ARTIFACT_PASSPHRASE: ${{ secrets.QA_ARTIFACT_PASSPHRASE }}
+        run: |
+          [ -n "$QA_ARTIFACT_PASSPHRASE" ] || exit 0
+          FILES=$(ls -d report.json artifacts 2>/dev/null || true)
+          [ -n "$FILES" ] || exit 0
+          tar czf - $FILES | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:QA_ARTIFACT_PASSPHRASE -out "$RUNNER_TEMP/e2e-trace-ios.tgz.enc"
+
+      - name: Upload the encrypted trace
+        if: always() && steps.redact.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-trace-ios
+          path: ${{ runner.temp }}/e2e-trace-ios.tgz.enc
+          if-no-files-found: ignore
 
       - name: PR comment with counts, cost and cache hit rate
         if: always() && github.event_name == 'pull_request'

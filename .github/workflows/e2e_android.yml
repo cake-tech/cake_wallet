@@ -151,6 +151,7 @@ jobs:
           ref: ${{ inputs.qa_ref || 'main' }}
           path: cake-qa
           ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+          persist-credentials: false
 
       - name: Node
         uses: actions/setup-node@v4
@@ -219,20 +220,38 @@ jobs:
             CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; SUITE="${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}"; GREP="${{ inputs.grep }}"; if [ -n "${{ inputs.shard }}" ]; then cd cake-qa && CW_PACKAGE="$CW_PACKAGE" node node_modules/.bin/e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"} --shard "${{ inputs.shard }}"; else cd cake-qa && CW_PACKAGE="$CW_PACKAGE" node node_modules/.bin/e2e run --target pixel "$SUITE" --reporter list,junit,markdown ${GREP:+--grep} ${GREP:+"$GREP"}; fi
 
       - name: Redact seed-like word runs from the results
+        id: redact
         if: always()
-        run: node cake-qa/tools/qa/redact.mjs cake-qa/.e2e || true
+        run: node cake-qa/tools/qa/redact.mjs cake-qa/.e2e
 
       - name: Upload results
-        if: always()
+        if: always() && steps.redact.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: e2e-results
           path: |
             cake-qa/.e2e/junit.xml
             cake-qa/.e2e/summary.md
-            cake-qa/.e2e/report.json
-            cake-qa/.e2e/artifacts
           if-no-files-found: warn
+
+      - name: Encrypt the agent trace and screenshots
+        if: always() && steps.redact.outcome == 'success'
+        working-directory: cake-qa/.e2e
+        env:
+          QA_ARTIFACT_PASSPHRASE: ${{ secrets.QA_ARTIFACT_PASSPHRASE }}
+        run: |
+          [ -n "$QA_ARTIFACT_PASSPHRASE" ] || exit 0
+          FILES=$(ls -d report.json artifacts 2>/dev/null || true)
+          [ -n "$FILES" ] || exit 0
+          tar czf - $FILES | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:QA_ARTIFACT_PASSPHRASE -out "$RUNNER_TEMP/e2e-trace.tgz.enc"
+
+      - name: Upload the encrypted trace
+        if: always() && steps.redact.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-trace
+          path: ${{ runner.temp }}/e2e-trace.tgz.enc
+          if-no-files-found: ignore
 
       - name: PR comment with counts, cost and cache hit rate
         if: always() && github.event_name == 'pull_request'
