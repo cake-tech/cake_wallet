@@ -191,6 +191,10 @@ class SPLToken extends CryptoCurrency {
   }
 
   @override
+  bool isSameAsset(CryptoCurrency walletCurrency) =>
+      walletCurrency is SPLToken && walletCurrency.mintAddress == mintAddress;
+
+  @override
   bool operator ==(other) =>
       (other is SPLToken && other.mintAddress == mintAddress) ||
       (other is CryptoCurrency && other.title == title);

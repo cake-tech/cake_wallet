@@ -1171,6 +1171,11 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
 
   bool titleAndTagEqual(CryptoCurrency other) => title == other.title && tag == other.tag;
 
+  // An untagged currency also matches the token tagged with its own title ([arb] on Arbitrum).
+  bool isSameAsset(CryptoCurrency walletCurrency) =>
+      walletCurrency.title == title &&
+      (walletCurrency.tag == tag || (tag == null && walletCurrency.tag == title));
+
   @override
   Money parseAmount(String value) => Money.parse(value, this);
 

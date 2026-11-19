@@ -859,13 +859,7 @@ abstract class EVMChainWalletBase
           '0x${opReturnMemo.codeUnits.map((char) => char.toRadixString(16).padLeft(2, '0')).join()}';
     }
 
-    final transactionCurrency = balance.keys.firstWhere(
-        (currency) =>
-            currency.title == _credentials.currency.title &&
-            (currency.tag == _credentials.currency.tag ||
-                currency.tag == _credentials.currency.title),
-        orElse: () => throw BadCurrencyException(
-            'Currency ${_credentials.currency.title} ${_credentials.currency.tag} is not accessible in the wallet, try to enable it first.', _credentials.currency));
+    final transactionCurrency = resolveTransactionCurrency(_credentials.currency, balance.keys);
 
     final currencyBalance = balance[transactionCurrency]!;
     final toAddress = _credentials.outputs.first.isParsedAddress
@@ -986,6 +980,18 @@ abstract class EVMChainWalletBase
     return pendingEVMChainTransaction;
   }
 
+  static CryptoCurrency resolveTransactionCurrency(
+    CryptoCurrency requestedCurrency,
+    Iterable<CryptoCurrency> availableCurrencies,
+  ) =>
+      availableCurrencies.firstWhere(
+        requestedCurrency.isSameAsset,
+        orElse: () => throw BadCurrencyException(
+          "Currency ${requestedCurrency.title} ${requestedCurrency.tag} is not accessible in the wallet, try to enable it first.",
+          requestedCurrency,
+        ),
+      );
+
   Future<PendingTransaction> createCallDataTransaction(
     String to,
     String dataHex,
@@ -1083,7 +1089,7 @@ abstract class EVMChainWalletBase
       Money amount, String spender, EVMChainTransactionPriority? priority,
       {bool useBlinkProtection = true}) async {
     final transactionCurrency =
-        balance.keys.firstWhere((element) => element.symbol == amount.currency.symbol);
+        resolveTransactionCurrency(amount.currency as CryptoCurrency, balance.keys);
     assert(transactionCurrency is Erc20Token);
 
     final data = _client.getEncodedDataForApprovalTransaction(

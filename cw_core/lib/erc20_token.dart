@@ -186,6 +186,12 @@ class Erc20Token extends CryptoCurrency {
   }
 
   @override
+  bool isSameAsset(CryptoCurrency walletCurrency) =>
+      walletCurrency is Erc20Token &&
+      walletCurrency.contractAddress.toLowerCase() == contractAddress.toLowerCase() &&
+      walletCurrency.tag == tag;
+
+  @override
   bool operator ==(Object other) => other is Erc20Token && other.contractAddress == contractAddress;
 
   @override
