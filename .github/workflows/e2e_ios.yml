@@ -138,13 +138,14 @@ jobs:
           print([d for d in rt['supportedDeviceTypes'] if d.get('productFamily')=='iPhone'][0]['identifier'])")
           for OLD in $(xcrun simctl list devices -j | python3 -c "
           import json,sys
-          print(' '.join(d['udid'] for a in json.load(sys.stdin)['devices'].values() for d in a if d['name']=='qa-e2e'))"); do
+          print(' '.join(d['udid'] for a in json.load(sys.stdin)['devices'].values() for d in a if d['name'].startswith('qa-e2e')))"); do
             xcrun simctl shutdown "$OLD" 2>/dev/null || true
-            xcrun simctl delete "$OLD"
+            xcrun simctl delete "$OLD" || true
           done
-          UDID=$(xcrun simctl create qa-e2e "$DEVICE_TYPE" "$RUNTIME")
+          # A name of its own, so a leftover device that would not delete cannot be picked up by name.
+          UDID=$(xcrun simctl create "qa-e2e-${{ github.run_id }}" "$DEVICE_TYPE" "$RUNTIME")
           echo "UDID=$UDID" >> "$GITHUB_ENV"
-          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
 
       - name: Run the no-funds slice
@@ -156,13 +157,15 @@ jobs:
           E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
           E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
           E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
-          CW_IOS_DEVICE: qa-e2e
+          CW_IOS_DEVICE: qa-e2e-${{ github.run_id }}
           CW_IOS_APP: ${{ github.workspace }}/build/ios/iphonesimulator/Runner.app
           SUITE: ${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}
           GREP: ${{ inputs.grep }}
         run: |
           set -euo pipefail
           nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
+          PROXY=$!
+          trap 'kill "$PROXY" 2>/dev/null || true' EXIT
           sleep 2
           ARGS=(--target sim --reporter list,junit,markdown)
           if [ -n "${{ inputs.shard }}" ]; then ARGS+=(--shard "${{ inputs.shard }}"); fi

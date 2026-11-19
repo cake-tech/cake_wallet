@@ -35,6 +35,8 @@ jobs:
 
   refresh:
     needs: build
+    # The APK is uploaded before the build's own integration tests run, so a red test there must not skip the night.
+    if: ${{ !cancelled() }}
     runs-on: ${{ inputs.runs_on || 'ubuntu-latest' }}
     # qa-nightly holds the only key that can write to cake-qa; it is limited to dev.
     environment: qa-nightly
@@ -85,6 +87,7 @@ jobs:
           ls -la /dev/kvm
 
       - name: Boot the emulator and record the cache (read-write)
+        id: record
         uses: reactivecircus/android-emulator-runner@v2
         env:
           GLM_BASE_URL: https://llm.cakewallet.com/v1
@@ -158,6 +161,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Push the refreshed cache to a nightly branch
+        if: always() && steps.record.outcome == 'success'
         working-directory: cake-qa
         env:
           QA_DEPLOY_KEY: ${{ secrets.QA_DEPLOY_KEY }}
@@ -168,7 +172,7 @@ jobs:
           printf '%s\n' "$QA_DEPLOY_KEY" > "$KEY"
           echo "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl" > "$HOSTS"
           export GIT_SSH_COMMAND="ssh -i $KEY -o IdentitiesOnly=yes -o UserKnownHostsFile=$HOSTS -o StrictHostKeyChecking=yes"
-          BRANCH="nightly/cache-$(date -u +%Y%m%d)"
+          BRANCH="nightly/cache-$(date -u +%Y%m%d)-${{ github.run_id }}-${{ github.run_attempt }}"
           git config user.name "qa-nightly-bot"
           git config user.email "qa-nightly-bot@users.noreply.github.com"
           git checkout -B "$BRANCH"
