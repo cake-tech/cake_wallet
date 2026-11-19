@@ -1,0 +1,157 @@
+#!/bin/bash
+# Fixture tests for tool/i18n_lint.dart: missing, ph-order, ph-missing and
+# baseline filtering. No network or pub deps; run with `bash tool/i18n_lint_selftest.sh`.
+
+set -u
+root="$(cd "$(dirname "$0")/.." && pwd)"
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
+arb="$tmp/arb"
+mkdir -p "$arb"
+
+write_en() {
+  cat > "$arb/strings_en.arb" <<'JSON'
+{
+  "greeting": "Hello",
+  "trade": "Trade ${id} of ${title} not found.",
+  "both": "From ${from} to ${to}",
+  "slide_title": "Accounts are created in order",
+  "slide_description": "The order of creation is shown alongside the account name",
+  "slide_highlight": "Accounts",
+  "order_title": "Accounts are numbered",
+  "order_description": "Creation order appears next to the account name",
+  "order_highlight": "Creation order"
+}
+JSON
+}
+
+write_clean() {
+  cat > "$arb/strings_xx.arb" <<'JSON'
+{
+  "greeting": "हैलो",
+  "trade": "ट्रेड ${id} का ${title} नहीं मिला।",
+  "both": "${from} से ${to} तक",
+  "slide_title": "खाते क्रम में बनाए जाते हैं",
+  "slide_description": "बनाने का क्रम खाते के नाम के साथ दिखता है",
+  "slide_highlight": "खाते",
+  "order_title": "खाते क्रमांकित हैं",
+  "order_description": "निर्माण का क्रम नाम के साथ दिखता है",
+  "order_highlight": "निर्माण का क्रम"
+}
+JSON
+}
+
+failures=0
+
+check() {
+  local name="$1" expected="$2" fixture="$3" baseline="${4:-}"
+  local args=(--arb-dir="$arb" --lang=xx --baseline="${baseline:-$tmp/empty.json}")
+  write_en
+  "$fixture"
+  out="$(cd "$root" && dart tool/i18n_lint.dart "${args[@]}" 2>&1)"
+  actual=$?
+  if [ "$actual" -eq "$expected" ]; then
+    echo "ok   $name"
+  else
+    echo "FAIL $name (expected exit $expected, got $actual)"
+    echo "$out" | tail -5
+    failures=$((failures + 1))
+  fi
+}
+
+clean_fixture() { write_clean; }
+
+missing_fixture() {
+  write_clean
+  python3 - "$arb/strings_xx.arb" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+del d["greeting"]
+json.dump(d, open(p, "w"), ensure_ascii=False)
+PY
+}
+
+order_fixture() {
+  write_clean
+  python3 - "$arb/strings_xx.arb" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["trade"] = "ट्रेड ${title} का ${id} नहीं मिला।"
+json.dump(d, open(p, "w"), ensure_ascii=False)
+PY
+}
+
+dropped_fixture() {
+  write_clean
+  python3 - "$arb/strings_xx.arb" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["both"] = "${from} से"
+json.dump(d, open(p, "w"), ensure_ascii=False)
+PY
+}
+
+bad_highlight_fixture() {
+  write_clean
+  python3 - "$arb/strings_xx.arb" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["slide_highlight"] = "नहीं है"
+json.dump(d, open(p, "w"), ensure_ascii=False)
+PY
+}
+
+# English pairs order_highlight with order_description, so a translation whose
+# highlight only matches the title must still be reported.
+wrong_host_fixture() {
+  write_clean
+  python3 - "$arb/strings_xx.arb" <<'PY'
+import json, sys
+p = sys.argv[1]
+d = json.load(open(p))
+d["order_highlight"] = "क्रमांकित"
+json.dump(d, open(p, "w"), ensure_ascii=False)
+PY
+}
+
+check "clean locale passes" 0 clean_fixture
+check "missing key warns" 0 missing_fixture
+check "placeholder reorder fails" 1 order_fixture
+check "dropped placeholder fails" 1 dropped_fixture
+
+# highlight must appear in the paired title or description (warning only)
+write_en
+bad_highlight_fixture
+out="$(cd "$root" && dart tool/i18n_lint.dart --arb-dir="$arb" --lang=xx --baseline="$tmp/empty3.json" 2>&1)"
+if echo "$out" | grep -q "highlight"; then echo "ok   highlight mismatch warns"; else echo "FAIL highlight warning"; echo "$out" | tail -3; failures=$((failures + 1)); fi
+
+# highlight must sit in the host the slide pairs it with, not just any host
+write_en
+wrong_host_fixture
+out="$(cd "$root" && dart tool/i18n_lint.dart --arb-dir="$arb" --lang=xx --baseline="$tmp/empty5.json" 2>&1)"
+if echo "$out" | grep -q "order_highlight.*order_description"; then echo "ok   highlight in the wrong host warns"; else echo "FAIL cross-host highlight"; echo "$out" | tail -3; failures=$((failures + 1)); fi
+
+# baseline filtering: accept the reorder, then it must pass
+write_en
+order_fixture
+baseline="$tmp/baseline.json"
+(cd "$root" && dart tool/i18n_lint.dart --arb-dir="$arb" --lang=xx --baseline="$baseline" --update-baseline >/dev/null 2>&1)
+check "baselined reorder passes" 0 order_fixture "$baseline"
+
+# strict mode promotes the missing warning to a failure
+write_en
+missing_fixture
+out="$(cd "$root" && dart tool/i18n_lint.dart --arb-dir="$arb" --lang=xx --baseline="$tmp/empty2.json" --strict 2>&1)"
+if [ $? -eq 1 ]; then echo "ok   missing key fails under --strict"; else echo "FAIL --strict"; echo "$out" | tail -3; failures=$((failures + 1)); fi
+
+if [ "$failures" -ne 0 ]; then
+  echo "$failures fixture(s) failed"
+  exit 1
+fi
+
+echo "all i18n_lint fixtures passed"

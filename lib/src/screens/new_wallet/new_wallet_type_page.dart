@@ -103,11 +103,15 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   @override
   void initState() {
     types = filteredTypes = availableWalletTypes
-        .where((element) =>
-            !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(
-                    element, widget.hardwareWalletType!, Platform.isIOS)
-                .isNotEmpty)
+        .where(
+          (element) =>
+              !widget.isHardwareWallet ||
+              DeviceConnectionType.supportedConnectionTypes(
+                element,
+                widget.hardwareWalletType!,
+                isIOS: Platform.isIOS,
+              ).isNotEmpty,
+        )
         .toList();
     super.initState();
   }
@@ -178,7 +182,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                           imageUrl: getCryptoCurrencyIconForWalletListItem(item),
                                         ),
                                         const SizedBox(width: 12),
-                                        Text(walletTypeToDisplayName(item)),
+                                        Semantics(
+                                          button: true,
+                                          child: Text(walletTypeToDisplayName(item)),
+                                        ),
                                         const SizedBox(width: 4),
                                         Text(
                                           walletTypeToDisplayTicker(item),

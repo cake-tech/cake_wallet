@@ -18,6 +18,7 @@ import 'package:cw_evm/evm_chain_exceptions.dart';
 import 'package:cw_evm/evm_chain_registry.dart';
 import 'package:cw_evm/evm_chain_wallet.dart';
 import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
+import "package:cw_evm/utils/evm_chain_utils.dart";
 
 /// Unified service for all EVM chains (Ethereum, Polygon, Base, Arbitrum, etc.)
 ///
@@ -131,8 +132,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -152,8 +151,6 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      await wallet.addInitialTokens();
-      await wallet.save();
       await saveBackup(name);
       return wallet;
     } catch (_) {
@@ -167,8 +164,6 @@ class EVMChainWalletService extends WalletService<
       );
 
       await wallet.init();
-      await wallet.addInitialTokens();
-      await wallet.save();
       return wallet;
     }
   }
@@ -258,8 +253,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -268,6 +261,10 @@ class EVMChainWalletService extends WalletService<
     EVMChainRestoreWalletFromPrivateKey credentials, {
     bool? isTestnet,
   }) async {
+    if (!EVMChainUtils.isValidPrivateKey(credentials.privateKey)) {
+      throw const BadKeysException("Invalid private key. Expected a hex-encoded private key.");
+    }
+
     final walletInfo = credentials.walletInfo!;
 
     // Get chainId from wallet type
@@ -298,8 +295,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 
@@ -336,8 +331,6 @@ class EVMChainWalletService extends WalletService<
     );
 
     await wallet.init();
-    await wallet.addInitialTokens();
-    await wallet.save();
     return wallet;
   }
 

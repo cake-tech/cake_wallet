@@ -16,6 +16,7 @@ import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
@@ -314,10 +315,10 @@ abstract class DashboardViewModelBase with Store {
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
       SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.letsExchange,
-          value: () => tradeFilterStore.displayLetsExchange,
+          providerDescription: ExchangeProviderDescription.whyNot,
+          value: () => tradeFilterStore.displayWhyNot,
           onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.whyNot)),
       SwapProviderFilterItem(
           providerDescription: ExchangeProviderDescription.stealthEx,
           value: () => tradeFilterStore.displayStealthEx,
@@ -382,6 +383,10 @@ abstract class DashboardViewModelBase with Store {
   @computed
   bool get isMigratingToIronwood =>
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
+
+  @computed
+  bool get requiresManualShield =>
+      wallet.type == WalletType.zcash && wallet.hardwareWalletType != null;
 
   @computed
   bool get isSyncHeavy {
@@ -754,6 +759,16 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
+
+  @computed
+  bool get showCharts => appStore.settingsStore.shouldShowChartsInDashboard;
+
+  @computed
+  bool get showNftsTab => appStore.settingsStore.shouldShowNftsTab;
+
+  @action
+  void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode mode) =>
+      appStore.settingsStore.displayAmountsInSatoshi = mode;
 
   @computed
   List<TradeListItem> get trades => tradesStore.trades.where((trade) {
@@ -1406,14 +1421,7 @@ abstract class DashboardViewModelBase with Store {
   void toggleLightningMode() {
     lightningMode = !lightningMode;
 
-    // Lightning belongs to the primary account only
-    if (lightningMode) {
-      unawaited(_selectPrimaryAccount().then((_) async {
-        if (!lightningMode && isMultiAccountsEnabled) {
-          await loadCardDesigns();
-        }
-      }));
-    } else {
+    if (!lightningMode) {
       unawaited(loadCardDesigns());
     }
   }
