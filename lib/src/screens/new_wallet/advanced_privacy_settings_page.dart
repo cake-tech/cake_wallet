@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/seed_phrase_length.dart';
 import 'package:cake_wallet/entities/seed_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/viewmodels/restore_wallet/seed_settings_cubit.dart";
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/nodes/widgets/node_form.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
@@ -17,11 +18,11 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/view_model/advanced_privacy_settings_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
-import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/zcash/zcash_network_type.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AdvancedPrivacySettingsPage extends BasePage {
@@ -34,12 +35,10 @@ class AdvancedPrivacySettingsPage extends BasePage {
     required this.setZcashNetwork,
     required this.advancedPrivacySettingsViewModel,
     required this.nodeViewModel,
-    required this.seedSettingsViewModel,
   });
 
   final AdvancedPrivacySettingsViewModel advancedPrivacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
-  final SeedSettingsViewModel seedSettingsViewModel;
 
   @override
   String get title => S.current.privacy_settings;
@@ -61,7 +60,6 @@ class AdvancedPrivacySettingsPage extends BasePage {
         setZcashNetwork,
         advancedPrivacySettingsViewModel,
         nodeViewModel,
-        seedSettingsViewModel,
       );
 }
 
@@ -75,12 +73,10 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
     this.setZcashNetwork,
     this.privacySettingsViewModel,
     this.nodeViewModel,
-    this.seedTypeViewModel,
   );
 
   final AdvancedPrivacySettingsViewModel privacySettingsViewModel;
   final NodeCreateOrEditViewModel nodeViewModel;
-  final SeedSettingsViewModel seedTypeViewModel;
 
   final bool isFromRestore;
   final bool isChildWallet;
@@ -94,6 +90,8 @@ class _AdvancedPrivacySettingsBody extends StatefulWidget {
 }
 
 class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBody> {
+  late final SeedSettingsCubit _seedSettingsCubit = context.read<SeedSettingsCubit>();
+
   final TextEditingController passphraseController = TextEditingController();
   final TextEditingController confirmPassphraseController = TextEditingController();
   final _formKey = GlobalKey<NodeFormState>();
@@ -105,19 +103,26 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
 
   @override
   void initState() {
-    passphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
-    confirmPassphraseController.text = widget.seedTypeViewModel.passphrase ?? '';
+    passphraseController.text = _seedSettingsCubit.state.passphrase ?? '';
+    confirmPassphraseController.text = _seedSettingsCubit.state.passphrase ?? '';
 
     if (widget.isChildWallet) {
       if (widget.privacySettingsViewModel.type == WalletType.bitcoin) {
-        widget.seedTypeViewModel.setBitcoinSeedType(BitcoinSeedType.bip39);
+        _seedSettingsCubit.setBitcoinSeedType(BitcoinSeedType.bip39);
       }
 
       if (widget.privacySettingsViewModel.type == WalletType.nano) {
-        widget.seedTypeViewModel.setNanoSeedType(NanoSeedType.bip39);
+        _seedSettingsCubit.setNanoSeedType(NanoSeedType.bip39);
       }
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    passphraseController.dispose();
+    confirmPassphraseController.dispose();
+    super.dispose();
   }
 
   @override
@@ -158,51 +163,60 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
             }),
             if (widget.privacySettingsViewModel.isMoneroSeedTypeOptionsEnabled &&
                 !widget.isChildWallet)
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
-                  ChoicesListItem<MoneroSeedType>(
-                    title: S.current.seedtype,
-                    items: MoneroSeedType.all,
-                    selectedItem: widget.seedTypeViewModel.moneroSeedType,
-                    onItemSelected: widget.seedTypeViewModel.setMoneroSeedType,
-                    displayItem: (seedType) => seedType.shortTitle ?? seedType.toString(),
-                  ),
-                );
-              }),
+              BlocSelector<SeedSettingsCubit, SeedSettingsState, MoneroSeedType>(
+                selector: (state) => state.moneroSeedType,
+                builder: (context, moneroSeedType) {
+                  return SettingsChoicesCell(
+                    ChoicesListItem<MoneroSeedType>(
+                      title: S.current.seedtype,
+                      items: MoneroSeedType.all,
+                      selectedItem: moneroSeedType,
+                      onItemSelected: _seedSettingsCubit.setMoneroSeedType,
+                      displayItem: (seedType) => seedType.shortTitle ?? seedType.toString(),
+                    ),
+                  );
+                },
+              ),
             if (widget.privacySettingsViewModel.isBitcoinSeedTypeOptionsEnabled)
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
-                  ChoicesListItem<BitcoinSeedType>(
-                    title: S.current.seedtype,
-                    items: BitcoinSeedType.all,
-                    selectedItem: widget.seedTypeViewModel.bitcoinSeedType,
-                    onItemSelected: (type) {
-                      if (widget.isChildWallet && type != BitcoinSeedType.bip39) {
-                        showAlertForSelectingNonBIP39DerivationTypeForChildWallets();
-                      } else {
-                        widget.seedTypeViewModel.setBitcoinSeedType(type);
-                      }
-                    },
-                  ),
-                );
-              }),
+              BlocSelector<SeedSettingsCubit, SeedSettingsState, BitcoinSeedType>(
+                selector: (state) => state.bitcoinSeedType,
+                builder: (context, bitcoinSeedType) {
+                  return SettingsChoicesCell(
+                    ChoicesListItem<BitcoinSeedType>(
+                      title: S.current.seedtype,
+                      items: BitcoinSeedType.all,
+                      selectedItem: bitcoinSeedType,
+                      onItemSelected: (type) {
+                        if (widget.isChildWallet && type != BitcoinSeedType.bip39) {
+                          showAlertForSelectingNonBIP39DerivationTypeForChildWallets();
+                        } else {
+                          _seedSettingsCubit.setBitcoinSeedType(type);
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
             if (widget.privacySettingsViewModel.isNanoSeedTypeOptionsEnabled)
-              Observer(builder: (_) {
-                return SettingsChoicesCell(
-                  ChoicesListItem<NanoSeedType>(
-                    title: S.current.seedtype,
-                    items: NanoSeedType.all,
-                    selectedItem: widget.seedTypeViewModel.nanoSeedType,
-                    onItemSelected: (type) {
-                      if (widget.isChildWallet && type != NanoSeedType.bip39) {
-                        showAlertForSelectingNonBIP39DerivationTypeForChildWallets();
-                      } else {
-                        widget.seedTypeViewModel.setNanoSeedType(type);
-                      }
-                    },
-                  ),
-                );
-              }),
+              BlocSelector<SeedSettingsCubit, SeedSettingsState, NanoSeedType>(
+                selector: (state) => state.nanoSeedType,
+                builder: (context, nanoSeedType) {
+                  return SettingsChoicesCell(
+                    ChoicesListItem<NanoSeedType>(
+                      title: S.current.seedtype,
+                      items: NanoSeedType.all,
+                      selectedItem: nanoSeedType,
+                      onItemSelected: (type) {
+                        if (widget.isChildWallet && type != NanoSeedType.bip39) {
+                          showAlertForSelectingNonBIP39DerivationTypeForChildWallets();
+                        } else {
+                          _seedSettingsCubit.setNanoSeedType(type);
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
             if (!widget.isFromRestore)
               Observer(builder: (_) {
                 if (widget.privacySettingsViewModel.hasSeedPhraseLengthOption)
@@ -366,9 +380,11 @@ class _AdvancedPrivacySettingsBodyState extends State<_AdvancedPrivacySettingsBo
                   return;
                 }
 
-                widget.seedTypeViewModel.setPassphrase(passphraseController.text);
+                _seedSettingsCubit.setPassphrase(passphraseController.text);
 
-                Navigator.pop(context);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
               },
               text: S.of(context).continue_text,
               color: Theme.of(context).colorScheme.primary,
