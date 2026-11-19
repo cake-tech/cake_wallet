@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:cake_wallet/cake_pay/src/services/cake_pay_api.dart';
 import 'package:cake_wallet/cake_pay/src/cake_pay_states.dart';
+import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_user_card.dart';
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_voucher.dart';
+import "package:cake_wallet/cake_pay/src/widgets/cake_pay_maintenance_widget.dart";
 import 'package:cake_wallet/cake_pay/src/widgets/cake_pay_search_bar_widget.dart';
 import 'package:cake_wallet/cake_pay/src/widgets/user_card_item.dart';
 import 'package:cake_wallet/entities/country.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/new-ui/pages/explainers/gift_cards_explainer.dart";
 import 'package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -129,6 +132,14 @@ class _CakePayCardsPageBodyState extends State<CakePayCardsPageBody> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await const GiftCardsExplainer()
+          .showIfNeeded(context, widget._cardsListViewModel.settingsStore);
+      if (mounted) _listenForCountryPicker();
+    });
+  }
+
+  void _listenForCountryPicker() {
     final viewModel = widget._cardsListViewModel;
 
     _countryPickerDisposer = when(
@@ -563,7 +574,12 @@ class _ShopTabState extends State<_ShopTab> {
           child: Observer(builder: (_) {
             final vendors = viewModel.cakePayVendors;
 
-            if (viewModel.vendorsState is! CakePayVendorLoadedState) {
+            if (viewModel.isUnderMaintenance == true) {
+              return const CakePayMaintenanceWidget();
+            }
+
+            if (viewModel.isUnderMaintenance == null ||
+                viewModel.vendorsState is! CakePayVendorLoadedState) {
               return const _Loading();
             }
 

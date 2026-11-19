@@ -6,6 +6,7 @@ import io.flutter.embedding.android.FlutterFragmentActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 
+import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
@@ -24,6 +25,7 @@ import java.security.SecureRandom;
 
 public class MainActivity extends FlutterFragmentActivity {
     final String UTILS_CHANNEL = "com.cake_wallet/native_utils";
+    final String PHONE_CALL_STATUS_CHANNEL = "com.cake_wallet/phone_call_status";
     boolean isAppSecure = false;
 
     @Override
@@ -35,6 +37,9 @@ public class MainActivity extends FlutterFragmentActivity {
                         UTILS_CHANNEL);
 
         utilsChannel.setMethodCallHandler(this::handle);
+
+        new EventChannel(flutterEngine.getDartExecutor().getBinaryMessenger(),
+                PHONE_CALL_STATUS_CHANNEL).setStreamHandler(new PhoneCallStatusStreamHandler(this));
     }
 
     private void handle(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
@@ -64,6 +69,10 @@ public class MainActivity extends FlutterFragmentActivity {
                 case "isBatteryOptimizationDisabled":
                     boolean isDisabled = isBatteryOptimizationDisabled();
                     handler.post(() -> result.success(isDisabled));
+                    break;
+                case "is_on_phone_call":
+                    boolean isOnPhoneCall = PhoneCallStatusStreamHandler.isOnPhoneCall(this);
+                    handler.post(() -> result.success(isOnPhoneCall));
                     break;
                 default:
                     handler.post(() -> result.notImplemented());

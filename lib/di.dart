@@ -821,6 +821,7 @@ Future<void> setup({
     return NewSendPage(
       sendViewModel: getIt.get<SendViewModel>(param1: params.unspentCoinType),
       authService: getIt.get<AuthService>(),
+      settingsStore: getIt.get<SettingsStore>(),
       params: params,
       contactListViewModel: getIt.get<ContactListViewModel>(),
       anyPayService: getIt.get<AnyPayService>(),
