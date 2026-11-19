@@ -43,6 +43,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   Widget build(BuildContext context) {
     final row = ListItemStyleWrapper(
       testId: widget.testId,
+      mergeTestId: widget.onTap == null,
       iconPath: widget.iconPath,
       onTap: widget.onTap ??
           () {
@@ -100,6 +101,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
             ),
             NewSimpleCheckbox(
               value: widget.value,
+              semanticLabel: widget.onTap == null ? null : widget.label,
               onChanged: (newValue) {
                 widget.onChanged(newValue);
               },
@@ -109,6 +111,6 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
       },
     );
 
-    return widget.testId == null ? MergeSemantics(child: row) : row;
+    return widget.testId == null && widget.onTap == null ? MergeSemantics(child: row) : row;
   }
 }

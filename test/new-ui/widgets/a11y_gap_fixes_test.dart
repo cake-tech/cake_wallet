@@ -525,6 +525,34 @@ void main() {
       });
     }
 
+    testWidgets("a checkbox row with its own onTap can still be toggled", (tester) async {
+      final handle = tester.ensureSemantics();
+      final log = <String>[];
+      await tester.pumpWidget(
+        wrap(
+          ListItemCheckboxWidget(
+            keyValue: "Trocador",
+            label: "Trocador",
+            subtitle: "Manage providers",
+            value: true,
+            onTap: () => log.add("navigate"),
+            onChanged: (value) => log.add("toggle $value"),
+            testId: "provider_row_key",
+          ),
+        ),
+      );
+      final stops = tester.semantics.simulatedAccessibilityTraversal().toList();
+      expect(stops.where((node) => node.label.isEmpty), isEmpty);
+      for (final node in stops) {
+        if (!node.getSemanticsData().hasAction(SemanticsAction.tap)) continue;
+        node.owner!.performAction(node.id, SemanticsAction.tap);
+        await tester.pump();
+      }
+      expect(log, ["navigate", "toggle false"]);
+      expect(one(tester, "provider_row_key"), isSemantics(label: "Trocador\nManage providers", hasTapAction: true));
+      handle.dispose();
+    });
+
     testWidgets("a coin control row is one stop carrying its address and checked state", (tester) async {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
