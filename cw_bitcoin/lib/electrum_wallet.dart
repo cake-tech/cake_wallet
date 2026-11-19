@@ -415,7 +415,7 @@ abstract class ElectrumWalletBase
     await save();
 
     if (!electrumClient.isConnected) {
-      return;
+      return true;
     }
 
     if (willEnable) {
