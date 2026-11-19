@@ -1,14 +1,11 @@
-# Layer-B e2e lane, iOS (QA handoff §6 4-b).
-# Runs on the Mac Studio registered as a self-hosted runner labelled
-# [self-hosted, macOS, cake-qa]. REPORT-ONLY like the Android lane
+# Layer-B e2e lane, iOS (QA handoff §6 4-b). REPORT-ONLY like the Android lane
 # (continue-on-error at job level; never a required check).
 #
-# Dispatch-only: the runner is a persistent machine, so it must not build
-# every PR. A pull_request trigger can come back once the lane runs in an
-# ephemeral VM.
-#
-# One e2e job at a time per simulator: the concurrency group is global, so
-# runs on the single studio runner serialise instead of colliding.
+# Both jobs run in throwaway VMs (cake-tech/mac-ci-runner): each gets a fresh
+# macOS VM that reaches the internet and nothing else, deleted when the job ends.
+#   build  builds this ref's simulator app. No environment, no secrets.
+#   e2e    installs that app and runs the suite with the qa secrets. It never
+#          checks out or builds this repository's code.
 name: E2E (iOS)
 
 on:
@@ -30,32 +27,54 @@ on:
         description: "only tests whose title matches this regular expression (empty = all)"
         type: string
         default: ""
-      build_run:
-        description: "unused today (the lane builds its own simulator .app); kept for symmetry with the Android lane"
-        type: string
-        default: ""
 
 permissions:
   contents: read
 
 concurrency:
-  group: e2e-ios
-  cancel-in-progress: false
+  group: e2e-ios-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  e2e-ios:
-    # [self-hosted, macOS, cake-qa] — registered via tools/ci/setup_macos_runner.sh.
-    runs-on: [self-hosted, macOS, cake-qa]
+  build:
+    runs-on: [self-hosted, cake-m5-ultra]
+    # REPORT-ONLY, permanently until Seth says otherwise.
+    continue-on-error: true
+    timeout-minutes: 90
+    steps:
+      - name: Checkout the app
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Build the simulator app
+        env:
+          GIT_CONFIG_COUNT: "2"
+          GIT_CONFIG_KEY_0: user.email
+          GIT_CONFIG_VALUE_0: ci@example.invalid
+          GIT_CONFIG_KEY_1: user.name
+          GIT_CONFIG_VALUE_1: CI
+        run: bash scripts/ci/ios_sim_build.sh "$GITHUB_WORKSPACE"
+
+      - name: Pack the app
+        run: tar -C build/ios/iphonesimulator -czf "$RUNNER_TEMP/Runner.app.tgz" Runner.app
+
+      - name: Hand the app to the suite job
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-ios-app
+          path: ${{ runner.temp }}/Runner.app.tgz
+          if-no-files-found: error
+          retention-days: 3
+
+  e2e:
+    needs: build
+    runs-on: [self-hosted, cake-m5-ultra]
     environment: qa
     # REPORT-ONLY, permanently until Seth says otherwise.
     continue-on-error: true
     timeout-minutes: 180
     steps:
-      - name: Checkout the app (this repo, PR ref)
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
       - name: Checkout the QA project (cake-qa, via deploy key)
         uses: actions/checkout@v4
         with:
@@ -69,84 +88,43 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "26"
-          cache: npm
-          cache-dependency-path: cake-qa/package-lock.json
 
       - name: Install the QA project
         working-directory: cake-qa
         run: npm ci
 
-      - name: Restore flutter sdk
-        id: flutter-cache
-        uses: actions/cache/restore@v4
+      - name: Download the app
+        uses: actions/download-artifact@v4
         with:
-          path: ~/flutter
-          key: flutter-sdk-3.41.9-${{ runner.os }}
+          name: e2e-ios-app
+          path: ${{ runner.temp }}
 
-      - name: Install Flutter
+      - name: Unpack the app
         run: |
-          if [[ ! -d "$HOME/flutter/bin" ]]; then
-            git clone --branch 3.41.9 --depth 1 https://github.com/flutter/flutter.git "$HOME/flutter"
-          fi
-          # The runner service starts with a bare PATH: the build needs Homebrew's
-          # go, cmake and pod, and gomobile from ~/go/bin.
-          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
-          echo "$HOME/go/bin" >> "$GITHUB_PATH"
-          # Last entry wins: the pinned Flutter (and its dart) must come before Homebrew's.
-          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
-          "$HOME/flutter/bin/flutter" --version
+          mkdir -p app
+          tar -C app -xzf "$RUNNER_TEMP/Runner.app.tgz"
+          test -d app/Runner.app
 
-      - name: Save flutter sdk
-        if: steps.flutter-cache.outputs.cache-hit != 'true'
-        continue-on-error: true
-        uses: actions/cache/save@v4
-        with:
-          path: ~/flutter
-          key: flutter-sdk-3.41.9-${{ runner.os }}
+      - name: Simulator runtime
+        # The VM template carries Xcode but no simulator runtime.
+        run: xcrun simctl list runtimes | grep -q '^iOS' || xcodebuild -downloadPlatform iOS
 
-      - name: Cache DerivedData
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Developer/Xcode/DerivedData
-            ~/.agent-device
-          key: ios-derived-${{ github.sha }}
-          restore-keys: ios-derived-
-
-      - name: Build the simulator app (pinned recipe)
-        # The runner account signs commits by default and has no gpg on PATH;
-        # the dependency patch step commits with `git am`, so switch signing off here only.
-        env:
-          GIT_CONFIG_COUNT: "2"
-          GIT_CONFIG_KEY_0: commit.gpgsign
-          GIT_CONFIG_VALUE_0: "false"
-          GIT_CONFIG_KEY_1: tag.gpgsign
-          GIT_CONFIG_VALUE_1: "false"
-        run: bash cake-qa/tools/ci/ios_sim_build.sh "$GITHUB_WORKSPACE"
-
-      - name: Boot the pinned simulator and install
+      - name: Boot the simulator and install
         run: |
           set -euo pipefail
-          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "
-          import json,sys
+          read -r RUNTIME DEVICE_TYPE < <(xcrun simctl list runtimes -j | python3 -c "
+          import json,re,sys
           rts=[r for r in json.load(sys.stdin)['runtimes'] if r.get('platform')=='iOS' and r.get('isAvailable',True)]
-          rts.sort(key=lambda r: r['version'])
-          print(rts[-1]['identifier'])")
-          DEVICE_TYPE=$(xcrun simctl list runtimes -j | python3 -c "
-          import json,sys
-          rt=[r for r in json.load(sys.stdin)['runtimes'] if r['identifier']=='$RUNTIME'][0]
-          print([d for d in rt['supportedDeviceTypes'] if d.get('productFamily')=='iPhone'][0]['identifier'])")
-          for OLD in $(xcrun simctl list devices -j | python3 -c "
-          import json,sys
-          print(' '.join(d['udid'] for a in json.load(sys.stdin)['devices'].values() for d in a if d['name'].startswith('qa-e2e')))"); do
-            xcrun simctl shutdown "$OLD" 2>/dev/null || true
-            xcrun simctl delete "$OLD" || true
-          done
-          # A name of its own, so a leftover device that would not delete cannot be picked up by name.
-          UDID=$(xcrun simctl create "qa-e2e-${{ github.run_id }}" "$DEVICE_TYPE" "$RUNTIME")
+          rts.sort(key=lambda r: [int(x) for x in r['version'].split('.')])
+          rt=rts[-1]
+          ds=[d for d in rt['supportedDeviceTypes'] if d.get('productFamily')=='iPhone']
+          pick=([d for d in ds if re.fullmatch(r'iPhone \\d+ Pro', d['name'])] or [d for d in ds if re.fullmatch(r'iPhone \\d+', d['name'])] or ds)[-1]
+          print(rt['identifier'], pick['identifier'])")
+          echo "runtime=$RUNTIME device=$DEVICE_TYPE"
+          UDID=$(xcrun simctl create qa-e2e "$DEVICE_TYPE" "$RUNTIME")
           echo "UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl bootstatus "$UDID" -b
-          xcrun simctl install "$UDID" build/ios/iphonesimulator/Runner.app
+          xcrun simctl install "$UDID" app/Runner.app
 
       - name: Run the no-funds slice
         working-directory: cake-qa
@@ -157,29 +135,21 @@ jobs:
           E2E_SECRET_SEED_SOL: ${{ secrets.E2E_SECRET_SEED_SOL }}
           E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
           E2E_SECRET_SEED_NANO: ${{ secrets.E2E_SECRET_SEED_NANO }}
-          CW_IOS_DEVICE: qa-e2e-${{ github.run_id }}
-          CW_IOS_APP: ${{ github.workspace }}/build/ios/iphonesimulator/Runner.app
+          CW_IOS_DEVICE: qa-e2e
+          CW_IOS_APP: ${{ github.workspace }}/app/Runner.app
           SUITE: ${{ inputs.suite || 'tests/generated/no-funds.e2e.ts' }}
           GREP: ${{ inputs.grep }}
+          SHARD: ${{ inputs.shard }}
         run: |
           set -euo pipefail
           nohup node tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
-          PROXY=$!
-          trap 'kill "$PROXY" 2>/dev/null || true' EXIT
           sleep 2
-          ARGS=(--target sim --reporter list,junit,markdown)
-          if [ -n "${{ inputs.shard }}" ]; then ARGS+=(--shard "${{ inputs.shard }}"); fi
+          ARGS=(--target sim --reporter "list,junit,markdown")
+          if [ -n "$SHARD" ]; then ARGS+=(--shard "$SHARD"); fi
           if [ -n "$GREP" ]; then ARGS+=(--grep "$GREP"); fi
           # node directly, not npx: npm rewrites its process title and on macOS the overflow
           # exposes the job's environment (the wallet seeds) to `ps`.
           node node_modules/.bin/e2e run "$SUITE" "${ARGS[@]}"
-
-      - name: Shut down and delete the simulator
-        if: always()
-        run: |
-          [ -n "${UDID:-}" ] || exit 0
-          xcrun simctl shutdown "$UDID" || true
-          xcrun simctl delete "$UDID" || true
 
       - name: Redact seed-like word runs from the results
         id: redact
