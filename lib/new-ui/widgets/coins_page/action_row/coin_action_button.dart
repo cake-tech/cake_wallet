@@ -76,9 +76,11 @@ class CoinActionButton extends StatelessWidget {
                   child: AutoSizeText(
                     textAlign: TextAlign.center,
                     maxLines: 2,
-                    minFontSize: 9,
-                    // Shrink a long single word instead of breaking it
-                    // mid-glyph (Tamil "பரிமாற்றம்").
+                    // The "copied" confirmation is one long word in Tamil
+                    // ("நகலெடுக்கப்பட்டது") and cannot wrap, so allow a deep
+                    // shrink and never clip silently.
+                    minFontSize: 6,
+                    overflow: TextOverflow.ellipsis,
                     wrapWords: false,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
