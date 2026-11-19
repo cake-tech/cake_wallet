@@ -10,6 +10,7 @@ class ListItemToggleWidget extends StatefulWidget {
     required this.label,
     this.subtitle,
     this.iconPath,
+    this.iconColor,
     required this.value,
     required this.onChanged,
     this.leadingEndWidget,
@@ -20,6 +21,7 @@ class ListItemToggleWidget extends StatefulWidget {
 
   final String keyValue;
   final String? iconPath;
+  final Color? iconColor;
   final String label;
   final String? subtitle;
   final bool value;
@@ -41,9 +43,10 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+    return MergeSemantics(child: ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
+        iconPath: widget.iconPath,
         onTap: widget.isLoading
             ? null
             : () {
@@ -62,6 +65,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                         imageUrl: widget.iconPath,
                         width: 24,
                         height: 24,
+                        color: widget.iconColor,
                       ),
                     Flexible(
                       child: Column(
@@ -93,6 +97,6 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
               ),
             ],
           );
-        });
+        }));
   }
 }

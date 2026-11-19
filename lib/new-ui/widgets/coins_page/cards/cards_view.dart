@@ -2,24 +2,23 @@ import 'dart:math';
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cw_core/balance_card_layout.dart';
 
-import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/new-ui/modal_navigator.dart';
 import 'package:cake_wallet/new-ui/pages/spark_deposit_to_stable.dart';
 import 'package:cake_wallet/new-ui/pages/send_page.dart';
 import 'package:cake_wallet/new-ui/widgets/buy_sell/buy_sell_selector_modal.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cw_core/card_design.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +46,21 @@ class CardsView extends StatefulWidget {
 
   @override
   _CardsViewState createState() => _CardsViewState();
+  /// Opens the one-off BTC -> stablecoin conversion flow (see `spark_deposit_to_stable.dart`).
+  Future<void> depositToStable() async {
+    final page = getIt.get<SparkDepositToStablePage>();
+    showCupertinoModalBottomSheet(
+        context: context,
+        barrierColor: Colors.black.withAlpha(128),
+        builder: (context) {
+          return Padding(
+            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.6,
+                child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
+          );
+        });
+  }
 }
 
 class _CardsViewState extends State<CardsView> {
@@ -158,9 +172,6 @@ class _CardsViewState extends State<CardsView> {
               final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
                   .getMainBalanceRecord(widget.lightningMode);
 
-              final showCombinedBalance = widget.dashboardViewModel.balanceViewModel
-                  .showCombinedBalance(lightningMode: widget.lightningMode);
-
               late final String walletBalance;
               late final String walletFiatBalance;
               if (widget.dashboardViewModel.mwebEnabled && widget.dashboardViewModel.hasMweb) {
@@ -172,7 +183,7 @@ class _CardsViewState extends State<CardsView> {
                   walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
                   walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
                 }
-              } else if (showCombinedBalance) {
+              } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
                 walletBalance = "";
                 walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
               } else {
@@ -194,41 +205,15 @@ class _CardsViewState extends State<CardsView> {
               final accountName = showAccount ? account.label : "";
               final accountBalance = showAccount ? account.balance : null;
 
-              final assetName = showCombinedBalance
+              final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
                   ? ""
                   : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
+
 
               final bool showDepositToStableAction = isBitcoinEnabled &&
                   widget.lightningMode &&
                   FeatureFlag.isSparkTokensEnabled &&
                   !widget.dashboardViewModel.balanceViewModel.stableBalanceActive;
-
-              final List<BalanceCardAction> actions = widget.lightningMode
-                  ? [
-                      BalanceCardAction(
-                        label: S.current.bitcoin_lightning_deposit,
-                        icon: Icons.arrow_downward,
-                        onTap: depositToL2,
-                      ),
-                      BalanceCardAction(
-                        label: S.current.bitcoin_lightning_withdraw,
-                        icon: Icons.arrow_upward,
-                        onTap: withdrawFromL2,
-                      ),
-                    ]
-                  : widget.dashboardViewModel.isEnabledTradeAction
-                      ? [
-                          BalanceCardAction(
-                            label: S.current.buy,
-                            icon: Icons.arrow_forward_ios_rounded,
-                            iconSize: 12,
-                            onTap: () {
-                              showModalBottomSheet(
-                                  context: context, builder: (context) => BuySellSelectorModal());
-                            },
-                          )
-                        ]
-                      : [];
 
               return BalanceCard(
                 width: effectiveCardWidth,
@@ -236,19 +221,15 @@ class _CardsViewState extends State<CardsView> {
                 accountBalance: accountBalance,
                 designSwitchDuration: Duration(milliseconds: 150),
                 assetName: assetName,
-                // In combined-balance mode the "asset name" shown is actually the fiat currency
-                // code (e.g. EUR), not a crypto symbol - _shouldCapitalizeAssetName's sats-vs-BTC
-                // logic doesn't apply to it, and a fiat code should never be lowercased.
-                capitalizeAssetName: showCombinedBalance || _shouldCapitalizeAssetName(),
+                capitalizeAssetName: _shouldCapitalizeAssetName(),
                 balance: walletBalance,
                 fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                     widget.dashboardViewModel.settingsStore.fiatCurrency.title,
-                fiatFirst: showCombinedBalance,
+                fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
                 fiatBalance: walletFiatBalance,
                 selected: _selectedIndex == visualIndex,
                 onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,
                 design: cardDesign,
-                actions: actions,
                 badgeText: widget.lightningMode &&
                         widget.dashboardViewModel.balanceViewModel.stableBalanceActive
                     ? S.current.stable_balance_card_badge
@@ -289,7 +270,7 @@ class _CardsViewState extends State<CardsView> {
     }
   }
 
-  double get effectiveCardWidth => min(MediaQuery.of(context).size.width * 0.878,
+  double get effectiveCardWidth => min(MediaQuery.sizeOf(context).width * 0.878,
       responsiveLayoutUtil.shouldRenderMobileUI ? 768 : 512);
 
   double _getBoxHeight(int numCards, double overlapAmount) {
@@ -314,7 +295,7 @@ class _CardsViewState extends State<CardsView> {
 
   @override
   Widget build(BuildContext context) => Observer(builder: (context) {
-      final parentWidth = MediaQuery.of(context).size.width;
+      final parentWidth = MediaQuery.sizeOf(context).width;
       final children = <Widget>[];
 
       final stack = _hideAccountInfo
@@ -354,115 +335,4 @@ class _CardsViewState extends State<CardsView> {
         ),
       );
     });
-
-  Future<void> depositToL2() async {
-    PaymentRequest? paymentRequest = null;
-
-    if (widget.dashboardViewModel.type == WalletType.litecoin) {
-      final depositAddress = bitcoin!.getUnusedMwebAddress(widget.dashboardViewModel.wallet);
-      if ((depositAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$depositAddress"));
-      }
-    } else if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final depositAddress =
-      await bitcoin!.getUnusedSpakDepositAddress(widget.dashboardViewModel.wallet);
-      if ((depositAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$depositAddress"));
-      }
-    }
-
-    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(
-          param1: SendPageParams(
-            initialPaymentRequest: paymentRequest,
-            unspentCoinType: UnspentCoinType.nonMweb,
-            mode: SendPageModes.lightningDeposit,
-          ));
-      showCupertinoModalBottomSheet(
-          context: context,
-          barrierColor: Colors.black.withAlpha(128),
-          builder: (context) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
-            );
-          });
-    } else {
-      Navigator.pushNamed(
-        context,
-        Routes.send,
-        arguments: {
-          'paymentRequest': paymentRequest,
-          'coinTypeToSpendFrom': UnspentCoinType.nonMweb,
-        },
-      );
-    }
   }
-
-  /// Opens the one-off BTC -> stablecoin conversion flow (see `spark_deposit_to_stable.dart`) -
-  /// distinct from [depositToL2]/[withdrawFromL2], which move funds between the on-chain and
-  /// Lightning/Spark balances rather than converting currency.
-  Future<void> depositToStable() async {
-    final page = getIt.get<SparkDepositToStablePage>();
-    showCupertinoModalBottomSheet(
-        context: context,
-        barrierColor: Colors.black.withAlpha(128),
-        builder: (context) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
-          );
-        });
-  }
-
-  Future<void> withdrawFromL2() async {
-    PaymentRequest? paymentRequest = null;
-    UnspentCoinType unspentCoinType = UnspentCoinType.any;
-    final withdrawAddress = bitcoin!.getUnusedSegwitAddress(widget.dashboardViewModel.wallet);
-
-    if (widget.dashboardViewModel.type == WalletType.litecoin) {
-      if ((withdrawAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("litecoin:$withdrawAddress"));
-      }
-      unspentCoinType = UnspentCoinType.mweb;
-    } else if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      if ((withdrawAddress?.isNotEmpty ?? false)) {
-        paymentRequest = PaymentRequest.fromUri(Uri.parse("bitcoin:$withdrawAddress"));
-      }
-      unspentCoinType = UnspentCoinType.lightning;
-    }
-
-    if (widget.dashboardViewModel.type == WalletType.bitcoin) {
-      final page = getIt.get<NewSendPage>(
-          param1: SendPageParams(
-            initialPaymentRequest: paymentRequest,
-            unspentCoinType: unspentCoinType,
-            mode: SendPageModes.lightningWithdrawal,
-          ));
-      showCupertinoModalBottomSheet(
-          context: context,
-          barrierColor: Colors.black.withAlpha(128),
-          builder: (context) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
-            );
-          });
-    } else {
-      Navigator.pushNamed(
-        context,
-        Routes.send,
-        arguments: {
-          'paymentRequest': paymentRequest,
-          'coinTypeToSpendFrom': unspentCoinType,
-        },
-      );
-    }
-  }
-}

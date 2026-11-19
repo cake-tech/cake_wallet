@@ -5,6 +5,7 @@ import "package:cw_core/amount/money.dart";
 import "package:cw_core/card_design.dart";
 import "package:flutter/material.dart";
 
+
 class BalanceCardAction {
   final String label;
   final IconData icon;
@@ -16,28 +17,35 @@ class BalanceCardAction {
 }
 
 class BalanceCard extends StatelessWidget {
-  const BalanceCard({
-    super.key,
-    required this.width,
-    required this.design,
-    this.gradient,
-    this.borderRadius = 20,
-    this.selected = false,
-    this.accountName = "",
-    this.accountBalance,
-    this.balance = "",
-    this.fiatBalance = "",
-    this.assetName = "",
-    this.fiatCurrencyTitle = "",
-    this.designSwitchDuration = const Duration(),
-    this.actions = const [],
-    this.capitalizeAssetName = true,
-    this.onCustomizeTapped,
-    this.accountIndex,
-    this.fiatFirst = false,
-    this.badgeText,
-    this.topAction,
-  });
+  const BalanceCard(
+      {super.key,
+      required this.width,
+      required this.design,
+      this.gradient,
+      this.borderRadius = 20,
+      this.selected = false,
+      this.accountName = "",
+      this.accountBalance,
+      this.balance = "",
+      this.fiatBalance = "",
+      this.assetName = "",
+      this.fiatCurrencyTitle = "",
+      this.designSwitchDuration = const Duration(),
+      this.capitalizeAssetName = true,
+      this.onCustomizeTapped,
+      this.accountIndex,
+      this.fiatFirst = false,
+      this.badgeText,
+      this.topAction});
+
+  /// A small pill shown above the action row when set - e.g. "Auto-converts to USD on arrival"
+  /// while Stable Balance is active. Null (the default) shows nothing.
+  final String? badgeText;
+
+  /// A tappable pill shown in the same slot as [badgeText], for when there's an action to offer
+  /// instead of just information - e.g. "Stable" while Stable Balance is off. Takes priority over
+  /// [badgeText] when both are set.
+  final BalanceCardAction? topAction;
 
   final double width;
   final double borderRadius;
@@ -53,21 +61,8 @@ class BalanceCard extends StatelessWidget {
   final String assetName;
   final bool selected;
   final CardDesign design;
-  final List<BalanceCardAction> actions;
   final Duration designSwitchDuration;
   final VoidCallback? onCustomizeTapped;
-
-  /// A small pill shown above the action row when set - e.g. "Auto-converts to USD on arrival"
-  /// while Stable Balance is active. Null (the default) shows nothing. Mutually exclusive with
-  /// [topAction] in practice (callers only ever set one at a time), but not enforced here.
-  final String? badgeText;
-
-  /// A tappable pill shown in the same slot as [badgeText], for when there's an action to offer
-  /// instead of just information - e.g. "Deposit to Stable" while Stable Balance is off. Takes
-  /// priority over [badgeText] when both are set. Rendered green (see
-  /// [getBalanceCardTopActionButton]) to stand out from the plain [badgeText] pill and from the
-  /// action-row buttons below, regardless of [design]'s own colors.
-  final BalanceCardAction? topAction;
 
   @override
   Widget build(BuildContext context) {
@@ -288,46 +283,27 @@ class BalanceCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        AnimatedSwitcher(
-                          duration: designSwitchDuration,
-                          switchInCurve: Curves.easeInOut,
-                          switchOutCurve: Curves.easeInOut,
-                          layoutBuilder: (currentChild, previousChildren) {
-                            return Stack(
-                              alignment: Alignment.centerLeft,
-                              children: <Widget>[
-                                ...previousChildren,
-                                if (currentChild != null) currentChild,
-                              ],
-                            );
-                          },
-                          child: Row(
-                            key: ValueKey(actions.toString()),
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: actions.map(getBalanceCardActionButton).toList(),
-                          ),
-                        ),
-                        AnimatedSwitcher(
-                          duration: designSwitchDuration,
-                          switchInCurve: Curves.easeInOut,
-                          switchOutCurve: Curves.easeInOut,
-                          child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
-                              // Purely decorative card artwork.
-                              ? ExcludeSemantics(
-                                  child: _CornerSvgIcon(design: design, iconWidth: iconWidth),
-                                )
-                              : const SizedBox.shrink(
-                                  key: ValueKey('svgIconOff'),
-                                ),
-                        ),
-                      ],
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      const SizedBox.shrink(),
+                      AnimatedSwitcher(
+                        duration: designSwitchDuration,
+                        switchInCurve: Curves.easeInOut,
+                        switchOutCurve: Curves.easeInOut,
+                        child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
+                            // Purely decorative card artwork.
+                            ? ExcludeSemantics(
+                                child: _CornerSvgIcon(design: design, iconWidth: iconWidth),
+                              )
+                            : const SizedBox.shrink(
+                                key: ValueKey("svgIconOff"),
+                              ),
+                      ),
+                    ],
+                  ),
                   ],
                 ),
               ],
@@ -372,10 +348,9 @@ class BalanceCard extends StatelessWidget {
     );
   }
 
-  /// Green, not [design]-tinted like [getBalanceCardActionButton] - this sits in the same slot
-  /// as the plain [badgeText] pill, so it needs its own strong color to read as "an offer to act
-  /// on" rather than just more card chrome. The background carries the opacity (readable against
-  /// every card gradient); the label/icon stay fully opaque so they never wash out.
+  /// Green, not [design]-tinted - this sits in the same slot as the plain [badgeText] pill, so it
+  /// needs its own strong color to read as an offer to act on. The background carries the opacity;
+  /// the label and icon stay opaque so they never wash out.
   Widget getBalanceCardTopActionButton(BalanceCardAction action) {
     const green = Color(0xFF1B873F);
     return Semantics(
@@ -400,8 +375,7 @@ class BalanceCard extends StatelessWidget {
                   style: const TextStyle(color: green, fontSize: 11, fontWeight: FontWeight.w600),
                 ),
                 // A bare Icons.attach_money glyph reads as plain text, not a control - the
-                // filled circle behind it (matching the app's own USDB token icon styling)
-                // makes it legible as an icon at this small size.
+                // filled circle behind it makes it legible as an icon at this small size.
                 Container(
                   width: (action.iconSize ?? 16) + 6,
                   height: (action.iconSize ?? 16) + 6,
@@ -415,38 +389,6 @@ class BalanceCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget getBalanceCardActionButton(BalanceCardAction action) => Semantics(
-        button: true,
-        label: action.label,
-        onTap: action.onTap,
-        child: ExcludeSemantics(
-          child: GestureDetector(
-            onTap: action.onTap,
-            child: Container(
-              decoration: BoxDecoration(
-                color: design.colors.backgroundImageColor.withAlpha(75),
-                borderRadius: BorderRadius.circular(10000000),
-              ),
-              margin: const EdgeInsets.only(right: 10),
-              padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: Text(
-                      action.label,
-                      style: TextStyle(color: design.colors.textColor, fontSize: 16),
-                    ),
-                  ),
-                  Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
 }
 
 class _CornerSvgIcon extends StatelessWidget {

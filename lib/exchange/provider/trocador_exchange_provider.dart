@@ -543,6 +543,8 @@ class TrocadorExchangeProvider extends ExchangeProvider {
 
     if (useTorOnly) return uri;
 
+    if (!CakeTor.instance!.started) return Uri.https(clearNetAuthority, path, queryParams);
+
     try {
       await ProxyWrapper().get(clearnetUri: uri);
 

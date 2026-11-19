@@ -51,58 +51,69 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
           opacity: targetOpacity,
           curve: Curves.easeOut,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 16,
+              spacing: 12,
               children: [
                 // The button itself is the only control: it copies when there
                 // is data to copy, otherwise it opens the payjoin copy modal.
-                CopyWrapper(
-                  data: widget.copyData,
-                  controlBuilder: (context, copied, onCopy) => AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: ModernButton.svg(
-                      key: ValueKey(copied),
-                      size: 60,
-                      iconSize: 32,
-                      svgPath: "assets/new-ui/copy.svg",
-                      onPressed: onCopy ?? widget.onCopyButtonPressed,
-                      label: copied ? S.of(context).copied : S.of(context).copy,
-                      iconColor: copied
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.surfaceContainer,
-                      backgroundColor: copied
-                          ? Theme.of(context).colorScheme.surfaceContainerHighest
-                          : Theme.of(context).colorScheme.primary,
+                // Each control gets an equal share of the row so localized
+                // captions ("தொகையை அமைக்கவும்") wrap inside their button
+                // instead of pushing the row past the screen edge.
+                Expanded(
+                  child: CopyWrapper(
+                    data: widget.copyData,
+                    controlBuilder: (context, copied, onCopy) => AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: ModernButton.svg(
+                        key: ValueKey(copied),
+                        size: 60,
+                        iconSize: 32,
+                        svgPath: "assets/new-ui/copy.svg",
+                        onPressed: onCopy ?? widget.onCopyButtonPressed,
+                        label: copied ? S.of(context).copied : S.of(context).copy,
+                        iconColor: copied
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.surfaceContainer,
+                        backgroundColor: copied
+                            ? Theme.of(context).colorScheme.surfaceContainerHighest
+                            : Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
                 ),
-                ModernButton.svg(
-                  size: 60,
-                  iconSize: 32,
-                  svgPath: "assets/new-ui/set-amount.svg",
-                  onPressed: widget.onAmountButtonPressed,
-                  label: widget.hasTokensList
-                      ? S.of(context).set_amount_and_token
-                      : S.of(context).set_amount,
+                Expanded(
+                  child: ModernButton.svg(
+                    size: 60,
+                    iconSize: 32,
+                    svgPath: "assets/new-ui/set-amount.svg",
+                    onPressed: widget.onAmountButtonPressed,
+                    label: widget.hasTokensList
+                        ? S.of(context).set_amount_and_token
+                        : S.of(context).set_amount,
+                  ),
                 ),
                 if (widget.showLabelButton)
-                  ModernButton.svg(
-                    size: 60,
-                    iconSize: 32,
-                    svgPath: "assets/new-ui/add-label.svg",
-                    onPressed: widget.onLabelButtonPressed,
-                    label: S.of(context).label,
+                  Expanded(
+                    child: ModernButton.svg(
+                      size: 60,
+                      iconSize: 32,
+                      svgPath: "assets/new-ui/add-label.svg",
+                      onPressed: widget.onLabelButtonPressed,
+                      label: S.of(context).label,
+                    ),
                   ),
                 if (widget.showAccountsButton)
-                  ModernButton.svg(
-                    size: 60,
-                    iconSize: 32,
-                    svgPath: "assets/new-ui/addr-book.svg",
-                    onPressed: widget.onAccountsButtonPressed,
-                    label: S.of(context).addresses,
+                  Expanded(
+                    child: ModernButton.svg(
+                      size: 60,
+                      iconSize: 32,
+                      svgPath: "assets/new-ui/addr-book.svg",
+                      onPressed: widget.onAccountsButtonPressed,
+                      label: S.of(context).addresses,
+                    ),
                   ),
               ],
             ),

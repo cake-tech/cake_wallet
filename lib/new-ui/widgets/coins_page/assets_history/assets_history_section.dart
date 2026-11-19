@@ -60,6 +60,7 @@ class AssetsHistorySection extends StatefulWidget {
 class _AssetsHistorySectionState extends State<AssetsHistorySection> {
   List<AssetsHistorySectionTab> tabs = [];
   int _selectedTab = 0;
+  late final ReactionDisposer _nftsTabReaction;
 
   void reloadTabs() {
     final oldTabLength = tabs.length;
@@ -74,8 +75,11 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
     final hasAssetsButton =
         widget.dashboardViewModel.balanceViewModel.isHomeScreenSettingsEnabled ||
             hasSparkTokensInLightningView;
-    final hasNftTab = isNFTACtivatedChain(widget.dashboardViewModel.wallet.type,
-        chainId: widget.dashboardViewModel.wallet.chainId);
+    final hasNftTab = widget.dashboardViewModel.showNftsTab &&
+        isNFTACtivatedChain(
+          widget.dashboardViewModel.wallet.type,
+          chainId: widget.dashboardViewModel.wallet.chainId,
+        );
     tabs = [
       if (hasAssetsTab)
         AssetsHistorySectionTab(
@@ -124,6 +128,13 @@ class _AssetsHistorySectionState extends State<AssetsHistorySection> {
       reloadTabs();
     });
     reaction((_) => widget.dashboardViewModel.mwebEnabled, (_) => reloadTabs());
+    _nftsTabReaction = reaction((_) => widget.dashboardViewModel.showNftsTab, (_) => reloadTabs());
+  }
+
+  @override
+  void dispose() {
+    _nftsTabReaction();
+    super.dispose();
   }
 
   @override

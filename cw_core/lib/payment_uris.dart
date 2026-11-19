@@ -464,7 +464,7 @@ class LightningPaymentRequest extends PaymentURI {
   final String? bolt11Invoice;
 
   @override
-  String toString() => bolt11Invoice ?? "lightning:$lnURL";
+  String toString() => "lightning:${bolt11Invoice ?? lnURL}";
 }
 
 class SparkPaymentRequest extends PaymentURI {

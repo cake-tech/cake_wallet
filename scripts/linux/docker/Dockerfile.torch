@@ -2,6 +2,10 @@ ARG BASE_IMAGE
 
 FROM --platform=linux/amd64 ${BASE_IMAGE} AS build
 
+COPY scripts/docker/git-credential-github.sh /usr/local/bin/git-credential-github
+RUN chmod 755 /usr/local/bin/git-credential-github \
+    && git config --system credential.helper /usr/local/bin/git-credential-github
+
 COPY scripts/prepare_torch.sh /w/scripts/prepare_torch.sh
 COPY scripts/linux/build_torch.sh /w/scripts/linux/build_torch.sh
 
@@ -15,7 +19,8 @@ RUN sudo chown $UID:$GID -R /w /root
 USER builder
 
 ARG TARGET
-RUN if [ -n "$TARGET" ]; then \
+RUN --mount=type=secret,id=github_token,required=false,mode=0444 \
+    if [ -n "$TARGET" ]; then \
       /w/scripts/linux/build_torch.sh "$TARGET"; \
     else \
       /w/scripts/linux/build_torch.sh; \

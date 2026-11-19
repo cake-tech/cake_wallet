@@ -17,6 +17,9 @@ import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/spark_stable_balance_send/spark_stable_balance_send_bloc.dart";
+import "package:cake_wallet/new-ui/pages/explainers/explainer_page.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_deposit_explainer.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_withdraw_explainer.dart";
 import "package:cake_wallet/new-ui/widgets/animated_dropdown.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/anypay_flow.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart";
@@ -47,6 +50,7 @@ import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
@@ -96,6 +100,7 @@ class SendPageModes {
     this.description,
     this.confirmSheetIconPath,
     this.helpContent,
+    this.explainer,
     this.popOnConfirmation = true,
   });
 
@@ -104,6 +109,7 @@ class SendPageModes {
   final String? description;
   final String? confirmSheetIconPath;
   final SendPageHelpContent? helpContent;
+  final ExplainerPage? explainer;
   final bool popOnConfirmation;
 
   static final SendPageModes normal = SendPageModes(title: S.current.send, showAddressField: true);
@@ -112,12 +118,8 @@ class SendPageModes {
     title: S.current.bitcoin_lightning_deposit,
     description: S.current.to_lightning,
     showAddressField: false,
-    helpContent: SendPageHelpContent(
-      title: S.current.bitcoin_lightning_deposit,
-      imagePath: "assets/new-ui/lightning_deposit_help.svg",
-      description: S.current.lightning_deposit_desc,
-      disclaimer: S.current.lightning_deposit_disclaimer,
-    ),
+    confirmSheetIconPath: "assets/new-ui/lightning_deposit_help.svg",
+    explainer: const LightningDepositExplainer(),
     popOnConfirmation: false,
   );
 
@@ -125,12 +127,8 @@ class SendPageModes {
     title: S.current.bitcoin_lightning_withdraw,
     description: S.current.to_on_chain,
     showAddressField: false,
-    helpContent: SendPageHelpContent(
-      title: S.current.bitcoin_lightning_withdraw,
-      imagePath: "assets/new-ui/lightning_withdraw_help.svg",
-      description: S.current.lightning_withdraw_desc,
-      disclaimer: S.current.lightning_withdraw_disclaimer,
-    ),
+    confirmSheetIconPath: "assets/new-ui/lightning_withdraw_help.svg",
+    explainer: const LightningWithdrawExplainer(),
     popOnConfirmation: false,
   );
 
@@ -188,6 +186,7 @@ class NewSendPage extends StatefulWidget {
     required this.contactListViewModel,
     required this.authService,
     this.stableBalanceSendBloc,
+    required this.settingsStore,
     required SendPageParams params,
     super.key,
   })  : initialPaymentRequest = params.initialPaymentRequest,
@@ -207,6 +206,7 @@ class NewSendPage extends StatefulWidget {
 
   /// Null for wallets without Stable Balance.
   final SparkStableBalanceSendBloc? stableBalanceSendBloc;
+  final SettingsStore settingsStore;
   final PaymentRequest? initialPaymentRequest;
   final String? initialRawInput;
   final SendPageModes mode;
@@ -309,6 +309,12 @@ class _NewSendPageState extends State<NewSendPage> {
           paymentRequest: widget.initialPaymentRequest,
         );
       });
+    }
+
+    if (widget.mode.explainer != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => widget.mode.explainer!.showIfNeeded(context, widget.settingsStore),
+      );
     }
 
     if (widget.mode == SendPageModes.normal) {
@@ -484,7 +490,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                     _setOutput(widget.sendViewModel.outputs.length - 1);
                                   },
                                 ),
-                              if (widget.mode.helpContent != null)
+                              if (widget.mode.explainer != null || widget.mode.helpContent != null)
                                 ModernButton(
                                   size: 36,
                                   icon: CakeImageWidget(
@@ -495,15 +501,15 @@ class _NewSendPageState extends State<NewSendPage> {
                                     ),
                                   ),
                                   semanticLabel: S.of(context).help,
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      CupertinoPageRoute(
-                                        builder: (context) => Material(
-                                          child: SendHelpPage(content: widget.mode.helpContent!),
+                                  onPressed: () => widget.mode.explainer != null
+                                      ? widget.mode.explainer!.show(context)
+                                      : Navigator.of(context).push(
+                                          CupertinoPageRoute(
+                                            builder: (context) => Material(
+                                              child: SendHelpPage(content: widget.mode.helpContent!),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
                                 ),
                             ],
                           ),
@@ -1027,7 +1033,7 @@ class _NewSendPageState extends State<NewSendPage> {
       conditionToDetermineIfToUse2FA: check,
       onAuthSuccess: (value) async {
         if (value) {
-          if (!widget.mode.popOnConfirmation && Navigator.canPop(context)) {
+          if (!widget.mode.popOnConfirmation && mounted && Navigator.canPop(context)) {
             Navigator.of(context, rootNavigator: true).pop();
           }
           showModalBottomSheet(
@@ -1038,7 +1044,7 @@ class _NewSendPageState extends State<NewSendPage> {
             backgroundColor: Colors.transparent,
             builder: (context) => SendConfirmSheet(
               title: widget.mode.title,
-              iconPath: widget.mode.helpContent?.imagePath,
+              iconPath: widget.mode.helpContent?.imagePath ?? widget.mode.confirmSheetIconPath,
               sendViewModel: widget.sendViewModel,
             ),
           ).then((value) {
@@ -1087,7 +1093,7 @@ class _NewSendPageState extends State<NewSendPage> {
     final balanceByAsset = <CryptoCurrency, CurrencyPickerBalance>{
       for (final r in widget.sendViewModel.balanceViewModel.formattedBalances)
         r.asset: CurrencyPickerBalance(
-          amount: "${r.availableBalance} ${r.asset.title}",
+          amount: "${r.availableBalance} ${r.formattedAssetTitle}",
           fiat: isFiatDisabled ? null : "${r.fiatAvailableBalanceRaw} ${r.fiatCurrency?.symbol}",
           fiatValue: isFiatDisabled ? null : double.tryParse(r.fiatAvailableBalanceRaw),
         ),
@@ -1242,11 +1248,28 @@ class _NewSendPageState extends State<NewSendPage> {
     final parsed = PaymentRequest.fromString(pasted);
     final parsedAmount = parsed.amount == "0" ? "" : parsed.amount;
     final merged = parsed.copyWith(
-      amount: parsedAmount.isNotEmpty ? parsedAmount : _amountControllers[_selectedOutput].text,
+      amount: parsedAmount.isNotEmpty ? parsedAmount : _typedCryptoAmount(),
       note: parsed.note.isNotEmpty ? parsed.note : _memoControllers[_selectedOutput].text,
     );
 
     await _runAnyPayFlow(paymentRequest: merged);
+  }
+
+  String _typedCryptoAmount() {
+    final output = widget.sendViewModel.outputs[_selectedOutput];
+    if (output.isFiatEntry) {
+      return "";
+    }
+
+    final typed = _amountControllers[_selectedOutput].text;
+    if (output.sendAll) {
+      return typed;
+    }
+
+    return widget.sendViewModel.amountParsingProxy.getCanonicalCryptoAmount(
+      typed.sanitized(),
+      widget.sendViewModel.selectedCryptoCurrency,
+    );
   }
 
   Future<void> _handleEvaluation(
@@ -1272,6 +1295,12 @@ class _NewSendPageState extends State<NewSendPage> {
     } catch (e) {
       printV("Payment flow error: $e");
       _applyPaymentRequest(evaluationResult.request.paymentRequest);
+    }
+
+    for (final output in widget.sendViewModel.outputs) {
+      if (output.estimatedFee.currency != widget.sendViewModel.currency) {
+        await output.calculateEstimatedFee();
+      }
     }
   }
 

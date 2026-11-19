@@ -71,7 +71,7 @@ class SettingsChoicesCell extends StatelessWidget {
                         children: items.map((dynamic e) {
                           final isSelected = choicesListItem.selectedItem == e;
                           return Expanded(
-                            child: GestureDetector(
+                            child: Semantics(button: true, selected: isSelected, inMutuallyExclusiveGroup: true, child: GestureDetector(
                               onTap: () => choicesListItem.onItemSelected.call(e),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 8),
@@ -91,6 +91,7 @@ class SettingsChoicesCell extends StatelessWidget {
                                   ),
                                 ),
                               ),
+                            ),
                             ),
                           );
                         }).toList(),
