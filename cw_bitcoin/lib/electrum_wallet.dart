@@ -4,6 +4,8 @@ import 'dart:isolate';
 import 'dart:math' show Random, min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
+import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
+import "package:cw_bitcoin/electrum_account.dart";
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
@@ -21,6 +23,7 @@ import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
+import 'package:cw_bitcoin/bitcoin_message_sign.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
@@ -83,9 +86,10 @@ abstract class ElectrumWalletBase
     CryptoCurrency? currency,
     bool? alwaysScan,
     bool useLightning = true,
+    List<int>? accountIndexes,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
-            currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType),
+            currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType,),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _feeRates = <int>[],
@@ -111,21 +115,18 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
-    _prepareHdForAccount(currentAccountIndex, currency);
-  }
 
-  int _purposeForType(BitcoinAddressType type) {
-    switch (type.value) {
-      case 'P2PKH':
-        return 44;
-      case 'P2SH/P2WPKH':
-        return 49;
-      case 'P2WPKH':
-        return 84;
-      case 'P2TR':
-        return 86;
-      default:
-        return 84;
+    final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
+    accounts = ElectrumAccounts(
+      primaryTypes: supportedAddressTypes(walletInfo.type),
+      accountHd: accountHD,
+      masterHd: _masterHD,
+      coinType: currency != null && !isElectrumDerivation ? _coinTypeFor(currency) : null,
+    );
+
+    final indexes = hasAccountsSupport ? (accountIndexes ?? [currentAccountIndex]) : [0];
+    for (final accountIndex in indexes) {
+      accounts.getOrCreate(accountIndex);
     }
   }
 
@@ -150,6 +151,10 @@ abstract class ElectrumWalletBase
   /// For LEGACY addresses, returns the wallet's legacy derivation base (derivationInfo.derivationPath)
   /// which is already the account path used historically (e.g. m/0' or m/84'/0'/0').
   String _accountDerivationPathForRecord(BaseBitcoinAddressRecord record) {
+    if (isHardwareWallet && (derivationInfo.derivationPath?.isNotEmpty ?? false)) {
+      return derivationInfo.derivationPath!;
+    }
+
     if (derivationInfo.derivationType == DerivationType.electrum) {
       return derivationInfo.derivationPath ?? electrum_path; // m/0'
     }
@@ -159,11 +164,11 @@ abstract class ElectrumWalletBase
     }
 
     final coinType = _coinTypeFor(currency);
-    final purpose = _purposeForType(record.type);
+    final purpose = purposeForType(record.type);
     return "m/$purpose'/$coinType'/${record.accountIndex}'";
   }
 
-  List<BitcoinAddressType> supportedAddressTypes(WalletType type) {
+  static List<BitcoinAddressType> supportedAddressTypes(WalletType type) {
     switch (type) {
       case WalletType.bitcoin:
         return BITCOIN_ADDRESS_TYPES;
@@ -304,8 +309,7 @@ abstract class ElectrumWalletBase
   final Bip32Slip10Secp256k1 accountHD;
   final String? _mnemonic;
 
-  final mainHdByTypeAndAccount = <int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>>{};
-  final sideHdByTypeAndAccount = <int, Map<BitcoinAddressType, Bip32Slip10Secp256k1>>{};
+  late final ElectrumAccounts accounts;
 
   Bip32Slip10Secp256k1 get mainHd => accountHD.childKey(Bip32KeyIndex(0));
 
@@ -338,53 +342,13 @@ abstract class ElectrumWalletBase
   bool _isSyncing = false;
 
   Future<WalletInfoAccount> loadCurrentAccount() async {
-    final accounts = await walletInfo.getAccounts();
-    final current = accounts.firstWhere(
+    final accountInfos = await walletInfo.getAccounts();
+    final current = accountInfos.firstWhere(
           (account) => account.accountIndex == currentAccountIndex,
-      orElse: () => accounts.first,
+      orElse: () => accountInfos.first,
     );
 
     return current;
-  }
-
-  Future<List<int>> loadAccountIndexes() async {
-    if (!hasAccountsSupport) return [0];
-
-    final accounts = await walletInfo.getAccounts();
-    return accounts.map((account) => account.accountIndex).toList();
-  }
-
-  void _prepareHdForAccount(int accountIndex, CryptoCurrency? currency) {
-    if (mainHdByTypeAndAccount.containsKey(accountIndex)) return;
-
-    // For the first account, we support all address types. For extra accounts, we only support SegwitAddresType.p2wpkh.
-    final supportedTypes =
-    accountIndex == 0 ? supportedAddressTypes(walletInfo.type) : EXTRA_ACCOUNT_ADDRESS_TYPES;
-    final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
-    final canDeriveFromSeed = _masterHD != null && currency != null;
-
-    final mainMap = mainHdByTypeAndAccount[accountIndex] ??= {};
-    final sideMap = sideHdByTypeAndAccount[accountIndex] ??= {};
-
-    if (canDeriveFromSeed && !isElectrumDerivation) {
-      final coinType = _coinTypeFor(currency);
-      final accountHdByPath = <String, Bip32Slip10Secp256k1>{};
-
-      for (final type in supportedTypes) {
-        final accountPath = "m/${_purposeForType(type)}'/$coinType'/$accountIndex'";
-        final accountHd = accountHdByPath[accountPath] ??=
-            _masterHD!.derivePath(accountPath) as Bip32Slip10Secp256k1;
-
-        mainMap[type] = accountHd.childKey(Bip32KeyIndex(0));
-        sideMap[type] = accountHd.childKey(Bip32KeyIndex(1));
-      }
-    } else {
-      // case for Electrum derivation or when we don't have seed but only xpub (view only wallet)
-      for (final type in supportedTypes) {
-        mainMap[type] = mainHd; // accountHD.child(0)
-        sideMap[type] = sideHd; // accountHD.child(1)
-      }
-    }
   }
 
   ElectrumBalance balanceForAccount(int accountIndex) =>
@@ -413,7 +377,7 @@ abstract class ElectrumWalletBase
       newBalances[accountIndex] = current;
     }
 
-    for (final accountIndex in walletAddresses.accountIndexes) {
+    for (final accountIndex in accounts.indexes) {
       newBalances.putIfAbsent(accountIndex, () => ElectrumBalance.zero(currency));
     }
 
@@ -500,27 +464,29 @@ abstract class ElectrumWalletBase
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
 
-    final isNewAccount = !walletAddresses.accountIndexes.contains(accountIndex);
+    final isNewAccount = !accounts.contains(accountIndex);
     if (isNewAccount) {
-      walletAddresses.accountIndexes.add(accountIndex);
-
       accountBalances[accountIndex] = ElectrumBalance.zero(currency);
     }
 
     await walletInfo.setSelectedAccount(accountIndex);
 
-    _prepareHdForAccount(accountIndex, currency);
+    final account = accounts.getOrCreate(accountIndex);
 
     walletAddresses.currentAccountIndex = accountIndex;
 
     final currentPageType = walletAddresses.addressPageType;
-    await walletAddresses.setAddressType(currentPageType);
+    await walletAddresses.setAddressType(
+      accountIndex != 0 && currentPageType == SilentPaymentsAddresType.p2sp
+          ? SegwitAddresType.p2wpkh
+          : currentPageType,
+    );
 
     // For extra accounts, we only prepare SegwitAddresType.p2wpkh type.
     if (isNewAccount) {
       await walletAddresses.prepareAccountAddresses(
         accountIndex,
-        types: accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES,
+        types: account.supportedTypes,
       );
       await walletAddresses.updateAddressesInBox();
     }
@@ -535,11 +501,7 @@ abstract class ElectrumWalletBase
         if (isNewAccount && !_isSyncing) {
           final histories = <String, ElectrumTransactionInfo>{};
 
-          final typesToFetch = accountIndex == 0 ? BITCOIN_ADDRESS_TYPES : EXTRA_ACCOUNT_ADDRESS_TYPES;
-          // Explicit for clarity — fetchTransactionsForAddressTypeBatch already skips types
-          // with no addresses for this account, so this doesn't change RPC calls, just intent.
-
-          for (final addressType in typesToFetch) {
+          for (final addressType in account.supportedTypes) {
             if (shouldUseBatchFetching) {
               await fetchTransactionsForAddressTypeBatch(histories, addressType,
                   accountIndex: accountIndex);
@@ -685,17 +647,24 @@ abstract class ElectrumWalletBase
     String? publicKey;
 
     // `keys` is wallet-level metadata
-    final hd =
-        mainHdByTypeAndAccount[0]?[SegwitAddresType.p2wpkh] ?? mainHd;
+    if (_masterHD == null) {
+      return BitcoinWalletKeys(
+        wif: '',
+        privateKey: '',
+        publicKey: '',
+        xpub: xpub,
+        masterFingerprint: '',
+      );
+    }
 
     try {
-      wif = WifEncoder.encode(hd.privateKey.raw, netVer: network.wifNetVer);
+      wif = WifEncoder.encode(_masterHD!.privateKey.raw, netVer: network.wifNetVer);
     } catch (_) {}
     try {
-      privateKey = hd.privateKey.toHex();
+      privateKey = _masterHD!.privateKey.toExtended;
     } catch (_) {}
     try {
-      publicKey = hd.publicKey.toHex();
+      publicKey = _masterHD!.publicKey.toHex();
     } catch (_) {}
 
     return BitcoinWalletKeys(
@@ -703,7 +672,7 @@ abstract class ElectrumWalletBase
       privateKey: privateKey ?? '',
       publicKey: publicKey ?? '',
       xpub: xpub,
-      masterFingerprint: _masterHD?.fingerPrint.toHex() ?? '',
+      masterFingerprint: _masterHD!.fingerPrint.toHex() ?? '',
     );
   }
 
@@ -736,14 +705,8 @@ abstract class ElectrumWalletBase
   Future<void> _restoreHeightSaveChain = Future.value();
 
   Future<void> init() async {
-    final accountIndexes = await loadAccountIndexes();
 
-    for (final accountIndex in accountIndexes) {
-      _prepareHdForAccount(accountIndex, currency);
-    }
-
-
-    await walletAddresses.init(accountIndexes: accountIndexes);
+    await walletAddresses.init();
     await transactionHistory.init();
     await cleanUpDuplicateUnspentCoins();
     _seedAccountBalancesFromAddressRecords();
@@ -2481,7 +2444,7 @@ abstract class ElectrumWalletBase
       newBalances[addr.accountIndex] = current;
     }
 
-    for (final accountIndex in walletAddresses.accountIndexes) {
+    for (final accountIndex in accounts.indexes) {
       newBalances.putIfAbsent(accountIndex, () => ElectrumBalance.zero(currency));
     }
 
@@ -3393,21 +3356,14 @@ abstract class ElectrumWalletBase
     while (accountIndex < maxProbAccounts) {
       final isAccountProbe = accountIndex > 0;
 
-      if (!mainHdByTypeAndAccount.containsKey(accountIndex)) {
-        _prepareHdForAccount(accountIndex, currency);
+      final isNewAccount = !accounts.contains(accountIndex);
+      final addressTypesForAccount = accounts.getOrCreate(accountIndex).supportedTypes;
+
+      if (isNewAccount) {
+        await walletAddresses.prepareAccountAddresses(accountIndex, types: addressTypesForAccount);
       }
 
-      if (!walletAddresses.accountIndexes.contains(accountIndex)) {
-        walletAddresses.accountIndexes.add(accountIndex);
-        await walletAddresses.prepareAccountAddresses(
-          accountIndex,
-          types: isAccountProbe ? EXTRA_ACCOUNT_ADDRESS_TYPES : BITCOIN_ADDRESS_TYPES,
-        );
-      }
-
-      final probeTypes = isAccountProbe ? EXTRA_ACCOUNT_ADDRESS_TYPES : BITCOIN_ADDRESS_TYPES;
-
-      for (final addressType in probeTypes) {
+      for (final addressType in addressTypesForAccount) {
         if (shouldUseBatchFetching) {
           await fetchTransactionsForAddressTypeBatch(
             historiesWithDetails,
@@ -3433,18 +3389,21 @@ abstract class ElectrumWalletBase
         persistedAccounts.any((account) => account.accountIndex == accountIndex);
 
         if (isAccountProbe && !isUserAccount) {
-          walletAddresses.accountIndexes.remove(accountIndex);
-          walletAddresses.removeAddressesForAccount(accountIndex);
+          await walletAddresses.removeAddressesForAccount(accountIndex);
+          accounts.remove(accountIndex);
         }
         break;
       }
 
       // If the account has history, add it to the wallet (if it's not the first account).
       if (isAccountProbe) {
-        await walletInfo.addAccount(
-          accountIndex: accountIndex,
-          label: "Account $accountIndex",
-        );
+        final persisted = await walletInfo.getAccounts();
+        if (!persisted.any((a) => a.accountIndex == accountIndex)) {
+          await walletInfo.addAccount(
+            accountIndex: accountIndex,
+            label: accounts[accountIndex]!.label,
+          );
+        }
       }
       // Move on to the next account index
       accountIndex++;
@@ -4192,14 +4151,14 @@ abstract class ElectrumWalletBase
 
     if (hasAccountsSupport) {
       final perAccount = <int, ElectrumBalance>{};
-      final accounts = <int>{
+      final accountIndexes = <int>{
         ...confirmedByAccount.keys,
         ...unconfirmedByAccount.keys,
         ...frozenByAccount.keys,
-        ...walletAddresses.accountIndexes,
+        ...accounts.indexes,
       };
 
-      for (final account in accounts) {
+      for (final account in accountIndexes) {
         perAccount[account] = ElectrumBalance(
           confirmed: Money.fromInt(confirmedByAccount[account] ?? 0, currency),
           unconfirmed: Money.fromInt(unconfirmedByAccount[account] ?? 0, currency),
@@ -4229,7 +4188,7 @@ abstract class ElectrumWalletBase
 
     return all.where((tx) {
 
-      if (tx.additionalInfo["isLightning"] == true) return accountIndex == 0;
+      if (tx.additionalInfo["isLightning"] == true) return true;
       if (tx.isReceivedSilentPayment) return accountIndex == 0;
 
       // Locally created transactions store the account index explicitly,
@@ -4300,19 +4259,33 @@ abstract class ElectrumWalletBase
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    final addressRecord = address != null
-        ? walletAddresses.allAddresses.firstWhereOrNull((addr) => addr.address == address)
-        : null;
+  Future<String> signMessage(String message, {String? address}) async {
+    final addressRecord = getSigningAddressRecord(
+      address: address,
+      walletAddresses: walletAddresses.allAddresses,
+    );
 
-    if (addressRecord != null && addressRecord.type == SegwitAddresType.p2tr) {
-      throw UnsupportedError("Cannot sign message with Taproot address");
+    if (walletInfo.isHardwareWallet) {
+      final index = addressRecord?.index ?? 0;
+      final isChange = addressRecord?.isHidden == true ? 1 : 0;
+      final derivationInfo = await walletInfo.getDerivationInfo();
+      final accountPath = derivationInfo.derivationPath;
+      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+
+      final signature = await hardwareWalletService!
+          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
+      return base64Encode(signature);
     }
 
     final hd = addressRecord != null
         ? _hdForAddressRecord(record: addressRecord).childKey(Bip32KeyIndex(addressRecord.index))
         : mainHd;
 
+    return signMessageWithKey(message, hd);
+  }
+
+  @protected
+  String signMessageWithKey(String message, Bip32Slip10Secp256k1 hd) {
     final priv = ECPrivate.fromHex(hd.privateKey.privKey.toHex());
 
     String messagePrefix = '\x18Bitcoin Signed Message:\n';
@@ -4766,21 +4739,14 @@ abstract class ElectrumWalletBase
     }
   }
 
-  Bip32Slip10Secp256k1 _hdForAddressRecord({required BaseBitcoinAddressRecord record}) {
-    final addrType = record.type;
-
-    if (record.isLegacyDerivation) {
-      return record.isHidden ? walletAddresses.legacySideHd : walletAddresses.legacyMainHd;
-    }
-
-    final accountIndex = record.accountIndex;
-
-    if (record.isHidden) {
-      return sideHdByTypeAndAccount[accountIndex]?[addrType] ?? sideHd;
-    } else {
-      return mainHdByTypeAndAccount[accountIndex]?[addrType] ?? mainHd;
-    }
-  }
+  Bip32Slip10Secp256k1 _hdForAddressRecord({required BaseBitcoinAddressRecord record}) =>
+      accounts.hdFor(
+        accountIndex: record.accountIndex,
+        type: record.type,
+        isChange: record.isHidden,
+        isLegacy: record.isLegacyDerivation,
+      ) ??
+          (record.isHidden ? sideHd : mainHd);
 }
 
 class ScanNode {
