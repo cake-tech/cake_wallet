@@ -80,7 +80,13 @@ jobs:
             # as soon as it can tell no artifact is coming.
             DEADLINE=$(( $(date +%s) + 11400 ))  # builds observed 60-190min; job timeout is 210min
             while :; do
-              RUNS=$(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?head_sha=${SHA}&per_page=10" --jq '.workflow_runs[] | "\(.id) \(.status) \(.conclusion // "running")"')
+              RUNS=$(gh api "repos/${{ github.repository }}/actions/workflows/pr_test_build_android.yml/runs?head_sha=${SHA}&per_page=10" --jq '.workflow_runs[] | "\(.id) \(.status) \(.conclusion // "running")"') || {
+                # A failed API call is a blip, not "no build": wait and ask again until the deadline.
+                if [ "$(date +%s)" -ge "$DEADLINE" ]; then echo "::error::timed out waiting for the pr_test_build artifact for ${SHA}"; exit 1; fi
+                echo "::warning::listing pr_test_build runs failed; retrying"
+                sleep 30
+                continue
+              }
               ALL_FINISHED=1
               while read -r id status conclusion; do
                 [ -z "$id" ] && continue
