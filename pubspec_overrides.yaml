@@ -3,6 +3,10 @@ dependency_overrides:
     git:
       url: https://github.com/lemoony/adaptive_number_dart
       ref: c3f06de08064acca1b04975abcd4c3977c0b5256
+  animate_do:
+    git:
+      url: https://github.com/Klerith/animate_do_package
+      ref: 94ca5c43abd93901fcd97b47102b6e5d37ce67ca
   animated_reorderable_list:
     git:
       url: https://github.com/canopas/animated_reorderable_list
@@ -18,7 +22,7 @@ dependency_overrides:
   archive:
     git:
       url: https://github.com/brendan-duncan/archive
-      ref: e97951d48d2d19309be87b17d4ef4d2d74994d7d
+      ref: f01d6a340ffe24e0ef46fa682d1b6bcc7b7aef13
   args:
     git:
       url: https://github.com/dart-lang/core
@@ -27,7 +31,7 @@ dependency_overrides:
   asn1lib:
     git:
       url: https://github.com/wstrange/asn1lib
-      ref: 002be6d46ba2b34121c3f33511a21d48c64085ed
+      ref: 1616ff662cd84301e029d1fa936acb8192a2b165
   async:
     git:
       url: https://github.com/dart-lang/core
@@ -81,10 +85,6 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/bitbox-flutter.git
       ref: 57b78afb85bd2c30d3cdb9f7884f3878a62be442
-  bitbox_flutter:
-    git:
-      url: https://github.com/cake-tech/bitbox_flutter.git
-      ref: 3d1c607f14c6d5bace2971ec4c10b5201053cc56
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
@@ -132,7 +132,7 @@ dependency_overrides:
   bubble:
     git:
       url: https://github.com/vi-k/bubble
-      ref: 1a3f3beffebc8aa5b1ca8d4a2e1c169669474e0c
+      ref: 6a90afbbb8fee0dccfd7843248c74c1f8460e813
   buffer:
     git:
       url: https://github.com/isoos/buffer
@@ -150,12 +150,12 @@ dependency_overrides:
   build_config:
     git:
       url: https://github.com/dart-lang/build
-      ref: 5e25e60f55686be9d6eec2aaa448802ae1a17a40
+      ref: 7d6c879a01d80056b3eae52f7fab2237103a7fe7
       path: ./build_config
   build_daemon:
     git:
       url: https://github.com/dart-lang/build
-      ref: 02710260aa2bc857a6d865107c09b52eeb924901
+      ref: f20f2a24e0e1259f6ee53c6828d7c396d5b23bbf
       path: ./build_daemon
   build_runner:
     git:
@@ -164,13 +164,12 @@ dependency_overrides:
       path: ./build_runner
   built_collection:
     git:
-      url: https://github.com/dart-lang/build
-      ref: 404ebe6035a03736e13ea99babf73770c308e465
-      path: ./built_types/built_collection
+      url: https://github.com/google/built_collection.dart
+      ref: 8153cc41299a28e4426b22959f87dca0f7f8cd19
   built_value:
     git:
       url: https://github.com/google/built_value.dart
-      ref: 5582a42fffe6abfbc21ae8998c47350b1ce2c1b3
+      ref: b66790e815350e8c569bfe723d5263925df5a46d
       path: ./built_value
   cake_backup:
     git:
@@ -209,7 +208,7 @@ dependency_overrides:
   code_builder:
     git:
       url: https://github.com/dart-lang/tools
-      ref: e0c9007561a030031514dfa23ac1e6ddb1b03a42
+      ref: 125b9a9a5556fa88ecec26f649e1cddb1623aa2f
       path: ./pkgs/code_builder
   collection:
     git:
@@ -243,12 +242,12 @@ dependency_overrides:
   cross_file:
     git:
       url: https://github.com/flutter/packages
-      ref: 40f0b93ca0cfaeef4bbf8fb8e480d6608bfb0700
+      ref: b967797f07f1e4fc4fb264f5c8e5181b1385d9d9
       path: ./packages/cross_file
   crypto:
     git:
       url: https://github.com/dart-lang/core
-      ref: 6903c6c7c981bc04b03e827075d49b03f2ef265c
+      ref: e6c3810cdbbd6b483973f4685e950644114b495e
       path: ./pkgs/crypto
   cryptography:
     git:
@@ -306,12 +305,12 @@ dependency_overrides:
   dio:
     git:
       url: https://github.com/cfug/dio
-      ref: 4684e29dabaa2655606f1620a4ed316ee3f8c963
+      ref: ef9dbb860c085a8e81ecd36d5bcf29d5672947e1
       path: ./dio
   dio_web_adapter:
     git:
       url: https://github.com/cfug/dio
-      ref: 96b10c7919ebc1c3c9438e51280aff587b7d773a
+      ref: f72e83c8e832e81169f621b13c9e39aeaf9286b8
       path: ./plugins/web_adapter
   dnssec_proof:
     git:
@@ -332,11 +331,11 @@ dependency_overrides:
   easy_stepper:
     git:
       url: https://github.com/ma7moud3osman/easy_stepper
-      ref: 6584bc7fe259608023f0316dec1e5630b364813d
+      ref: cec4390aef9e5ff9fe064a44ed06b4f2c6dae1d2
   ed25519_edwards:
     git:
       url: https://github.com/Tougee/ed25519
-      ref: 82294111b1121bb675682dfa2269c71bd9cde232
+      ref: 944daea677c4d7f3abea608f55b34aec93bb79fb
   ed25519_hd_key:
     git:
       url: https://github.com/alepop/dart-ed25519-hd-key
@@ -361,6 +360,10 @@ dependency_overrides:
     git:
       url: https://github.com/felangel/equatable
       ref: f98a58960545ba72b51d0eacf746af393a0c6b24
+  erc20:
+    git:
+      url: https://github.com/xclud/dart_erc20
+      ref: 759c4363d1dc9d6a3c2604ceb4261b5bcdfc68b1
   eth_sig_util:
     git:
       url: https://github.com/wakumo/eth-sig-util
@@ -401,45 +404,25 @@ dependency_overrides:
     git:
       url: https://github.com/cake-tech/flutter_file_picker.git
       ref: c414574bc5ac349450f601e7f72c7b9f31b4d087
-  file_selector:
-    git:
-      url: https://github.com/flutter/packages
-      ref: 6a84a5421e84466b01ca71db20ab31cfc088e65d
-      path: ./packages/file_selector/file_selector
-  file_selector_android:
-    git:
-      url: https://github.com/flutter/packages
-      ref: cde5b36e7eceacdc3268ee758e3834f2817ffb6b
-      path: ./packages/file_selector/file_selector_android
-  file_selector_ios:
-    git:
-      url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
-      path: ./packages/file_selector/file_selector_ios
   file_selector_linux:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
       path: ./packages/file_selector/file_selector_linux
   file_selector_macos:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
       path: ./packages/file_selector/file_selector_macos
   file_selector_platform_interface:
     git:
       url: https://github.com/flutter/packages
       ref: 29211e8b56107f477d4521dd30e8ad713007860e
       path: ./packages/file_selector/file_selector_platform_interface
-  file_selector_web:
-    git:
-      url: https://github.com/flutter/packages
-      ref: 818b310132fc1ef0e0f641d1ddde15158b08cc63
-      path: ./packages/file_selector/file_selector_web
   file_selector_windows:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
       path: ./packages/file_selector/file_selector_windows
   fixed:
     git:
@@ -457,7 +440,12 @@ dependency_overrides:
   fl_chart:
     git:
       url: https://github.com/imaNNeo/fl_chart
-      ref: 636904db0b00b7e8479e45e09121085352bd5cb6
+      ref: be14b9722b7f18310c869c930562b7871b0165ed
+  flat_buffers:
+    git:
+      url: https://github.com/google/flatbuffers
+      ref: 187240970746d00bbd26b0f5873ed54d2477f9f3
+      path: ./dart
   flex_color_scheme:
     git:
       url: https://github.com/rydmike/flex_color_scheme
@@ -606,19 +594,27 @@ dependency_overrides:
       url: https://github.com/mogol/flutter_secure_storage
       ref: 908d3f3f5fb1ba90927ceebde8b253f413f833d7
       path: ./flutter_secure_storage_windows
+  flutter_shaders:
+    git:
+      url: https://github.com/jonahwilliams/flutter_shaders
+      ref: e331377d58755fe914a2ce54b0f70ba34898dfdd
   flutter_slidable:
     git:
       url: https://github.com/letsar/flutter_slidable
       ref: 7dbeb6667bf410d9a8401f0f8412e14669e7338f
+  flutter_spinkit:
+    git:
+      url: https://github.com/jogboms/flutter_spinkit
+      ref: bf8508db798f1e31dea152b9b762f223d90d3449
   flutter_svg:
     git:
       url: https://github.com/flutter/packages
-      ref: 5365902aac0a6cb6cf8e8ad862b74c14dfa30e25
+      ref: ddc9430a0080bea73c5511732f396acde1f48fe0
       path: ./third_party/packages/flutter_svg
   flutter_web_bluetooth:
     git:
       url: https://github.com/jeroen1602/flutter_web_bluetooth
-      ref: ea59a8cb09b7c17a7d452dc505fc7962302d9fa2
+      ref: 82d12cda1b65efc1d96b53b27b8b5451e34c96ef
   fluttertoast:
     git:
       url: https://github.com/PonnamKarthik/FlutterToast
@@ -634,13 +630,13 @@ dependency_overrides:
       path: ./packages/freezed_annotation
   frontend_server_client:
     git:
-      url: https://github.com/dart-lang/sdk
-      ref: 25a38e4d0d2a222e4a17311809527a03481f1b41
-      path: ./pkg/frontend_server_client
+      url: https://github.com/dart-lang/webdev
+      ref: 74e95837adf3d4ea64a003ccc4f8f09704c1d866
+      path: ./frontend_server_client
   gap:
     git:
       url: https://github.com/letsar/gap
-      ref: e8b21fa2c0cfe4e830a456abe4d7c25e5ecc89cc
+      ref: b385a5888b1582badf22bbd93283ec22de8a75d7
   get_it:
     git:
       url: https://github.com/fluttercommunity/get_it
@@ -648,7 +644,7 @@ dependency_overrides:
   glob:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: 92114ab8a16eef77be1cd7bad3f5af28b5b1dc63
       path: ./pkgs/glob
   go_router:
     git:
@@ -709,7 +705,7 @@ dependency_overrides:
   html:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: 11f4cf7ee79632be370062dad67b7dd81bc28d55
       path: ./pkgs/html
   http:
     git:
@@ -724,7 +720,7 @@ dependency_overrides:
   http_multi_server:
     git:
       url: https://github.com/dart-lang/http
-      ref: 12171813892ada461f3db5aafb1499cf7cc74cd0
+      ref: c27d6c780bae0207e938f09596c2cf8d9bb4a963
       path: ./pkgs/http_multi_server
   http_parser:
     git:
@@ -734,11 +730,11 @@ dependency_overrides:
   image:
     git:
       url: https://github.com/brendan-duncan/image
-      ref: bfac224913cf4c88c838a527bd1767f02c4d005f
+      ref: a5cc03b65592616bb423254cdea8ce4b093b4a04
   image_picker:
     git:
       url: https://github.com/flutter/packages
-      ref: 7660d464ef3cc38ad5e765a7504966713def3b4f
+      ref: 2900bc94e9912486e3454223df2683a372f4e137
       path: ./packages/image_picker/image_picker
   image_picker_android:
     git:
@@ -753,7 +749,7 @@ dependency_overrides:
   image_picker_ios:
     git:
       url: https://github.com/flutter/packages
-      ref: 54706bdee543ca968d543028fd71dda04379cc40
+      ref: 44a58ab4aab0b78fab2b51e0d093561be0b4964c
       path: ./packages/image_picker/image_picker_ios
   image_picker_linux:
     git:
@@ -768,7 +764,7 @@ dependency_overrides:
   image_picker_platform_interface:
     git:
       url: https://github.com/flutter/packages
-      ref: 7660d464ef3cc38ad5e765a7504966713def3b4f
+      ref: 501d8c9bd36577f1af17d799cb69fefd6c4b2f4b
       path: ./packages/image_picker/image_picker_platform_interface
   image_picker_windows:
     git:
@@ -793,17 +789,17 @@ dependency_overrides:
   io:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: faf2b86b71e633e956ff1489eb60885b21fa100d
       path: ./pkgs/io
   jni:
     git:
       url: https://github.com/dart-lang/native
-      ref: c9e8118d48d66ae330f067f59ba4a4227d978d8f
+      ref: 3b0c7beded15ef47a3dba4b5c0093cbe195e7aba
       path: ./pkgs/jni
   jni_flutter:
     git:
       url: https://github.com/dart-lang/native
-      ref: a2a617910fe3b2433eaa94bfb491bb3475a71870
+      ref: 6e3efdc1afa0462b1aff38c087cb50f0e6925cda
       path: ./pkgs/jni_flutter
   jni_util:
     git:
@@ -870,7 +866,7 @@ dependency_overrides:
   ledger_flutter_plus:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
@@ -912,7 +908,7 @@ dependency_overrides:
   logger:
     git:
       url: https://github.com/SourceHorizon/logger
-      ref: c4d65c3ecb2dbf275d32fc4ef0f2a7af3d45d0b7
+      ref: 4c56353a5060f403650f0c728a6438d3db2de669
   logging:
     git:
       url: https://github.com/dart-lang/core
@@ -921,7 +917,7 @@ dependency_overrides:
   lottie:
     git:
       url: https://github.com/xvrh/lottie-flutter
-      ref: ccf57b76ce1ec782de2809f852fc208f7cea506a
+      ref: 1eef993a7a69cd05cfcc4c9eac4f2d89ecfab2d1
   matcher:
     git:
       url: https://github.com/dart-lang/test
@@ -939,17 +935,17 @@ dependency_overrides:
   mime:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: 3440b74e430051304b56d4acd71b7ed30ab1855d
       path: ./pkgs/mime
   mobx:
     git:
       url: https://github.com/mobxjs/mobx.dart
-      ref: d0f282e919d78d239b750b17aca76f1a1023150b
+      ref: d677b8d361301b60577267703371013749b7b7de
       path: ./mobx
   mobx_codegen:
     git:
       url: https://github.com/mobxjs/mobx.dart
-      ref: dd4c9a348822c68a4955b4d009d0151a8a24be9b
+      ref: 39a1f18c2e76a564b5e5358426d335569bc332ec
       path: ./mobx_codegen
   mockito:
     git:
@@ -1105,7 +1101,7 @@ dependency_overrides:
   permission_handler_apple:
     git:
       url: https://github.com/baseflow/flutter-permission-handler
-      ref: a022af3ca5f7c9c65b5914d1352dd4b7bc36d299
+      ref: 5c989b1be9abbbb325424ad96e5be4efdc0987c2
       path: ./permission_handler_apple
   permission_handler_html:
     git:
@@ -1115,12 +1111,12 @@ dependency_overrides:
   permission_handler_platform_interface:
     git:
       url: https://github.com/baseflow/flutter-permission-handler
-      ref: 90cedc2c60f9ea19542f59d30db9261493072984
+      ref: b0bdda5faabb912dc6d0b3f330f9d801727db76e
       path: ./permission_handler_platform_interface
   permission_handler_windows:
     git:
       url: https://github.com/baseflow/flutter-permission-handler
-      ref: dd5055571a1f8cddcaae714e54d3f6c347e50ec5
+      ref: 41c2485eb698d055dcf59a373c07dee537b8aa01
       path: ./permission_handler_windows
   petitparser:
     git:
@@ -1151,17 +1147,21 @@ dependency_overrides:
   pool:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: 042b03e8284032088f851172ab7b2aed06da1d72
       path: ./pkgs/pool
   posix:
     git:
       url: https://github.com/onepub-dev/dart_posix
-      ref: b913390e4e4686afd20686138d0f188e942e78e8
+      ref: 3c544340f3e4ffc64b20e6959ae8229c98638a0a
   process:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: 5e977d6f0698a220279a50538c89a440d56b0c44
       path: ./pkgs/process
+  progressive_blur:
+    git:
+      url: https://github.com/kekland/progressive_blur
+      ref: 6ec8d0ccf46b1629a46ab68f31e26df489bac958
   protobuf:
     git:
       url: https://github.com/google/protobuf.dart
@@ -1175,17 +1175,17 @@ dependency_overrides:
   pub_semver:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: d67cd0022095a138c66df94f100e5a129c15a65e
       path: ./pkgs/pub_semver
   pubspec_parse:
     git:
       url: https://github.com/dart-lang/tools
-      ref: afaaac4c421527c4c5ff4d6c366433525e4b9622
+      ref: 070355ee7014c4d37bdc50fa2b4a597f2774f9ca
       path: ./pkgs/pubspec_parse
   qr:
     git:
       url: https://github.com/kevmoo/qr.dart
-      ref: a0b4ac89122966d2c4f9a616d011c1b5d3bd064e
+      ref: 792288784e200301b323b1e36852ae60a3ac2431
   qr_flutter:
     git:
       url: https://github.com/cake-tech/qr.flutter.git
@@ -1193,7 +1193,7 @@ dependency_overrides:
   quick_actions:
     git:
       url: https://github.com/flutter/packages
-      ref: 36e088a75b9b10977c4858828f2b3fec43b0670b
+      ref: 8238e1c5ada8c6a99f7fb6087484b52face33721
       path: ./packages/quick_actions/quick_actions
   quick_actions_android:
     git:
@@ -1203,7 +1203,7 @@ dependency_overrides:
   quick_actions_ios:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: 7ae082a7f6cd1bc6a219c6ab0adf27a3d8ffdc23
       path: ./packages/quick_actions/quick_actions_ios
   quick_actions_platform_interface:
     git:
@@ -1290,7 +1290,7 @@ dependency_overrides:
   shared_preferences_foundation:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
       path: ./packages/shared_preferences/shared_preferences_foundation
   shared_preferences_linux:
     git:
@@ -1315,7 +1315,7 @@ dependency_overrides:
   shelf:
     git:
       url: https://github.com/dart-lang/shelf
-      ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      ref: 2536c15a562cb183dabbc628824a215663830325
       path: ./pkgs/shelf
   shelf_packages_handler:
     git:
@@ -1325,7 +1325,7 @@ dependency_overrides:
   shelf_static:
     git:
       url: https://github.com/dart-lang/shelf
-      ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      ref: d53a8f9a98ccbe69078d397d45c2c6b3e7c243b6
       path: ./pkgs/shelf_static
   shelf_web_socket:
     git:
@@ -1361,7 +1361,7 @@ dependency_overrides:
   source_maps:
     git:
       url: https://github.com/dart-lang/tools
-      ref: 0580d20e398b9395bb9ae751a1211f4ee38697ec
+      ref: db47a844e03cbd076ac7e5a0f4f46cadcba28da8
       path: ./pkgs/source_maps
   source_span:
     git:
@@ -1405,7 +1405,7 @@ dependency_overrides:
   sqlite3:
     git:
       url: https://github.com/simolus3/sqlite3.dart
-      ref: 8adb539d0ee71d4db29378c82a345aeb1301d649
+      ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
       path: ./sqlite3
   sqlite3_flutter_libs:
     git:
@@ -1430,17 +1430,13 @@ dependency_overrides:
   stream_transform:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: 46cc745458f93bdbd39972a925d7530e57f84f5c
       path: ./pkgs/stream_transform
   string_scanner:
     git:
       url: https://github.com/dart-lang/tools
       ref: 3815ff3fd2aee5212586c3fc4d2bcf08584c98f3
       path: ./pkgs/string_scanner
-  swm_chart:
-    git:
-      url: https://github.com/KSD-CO/swm-chart
-      ref: 001261cef2261561d986fc3ce35dc61678198a24
   sync_http:
     git:
       url: https://github.com/google/sync_http.dart
@@ -1477,7 +1473,7 @@ dependency_overrides:
   toastification:
     git:
       url: https://github.com/payam-zahedi/toastification
-      ref: a8b614709bee6f39216ee3f9046b65007f3f2201
+      ref: 4f1068f5265a0d189aee6881d125e8a35adec74f
   translator:
     git:
       url: https://github.com/cake-tech/google-translator.git
@@ -1535,7 +1531,7 @@ dependency_overrides:
   unorm_dart:
     git:
       url: https://github.com/yshrsmz/unorm-dart
-      ref: e2b0de9ce5c168f4d14abeebed4c21ce86eecffd
+      ref: 3301bdc74e9644c69201db31e0daefb24fd10cd8
   ur:
     git:
       url: https://github.com/bukata-sa/bc-ur-dart
@@ -1553,7 +1549,7 @@ dependency_overrides:
   url_launcher_ios:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: 9cac0573363b7bbe6bf32aca44582fb75ee67521
       path: ./packages/url_launcher/url_launcher_ios
   url_launcher_linux:
     git:
@@ -1563,7 +1559,7 @@ dependency_overrides:
   url_launcher_macos:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
       path: ./packages/url_launcher/url_launcher_macos
   url_launcher_platform_interface:
     git:
@@ -1578,7 +1574,7 @@ dependency_overrides:
   url_launcher_windows:
     git:
       url: https://github.com/flutter/packages
-      ref: 9854cd5607da4001f2dd3cbdcd6903202d28958c
+      ref: 18b9cc5f2b0820cb6164f0150958ba76db75c61a
       path: ./packages/url_launcher/url_launcher_windows
   uuid:
     git:
@@ -1587,17 +1583,17 @@ dependency_overrides:
   vector_graphics:
     git:
       url: https://github.com/flutter/packages
-      ref: 832d5f2252fd9e1cc203737d2c7d70215e8f5770
+      ref: caddb39d831fc9e7f9a2cbe5c87d75629adc35ac
       path: ./packages/vector_graphics
   vector_graphics_codec:
     git:
       url: https://github.com/flutter/packages
-      ref: 2eb4c718b6e44dc5d75a3d5496ae2eda7a7d7885
+      ref: 11a9fa8bf6e5a49d02aef0ba5c5a95037a2acbc3
       path: ./packages/vector_graphics_codec
   vector_graphics_compiler:
     git:
       url: https://github.com/flutter/packages
-      ref: 10f15b38407ff0e0074d47bb612e84d1b14ec4ca
+      ref: 3d05e51b22d99c5362d2f1f7f5b80358dd4e9cb3
       path: ./packages/vector_graphics_compiler
   vector_math:
     git:
@@ -1649,7 +1645,7 @@ dependency_overrides:
   webdriver:
     git:
       url: https://github.com/google/webdriver.dart
-      ref: 1da600f34cd79fbc4742587f61b2edb0502bbb43
+      ref: e84e9ccbee3e0c38a149b7d964eb7ab6ccc78384
   webkit_inspection_protocol:
     git:
       url: https://github.com/google/webkit_inspection_protocol.dart
@@ -1666,7 +1662,7 @@ dependency_overrides:
   x25519:
     git:
       url: https://github.com/Tougee/curve25519
-      ref: f205825e1075c92964864e7216187b0a668d32c3
+      ref: 61b636d53e03cd12c9d9f728f8be6821fb6e2581
   xdg_directories:
     git:
       url: https://github.com/flutter/packages
@@ -1679,7 +1675,7 @@ dependency_overrides:
   yaml:
     git:
       url: https://github.com/dart-lang/tools
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: 27f829e3752382beae9deb1e87029f9ed52ef32e
       path: ./pkgs/yaml
   yaml_edit:
     git:

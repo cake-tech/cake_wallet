@@ -26,6 +26,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "10.0.1"
+  animate_do:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "94ca5c43abd93901fcd97b47102b6e5d37ce67ca"
+      resolved-ref: "94ca5c43abd93901fcd97b47102b6e5d37ce67ca"
+      url: "https://github.com/Klerith/animate_do_package"
+    source: git
+    version: "2.1.0"
   animated_reorderable_list:
     dependency: "direct overridden"
     description:
@@ -57,11 +66,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: e97951d48d2d19309be87b17d4ef4d2d74994d7d
-      resolved-ref: e97951d48d2d19309be87b17d4ef4d2d74994d7d
+      ref: f01d6a340ffe24e0ef46fa682d1b6bcc7b7aef13
+      resolved-ref: f01d6a340ffe24e0ef46fa682d1b6bcc7b7aef13
       url: "https://github.com/brendan-duncan/archive"
     source: git
-    version: "4.7.1"
+    version: "4.0.9"
   args:
     dependency: "direct overridden"
     description:
@@ -75,11 +84,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "002be6d46ba2b34121c3f33511a21d48c64085ed"
-      resolved-ref: "002be6d46ba2b34121c3f33511a21d48c64085ed"
+      ref: "1616ff662cd84301e029d1fa936acb8192a2b165"
+      resolved-ref: "1616ff662cd84301e029d1fa936acb8192a2b165"
       url: "https://github.com/wstrange/asn1lib"
     source: git
-    version: "1.6.8"
+    version: "1.6.5"
   async:
     dependency: "direct overridden"
     description:
@@ -300,11 +309,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "1a3f3beffebc8aa5b1ca8d4a2e1c169669474e0c"
-      resolved-ref: "1a3f3beffebc8aa5b1ca8d4a2e1c169669474e0c"
+      ref: "6a90afbbb8fee0dccfd7843248c74c1f8460e813"
+      resolved-ref: "6a90afbbb8fee0dccfd7843248c74c1f8460e813"
       url: "https://github.com/vi-k/bubble"
     source: git
-    version: "1.3.0"
+    version: "1.2.1"
   buffer:
     dependency: "direct overridden"
     description:
@@ -336,20 +345,20 @@ packages:
     dependency: "direct overridden"
     description:
       path: build_config
-      ref: "5e25e60f55686be9d6eec2aaa448802ae1a17a40"
-      resolved-ref: "5e25e60f55686be9d6eec2aaa448802ae1a17a40"
+      ref: "7d6c879a01d80056b3eae52f7fab2237103a7fe7"
+      resolved-ref: "7d6c879a01d80056b3eae52f7fab2237103a7fe7"
       url: "https://github.com/dart-lang/build"
     source: git
-    version: "1.3.3"
+    version: "1.3.2"
   build_daemon:
     dependency: "direct overridden"
     description:
       path: build_daemon
-      ref: "02710260aa2bc857a6d865107c09b52eeb924901"
-      resolved-ref: "02710260aa2bc857a6d865107c09b52eeb924901"
+      ref: f20f2a24e0e1259f6ee53c6828d7c396d5b23bbf
+      resolved-ref: f20f2a24e0e1259f6ee53c6828d7c396d5b23bbf
       url: "https://github.com/dart-lang/build"
     source: git
-    version: "4.1.7"
+    version: "4.1.5"
   build_runner:
     dependency: "direct dev"
     description:
@@ -362,21 +371,21 @@ packages:
   built_collection:
     dependency: "direct overridden"
     description:
-      path: "built_types/built_collection"
-      ref: "404ebe6035a03736e13ea99babf73770c308e465"
-      resolved-ref: "404ebe6035a03736e13ea99babf73770c308e465"
-      url: "https://github.com/dart-lang/build"
+      path: "."
+      ref: "8153cc41299a28e4426b22959f87dca0f7f8cd19"
+      resolved-ref: "8153cc41299a28e4426b22959f87dca0f7f8cd19"
+      url: "https://github.com/google/built_collection.dart"
     source: git
-    version: "5.1.2"
+    version: "5.1.1"
   built_value:
     dependency: "direct overridden"
     description:
       path: built_value
-      ref: "5582a42fffe6abfbc21ae8998c47350b1ce2c1b3"
-      resolved-ref: "5582a42fffe6abfbc21ae8998c47350b1ce2c1b3"
+      ref: b66790e815350e8c569bfe723d5263925df5a46d
+      resolved-ref: b66790e815350e8c569bfe723d5263925df5a46d
       url: "https://github.com/google/built_value.dart"
     source: git
-    version: "8.13.0"
+    version: "8.12.7"
   cake_backup:
     dependency: "direct main"
     description:
@@ -444,11 +453,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/code_builder"
-      ref: e0c9007561a030031514dfa23ac1e6ddb1b03a42
-      resolved-ref: e0c9007561a030031514dfa23ac1e6ddb1b03a42
+      ref: "125b9a9a5556fa88ecec26f649e1cddb1623aa2f"
+      resolved-ref: "125b9a9a5556fa88ecec26f649e1cddb1623aa2f"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "4.13.0"
+    version: "4.11.1"
   collection:
     dependency: "direct overridden"
     description:
@@ -507,20 +516,20 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/cross_file"
-      ref: "40f0b93ca0cfaeef4bbf8fb8e480d6608bfb0700"
-      resolved-ref: "40f0b93ca0cfaeef4bbf8fb8e480d6608bfb0700"
+      ref: b967797f07f1e4fc4fb264f5c8e5181b1385d9d9
+      resolved-ref: b967797f07f1e4fc4fb264f5c8e5181b1385d9d9
       url: "https://github.com/flutter/packages"
     source: git
-    version: "0.3.5+5"
+    version: "0.3.5+4"
   crypto:
     dependency: "direct main"
     description:
       path: "pkgs/crypto"
-      ref: "6903c6c7c981bc04b03e827075d49b03f2ef265c"
-      resolved-ref: "6903c6c7c981bc04b03e827075d49b03f2ef265c"
+      ref: e6c3810cdbbd6b483973f4685e950644114b495e
+      resolved-ref: e6c3810cdbbd6b483973f4685e950644114b495e
       url: "https://github.com/dart-lang/core"
     source: git
-    version: "3.0.8"
+    version: "3.0.7"
   cryptography:
     dependency: "direct main"
     description:
@@ -731,20 +740,20 @@ packages:
     dependency: "direct main"
     description:
       path: dio
-      ref: "4684e29dabaa2655606f1620a4ed316ee3f8c963"
-      resolved-ref: "4684e29dabaa2655606f1620a4ed316ee3f8c963"
+      ref: ef9dbb860c085a8e81ecd36d5bcf29d5672947e1
+      resolved-ref: ef9dbb860c085a8e81ecd36d5bcf29d5672947e1
       url: "https://github.com/cfug/dio"
     source: git
-    version: "5.11.1"
+    version: "5.11.0"
   dio_web_adapter:
     dependency: "direct overridden"
     description:
       path: "plugins/web_adapter"
-      ref: "96b10c7919ebc1c3c9438e51280aff587b7d773a"
-      resolved-ref: "96b10c7919ebc1c3c9438e51280aff587b7d773a"
+      ref: f72e83c8e832e81169f621b13c9e39aeaf9286b8
+      resolved-ref: f72e83c8e832e81169f621b13c9e39aeaf9286b8
       url: "https://github.com/cfug/dio"
     source: git
-    version: "2.2.2"
+    version: "2.2.1"
   dnssec_proof:
     dependency: "direct main"
     description:
@@ -785,20 +794,20 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "6584bc7fe259608023f0316dec1e5630b364813d"
-      resolved-ref: "6584bc7fe259608023f0316dec1e5630b364813d"
+      ref: cec4390aef9e5ff9fe064a44ed06b4f2c6dae1d2
+      resolved-ref: cec4390aef9e5ff9fe064a44ed06b4f2c6dae1d2
       url: "https://github.com/ma7moud3osman/easy_stepper"
     source: git
-    version: "1.2.0"
+    version: "0.8.5+1"
   ed25519_edwards:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "82294111b1121bb675682dfa2269c71bd9cde232"
-      resolved-ref: "82294111b1121bb675682dfa2269c71bd9cde232"
+      ref: "944daea677c4d7f3abea608f55b34aec93bb79fb"
+      resolved-ref: "944daea677c4d7f3abea608f55b34aec93bb79fb"
       url: "https://github.com/Tougee/ed25519"
     source: git
-    version: "0.3.2"
+    version: "0.3.1"
   ed25519_hd_key:
     dependency: "direct overridden"
     description:
@@ -853,6 +862,15 @@ packages:
       url: "https://github.com/felangel/equatable"
     source: git
     version: "2.1.0"
+  erc20:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "759c4363d1dc9d6a3c2604ceb4261b5bcdfc68b1"
+      resolved-ref: "759c4363d1dc9d6a3c2604ceb4261b5bcdfc68b1"
+      url: "https://github.com/xclud/dart_erc20"
+    source: git
+    version: "1.0.1"
   eth_sig_util:
     dependency: "direct main"
     description:
@@ -935,50 +953,47 @@ packages:
     source: git
     version: "8.1.6"
   file_selector:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/file_selector/file_selector"
-      ref: "6a84a5421e84466b01ca71db20ab31cfc088e65d"
-      resolved-ref: "6a84a5421e84466b01ca71db20ab31cfc088e65d"
-      url: "https://github.com/flutter/packages"
-    source: git
+      name: file_selector
+      sha256: bd15e43e9268db636b53eeaca9f56324d1622af30e5c34d6e267649758c84d9a
+      url: "https://pub.dev"
+    source: hosted
     version: "1.1.0"
   file_selector_android:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/file_selector/file_selector_android"
-      ref: cde5b36e7eceacdc3268ee758e3834f2817ffb6b
-      resolved-ref: cde5b36e7eceacdc3268ee758e3834f2817ffb6b
-      url: "https://github.com/flutter/packages"
-    source: git
+      name: file_selector_android
+      sha256: "89243030ea4b3463fb402b44d5eeacc4ccb1c46a88870cb2a5080d693200c1ed"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.5.2+6"
   file_selector_ios:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/file_selector/file_selector_ios"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      url: "https://github.com/flutter/packages"
-    source: git
+      name: file_selector_ios
+      sha256: "97269e5307a0ab813b1fa2430bada0a96e0afb74848417f8676f64ba5de0051c"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.5.3+6"
   file_selector_linux:
     dependency: "direct overridden"
     description:
       path: "packages/file_selector/file_selector_linux"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
+      resolved-ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
       url: "https://github.com/flutter/packages"
     source: git
-    version: "0.9.4+1"
+    version: "0.9.4"
   file_selector_macos:
     dependency: "direct overridden"
     description:
       path: "packages/file_selector/file_selector_macos"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
+      resolved-ref: e67b6be3f57927f6831ec41afd3444adb31be3d3
       url: "https://github.com/flutter/packages"
     source: git
-    version: "0.9.5+1"
+    version: "0.9.5"
   file_selector_platform_interface:
     dependency: "direct overridden"
     description:
@@ -989,23 +1004,22 @@ packages:
     source: git
     version: "2.7.0"
   file_selector_web:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "packages/file_selector/file_selector_web"
-      ref: "818b310132fc1ef0e0f641d1ddde15158b08cc63"
-      resolved-ref: "818b310132fc1ef0e0f641d1ddde15158b08cc63"
-      url: "https://github.com/flutter/packages"
-    source: git
+      name: file_selector_web
+      sha256: "73181fbc5257776d8ecaa6a94ab3c8e920ad143b9132a6d984a9271dfc6928d3"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.9.5"
   file_selector_windows:
     dependency: "direct overridden"
     description:
       path: "packages/file_selector/file_selector_windows"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
+      resolved-ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "0.9.3+6"
+    version: "0.9.3+5"
   fixed:
     dependency: "direct overridden"
     description:
@@ -1037,11 +1051,20 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "636904db0b00b7e8479e45e09121085352bd5cb6"
-      resolved-ref: "636904db0b00b7e8479e45e09121085352bd5cb6"
+      ref: be14b9722b7f18310c869c930562b7871b0165ed
+      resolved-ref: be14b9722b7f18310c869c930562b7871b0165ed
       url: "https://github.com/imaNNeo/fl_chart"
     source: git
-    version: "1.3.1"
+    version: "0.70.2"
+  flat_buffers:
+    dependency: "direct overridden"
+    description:
+      path: dart
+      ref: "187240970746d00bbd26b0f5873ed54d2477f9f3"
+      resolved-ref: "187240970746d00bbd26b0f5873ed54d2477f9f3"
+      url: "https://github.com/google/flatbuffers"
+    source: git
+    version: "25.9.23"
   flex_color_scheme:
     dependency: "direct overridden"
     description:
@@ -1336,6 +1359,15 @@ packages:
       url: "https://github.com/mogol/flutter_secure_storage"
     source: git
     version: "3.1.2"
+  flutter_shaders:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: e331377d58755fe914a2ce54b0f70ba34898dfdd
+      resolved-ref: e331377d58755fe914a2ce54b0f70ba34898dfdd
+      url: "https://github.com/jonahwilliams/flutter_shaders"
+    source: git
+    version: "0.1.3"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -1345,15 +1377,24 @@ packages:
       url: "https://github.com/letsar/flutter_slidable"
     source: git
     version: "3.1.2"
+  flutter_spinkit:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: bf8508db798f1e31dea152b9b762f223d90d3449
+      resolved-ref: bf8508db798f1e31dea152b9b762f223d90d3449
+      url: "https://github.com/jogboms/flutter_spinkit"
+    source: git
+    version: "5.2.2"
   flutter_svg:
     dependency: "direct main"
     description:
       path: "third_party/packages/flutter_svg"
-      ref: "5365902aac0a6cb6cf8e8ad862b74c14dfa30e25"
-      resolved-ref: "5365902aac0a6cb6cf8e8ad862b74c14dfa30e25"
+      ref: ddc9430a0080bea73c5511732f396acde1f48fe0
+      resolved-ref: ddc9430a0080bea73c5511732f396acde1f48fe0
       url: "https://github.com/flutter/packages"
     source: git
-    version: "2.3.4"
+    version: "2.3.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -1363,11 +1404,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: ea59a8cb09b7c17a7d452dc505fc7962302d9fa2
-      resolved-ref: ea59a8cb09b7c17a7d452dc505fc7962302d9fa2
+      ref: "82d12cda1b65efc1d96b53b27b8b5451e34c96ef"
+      resolved-ref: "82d12cda1b65efc1d96b53b27b8b5451e34c96ef"
       url: "https://github.com/jeroen1602/flutter_web_bluetooth"
     source: git
-    version: "1.2.0"
+    version: "1.1.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -1403,12 +1444,12 @@ packages:
   frontend_server_client:
     dependency: "direct overridden"
     description:
-      path: "pkg/frontend_server_client"
-      ref: "25a38e4d0d2a222e4a17311809527a03481f1b41"
-      resolved-ref: "25a38e4d0d2a222e4a17311809527a03481f1b41"
-      url: "https://github.com/dart-lang/sdk"
+      path: frontend_server_client
+      ref: "74e95837adf3d4ea64a003ccc4f8f09704c1d866"
+      resolved-ref: "74e95837adf3d4ea64a003ccc4f8f09704c1d866"
+      url: "https://github.com/dart-lang/webdev"
     source: git
-    version: "4.1.0"
+    version: "4.0.0"
   fuchsia_remote_debug_protocol:
     dependency: transitive
     description: flutter
@@ -1418,11 +1459,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: e8b21fa2c0cfe4e830a456abe4d7c25e5ecc89cc
-      resolved-ref: e8b21fa2c0cfe4e830a456abe4d7c25e5ecc89cc
+      ref: b385a5888b1582badf22bbd93283ec22de8a75d7
+      resolved-ref: b385a5888b1582badf22bbd93283ec22de8a75d7
       url: "https://github.com/letsar/gap"
     source: git
-    version: "3.1.0"
+    version: "3.0.1"
   get_it:
     dependency: "direct main"
     description:
@@ -1436,11 +1477,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/glob"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: "92114ab8a16eef77be1cd7bad3f5af28b5b1dc63"
+      resolved-ref: "92114ab8a16eef77be1cd7bad3f5af28b5b1dc63"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "2.2.0"
+    version: "2.1.3"
   go_router:
     dependency: "direct overridden"
     description:
@@ -1553,11 +1594,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/html"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: "11f4cf7ee79632be370062dad67b7dd81bc28d55"
+      resolved-ref: "11f4cf7ee79632be370062dad67b7dd81bc28d55"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "0.15.7"
+    version: "0.15.6"
   http:
     dependency: "direct main"
     description:
@@ -1580,11 +1621,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/http_multi_server"
-      ref: "12171813892ada461f3db5aafb1499cf7cc74cd0"
-      resolved-ref: "12171813892ada461f3db5aafb1499cf7cc74cd0"
+      ref: c27d6c780bae0207e938f09596c2cf8d9bb4a963
+      resolved-ref: c27d6c780bae0207e938f09596c2cf8d9bb4a963
       url: "https://github.com/dart-lang/http"
     source: git
-    version: "3.2.3"
+    version: "3.2.2"
   http_parser:
     dependency: "direct overridden"
     description:
@@ -1598,20 +1639,20 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: bfac224913cf4c88c838a527bd1767f02c4d005f
-      resolved-ref: bfac224913cf4c88c838a527bd1767f02c4d005f
+      ref: a5cc03b65592616bb423254cdea8ce4b093b4a04
+      resolved-ref: a5cc03b65592616bb423254cdea8ce4b093b4a04
       url: "https://github.com/brendan-duncan/image"
     source: git
-    version: "4.13.1"
+    version: "4.8.0"
   image_picker:
     dependency: "direct main"
     description:
       path: "packages/image_picker/image_picker"
-      ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
-      resolved-ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
+      ref: "2900bc94e9912486e3454223df2683a372f4e137"
+      resolved-ref: "2900bc94e9912486e3454223df2683a372f4e137"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "1.2.4"
+    version: "1.2.3"
   image_picker_android:
     dependency: "direct overridden"
     description:
@@ -1634,11 +1675,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/image_picker/image_picker_ios"
-      ref: "54706bdee543ca968d543028fd71dda04379cc40"
-      resolved-ref: "54706bdee543ca968d543028fd71dda04379cc40"
+      ref: "44a58ab4aab0b78fab2b51e0d093561be0b4964c"
+      resolved-ref: "44a58ab4aab0b78fab2b51e0d093561be0b4964c"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "0.8.13+10"
+    version: "0.8.13+6"
   image_picker_linux:
     dependency: "direct overridden"
     description:
@@ -1661,11 +1702,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/image_picker/image_picker_platform_interface"
-      ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
-      resolved-ref: "7660d464ef3cc38ad5e765a7504966713def3b4f"
+      ref: "501d8c9bd36577f1af17d799cb69fefd6c4b2f4b"
+      resolved-ref: "501d8c9bd36577f1af17d799cb69fefd6c4b2f4b"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "2.11.2"
+    version: "2.11.1"
   image_picker_windows:
     dependency: "direct overridden"
     description:
@@ -1711,29 +1752,29 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/io"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: faf2b86b71e633e956ff1489eb60885b21fa100d
+      resolved-ref: faf2b86b71e633e956ff1489eb60885b21fa100d
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "1.1.0"
+    version: "1.0.5"
   jni:
     dependency: "direct overridden"
     description:
       path: "pkgs/jni"
-      ref: c9e8118d48d66ae330f067f59ba4a4227d978d8f
-      resolved-ref: c9e8118d48d66ae330f067f59ba4a4227d978d8f
+      ref: "3b0c7beded15ef47a3dba4b5c0093cbe195e7aba"
+      resolved-ref: "3b0c7beded15ef47a3dba4b5c0093cbe195e7aba"
       url: "https://github.com/dart-lang/native"
     source: git
-    version: "1.1.2"
+    version: "1.0.3"
   jni_flutter:
     dependency: "direct overridden"
     description:
       path: "pkgs/jni_flutter"
-      ref: a2a617910fe3b2433eaa94bfb491bb3475a71870
-      resolved-ref: a2a617910fe3b2433eaa94bfb491bb3475a71870
+      ref: "6e3efdc1afa0462b1aff38c087cb50f0e6925cda"
+      resolved-ref: "6e3efdc1afa0462b1aff38c087cb50f0e6925cda"
       url: "https://github.com/dart-lang/native"
     source: git
-    version: "1.0.4+1"
+    version: "1.0.2"
   jni_util:
     dependency: "direct overridden"
     description:
@@ -1855,8 +1896,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
-      resolved-ref: eaf49764ad0863e8dec97ad30ff6aea0a1d1bd28
+      ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
+      resolved-ref: a1f8080181ef4a7334df3afb8e01afd321a8090e
       url: "https://github.com/cake-tech/ledger-flutter-plus"
     source: git
     version: "1.6.0+1"
@@ -1936,11 +1977,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: c4d65c3ecb2dbf275d32fc4ef0f2a7af3d45d0b7
-      resolved-ref: c4d65c3ecb2dbf275d32fc4ef0f2a7af3d45d0b7
+      ref: "4c56353a5060f403650f0c728a6438d3db2de669"
+      resolved-ref: "4c56353a5060f403650f0c728a6438d3db2de669"
       url: "https://github.com/SourceHorizon/logger"
     source: git
-    version: "2.8.0"
+    version: "2.7.0"
   logging:
     dependency: "direct dev"
     description:
@@ -1954,11 +1995,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: ccf57b76ce1ec782de2809f852fc208f7cea506a
-      resolved-ref: ccf57b76ce1ec782de2809f852fc208f7cea506a
+      ref: "1eef993a7a69cd05cfcc4c9eac4f2d89ecfab2d1"
+      resolved-ref: "1eef993a7a69cd05cfcc4c9eac4f2d89ecfab2d1"
       url: "https://github.com/xvrh/lottie-flutter"
     source: git
-    version: "3.7.0"
+    version: "3.3.3"
   matcher:
     dependency: "direct overridden"
     description:
@@ -1998,29 +2039,29 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/mime"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: "3440b74e430051304b56d4acd71b7ed30ab1855d"
+      resolved-ref: "3440b74e430051304b56d4acd71b7ed30ab1855d"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "2.1.0"
+    version: "2.0.0"
   mobx:
     dependency: "direct main"
     description:
       path: mobx
-      ref: d0f282e919d78d239b750b17aca76f1a1023150b
-      resolved-ref: d0f282e919d78d239b750b17aca76f1a1023150b
+      ref: d677b8d361301b60577267703371013749b7b7de
+      resolved-ref: d677b8d361301b60577267703371013749b7b7de
       url: "https://github.com/mobxjs/mobx.dart"
     source: git
-    version: "2.6.1"
+    version: "2.6.0"
   mobx_codegen:
     dependency: "direct dev"
     description:
       path: mobx_codegen
-      ref: dd4c9a348822c68a4955b4d009d0151a8a24be9b
-      resolved-ref: dd4c9a348822c68a4955b4d009d0151a8a24be9b
+      ref: "39a1f18c2e76a564b5e5358426d335569bc332ec"
+      resolved-ref: "39a1f18c2e76a564b5e5358426d335569bc332ec"
       url: "https://github.com/mobxjs/mobx.dart"
     source: git
-    version: "2.7.8"
+    version: "2.7.7"
   mockito:
     dependency: "direct overridden"
     description:
@@ -2043,8 +2084,8 @@ packages:
     dependency: "direct main"
     description:
       path: modal_bottom_sheet
-      ref: 04f3f5c920b394913467687630de0dc598b4c845
-      resolved-ref: 04f3f5c920b394913467687630de0dc598b4c845
+      ref: "04f3f5c920b394913467687630de0dc598b4c845"
+      resolved-ref: "04f3f5c920b394913467687630de0dc598b4c845"
       url: "https://github.com/cake-tech/modal_bottom_sheet"
     source: git
     version: "3.0.0"
@@ -2322,11 +2363,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: permission_handler_apple
-      ref: a022af3ca5f7c9c65b5914d1352dd4b7bc36d299
-      resolved-ref: a022af3ca5f7c9c65b5914d1352dd4b7bc36d299
+      ref: "5c989b1be9abbbb325424ad96e5be4efdc0987c2"
+      resolved-ref: "5c989b1be9abbbb325424ad96e5be4efdc0987c2"
       url: "https://github.com/baseflow/flutter-permission-handler"
     source: git
-    version: "9.6.5"
+    version: "9.6.1"
   permission_handler_html:
     dependency: "direct overridden"
     description:
@@ -2340,20 +2381,20 @@ packages:
     dependency: "direct overridden"
     description:
       path: permission_handler_platform_interface
-      ref: "90cedc2c60f9ea19542f59d30db9261493072984"
-      resolved-ref: "90cedc2c60f9ea19542f59d30db9261493072984"
+      ref: b0bdda5faabb912dc6d0b3f330f9d801727db76e
+      resolved-ref: b0bdda5faabb912dc6d0b3f330f9d801727db76e
       url: "https://github.com/baseflow/flutter-permission-handler"
     source: git
-    version: "4.4.1"
+    version: "4.4.0"
   permission_handler_windows:
     dependency: "direct overridden"
     description:
       path: permission_handler_windows
-      ref: dd5055571a1f8cddcaae714e54d3f6c347e50ec5
-      resolved-ref: dd5055571a1f8cddcaae714e54d3f6c347e50ec5
+      ref: "41c2485eb698d055dcf59a373c07dee537b8aa01"
+      resolved-ref: "41c2485eb698d055dcf59a373c07dee537b8aa01"
       url: "https://github.com/baseflow/flutter-permission-handler"
     source: git
-    version: "0.2.4"
+    version: "0.2.2"
   petitparser:
     dependency: "direct overridden"
     description:
@@ -2412,29 +2453,38 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/pool"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: "042b03e8284032088f851172ab7b2aed06da1d72"
+      resolved-ref: "042b03e8284032088f851172ab7b2aed06da1d72"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "1.5.3"
+    version: "1.5.2"
   posix:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: b913390e4e4686afd20686138d0f188e942e78e8
-      resolved-ref: b913390e4e4686afd20686138d0f188e942e78e8
+      ref: "3c544340f3e4ffc64b20e6959ae8229c98638a0a"
+      resolved-ref: "3c544340f3e4ffc64b20e6959ae8229c98638a0a"
       url: "https://github.com/onepub-dev/dart_posix"
     source: git
-    version: "6.5.4"
+    version: "6.5.2"
   process:
     dependency: "direct overridden"
     description:
       path: "pkgs/process"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: "5e977d6f0698a220279a50538c89a440d56b0c44"
+      resolved-ref: "5e977d6f0698a220279a50538c89a440d56b0c44"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "5.0.6"
+    version: "5.0.5"
+  progressive_blur:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "6ec8d0ccf46b1629a46ab68f31e26df489bac958"
+      resolved-ref: "6ec8d0ccf46b1629a46ab68f31e26df489bac958"
+      url: "https://github.com/kekland/progressive_blur"
+    source: git
+    version: "0.0.2"
   protobuf:
     dependency: "direct overridden"
     description:
@@ -2457,29 +2507,29 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/pub_semver"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: d67cd0022095a138c66df94f100e5a129c15a65e
+      resolved-ref: d67cd0022095a138c66df94f100e5a129c15a65e
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "2.2.1"
+    version: "2.2.0"
   pubspec_parse:
     dependency: "direct overridden"
     description:
       path: "pkgs/pubspec_parse"
-      ref: afaaac4c421527c4c5ff4d6c366433525e4b9622
-      resolved-ref: afaaac4c421527c4c5ff4d6c366433525e4b9622
+      ref: "070355ee7014c4d37bdc50fa2b4a597f2774f9ca"
+      resolved-ref: "070355ee7014c4d37bdc50fa2b4a597f2774f9ca"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "1.7.0"
+    version: "1.5.0"
   qr:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: a0b4ac89122966d2c4f9a616d011c1b5d3bd064e
-      resolved-ref: a0b4ac89122966d2c4f9a616d011c1b5d3bd064e
+      ref: "792288784e200301b323b1e36852ae60a3ac2431"
+      resolved-ref: "792288784e200301b323b1e36852ae60a3ac2431"
       url: "https://github.com/kevmoo/qr.dart"
     source: git
-    version: "3.0.3"
+    version: "3.0.2"
   qr_flutter:
     dependency: "direct main"
     description:
@@ -2493,11 +2543,11 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/quick_actions/quick_actions"
-      ref: "36e088a75b9b10977c4858828f2b3fec43b0670b"
-      resolved-ref: "36e088a75b9b10977c4858828f2b3fec43b0670b"
+      ref: "8238e1c5ada8c6a99f7fb6087484b52face33721"
+      resolved-ref: "8238e1c5ada8c6a99f7fb6087484b52face33721"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "1.1.1"
+    version: "1.1.0"
   quick_actions_android:
     dependency: "direct overridden"
     description:
@@ -2511,11 +2561,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/quick_actions/quick_actions_ios"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: "7ae082a7f6cd1bc6a219c6ab0adf27a3d8ffdc23"
+      resolved-ref: "7ae082a7f6cd1bc6a219c6ab0adf27a3d8ffdc23"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "1.2.5"
+    version: "1.2.4"
   quick_actions_platform_interface:
     dependency: "direct overridden"
     description:
@@ -2710,11 +2760,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/shared_preferences/shared_preferences_foundation"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
+      resolved-ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "2.5.7"
+    version: "2.5.6"
   shared_preferences_linux:
     dependency: "direct overridden"
     description:
@@ -2755,11 +2805,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/shelf"
-      ref: b66665b8b405e883b203fd401f25e0bde47cdb01
-      resolved-ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      ref: "2536c15a562cb183dabbc628824a215663830325"
+      resolved-ref: "2536c15a562cb183dabbc628824a215663830325"
       url: "https://github.com/dart-lang/shelf"
     source: git
-    version: "1.4.3"
+    version: "1.4.2"
   shelf_packages_handler:
     dependency: "direct overridden"
     description:
@@ -2773,11 +2823,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/shelf_static"
-      ref: b66665b8b405e883b203fd401f25e0bde47cdb01
-      resolved-ref: b66665b8b405e883b203fd401f25e0bde47cdb01
+      ref: d53a8f9a98ccbe69078d397d45c2c6b3e7c243b6
+      resolved-ref: d53a8f9a98ccbe69078d397d45c2c6b3e7c243b6
       url: "https://github.com/dart-lang/shelf"
     source: git
-    version: "1.2.0"
+    version: "1.1.3"
   shelf_web_socket:
     dependency: "direct overridden"
     description:
@@ -2850,11 +2900,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/source_maps"
-      ref: "0580d20e398b9395bb9ae751a1211f4ee38697ec"
-      resolved-ref: "0580d20e398b9395bb9ae751a1211f4ee38697ec"
+      ref: db47a844e03cbd076ac7e5a0f4f46cadcba28da8
+      resolved-ref: db47a844e03cbd076ac7e5a0f4f46cadcba28da8
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "0.10.14"
+    version: "0.10.13"
   source_span:
     dependency: "direct overridden"
     description:
@@ -2931,11 +2981,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: sqlite3
-      ref: "8adb539d0ee71d4db29378c82a345aeb1301d649"
-      resolved-ref: "8adb539d0ee71d4db29378c82a345aeb1301d649"
+      ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
+      resolved-ref: ac40b296e7069c4e83503bcbe4a3b22dfe5431a7
       url: "https://github.com/simolus3/sqlite3.dart"
     source: git
-    version: "3.5.2"
+    version: "3.5.1"
   sqlite3_flutter_libs:
     dependency: "direct overridden"
     description:
@@ -2976,11 +3026,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/stream_transform"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: "46cc745458f93bdbd39972a925d7530e57f84f5c"
+      resolved-ref: "46cc745458f93bdbd39972a925d7530e57f84f5c"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "2.1.2"
+    version: "2.1.1"
   string_scanner:
     dependency: "direct overridden"
     description:
@@ -2991,13 +3041,12 @@ packages:
     source: git
     version: "1.4.1"
   swm_chart:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "."
-      ref: "001261cef2261561d986fc3ce35dc61678198a24"
-      resolved-ref: "001261cef2261561d986fc3ce35dc61678198a24"
-      url: "https://github.com/KSD-CO/swm-chart"
-    source: git
+      name: swm_chart
+      sha256: "9c11363172adb74d046b6bc43ff82b05f7ee8a9e3d71277c6014a1bb38afaa27"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.6.1"
   sync_http:
     dependency: "direct overridden"
@@ -3066,11 +3115,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: a8b614709bee6f39216ee3f9046b65007f3f2201
-      resolved-ref: a8b614709bee6f39216ee3f9046b65007f3f2201
+      ref: "4f1068f5265a0d189aee6881d125e8a35adec74f"
+      resolved-ref: "4f1068f5265a0d189aee6881d125e8a35adec74f"
       url: "https://github.com/payam-zahedi/toastification"
     source: git
-    version: "3.2.2"
+    version: "3.2.0"
   torch_dart:
     dependency: "direct main"
     description:
@@ -3190,11 +3239,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: e2b0de9ce5c168f4d14abeebed4c21ce86eecffd
-      resolved-ref: e2b0de9ce5c168f4d14abeebed4c21ce86eecffd
+      ref: "3301bdc74e9644c69201db31e0daefb24fd10cd8"
+      resolved-ref: "3301bdc74e9644c69201db31e0daefb24fd10cd8"
       url: "https://github.com/yshrsmz/unorm-dart"
     source: git
-    version: "0.3.3"
+    version: "0.3.2"
   ur:
     dependency: "direct main"
     description:
@@ -3226,11 +3275,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/url_launcher/url_launcher_ios"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: "9cac0573363b7bbe6bf32aca44582fb75ee67521"
+      resolved-ref: "9cac0573363b7bbe6bf32aca44582fb75ee67521"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "6.4.2"
+    version: "6.4.1"
   url_launcher_linux:
     dependency: "direct main"
     description:
@@ -3244,11 +3293,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/url_launcher/url_launcher_macos"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
+      resolved-ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "3.2.6"
+    version: "3.2.5"
   url_launcher_platform_interface:
     dependency: "direct overridden"
     description:
@@ -3271,11 +3320,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/url_launcher/url_launcher_windows"
-      ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
-      resolved-ref: "9854cd5607da4001f2dd3cbdcd6903202d28958c"
+      ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
+      resolved-ref: "18b9cc5f2b0820cb6164f0150958ba76db75c61a"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "3.1.6"
+    version: "3.1.5"
   uuid:
     dependency: "direct overridden"
     description:
@@ -3289,29 +3338,29 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/vector_graphics"
-      ref: "832d5f2252fd9e1cc203737d2c7d70215e8f5770"
-      resolved-ref: "832d5f2252fd9e1cc203737d2c7d70215e8f5770"
+      ref: caddb39d831fc9e7f9a2cbe5c87d75629adc35ac
+      resolved-ref: caddb39d831fc9e7f9a2cbe5c87d75629adc35ac
       url: "https://github.com/flutter/packages"
     source: git
-    version: "1.3.1"
+    version: "1.2.3"
   vector_graphics_codec:
     dependency: "direct overridden"
     description:
       path: "packages/vector_graphics_codec"
-      ref: "2eb4c718b6e44dc5d75a3d5496ae2eda7a7d7885"
-      resolved-ref: "2eb4c718b6e44dc5d75a3d5496ae2eda7a7d7885"
+      ref: "11a9fa8bf6e5a49d02aef0ba5c5a95037a2acbc3"
+      resolved-ref: "11a9fa8bf6e5a49d02aef0ba5c5a95037a2acbc3"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "1.2.0"
+    version: "1.1.13"
   vector_graphics_compiler:
     dependency: "direct overridden"
     description:
       path: "packages/vector_graphics_compiler"
-      ref: "10f15b38407ff0e0074d47bb612e84d1b14ec4ca"
-      resolved-ref: "10f15b38407ff0e0074d47bb612e84d1b14ec4ca"
+      ref: "3d05e51b22d99c5362d2f1f7f5b80358dd4e9cb3"
+      resolved-ref: "3d05e51b22d99c5362d2f1f7f5b80358dd4e9cb3"
       url: "https://github.com/flutter/packages"
     source: git
-    version: "1.3.4"
+    version: "1.3.0"
   vector_math:
     dependency: "direct overridden"
     description:
@@ -3406,11 +3455,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "1da600f34cd79fbc4742587f61b2edb0502bbb43"
-      resolved-ref: "1da600f34cd79fbc4742587f61b2edb0502bbb43"
+      ref: e84e9ccbee3e0c38a149b7d964eb7ab6ccc78384
+      resolved-ref: e84e9ccbee3e0c38a149b7d964eb7ab6ccc78384
       url: "https://github.com/google/webdriver.dart"
     source: git
-    version: "3.2.0"
+    version: "3.1.0"
   webkit_inspection_protocol:
     dependency: "direct overridden"
     description:
@@ -3442,11 +3491,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: f205825e1075c92964864e7216187b0a668d32c3
-      resolved-ref: f205825e1075c92964864e7216187b0a668d32c3
+      ref: "61b636d53e03cd12c9d9f728f8be6821fb6e2581"
+      resolved-ref: "61b636d53e03cd12c9d9f728f8be6821fb6e2581"
       url: "https://github.com/Tougee/curve25519"
     source: git
-    version: "0.1.2"
+    version: "0.1.1"
   xdg_directories:
     dependency: "direct overridden"
     description:
@@ -3469,11 +3518,11 @@ packages:
     dependency: "direct overridden"
     description:
       path: "pkgs/yaml"
-      ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
-      resolved-ref: c7f7a63f656f268f8a88dde5bbceeb9367b90aaa
+      ref: "27f829e3752382beae9deb1e87029f9ed52ef32e"
+      resolved-ref: "27f829e3752382beae9deb1e87029f9ed52ef32e"
       url: "https://github.com/dart-lang/tools"
     source: git
-    version: "3.1.4"
+    version: "3.1.3"
   yaml_edit:
     dependency: "direct overridden"
     description:
@@ -3494,4 +3543,4 @@ packages:
     version: "6.35.0"
 sdks:
   dart: ">=3.11.0 <4.0.0"
-  flutter: ">=3.19.0"
+  flutter: ">=3.38.0"
