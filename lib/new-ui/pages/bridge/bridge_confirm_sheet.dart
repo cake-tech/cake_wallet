@@ -10,11 +10,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class BridgeConfirmSheet extends StatefulWidget {
   const BridgeConfirmSheet(this.bridgeViewModel);
 
   final BridgeViewModel bridgeViewModel;
+
+  static Future<void> show({
+    required BuildContext context,
+    required BridgeViewModel bridgeViewModel,
+  }) =>
+      showMaterialModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (_) => BridgeConfirmSheet(bridgeViewModel),
+      ).whenComplete(bridgeViewModel.dismissTransaction);
 
   @override
   State<BridgeConfirmSheet> createState() => _BridgeConfirmSheetState();

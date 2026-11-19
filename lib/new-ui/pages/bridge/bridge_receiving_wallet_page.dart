@@ -56,6 +56,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                       final chain = bridgeViewModel.destinationChainInfo;
 
                       final chainName = chain?.name ?? '';
+                      final tokenTitle = bridgeViewModel.selectedToken?.title ?? "";
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -74,7 +75,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                           const SizedBox(height: 20),
                           Text(
                             'Select a $chainName wallet or address to send '
-                            'the bridged USDT0 to.',
+                            'the bridged $tokenTitle to.',
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w400,
@@ -125,11 +126,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
           onTap: () {
             bridgeViewModel.setRecipientAddress(option.address, destWalletName: option.name);
 
-            showMaterialModalBottomSheet<void>(
-              context: context,
-              backgroundColor: Colors.transparent,
-              builder: (ctx) => BridgeConfirmSheet(bridgeViewModel),
-            );
+            BridgeConfirmSheet.show(context: context, bridgeViewModel: bridgeViewModel);
           },
         ),
       );

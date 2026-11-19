@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class BridgeReceiveAddressInputPage extends StatefulWidget {
   const BridgeReceiveAddressInputPage({super.key, required this.bridgeViewModel});
@@ -129,10 +128,9 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
 
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 if (overlayCtx != null && overlayCtx.mounted) {
-                                  showMaterialModalBottomSheet<void>(
+                                  BridgeConfirmSheet.show(
                                     context: overlayCtx,
-                                    backgroundColor: Colors.transparent,
-                                    builder: (ctx) => BridgeConfirmSheet(bridgeViewModel),
+                                    bridgeViewModel: bridgeViewModel,
                                   );
                                 }
                               });

@@ -599,23 +599,32 @@ class CWEVM extends EVM {
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
 
   @override
-  bool isUSDT0Token(WalletBase wallet, CryptoCurrency token) {
+  bool isBridgeToken(WalletBase wallet, CryptoCurrency token) {
     if (token is! Erc20Token) return false;
 
     final chainId = getSelectedChainId(wallet);
     if (chainId == null) return false;
 
-    return USDT0Config.isUSDT0Token(token, chainId);
+    return USDT0Config.isUSDT0Token(token, chainId) || CctpConfig.isCctpToken(token, chainId);
   }
 
   @override
-  List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet) {
+  List<ChainInfo> getBridgeDestinationChains(WalletBase wallet, CryptoCurrency token) {
     final currentChainId = getSelectedChainId(wallet);
-    if (currentChainId == null) return [];
+    if (currentChainId == null || token is! Erc20Token) return [];
+
+    final bool Function(int chainId) isChainSupported;
+    if (CctpConfig.isCctpToken(token, currentChainId)) {
+      isChainSupported = CctpConfig.isChainSupported;
+    } else if (USDT0Config.isUSDT0Token(token, currentChainId)) {
+      isChainSupported = USDT0Config.isChainSupported;
+    } else {
+      return [];
+    }
 
     final result = <ChainInfo>[];
     for (final config in _registry.getAllChains()) {
-      if (USDT0Config.isChainSupported(config.chainId) && config.chainId != currentChainId) {
+      if (isChainSupported(config.chainId) && config.chainId != currentChainId) {
         result.add(ChainInfo(
           chainId: config.chainId,
           name: config.name,
@@ -628,13 +637,27 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<BridgeQuote> quoteUSDT0Transfer({
+  Future<BridgeQuote> quoteBridgeTransfer({
     required WalletBase wallet,
+    required CryptoCurrency token,
     required int sourceChainId,
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
   }) async {
+    if (token is Erc20Token && CctpConfig.isCctpToken(token, sourceChainId)) {
+      final quote = await CctpService.quoteCrossChainTransfer(
+        sourceChainId: sourceChainId,
+        destinationChainId: destinationChainId,
+        amount: amount,
+      );
+      return BridgeQuote(
+        nativeFee: BigInt.zero,
+        lzTokenFee: BigInt.zero,
+        tokenFee: quote.maxFee,
+      );
+    }
+
     final evmWallet = wallet as EVMChainWallet;
     final client = evmWallet.getWeb3Client();
     if (client == null) {
@@ -651,11 +674,12 @@ class CWEVM extends EVM {
     return BridgeQuote(
       nativeFee: quote.nativeFee,
       lzTokenFee: quote.lzTokenFee,
+      tokenFee: BigInt.zero,
     );
   }
 
   @override
-  Future<PendingTransaction> executeUSDT0Transfer({
+  Future<PendingTransaction> executeBridgeTransfer({
     required WalletBase wallet,
     required CryptoCurrency token,
     required int sourceChainId,
@@ -669,6 +693,19 @@ class CWEVM extends EVM {
     final evmWallet = wallet as EVMChainWallet;
     final tokenErc20 = token as Erc20Token;
 
+    if (CctpConfig.isCctpToken(tokenErc20, sourceChainId)) {
+      return CctpService.executeCrossChainTransfer(
+        wallet: evmWallet,
+        destinationChainId: destinationChainId,
+        amount: amount,
+        recipientAddress: recipientAddress,
+        quote: CctpQuote(maxFee: quote.tokenFee),
+        token: tokenErc20,
+        priority: priority as EVMChainTransactionPriority,
+        useBlinkProtection: useBlinkProtection,
+      );
+    }
+
     return USDT0Service.executeCrossChainTransfer(
       wallet: evmWallet,
       sourceChainId: sourceChainId,
@@ -679,6 +716,36 @@ class CWEVM extends EVM {
       token: tokenErc20,
       priority: priority as EVMChainTransactionPriority,
       useBlinkProtection: useBlinkProtection,
+    );
+  }
+
+  @override
+  Future<BridgeTransferStatus?> getBridgeTransferStatus({
+    required int sourceChainId,
+    required String tokenContract,
+    required String sourceTxHash,
+  }) async {
+    if (CctpConfig.isCctpTokenAddress(tokenContract, sourceChainId)) {
+      final status = await CctpService.getTransferStatus(
+        sourceChainId: sourceChainId,
+        sourceTxHash: sourceTxHash,
+      );
+      if (status == null) return null;
+
+      return BridgeTransferStatus(
+        isDelivered: status.isDelivered,
+        isFailed: status.isFailed,
+        message: status.message,
+      );
+    }
+
+    final status = await LayerZeroScanService.getMessageStatus(sourceTxHash);
+    if (status == null) return null;
+
+    return BridgeTransferStatus(
+      isDelivered: status.isDelivered,
+      isFailed: status.isFailed,
+      message: status.status?.message,
     );
   }
 
