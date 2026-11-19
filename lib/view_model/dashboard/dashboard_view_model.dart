@@ -386,6 +386,13 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
   @computed
+  bool get requiresKeyImageSync =>
+      wallet.type == WalletType.monero &&
+      wallet.isHardwareWallet &&
+      status is SyncedSyncStatus &&
+      (monero?.hasUnknownKeyImages(wallet) ?? false);
+
+  @computed
   bool get requiresManualShield =>
       wallet.type == WalletType.zcash && wallet.hardwareWalletType != null;
 

@@ -1,21 +1,22 @@
 import "package:cake_wallet/di.dart";
-import "package:cw_core/exceptions/cake_exception.dart";
-import "package:cake_wallet/routes.dart";
-import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_manual_shield_modal.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/zcash_migration_modal.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
-import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
-import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/themes/core/theme_extension.dart";
-import "package:cake_wallet/zcash/zcash.dart";
-import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
+import "package:cake_wallet/zcash/zcash.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
 import "package:flutter/cupertino.dart";
-import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import "package:flutter/material.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class UnconfirmedBalanceWidget extends StatelessWidget {
   const UnconfirmedBalanceWidget({
@@ -56,8 +57,10 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final currency = dashboardViewModel.wallet.currency;
     return Observer(builder: (_) {
-      final show = dashboardViewModel.balanceViewModel
-          .hasAdditionalBalance(dashboardViewModel.wallet.currency);
+      final requiresKeyImageSync = dashboardViewModel.requiresKeyImageSync;
+      final show = requiresKeyImageSync ||
+          dashboardViewModel.balanceViewModel
+              .hasAdditionalBalance(dashboardViewModel.wallet.currency);
       final isIronwoodMigration = dashboardViewModel.isMigratingToIronwood;
       final requiresManualShield = dashboardViewModel.requiresManualShield;
       final _ = dashboardViewModel.balanceViewModel.balances;
@@ -73,17 +76,33 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
                   Observer(builder: (context) {
                     final balance = dashboardViewModel.balanceViewModel.additionalBalance(currency);
 
+                    if (requiresKeyImageSync) {
+                      return UnconfirmedBalanceWarningRow(
+                        title: S.of(context).balance_out_of_sync,
+                        subtitle: S.of(context).resync_with_device(
+                              dashboardViewModel.wallet.hardwareWalletType!.label,
+                            ),
+                        onTap: () => Navigator.of(context).pushNamed(
+                          Routes.syncKeyImagesDevices,
+                          arguments: monero!.exportOutputsUR(dashboardViewModel.wallet),
+                        ),
+                      );
+                    }
+
                     if (requiresManualShield) {
-                      return ZcashManualShieldingRow(
+                      return UnconfirmedBalanceWarningRow(
+                        title: S.of(context).unshielded_funds_detected,
+                        subtitle: S.of(context).shield_them_to_use_device,
                         onTap: () {
                           final modal = ZcashManualShieldModal(
                             balance: balance.toStringWithSymbol(),
                             onShield: () => _shield(context),
                           );
                           showMaterialModalBottomSheet(
-                              backgroundColor: Colors.transparent,
-                              context: context,
-                              builder: (context) => modal);
+                            backgroundColor: Colors.transparent,
+                            context: context,
+                            builder: (context) => modal,
+                          );
                         },
                       );
                     }
@@ -173,9 +192,16 @@ class UnconfirmedBalanceWidget extends StatelessWidget {
   }
 }
 
-class ZcashManualShieldingRow extends StatelessWidget {
-  const ZcashManualShieldingRow({required this.onTap, super.key});
+class UnconfirmedBalanceWarningRow extends StatelessWidget {
+  const UnconfirmedBalanceWarningRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    super.key,
+  });
 
+  final String title;
+  final String subtitle;
   final VoidCallback onTap;
 
   @override
@@ -206,14 +232,14 @@ class ZcashManualShieldingRow extends StatelessWidget {
                       spacing: 2,
                       children: [
                         Text(
-                          S.of(context).unshielded_funds_detected,
+                          title,
                           style: TextStyle(
                             fontSize: 14,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         Text(
-                          S.of(context).shield_them_to_use_device,
+                          subtitle,
                           style: TextStyle(
                             fontSize: 14,
                             color: Theme.of(context).colorScheme.primary,

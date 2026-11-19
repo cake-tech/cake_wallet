@@ -45,6 +45,25 @@ enum HardwareWalletType {
   seedsigner,
   keystone,
   trezor;
+
+  String get label {
+    switch (this) {
+      case HardwareWalletType.ledger:
+        return "Ledger";
+      case HardwareWalletType.bitbox:
+        return "BitBox";
+      case HardwareWalletType.trezor:
+        return "Trezor";
+      case HardwareWalletType.cupcake:
+        return "Cupcake";
+      case HardwareWalletType.coldcard:
+        return "Coldcard";
+      case HardwareWalletType.seedsigner:
+        return "SeedSigner";
+      case HardwareWalletType.keystone:
+        return "Keystone";
+    }
+  }
 }
 
 enum WalletInfoAddressType {

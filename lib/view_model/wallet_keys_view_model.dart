@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/decred/decred.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -10,11 +11,9 @@ import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/decred/decred.dart';
 import 'package:polyseed/polyseed.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -57,28 +56,9 @@ abstract class WalletKeysViewModelBase with Store {
     final keysLabel = S.current.wallet_keys;
 
     final hwSuffix =
-        wallet.isHardwareWallet ? ' (${_hardwareWalletTypeLabel(wallet.hardwareWalletType!)})' : '';
+        wallet.isHardwareWallet ? " (${wallet.hardwareWalletType!.label})" : '';
 
-    return '$baseName $keysLabel $hwSuffix';
-  }
-
-  static String _hardwareWalletTypeLabel(HardwareWalletType type) {
-    switch (type) {
-      case HardwareWalletType.ledger:
-        return 'Ledger';
-      case HardwareWalletType.bitbox:
-        return 'BitBox';
-      case HardwareWalletType.trezor:
-        return 'Trezor';
-      case HardwareWalletType.cupcake:
-        return 'Cupcake';
-      case HardwareWalletType.coldcard:
-        return 'Coldcard';
-      case HardwareWalletType.seedsigner:
-        return 'SeedSigner';
-      case HardwareWalletType.keystone:
-        return 'Keystone';
-    }
+    return "$baseName $keysLabel $hwSuffix";
   }
 
   bool get isBitcoin => _wallet.type == WalletType.bitcoin;
