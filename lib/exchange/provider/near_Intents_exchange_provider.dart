@@ -471,6 +471,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       "refundType": 'ORIGIN_CHAIN',
       "recipient": recipient,
       "recipientType": 'DESTINATION_CHAIN',
+      "confidentiality": 'basic',
       "deadline": _isoUtcDeadline,
       if (connectedWallets != null) "connectedWallets": connectedWallets,
       if (sessionId != null) "sessionId": sessionId,
@@ -493,6 +494,17 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
       if (response.statusCode != 201) {
         printV("Quote request failed with status: ${response.statusCode}");
+        ExchangeProviderLogger.logError(
+          provider: description,
+          function: 'getSwapQuote',
+          error: 'HTTP ${response.statusCode}: ${response.body}',
+          requestData: {
+            'dry': dry,
+            'originAsset': originAsset,
+            'destinationAsset': destinationAsset,
+            'amount': amount,
+          },
+        );
         return null;
       }
 
@@ -506,6 +518,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   TradeState _normalizeStatusToTradeState(String status) {
     return switch (status.toUpperCase()) {
       'PENDING_DEPOSIT' => TradeState.pending,
+      'KNOWN_DEPOSIT_TX' => TradeState.confirming,
       'PROCESSING' => TradeState.processing,
       'SUCCESS' => TradeState.success,
       'INCOMPLETE_DEPOSIT' => TradeState.underpaid,
