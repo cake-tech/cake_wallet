@@ -1,3 +1,4 @@
+import "package:cake_wallet/cake_pay/src/services/cake_pay_service.dart";
 import "package:cake_wallet/core/key_service.dart";
 import "package:cake_wallet/core/trade_monitor.dart";
 import "package:cake_wallet/store/anonpay/anonpay_transactions_store.dart";
@@ -52,6 +53,8 @@ class _MockPayjoinTransactionsStore extends Mock implements PayjoinTransactionsS
 
 class _MockKeyService extends Mock implements KeyService {}
 
+class _MockCakePayService extends Mock implements CakePayService {}
+
 class _MockWallet extends Mock
     implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
 
@@ -83,6 +86,7 @@ class _DashboardViewModelProbe extends DashboardViewModelBase {
     required super.payjoinTransactionsStore,
     required super.sharedPreferences,
     required super.keyService,
+    required super.cakePayService,
   });
 
   bool _loadRealCards = false;
@@ -200,6 +204,7 @@ void main() {
       payjoinTransactionsStore: _MockPayjoinTransactionsStore(),
       sharedPreferences: sharedPreferences,
       keyService: _MockKeyService(),
+      cakePayService: _MockCakePayService(),
     );
 
     expect(viewModel.cardAccountIndices, <int>[0, 1]);
