@@ -350,6 +350,11 @@ abstract class DashboardViewModelBase with Store {
           value: () => tradeFilterStore.displayNearIntents,
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.jupiter,
+          value: () => tradeFilterStore.displayJupiter,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.jupiter)),
     ];
   }
 
@@ -736,12 +741,7 @@ abstract class DashboardViewModelBase with Store {
       appStore.settingsStore.displayAmountsInSatoshi = mode;
 
   @computed
-  List<TradeListItem> get trades => tradesStore.trades.where((trade) {
-        final isSameChain = trade.trade.chainId != null
-            ? trade.trade.chainId == wallet.chainId
-            : true; // returning default as true here so it falls back to the default checks if there's no chainId
-        return trade.trade.walletId == wallet.id && isSameChain;
-      }).toList();
+  List<TradeListItem> get trades => tradesStore.trades.where((trade) => trade.trade.walletId == wallet.id).toList();
 
   @computed
   bool get shouldShowBalanceHiddenMessage =>
