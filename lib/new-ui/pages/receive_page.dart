@@ -63,6 +63,8 @@ class NewReceivePage extends StatefulWidget {
 }
 
 class _NewReceivePageState extends State<NewReceivePage> {
+  late final ReactionDisposer _disposeAddressReaction;
+  late final ReactionDisposer _disposeReceiveOptionReaction;
   bool _largeQrMode = false;
   late WalletAddressListItem? _addressItemWithLabel;
 
@@ -89,14 +91,16 @@ class _NewReceivePageState extends State<NewReceivePage> {
       }
     });
 
-    reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
+    _disposeAddressReaction =
+        reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
 
     _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
       (item) =>
           item is WalletAddressListItem && item.address == widget.addressListViewModel.uri.address,
     ) as WalletAddressListItem?;
 
-    reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
+    _disposeReceiveOptionReaction =
+        reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
       // The infobox depends on the selected address type, so the page has to be
       // rebuilt when it changes.
       if (mounted) setState(() {});
@@ -125,6 +129,13 @@ class _NewReceivePageState extends State<NewReceivePage> {
         widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _disposeReceiveOptionReaction();
+    _disposeAddressReaction();
+    super.dispose();
   }
 
   @override
