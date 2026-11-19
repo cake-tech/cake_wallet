@@ -1,16 +1,15 @@
-import 'dart:async';
-import 'dart:convert';
+import "dart:async";
+import "dart:convert";
 
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
-import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/hardware/hardware_account_data.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:flutter/foundation.dart';
-import 'package:ledger_bitcoin/psbt.dart';
-import 'package:ledger_bitcoin/src/utils/uint8list_extension.dart' as ext;
-import 'package:trezor_flutter/trezor_flutter.dart' as sdk;
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart";
+import "package:cw_bitcoin/utils.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:flutter/foundation.dart";
+import "package:ledger_bitcoin/psbt.dart";
+import "package:ledger_bitcoin/src/utils/uint8list_extension.dart" as ext;
+import "package:trezor_flutter/trezor_flutter.dart" as sdk;
 
 class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWalletService {
   BitcoinTrezorService(this.client) : _trezorBitcoin = sdk.TrezorBitcoin(client);
@@ -26,9 +25,13 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
   }
 
   @override
-  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
-    final accounts = <HardwareAccountData>[];
+  Future<List<BitcoinHardwareAccountData>> getAvailableAccounts({
+    int index = 0,
+    int limit = 5,
+  }) async {
+    final accounts = <BitcoinHardwareAccountData>[];
     final indexRange = List.generate(limit, (i) => i + index);
+    final fingerprint = await getMasterFingerprint();
 
     for (final i in indexRange) {
       final derivationPath = "m/84'/0'/$i'";
@@ -39,11 +42,12 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
       final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
 
       accounts.add(
-        HardwareAccountData(
+        BitcoinHardwareAccountData(
           address: address,
           accountIndex: i,
           derivationPath: derivationPath,
           xpub: xPub.$1,
+          masterFingerprint: fingerprint,
         ),
       );
     }
@@ -133,21 +137,25 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
       if (changePubkey != null) {
         final (fingerprint, path) = psbt.getOutputBip32Derivation(i, changePubkey);
         if (listEquals(fingerprint, masterFingerprint)) {
-          outputs.add(sdk.TrezorTxOutput(
-            addressPath: path,
-            amount: amount,
-            scriptType: "PAYTOWITNESS",
-          ));
+          outputs.add(
+            sdk.TrezorTxOutput(
+              addressPath: path,
+              amount: amount,
+              scriptType: "PAYTOWITNESS",
+            ),
+          );
           continue;
         }
       }
 
       final script = Script.fromRaw(byteData: psbt.getOutputScript(i));
-      outputs.add(sdk.TrezorTxOutput(
-        address: script.toAddress(),
-        amount: amount,
-        scriptType: "PAYTOADDRESS",
-      ));
+      outputs.add(
+        sdk.TrezorTxOutput(
+          address: script.toAddress(),
+          amount: amount,
+          scriptType: "PAYTOADDRESS",
+        ),
+      );
     }
 
     final signed = await _trezorBitcoin.signTransaction(
@@ -172,7 +180,6 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
   /// ([keyTypeHex] `06` for inputs, `02` for outputs) of a PSBT key-value map.
   Uint8List? _firstDerivationPubkey(Map<String, Uint8List> map, String keyTypeHex) {
     final key = map.keys.where((mapKey) => mapKey.startsWith(keyTypeHex)).firstOrNull;
-    if (key == null) return null;
-    return Uint8List.fromList(hex.decode(key.substring(2)));
+    return key != null ? Uint8List.fromList(hex.decode(key.substring(2))) : null;
   }
 }

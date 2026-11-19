@@ -1,4 +1,4 @@
-import 'package:cw_core/wallet_info.dart';
+import "package:cw_core/wallet_info.dart";
 
 abstract class WalletCredentials {
   WalletCredentials({
