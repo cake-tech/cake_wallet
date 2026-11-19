@@ -22,7 +22,7 @@ class NewMainActions {
   static List<NewMainActions> all = [
     homeAction,
     walletsAction,
-    contactsAction,
+    // contactsAction,
     appsAction,
     chartsAction,
   ];
@@ -41,12 +41,12 @@ class NewMainActions {
     onTap: () {},
   );
 
-  static NewMainActions contactsAction = NewMainActions._(
-    name: (context) => S.of(context).contacts,
-    image: "assets/new-ui/navbar/contacts.svg",
-    key: const ValueKey("dashboard_page_contacts_action_button_key"),
-    onTap: () {},
-  );
+  // static NewMainActions contactsAction = NewMainActions._(
+  //   name: (context) => S.of(context).contacts,
+  //   image: "assets/new-ui/navbar/contacts.svg",
+  //   key: const ValueKey("dashboard_page_contacts_action_button_key"),
+  //   onTap: () {},
+  // );
 
   static NewMainActions appsAction = NewMainActions._(
     name: (context) => S.of(context).apps,

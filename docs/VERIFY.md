@@ -197,14 +197,14 @@ flatpak install --user --bundle Cake_Wallet_Linux.flatpak
 Windows installers are Authenticode-signed. In PowerShell:
 
 ```powershell
-Get-AuthenticodeSignature .\Cake_Wallet_Windows.exe | Format-List
+Get-AuthenticodeSignature .\Cake_Wallet_v6.5.4_Windows.exe | Format-List
 ```
 
 The signature chains to `DigiCert Trusted G4 Code Signing RSA4096 SHA384 2021 CA1`, and the
 publisher is `Cake Labs Inc` — the same name Windows shows in the UAC prompt as the verified
 publisher. `Status` must be `Valid`.
 
-Note that recent 6.x releases do not include a Windows build.
+Releases v6.0.0 to v6.5.3 did not include a Windows build.
 
 ### iOS
 
