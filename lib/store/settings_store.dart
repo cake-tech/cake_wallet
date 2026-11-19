@@ -149,6 +149,7 @@ abstract class SettingsStoreBase with Store {
       required this.showPayjoinCard,
       required this.customBitcoinFeeRate,
       required this.silentPaymentsCardDisplay,
+      this.silentPaymentsScanServer = '',
       required this.mwebAlwaysScan,
       required this.mwebCardDisplay,
       required this.showZcashMissingFundsCard,
@@ -747,6 +748,11 @@ abstract class SettingsStoreBase with Store {
           PreferencesKey.silentPaymentsCardDisplay, silentPaymentsCardDisplay);
     });
 
+    reaction((_) => silentPaymentsScanServer, (String server) {
+      _sharedPreferences.setString(PreferencesKey.silentPaymentsScanServer, server);
+      bitcoin?.setSilentPaymentsScanServer(server);
+    });
+
     reaction(
         (_) => mwebAlwaysScan,
         (bool mwebAlwaysScan) =>
@@ -1097,6 +1103,10 @@ abstract class SettingsStoreBase with Store {
   @observable
   bool silentPaymentsCardDisplay;
 
+  // User-chosen Silent Payments scan server; empty means Cake's default.
+  @observable
+  String silentPaymentsScanServer;
+
   @observable
   bool mwebAlwaysScan;
 
@@ -1418,6 +1428,9 @@ abstract class SettingsStoreBase with Store {
     final customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     final silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
+    final silentPaymentsScanServer =
+        sharedPreferences.getString(PreferencesKey.silentPaymentsScanServer) ?? '';
+    bitcoin?.setSilentPaymentsScanServer(silentPaymentsScanServer);
     final mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     final mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     final showZcashMissingFundsCard =
@@ -1776,6 +1789,7 @@ abstract class SettingsStoreBase with Store {
       showPayjoinCard: showPayjoinCard,
       customBitcoinFeeRate: customBitcoinFeeRate,
       silentPaymentsCardDisplay: silentPaymentsCardDisplay,
+      silentPaymentsScanServer: silentPaymentsScanServer,
       mwebAlwaysScan: mwebAlwaysScan,
       mwebCardDisplay: mwebCardDisplay,
       showZcashMissingFundsCard: showZcashMissingFundsCard,
@@ -2028,6 +2042,9 @@ abstract class SettingsStoreBase with Store {
     customBitcoinFeeRate = sharedPreferences.getInt(PreferencesKey.customBitcoinFeeRate) ?? 1;
     silentPaymentsCardDisplay =
         sharedPreferences.getBool(PreferencesKey.silentPaymentsCardDisplay) ?? true;
+    silentPaymentsScanServer =
+        sharedPreferences.getString(PreferencesKey.silentPaymentsScanServer) ?? '';
+    bitcoin?.setSilentPaymentsScanServer(silentPaymentsScanServer);
     mwebAlwaysScan = sharedPreferences.getBool(PreferencesKey.mwebAlwaysScan) ?? false;
     mwebCardDisplay = sharedPreferences.getBool(PreferencesKey.mwebCardDisplay) ?? true;
     showZcashMissingFundsCard =

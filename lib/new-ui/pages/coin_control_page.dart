@@ -108,52 +108,63 @@ class _NewCoinControlPageState extends State<NewCoinControlPage> {
                                         ? S.of(context).coin_control_desc
                                         : S.of(context).coin_control_desc_no_edit),
                               ),
-                              if (widget.unspentCoinsListViewModel.items.isNotEmpty &&
-                                  widget.canEdit)
-                                Padding(
-                                  padding: const EdgeInsets.all(12.0),
-                                  child: Row(
-                                    spacing: 20,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () {
-                                          widget.unspentCoinsListViewModel.toggleSelectAll(true);
-                                        },
-                                        child: Text(S.of(context).select_all,
-                                            style: TextStyle(
-                                                color: Theme.of(context).colorScheme.primary,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w400)),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          widget.unspentCoinsListViewModel.toggleSelectAll(false);
-                                        },
-                                        child: Text(S.of(context).unselect_all,
-                                            style: TextStyle(
-                                                color: Theme.of(context).colorScheme.primary,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w400)),
+                              Observer(
+                                builder: (context) => widget
+                                            .unspentCoinsListViewModel.items.isNotEmpty &&
+                                        widget.canEdit
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(12.0),
+                                        child: Row(
+                                          spacing: 20,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                widget.unspentCoinsListViewModel
+                                                    .toggleSelectAll(true);
+                                              },
+                                              child: Text(S.of(context).select_all,
+                                                  style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.primary,
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w400)),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                widget.unspentCoinsListViewModel
+                                                    .toggleSelectAll(false);
+                                              },
+                                              child: Text(S.of(context).unselect_all,
+                                                  style: TextStyle(
+                                                      color: Theme.of(context).colorScheme.primary,
+                                                      fontSize: 14,
+                                                      fontWeight: FontWeight.w400)),
+                                            )
+                                          ],
+                                        ),
                                       )
-                                    ],
-                                  ),
-                                )
-                              else
-                                SizedBox(
-                                  height: 24,
-                                ),
-                              if (widget.unspentCoinsListViewModel.nonFrozenItems.isEmpty &&
-                                  widget.unspentCoinsListViewModel.frozenItems.isEmpty) ...[
-                                SizedBox(height: 12),
-                                Center(
-                                    child: Text(
-                                  S.of(context).no_unspent_coins,
-                                  textAlign: TextAlign.center,
-                                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                      ),
-                                )),
-                              ],
+                                    : SizedBox(height: 24),
+                              ),
+                              Observer(
+                                builder: (context) => (widget
+                                            .unspentCoinsListViewModel.nonFrozenItems.isEmpty &&
+                                        widget.unspentCoinsListViewModel.frozenItems.isEmpty)
+                                    ? Column(
+                                        children: [
+                                          SizedBox(height: 12),
+                                          Center(
+                                              child: Text(
+                                            S.of(context).no_unspent_coins,
+                                            textAlign: TextAlign.center,
+                                            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
+                                          )),
+                                        ],
+                                      )
+                                    : SizedBox.shrink(),
+                              ),
                               Observer(
                                 builder: (_) => widget
                                         .unspentCoinsListViewModel.nonFrozenItems.isEmpty
