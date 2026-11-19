@@ -81,13 +81,15 @@ class _FakeDescriptionBox implements Box<TransactionDescription> {
 }
 
 class _FakeTransactionInfo extends TransactionInfo {
-  _FakeTransactionInfo(String hash) {
+  _FakeTransactionInfo(String hash, {bool isReplaced = false, String? evmSignatureName}) {
     id = hash;
     txHash = hash;
     amount = Money.fromInt(1, CryptoCurrency.nano);
-    direction = TransactionDirection.incoming;
+    direction = TransactionDirection.outgoing;
     isPending = false;
     date = DateTime.utc(2026, 11, 19);
+    this.isReplaced = isReplaced;
+    this.evmSignatureName = evmSignatureName;
   }
 }
 
@@ -124,14 +126,18 @@ class _DashboardViewModelProbe extends DashboardViewModelBase {
 }
 
 void main() {
-  test("historyNote returns the wallet's note only while Show Notes on History is on", () async {
+  late _MockWallet wallet;
+  late _MockSettingsStore settingsStore;
+  late _DashboardViewModelProbe viewModel;
+
+  setUp(() async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
-    final wallet = _MockWallet();
+    wallet = _MockWallet();
+    settingsStore = _MockSettingsStore();
     final walletInfo = _MockWalletInfo();
     final walletAddresses = _MockWalletAddresses();
     final transactionHistory = _MockTransactionHistory();
     final appStore = _MockAppStore();
-    final settingsStore = _MockSettingsStore();
     final tradesStore = _MockTradesStore();
     final tradeMonitor = _MockTradeMonitor();
 
@@ -149,10 +155,11 @@ void main() {
     when(() => transactionHistory.transactions)
         .thenReturn(ObservableMap<String, TransactionInfo>());
     when(() => settingsStore.mwebAlwaysScan).thenReturn(false);
+    when(() => settingsStore.showTransactionNotesInHistory).thenReturn(true);
     when(() => tradesStore.trades).thenReturn(const []);
     when(() => tradeMonitor.monitorActiveTrades(any())).thenReturn(null);
 
-    final viewModel = _DashboardViewModelProbe(
+    viewModel = _DashboardViewModelProbe(
       balanceViewModel: _MockBalanceViewModel(),
       accountListViewModelFactory: () => null,
       tradeMonitor: tradeMonitor,
@@ -174,12 +181,26 @@ void main() {
       sharedPreferences: await SharedPreferences.getInstance(),
       keyService: _MockKeyService(),
     );
+  });
 
-    when(() => settingsStore.showTransactionNotesInHistory).thenReturn(true);
+  test("historyNote returns the wallet's note only while Show Notes on History is on", () {
     expect(viewModel.historyNote(_FakeTransactionInfo("tx1")), "Rent");
     expect(viewModel.historyNote(_FakeTransactionInfo("tx2")), "");
 
     when(() => settingsStore.showTransactionNotesInHistory).thenReturn(false);
     expect(viewModel.historyNote(_FakeTransactionInfo("tx1")), "");
+  });
+
+  test("historyNote leaves a fee-bumped Bitcoin transaction marked (replaced)", () {
+    when(() => wallet.type).thenReturn(WalletType.bitcoin);
+
+    expect(viewModel.historyNote(_FakeTransactionInfo("tx1", isReplaced: true)), "");
+    expect(viewModel.historyNote(_FakeTransactionInfo("tx1")), "Rent");
+  });
+
+  test("historyNote leaves an Ethereum approval marked (approval)", () {
+    when(() => wallet.chainId).thenReturn(1);
+
+    expect(viewModel.historyNote(_FakeTransactionInfo("tx1", evmSignatureName: "approval")), "");
   });
 }

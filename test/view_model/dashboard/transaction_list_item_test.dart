@@ -28,12 +28,14 @@ class _FakeTransactionInfo extends TransactionInfo {
     required bool isPending,
     required String amount,
     required Map<String, dynamic> additionalInfo,
+    required bool isReplaced,
   }) {
     id = "tx1";
     txHash = "tx1";
     this.amount = Money.parse(amount, CryptoCurrency.xmr);
     this.direction = direction;
     this.isPending = isPending;
+    this.isReplaced = isReplaced;
     date = DateTime.utc(2026, 11, 19, 16, 15);
     confirmations = isPending ? 0 : 10;
     this.additionalInfo.addAll(additionalInfo);
@@ -58,6 +60,7 @@ void main() {
     bool isPending = false,
     String amount = "0.124",
     Map<String, dynamic> additionalInfo = const {},
+    bool isReplaced = false,
   }) =>
       TransactionListItem(
         transaction: _FakeTransactionInfo(
@@ -65,6 +68,7 @@ void main() {
           isPending: isPending,
           amount: amount,
           additionalInfo: additionalInfo,
+          isReplaced: isReplaced,
         ),
         balanceViewModel: balanceViewModel,
         appStore: _MockAppStore(),
@@ -89,6 +93,13 @@ void main() {
       final item = itemFor(TransactionDirection.incoming, amount: "0");
 
       expect(item.formattedCryptoAmount, "0 XMR");
+      expect(item.hasSignedAmount, isFalse);
+    });
+
+    test("leaves the amount of a fee-bumped (replaced) transaction unsigned", () {
+      final item = itemFor(TransactionDirection.outgoing, isReplaced: true);
+
+      expect(item.formattedCryptoAmount, "0.124 XMR");
       expect(item.hasSignedAmount, isFalse);
     });
 

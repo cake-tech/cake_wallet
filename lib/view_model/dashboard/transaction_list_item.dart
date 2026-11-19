@@ -44,7 +44,9 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.tron;
 
   bool get hasSignedAmount =>
-      displayMode != BalanceDisplayMode.hiddenBalance && !transaction.amount.isZero;
+      displayMode != BalanceDisplayMode.hiddenBalance &&
+      transaction.isReplaced != true &&
+      !transaction.amount.isZero;
 
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';

@@ -1744,9 +1744,14 @@ abstract class DashboardViewModelBase with Store {
     return '';
   }
 
-  String historyNote(TransactionInfo transaction) => settingsStore.showTransactionNotesInHistory
-      ? transactionNotesStore.noteOf(transaction.txHash, primaryAddress)
-      : "";
+  String historyNote(TransactionInfo transaction) {
+    if (!settingsStore.showTransactionNotesInHistory ||
+        getTransactionType(transaction).isNotEmpty) {
+      return "";
+    }
+
+    return transactionNotesStore.noteOf(transaction.txHash, primaryAddress);
+  }
 
   Future<void> refreshDashboard() async {
     reconnect();
