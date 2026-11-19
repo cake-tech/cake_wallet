@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_bitcoin/electrum_line_reader.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
@@ -37,8 +38,7 @@ class ElectrumClient {
   ElectrumClient()
       : _id = 0,
         _tasks = {},
-        _errors = {},
-        unterminatedString = '';
+        _errors = {};
 
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 5);
@@ -51,7 +51,6 @@ class ElectrumClient {
   Map<String, SocketTask> get tasks => _tasks;
   final Map<String, String> _errors;
   Timer? _aliveTimer;
-  String unterminatedString;
 
   // Bumped by every connect() and close(). An attempt that is no longer the latest when its
   // socket arrives (node switch, reconnect, wallet closed) must not install it or report status.
@@ -109,6 +108,8 @@ class ElectrumClient {
       return;
     }
 
+    // Local to this connection attempt
+    final electrumLineReader = ElectrumLineReader();
     socket = newSocket;
 
     // use ping to determine actual connection status since we could've just not timed out yet:
@@ -120,12 +121,7 @@ class ElectrumClient {
           return;
         }
         try {
-          final msg = utf8.decode(event.toList());
-          final messagesList = msg.split("\n");
-          for (var message in messagesList) {
-            if (message.isEmpty) {
-              continue;
-            }
+          for (final message in electrumLineReader.feed(event)) {
             _parseResponse(message);
           }
         } catch (e) {
@@ -139,7 +135,6 @@ class ElectrumClient {
         }
         final errorMsg = error.toString();
         printV(errorMsg);
-        unterminatedString = '';
         socket?.destroy();
         socket = null;
         _setConnectionStatus(ConnectionStatus.disconnected);
@@ -149,7 +144,6 @@ class ElectrumClient {
         if (!identical(socket, newSocket)) {
           return;
         }
-        unterminatedString = '';
         try {
           _setConnectionStatus(ConnectionStatus.disconnected);
           socket?.destroy();
@@ -164,41 +158,14 @@ class ElectrumClient {
     keepAlive();
   }
 
+  // Each connection's `ElectrumLineReader` only ever hands over bytes up to a
+  // real `\n` byte in that socket's own stream, so `message` here is always a
+  // complete line as the server sent it. Per the Electrum protocol, that line
+  // is exactly one JSON value.
   void _parseResponse(String message) {
     try {
       final response = json.decode(message);
       _handleResponse(response);
-    } on FormatException catch (e) {
-      final msg = e.message.toLowerCase();
-
-      if (e.source is String) {
-        unterminatedString += e.source as String;
-      }
-
-      if (msg.contains("not a subtype of type")) {
-        unterminatedString += e.source as String;
-        return;
-      }
-
-      if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString);
-        _handleResponse(response);
-        unterminatedString = '';
-      }
-    } on TypeError catch (e) {
-      if (!e.toString().contains('Map<String, Object>') &&
-          !e.toString().contains('Map<String, dynamic>')) {
-        return;
-      }
-
-      unterminatedString += message;
-
-      if (isJSONStringCorrect(unterminatedString)) {
-        final response = json.decode(unterminatedString);
-        _handleResponse(response);
-        // unterminatedString = null;
-        unterminatedString = '';
-      }
     } catch (e) {
       printV("parse $e");
     }
@@ -746,17 +713,15 @@ class ElectrumClient {
   }
 
   void _resetInternalState() {
-    // Only clears errors and unterminated string, leaves tasks or reset ID
-    // This preserves active subscriptions while clearing error state
+    // Only clears errors, leaves tasks or reset ID - this preserves active
+    // subscriptions while clearing error state.
     _errors.clear();
-    unterminatedString = '';
   }
 
   void _resetInternalStateCompletely() {
     _id = 0;
     _tasks.clear();
     _errors.clear();
-    unterminatedString = '';
   }
 
   void _registryTask(int id, Completer<dynamic> completer) =>
@@ -891,16 +856,6 @@ class ElectrumClient {
   String getErrorMessage(int id) => _errors[id.toString()] ?? '';
 
   bool get isInternalStateConsistent => _errors.isEmpty;
-}
-
-// FIXME: move me
-bool isJSONStringCorrect(String source) {
-  try {
-    json.decode(source);
-    return true;
-  } catch (_) {
-    return false;
-  }
 }
 
 class RequestFailedTimeoutException implements Exception {

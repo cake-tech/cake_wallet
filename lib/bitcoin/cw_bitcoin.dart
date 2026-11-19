@@ -190,6 +190,24 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  @computed
+  List<ElectrumSubAddress> getAddressRecords(Object wallet, Set<String> addresses) {
+    final electrumWallet = wallet as ElectrumWallet;
+    return electrumWallet.walletAddresses.allAddresses
+        .where((addr) => addresses.contains(addr.address))
+        .map<ElectrumSubAddress>((addr) => ElectrumSubAddress(
+            id: addr.index,
+            name: addr.name,
+            address: addr.address,
+            txCount: addr.txCount,
+            balance: addr.balance,
+            isChange: addr.isHidden,
+            isLegacyDerivation: addr.isLegacyDerivation,
+            derivationPath: addr.derivationPath))
+        .toList();
+  }
+
+  @override
   Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
     try {
@@ -495,6 +513,36 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
+  void prioritizeTransactionResolution(Object wallet, TransactionInfo tx) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    bitcoinWallet.prioritizeTransactionResolution(tx.id);
+  }
+
+  @override
+  ({int resolvedInputs, int totalInputs, bool hasFailed})? transactionResolutionProgress(
+    Object wallet,
+    TransactionInfo tx,
+  ) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final progress = bitcoinWallet.transactionResolutionProgress(tx.id);
+    if (progress == null) {
+      return null;
+    }
+
+    return (
+      resolvedInputs: progress.resolvedInputs,
+      totalInputs: progress.totalInputs,
+      hasFailed: progress.hasFailed,
+    );
+  }
+
+  @override
+  Future<TransactionInfo?> refreshTransactionIfStale(Object wallet, TransactionInfo tx) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.refreshTransactionIfStale(tx.id);
+  }
+
+  @override
   int getTransactionVSize(Object wallet, String transactionHex) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.transactionVSize(transactionHex);
@@ -604,8 +652,7 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  bool isPayjoinAvailable(Object wallet) =>
-      (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
+  bool isPayjoinAvailable(Object wallet) => (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
 
   @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {

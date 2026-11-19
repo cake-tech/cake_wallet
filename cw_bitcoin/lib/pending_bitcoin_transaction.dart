@@ -87,9 +87,8 @@ class PendingBitcoinTransaction with PendingTransaction {
 
   List<String?> get stealthAddresses => derivedOutputs
       .where((out) => !out.isChange)
-      .map((out) => out.isSilentPayment
-          ? out.address.toAddress(network ?? BitcoinNetwork.mainnet)
-          : null)
+      .map((out) =>
+          out.isSilentPayment ? out.address.toAddress(network ?? BitcoinNetwork.mainnet) : null)
       .toList();
 
   PendingChange? get change {
@@ -188,6 +187,8 @@ class PendingBitcoinTransaction with PendingTransaction {
         inputAddresses: _tx.inputs.map((input) => input.txId).toList(),
         outputAddresses: outputAddresses,
         fee: fee,
+        inputsOwnershipFullyResolved: false,
+        additionalInfo: {"isWalletDisplayAmountExact": true},
       );
 
   @override
