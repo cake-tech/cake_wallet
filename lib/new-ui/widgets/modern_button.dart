@@ -101,6 +101,9 @@ class ModernButton extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     minFontSize: 9,
+                    // Shrink a long single word instead of breaking it
+                    // mid-glyph (Tamil "பரிமாற்றம்").
+                    wrapWords: false,
                     style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w400,
