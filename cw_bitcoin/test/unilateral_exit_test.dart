@@ -316,5 +316,23 @@ void main() {
       expect(progress.broadcastError, isNotNull);
       expect(progress.inMempoolTxids, isEmpty);
     });
+
+    test("a stalled exit returns to active once the server knows its step", () async {
+      // The lookup misses while the server is slow, so the rebroadcast is what fails.
+      final server = FakeElectrumClient(known: <String>{}, rejectBroadcasts: true);
+      final broadcaster = UnilateralExitBroadcaster(electrumClient: server);
+
+      final stalled = await broadcaster.broadcastAndRecord(
+        plan(recovery([tx("node", hasCpfp: true)])),
+      );
+      expect(stalled.status, UnilateralExitStatus.stalled);
+
+      server.known.add("node");
+
+      final recovered = await broadcaster.broadcastAndRecord(stalled);
+      expect(recovered.status, UnilateralExitStatus.active);
+      expect(recovered.inMempoolTxids, {"node"});
+      expect(server.broadcasts, isEmpty);
+    });
   });
 }

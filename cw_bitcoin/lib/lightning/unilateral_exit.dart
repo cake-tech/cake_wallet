@@ -362,6 +362,16 @@ class UnilateralExitBroadcaster {
     );
   }
 
+  /// Sends what is ready, and returns the plan with the standing that result gives.
+  Future<UnilateralExitPlan> broadcastAndRecord(UnilateralExitPlan plan) async {
+    final progress = await broadcastReady(plan);
+
+    return plan.copyWith(
+      status: progress.isStalled ? UnilateralExitStatus.stalled : UnilateralExitStatus.active,
+      inMempoolTxids: progress.inMempoolTxids,
+    );
+  }
+
   Future<bool> _isKnown(String txid) async =>
       (await electrumClient.getTransactionVerbose(hash: txid)).isNotEmpty;
 

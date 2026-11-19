@@ -458,6 +458,28 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return transactions;
   }
 
+  @override
+  Future<void> updateAllUnspents() async {
+    await super.updateAllUnspents();
+    await _freezeUnilateralExitCoins();
+  }
+
+  @override
+  Future<void> updateUnspentsForAddress(BitcoinAddressRecord address) async {
+    await super.updateUnspentsForAddress(address);
+    await _freezeUnilateralExitCoins();
+  }
+
+  // A refresh can add the exit's CPFP change after its coins were frozen, so freeze again.
+  Future<void> _freezeUnilateralExitCoins() async {
+    final exit = await _loadUnilateralExitPlan();
+    if (exit == null) {
+      return;
+    }
+
+    await _setUnilateralExitCoinsFrozen(exit, isFrozen: true);
+  }
+
   LightningWallet? lightningWallet;
 
   late final PayjoinManager payjoinManager;
@@ -707,9 +729,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   UnilateralExitPlanStore get _unilateralExitPlanStore =>
       UnilateralExitPlanStore(walletId: walletInfo.id);
 
-  /// An unused P2WPKH receive address of the current account, where a
-  /// unilateral exit sweeps the Spark funds.
-  String get unilateralExitDestination {
+  /// Where a unilateral exit sweeps the Spark funds: an unused P2WPKH address, made if none is left.
+  String unilateralExitDestination() {
     final destination = walletAddresses.allAddresses.firstWhereOrNull(
       (record) =>
           record.type == SegwitAddresType.p2wpkh &&
@@ -718,11 +739,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           !record.isUsed,
     );
 
-    if (destination == null) {
-      throw UnilateralExitBlockedException(UnilateralExitBlock.noDestination);
+    if (destination != null) {
+      return destination.address;
     }
 
-    return destination.address;
+    return walletAddresses.generateNewAddress(type: SegwitAddresType.p2wpkh).address;
   }
 
   /// Merges the Spark balance into the fewest, largest leaves before an exit is quoted, so
@@ -971,7 +992,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       total += input.utxo.value;
     }
 
-    final needed = neededFor(selected.length);
+    // An empty selection still reports what one coin would need, not a negative fee credit.
+    final needed = neededFor(selected.isEmpty ? 1 : selected.length);
 
     if (selected.isEmpty || total < needed) {
       throw UnilateralExitFundingShortfallException(neededSat: needed.toInt());
@@ -1150,16 +1172,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         case RecoveryVerdict_Valid():
           await _setUnilateralExitCoinsFrozen(checked, isFrozen: true);
 
-          final progress = await UnilateralExitBroadcaster(electrumClient: electrumClient)
-              .broadcastReady(checked);
+          final sent = await UnilateralExitBroadcaster(electrumClient: electrumClient)
+              .broadcastAndRecord(checked);
 
-          await _saveUnilateralExit(
-            checked.copyWith(
-              status:
-                  progress.isStalled ? UnilateralExitStatus.stalled : UnilateralExitStatus.active,
-              inMempoolTxids: progress.inMempoolTxids,
-            ),
-          );
+          await _saveUnilateralExit(sent);
       }
 
       await _recordUnilateralExitHistory();

@@ -898,7 +898,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   String getUnilateralExitDestination(Object wallet) =>
-      (wallet as BitcoinWallet).unilateralExitDestination;
+      (wallet as BitcoinWallet).unilateralExitDestination();
 
   @override
   Future<void> mergeLeavesForUnilateralExit(Object wallet) =>

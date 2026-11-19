@@ -150,32 +150,45 @@ class LightningWallet {
 
   /// Merges the balance into the fewest, largest leaves, so as much of it as possible is
   /// worth exiting unilaterally. Leaf sizes are a connect-time setting, so this reconnects
-  /// with multiplicity 0. The merge swaps leaves with Spark's operators, so it only works
-  /// while they are reachable.
+  /// with multiplicity 0 and then back. The merge swaps leaves with Spark's operators, so it
+  /// only works while they are reachable.
   Future<void> consolidateLeavesForExit() async {
-    if (_leafMultiplicity != 0) {
-      final previousMultiplicity = _leafMultiplicity;
-      _leafMultiplicity = 0;
+    final previousMultiplicity = _leafMultiplicity;
 
-      try {
-        await _reconnect();
-      } catch (_) {
-        // A failed reconnect leaves no SDK, so bring the wallet back at its previous leaf
-        // size before reporting the merge as failed. Later calls need a live SDK.
-        _leafMultiplicity = previousMultiplicity;
-        try {
-          await _reconnect();
-        } catch (_) {}
-
-        rethrow;
-      }
+    if (previousMultiplicity != 0) {
+      await _reconnectWithMultiplicity(0);
     }
 
-    final response = await sdk.optimizeLeaves(
-      request: const OptimizeLeavesRequest(mode: OptimizationMode.full),
-    );
+    try {
+      final response = await sdk.optimizeLeaves(
+        request: const OptimizeLeavesRequest(mode: OptimizationMode.full),
+      );
 
-    printV("Spark leaves merged for exit: ${response.outcome}");
+      printV("Spark leaves merged for exit: ${response.outcome}");
+    } finally {
+      if (previousMultiplicity != 0) {
+        // Puts the wallet back on its normal leaf size, whether or not the merge worked.
+        await _reconnectWithMultiplicity(previousMultiplicity);
+      }
+    }
+  }
+
+  Future<void> _reconnectWithMultiplicity(int multiplicity) async {
+    final previousMultiplicity = _leafMultiplicity;
+    _leafMultiplicity = multiplicity;
+
+    try {
+      await _reconnect();
+    } catch (_) {
+      // A failed reconnect leaves no SDK, so bring the wallet back at its previous leaf
+      // size before reporting the failure. Later calls need a live SDK.
+      _leafMultiplicity = previousMultiplicity;
+      try {
+        await _reconnect();
+      } catch (_) {}
+
+      rethrow;
+    }
   }
 
   Future<void> _reconnect() async {
