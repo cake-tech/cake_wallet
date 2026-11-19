@@ -23,14 +23,23 @@ abstract class AddressTypesSettingsViewModelBase with Store {
 
   final ObservableSet<ReceivePageOption> enabledOptionalAddressTypes;
 
+  /// Enables or disables an optional address type.
+  ///
+  /// Returns `false` when the type can't be disabled because it still has funds.
   @action
-  Future<void> setAddressTypeEnabled(ReceivePageOption option, bool enabled) async {
+  Future<bool> setAddressTypeEnabled(ReceivePageOption option, bool enabled) async {
     if (enabled) {
       enabledOptionalAddressTypes.add(option);
-    } else {
-      enabledOptionalAddressTypes.remove(option);
+      await bitcoin!.setAddressTypeEnabled(_wallet, option, true);
+      return true;
     }
 
-    await bitcoin!.setAddressTypeEnabled(_wallet, option, enabled);
+    final changed = await bitcoin!.setAddressTypeEnabled(_wallet, option, false);
+    if (!changed) {
+      return false;
+    }
+
+    enabledOptionalAddressTypes.remove(option);
+    return true;
   }
 }

@@ -1,7 +1,9 @@
 import "package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
+import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/settings/address_types_settings_view_model.dart";
 import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -39,8 +41,23 @@ class AddressTypesSettingsPage extends StatelessWidget {
                           iconPath: option.iconPath,
                           value: addressTypesSettingsViewModel.enabledOptionalAddressTypes
                               .contains(option),
-                          onChanged: (value) =>
-                              addressTypesSettingsViewModel.setAddressTypeEnabled(option, value),
+                          onChanged: (value) async {
+                            final changed = await addressTypesSettingsViewModel
+                                .setAddressTypeEnabled(option, value);
+
+                            if (!changed && !value && context.mounted) {
+                              await showPopUp<void>(
+                                context: context,
+                                builder: (dialogContext) => AlertWithOneAction(
+                                  alertTitle: S.of(dialogContext).warning,
+                                  alertContent:
+                                      S.of(dialogContext).address_type_has_balance_warning,
+                                  buttonText: S.of(dialogContext).ok,
+                                  buttonAction: () => Navigator.of(dialogContext).pop(),
+                                ),
+                              );
+                            }
+                          },
                         ),
                     ],
                   },

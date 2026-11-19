@@ -646,7 +646,7 @@ class CWBitcoin extends Bitcoin {
       .isAddressTypeEnabled((option as BitcoinReceivePageOption).toType());
 
   @override
-  Future<void> setAddressTypeEnabled(Object wallet, ReceivePageOption option, bool enabled) =>
+  Future<bool> setAddressTypeEnabled(Object wallet, ReceivePageOption option, bool enabled) =>
       (wallet as ElectrumWallet).setAddressTypeEnabled(
           (option as BitcoinReceivePageOption).toType(),
           willEnable: enabled);

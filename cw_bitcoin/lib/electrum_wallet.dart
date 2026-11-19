@@ -361,15 +361,31 @@ abstract class ElectrumWalletBase
         enabledOptionalAddressTypes: enabledOptionalAddressTypes,
       );
 
+  bool addressTypeHasBalance(BitcoinAddressType type) {
+    if (unspentCoins.any((coin) => coin.bitcoinAddressRecord.type == type && coin.value > 0)) {
+      return true;
+    }
+
+    return walletAddresses.allAddresses
+        .any((address) => address.type == type && address.balance > 0);
+  }
+
+  /// Enables or disables an optional address type.
+  ///
+  /// Returns `false` when disabling is refused because [type] still has funds.
   @action
-  Future<void> setAddressTypeEnabled(BitcoinAddressType type, {bool willEnable = false}) async {
+  Future<bool> setAddressTypeEnabled(BitcoinAddressType type, {bool willEnable = false}) async {
     if (!OPTIONAL_BITCOIN_ADDRESS_TYPES.contains(type)) {
       throw ArgumentError("$type can't be turned on or off");
     }
 
     final alreadyEnabled = enabledOptionalAddressTypes.contains(type);
     if (willEnable == alreadyEnabled) {
-      return;
+      return true;
+    }
+
+    if (!willEnable && addressTypeHasBalance(type)) {
+      return false;
     }
 
     if (willEnable) {
@@ -404,7 +420,7 @@ abstract class ElectrumWalletBase
 
     if (willEnable) {
       await subscribeForUpdates();
-      final histories = <ElectrumTransactionInfo>{};
+      final histories = <String, ElectrumTransactionInfo>{};
 
       if (shouldUseBatchFetching) {
         await fetchTransactionsForAddressTypeBatch(histories, type, accountIndex: 0);
@@ -417,6 +433,8 @@ abstract class ElectrumWalletBase
 
     await updateAllUnspents();
     await updateBalance();
+
+    return true;
   }
 
   Future<void> _unsubscribeDisabledAddresses() async {

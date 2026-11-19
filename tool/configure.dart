@@ -265,7 +265,7 @@ abstract class Bitcoin {
   bool getIsAlwaysScanningSP(Object wallet);
   List<ReceivePageOption> getOptionalAddressTypeOptions(Object wallet);
   bool isAddressTypeEnabled(Object wallet, ReceivePageOption option);
-  Future<void> setAddressTypeEnabled(Object wallet, ReceivePageOption option, bool enabled);
+  Future<bool> setAddressTypeEnabled(Object wallet, ReceivePageOption option, bool enabled);
   bool isTestnet(Object wallet);
 
   Future<PendingTransaction> replaceByFee(Object wallet, String transactionHash, String fee);
