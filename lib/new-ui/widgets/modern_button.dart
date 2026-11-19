@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
@@ -93,12 +94,28 @@ class ModernButton extends StatelessWidget {
             ),
             if (label != null && label!.isNotEmpty)
               ExcludeSemantics(
-                child: Text(
-                  label!,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.onSurface),
+                // The caption can be longer than the circle (Tamil
+                // "தொகையை அமைக்கவும்"); bound it to the button width so rows of
+                // buttons cannot overflow the screen.
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: size + 16),
+                  // Tamil "தொகையை அமைக்கவும்" needs more room than the
+                  // circle gives; shrink to fit rather than break mid-word.
+                  child: AutoSizeText(
+                    label!,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    // The "copied" confirmation is one long word in Tamil
+                    // ("நகலெடுக்கப்பட்டது") and cannot wrap, so allow a deep
+                    // shrink and never clip silently.
+                    minFontSize: 6,
+                    overflow: TextOverflow.ellipsis,
+                    wrapWords: false,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurface),
+                  ),
                 ),
               )
           ],

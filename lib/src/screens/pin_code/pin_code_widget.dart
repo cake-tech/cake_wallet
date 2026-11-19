@@ -58,7 +58,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     _focusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
-      _afterLayout(_);
+      _afterLayout();
     });
   }
 
@@ -317,7 +317,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
         S.current.digit_pin;
   }
 
-  void _afterLayout(dynamic _) {
+  void _afterLayout() {
     setDefaultPinLength();
     calculateAspectRatio();
   }

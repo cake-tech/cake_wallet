@@ -160,13 +160,13 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         physics: NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.zero,
                         itemBuilder: (context, index) {
-                          final item = filteredTypes[index];
+                          final type = filteredTypes[index];
 
-                          return TestId.merge("new_wallet_type_${item.name}_button_key", child: GestureDetector(
-                            key: ValueKey('new_wallet_type_${item.name}_button_key'),
+                          return TestId.merge("new_wallet_type_${type.name}_button_key", child: GestureDetector(
+                            key: ValueKey('new_wallet_type_${type.name}_button_key'),
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
-                              onTypeSelected(item);
+                              onTypeSelected(type);
                             },
                             child: SizedBox(
                               height: 50,
@@ -180,16 +180,16 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                         CakeImageWidget(
                                           height: 24,
                                           width: 24,
-                                          imageUrl: getCryptoCurrencyIconForWalletListItem(item),
+                                          imageUrl: getCryptoCurrencyIconForWalletListItem(type),
                                         ),
                                         const SizedBox(width: 12),
                                         Semantics(
                                           button: true,
-                                          child: Text(walletTypeToDisplayName(item)),
+                                          child: Text(walletTypeToDisplayName(type)),
                                         ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          walletTypeToDisplayTicker(item),
+                                          walletTypeToDisplayTicker(type),
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           ),
