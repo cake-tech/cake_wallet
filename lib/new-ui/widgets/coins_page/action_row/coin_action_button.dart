@@ -1,5 +1,7 @@
 import "dart:math";
 
+import "package:auto_size_text/auto_size_text.dart";
+
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -66,11 +68,20 @@ class CoinActionButton extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ExcludeSemantics(
-                child: Text(
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                  label,
+                // Long translations (Tamil "பரிமாற்றம்", "ஸ்கேன் செய்யவும்")
+                // were wider than the circle and pushed the row past the
+                // screen edge; keep the caption inside the button's width.
+                child: SizedBox(
+                  width: effectiveSize + 12,
+                  child: AutoSizeText(
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    minFontSize: 9,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                    label,
+                  ),
                 ),
               ),
             ),
