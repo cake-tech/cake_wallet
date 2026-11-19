@@ -21,6 +21,7 @@ class Picker<Item> extends StatefulWidget {
     this.displayItemColor,
     this.displayItemFontSize,
     this.images = const <Widget>[],
+    this.imageSize,
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.isGridView = false,
@@ -49,6 +50,7 @@ class Picker<Item> extends StatefulWidget {
   final int selectedAtIndex;
   final List<Item> items;
   final List<Widget> images;
+  final Size? imageSize;
   final String? title;
   final String? description;
   final Function(Item) onItemSelected;
@@ -321,7 +323,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
       mainAxisAlignment: widget.mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        image ?? Offstage(),
+        if (image != null && widget.imageSize != null)
+          SizedBox(
+            width: widget.imageSize!.width,
+            height: widget.imageSize!.height,
+            child: FittedBox(fit: BoxFit.contain, child: image),
+          )
+        else
+          image ?? Offstage(),
         Expanded(
           child: Padding(
             padding: EdgeInsets.only(left: image != null ? 12 : 0),
@@ -410,7 +419,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
       mainAxisAlignment: widget.mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        image ?? Offstage(),
+        if (image != null && widget.imageSize != null)
+          SizedBox(
+            width: widget.imageSize!.width,
+            height: widget.imageSize!.height,
+            child: FittedBox(fit: BoxFit.contain, child: image),
+          )
+        else
+          image ?? Offstage(),
         Expanded(
           child: Padding(
             padding: EdgeInsets.only(left: image != null ? 12 : 0),
