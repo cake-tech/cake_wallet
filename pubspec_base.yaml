@@ -21,7 +21,7 @@ dependencies:
   modal_bottom_sheet:
     git:
       url: https://github.com/cake-tech/modal_bottom_sheet
-      ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
+      ref: 04f3f5c920b394913467687630de0dc598b4c845
       path: modal_bottom_sheet
   mobx: ^2.6.0
   flutter_mobx: 2.3.0

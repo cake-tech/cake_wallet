@@ -9,6 +9,7 @@ import "package:cake_wallet/new-ui/page_open_listener.dart";
 import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
+import "package:cake_wallet/new-ui/widgets/more_actions_button.dart";
 import "package:cake_wallet/new-ui/widgets/wallet_removal_popup.dart";
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
@@ -39,7 +40,7 @@ class NewDashboard extends StatefulWidget {
   final List<Widget> dashboardPageWidgets = [
     getIt.get<NewHomePage>(),
     getIt.get<WalletListPage>(),
-    getIt.get<ContactListPage>(),
+    // getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
     getIt.get<ChartsPage>()
   ];
@@ -123,17 +124,39 @@ class _NewDashboardState extends State<NewDashboard> {
                     ),
                   ),
                 ),
-                NewMainNavBar(
-                  dashboardViewModel: widget.dashboardViewModel,
-                  selectedIndex: _selectedPage,
-                  onItemTap: (index) {
-                    setState(() {
-                      _selectedPage = index;
-                    });
-                    if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
-                      page.onPageOpen();
-                    }
-                  },
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SafeArea(
+                    top: false,
+                    bottom: !(Platform.isIOS),
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: NewMainNavBar.barBottomPadding),
+                      child: Row(
+                        spacing:12,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: NewMainNavBar(
+                              dashboardViewModel: widget.dashboardViewModel,
+                              selectedIndex: _selectedPage,
+                              onItemTap: (index) {
+                                setState(() {
+                                  _selectedPage = index;
+                                });
+                                if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
+                                  page.onPageOpen();
+                                }
+                              },
+                            ),
+                          ),
+                          MoreActionsButton(
+                            key: const ValueKey("dashboard_page_more_actions_button_key"),
+                            dashboardViewModel: widget.dashboardViewModel,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 )
               ],
             ),

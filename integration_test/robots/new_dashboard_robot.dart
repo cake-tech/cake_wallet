@@ -20,6 +20,7 @@ class NewDashboardRobot extends BaseRobot {
   }
 
   Future<void> openContactsTab() async {
-    await tapByKey("dashboard_page_contacts_action_button_key");
+    await tapByKey("dashboard_page_more_actions_button_key");
+    await tapByKey("more_actions_contacts_button_key");
   }
 }

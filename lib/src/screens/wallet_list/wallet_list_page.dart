@@ -57,37 +57,37 @@ class WalletListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) => Observer(
-    builder: (_) {
-      if (walletListViewModel.singleWalletsList.isEmpty &&
-          walletListViewModel.multiWalletGroups.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
-      }
-      return WalletListBody(
-        walletListViewModel: walletListViewModel,
-        authService: authService,
-        onWalletLoaded: onWalletLoaded ?? (context) => Navigator.of(context).pop(),
+        builder: (_) {
+          if (walletListViewModel.singleWalletsList.isEmpty &&
+              walletListViewModel.multiWalletGroups.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return WalletListBody(
+            walletListViewModel: walletListViewModel,
+            authService: authService,
+            onWalletLoaded: onWalletLoaded ?? (context) => Navigator.of(context).pop(),
+          );
+        },
       );
-    },
-  );
 
   @override
   Widget trailing(BuildContext context) => _FilterButton(
-    onTap: () => showPopUp<void>(
-      context: context,
-      builder: (context) => FilterListWidget(
-        initalType: walletListViewModel.orderType,
-        initalAscending: walletListViewModel.ascending,
-        onClose: (ascending, type) async {
-          walletListViewModel.setAscending(ascending);
-          await walletListViewModel.setOrderType(type);
-        },
-      ),
-    ),
-  );
+        onTap: () => showPopUp<void>(
+          context: context,
+          builder: (context) => FilterListWidget(
+            initalType: walletListViewModel.orderType,
+            initalAscending: walletListViewModel.ascending,
+            onClose: (ascending, type) async {
+              walletListViewModel.setAscending(ascending);
+              await walletListViewModel.setOrderType(type);
+            },
+          ),
+        ),
+      );
 }
 
 class WalletListBody extends StatefulWidget {
-  WalletListBody({
+  const WalletListBody({
     required this.walletListViewModel,
     required this.authService,
     required this.onWalletLoaded,
@@ -109,62 +109,62 @@ class WalletListBodyState extends State<WalletListBody> {
 
   @override
   Widget build(BuildContext context) => GradientBackground(
-    scaffold: Container(
-      height: double.infinity,
-      padding: const EdgeInsets.only(top: 16),
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        fit: StackFit.expand,
-        children: [
-          SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Observer(
-              builder: (_) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_viewModel.multiWalletGroups.isNotEmpty) ...[
-                    _SectionTitle(S.current.shared_seed_wallets),
-                    _buildGroupList(),
-                    const SizedBox(height: 24),
-                  ],
-                  if (_viewModel.singleWalletsList.isNotEmpty) ...[
-                    _SectionTitle(S.current.single_seed_wallets_group),
-                    _buildSingleWalletList(),
-                  ],
-                  const SizedBox(height: 250),
-                ],
+        scaffold: Container(
+          height: double.infinity,
+          padding: const EdgeInsets.only(top: 16),
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            fit: StackFit.expand,
+            children: [
+              SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Observer(
+                  builder: (_) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_viewModel.multiWalletGroups.isNotEmpty) ...[
+                        _SectionTitle(S.current.shared_seed_wallets),
+                        _buildGroupList(),
+                        const SizedBox(height: 24),
+                      ],
+                      if (_viewModel.singleWalletsList.isNotEmpty) ...[
+                        _SectionTitle(S.current.single_seed_wallets_group),
+                        _buildSingleWalletList(),
+                      ],
+                      const SizedBox(height: 250),
+                    ],
+                  ),
+                ),
               ),
-            ),
+              _BottomActions(onRestore: _openRestore, onCreate: _openCreate),
+            ],
           ),
-          _BottomActions(onRestore: _openRestore, onCreate: _openCreate),
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 
   Widget _buildGroupList() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Observer(
-      builder: (_) => FilteredList(
-        shrinkWrap: true,
-        list: _viewModel.multiWalletGroups,
-        updateFunction: _viewModel.reorderAccordingToWalletList,
-        itemBuilder: _buildGroupTile,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Observer(
+          builder: (_) => FilteredList(
+            shrinkWrap: true,
+            list: _viewModel.multiWalletGroups,
+            updateFunction: _viewModel.reorderAccordingToWalletList,
+            itemBuilder: _buildGroupTile,
+          ),
+        ),
+      );
 
   Widget _buildSingleWalletList() => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Observer(
-      builder: (_) => FilteredList(
-        shrinkWrap: true,
-        list: _viewModel.singleWalletsList,
-        updateFunction: _viewModel.reorderAccordingToWalletList,
-        itemBuilder: _buildSingleWalletTile,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Observer(
+          builder: (_) => FilteredList(
+            shrinkWrap: true,
+            list: _viewModel.singleWalletsList,
+            updateFunction: _viewModel.reorderAccordingToWalletList,
+            itemBuilder: _buildSingleWalletTile,
+          ),
+        ),
+      );
 
   Widget _buildGroupTile(BuildContext context, int index) {
     final group = _viewModel.multiWalletGroups[index];
@@ -194,10 +194,10 @@ class WalletListBodyState extends State<WalletListBody> {
       childTrailingWidget: (item) => item.isCurrent
           ? const SizedBox.shrink()
           : EditWalletButtonWidget(
-        key: ValueKey("wallet_list_edit_${item.name}_button_key"),
-        width: 64,
-        onTap: () => _openWalletEdit(item),
-      ),
+              key: ValueKey("wallet_list_edit_${item.name}_button_key"),
+              width: 64,
+              onTap: () => _openWalletEdit(item),
+            ),
     );
   }
 
@@ -209,6 +209,7 @@ class WalletListBodyState extends State<WalletListBody> {
     return GroupedWalletExpansionTile(
       tileKey: ValueKey('single_wallets_expansion_tile_widget_$index'),
       title: title,
+      titleSemanticsLabel: '$title, ${walletTypeToDisplayName(wallet.type)}',
       borderRadius: _tileRadius,
       margin: const EdgeInsets.only(left: 20, right: 20, bottom: 12),
       isSelected: false,
@@ -218,10 +219,10 @@ class WalletListBodyState extends State<WalletListBody> {
       trailingWidget: group == null
           ? null
           : EditWalletButtonWidget(
-        key: ValueKey("wallet_list_edit_${wallet.name}_button_key"),
-        width: 64,
-        onTap: () => _openGroupEdit(group, groupName: title, wallet: wallet),
-      ),
+              key: ValueKey("wallet_list_edit_${wallet.name}_button_key"),
+              width: 64,
+              onTap: () => _openGroupEdit(group, groupName: title, wallet: wallet),
+            ),
     );
   }
 
@@ -237,7 +238,7 @@ class WalletListBodyState extends State<WalletListBody> {
         arguments: WalletEditPageArguments(
           walletListViewModel: _viewModel,
           editingWallet:
-          wallet ?? _viewModel.convertWalletInfoToWalletListItem(group.wallets.first),
+              wallet ?? _viewModel.convertWalletInfoToWalletListItem(group.wallets.first),
           isWalletGroup: true,
           isSingleWalletGroup: wallet != null,
           groupName: groupName,
@@ -246,12 +247,12 @@ class WalletListBodyState extends State<WalletListBody> {
       );
 
   void _openWalletEdit(WalletListItem wallet) => Navigator.of(context).pushNamed(
-    Routes.walletEdit,
-    arguments: WalletEditPageArguments(
-      walletListViewModel: _viewModel,
-      editingWallet: wallet,
-    ),
-  );
+        Routes.walletEdit,
+        arguments: WalletEditPageArguments(
+          walletListViewModel: _viewModel,
+          editingWallet: wallet,
+        ),
+      );
 
   void _openRestore() => _pushWithCreation2FA(Routes.restoreOptions, arguments: false);
 
@@ -317,7 +318,7 @@ class WalletListBodyState extends State<WalletListBody> {
 
         try {
           final requireHardwareWalletConnection =
-          await _viewModel.requireHardwareWalletConnection(wallet);
+              await _viewModel.requireHardwareWalletConnection(wallet);
           if (requireHardwareWalletConnection) {
             final didConnect = await _connectLedger();
             if (!didConnect) return;
@@ -406,16 +407,16 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(left: 24, bottom: 16),
-    child: Text(
-      text,
-      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.only(left: 24, bottom: 16),
+        child: Text(
+          text,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+        ),
+      );
 }
 
 class _SingleWalletLeading extends StatelessWidget {
@@ -425,31 +426,31 @@ class _SingleWalletLeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: wallet.isCurrent ? 56 : 40,
-    child: Row(
-      children: [
-        wallet.isCurrent
-            ? Container(
-          height: 35,
-          width: 6,
-          margin: const EdgeInsets.only(right: 16),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(18),
-              bottomRight: Radius.circular(18),
+        width: wallet.isCurrent ? 56 : 40,
+        child: Row(
+          children: [
+            wallet.isCurrent
+                ? Container(
+                    height: 35,
+                    width: 6,
+                    margin: const EdgeInsets.only(right: 16),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(18),
+                        bottomRight: Radius.circular(18),
+                      ),
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  )
+                : const SizedBox(width: 6),
+            CakeImageWidget(
+              imageUrl: getCryptoCurrencyIconForWalletListItem(wallet.type),
+              width: 32,
+              height: 32,
             ),
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        )
-            : const SizedBox(width: 6),
-        CakeImageWidget(
-          imageUrl: getCryptoCurrencyIconForWalletListItem(wallet.type),
-          width: 32,
-          height: 32,
+          ],
         ),
-      ],
-    ),
-  );
+      );
 }
 
 class _BottomActions extends StatelessWidget {
@@ -532,23 +533,25 @@ class _FilterButton extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  @override
   Widget build(BuildContext context) => Semantics(
-    label: "Transaction Filter",
-    button: true,
-    child: GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 36,
-        width: 36,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Theme.of(context).colorScheme.surfaceContainer,
+        label: S.of(context).order_by,
+        button: true,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: 36,
+            width: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Theme.of(context).colorScheme.surfaceContainer,
+            ),
+            child: Image.asset(
+              "assets/images/filter_icon.png",
+              color: Theme.of(context).colorScheme.primary,
+              excludeFromSemantics: true,
+            ),
+          ),
         ),
-        child: Image.asset(
-          "assets/images/filter_icon.png",
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-    ),
-  );
+      );
 }
