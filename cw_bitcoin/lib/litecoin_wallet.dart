@@ -1412,12 +1412,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    final index = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-        : null;
-    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
-    final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
+  String signMessageWithKey(String message, Bip32Slip10Secp256k1 hd) {
+    final priv = ECPrivate.fromHex(hd.privateKey.privKey.toHex());
 
     final privateKey = ECDSAPrivateKey.fromBytes(
       priv.toBytes(),

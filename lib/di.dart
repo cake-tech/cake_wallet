@@ -11,6 +11,7 @@ import 'package:cake_wallet/core/anypay/anypay_service.dart';
 import 'package:cake_wallet/core/address_resolver/yat/yat_service.dart';
 import 'package:cake_wallet/entities/bitcoin_amount_display_mode.dart';
 import "package:cake_wallet/core/services/wallet_group_service.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/buy/dfx/dfx_buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_provider.dart';
@@ -458,8 +459,11 @@ Future<void> setup({
       getIt.get<WalletGroupService>(),
       getIt.get<WalletListViewModel>(),
       type: type,
+      walletNewVMBuilder: (args) => getIt.get<WalletNewVM>(param1: args),
     ),
   );
+
+  getIt.registerLazySingleton<WalletDisplayNames>(WalletDisplayNames.new);
 
   getIt.registerFactoryParam<WalletUnlockPage, WalletUnlockArguments, bool>((args, closable) {
     return WalletUnlockPage(getIt.get<WalletUnlockLoadableViewModel>(param1: args), args.callback,
@@ -832,6 +836,7 @@ Future<void> setup({
     return NewSendPage(
       sendViewModel: getIt.get<SendViewModel>(param1: params.unspentCoinType),
       authService: getIt.get<AuthService>(),
+      settingsStore: getIt.get<SettingsStore>(),
       params: params,
       contactListViewModel: getIt.get<ContactListViewModel>(),
       anyPayService: getIt.get<AnyPayService>(),
@@ -975,7 +980,7 @@ Future<void> setup({
   getIt.registerFactory(
       () => SecuritySettingsViewModel(getIt.get<SettingsStore>(), getIt.get<AuthService>()));
 
-  getIt.registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactory(() => WalletSeedViewModel(appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory<SeedSettingsViewModel>(
       () => SeedSettingsViewModel(getIt.get<AppStore>(), getIt.get<SeedSettingsStore>()));

@@ -58,9 +58,8 @@ class WalletEditPage extends BasePage {
                               cryptoTypes:
                                   state.group?.wallets.map((w) => w.type).toSet().toList() ??
                                       const [],
-                              onChanged: (icon) => context
-                                  .read<WalletEditBloc>()
-                                  .add(WalletEditIconChanged(icon)),
+                              onChanged: (icon) =>
+                                  context.read<WalletEditBloc>().add(WalletEditIconChanged(icon)),
                             ),
                           ),
                           BlocBuilder<WalletEditBloc, WalletEditState>(

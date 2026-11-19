@@ -340,7 +340,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   Future<void> close({bool shouldCleanup = false}) async {
     payjoinManager.cleanupSessions();
     await lightningWallet?.close();
-    super.close(shouldCleanup: shouldCleanup);
+    await super.close(shouldCleanup: shouldCleanup);
   }
 
   @override
@@ -696,26 +696,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         isViewOnly: false,
       ).commit();
     }
-  }
-
-  @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    if (walletInfo.isHardwareWallet) {
-      final addressEntry = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
-          : null;
-      final index = addressEntry?.index ?? 0;
-      final isChange = addressEntry?.isHidden == true ? 1 : 0;
-      final derivationInfo = await walletInfo.getDerivationInfo();
-      final accountPath = derivationInfo.derivationPath;
-      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
-
-      final signature = await hardwareWalletService!
-          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
-      return base64Encode(signature);
-    }
-
-    return super.signMessage(message, address: address);
   }
 
   @override

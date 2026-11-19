@@ -44,6 +44,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   final AppStore _appStore;
 
   AmountParsingProxy get amountParsingProxy => _appStore.amountParsingProxy;
+  String get currentWalletGroupName => _appStore.currentWalletGroupName;
 
   void Function()? onBridgeSuccess;
   final WalletGroupService walletManager;

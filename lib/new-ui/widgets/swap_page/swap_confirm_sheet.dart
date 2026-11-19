@@ -174,7 +174,7 @@ class SwapTransactionDetails extends StatelessWidget {
                           label: S.of(context).from,
                           trailingText: exchangeViewModel.isSendFromExternal
                               ? S.of(context).external_wallet
-                              : exchangeViewModel.wallet.name,
+                              : exchangeViewModel.currentWalletGroupName,
                           showArrow: false)
                     ],
                     S.of(context).receive: [

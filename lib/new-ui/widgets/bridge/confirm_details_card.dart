@@ -30,7 +30,7 @@ class ConfirmDetailsCard extends StatelessWidget {
             children: [
               ExpandableBridgeDetailRow(
                 label: S.of(context).from,
-                title: bridgeViewModel.wallet.name,
+                title: bridgeViewModel.currentWalletGroupName,
                 address: bridgeViewModel.sourceAddress,
                 showChevron: true,
               ),

@@ -7,6 +7,8 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
@@ -17,6 +19,7 @@ import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
@@ -107,7 +110,6 @@ abstract class DashboardViewModelBase with Store {
         filterItems = [],
         exchangeFilterItems = [],
         subname = '',
-        name = appStore.wallet!.name,
         type = appStore.wallet!.type,
         transactions = ObservableList<TransactionListItem>(),
         cardDesigns = ObservableList<CardDesign>(),
@@ -118,7 +120,8 @@ abstract class DashboardViewModelBase with Store {
     showSeedBackupReminder = wallet.walletInfo.showSeedBackupReminder;
     isMultiAccountsEnabled =
         wallet.hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
-    name = wallet.name;
+    _updateName();
+    _namesSub = getIt.get<WalletDisplayNames>().changes.listen((_) => _updateName());
     type = wallet.type;
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
@@ -325,10 +328,10 @@ abstract class DashboardViewModelBase with Store {
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
       SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.letsExchange,
-          value: () => tradeFilterStore.displayLetsExchange,
+          providerDescription: ExchangeProviderDescription.whyNot,
+          value: () => tradeFilterStore.displayWhyNot,
           onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.whyNot)),
       SwapProviderFilterItem(
           providerDescription: ExchangeProviderDescription.stealthEx,
           value: () => tradeFilterStore.displayStealthEx,
@@ -393,8 +396,16 @@ abstract class DashboardViewModelBase with Store {
   bool get isMigratingToIronwood =>
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
+  @observable
+  String name = "";
+
+  StreamSubscription<void>? _namesSub;
+
+  void _updateName() => runInAction(() => name = appStore.currentWalletGroupName);
+
   @computed
-  bool get requiresManualShield => wallet.type == WalletType.zcash && wallet.isHardwareWallet;
+  bool get requiresManualShield =>
+      wallet.type == WalletType.zcash && wallet.hardwareWalletType != null;
 
   @computed
   bool get isSyncHeavy {
@@ -619,9 +630,6 @@ abstract class DashboardViewModelBase with Store {
   WalletType type;
 
   @observable
-  String name;
-
-  @observable
   ObservableList<TransactionListItem> transactions;
 
   @observable
@@ -731,6 +739,16 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
+
+  @computed
+  bool get showCharts => appStore.settingsStore.shouldShowChartsInDashboard;
+
+  @computed
+  bool get showNftsTab => appStore.settingsStore.shouldShowNftsTab;
+
+  @action
+  void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode mode) =>
+      appStore.settingsStore.displayAmountsInSatoshi = mode;
 
   @computed
   List<TradeListItem> get trades => tradesStore.trades.where((trade) {
@@ -1415,15 +1433,16 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet) {
+    _updateName();
     if (wallet == null) {
       return;
     }
 
     this.wallet = wallet;
     type = wallet.type;
-    name = wallet.name;
 
     unawaited(walletGroupService.updateWalletGroups());
+    isMultiAccountsEnabled =
     isMultiAccountsEnabled =
         wallet.hasNativeAccounts || wallet.walletInfo.isMultiAccountsEnabled == true;
 

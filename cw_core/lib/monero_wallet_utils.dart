@@ -1,14 +1,10 @@
 import 'dart:io';
 import 'package:cw_core/pathForWallet.dart';
 import "package:cw_core/wallet_info.dart";
+import "package:path/path.dart" as p;
 
-String backupFileName(String originalPath) {
-  final pathParts = originalPath.split('/');
-  final newName = '#_${pathParts.last}';
-  pathParts.removeLast();
-  pathParts.add(newName);
-  return pathParts.join('/');
-}
+String backupFileName(String originalPath) =>
+    p.join(p.dirname(originalPath), "#_${p.basename(originalPath)}");
 
 Future<void> backupWalletFiles(WalletInfo walletInfo) async {
   final path = await pathForWalletOf(walletInfo);

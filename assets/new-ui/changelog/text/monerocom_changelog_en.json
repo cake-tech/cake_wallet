@@ -1,10 +1,14 @@
 [
   {
-    "title": "Faster Launch",
-    "description": "The app opens quicker and switches wallets faster, especially on older phones or with many wallets"
+    "title": "Scam Call Warning",
+    "description": "While you're on a call, a banner reminds you that Monero.com will never call you"
+  },
+  {
+    "title": "Smoother App",
+    "description": "Animations, typing and price charts feel smoother, and the app uses less battery"
   },
   {
     "title": "Bug fixes & improvements",
-    "description": "Stronger 2FA and backup protections, more reliable wallet deletion, steadier price charts over Tor and more"
+    "description": "An option to hide the Charts tab, fixed address search, more private Trocador swaps and more"
   }
 ]
