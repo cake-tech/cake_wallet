@@ -124,6 +124,7 @@ class _Transaction extends Fake implements PendingTransaction {
 class _Evm extends Fake implements EVM {
   final approval = Completer<PendingTransaction>();
   final burn = Completer<PendingTransaction>();
+  Future<void>? quoteDelay;
   String? approvalSpender;
   bool? approvalReceipt;
   (WalletBase, Money, String)? approved;
@@ -147,12 +148,15 @@ class _Evm extends Fake implements EVM {
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-  }) async =>
-      BridgeQuote(
-        fee: Money(BigInt.from(60000), token),
-        receiveAmount: Money(amount - BigInt.from(60000), token),
-        approvalSpender: approvalSpender,
-      );
+  }) async {
+    await quoteDelay;
+
+    return BridgeQuote(
+      fee: Money(BigInt.from(60000), token),
+      receiveAmount: Money(amount - BigInt.from(60000), token),
+      approvalSpender: approvalSpender,
+    );
+  }
 
   @override
   Future<bool> isApprovalRequired(
@@ -273,6 +277,21 @@ void main() {
     tester.widget<ConfirmSwiper>(find.byType(ConfirmSwiper)).onConfirmed();
     await tester.pump();
   }
+
+  testWidgets("keeps the newest quote when an older request answers last", (tester) async {
+    final olderAnswer = Completer<void>();
+    await openSheet(tester);
+
+    bridge.quoteDelay = olderAnswer.future;
+    unawaited(viewModel.loadQuote());
+    bridge.quoteDelay = null;
+    viewModel.setAmount("20");
+    await viewModel.loadQuote();
+    olderAnswer.complete();
+    await tester.pump();
+
+    expect(viewModel.quote!.receiveAmount.amount, BigInt.from(19940000));
+  });
 
   testWidgets("sends the burn and records the transfer", (tester) async {
     final burn = _Transaction();
@@ -443,5 +462,16 @@ void main() {
     expect(approval.commits, 0);
 
     await tester.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets("does not send an approval whose fee could not be estimated", (tester) async {
+    final approval = _Transaction(fee: 0);
+    await openSheet(tester, approvalSpender: _tokenMessenger);
+
+    await swipe(tester);
+    bridge.approval.complete(approval);
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(approval.commits, 0);
   });
 }

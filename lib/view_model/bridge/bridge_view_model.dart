@@ -11,6 +11,7 @@ import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dar
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import "package:cake_wallet/generated/i18n.dart";
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
@@ -513,6 +514,11 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
         if (attemptId != _executeAttemptId) return;
 
+        if (approval.fee.isZero) {
+          executeError = S.current.tx_zero_fee_exception;
+          return;
+        }
+
         await approval.commit();
         await _waitForApproval(sourceWallet, approval.evmTxHashFromRawHex!);
       }
@@ -581,7 +587,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final src = sourceChainId!;
     final dst = destinationChainId!;
     final amountBigInt = check.parsedAmount!;
-    // Captured before awaiting: closing the page clears the amount, and the wallet can be switched.
     final sourceWallet = wallet;
     final enteredAmount = amount;
     final recipient = recipientAddress.trim();
@@ -607,9 +612,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       if (attemptId != _executeAttemptId) return;
 
       if (pending.fee.isZero) {
-        throw const TransactionGenerationException(
-          "The network fee could not be estimated. Try again.",
-        );
+        executeError = S.current.tx_zero_fee_exception;
+        return;
       }
 
       final sourceTxHash = pending.evmTxHashFromRawHex ?? pending.id;
@@ -661,7 +665,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
     for (final transfer in activeTransfers) {
       if (transfer.status == 'submitted' || transfer.status == 'confirming') {
-        // The receipt can only be read on the chain the wallet is currently on.
         if (transfer.sourceChainId != sourceChainId) continue;
 
         _pollForConfirmation(transfer, wallet, isSource: true);
