@@ -2610,10 +2610,13 @@ abstract class ElectrumWalletBase
       // If still not enough, add UTXOs until the fee is covered, drawing them at
       // random instead of in the predictable wallet scan order (address, then age).
       if (remainingFee > BigInt.zero) {
-        final unusedUtxos = unspentCoinsForCurrentAccount
-            .where((utxo) => utxo.isSending && !utxo.isFrozen && utxo.confirmations! > 0)
-            .toList()
-          ..shuffle(Random.secure());
+        final originalOutpoints = bundle.originalTransaction.inputs
+            .map((input) => '${input.txId}:${input.txIndex}')
+            .toSet();
+        final unusedUtxos = rbfFeeBumpCandidates(
+          unspent: unspentCoinsForCurrentAccount,
+          originalOutpoints: originalOutpoints,
+        )..shuffle(Random.secure());
 
         for (final utxo in unusedUtxos) {
           final address = RegexUtils.addressTypeFromStr(utxo.address, network);
@@ -2683,7 +2686,7 @@ abstract class ElectrumWalletBase
 
       // Final check if the remaining fee couldn't be deducted
       if (remainingFee > BigInt.zero) {
-        throw RbfException("Not enough funds to cover the fee.");
+        throw RbfException("Not enough confirmed funds to cover the fee.");
       }
 
       // Identify all change outputs
@@ -5190,6 +5193,19 @@ class PublicKeyWithDerivationPath {
     return null;
   }
 }
+
+/// Coins a fee bump may add: confirmed, spendable, and not already spent by the replaced tx.
+List<BitcoinUnspent> rbfFeeBumpCandidates({
+  required Iterable<BitcoinUnspent> unspent,
+  required Set<String> originalOutpoints,
+}) =>
+    unspent
+        .where((utxo) =>
+            utxo.isSending &&
+            !utxo.isFrozen &&
+            (utxo.confirmations ?? 0) > 0 &&
+            !originalOutpoints.contains('${utxo.hash}:${utxo.vout}'))
+        .toList();
 
 bool _isSignedByOwnKey(ElectrumTransactionBundle bundle, List<UtxoWithAddress> utxos) {
   final tx = bundle.originalTransaction;
