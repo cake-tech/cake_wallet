@@ -1,15 +1,5 @@
-enum CakePayPaymentMethod { BTC, BTC_LN, XMR, LTC, LTC_MWEB, ZEC }
-
-extension CakePayPaymentMethodLabel on CakePayPaymentMethod {
-  String get label => switch (this) {
-        CakePayPaymentMethod.BTC => 'Bitcoin',
-        CakePayPaymentMethod.BTC_LN => 'Lightning',
-        CakePayPaymentMethod.XMR => 'Monero',
-        CakePayPaymentMethod.LTC => 'Litecoin',
-        CakePayPaymentMethod.LTC_MWEB => 'MWEB',
-        CakePayPaymentMethod.ZEC => 'Zcash',
-      };
-}
+import "package:cake_wallet/cake_pay/src/models/cake_pay_payment_method.dart";
+import "package:cake_wallet/cake_pay/src/models/cake_pay_stablecoin.dart";
 
 class CakePayOrder {
   final String orderId;
@@ -63,6 +53,7 @@ class CakePayOrder {
       CakePayPaymentMethod.LTC_MWEB => order.paymentData.ltc_mweb,
       CakePayPaymentMethod.ZEC => order.paymentData.zec,
       CakePayPaymentMethod.BTC_LN => order.paymentData.btc_ln,
+      CakePayPaymentMethod.USDC || CakePayPaymentMethod.USDT => null,
     };
 
     if (data == null) return null;
@@ -88,6 +79,7 @@ class CakePayOrder {
       CakePayPaymentMethod.LTC => 'LTC',
       CakePayPaymentMethod.LTC_MWEB => 'LTC',
       CakePayPaymentMethod.ZEC => 'ZEC',
+      CakePayPaymentMethod.USDC || CakePayPaymentMethod.USDT => method.name,
     };
   }
 }
@@ -131,6 +123,7 @@ class PaymentData {
   final CryptoPaymentData? ltc;
   final CryptoPaymentData? ltc_mweb;
   final CryptoPaymentData? zec;
+  final List<StablecoinPaymentOption> stablecoins;
   final DateTime invoiceTime;
   final DateTime expirationTime;
   final int? commission;
@@ -142,6 +135,7 @@ class PaymentData {
     required this.ltc,
     required this.ltc_mweb,
     required this.zec,
+    required this.stablecoins,
     required this.invoiceTime,
     required this.expirationTime,
     required this.commission,
@@ -164,6 +158,7 @@ class PaymentData {
       zec: map['ZEC_CHAIN'] != null
           ? CryptoPaymentData.fromMap(map['ZEC_CHAIN'] as Map<String, dynamic>)
           : null,
+      stablecoins: StablecoinPaymentOption.listFromMap(map),
       invoiceTime: DateTime.fromMillisecondsSinceEpoch(map['invoice_time'] as int),
       expirationTime: DateTime.fromMillisecondsSinceEpoch(map['expiration_time'] as int),
       commission: map['commission'] as int?,
