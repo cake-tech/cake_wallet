@@ -395,6 +395,29 @@ jobs:
             --dart-define=CI_BRANCH="$BRANCH_NAME" \
             --release --split-per-abi
 
+      - name: Packaging stress loop
+        if: ${{ always() }}
+        run: |
+          set +e
+          export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
+          export ANDROID_NDK="$ANDROID_NDK_HOME"
+          mkdir -p /tmp/gclogs/stress
+          pass=0; fail=0
+          for i in $(seq 1 15); do
+            rm -rf build/app/outputs/apk build/app/outputs/flutter-apk build/app/intermediates/apk build/app/intermediates/incremental/packageRelease
+            start=$(date +%s)
+            flutter build apk --dart-define=hasDevOptions=true \
+              --dart-define=CI_COMMIT="$(git rev-parse HEAD)" \
+              --dart-define=CI_BRANCH="$BRANCH_NAME" \
+              --release --split-per-abi > /tmp/gclogs/stress/iter-$i.log 2>&1
+            rc=$?
+            oom=$(grep -c "OutOfMemoryError: Java heap space" /tmp/gclogs/stress/iter-$i.log)
+            apks=$(ls build/app/outputs/flutter-apk/*.apk 2>/dev/null | wc -l)
+            if [ $rc -eq 0 ]; then pass=$((pass+1)); else fail=$((fail+1)); fi
+            echo "STRESS iter=$i rc=$rc oom_traces=$oom apks=$apks secs=$(( $(date +%s) - start ))"
+          done
+          echo "STRESS RESULT leg=${{ matrix.leg }} pass=$pass fail=$fail" | tee -a $GITHUB_STEP_SUMMARY
+
       - name: Pod memory after build
         if: ${{ always() }}
         run: |
