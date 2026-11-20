@@ -113,6 +113,13 @@ class _Wallet extends Fake implements EVMChainWallet {}
 void main() {
   setUpAll(() => CakeTor.instance = CakeTorDisabled());
 
+  final usdc = Erc20Token(
+    name: "USD Coin",
+    symbol: "USDC",
+    contractAddress: CctpConfig.usdcTokenAddressByChainId[8453]!,
+    decimal: 6,
+  );
+
   test("depositForBurnWithHook call data matches what TokenMessengerV2 accepts", () {
     // Produced by `cast calldata` and executed on a fork of Ethereum mainnet, where the
     // DepositForBurn event showed these exact values.
@@ -152,13 +159,6 @@ void main() {
       '"forwardFee":{"low":763612,"med":984192,"high":1204772}}]',
     );
 
-    final usdc = Erc20Token(
-      name: "USD Coin",
-      symbol: "USDC",
-      contractAddress: CctpConfig.usdcTokenAddressByChainId[8453]!,
-      decimal: 6,
-    );
-
     final quote = await circle.answer(
       () => CctpBridgeProvider().quoteTransfer(
         wallet: _Wallet(),
@@ -174,6 +174,26 @@ void main() {
     expect(quote.fee, Money(BigInt.from(1605 + 984192), usdc));
     expect(quote.receiveAmount, Money(BigInt.from(12345678 - 1605 - 984192), usdc));
     expect(circle.requested, ["https://iris-api.circle.com/v2/burn/USDC/fees/6/0?forward=true"]);
+  });
+
+  test("quote rejects a recipient that is not an address", () async {
+    final circle = _CircleApi(
+      '[{"finalityThreshold":1000,"minimumFee":1.3,'
+      '"forwardFee":{"low":763612,"med":984192,"high":1204772}}]',
+    );
+
+    final quote = circle.answer(
+      () => CctpBridgeProvider().quoteTransfer(
+        wallet: _Wallet(),
+        token: usdc,
+        sourceChainId: 8453,
+        destinationChainId: 1,
+        amount: BigInt.from(12345678),
+        recipientAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb9226G",
+      ),
+    );
+
+    await expectLater(quote, throwsFormatException);
   });
 
   group("getTransferStatus", () {

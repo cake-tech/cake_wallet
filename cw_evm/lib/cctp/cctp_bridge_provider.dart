@@ -21,9 +21,6 @@ class CctpBridgeProvider extends BridgeProvider {
 
   static const int _fastTransferFinalityThreshold = 1000;
 
-  static const Duration _approvalPollInterval = Duration(seconds: 2);
-  static const Duration _approvalTimeout = Duration(minutes: 3);
-
   @override
   Map<int, String> get tokenAddressByChainId => CctpConfig.usdcTokenAddressByChainId;
 
@@ -38,6 +35,8 @@ class CctpBridgeProvider extends BridgeProvider {
   }) async {
     final sourceDomain = _getDomain(sourceChainId);
     final destinationDomain = _getDomain(destinationChainId);
+
+    addressToBytes32(recipientAddress);
 
     final uri = Uri.parse(
       "$_irisBaseUrl/burn/USDC/fees/$sourceDomain/$destinationDomain?forward=true",
@@ -60,7 +59,11 @@ class CctpBridgeProvider extends BridgeProvider {
     final protocolFee = (amount * feeRate + BigInt.from(999999)) ~/ BigInt.from(1000000);
     final maxFee = protocolFee + BigInt.from(forwardFee);
 
-    return BridgeQuote(fee: Money(maxFee, token), receiveAmount: Money(amount - maxFee, token));
+    return BridgeQuote(
+      fee: Money(maxFee, token),
+      receiveAmount: Money(amount - maxFee, token),
+      approvalSpender: CctpConfig.tokenMessenger,
+    );
   }
 
   @override
@@ -77,14 +80,6 @@ class CctpBridgeProvider extends BridgeProvider {
   }) async {
     final destinationDomain = _getDomain(destinationChainId);
     final mintRecipient = addressToBytes32(recipientAddress);
-
-    await _ensureAllowance(
-      wallet: wallet,
-      token: token,
-      amount: amount,
-      priority: priority,
-      useBlinkProtection: useBlinkProtection,
-    );
 
     final dataHex = encodeDepositForBurnWithHook(
       amount: amount,
@@ -161,37 +156,5 @@ class CctpBridgeProvider extends BridgeProvider {
     }
 
     return domain;
-  }
-
-  // Waits for the approval to confirm: until then the burn's gas estimate reverts, and behind a
-  // private relay the burn would reuse the approval's nonce.
-  static Future<void> _ensureAllowance({
-    required EVMChainWallet wallet,
-    required Erc20Token token,
-    required BigInt amount,
-    required EVMChainTransactionPriority priority,
-    required bool useBlinkProtection,
-  }) async {
-    const spender = CctpConfig.tokenMessenger;
-    if (!await wallet.isApprovalRequired(token.contractAddress, spender, amount)) return;
-
-    final pendingApproval = await wallet.createApprovalTransaction(
-      Money((BigInt.one << 256) - BigInt.one, token),
-      spender,
-      priority,
-      useBlinkProtection: useBlinkProtection,
-    );
-    await pendingApproval.commit();
-
-    final deadline = DateTime.now().add(_approvalTimeout);
-    while (DateTime.now().isBefore(deadline)) {
-      await Future.delayed(_approvalPollInterval);
-
-      if (!await wallet.isApprovalRequired(token.contractAddress, spender, amount)) return;
-    }
-
-    throw const TransactionGenerationException(
-      "The USDC approval has not confirmed yet. Try again once it has.",
-    );
   }
 }

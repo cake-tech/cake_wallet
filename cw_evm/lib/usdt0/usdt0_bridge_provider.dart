@@ -5,7 +5,6 @@ import 'package:cw_core/erc20_token.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/pending_transaction.dart';
 import "package:cw_evm/bridge_provider.dart";
-import 'package:cw_evm/contract/erc20.dart';
 import 'package:cw_evm/contract/oft.dart';
 import "package:cw_evm/evm_chain_registry.dart";
 import 'package:cw_evm/evm_chain_transaction_priority.dart';
@@ -67,6 +66,7 @@ class USDT0BridgeProvider extends BridgeProvider {
         EvmChainRegistry().getChainConfig(sourceChainId)!.nativeCurrency,
       ),
       receiveAmount: Money(amount, token),
+      approvalSpender: USDT0Config.getOftAdapterAddress(sourceChainId),
     );
   }
 
@@ -95,33 +95,6 @@ class USDT0BridgeProvider extends BridgeProvider {
       throw BadChainIdException(
           'USDT0 not supported for chain $destinationChainId'
       );
-    }
-
-    if (sourceChainId == USDT0Config.ethereumChainId) {
-      final adapter = USDT0Config.getOftAdapterAddress(sourceChainId);
-      if (adapter != null) {
-        final needsApproval = await _isApprovalRequired(
-          wallet: wallet,
-          token: token,
-          spender: adapter,
-          amount: amount,
-        );
-
-        if (needsApproval) {
-          final maxUint = BigInt.parse(
-            'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff',
-            radix: 16,
-          );
-
-          final pendingApproval = await wallet.createApprovalTransaction(
-            Money(maxUint, token),
-            adapter,
-            priority,
-            useBlinkProtection: useBlinkProtection,
-          );
-          await pendingApproval.commit();
-        }
-      }
     }
 
     final client = wallet.getWeb3Client();
@@ -169,25 +142,5 @@ class USDT0BridgeProvider extends BridgeProvider {
       isFailed: status.isFailed,
       message: status.status?.message,
     );
-  }
-
-  static Future<bool> _isApprovalRequired({
-    required EVMChainWallet wallet,
-    required Erc20Token token,
-    required String spender,
-    required BigInt amount,
-  }) async {
-    final client = wallet.getWeb3Client();
-    if (client == null) return true;
-
-    final erc20 = ERC20(
-      address: web3.EthereumAddress.fromHex(token.contractAddress),
-      client: client,
-    );
-    final current = await erc20.allowance(
-      web3.EthereumAddress.fromHex(wallet.walletAddresses.primaryAddress),
-      web3.EthereumAddress.fromHex(spender),
-    );
-    return current < amount;
   }
 }

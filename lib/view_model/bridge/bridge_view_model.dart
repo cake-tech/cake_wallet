@@ -22,6 +22,7 @@ import "package:cw_core/bridge_quote.dart";
 import "package:cw_core/bridge_transfer_status.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -62,6 +63,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   static const _destinationPollInterval = Duration(seconds: 5);
   static const _destinationPollTimeout = Duration(minutes: 30);
   static const _quoteMaxAge = Duration(minutes: 1);
+  static final _unlimitedAllowance = (BigInt.one << 256) - BigInt.one;
 
   @observable
   ObservableList<BridgeReceivingWalletOption> bridgeReceivingWalletOptions =
@@ -93,6 +95,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @observable
   String? quoteError;
+
+  @observable
+  bool isApprovalRequired = false;
+
+  @observable
+  bool isApproving = false;
 
   @observable
   bool isExecuting = false;
@@ -445,6 +453,10 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         recipientAddress: recipientAddress.trim(),
       );
 
+      final spender = loadedQuote.approvalSpender;
+      final approvalRequired = spender != null &&
+          await evm!.isApprovalRequired(wallet, token.contractAddress, spender, amountBigInt);
+
       if (requestId != _quoteRequestId) return;
 
       if (loadedQuote.receiveAmount.amount <= BigInt.zero) {
@@ -454,12 +466,89 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       }
 
       quote = loadedQuote;
+      isApprovalRequired = approvalRequired;
       _quoteLoadedAt = DateTime.now();
     } catch (e) {
       if (requestId == _quoteRequestId) quoteError = e.toString();
     } finally {
       if (requestId == _quoteRequestId) isQuoteLoading = false;
     }
+  }
+
+  @action
+  Future<void> executeApproval() async {
+    if (isApproving) return;
+
+    final token = selectedToken.asErc20;
+    if (token == null) return;
+
+    final check = _parseAndValidateAmount(token);
+    if (check.error != null) {
+      executeError = check.error;
+      return;
+    }
+
+    final src = sourceChainId!;
+    final spender = quote!.approvalSpender!;
+    final sourceWallet = wallet;
+
+    final attemptId = ++_executeAttemptId;
+    bool isCancelled() =>
+        attemptId != _executeAttemptId || evm!.getSelectedChainId(sourceWallet) != src;
+
+    isApproving = true;
+    executeError = null;
+    try {
+      if (await evm!.isApprovalRequired(
+        sourceWallet,
+        token.contractAddress,
+        spender,
+        check.parsedAmount!,
+      )) {
+        if (isCancelled()) return;
+
+        final approval = await evm!.createTokenApproval(
+          sourceWallet,
+          Money(_unlimitedAllowance, token),
+          spender,
+          evm!.getDefaultTransactionPriority(),
+          useBlinkProtection:
+              canSupportBlinkProtection(src) ? settingsStore.useBlinkProtection : false,
+        );
+
+        if (isCancelled()) return;
+
+        await approval.commit();
+        await _waitForApproval(sourceWallet, approval.evmTxHashFromRawHex ?? approval.id);
+      }
+
+      await loadQuote();
+    } catch (e) {
+      executeError = e.toString();
+    } finally {
+      isApproving = false;
+    }
+  }
+
+  Future<void> _waitForApproval(WalletBase sourceWallet, String txHash) async {
+    final deadline = DateTime.now().add(_pollTimeout);
+
+    while (DateTime.now().isBefore(deadline)) {
+      await Future.delayed(_pollInterval);
+
+      final isSuccessful = await evm!.getTransactionReceipt(sourceWallet, txHash);
+      if (isSuccessful == true) return;
+
+      if (isSuccessful == false) {
+        throw const TransactionSendingException(
+          "The approval failed. Only the network fee was charged.",
+        );
+      }
+    }
+
+    throw const TransactionSendingException(
+      "The approval has not confirmed yet. Try again once it has.",
+    );
   }
 
   @action
@@ -519,6 +608,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       );
 
       if (attemptId != _executeAttemptId) return;
+
+      if (pending.fee.isZero) {
+        throw const TransactionGenerationException(
+          "The network fee could not be estimated. Try again.",
+        );
+      }
 
       final sourceTxHash = pending.evmTxHashFromRawHex ?? pending.id;
       await pending.commit();
