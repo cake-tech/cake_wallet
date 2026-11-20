@@ -256,6 +256,17 @@ class _NewSendPageState extends State<NewSendPage> {
       }),
     );
 
+    _disposers.add(
+      reaction(
+        (_) => widget.sendViewModel.lnurlRecipient(widget.sendViewModel.outputs.first),
+        (lnurl) {
+          widget.sendViewModel.outputs.first.memo = "";
+          _memoControllers.first.text = "";
+          widget.sendViewModel.loadLnurlCommentLimit(lnurl);
+        },
+      ),
+    );
+
     if (widget.initialRawInput != null || widget.initialPaymentRequest != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) {
@@ -352,6 +363,7 @@ class _NewSendPageState extends State<NewSendPage> {
   Widget build(BuildContext context) => Observer(
         builder: (_) {
           final output = widget.sendViewModel.outputs[_selectedOutput];
+          final invoiceMemo = widget.sendViewModel.lightningInvoiceMemo(output);
           final recipientChain = widget.sendViewModel.isEVMWallet
               ? evm!.getChainInfoByChainId(_currentEvmChainIdOrMainnet())
               : null;
@@ -591,14 +603,17 @@ class _NewSendPageState extends State<NewSendPage> {
                                           onChanged: (value) =>
                                               widget.sendViewModel.setAllowMwebCoins(value),
                                         ),
-                                      if (widget.sendViewModel.hasMemos)
+                                      if (widget.sendViewModel.hasMemoFor(output))
                                         Observer(
                                           builder: (_) => NewSendMemoInput(
                                             memoController: _memoControllers[_selectedOutput],
-                                            maxMemoLength: widget.sendViewModel.maxMemoLength,
+                                            maxMemoLength:
+                                                widget.sendViewModel.maxMemoLengthFor(output),
                                             memoLength: output.memo.length,
                                           ),
                                         ),
+                                      if (invoiceMemo.isNotEmpty)
+                                        NewSendInvoiceMemo(memo: invoiceMemo),
                                       if (widget.sendViewModel.hasCoinControl ||
                                           widget.sendViewModel.hasFees)
                                         AnimatedDropdown(
@@ -848,6 +863,12 @@ class _NewSendPageState extends State<NewSendPage> {
           );
           widget.sendViewModel.outputs[i].setCryptoAmount(amount);
         }
+      }
+    }
+
+    for (final output in widget.sendViewModel.outputs) {
+      if (!widget.sendViewModel.hasMemoFor(output)) {
+        output.memo = "";
       }
     }
 

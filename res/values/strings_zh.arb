@@ -638,6 +638,8 @@
   "lightning_deposit_desc": "当您存入闪电网络时，您会将此钱包中的链上比特币兑换到您的闪电网络账户。",
   "lightning_deposit_disclaimer": "在比特币交易完全确认之前，新的闪电网络余额将无法使用。",
   "lightning_external_disclaimer": "在您发送资金之前请勿关闭此页面，否则充值将无法继续。",
+  "lightning_memo_not_accepted": "接收方不接受备注",
+  "lightning_memo_too_long": "接收方接受最多 ${limit} 个字符的备注",
   "lightning_mode": "闪电模式",
   "lightning_username_desc": "通过选择自定义名称或使用下方随机生成的名称，使用闪电用户名即可轻松接收闪电网络付款。",
   "lightning_username_desc_completed": "您可以使用此用户名从任何闪电网络钱包接收付款。",

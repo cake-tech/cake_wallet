@@ -94,4 +94,120 @@ void main() {
       expect(getBolt11Amount(invoice), Money.fromInt(1, CryptoCurrency.btcln));
     });
   });
+
+  const invoiceWithDescription =
+      "lnbc1u1p5564nxpp5mrklx2pjaggkcfs9r5tfk84wszzy9gypcnrt9yjq7n6uf95s70xqsp59fph78twjra598n2mll2arw5enluy7a4uf4y9a94ddd30hm98njsxq9z0rgqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qcqzpgdql2djkuepqw3hjqsmpddjjq4mpd3kx2aq9qyyssq3nf60ey9fgkf0elu2y8j96rx5pm4gx2a976h8yadx83dyg0ltnysrxhep8e2p3yvz4kf597qk3rttgdy72wwqq0mwr8hdht3pqpchyqq0aa9v0";
+  const zeroAmountInvoice =
+      "lnbc1p5564y8pp5vm48jp3w82yjssrtdhvrjacwwzp59hqjm2lq6fud5thfznyuswgqsp54mykkptx9mlqhpe93f9pcgt9p5ml5xhclyn7qsltqy9ldf25j3qqxqyz5vqnp4qvyndeaqzman7h898jxm98dzkm0mlrsx36s93smrur7h0azyyuxc5rzjqwghf7zxvfkxq5a6sr65g0gdkv768p83mhsnt0msszapamzx2qvuxqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjq25carzepgd4vqsyn44jrk85ezrpju92xyrk9apw4cdjh6yrwt5jgqqqqrt49lmtcqqqqqqqqqqq86qq9qrzjqfvmpdwfesckajzfcf7ff2vqaz9jdgpcsa9xc0fq8ny749dy8y5geapyqr6zgqqqq8hxk2qqae4jsqyugqcqzpgdqq9qyyssqycdyx8r09wgm8vny3n8pf2e0crcdq9mgx3ncxvzsrkljxyrcuwx8zjtje7du40nzdy7x2he67v9asp6ac6ed75r33yyt9pzeepygcmsptc4ve4";
+
+  group("lightning scheme in upper or mixed case", () {
+    final uppercaseInvoice = "LIGHTNING:${invoiceWithDescription.toUpperCase()}";
+    const mixedCaseInvoice = "Lightning:$invoiceWithDescription";
+
+    test("should identify a zero amount invoice", () {
+      expect(isBolt11ZeroInvoice("LIGHTNING:${zeroAmountInvoice.toUpperCase()}"), true);
+      expect(isBolt11ZeroInvoice(uppercaseInvoice), false);
+    });
+
+    test("should get the amount", () {
+      expect(getBolt11Amount(uppercaseInvoice), Money.fromInt(100, CryptoCurrency.btcln));
+      expect(getBolt11Amount(mixedCaseInvoice), Money.fromInt(100, CryptoCurrency.btcln));
+    });
+
+    test("should read the description", () {
+      expect(getBolt11Description(uppercaseInvoice), "Send to Cake Wallet");
+      expect(getBolt11Description(mixedCaseInvoice), "Send to Cake Wallet");
+    });
+  });
+
+  group("getBolt11Description", () {
+    test("should read the description of an invoice", () {
+      expect(getBolt11Description(invoiceWithDescription), "Send to Cake Wallet");
+    });
+
+    test("should read the description of a prefixed invoice", () {
+      expect(getBolt11Description("lightning:$invoiceWithDescription"), "Send to Cake Wallet");
+    });
+
+    test("should read the description of an uppercase invoice", () {
+      expect(getBolt11Description(invoiceWithDescription.toUpperCase()), "Send to Cake Wallet");
+    });
+
+    test("should read a non-ASCII description", () {
+      const invoice =
+          "lnbc2500u1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqdpquwpc4curk03c9wlrswe78q4eyqc7d8d0xqzpu9qrsgqhtjpauu9ur7fw2thcl4y9vfvh4m9wlfyz2gem29g5ghe2aak2pm3ps8fdhtceqsaagty2vph7utlgj48u0ged6a337aewvraedendscp573dxr";
+      expect(getBolt11Description(invoice), "ナンセンス 1杯");
+    });
+
+    test("should read an empty description", () {
+      expect(getBolt11Description(zeroAmountInvoice), "");
+    });
+
+    test("should return null for an invoice that only commits to a description hash", () {
+      const invoice =
+          "lnbc20m1pvjluezsp5zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zyg3zygspp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqs9qrsgq7ea976txfraylvgzuxs8kgcw23ezlrszfnh8r6qtfpr6cxga50aj6txm9rxrydzd06dfeawfk6swupvz4erwnyutnjq7x39ymw6j38gp7ynn44";
+      expect(getBolt11Amount(invoice), Money.fromInt(2000000, CryptoCurrency.btcln));
+      expect(getBolt11Description(invoice), null);
+    });
+
+    test("should return null for input that is not an invoice", () {
+      expect(
+        getBolt11Description(
+          "lnurl1dp68gurn8ghj7cmpddjjucmpwd5z7tnhv4kxctttdehhwm30d3h82unvwqhkkmmwwd6xj9vpzq4",
+        ),
+        null,
+      );
+      expect(getBolt11Description("bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq"), null);
+      expect(getBolt11Description("alice@cake.cash"), null);
+    });
+  });
+
+  group("pay request comment limit", () {
+    const lnurl =
+        "lnurl1dp68gurn8ghj7cmpddjjucmpwd5z7tnhv4kxctttdehhwm30d3h82unvwqhkkmmwwd6xj9vpzq4";
+
+    test("should read the limit of a pay request", () {
+      const payRequest = '{"tag":"payRequest","callback":"https://cake.cash/callback",'
+          '"minSendable":1000,"maxSendable":100000000,"metadata":"[]","commentAllowed":255}';
+      expect(LNURL.parsePayRequestCommentAllowed(payRequest), 255);
+    });
+
+    test("should read a pay request without a limit as not accepting comments", () {
+      const payRequest = '{"tag":"payRequest","callback":"https://cake.cash/callback",'
+          '"minSendable":1000,"maxSendable":100000000,"metadata":"[]"}';
+      expect(LNURL.parsePayRequestCommentAllowed(payRequest), 0);
+    });
+
+    test("should read another kind of LNURL as not accepting comments", () {
+      expect(
+        LNURL.parsePayRequestCommentAllowed('{"tag":"withdrawRequest","commentAllowed":255}'),
+        0,
+      );
+    });
+
+    test("should return null for a response that can't be read", () {
+      expect(LNURL.parsePayRequestCommentAllowed('{"status":"ERROR","reason":"Not found"}'), null);
+      expect(
+        LNURL.parsePayRequestCommentAllowed('{"tag":"payRequest","commentAllowed":"255"}'),
+        null,
+      );
+      expect(LNURL.parsePayRequestCommentAllowed("<html>Bad gateway</html>"), null);
+    });
+
+    test("should only return a pay request url for an https or onion LNURL", () {
+      final url = Uri.parse("https://cake.cash/.well-known/lnurlp/konsti");
+      expect(LNURL.payRequestUrl(lnurl), url);
+      expect(LNURL.payRequestUrl("lightning:$lnurl"), url);
+      expect(LNURL.payRequestUrl(lnurl.toUpperCase()), url);
+      expect(
+        LNURL.payRequestUrl(LNURL.encode("http://cakewalletpay.onion/lnurlp/konsti")),
+        Uri.parse("http://cakewalletpay.onion/lnurlp/konsti"),
+      );
+
+      expect(LNURL.payRequestUrl(LNURL.encode("http://192.168.1.1/lnurlp/konsti")), null);
+      expect(LNURL.payRequestUrl(lnurl.substring(0, lnurl.length - 4)), null);
+      expect(LNURL.payRequestUrl("konsti@cake.cash"), null);
+      expect(LNURL.payRequestUrl(""), null);
+    });
+  });
 }

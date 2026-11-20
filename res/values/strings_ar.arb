@@ -638,6 +638,8 @@
   "lightning_deposit_desc": "عند الإيداع في Lightning، تقوم بمبادلة بيتكوينك على السلسلة من هذه المحفظة إلى حساب Lightning الخاص بك.",
   "lightning_deposit_disclaimer": "لن يكون رصيد Lightning الجديد متاحًا حتى يتم تأكيد معاملة Bitcoin بالكامل.",
   "lightning_external_disclaimer": "لا تُغلق هذه الصفحة حتى تُرسل الأموال، وإلا فلن تتم عملية الإيداع.",
+  "lightning_memo_not_accepted": "لا يقبل المستلم مذكرة",
+  "lightning_memo_too_long": "يقبل المستلم مذكرات حتى ${limit} حرفًا",
   "lightning_mode": "وضع البرق",
   "lightning_username_desc": "استقبل بسهولة مدفوعات Lightning باستخدام اسم مستخدم Lightning عبر اختيار اسم مخصص أو استخدام اسم مُولَّد عشوائيًا أدناه.",
   "lightning_username_desc_completed": "يمكنك استخدام اسم المستخدم هذا لتلقي المدفوعات من أي محفظة Lightning.",

@@ -639,6 +639,8 @@
   "lightning_deposit_desc": "Lightning に入金すると、このウォレットのオンチェーン Bitcoin を Lightning アカウントにスワップすることになります。",
   "lightning_deposit_disclaimer": "新しい Lightning 残高は、ビットコインのトランザクションが完全に確認されるまで利用できません。",
   "lightning_external_disclaimer": "資金を送金するまでこのページを閉じないでください。閉じると入金が進行しません。",
+  "lightning_memo_not_accepted": "受取人はメモを受け付けていません",
+  "lightning_memo_too_long": "受取人は${limit}文字までのメモを受け付けます",
   "lightning_mode": "ライトニングモード",
   "lightning_username_desc": "カスタム名を選択するか、以下でランダムに生成された名前を使用して、Lightning ユーザー名で Lightning の支払いを簡単に受け取れます。",
   "lightning_username_desc_completed": "このユーザー名を使用して、任意の Lightning ウォレットから支払いを受け取ることができます。",

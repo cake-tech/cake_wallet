@@ -639,6 +639,8 @@
   "lightning_deposit_desc": "Nigbati o ba fi owo sinu Lightning, o n paarọ Bitcoin rẹ ti o wa lori pq (on-chain) lati apamọwọ yii si akọọlẹ Lightning rẹ.",
   "lightning_deposit_disclaimer": "Iwontunwonsi Lightning tuntun kii yoo wa titi idunadura Bitcoin yoo fi jẹ́rìí ní kíkún.",
   "lightning_external_disclaimer": "Ma ṣe pa oju-iwe yii títí di igba tí o bá ti rán owó náà, bí kò bá ṣe bẹ́ẹ̀, ìdógó náà kò ní tẹ̀síwájú.",
+  "lightning_memo_not_accepted": "Olugba ko gba akọsilẹ kan",
+  "lightning_memo_too_long": "Olugba gba awọn akọsilẹ to awọn ohun kikọ ${limit}",
   "lightning_mode": "Ipo monomono",
   "lightning_username_desc": "Gba awọn sisanwo Lightning ni irọrun pẹlu orukọ olumulo Lightning, nipa yiyan orukọ aṣa kan tàbí lílo ọkan tí a dá sílẹ̀ laileto ní isalẹ.",
   "lightning_username_desc_completed": "O le lo orukọ olumulo yii lati gba awọn sisanwo lati eyikeyi apamọwọ Lightning.",

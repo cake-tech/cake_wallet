@@ -572,6 +572,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         amount.amount > BigInt.zero ? amount.amount : null,
         credentials.priority,
         credentials.outputs.first.sendAll,
+        comment: credentials.outputs.first.memo,
       );
     }
 

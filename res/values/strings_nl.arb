@@ -638,6 +638,8 @@
   "lightning_deposit_desc": "Wanneer je stort op Lightning, wissel je je on-chain Bitcoin vanuit deze wallet om naar je Lightning-account.",
   "lightning_deposit_disclaimer": "Het nieuwe Lightning-saldo is pas beschikbaar zodra de Bitcoin-transactie volledig is bevestigd.",
   "lightning_external_disclaimer": "Sluit deze pagina niet voordat je de fondsen verstuurt, anders wordt de storting niet verwerkt.",
+  "lightning_memo_not_accepted": "De ontvanger accepteert geen memo",
+  "lightning_memo_too_long": "De ontvanger accepteert memo's van maximaal ${limit} tekens",
   "lightning_mode": "Bliksemmodus",
   "lightning_username_desc": "Ontvang eenvoudig Lightning-betalingen met een Lightning-gebruikersnaam door een aangepaste naam te kiezen of hieronder een willekeurig gegenereerde naam te gebruiken.",
   "lightning_username_desc_completed": "Je kunt deze gebruikersnaam gebruiken om betalingen te ontvangen van elke Lightning-wallet.",

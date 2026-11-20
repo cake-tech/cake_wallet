@@ -13,10 +13,12 @@ class Bech32EncodeException extends CakeException {
   const Bech32EncodeException(super.message);
 }
 
+String _withoutLightningScheme(String invoice) =>
+    invoice.replaceFirst(RegExp("^lightning:", caseSensitive: false), "");
+
 bool isBolt11ZeroInvoice(String invoice) {
   try {
-    final request =
-        const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+    final request = const Bech32Codec().decode(_withoutLightningScheme(invoice), invoice.length);
 
     final prefix =
         _BOLT_PREFIXES.firstWhere(request.hrp.startsWith, orElse: () => "");
@@ -29,8 +31,7 @@ bool isBolt11ZeroInvoice(String invoice) {
 
 /// Get the amount of a Bolt 11 Invoice in
 int? _getAmountBolt11Msat(String invoice) {
-  final request =
-      const Bech32Codec().decode(invoice.replaceFirst("lightning:", ""), invoice.length);
+  final request = const Bech32Codec().decode(_withoutLightningScheme(invoice), invoice.length);
 
   final prefix = _BOLT_PREFIXES.firstWhere(
     request.hrp.startsWith,
@@ -82,6 +83,38 @@ Money? getBolt11Amount(String invoice) {
   return Money.fromInt(msat ~/ 1000, CryptoCurrency.btcln);
 }
 
+const _bolt11TimestampLength = 7;
+const _bolt11SignatureLength = 104;
+const _bolt11FieldHeaderLength = 3;
+const _bolt11DescriptionTag = 13;
+
+String? getBolt11Description(String invoice) {
+  try {
+    final request = const Bech32Codec().decode(_withoutLightningScheme(invoice), invoice.length);
+    if (!_BOLT_PREFIXES.any(request.hrp.startsWith)) {
+      return null;
+    }
+
+    final data = request.data;
+    final fieldsEnd = data.length - _bolt11SignatureLength;
+
+    var index = _bolt11TimestampLength;
+    while (index + _bolt11FieldHeaderLength <= fieldsEnd) {
+      final fieldStart = index + _bolt11FieldHeaderLength;
+      final fieldEnd = fieldStart + ((data[index + 1] << 5) | data[index + 2]);
+      if (fieldEnd > fieldsEnd) {
+        return null;
+      }
+      if (data[index] == _bolt11DescriptionTag) {
+        return utf8.decode(_convert(data.sublist(fieldStart, fieldEnd), 5, 8, false));
+      }
+      index = fieldEnd;
+    }
+  } catch (_) {}
+
+  return null;
+}
+
 class LNURL {
   static Future<Money?> getPayRequestAmount(String lnurl) async {
     final url = decode(lnurl);
@@ -112,6 +145,42 @@ class LNURL {
         return null;
       }
       return Money.fromInt(msat ~/ 1000, CryptoCurrency.btcln);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Uri? payRequestUrl(String lnurl) {
+    try {
+      final url = decode(lnurl);
+      final isOnion = url.host.endsWith(".onion") || url.host.endsWith(".onion.");
+
+      return url.scheme == "https" || (url.scheme == "http" && isOnion) ? url : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<int?> getPayRequestCommentAllowed(Uri url) async {
+    try {
+      final response =
+          await ProxyWrapper().get(clearnetUri: url).timeout(const Duration(seconds: 10));
+
+      return response.statusCode == 200 ? parsePayRequestCommentAllowed(response.body) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static int? parsePayRequestCommentAllowed(String payRequest) {
+    try {
+      final body = jsonDecode(payRequest) as Map;
+
+      return switch (body["tag"]) {
+        "payRequest" => (body["commentAllowed"] as num?)?.toInt() ?? 0,
+        String _ => 0,
+        _ => null,
+      };
     } catch (_) {
       return null;
     }

@@ -128,6 +128,8 @@ class SendTransactionDetails extends StatelessWidget {
   const SendTransactionDetails(
       {super.key, required this.sendViewModel, required this.isPage, this.title, this.iconPath});
 
+  static const _memoLinesPerRecipient = 3;
+
   final SendViewModel sendViewModel;
   final bool isPage;
   final String? title;
@@ -258,6 +260,14 @@ class SendTransactionDetails extends StatelessWidget {
 
       final outputs = sendViewModel.outputs;
 
+      final memos = [
+        for (final (index, output) in outputs.indexed)
+          if (sendViewModel.confirmationMemo(output).isNotEmpty)
+            outputs.length == 1
+                ? sendViewModel.confirmationMemo(output)
+                : "${index + 1}: ${sendViewModel.confirmationMemo(output)}",
+      ];
+
       return SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -361,6 +371,45 @@ class SendTransactionDetails extends StatelessWidget {
                           ),
                           dropdownText: "${outputs.length} ${S.of(context).addresses}"),
                   ],
+                ),
+              if (memos.isNotEmpty)
+                MergeSemantics(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 12,
+                    children: [
+                      Text(
+                        S.of(context).memo,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (final memo in memos)
+                                Text(
+                                  memo,
+                                  maxLines: _memoLinesPerRecipient,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               Container(
                 decoration: BoxDecoration(

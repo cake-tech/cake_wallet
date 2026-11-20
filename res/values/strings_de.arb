@@ -679,6 +679,8 @@
   "lightning_deposit_desc": "Wenn Sie auf Lightning einzahlen, tauschen Sie Ihre On-Chain-Bitcoins aus dieser Wallet in Ihr Lightning-Konto.",
   "lightning_deposit_disclaimer": "Das neue Lightning-Guthaben ist erst verfügbar, wenn die Bitcoin-Transaktion vollständig bestätigt ist.",
   "lightning_external_disclaimer": "Schließen Sie diese Seite erst, nachdem Sie das Guthaben gesendet haben. Andernfalls wird die Einzahlung nicht fortgesetzt.",
+  "lightning_memo_not_accepted": "Der Empfänger akzeptiert kein Memo",
+  "lightning_memo_too_long": "Der Empfänger akzeptiert Memos mit bis zu ${limit} Zeichen",
   "lightning_mode": "Lightning-Modus",
   "lightning_username_desc": "Empfangen Sie Lightning-Zahlungen ganz einfach mit einem Lightning-Benutzernamen, indem Sie unten einen benutzerdefinierten Namen wählen oder einen zufällig generierten verwenden.",
   "lightning_username_desc_completed": "Mit diesem Benutzernamen können Sie Zahlungen von jeder Lightning-Wallet empfangen.",

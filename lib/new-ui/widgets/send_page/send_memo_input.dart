@@ -80,3 +80,36 @@ class NewSendMemoInput extends StatelessWidget {
     );
   }
 }
+
+class NewSendInvoiceMemo extends StatelessWidget {
+  const NewSendInvoiceMemo({required this.memo, super.key});
+
+  final String memo;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
+        children: [
+          ExcludeSemantics(child: Text(S.of(context).memo)),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).colorScheme.surfaceContainer,
+            ),
+            child: MergeSemantics(
+              child: Semantics(
+                label: S.of(context).memo,
+                child: TextFormField(
+                  key: ValueKey(memo),
+                  initialValue: memo,
+                  readOnly: true,
+                  minLines: 1,
+                  maxLines: 3,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+}

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import "package:cake_wallet/core/address_resolver/lnurl_pay/lnurlpay_record.dart";
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_parsing_proxy.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -455,6 +456,66 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     return sp.hasMatch(address);
   }
 
+  static const _lnurlCommentLimitWhenUnknown = 255;
+
+  final _lnurlCommentLimits = ObservableMap<String, int>();
+
+  bool get _hasLightning =>
+      wallet.type == WalletType.bitcoin && wallet.isSoftwareWallet && bitcoin!.useLightning(wallet);
+
+  String lnurlRecipient(Output output) {
+    if (!_hasLightning || output != outputs.first) {
+      return "";
+    }
+
+    final address = _recipientAddress(output);
+    if (isLnurlInvoice(address)) {
+      return address;
+    }
+
+    return output.extractedAddress.isNotEmpty ? _lnurlOfLightningAddress(address) : "";
+  }
+
+  static final _lightningAddressPattern = RegExp(r"^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+
+  String _lnurlOfLightningAddress(String address) {
+    if (!_lightningAddressPattern.hasMatch(address)) {
+      return "";
+    }
+
+    try {
+      return LNURL.encode(LNUrlPayRecord.wellKnownUrl(address));
+    } catch (_) {
+      return "";
+    }
+  }
+
+  int lnurlCommentLimit(Output output) => _lnurlCommentLimits[lnurlRecipient(output)] ?? 0;
+
+  Future<void> loadLnurlCommentLimit(String lnurl) async {
+    final url = LNURL.payRequestUrl(lnurl);
+    if (url == null || _lnurlCommentLimits.containsKey(lnurl)) {
+      return;
+    }
+
+    _lnurlCommentLimits[lnurl] =
+        await LNURL.getPayRequestCommentAllowed(url) ?? _lnurlCommentLimitWhenUnknown;
+  }
+
+  String lightningInvoiceMemo(Output output) {
+    if (!_hasLightning) {
+      return "";
+    }
+
+    final address = _recipientAddress(output);
+    return isLightningInvoice(address) ? getBolt11Description(address) ?? "" : "";
+  }
+
+  String confirmationMemo(Output output) =>
+      hasMemoFor(output) ? output.memo : lightningInvoiceMemo(output);
+
+  String _recipientAddress(Output output) =>
+      (output.extractedAddress.isNotEmpty ? output.extractedAddress : output.address).trim();
 
   @computed
   bool get hasCoinControl =>
@@ -1104,6 +1165,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @computed
   bool get hasMemos => [WalletType.zcash].contains(wallet.type);
 
+  bool hasMemoFor(Output output) => hasMemos || lnurlCommentLimit(output) > 0;
+
+  int maxMemoLengthFor(Output output) => hasMemos ? maxMemoLength : lnurlCommentLimit(output);
+
   final Map<WalletType, int> _maxMemoLengths = {
     WalletType.zcash: 512,
   };
@@ -1330,6 +1395,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     }
     if (error is TransactionInputNotSupported) {
       return S.current.tx_invalid_input;
+    }
+    if (error is TransactionMemoNotAcceptedException) {
+      return error.maxLength == 0
+          ? S.current.lightning_memo_not_accepted
+          : S.current.lightning_memo_too_long(error.maxLength.toString());
     }
 
     if (wallet.type == WalletType.bitcoin) {

@@ -638,6 +638,8 @@
   "lightning_deposit_desc": "เมื่อคุณฝากเข้า Lightning คุณกำลังสวอป Bitcoin แบบ on-chain ของคุณจากกระเป๋าเงินนี้ไปยังบัญชี Lightning ของคุณ",
   "lightning_deposit_disclaimer": "ยอดคงเหลือ Lightning ใหม่จะยังไม่พร้อมใช้งานจนกว่าธุรกรรม Bitcoin จะได้รับการยืนยันครบถ้วน",
   "lightning_external_disclaimer": "อย่าปิดหน้านี้จนกว่าคุณจะส่งเงินสำเร็จ ไม่เช่นนั้นการฝากจะไม่ดำเนินการต่อ",
+  "lightning_memo_not_accepted": "ผู้รับไม่ยอมรับบันทึก",
+  "lightning_memo_too_long": "ผู้รับยอมรับบันทึกสูงสุด ${limit} อักขระ",
   "lightning_mode": "โหมดสายฟ้า",
   "lightning_username_desc": "รับการชำระเงินผ่าน Lightning ได้อย่างง่ายดายด้วยชื่อผู้ใช้ Lightning โดยเลือกชื่อที่กำหนดเองหรือใช้ชื่อที่สร้างขึ้นแบบสุ่มด้านล่าง",
   "lightning_username_desc_completed": "คุณสามารถใช้ชื่อผู้ใช้นี้เพื่อรับการชำระเงินจากกระเป๋าเงิน Lightning ใดก็ได้",

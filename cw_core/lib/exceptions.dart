@@ -72,6 +72,17 @@ class TransactionInputNotSupported extends TransactionSendingException {
       : super("You are using the wrong input type for this type of payment");
 }
 
+class TransactionMemoNotAcceptedException extends TransactionGenerationException {
+  TransactionMemoNotAcceptedException(this.maxLength)
+      : super(
+          maxLength == 0
+              ? "The recipient doesn't accept a memo"
+              : "The recipient accepts memos up to $maxLength characters",
+        );
+
+  final int maxLength;
+}
+
 class SignNativeTokenTransactionRentException extends TransactionGenerationException {
   SignNativeTokenTransactionRentException()
       : super("Transaction cannot be completed. Insufficient SOL left for rent after transaction. Kindly top up your SOL balance or reduce the amount of SOL you are sending.");
