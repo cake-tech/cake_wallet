@@ -236,21 +236,14 @@ jobs:
       - name: Build final
         run: ./scripts/android/docker/build.sh --only final
 
-  integration-test:
-    needs: final
-    uses: ./.github/workflows/reusable-integration-test.yml
-    with:
-      ref: ${{ inputs.ref }}
-      suite_dir: integration_test/suites
-      test_tier: tier0
-      slack_notify: true
-      extract_only: true
-    secrets: inherit
-
   app:
     needs: final
     runs-on: puzl-ubuntu-latest
     timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        heap: [4096M, 5120M, 8192M]
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
       env:
@@ -372,6 +365,18 @@ jobs:
                   "$file"
           done
 
+      - name: Proof setup (heap, stacktrace, GC log, pod resources)
+        run: |
+          echo "nproc=$(nproc)"
+          free -m || true
+          cat /sys/fs/cgroup/memory.max 2>/dev/null || cat /sys/fs/cgroup/memory/memory.limit_in_bytes 2>/dev/null || true
+          cat /sys/fs/cgroup/cpu.max 2>/dev/null || true
+          java -version 2>&1
+          mkdir -p /tmp/gclogs
+          sed -i "s|^org.gradle.jvmargs=.*|org.gradle.jvmargs=-Xmx${{ matrix.heap }} -Xlog:gc:file=/tmp/gclogs/gc-%p.log:time,uptime,pid|" android/gradle.properties
+          printf '\norg.gradle.logging.stacktrace=all\n' >> android/gradle.properties
+          cat android/gradle.properties
+
       - name: Build
         run: |
           export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk/$ANDROID_NDK_VERSION"
@@ -384,82 +389,18 @@ jobs:
             --dart-define=CI_BRANCH="$BRANCH_NAME" \
             --release --split-per-abi
 
-      - name: Name apks after the branch
-        id: apks
+      - name: Pod memory after build
+        if: ${{ always() }}
         run: |
-          # Artifact names reject / \ : * ? " < > |
-          safe_branch=$(printf '%s' "$BRANCH_NAME" | sed 's#[/\\:*?"<>|]#-#g' | tr -d '\r\n')
-          dir=build/app/outputs/flutter-apk/named
-          mkdir -p "$dir"
-          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "$dir/${safe_branch}.apk"
-          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "$dir/${safe_branch}_v7a.apk"
-          cp build/app/outputs/flutter-apk/app-x86_64-release.apk "$dir/${safe_branch}_x86.apk"
-          echo "branch=$safe_branch" >> "$GITHUB_OUTPUT"
+          free -m || true
+          cat /sys/fs/cgroup/memory.peak 2>/dev/null || true
+          cat /sys/fs/cgroup/memory.events 2>/dev/null || true
+          ls -la /tmp/gclogs || true
 
-      - name: Upload arm64 apk
+      - name: Upload GC logs
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.apks.outputs.branch }}.apk
-          path: build/app/outputs/flutter-apk/named/${{ steps.apks.outputs.branch }}.apk
-          if-no-files-found: error
-
-      - name: Upload x86_64 apk
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.apks.outputs.branch }}_x86.apk
-          path: build/app/outputs/flutter-apk/named/${{ steps.apks.outputs.branch }}_x86.apk
-          if-no-files-found: error
-
-      - name: Upload armeabi-v7a apk
-        id: upload_v7a
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.apks.outputs.branch }}_v7a.apk
-          path: build/app/outputs/flutter-apk/named/${{ steps.apks.outputs.branch }}_v7a.apk
-          if-no-files-found: error
-
-      - name: 16KB align
-        run: |
-          cd build/app/outputs/flutter-apk
-          for i in arm64-v8a x86_64; do
-            ../../../../scripts/android/check_16kb_align.sh app-$i-release.apk
-          done
-
-      - name: Post the build to slack
-        if: ${{ !cancelled() }}
-        env:
-          SLACK_TOKEN: ${{ secrets.SLACK_APP_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.SLACK_APK_CHANNEL }}
-          RUN_URL: https://nightly.link/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          APKS_UPLOADED: ${{ steps.upload_v7a.outcome == 'success' }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_URL: ${{ github.event.pull_request.html_url }}
-        run: |
-          if [[ -z "$SLACK_TOKEN" || -z "$SLACK_CHANNEL" ]]; then
-            echo "::notice::No slack token or channel configured, skipping the report"
-            exit 0
-          fi
-
-          if [[ "$APKS_UPLOADED" == "true" ]]; then
-            label=$(printf '%s' "$BRANCH_NAME" | tr '\n\r' ' ' | tr -d '<>|')
-            text=$(printf ':cw: <%s|%s>' "$RUN_URL" "$label")
-            if [[ -n "$message" ]]; then
-              text=$(printf '%s\n%s' "$text" "$message")
-            fi
-          else
-            title=$(printf '%s' "$PR_TITLE" | tr '\n\r' ' ' | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g')
-            text=$(printf ':x: Build failed for PR <%s|#%s>: %s' "$PR_URL" "$PR_NUMBER" "$title")
-          fi
-
-          response=$(curl -sS -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_TOKEN" \
-            -H "Content-type: application/json; charset=utf-8" \
-            --data "$(jq -n --arg channel "$SLACK_CHANNEL" --arg text "$text" \
-              '{channel: $channel, text: $text}')")
-
-          if [[ "$(jq -r '.ok' <<< "$response")" != "true" ]]; then
-            error=$(jq -r '.error // "unknown"' <<< "$response")
-            echo "::warning::Slack rejected the build post: $error"
-            exit 0
-          fi
+          name: gclogs-${{ matrix.heap }}
+          path: /tmp/gclogs
+          if-no-files-found: warn

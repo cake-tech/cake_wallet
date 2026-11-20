@@ -1,0 +1,18 @@
+name: Throwaway packageRelease OOM proof
+
+on:
+  push:
+    branches:
+      - sfp/throwaway-packagerelease-oom-proof
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/reusable-build.yml
+    with:
+      ref: ${{ github.sha }}
+      pr_number: ${{ github.ref_name }}
+    secrets: inherit
