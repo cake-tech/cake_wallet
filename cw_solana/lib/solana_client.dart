@@ -1008,6 +1008,20 @@ class SolanaWalletClient {
     }
   }
 
+  /// Whether the transaction landed without an error, or null while the cluster hasn't confirmed it
+  Future<bool?> getTransactionResult(String signature) async {
+    final statuses = await _provider!.request(
+      SolanaRPCGetSignatureStatuses(signatures: [signature], searchTransactionHistory: true),
+    );
+
+    final status = statuses.first;
+    if (status == null || status.confirmationStatus == TransactionConfirmationStatus.processed) {
+      return null;
+    }
+
+    return status.err == null;
+  }
+
   /// Extracts token mint addresses from transaction metadata
   /// It returns a list of unique token mint addresses (excluding wrapped SOL)
   List<String> _extractTokenMintsFromMeta(ConfirmedTransactionMeta? meta) {

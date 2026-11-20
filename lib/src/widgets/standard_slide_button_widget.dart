@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/themes/core/theme_extension.dart';
 import 'package:flutter/material.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class StandardSlideButton extends StatefulWidget {
   const StandardSlideButton({
@@ -79,7 +80,7 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                     ),
                     Positioned(
                       left: sideMargin + _dragPosition,
-                      child: GestureDetector(
+                      child: TestId.merge("standard_slide_button_widget_slider_key", child: GestureDetector(
                         key: ValueKey('standard_slide_button_widget_slider_key'),
                         onHorizontalDragUpdate: widget.isDisabled
                             ? null
@@ -118,7 +119,7 @@ class StandardSlideButtonState extends State<StandardSlideButton> {
                                 : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
-                      ),
+                      )),
                     )
                   ],
                 ),

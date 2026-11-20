@@ -1,4 +1,4 @@
-import 'package:cw_core/amount/money.dart';
+import "package:cw_core/amount/money.dart";
 
 abstract class Currency {
   String get symbol;
@@ -21,4 +21,6 @@ abstract class Currency {
   @override
   int get hashCode => decimals.hashCode ^ symbol.hashCode ^ tag.hashCode;
   String get apiString;
+
+  String get serialized;
 }

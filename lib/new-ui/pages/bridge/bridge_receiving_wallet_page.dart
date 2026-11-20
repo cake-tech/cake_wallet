@@ -41,6 +41,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "bridge_receiving_wallet_page_top_bar",
               title: 'Receiving Wallet',
               leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
               leadingSemanticLabel: S.of(context).seed_alert_back,
