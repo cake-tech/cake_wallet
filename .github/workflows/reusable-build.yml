@@ -243,15 +243,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        shard: [1, 2, 3, 4]
+        leg: [control-6g, fix-6g]
         include:
           - leg: control-6g
             jvmargs: "-Xmx6144M"
-          - leg: control-8g
-            jvmargs: "-Xmx8192M"
-          - leg: fjpar8-6g
-            jvmargs: "-Xmx6144M -Djava.util.concurrent.ForkJoinPool.common.parallelism=8"
-          - leg: gclockerretry-6g
-            jvmargs: "-Xmx6144M -XX:+UnlockDiagnosticVMOptions -XX:GCLockerRetryAllocationCount=100"
+          - leg: fix-6g
+            jvmargs: "-Xmx6144M -XX:+IgnoreUnrecognizedVMOptions -XX:+UnlockDiagnosticVMOptions -XX:GCLockerRetryAllocationCount=100"
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
       env:
@@ -405,7 +403,7 @@ jobs:
           export ANDROID_NDK="$ANDROID_NDK_HOME"
           mkdir -p /tmp/gclogs/stress
           pass=0; fail=0
-          for i in $(seq 1 200); do
+          for i in $(seq 1 40); do
             rm -rf build/app/outputs/apk build/app/outputs/flutter-apk build/app/intermediates/apk build/app/intermediates/incremental/packageRelease
             start=$(date +%s)
             flutter build apk --dart-define=hasDevOptions=true \
@@ -418,7 +416,7 @@ jobs:
             if [ $rc -eq 0 ]; then pass=$((pass+1)); else fail=$((fail+1)); fi
             echo "STRESS iter=$i rc=$rc oom_traces=$oom apks=$apks secs=$(( $(date +%s) - start ))"
           done
-          echo "STRESS RESULT leg=${{ matrix.leg }} pass=$pass fail=$fail" | tee -a $GITHUB_STEP_SUMMARY
+          echo "STRESS RESULT leg=${{ matrix.leg }} shard=${{ matrix.shard }} pass=$pass fail=$fail" | tee -a $GITHUB_STEP_SUMMARY
 
       - name: Pod memory after build
         if: ${{ always() }}
@@ -432,6 +430,6 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: gclogs-${{ matrix.leg }}
+          name: gclogs-${{ matrix.leg }}-${{ matrix.shard }}
           path: /tmp/gclogs
           if-no-files-found: warn
