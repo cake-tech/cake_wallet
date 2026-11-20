@@ -1471,12 +1471,12 @@ dependency_overrides:
   trezor_flutter:
     git:
       url: https://github.com/cake-tech/trezor-flutter.git
-      ref: 591d4b8c821b9c10561f848b866324a9a8dcb489
+      ref: 7fb7ff761a318cac7b53755885544558798eb68b
       path: ./trezor-flutter
   trezor_usb_transport:
     git:
       url: https://github.com/cake-tech/trezor-flutter.git
-      ref: 591d4b8c821b9c10561f848b866324a9a8dcb489
+      ref: 7fb7ff761a318cac7b53755885544558798eb68b
       path: ./trezor_usb_transport
   tuple:
     git:

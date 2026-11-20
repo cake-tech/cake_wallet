@@ -23,12 +23,15 @@ import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:device_info_plus/device_info_plus.dart";
 import "package:flutter/material.dart";
+import "package:logging/logging.dart";
 import "package:mobx/mobx.dart";
 import "package:permission_handler/permission_handler.dart";
 import "package:trezor_connect/trezor_connect.dart" as connect_sdk;
 import "package:trezor_flutter/trezor_flutter.dart" as sdk;
 
 part "trezor_connect_view_model.g.dart";
+
+final _trezorLogger = Logger("trezor_flutter");
 
 const trezorUseNative = [WalletType.bitcoin, WalletType.monero];
 
@@ -47,6 +50,13 @@ abstract class TrezorConnectViewModelBase extends HardwareWalletViewModel with S
         trezorUSB = sdk.TrezorInterface.usb();
       }
     }
+
+    hierarchicalLoggingEnabled = true;
+    _trezorLogger.level = Level.FINE;
+    logFile.then(
+      (file) => _trezorLogger.onRecord
+          .listen((r) => printV("[${r.loggerName}][${r.level}]${r.message}", file: file)),
+    );
   }
 
   StreamSubscription<sdk.BleConnectionState>? _connectionChangeSubscription;
