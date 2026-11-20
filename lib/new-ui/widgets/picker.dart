@@ -192,7 +192,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return MergeSemantics(child: GestureDetector(
       onTap: () {
         onSelected(item.value);
       },
@@ -256,7 +256,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -277,7 +277,7 @@ class PickerRow<Item> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return MergeSemantics(child: GestureDetector(
       onTap: () {
         onSelected(item.value);
       },
@@ -344,7 +344,7 @@ class PickerRow<Item> extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

@@ -356,7 +356,7 @@ class WalletRow extends StatelessWidget {
   final bool? isSelected;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => MergeSemantics(child: Container(
       height: isCurrent ? 64 : 48,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -418,5 +418,5 @@ class WalletRow extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
 }

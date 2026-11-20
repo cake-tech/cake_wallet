@@ -1,6 +1,7 @@
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -155,7 +156,12 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                   ),
             ),
             Spacer(flex: 2),
-            Container(
+            Semantics(
+              container: true,
+              liveRegion: true,
+              identifier: "pin_code_progress_key",
+              label: S.of(context).pin_digits_entered("${pin.length}", "$pinLength"),
+              child: Container(
               width: 180,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -174,6 +180,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                       ));
                 }),
               ),
+            ),
             ),
             Spacer(flex: 3),
             if (widget.hasLengthSwitcher) ...[
@@ -225,6 +232,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                     child: Container(
                                       margin: EdgeInsets.only(left: marginLeft, right: marginRight),
                                       child: Semantics(
+                                        identifier: "pin_code_delete_button_key",
                                         label: S.of(context).delete,
                                         button: true,
                                         onTap: () => _pop(),
@@ -246,7 +254,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
 
                                 return Container(
                                   margin: EdgeInsets.only(left: marginLeft, right: marginRight),
-                                  child: TextButton(
+                                  child: TestId.merge("pin_code_button_${index}_key", child: TextButton(
                                     key: ValueKey('pin_code_button_${index}_key'),
                                     onPressed: () => {_push(index), HapticFeedback.mediumImpact()},
                                     style: TextButton.styleFrom(
@@ -260,6 +268,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                               fontSize: 30,
                                               color: Theme.of(context).colorScheme.onSurfaceVariant,
                                             )),
+                                  ),
                                   ),
                                 );
                               }),
