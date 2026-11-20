@@ -86,6 +86,9 @@ class _TransfersStore extends Fake implements BridgeTransfersStore {
 class _SettingsStore extends Fake implements SettingsStore {
   @override
   final FiatCurrency fiatCurrency = FiatCurrency.usd;
+
+  @override
+  bool useBlinkProtection = true;
 }
 
 class _WalletManager extends Fake implements WalletManager {}

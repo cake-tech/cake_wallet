@@ -514,7 +514,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         recipientAddress: recipient,
         quote: quote!,
         priority: priority,
-        useBlinkProtection: canSupportBlinkProtection(src),
+        useBlinkProtection:
+            canSupportBlinkProtection(src) ? settingsStore.useBlinkProtection : false,
       );
 
       if (attemptId != _executeAttemptId) return;

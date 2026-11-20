@@ -23,6 +23,7 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
 
   late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -109,20 +110,28 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
                         },
                       ),
                       const SizedBox(height: 24),
-                      NewSendAddressInput(
-                        hintText: 'Enter Address',
-                        addressController: _controller,
-                        focusNode: _focusNode,
-                        selectedCurrency: bridgeViewModel.wallet.currency,
-                        onEditingComplete: () {},
-                        validator:
-                            AddressValidator(type: bridgeViewModel.destinationChainInfo!.currency),
+                      Form(
+                        key: _formKey,
+                        child: NewSendAddressInput(
+                          hintText: 'Enter Address',
+                          addressController: _controller,
+                          focusNode: _focusNode,
+                          selectedCurrency: bridgeViewModel.wallet.currency,
+                          onEditingComplete: () {},
+                          validator: (value) => AddressValidator(
+                            type: bridgeViewModel.destinationChainInfo!.currency,
+                          )(value?.trim()),
+                        ),
                       ),
                       const Spacer(),
                       Observer(
                         builder: (_) {
                           return FilledButton(
                             onPressed: () {
+                              if (!_formKey.currentState!.validate()) {
+                                return;
+                              }
+
                               final overlayCtx = Navigator.of(context).overlay?.context;
                               bridgeViewModel.setRecipientAddress(_controller.text.trim());
 
