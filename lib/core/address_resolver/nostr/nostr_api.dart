@@ -6,46 +6,58 @@ import 'package:nostr_tools/nostr_tools.dart';
 import 'dart:async' show Completer, TimeoutException, runZonedGuarded;
 
 class NostrProfileHandler {
-  static final relayToDomainMap = {
-    'relay.snort.social': 'snort.social',
-  };
+  /// Well-known public relays, queried when the author's NIP-05 relay hints
+  /// are missing or none of them store the profile metadata event (kind 0).
+  /// Ordered by measured kind-0 coverage for a broad set of popular profiles.
+  static const fallbackRelays = <String>[
+    'wss://relay.nos.social',
+    'wss://nos.lol',
+    'wss://offchain.pub',
+    'wss://relay.damus.io',
+    'wss://relay.nostr.band',
+    'wss://purplepag.es',
+    'wss://relay.primal.net',
+  ];
 
   static final Nip05 _nip05 = Nip05();
 
   static Future<ProfilePointer?> queryProfile(String nip05Address) async {
     final profile = await _nip05.queryProfile(nip05Address);
-    if (profile?.pubkey != null && profile?.relays?.isNotEmpty == true) {
+    if (profile?.pubkey != null) {
       return profile;
     }
     return null;
   }
 
-  static Future<UserMetadata?> processRelays(
-    ProfilePointer profile,
-    String nip05Address,
-  ) async {
-    final userDomain = _extractDomain(nip05Address);
+  static Future<UserMetadata?> processRelays(ProfilePointer profile) async {
     const int metaKind = 0;
 
-    // Domain-matched relays first
-    for (final String relayUrl in profile.relays ?? []) {
-      final relayDomain =
-          relayToDomainMap[_getDomainFromRelayUrl(relayUrl)] ?? _getDomainFromRelayUrl(relayUrl);
+    // Author-declared relays first, then well-known public relays.
+    final seen = <String>{};
+    final relays = <String>[
+      ...?(profile.relays ?? const <String>[]),
+      ...fallbackRelays,
+    ].where((String relayUrl) => seen.add(relayUrl)).toList();
 
-      if (relayDomain == userDomain) {
-        final data = await _fetchInfoFromRelay(relayUrl, profile.pubkey, [metaKind]);
-        if (data != null) return data;
-      }
+    // Query in parallel and finish as soon as the first relay returns the
+    // metadata. _fetchInfoFromRelay swallows all errors and always completes,
+    // so the whole step is bounded by _relayTimeout.
+    final completer = Completer<UserMetadata?>();
+    var remaining = relays.length;
+
+    for (final relayUrl in relays) {
+      _fetchInfoFromRelay(relayUrl, profile.pubkey, [metaKind]).then((data) {
+        if (completer.isCompleted) return;
+        if (data != null) {
+          completer.complete(data);
+        } else {
+          remaining--;
+          if (remaining == 0) completer.complete(null);
+        }
+      });
     }
 
-    // Then try every remaining relay
-    for (final String relayUrl in profile.relays ?? []) {
-      final data = await _fetchInfoFromRelay(relayUrl, profile.pubkey, [metaKind]);
-      if (data != null) return data;
-    }
-
-    // Nothing found
-    return null;
+    return completer.future;
   }
 
   static const Duration _relayTimeout = Duration(seconds: 3);
@@ -113,15 +125,5 @@ class NostrProfileHandler {
       host: uri.host,
       port: uri.hasPort ? uri.port : 443,
     ).toString();
-  }
-
-  static String _extractDomain(String nip05) => nip05.split('@').last;
-
-  static String _getDomainFromRelayUrl(String url) {
-    try {
-      return Uri.parse(url).host;
-    } catch (_) {
-      return '';
-    }
   }
 }
