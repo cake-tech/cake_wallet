@@ -12,6 +12,7 @@ import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import 'package:cake_wallet/new-ui/pages/addresses_page.dart';
 import 'package:cake_wallet/new-ui/pages/lightning_username_page.dart';
+import "package:cake_wallet/new-ui/pages/restore_multi_sig/restore_multi_sig_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/pre_seed_page.dart";
 import "package:cake_wallet/new-ui/pages/seed/show_keys_disclaimer_page.dart";
 import "package:cake_wallet/new-ui/pages/receive_page.dart";
@@ -694,6 +695,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreFromBackup:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<RestoreFromBackupPage>());
+
+    case Routes.restoreMultiSigWallet:
+      return handleRouteWithPlatformAwareness((_) => RestoreMultiSigPage());
 
     case Routes.support:
       return handleRouteWithPlatformAwareness(
