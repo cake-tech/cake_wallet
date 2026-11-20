@@ -112,7 +112,7 @@ class LightningWallet {
         lnurlDomain: lnurlDomain,
         apiKey: apiKey,
         privateEnabledDefault: true,
-        maxDepositClaimFee: MaxFee.rate(satPerVbyte: BigInt.from(5)),
+        maxDepositClaimFee: MaxFee(onchain: MaxOnchainFee.rate(satPerVbyte: BigInt.from(5))),
       );
 
       final connectRequest = ConnectRequest(
@@ -428,14 +428,15 @@ class LightningWallet {
       request: ClaimDepositRequest(
         txid: txId,
         vout: vout,
-        maxFee: MaxFee.fixed(amount: newFee),
+        maxFee: MaxFee(onchain: MaxOnchainFee.fixed(amount: newFee)),
       ),
     );
 
-    if (response.payment == null) {
+    final outcome = response.outcome;
+    if (outcome is! ClaimDepositOutcome_Settled) {
       return null;
     }
-    return _getElectrumTransactionInfoFromPayment(response.payment!);
+    return _getElectrumTransactionInfoFromPayment(outcome.payment);
   }
 
   Future<String> refundDeposit(
