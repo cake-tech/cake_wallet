@@ -11,6 +11,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/haven_seed_store.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/cake_2fa_preset_options.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/new-ui/model/charts/charts_asset.dart';
@@ -660,6 +661,9 @@ Future<void> defaultSettingsMigration(
             currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
           );
           break;
+        case 73:
+          await _migrateLegacyCake2FAPreset(secureStorage);
+          break;
         default:
           break;
       }
@@ -673,6 +677,16 @@ Future<void> defaultSettingsMigration(
   });
 
   await sharedPreferences.setInt(PreferencesKey.currentDefaultSettingsMigrationVersion, version);
+}
+
+Future<void> _migrateLegacyCake2FAPreset(SecureStorage secureStorage) async {
+  final rawPreset = await secureStorage.read(key: SecureKey.selectedCake2FAPreset);
+  if (int.tryParse(rawPreset ?? '') == 0) {
+    await secureStorage.write(
+      key: SecureKey.selectedCake2FAPreset,
+      value: Cake2FAPresetsOptions.custom.raw.toString(),
+    );
+  }
 }
 
 Future<void> _updateNode({
