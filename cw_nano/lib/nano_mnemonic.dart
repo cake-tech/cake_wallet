@@ -32,9 +32,9 @@ class NanoMnemomics {
   /// BIP39 seed (hex) of an HD mnemonic, same as [NanoDerivations.hdMnemonicListToSeed] but through
   /// [bip39MnemonicToSeed]. Non-ASCII input keeps the nanoutil path, which UTF-8 encodes where
   /// [bip39MnemonicToSeed] takes code units.
-  static Future<String> hdMnemonicToSeed(String mnemonic) async =>
+  static Future<String> hdMnemonicToSeed(String mnemonic, {String passphrase = ""}) async =>
       mnemonic.codeUnits.every((unit) => unit < 0x80)
-          ? HEX.encode(bip39MnemonicToSeed(mnemonic))
+          ? HEX.encode(bip39MnemonicToSeed(mnemonic, passphrase: passphrase))
           : await NanoDerivations.hdMnemonicListToSeed(mnemonic.split(' '));
 
   /// Validate a mnemonic word list
