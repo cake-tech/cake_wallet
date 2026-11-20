@@ -13,6 +13,7 @@ import "package:cake_wallet/src/screens/transaction_details/confirmations_list_i
 import "package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
 import "package:cake_wallet/entities/conversion_display.dart";
 import "package:cake_wallet/entities/conversion_status.dart";
@@ -99,6 +100,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
               child: Column(
                 children: [
                   ModalTopBar(
+                    testId: "transaction_details_modal_top_bar",
                     title: S.of(context).transaction,
                     leadingIcon: const Icon(Icons.close),
                     leadingSemanticLabel: S.of(context).close,
@@ -211,6 +213,7 @@ class _TransactionDetailsModalState extends State<TransactionDetailsModal> {
                                           final shouldBuildBottomWidget = item.value.length > 25;
 
                                           return ListItemRegularRow(
+                                            testId: TestId.fromKey(item.key),
                                             copyableText: item.value,
                                             showArrow: false,
                                             keyValue: ((item.key as ValueKey?)?.value as String?) ??

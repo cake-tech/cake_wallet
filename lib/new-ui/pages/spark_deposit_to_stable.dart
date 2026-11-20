@@ -19,6 +19,7 @@ import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/src/widgets/picker.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -215,19 +216,20 @@ class _SparkDepositToStablePageState extends State<SparkDepositToStablePage> {
               fiatInputMode: loaded.isFiatEntry,
               switchEnabled: !widget.bloc.isFiatDisabled,
               onSwitchButtonPressed: () => widget.bloc.add(FiatEntryToggled()),
-              cryptoAmount: loaded.isFiatEntry
-                  ? widget.bloc
-                      .convertedAmountText(loaded.amountText, isFiatEntry: loaded.isFiatEntry)
-                  : loaded.amountText,
-              cryptoCurrencySymbol: "sats",
-              fiatAmount: loaded.isFiatEntry
-                  ? loaded.amountText
-                  : widget.bloc
-                      .convertedAmountText(loaded.amountText, isFiatEntry: loaded.isFiatEntry),
-              fiatCurrencySymbol: widget.bloc.fiatCurrency.symbol,
-              allAmount: widget.bloc.availableLightningBalance?.toStringWithPrecision(
-                useBaseUnit: true,
-              ),
+              cryptoAmount: widget.bloc.parseSatsOrFiatAmount(
+                    loaded.amountText,
+                    isFiatEntry: loaded.isFiatEntry,
+                  ) ??
+                  Money.zero(CryptoCurrency.btcln),
+              fiatAmount: Money.tryParse(
+                    loaded.isFiatEntry
+                        ? loaded.amountText
+                        : widget.bloc.convertedAmountText(loaded.amountText, isFiatEntry: false),
+                    widget.bloc.fiatCurrency,
+                    strictParsing: false,
+                  ) ??
+                  Money.zero(widget.bloc.fiatCurrency),
+              allAmount: widget.bloc.availableLightningBalance,
               onAllButtonPressed: () {
                 final sats = widget.bloc.availableLightningBalance;
                 if (sats == null) {
@@ -261,11 +263,14 @@ class _SparkDepositToStablePageState extends State<SparkDepositToStablePage> {
               fiatInputMode: false,
               switchEnabled: false,
               onSwitchButtonPressed: () {},
-              cryptoAmount: loaded.amountText,
-              cryptoCurrencySymbol: loaded.token.title,
-              fiatAmount: quote?.amountOut.toStringWithPrecision(useBaseUnit: true) ?? "0",
-              fiatCurrencySymbol: "sats",
-              allAmount: widget.bloc.availableTokenBalance(loaded.token)?.toStringWithPrecision(),
+              cryptoAmount: Money.tryParse(
+                    loaded.amountText,
+                    loaded.token,
+                    strictParsing: false,
+                  ) ??
+                  Money.zero(loaded.token),
+              fiatAmount: quote?.amountOut ?? Money.zero(CryptoCurrency.btcln),
+              allAmount: widget.bloc.availableTokenBalance(loaded.token),
               onAllButtonPressed: () {
                 final tokenBalance = widget.bloc.availableTokenBalance(loaded.token);
                 if (tokenBalance == null) {

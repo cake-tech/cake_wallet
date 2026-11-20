@@ -3,6 +3,7 @@ import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class SeedVerificationStepView extends StatelessWidget {
   const SeedVerificationStepView({
@@ -64,8 +65,9 @@ class SeedVerificationStepView extends StatelessWidget {
                   alignment: WrapAlignment.center,
                   children: walletSeedViewModel.currentOptions.map(
                     (option) {
-                      return GestureDetector(
-                        key: ValueKey('seed_verification_option_${option}_button_key'),
+                      final index = walletSeedViewModel.currentOptions.indexOf(option);
+                      return TestId.merge("seed_verification_option_${index}_button_key", child: GestureDetector(
+                        key: ValueKey('seed_verification_option_${index}_button_key'),
                         onTap: () async {
                           if (walletSeedViewModel.wrongEntries > 2) return;
 
@@ -101,7 +103,7 @@ class SeedVerificationStepView extends StatelessWidget {
                                 ),
                           ),
                         ),
-                      );
+                      ));
                     },
                   ).toList(),
                 ),

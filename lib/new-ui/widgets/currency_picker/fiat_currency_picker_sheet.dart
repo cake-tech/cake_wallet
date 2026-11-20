@@ -115,6 +115,7 @@ class _FiatCurrencyPickerSheetState extends State<FiatCurrencyPickerSheet> {
           mainAxisSize: MainAxisSize.max,
           children: [
             ModalTopBar(
+              testId: "fiat_currency_picker_sheet_top_bar",
               title: S.of(context).select_fiat_currency_title,
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,

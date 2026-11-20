@@ -148,6 +148,9 @@ class _CardsViewState extends State<CardsView> {
         // The card is the tap target; the balances and the card's own buttons stay
         // reachable as children of this node.
         child: Semantics(
+          container: true,
+          explicitChildNodes: true,
+          identifier: "home_page_balance_card_${realIndex}_key",
           button: true,
           selected: isSelected,
           label: cardLabel,
@@ -216,6 +219,7 @@ class _CardsViewState extends State<CardsView> {
                   !widget.dashboardViewModel.balanceViewModel.stableBalanceActive;
 
               return BalanceCard(
+                excludeAccountName: true,
                 width: effectiveCardWidth,
                 accountName: accountName,
                 accountBalance: accountBalance,

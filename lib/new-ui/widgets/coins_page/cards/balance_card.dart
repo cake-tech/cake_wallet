@@ -36,7 +36,8 @@ class BalanceCard extends StatelessWidget {
       this.accountIndex,
       this.fiatFirst = false,
       this.badgeText,
-      this.topAction});
+      this.topAction,
+      this.excludeAccountName = false});
 
   /// A small pill shown above the action row when set - e.g. "Auto-converts to USD on arrival"
   /// while Stable Balance is active. Null (the default) shows nothing.
@@ -51,6 +52,7 @@ class BalanceCard extends StatelessWidget {
   final double borderRadius;
   final Gradient? gradient;
   final Money? accountBalance;
+  final bool excludeAccountName;
   final String accountName;
   final String balance;
   final String fiatBalance;
@@ -145,7 +147,7 @@ class BalanceCard extends StatelessWidget {
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                           fontWeight: FontWeight.w500,
                                           color: design.colors.textColor),
-                                      child: Text("$accountIndex."),
+                                      child: ExcludeSemantics(excluding: excludeAccountName && leadText == accountName, child: Text("$accountIndex.")),
                                     ),
                                   ),
                                 AnimatedDefaultTextStyle(
@@ -154,7 +156,7 @@ class BalanceCard extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: design.colors.textColor
                                           .withAlpha(leadText == accountName ? 255 : 128)),
-                                  child: Text(leadText),
+                                  child: ExcludeSemantics(excluding: excludeAccountName && leadText == accountName, child: Text(leadText)),
                                 ),
                               ],
                             ),
@@ -182,6 +184,9 @@ class BalanceCard extends StatelessWidget {
                         // may be announced.
                         child: ExcludeSemantics(
                           excluding: !selected,
+                          child: Semantics(
+                          container: true,
+                          identifier: fiatFirst ? "balance_card_fiat_balance_key" : "balance_card_crypto_balance_key",
                           child: AnimatedSwitcher(
                             duration: designSwitchDuration,
                             layoutBuilder: (currentChild, previousChildren) {
@@ -224,6 +229,7 @@ class BalanceCard extends StatelessWidget {
                               ],
                             ),
                           ),
+                          ),
                         ),
                       ),
                       AnimatedDefaultTextStyle(
@@ -232,6 +238,9 @@ class BalanceCard extends StatelessWidget {
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                             color: design.colors.textColorSecondary),
+                        child: Semantics(
+                        container: true,
+                        identifier: !selected ? null : fiatFirst ? "balance_card_crypto_balance_key" : "balance_card_fiat_balance_key",
                         child: AnimatedSwitcher(
                           duration: designSwitchDuration,
                           layoutBuilder: (currentChild, previousChildren) {
@@ -249,6 +258,7 @@ class BalanceCard extends StatelessWidget {
                             key: ValueKey(fiatFirst ? balance : fiatBalance),
                             fiatFirst ? "$assetName $balance" : fiatBalance,
                           ),
+                        ),
                         ),
                       ),
                     ],

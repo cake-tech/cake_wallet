@@ -69,6 +69,7 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                       duration: const Duration(milliseconds: 200),
                       child: ModernButton.svg(
                         key: ValueKey(copied),
+                        testId: "receive_page_copy_button_key",
                         size: 60,
                         iconSize: 32,
                         svgPath: "assets/new-ui/copy.svg",
@@ -86,6 +87,7 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                 ),
                 Expanded(
                   child: ModernButton.svg(
+                    testId: "receive_page_set_amount_button_key",
                     size: 60,
                     iconSize: 32,
                     svgPath: "assets/new-ui/set-amount.svg",
@@ -98,6 +100,7 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                 if (widget.showLabelButton)
                   Expanded(
                     child: ModernButton.svg(
+                      testId: "receive_page_label_button_key",
                       size: 60,
                       iconSize: 32,
                       svgPath: "assets/new-ui/add-label.svg",
@@ -108,6 +111,7 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                 if (widget.showAccountsButton)
                   Expanded(
                     child: ModernButton.svg(
+                      testId: "receive_page_addresses_button_key",
                       size: 60,
                       iconSize: 32,
                       svgPath: "assets/new-ui/addr-book.svg",

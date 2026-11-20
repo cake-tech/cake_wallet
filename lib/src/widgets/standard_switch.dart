@@ -1,4 +1,5 @@
 import 'package:cake_wallet/themes/core/theme_extension.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class StandardSwitch extends StatefulWidget {
@@ -7,6 +8,8 @@ class StandardSwitch extends StatefulWidget {
     required this.onTapped,
     this.backgroundColor,
     this.isLoading = false,
+    this.testId,
+    super.key,
   });
 
   final bool value;
@@ -18,6 +21,7 @@ class StandardSwitch extends StatefulWidget {
   /// a plain local setting flip, so it reads as "working on it" instead of unresponsive.
   final bool isLoading;
 
+  final String? testId;
   @override
   StandardSwitchState createState() => StandardSwitchState();
 }
@@ -26,6 +30,7 @@ class StandardSwitchState extends State<StandardSwitch> {
   @override
   Widget build(BuildContext context) {
     return Semantics(
+      identifier: widget.testId ?? TestId.fromKey(widget.key),
       toggled: widget.value,
       child: GestureDetector(
         onTap: widget.isLoading ? null : widget.onTapped,

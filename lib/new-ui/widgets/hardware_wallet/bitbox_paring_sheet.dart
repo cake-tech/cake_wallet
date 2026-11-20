@@ -20,6 +20,7 @@ class HardwareWalletBitboxParingSheet extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ModalTopBar(
+                testId: "bitbox_pairing_sheet_top_bar",
                 title: S.of(context).pairing_code,
                 onLeadingPressed: () => Navigator.of(context).pop(false),
                 onTrailingPressed: () {},
