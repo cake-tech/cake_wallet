@@ -674,8 +674,9 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
     try {
       isRotatingAddress = true;
-      await createNewAddress(wallet, "");
-      wallet.walletAddresses.address = addressList.whereType<WalletAddressListItem>().last.address;
+      final newAddress = await createNewAddress(wallet, "");
+      wallet.walletAddresses.address =
+          newAddress ?? addressList.whereType<WalletAddressListItem>().last.address;
     } finally {
       isRotatingAddress = false;
     }
