@@ -74,8 +74,8 @@ jobs:
     needs: [torch, monero]
     if: github.event.pull_request.head.repo.fork == false
     # The repository variable IOS_BUILD_RUNNER (JSON) picks the runner: ["self-hosted","cake-m5-ultra"] is the Mac
-    # Studio pool (a throwaway VM per job, Xcode 27.1). Unset, it falls back to GitHub's xcode-27 image, whose
-    # default is the same Xcode 27.1, so the iOS SDK never depends on which pool built the archive.
+    # Studio pool (a throwaway VM per job, Xcode 27.1 only). Unset, it falls back to GitHub's xcode-27 image. The
+    # first step pins Xcode 27.1 on either pool, so the archive is built with the Xcode testflight exports with.
     runs-on: ${{ fromJSON(vars.IOS_BUILD_RUNNER || '"xcode-27"') }}
 
     outputs:
@@ -88,6 +88,16 @@ jobs:
       GO_VERSION: "1.24.1"
 
     steps:
+      - name: Select Xcode 27.1
+        run: |
+          # GitHub's xcode-27 image ships several versions; the Mac Studio template has only 27.1, as Xcode.app.
+          if [ -d /Applications/Xcode_27.1.app ]; then sudo xcode-select -s /Applications/Xcode_27.1.app; fi
+          if [ "$(xcodebuild -version | sed -n 1p)" != "Xcode 27.1" ]; then
+            xcodebuild -version
+            echo "::error::build needs Xcode 27.1, the version the testflight job exports with"
+            exit 1
+          fi
+
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
