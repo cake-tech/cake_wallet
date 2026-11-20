@@ -1,8 +1,15 @@
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/viewmodels/restore_multi_sig/restore_multi_sig_bloc.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/routes.dart";
+import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
+import "package:cake_wallet/src/screens/connect_device/select_device_manufacturer_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/hardware/hardware_account_data.dart";
 import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
 class MultiSigSignersPage extends StatelessWidget {
   const MultiSigSignersPage({
@@ -31,7 +38,51 @@ class MultiSigSignersPage extends StatelessWidget {
                         _SignerRow(
                           key: ValueKey("multi_sig_signers_page_signer_${i}_row_key"),
                           index: i + 1,
-                          onPressed: () {},
+                          hardwareWalletType: connectedSigners.elementAtOrNull(i),
+                          onPressed: () async {
+                            final provider = await Navigator.of(context).push<HardwareWalletType?>(
+                              MaterialPageRoute(
+                                builder: (context) => SelectDeviceManufacturerPage(
+                                  onSelect: Navigator.pop,
+                                  showUnavailable: false,
+                                  availableHardwareWalletTypes: [
+                                    HardwareWalletType.ledger,
+                                    HardwareWalletType.bitbox,
+                                    HardwareWalletType.trezor,
+                                  ],
+                                ),
+                              ),
+                            );
+
+                            if (provider == null || !context.mounted) {
+                              return;
+                            }
+
+                            HardwareAccountData? account;
+                            await Navigator.of(context).pushNamed(
+                              Routes.connectDevices,
+                              arguments: ConnectDevicePageParams(
+                                walletType: WalletType.bitcoin,
+                                hardwareWalletType: provider,
+                                onConnectDevice: (context, hwwVM) async {
+                                  final service =
+                                      hwwVM.getHardwareWalletService(WalletType.bitcoin);
+                                  account = (await service.getAvailableAccounts(index: 0, limit: 1))
+                                      .first;
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
+                                },
+                                isReconnect: false,
+                              ),
+                            );
+
+                            if (account != null && context.mounted) {
+                              context
+                                  .read<RestoreMultiSigBloc>()
+                                  .add(ConnectSigner(account!.multisigSigner));
+                            }
+                          },
                         ),
                     ],
                   ),
@@ -108,6 +159,20 @@ class _SignerRow extends StatelessWidget {
   final HardwareWalletType? hardwareWalletType;
   final VoidCallback onPressed;
 
+  String get deviceTileLeading {
+    switch (hardwareWalletType) {
+      case HardwareWalletType.ledger:
+        return "assets/new-ui/hardware_wallets/device_ledger_nano_x.svg";
+      case HardwareWalletType.bitbox:
+        return "assets/new-ui/hardware_wallets/device_bitbox.svg";
+      case HardwareWalletType.trezor:
+        return "assets/new-ui/hardware_wallets/device_trezor_safe_7.svg";
+
+      default:
+        return "assets/new-ui/hardware_wallet.svg";
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Material(
         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -129,7 +194,7 @@ class _SignerRow extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: CakeImageWidget(
-                    imageUrl: "assets/new-ui/hardware_wallet.svg",
+                    imageUrl: deviceTileLeading,
                     colorFilter: ColorFilter.mode(
                       Theme.of(context).colorScheme.onSurfaceVariant,
                       BlendMode.srcIn,
