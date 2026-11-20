@@ -144,7 +144,8 @@ Future<void> runAppWithZone({Key? topLevelKey}) async {
       return true;
     };
 
-    await FlutterDaemon().unmarkBackgroundSync();
+    // A background sync runs in this same process: ask it to stop rather than kill it.
+    await FlutterDaemon().requestForeground();
     await initDb();
 
     try {
