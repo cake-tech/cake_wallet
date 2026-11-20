@@ -246,6 +246,8 @@ jobs:
         include:
           - leg: control-6g
             jvmargs: "-Xmx6144M"
+          - leg: control-8g
+            jvmargs: "-Xmx8192M"
           - leg: fjpar8-6g
             jvmargs: "-Xmx6144M -Djava.util.concurrent.ForkJoinPool.common.parallelism=8"
           - leg: gclockerretry-6g
@@ -403,7 +405,7 @@ jobs:
           export ANDROID_NDK="$ANDROID_NDK_HOME"
           mkdir -p /tmp/gclogs/stress
           pass=0; fail=0
-          for i in $(seq 1 15); do
+          for i in $(seq 1 200); do
             rm -rf build/app/outputs/apk build/app/outputs/flutter-apk build/app/intermediates/apk build/app/intermediates/incremental/packageRelease
             start=$(date +%s)
             flutter build apk --dart-define=hasDevOptions=true \
