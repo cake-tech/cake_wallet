@@ -848,10 +848,11 @@ abstract class DashboardViewModelBase with Store {
 
   @computed
   List<PendingConversionListItem> get pendingConversions =>
-      pendingConversionStore.forWallet(wallet.id).map((conversion) {
+      pendingConversionStore.forWallet(wallet.id).indexed.map((entry) {
+        final (index, conversion) = entry;
         return PendingConversionListItem(
           conversion: conversion,
-          key: ValueKey('pending_conversion_${conversion.paymentId}_key'),
+          key: ValueKey('pending_conversion_${index}_key'),
         );
       }).toList();
   int _historyKeyIndex = 0;
