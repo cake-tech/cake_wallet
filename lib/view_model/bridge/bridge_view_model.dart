@@ -18,7 +18,8 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_amount_format.dart';
+import "package:cw_core/bridge_quote.dart";
+import "package:cw_core/bridge_transfer_status.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -181,40 +182,25 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   @computed
-  bool get isQuoteFeeInToken => (quote?.tokenFee ?? BigInt.zero) > BigInt.zero;
-
-  @computed
-  CryptoCurrency get quoteFeeCurrency => isQuoteFeeInToken ? selectedToken! : wallet.currency;
-
-  @computed
-  String get quoteFee {
-    if (quote == null) return '—';
-
-    final fee = isQuoteFeeInToken ? quote!.tokenFee : quote!.nativeFee;
-    return amountParsingProxy.asDisplayString(Money(fee, quoteFeeCurrency));
-  }
-
-  @computed
   String get quoteFeeFormattedForDisplay {
-    if (quoteFee.isEmpty) return '';
+    final fee = quote?.fee;
+    if (fee == null) return '—';
 
-    return '${quoteFee.withMaxDecimals(8)} ${quoteFeeCurrency.title}';
+    return amountParsingProxy.asDisplayStringWithSymbol(fee);
   }
 
   @computed
   String get quoteFiatFeeFormattedForDisplay {
     try {
-      if (quote == null || quoteFee.isEmpty) return '';
+      final fee = quote?.fee;
+      if (fee == null) return '';
 
-      final price = fiatConversionStore.prices[quoteFeeCurrency];
+      final price = fiatConversionStore.prices[fee.currency];
       if (price == null) return '';
 
       final fiatFeeFormatted = calculateFiatAmount(
         price: price,
-        cryptoAmount: amountParsingProxy.getDisplayCryptoAmount(
-          quoteFee.replaceAll(',', '.'),
-          quoteFeeCurrency,
-        ),
+        cryptoAmount: amountParsingProxy.asDisplayString(fee),
       );
 
       return '(${fiatCurrencyTitle} $fiatFeeFormatted)';
@@ -226,13 +212,13 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   @computed
   String? get quoteReceiveAmountFormattedForDisplay {
     final token = selectedToken.asErc20;
-    if (token == null || !isQuoteFeeInToken) return null;
+    final receiveAmount = quote?.receiveAmount;
+    if (token == null || receiveAmount == null) return null;
 
-    final parsedAmount = _parseAndValidateAmount(token).parsedAmount;
-    if (parsedAmount == null) return null;
+    final sentAmount = amountParsingProxy.tryParseCryptoString(amount.replaceAll(',', '.'), token);
+    if (sentAmount == null || receiveAmount.amount >= sentAmount.amount) return null;
 
-    final receiveAmount = Money(parsedAmount - quote!.tokenFee, token);
-    return "${amountParsingProxy.asDisplayString(receiveAmount).withMaxDecimals(8)} ${token.title}";
+    return amountParsingProxy.asDisplayStringWithSymbol(receiveAmount);
   }
 
   @computed
@@ -461,9 +447,9 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
       if (requestId != _quoteRequestId) return;
 
-      if (loadedQuote.tokenFee >= amountBigInt) {
-        final fee = amountParsingProxy.asDisplayString(Money(loadedQuote.tokenFee, token));
-        quoteError = "The amount must be higher than the bridge fee of $fee ${token.title}.";
+      if (loadedQuote.receiveAmount.amount <= BigInt.zero) {
+        final fee = amountParsingProxy.asDisplayStringWithSymbol(loadedQuote.fee);
+        quoteError = "The amount must be higher than the bridge fee of $fee.";
         return;
       }
 

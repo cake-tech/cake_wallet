@@ -1414,6 +1414,8 @@ import 'dart:math' as math;
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/bridge_quote.dart';
+import 'package:cw_core/bridge_transfer_status.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -1438,11 +1440,11 @@ import 'package:cw_core/transaction_direction.dart';
 """;
   const evmCWHeaders = """
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
-import 'package:cake_wallet/core/layerzero_scan_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_evm/bridge_provider.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
@@ -1463,16 +1465,11 @@ import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/deuro/deuro_savings.dart';
-import 'package:cw_evm/cctp/cctp_config.dart';
-import 'package:cw_evm/cctp/cctp_quote.dart';
-import 'package:cw_evm/cctp/cctp_service.dart';
-import 'package:cw_evm/usdt0/usdt0_config.dart';
-import 'package:cw_evm/usdt0/usdt0_quote.dart';
-import 'package:cw_evm/usdt0/usdt0_service.dart';
+import 'package:cw_evm/cctp/cctp_bridge_provider.dart';
+import 'package:cw_evm/usdt0/usdt0_bridge_provider.dart';
 import 'package:eth_sig_util/util/utils.dart';
 export 'package:cw_evm/evm_chain_transaction_priority.dart';
 export 'package:cw_evm/evm_erc20_balance.dart';
-export 'package:cw_evm/usdt0/usdt0_quote.dart';
 
 """;
   const evmCwPart = "part 'cw_evm.dart';";
@@ -1725,32 +1722,6 @@ class EvmWalletConnectFeeQuote {
   final int maxFeePerGasWei;
   final int maxPriorityFeePerGasWei;
   final int? latestBaseFeeWei;
-}
-
-class BridgeQuote {
-  const BridgeQuote({
-    required this.nativeFee,
-    required this.lzTokenFee,
-    required this.tokenFee,
-  });
-
-  final BigInt nativeFee;
-  final BigInt lzTokenFee;
-
-  /// Taken out of the bridged amount, in the token's smallest unit.
-  final BigInt tokenFee;
-}
-
-class BridgeTransferStatus {
-  const BridgeTransferStatus({
-    required this.isDelivered,
-    required this.isFailed,
-    this.message,
-  });
-
-  final bool isDelivered;
-  final bool isFailed;
-  final String? message;
 }
   """;
 

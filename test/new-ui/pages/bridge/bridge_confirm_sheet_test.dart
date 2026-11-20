@@ -16,6 +16,7 @@ import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/bridge/bridge_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
+import "package:cw_core/bridge_quote.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/pending_transaction.dart";
@@ -128,7 +129,10 @@ class _Evm extends Fake implements EVM {
     required BigInt amount,
     required String recipientAddress,
   }) async =>
-      BridgeQuote(nativeFee: BigInt.zero, lzTokenFee: BigInt.zero, tokenFee: BigInt.from(60000));
+      BridgeQuote(
+        fee: Money(BigInt.from(60000), token),
+        receiveAmount: Money(amount - BigInt.from(60000), token),
+      );
 
   @override
   Future<PendingTransaction> executeBridgeTransfer({

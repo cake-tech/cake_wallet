@@ -598,6 +598,11 @@ class CWEVM extends EVM {
   @override
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
 
+  static final _bridgeProviders = <BridgeProvider>[CctpBridgeProvider(), USDT0BridgeProvider()];
+
+  BridgeProvider? _bridgeProviderFor(String tokenContract, int chainId) => _bridgeProviders
+      .firstWhereOrNull((provider) => provider.supportsToken(tokenContract, chainId));
+
   @override
   bool isBridgeToken(WalletBase wallet, CryptoCurrency token) {
     if (token is! Erc20Token) return false;
@@ -605,7 +610,7 @@ class CWEVM extends EVM {
     final chainId = getSelectedChainId(wallet);
     if (chainId == null) return false;
 
-    return USDT0Config.isUSDT0Token(token, chainId) || CctpConfig.isCctpToken(token, chainId);
+    return _bridgeProviderFor(token.contractAddress, chainId) != null;
   }
 
   @override
@@ -613,18 +618,12 @@ class CWEVM extends EVM {
     final currentChainId = getSelectedChainId(wallet);
     if (currentChainId == null || token is! Erc20Token) return [];
 
-    final bool Function(int chainId) isChainSupported;
-    if (CctpConfig.isCctpToken(token, currentChainId)) {
-      isChainSupported = CctpConfig.isChainSupported;
-    } else if (USDT0Config.isUSDT0Token(token, currentChainId)) {
-      isChainSupported = USDT0Config.isChainSupported;
-    } else {
-      return [];
-    }
+    final provider = _bridgeProviderFor(token.contractAddress, currentChainId);
+    if (provider == null) return [];
 
     final result = <ChainInfo>[];
     for (final config in _registry.getAllChains()) {
-      if (isChainSupported(config.chainId) && config.chainId != currentChainId) {
+      if (provider.supportsChain(config.chainId) && config.chainId != currentChainId) {
         result.add(ChainInfo(
           chainId: config.chainId,
           name: config.name,
@@ -644,37 +643,17 @@ class CWEVM extends EVM {
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-  }) async {
-    if (token is Erc20Token && CctpConfig.isCctpToken(token, sourceChainId)) {
-      final quote = await CctpService.quoteCrossChainTransfer(
-        sourceChainId: sourceChainId,
-        destinationChainId: destinationChainId,
-        amount: amount,
-      );
-      return BridgeQuote(
-        nativeFee: BigInt.zero,
-        lzTokenFee: BigInt.zero,
-        tokenFee: quote.maxFee,
-      );
-    }
-
+  }) {
     final evmWallet = wallet as EVMChainWallet;
-    final client = evmWallet.getWeb3Client();
-    if (client == null) {
-      throw StateError('Wallet not connected');
-    }
+    final tokenErc20 = token as Erc20Token;
 
-    final quote = await USDT0Service.quoteCrossChainTransfer(
-      client: client,
+    return _bridgeProviderFor(tokenErc20.contractAddress, sourceChainId)!.quoteTransfer(
+      wallet: evmWallet,
+      token: tokenErc20,
       sourceChainId: sourceChainId,
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
-    );
-    return BridgeQuote(
-      nativeFee: quote.nativeFee,
-      lzTokenFee: quote.lzTokenFee,
-      tokenFee: BigInt.zero,
     );
   }
 
@@ -693,27 +672,14 @@ class CWEVM extends EVM {
     final evmWallet = wallet as EVMChainWallet;
     final tokenErc20 = token as Erc20Token;
 
-    if (CctpConfig.isCctpToken(tokenErc20, sourceChainId)) {
-      return CctpService.executeCrossChainTransfer(
-        wallet: evmWallet,
-        destinationChainId: destinationChainId,
-        amount: amount,
-        recipientAddress: recipientAddress,
-        quote: CctpQuote(maxFee: quote.tokenFee),
-        token: tokenErc20,
-        priority: priority as EVMChainTransactionPriority,
-        useBlinkProtection: useBlinkProtection,
-      );
-    }
-
-    return USDT0Service.executeCrossChainTransfer(
+    return _bridgeProviderFor(tokenErc20.contractAddress, sourceChainId)!.executeTransfer(
       wallet: evmWallet,
+      token: tokenErc20,
       sourceChainId: sourceChainId,
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
-      quote: USDT0Quote(nativeFee: quote.nativeFee, lzTokenFee: quote.lzTokenFee),
-      token: tokenErc20,
+      quote: quote,
       priority: priority as EVMChainTransactionPriority,
       useBlinkProtection: useBlinkProtection,
     );
@@ -724,30 +690,11 @@ class CWEVM extends EVM {
     required int sourceChainId,
     required String tokenContract,
     required String sourceTxHash,
-  }) async {
-    if (CctpConfig.isCctpTokenAddress(tokenContract, sourceChainId)) {
-      final status = await CctpService.getTransferStatus(
+  }) =>
+      _bridgeProviderFor(tokenContract, sourceChainId)!.getTransferStatus(
         sourceChainId: sourceChainId,
         sourceTxHash: sourceTxHash,
       );
-      if (status == null) return null;
-
-      return BridgeTransferStatus(
-        isDelivered: status.isDelivered,
-        isFailed: status.isFailed,
-        message: status.message,
-      );
-    }
-
-    final status = await LayerZeroScanService.getMessageStatus(sourceTxHash);
-    if (status == null) return null;
-
-    return BridgeTransferStatus(
-      isDelivered: status.isDelivered,
-      isFailed: status.isFailed,
-      message: status.status?.message,
-    );
-  }
 
   Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
     WalletBase wallet,

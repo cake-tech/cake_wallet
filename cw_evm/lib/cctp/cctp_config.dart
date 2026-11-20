@@ -1,5 +1,3 @@
-import "package:cw_core/erc20_token.dart";
-
 // https://developers.circle.com/cctp/references/contract-addresses
 class CctpConfig {
   CctpConfig._();
@@ -25,18 +23,5 @@ class CctpConfig {
   static const String forwardingHookData =
       "636374702d666f72776172640000000000000000000000000000000000000000";
 
-  static String? getUsdcTokenAddress(int chainId) => usdcTokenAddressByChainId[chainId];
-
   static int? getDomain(int chainId) => domainByChainId[chainId];
-
-  static bool isChainSupported(int chainId) => usdcTokenAddressByChainId.containsKey(chainId);
-
-  static bool isCctpTokenAddress(String contractAddress, int chainId) {
-    final address = getUsdcTokenAddress(chainId);
-    if (address == null) return false;
-    return contractAddress.toLowerCase() == address.toLowerCase();
-  }
-
-  static bool isCctpToken(Erc20Token token, int chainId) =>
-      isCctpTokenAddress(token.contractAddress, chainId);
 }

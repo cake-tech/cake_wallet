@@ -3,12 +3,16 @@ import "dart:convert";
 import "dart:io";
 import "dart:typed_data";
 
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/bridge_transfer_status.dart";
+import "package:cw_core/erc20_token.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:cw_core/utils/tor/disabled.dart";
+import "package:cw_evm/cctp/cctp_bridge_provider.dart";
 import "package:cw_evm/cctp/cctp_config.dart";
-import "package:cw_evm/cctp/cctp_service.dart";
 import "package:cw_evm/contract/oft.dart" show addressToBytes32;
 import "package:cw_evm/contract/token_messenger_v2.dart";
+import "package:cw_evm/evm_chain_wallet.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:hex/hex.dart";
 
@@ -104,6 +108,8 @@ class _CircleApiResponse extends StreamView<List<int>> implements HttpClientResp
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _Wallet extends Fake implements EVMChainWallet {}
+
 void main() {
   setUpAll(() => CakeTor.instance = CakeTorDisabled());
 
@@ -126,7 +132,7 @@ void main() {
       amount: BigInt.from(10000000),
       destinationDomain: CctpConfig.getDomain(8453)!,
       mintRecipient: addressToBytes32("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"),
-      burnToken: CctpConfig.getUsdcTokenAddress(1)!,
+      burnToken: CctpConfig.usdcTokenAddressByChainId[1]!,
       destinationCaller: Uint8List(32),
       maxFee: BigInt.from(60243),
       minFinalityThreshold: 1000,
@@ -146,16 +152,27 @@ void main() {
       '"forwardFee":{"low":763612,"med":984192,"high":1204772}}]',
     );
 
+    final usdc = Erc20Token(
+      name: "USD Coin",
+      symbol: "USDC",
+      contractAddress: CctpConfig.usdcTokenAddressByChainId[8453]!,
+      decimal: 6,
+    );
+
     final quote = await circle.answer(
-      () => CctpService.quoteCrossChainTransfer(
+      () => CctpBridgeProvider().quoteTransfer(
+        wallet: _Wallet(),
+        token: usdc,
         sourceChainId: 8453,
         destinationChainId: 1,
         amount: BigInt.from(12345678),
+        recipientAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       ),
     );
 
     // 1.3 bps of 12.345678 USDC is 1604.93814 subunits.
-    expect(quote.maxFee, BigInt.from(1605 + 984192));
+    expect(quote.fee, Money(BigInt.from(1605 + 984192), usdc));
+    expect(quote.receiveAmount, Money(BigInt.from(12345678 - 1605 - 984192), usdc));
     expect(circle.requested, ["https://iris-api.circle.com/v2/burn/USDC/fees/6/0?forward=true"]);
   });
 
@@ -165,8 +182,9 @@ void main() {
     String messages(String fields) => '{"messages":[{"eventNonce":"0x720ec109",'
         '"cctpVersion":2,$fields}],"sourceTxHash":"$sourceTxHash"}';
 
-    Future<CctpTransferStatus?> statusOfBaseTransfer(_CircleApi circle) => circle.answer(
-          () => CctpService.getTransferStatus(sourceChainId: 8453, sourceTxHash: sourceTxHash),
+    Future<BridgeTransferStatus?> statusOfBaseTransfer(_CircleApi circle) => circle.answer(
+          () => CctpBridgeProvider()
+              .getTransferStatus(sourceChainId: 8453, sourceTxHash: sourceTxHash),
         );
 
     test("is delivered once Circle has forwarded the mint", () async {
