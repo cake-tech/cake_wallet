@@ -32,7 +32,7 @@ class WalletLoadingService {
   final KeyService keyService;
   final WalletService Function(WalletType type) walletServiceFactory;
 
-  Future<void> renameWallet(WalletType type, String name, String newName,
+  Future<bool> renameWallet(WalletType type, String name, String newName,
       {String? password}) async {
     try {
       final walletService = walletServiceFactory.call(type);
@@ -53,9 +53,11 @@ class WalletLoadingService {
         final newNameKey = PreferencesKey.moneroWalletUpdateV1Key(newName);
         await sharedPreferences.setBool(newNameKey, isPasswordUpdated);
       }
+      return true;
     } catch (error, stack) {
       await ExceptionHandler.resetLastPopupDate();
       await ExceptionHandler.onError(FlutterErrorDetails(exception: error, stack: stack));
+      return false;
     }
   }
 

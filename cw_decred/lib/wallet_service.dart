@@ -194,6 +194,7 @@ class DecredWalletService extends WalletService<
     if (currentWalletInfo == null) {
       throw WalletNotFoundException(name: currentName, type: getType());
     }
+    final oldWalletId = currentWalletInfo.id;
     final di = await currentWalletInfo.getDerivationInfo();
     final network =
         di.derivationPath == seedRestorePathTestnet || di.derivationPath == pubkeyRestorePathTestnet
@@ -216,6 +217,10 @@ class DecredWalletService extends WalletService<
     newWalletInfo.path = "";
 
     await newWalletInfo.save();
+    await rekeyUnspentCoinsAfterRename(
+      oldWalletId: oldWalletId,
+      newWalletId: newWalletInfo.id,
+    );
   }
 
   @override
