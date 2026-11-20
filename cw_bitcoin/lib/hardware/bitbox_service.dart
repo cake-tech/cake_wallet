@@ -14,6 +14,7 @@ import "package:cw_bitcoin/psbt/v0_finalizer.dart";
 import "package:cw_bitcoin/utils.dart";
 import "package:cw_core/hardware/hardware_account_data.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:ledger_bitcoin/psbt.dart";
 
 class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWalletService {
@@ -47,6 +48,7 @@ class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWal
           derivationPath: derivationPath,
           xpub: xPub,
           masterFingerprint: fingerprint,
+          hardwareWalletType: HardwareWalletType.bitbox,
         ),
       );
     }

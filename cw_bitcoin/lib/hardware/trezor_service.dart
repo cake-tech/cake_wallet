@@ -6,6 +6,7 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart";
 import "package:cw_bitcoin/utils.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:flutter/foundation.dart";
 import "package:ledger_bitcoin/psbt.dart";
 import "package:ledger_bitcoin/src/utils/uint8list_extension.dart" as ext;
@@ -48,6 +49,7 @@ class BitcoinTrezorService extends HardwareWalletService with BitcoinHardwareWal
           derivationPath: derivationPath,
           xpub: xPub.$1,
           masterFingerprint: fingerprint,
+          hardwareWalletType: HardwareWalletType.trezor,
         ),
       );
     }

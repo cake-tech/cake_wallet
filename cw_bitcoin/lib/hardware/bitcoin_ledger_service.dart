@@ -7,6 +7,7 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart";
 import "package:cw_bitcoin/utils.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:ledger_bitcoin/ledger_bitcoin.dart";
 import "package:ledger_flutter_plus/ledger_flutter_plus.dart";
 
@@ -42,6 +43,7 @@ class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWal
           derivationPath: derivationPath,
           masterFingerprint: masterFp,
           xpub: xPub,
+          hardwareWalletType: HardwareWalletType.ledger,
         ),
       );
     }

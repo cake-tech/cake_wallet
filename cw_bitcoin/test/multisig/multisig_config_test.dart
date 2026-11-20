@@ -1,6 +1,7 @@
 import "dart:convert";
 
 import "package:cw_bitcoin/multisig/multisig_config.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:flutter_test/flutter_test.dart";
 
 const _xpub1 =
@@ -12,19 +13,25 @@ const _expectedDescriptor = "wsh(sortedmulti(2,"
     "[d34db33f/48'/0'/0'/2']$_xpub1/<0;1>/*,"
     "[deadbeef/48'/0'/0'/2']$_xpub2/<0;1>/*))#k8fwpwdm";
 
-BitcoinMultisigSigner _signer(String xPub, String fingerprint, String name) =>
+BitcoinMultisigSigner _signer(
+  String xPub,
+  String fingerprint,
+  String name, [
+  HardwareWalletType hardwareWalletType = HardwareWalletType.ledger,
+]) =>
     BitcoinMultisigSigner(
       xPub: xPub,
       masterFingerprint: fingerprint,
       derivationPath: "m/48'/0'/0'/2'",
       name: name,
+      hardwareWalletType: hardwareWalletType,
     );
 
 final _config = BitcoinMultisigConfig(
   threshold: 2,
   signers: [
     _signer(_xpub1, "d34db33f", "Ledger"),
-    _signer(_xpub2, "deadbeef", "Bitbox"),
+    _signer(_xpub2, "deadbeef", "Bitbox", HardwareWalletType.bitbox),
   ],
 );
 
@@ -43,12 +50,13 @@ void main() {
         masterFingerprint: "d34db33f",
         derivationPath: "48'/0'/0'/2'",
         name: "Ledger",
+        hardwareWalletType: HardwareWalletType.ledger,
       );
       expect(signer.keyOrigin, "[d34db33f/48'/0'/0'/2']$_xpub1");
     });
 
     test("round-trips through json", () {
-      final signer = _signer(_xpub1, "d34db33f", "Ledger");
+      final signer = _signer(_xpub1, "d34db33f", "Bitbox", HardwareWalletType.bitbox);
       final decoded = BitcoinMultisigSigner.fromJson(
         jsonDecode(jsonEncode(signer.toJson())) as Map<String, dynamic>,
       );
@@ -57,6 +65,12 @@ void main() {
       expect(decoded.masterFingerprint, signer.masterFingerprint);
       expect(decoded.derivationPath, signer.derivationPath);
       expect(decoded.name, signer.name);
+      expect(decoded.hardwareWalletType, HardwareWalletType.bitbox);
+    });
+
+    test("stores the hardware wallet type by name", () {
+      final signer = _signer(_xpub1, "d34db33f", "Bitbox", HardwareWalletType.bitbox);
+      expect(signer.toJson()["hardwareWalletType"], "bitbox");
     });
   });
 
@@ -102,6 +116,10 @@ void main() {
 
       expect(decoded.threshold, _config.threshold);
       expect(decoded.signers.map((s) => s.name), ["Ledger", "Bitbox"]);
+      expect(
+        decoded.signers.map((s) => s.hardwareWalletType),
+        [HardwareWalletType.ledger, HardwareWalletType.bitbox],
+      );
       expect(decoded.toDescriptor(), _expectedDescriptor);
     });
   });

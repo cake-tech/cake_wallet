@@ -1,4 +1,5 @@
 import "package:cw_core/multisig/multisig_config.dart";
+import "package:cw_core/wallet_info.dart";
 
 class BitcoinMultisigSigner extends MultisigSigner {
   const BitcoinMultisigSigner({
@@ -6,6 +7,7 @@ class BitcoinMultisigSigner extends MultisigSigner {
     required this.masterFingerprint,
     required super.derivationPath,
     required super.name,
+    required super.hardwareWalletType,
   });
 
   factory BitcoinMultisigSigner.fromJson(Map<String, dynamic> json) => BitcoinMultisigSigner(
@@ -13,6 +15,7 @@ class BitcoinMultisigSigner extends MultisigSigner {
         masterFingerprint: json["masterFingerprint"] as String,
         derivationPath: json["derivationPath"] as String,
         name: json["name"] as String,
+        hardwareWalletType: HardwareWalletType.values.byName(json["hardwareWalletType"] as String),
       );
 
   final String xPub;
@@ -24,11 +27,12 @@ class BitcoinMultisigSigner extends MultisigSigner {
   }
 
   @override
-  Map<String, String> toJson() => {
+  Map<String, dynamic> toJson() => {
         "xPub": xPub,
         "masterFingerprint": masterFingerprint,
         "derivationPath": derivationPath,
         "name": name,
+        "hardwareWalletType": hardwareWalletType.name,
       };
 }
 
