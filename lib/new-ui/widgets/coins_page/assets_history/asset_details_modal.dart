@@ -60,6 +60,7 @@ class AssetDetailsModal extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ModalTopBar(
+            testId: "asset_details_modal_top_bar",
             title: "",
             trailingIcon: Icon(Icons.close),
             trailingSemanticLabel: S.of(context).close,

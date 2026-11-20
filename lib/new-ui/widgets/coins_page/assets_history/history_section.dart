@@ -12,6 +12,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction
 import 'package:cake_wallet/order/order.dart';
 import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/routes.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -45,6 +46,7 @@ class HistorySection extends StatelessWidget {
   /// date, amounts) merges into one label.
   Widget _historyRow({required VoidCallback onTap, required Widget child}) => MergeSemantics(
         child: Semantics(
+          identifier: TestId.fromKey(child.key),
           button: true,
           child: GestureDetector(onTap: onTap, child: child),
         ),
@@ -120,7 +122,7 @@ class HistorySection extends StatelessWidget {
                                 }
                               },
                               child: HistoryTile(
-                                key: ValueKey("home_page_transaction_${transaction.id}_key"),
+                                key: ValueKey("${short ? "home_page" : "history_modal"}_transaction_${index}_key"),
                                 title: item.formattedTitle + transactionType,
                                 date: _formatTransactionDate(item.date, localeName),
                                 amount: item.formattedCryptoAmount,
@@ -137,26 +139,24 @@ class HistorySection extends StatelessWidget {
                             );
                           } else if (item is TradeListItem) {
                             final trade = item.trade;
-                            final tradeFrom = trade.from;
-                            final tradeTo = trade.to;
 
                             return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.tradeDetails, arguments: trade),
                               child: HistoryTradeTile(
-                                from: tradeFrom,
-                                to: tradeTo,
+                                from: trade.depositAmount.currency as CryptoCurrency,
+                                to: trade.payoutAmount.currency as CryptoCurrency,
                                 provider: trade.provider,
                                 date: _formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
                                 amount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.amountFormatted(),
+                                    : trade.depositAmount.toStringWithSymbol(fractionalDigits: 8),
                                 receiveAmount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.receiveAmountFormatted(),
+                                    : trade.payoutAmount.toStringWithSymbol(fractionalDigits: 8),
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,

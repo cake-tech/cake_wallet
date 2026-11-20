@@ -16,6 +16,7 @@ class ListItemToggleWidget extends StatefulWidget {
     this.leadingEndWidget,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -28,6 +29,7 @@ class ListItemToggleWidget extends StatefulWidget {
   final Widget? leadingEndWidget;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemToggleWidget> createState() => _ListItemToggleWidgetState();
@@ -42,6 +44,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
   @override
   Widget build(BuildContext context) {
     return MergeSemantics(child: ListItemStyleWrapper(
+        testId: widget.testId,
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
         iconPath: widget.iconPath,
