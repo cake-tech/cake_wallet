@@ -165,6 +165,7 @@ import 'package:cw_bitcoin/hardware/bitbox_service.dart';
 import 'package:cw_bitcoin/hardware/litecoin_trezor_service.dart';
 import 'package:cw_bitcoin/hardware/trezor_service.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
+import 'package:cw_bitcoin/derivation_recovery/derivation_recovery_service.dart';
 import 'package:mobx/mobx.dart';
 import "package:breez_sdk_spark_flutter/src/rust/errors.dart";
 """;
@@ -190,6 +191,39 @@ class ElectrumSubAddress {
   final bool isChange;
   final String? derivationPath;
   final bool isLegacyDerivation;
+}
+
+/// Funds a derivation recovery scan found on one chain (derivation path, seed type, address type).
+class DerivationRecoveryFunds {
+  DerivationRecoveryFunds({
+    required this.path,
+    required this.seedType,
+    required this.addressType,
+    required this.amount,
+    required this.coinCount,
+  });
+  final String path;
+  final String seedType;
+  final String addressType;
+  final int amount;
+  final int coinCount;
+}
+
+class DerivationRecoveryScan {
+  DerivationRecoveryScan({
+    required this.funds,
+    required this.total,
+    required this.unrecoverableTotal,
+    required this.checkedAddresses,
+    required this.result,
+  });
+  final List<DerivationRecoveryFunds> funds;
+  final int total;
+  /// On the wallet's own addresses, but with keys the search didn't find.
+  final int unrecoverableTotal;
+  final int checkedAddresses;
+  /// The scan as cw_bitcoin keeps it, for createDerivationRecoverySweep.
+  final Object result;
 }
 
 abstract class Bitcoin {
@@ -312,6 +346,9 @@ abstract class Bitcoin {
   Map<int, Object> accountBalancesSnapshot(Object wallet);
   Future<void> setCurrentAccount(Object wallet, int accountIndex);
   List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet);
+  bool canRecoverFundsFromOtherDerivations(Object wallet);
+  Future<DerivationRecoveryScan> scanForFundsOnOtherDerivations(Object wallet, {void Function(int checkedAddresses)? onProgress});
+  Future<PendingTransaction> createDerivationRecoverySweep(Object wallet, DerivationRecoveryScan scan, TransactionPriority priority);
 }
   """;
 
