@@ -49,6 +49,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.unspents,
     this.isReceivedSilentPayment = false,
     this.isHogEx = false,
+    this.vsize,
     Map<String, dynamic>? additionalInfo,
   }) {
     this.id = id;
@@ -64,6 +65,22 @@ class ElectrumTransactionInfo extends TransactionInfo {
     this.confirmations = confirmations;
     this.to = to;
     this.additionalInfo = additionalInfo ?? {};
+  }
+
+  /// Virtual size of the transaction in vbytes (segwit-adjusted). Nullable to
+  /// stay readable for legacy cached records created before this field
+  /// existed and for non-Bitcoin transaction infos, where it is never set.
+  int? vsize;
+
+  /// Actual paid fee rate in sat/vB derived from the total fee and the
+  /// transaction's virtual size. Rounding matches the half-up [Money]
+  /// division already used for the displayed fee rate. Returns null when the
+  /// fee or the vsize is unavailable, so callers must not render a rate.
+  int? get feeRateSatsPerVbyte {
+    final f = fee;
+    final v = vsize;
+    if (f == null || v == null || v <= 0) return null;
+    return (f / BigInt.from(v)).amount.toInt();
   }
 
   factory ElectrumTransactionInfo.fromElectrumVerbose(Map<String, Object> obj, WalletType type,
@@ -115,7 +132,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         direction: direction,
         amount: Money.fromInt(amount, walletTypeToCryptoCurrency(type)),
         date: date,
-        confirmations: confirmations);
+        confirmations: confirmations,
+        vsize: obj['vsize'] as int?);
   }
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
@@ -212,7 +230,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
         date: date,
         isHogEx: isHogEx,
         additionalInfo: {'hasMissingInputTx': hasMissingInputTx},
-        confirmations: bundle.confirmations);
+        confirmations: bundle.confirmations,
+        vsize: bundle.originalTransaction.getVSize());
   }
 
   factory ElectrumTransactionInfo.fromJson(Map<String, dynamic> data, WalletType type) {
@@ -246,6 +265,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
               BitcoinSilentPaymentsUnspent.fromJSON(null, unspent as Map<String, dynamic>))
           .toList(),
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
+      vsize: data['vsize'] as int?,
       additionalInfo: additionalInfo,
     );
   }
@@ -266,6 +286,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
         outputAddresses: outputAddresses,
         confirmations: info.confirmations,
         accountIndex: accountIndex,
+        vsize: info.vsize,
         additionalInfo: additionalInfo);
   }
 
@@ -286,6 +307,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     m['inputAddresses'] = inputAddresses;
     m['outputAddresses'] = outputAddresses;
     m['isReceivedSilentPayment'] = isReceivedSilentPayment;
+    m['vsize'] = vsize;
     m['additionalInfo'] = additionalInfo;
     return m;
   }
