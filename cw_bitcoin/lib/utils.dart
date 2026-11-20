@@ -50,6 +50,28 @@ String generateP2TRAddress({
   required BasedUtxoNetwork network,
   required int index,
 }) =>
-    ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey)
-        .toTaprootAddress()
-        .toAddress(network);
+    P2trAddress.fromProgram(
+      program: taprootOutputKeyHex(
+        ECPublic.fromBip32(hd.childKey(Bip32KeyIndex(index)).publicKey).publicKey.point
+            as ProjectiveECCPoint,
+      ),
+    ).toAddress(network);
+
+/// The key-path output key of [ECPublic.toTaprootAddress], computed without its two modular
+/// square roots: liftX recomputes a y the point already has, and the address re-parses the
+/// x-only result into a public key that is never used.
+String taprootOutputKeyHex(ProjectiveECCPoint point) {
+  final p = Curves.curveSecp256k1.p;
+  final y = point.y;
+  final evenY = ProjectiveECCPoint(
+    curve: Curves.curveSecp256k1,
+    x: point.x,
+    y: y.isEven ? y : p - y,
+    z: BigInt.one,
+  );
+  final tweak = BigintUtils.fromBytes(P2TRUtils.calculateTweek(point));
+  final outputKey = evenY + Curves.generatorSecp256k1 * tweak;
+  return BytesUtils.toHexString(
+    BigintUtils.toBytes(outputKey.x, length: Curves.curveSecp256k1.baselen),
+  );
+}
