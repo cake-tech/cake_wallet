@@ -1,3 +1,5 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/block_explorer_settings.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -48,12 +50,20 @@ abstract class UnspentCoinsDetailsViewModelBase with Store {
 
     if ([WalletType.bitcoin, WalletType.litecoin, WalletType.bitcoinCash, WalletType.dogecoin]
         .contains(_type)) {
+      final customUrl = getIt.get<BlockExplorerSettings>().customTxUrl(
+            _type,
+            unspentCoinsItem.hash,
+            isTestnet: unspentCoinsListViewModel.wallet.isTestnet,
+          );
+
       items.add(BlockExplorerListItem(
         title: S.current.view_in_block_explorer,
-        value: _explorerDescription(_type),
+        value: customUrl != null
+            ? '${S.current.view_transaction_on}${Uri.parse(customUrl).host}'
+            : _explorerDescription(_type),
         onTap: () {
           try {
-            final url = Uri.parse(_explorerUrl(_type, unspentCoinsItem.hash));
+            final url = Uri.parse(customUrl ?? _explorerUrl(_type, unspentCoinsItem.hash));
             return launchUrl(url, mode: LaunchMode.externalApplication);
           } catch (e) {}
         },

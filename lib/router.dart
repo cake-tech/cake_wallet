@@ -84,6 +84,8 @@ import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/settings/background_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/connection_sync_page.dart';
 import 'package:cake_wallet/src/screens/settings/display_settings_page.dart';
+import 'package:cake_wallet/entities/block_explorer_settings.dart';
+import 'package:cake_wallet/src/screens/settings/block_explorers_page.dart';
 import 'package:cake_wallet/src/screens/settings/domain_lookups_page.dart';
 import 'package:cake_wallet/src/screens/settings/manage_nodes_page.dart';
 import 'package:cake_wallet/src/screens/settings/mweb_logs_page.dart';
@@ -586,6 +588,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.domainLookupsPage:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<DomainLookupsPage>());
+
+    case Routes.blockExplorers:
+      final scope = settings.arguments as BlockExplorerScope;
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<BlockExplorersPage>(param1: scope));
 
     case Routes.displaySettingsPage:
       return handleRouteWithPlatformAwareness(

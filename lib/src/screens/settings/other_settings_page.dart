@@ -124,6 +124,12 @@ class OtherSettingsPage extends BasePage {
                       );
                     },
                   ),
+          if (_otherSettingsViewModel.hasBlockExplorers)
+            ListItemRegularRow(
+                keyValue: "block_explorers",
+                label: S.of(context).block_explorers,
+                onTap: () => Navigator.of(context).pushNamed(Routes.blockExplorers,
+                    arguments: _otherSettingsViewModel.blockExplorerScope)),
           if (_otherSettingsViewModel.changeRepresentativeEnabled)
             ListItemRegularRow(
                 keyValue: "change_rep",

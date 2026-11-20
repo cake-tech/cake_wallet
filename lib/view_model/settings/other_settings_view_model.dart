@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
+import 'package:cake_wallet/entities/block_explorer_settings.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/package_info.dart';
@@ -41,6 +42,10 @@ abstract class OtherSettingsViewModelBase with Store {
   final WalletType walletType;
   final int? chainId;
   final WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> _wallet;
+
+  bool get hasBlockExplorers => BlockExplorerSettings.isAvailableFor(_wallet);
+
+  BlockExplorerScope get blockExplorerScope => BlockExplorerScope.forWallet(_wallet);
 
   @observable
   String currentVersion;

@@ -647,10 +647,11 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  Future<int> getHeightByDate({required DateTime date, bool? bitcoinMempoolAPIEnabled}) async {
+  Future<int> getHeightByDate(
+      {required DateTime date, bool? bitcoinMempoolAPIEnabled, String? mempoolApiBase}) async {
     if (bitcoinMempoolAPIEnabled ?? false) {
       try {
-        return await getBitcoinHeightByDateAPI(date: date);
+        return await getBitcoinHeightByDateAPI(date: date, mempoolApiBase: mempoolApiBase);
       } catch (_) {}
     }
     return await getBitcoinHeightByDate(date: date);
