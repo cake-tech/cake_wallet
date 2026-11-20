@@ -193,4 +193,7 @@ class Erc20Token extends CryptoCurrency {
 
   @override
   String get apiString => "evm.$contractAddress";
+
+  @override
+  String get serialized => "evm^$contractAddress^$chainId";
 }

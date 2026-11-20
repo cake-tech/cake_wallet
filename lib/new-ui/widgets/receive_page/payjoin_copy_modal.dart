@@ -24,6 +24,7 @@ class PayjoinCopyModal extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalTopBar(
+                testId: "payjoin_copy_modal_top_bar",
                 title: S.of(context).select_address_to_copy,
                 leadingIcon: Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,

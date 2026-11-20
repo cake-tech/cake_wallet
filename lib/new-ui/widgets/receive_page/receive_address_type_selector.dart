@@ -3,6 +3,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/section_divider.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/dashboard/receive_option_view_model.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +72,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
             shrinkWrap: true,
             children: [
               ModalTopBar(
+                  testId: "receive_address_type_selector_top_bar",
                   title: S.of(context).address_type,
                   leadingIcon: Icon(Icons.close),
                   leadingSemanticLabel: S.of(context).close,
@@ -93,6 +95,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                       final opt = commonOptions[index];
 
                       return ReceiveAddressTypeRow(
+                        key: ValueKey("receive_address_type_common_${index}_key"),
                         option: opt,
                         roundedTop: index == 0,
                         roundedBottom: index == commonOptions.length - 1,
@@ -206,6 +209,7 @@ class _ReceiveAddressTypeSelectorState extends State<ReceiveAddressTypeSelector>
                                   final opt = otherOptions[index];
 
                                   return ReceiveAddressTypeRow(
+                                    key: ValueKey("receive_address_type_other_${index}_key"),
                                     option: opt,
                                     roundedTop: false,
                                     roundedBottom: index == otherOptions.length - 1,
@@ -284,6 +288,7 @@ class ReceiveAddressTypeRow extends StatelessWidget {
       // only a visual echo of it and must not be announced separately.
       child: MergeSemantics(
         child: Semantics(
+          identifier: TestId.fromKey(key),
           selected: selected,
           inMutuallyExclusiveGroup: true,
           child: InkWell(

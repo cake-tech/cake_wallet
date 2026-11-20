@@ -1,0 +1,1 @@
+{"success":false,"error":{"code":"NOT_FOUND","name":"BackendError","message":"Failed to get tx status. Please try calling the /registerTxs endpoint first.","title":"Failed to get tx status. Please try calling the /registerTxs endpoint first.","statusCode":404,"timestamp":"2026-07-29T14:05:06.967Z"}}

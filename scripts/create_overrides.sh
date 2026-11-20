@@ -53,14 +53,16 @@ repo_redirects=(
 
 # package|old git url|new git url (to move only one package out of a shared repo)
 package_repo_redirects=(
-  "rive_common|https://github.com/rive-app/rive-flutter|https://github.com/MrCyjaneK/rive_common"
+  "rive_common|https://github.com/rive-app/rive-flutter|https://github.com/malik1004x/rive_common"
   "fixnum_nanodart|https://github.com/dart-lang/fixnum|https://github.com/MrCyjaneK/fixnum_nanodart"
+  "frontend_server_client|https://github.com/dart-lang/webdev/tree/main/frontend_server_client|https://github.com/dart-lang/sdk"
 )
 
 # package-version|git hash (exact match, or package-* to skip version check)
 version_ref_maps=(
   "ffi-2.1.0|6bd0935f29c7294ebb9aab21c06b47b513def933"
   "flutter_rust_bridge-2.11.1|f19087cd0cac019b82d52cfa5153ce81b1b6e902"
+  "frontend_server_client-4.1.0|25a38e4d0d2a222e4a17311809527a03481f1b41"
 )
 
 dart_sdk_ref=$(cat $(dirname $(dirname $(which flutter)))/bin/cache/dart-sdk/revision)

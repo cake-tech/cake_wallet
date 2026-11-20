@@ -1,5 +1,8 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cw_core/currency_for_wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 
@@ -7,6 +10,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
   GroupedWalletExpansionTile({
     required this.title,
     required this.isSelected,
+    this.titleSemanticsLabel,
     this.childWallets = const [],
     this.onTitleTapped,
     this.onChildItemTapped = _defaultVoidCallback,
@@ -35,6 +39,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
   final void Function(bool)? onExpansionChanged;
 
   final String title;
+  final String? titleSemanticsLabel;
   final Widget? leadingWidget;
   final Widget? trailingWidget;
   final Widget Function(WalletListItem)? childTrailingWidget;
@@ -65,6 +70,36 @@ class GroupedWalletExpansionTile extends StatelessWidget {
         (isSelected
             ? Theme.of(context).colorScheme.onPrimary
             : Theme.of(context).colorScheme.onSurfaceVariant);
+    final currentSuffix = ', ${S.of(context).current_wallet}';
+    if (childWallets.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Material(
+          color: backgroundColor,
+          shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
+          clipBehavior: Clip.antiAlias,
+          child: ListTile(
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
+            leading: leadingWidget,
+            title: Semantics(identifier: TestId.fromKey(tileKey), child: Text(
+              title,
+              semanticsLabel: isCurrentlySelectedWallet
+                  ? '${titleSemanticsLabel ?? title}$currentSuffix'
+                  : titleSemanticsLabel,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: effectiveTextColor,
+                  ),
+              textAlign: TextAlign.left,
+            )),
+            trailing: trailingWidget ?? const SizedBox.shrink(),
+            onTap: onTitleTapped,
+          ),
+        ),
+      );
+    }
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 6),
       child: ExpansionTile(
@@ -81,15 +116,9 @@ class GroupedWalletExpansionTile extends StatelessWidget {
             EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
         iconColor: effectiveArrowColor,
         collapsedIconColor: effectiveArrowColor,
-        leading: (childWallets.isEmpty && onTitleTapped != null && leadingWidget != null)
-            ? GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onTitleTapped,
-                child: leadingWidget,
-              )
-            : leadingWidget,
-        trailing: trailingWidget ?? (childWallets.isEmpty ? SizedBox.shrink() : null),
-        title: GestureDetector(
+        leading: leadingWidget,
+        trailing: trailingWidget,
+        title: Semantics(identifier: TestId.fromKey(tileKey), child: GestureDetector(
           onTap: onTitleTapped,
           child: Text(
             title,
@@ -100,13 +129,15 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 ),
             textAlign: TextAlign.left,
           ),
-        ),
+        )),
         children: childWallets.map(
           (item) {
             final currentColor = item.isCurrent
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface;
-            return ListTile(
+            return TestId.container(
+                TestId.fromKey(tileKey)?.replaceFirst(RegExp(r"_key$"), "_wallet_${childWallets.indexOf(item)}_key"),
+                child: ListTile(
               contentPadding: EdgeInsets.zero,
               key: ValueKey(item.name),
               trailing: childTrailingWidget?.call(item),
@@ -139,6 +170,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
               ),
               title: Text(
                 item.name,
+                semanticsLabel: '${item.name}, ${walletTypeToDisplayName(item.type)}'
+                    '${item.isCurrent && shouldShowCurrentWalletPointer ? currentSuffix : ''}',
                 maxLines: 2,
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       fontSize: 18,
@@ -146,7 +179,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                       color: effectiveTextColor,
                     ),
               ),
-            );
+            ));
           },
         ).toList(),
       ),

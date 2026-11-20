@@ -35,7 +35,7 @@ import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
@@ -59,6 +59,8 @@ abstract class SettingsStoreBase with Store {
       {required SecureStorage secureStorage,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
+      required bool initialShouldShowChartsInDashboard,
+      required bool initialShouldShowNftsTab,
       required bool initialShowAddressBookPopupEnabled,
       required bool initialShowCiBuildOverlay,
       required SyncStatusDisplayMode initialSyncStatusDisplayMode,
@@ -126,6 +128,7 @@ abstract class SettingsStoreBase with Store {
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
       required List<int> initialEvmHiddenChainIds,
+      required Map<String, bool> initialTrocadorProviderStates,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -202,6 +205,8 @@ abstract class SettingsStoreBase with Store {
         walletListAscending = initialWalletListAscending,
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
+        shouldShowChartsInDashboard = initialShouldShowChartsInDashboard,
+        shouldShowNftsTab = initialShouldShowNftsTab,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         showCiBuildOverlay = initialShowCiBuildOverlay,
         syncStatusDisplayMode = initialSyncStatusDisplayMode,
@@ -228,6 +233,7 @@ abstract class SettingsStoreBase with Store {
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         backgroundImage = initialBackgroundImage,
         evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
+        trocadorProviderStates = ObservableMap.of(initialTrocadorProviderStates),
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -454,6 +460,16 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
+
+    reaction(
+      (_) => shouldShowChartsInDashboard,
+      (value) => sharedPreferences.setBool(PreferencesKey.shouldShowChartsInDashboard, value),
+    );
+
+    reaction(
+      (_) => shouldShowNftsTab,
+      (value) => sharedPreferences.setBool(PreferencesKey.shouldShowNftsTab, value),
+    );
 
     reaction(
         (_) => showAddressBookPopupEnabled,
@@ -837,6 +853,12 @@ abstract class SettingsStoreBase with Store {
   bool shouldShowMarketPlaceInDashboard;
 
   @observable
+  bool shouldShowChartsInDashboard;
+
+  @observable
+  bool shouldShowNftsTab;
+
+  @observable
   bool showAddressBookPopupEnabled;
 
   @observable
@@ -966,7 +988,7 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, TransactionPriority> priority;
 
   @observable
-  ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
+  ObservableMap<String, bool> trocadorProviderStates;
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -1332,6 +1354,9 @@ abstract class SettingsStoreBase with Store {
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
+    final shouldShowChartsInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ?? true;
+    final shouldShowNftsTab = sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final showCiBuildOverlay = sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? true;
@@ -1371,6 +1396,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
     final evmHiddenChainIds =
         evmHiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>().toList();
+    final trocadorProviderStates = _savedTrocadorProviderStates(sharedPreferences);
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1680,6 +1706,8 @@ abstract class SettingsStoreBase with Store {
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+      initialShouldShowChartsInDashboard: shouldShowChartsInDashboard,
+      initialShouldShowNftsTab: shouldShowNftsTab,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
       initialShowCiBuildOverlay: showCiBuildOverlay,
       initialSyncStatusDisplayMode: syncStatusDisplayMode,
@@ -1730,6 +1758,7 @@ abstract class SettingsStoreBase with Store {
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
       initialEvmHiddenChainIds: evmHiddenChainIds,
+      initialTrocadorProviderStates: trocadorProviderStates,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
@@ -1929,6 +1958,11 @@ abstract class SettingsStoreBase with Store {
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
+    shouldShowChartsInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ??
+            shouldShowChartsInDashboard;
+    shouldShowNftsTab =
+        sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? shouldShowNftsTab;
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
@@ -1983,6 +2017,9 @@ abstract class SettingsStoreBase with Store {
     evmHiddenChainIds
       ..clear()
       ..addAll(hiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>());
+    trocadorProviderStates
+      ..clear()
+      ..addAll(_savedTrocadorProviderStates(sharedPreferences));
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -2302,34 +2339,14 @@ abstract class SettingsStoreBase with Store {
 
   @action
   Future<void> updateAllTrocadorProviderStates(List<String> availableProviders) async {
-    final jsonKey = PreferencesKey.trocadorProviderStatesKey;
-    String? serializedData = await _sharedPreferences.getString(jsonKey);
+    final newStates = {
+      for (final provider in availableProviders) provider: trocadorProviderStates[provider] ?? true,
+    };
 
-    if (serializedData == null) {
-      final Map<String, bool> migratedStates = {};
-      for (final provider in TrocadorExchangeProvider.availableProviders) {
-        final oldState = _sharedPreferences.getBool(provider) ?? true;
-        migratedStates[provider] = oldState;
-      }
-
-      trocadorProviderStates
-        ..clear()
-        ..addAll(migratedStates);
-
-      await saveMapToString(jsonKey, trocadorProviderStates);
-    } else {
-      final decodedMap = json.decode(serializedData) as Map<String, dynamic>;
-      final oldMap = decodedMap.map((k, v) => MapEntry(k, v == true));
-
-      final Map<String, bool> newStates = {
-        for (final provider in availableProviders) provider: oldMap[provider] ?? true
-      };
-
-      trocadorProviderStates
-        ..clear()
-        ..addAll(newStates);
-      await saveMapToString(jsonKey, trocadorProviderStates);
-    }
+    trocadorProviderStates
+      ..clear()
+      ..addAll(newStates);
+    await saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
   }
 
   @action
@@ -2341,6 +2358,26 @@ abstract class SettingsStoreBase with Store {
   Future<void> saveMapToString(String key, Map<String, bool> map) async {
     String serializedData = json.encode(map);
     await _sharedPreferences.setString(key, serializedData);
+  }
+
+  bool hasViewedExplainer(String preferencesKey) =>
+      _sharedPreferences.getBool(preferencesKey) ?? false;
+
+  Future<void> setExplainerViewed(String preferencesKey) =>
+      _sharedPreferences.setBool(preferencesKey, true);
+
+  static Map<String, bool> _savedTrocadorProviderStates(SharedPreferences sharedPreferences) {
+    final serializedData = sharedPreferences.getString(PreferencesKey.trocadorProviderStatesKey);
+
+    if (serializedData == null) {
+      return {
+        for (final provider in TrocadorExchangeProvider.availableProviders)
+          provider: sharedPreferences.getBool(provider) ?? true,
+      };
+    }
+
+    return (json.decode(serializedData) as Map<String, dynamic>)
+        .map((provider, state) => MapEntry(provider, state == true));
   }
 
   static String? _offeredLanguageCode(SharedPreferences sharedPreferences) {

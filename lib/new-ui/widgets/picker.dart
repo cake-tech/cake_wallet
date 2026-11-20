@@ -76,6 +76,7 @@ class _NewPickerState<Item> extends State<NewPicker<Item>> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalTopBar(
+              testId: "picker_top_bar",
               title: widget.title,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,
@@ -191,7 +192,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return MergeSemantics(child: GestureDetector(
       onTap: () {
         onSelected(item.value);
       },
@@ -255,7 +256,7 @@ class PickerSliderButton<Item> extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -276,7 +277,7 @@ class PickerRow<Item> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return MergeSemantics(child: GestureDetector(
       onTap: () {
         onSelected(item.value);
       },
@@ -343,7 +344,7 @@ class PickerRow<Item> extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -387,6 +388,7 @@ class _PickerSliderPageState<Item> extends State<PickerSliderPage<Item>> {
           mainAxisSize: MainAxisSize.max,
           children: [
             ModalTopBar(
+              testId: "picker_slider_page_top_bar",
               title: widget.title,
               leadingIcon: Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

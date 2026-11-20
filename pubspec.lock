@@ -242,6 +242,15 @@ packages:
       url: "https://github.com/felangel/bloc"
     source: git
     version: "0.3.0"
+  bloc_presentation:
+    dependency: "direct main"
+    description:
+      path: "packages/bloc_presentation"
+      ref: e7325b9bf57a1c607034de87a2378ec9bd5c0011
+      resolved-ref: e7325b9bf57a1c607034de87a2378ec9bd5c0011
+      url: "https://github.com/leancodepl/bloc_presentation"
+    source: git
+    version: "1.1.2+3"
   blockchain_utils:
     dependency: "direct main"
     description:
@@ -1785,7 +1794,7 @@ packages:
     source: git
     version: "0.7.2"
   json_annotation:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
       path: json_annotation
       ref: "61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc"
@@ -1811,6 +1820,15 @@ packages:
       url: "https://github.com/dart-lang/tools"
     source: git
     version: "3.0.3"
+  json_serializable:
+    dependency: "direct dev"
+    description:
+      path: json_serializable
+      ref: "61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc"
+      resolved-ref: "61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc"
+      url: "https://github.com/google/json_serializable.dart"
+    source: git
+    version: "6.14.0"
   kepler:
     dependency: "direct overridden"
     description:
@@ -1860,8 +1878,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/ledger-bitcoin"
-      ref: "75bba8632c529debf30ee2b1858530009fa6440b"
-      resolved-ref: "75bba8632c529debf30ee2b1858530009fa6440b"
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
+      resolved-ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.3"
@@ -1869,8 +1887,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/ledger-ethereum"
-      ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
-      resolved-ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
+      resolved-ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.5"
@@ -1887,8 +1905,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "packages/ledger-litecoin"
-      ref: "75bba8632c529debf30ee2b1858530009fa6440b"
-      resolved-ref: "75bba8632c529debf30ee2b1858530009fa6440b"
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
+      resolved-ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       url: "https://github.com/cake-tech/ledger-flutter-plus-plugins"
     source: git
     version: "0.0.2"
@@ -2066,8 +2084,8 @@ packages:
     dependency: "direct main"
     description:
       path: modal_bottom_sheet
-      ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
-      resolved-ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
+      ref: "04f3f5c920b394913467687630de0dc598b4c845"
+      resolved-ref: "04f3f5c920b394913467687630de0dc598b4c845"
       url: "https://github.com/cake-tech/modal_bottom_sheet"
     source: git
     version: "3.0.0"
@@ -2459,7 +2477,7 @@ packages:
     source: git
     version: "5.0.5"
   progressive_blur:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: "."
       ref: "6ec8d0ccf46b1629a46ab68f31e26df489bac958"
@@ -2860,6 +2878,15 @@ packages:
       url: "https://github.com/dart-lang/source_gen"
     source: git
     version: "4.2.4"
+  source_helper:
+    dependency: "direct overridden"
+    description:
+      path: "."
+      ref: "760e41a7742d211543cbbf510fc588e96d0cc0a2"
+      resolved-ref: "760e41a7742d211543cbbf510fc588e96d0cc0a2"
+      url: "https://github.com/google/source_helper.dart"
+    source: git
+    version: "1.3.13"
   source_map_stack_trace:
     dependency: "direct overridden"
     description:
@@ -3488,7 +3515,7 @@ packages:
     source: git
     version: "6.5.0"
   yaml:
-    dependency: "direct main"
+    dependency: "direct overridden"
     description:
       path: "pkgs/yaml"
       ref: "27f829e3752382beae9deb1e87029f9ed52ef32e"
@@ -3515,5 +3542,5 @@ packages:
     source: git
     version: "6.35.0"
 sdks:
-  dart: ">=3.10.0 <4.0.0"
+  dart: ">=3.11.0 <4.0.0"
   flutter: ">=3.38.0"
