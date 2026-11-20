@@ -18,6 +18,7 @@ dependencies:
   shared_preferences: ^2.0.15
   cw_core:
     path: ../cw_core
+  sqflite: ^2.4.1
   rxdart: ^0.28.0
   cryptography: ^2.0.5
   blockchain_utils:
@@ -73,6 +74,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  sqflite_common_ffi: ^2.3.4+4
+  path_provider_platform_interface: any
   build_runner: ^2.15.0
   mobx_codegen: ^2.7.6
 #  hive_generator: ^2.0.1

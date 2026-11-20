@@ -18,11 +18,18 @@ class FiatAmountBar extends StatelessWidget {
     this.textColor,
     this.allAmountColor,
     this.allAmountTextColor,
+    this.switchEnabled = true,
   });
 
   final bool fiatInputMode;
   final VoidCallback onSwitchButtonPressed;
   final VoidCallback? onAllButtonPressed;
+
+  /// False hides the switch button's interactivity (but keeps it visible, dimmed) for a flow
+  /// where the two denominations shown aren't actually interchangeable input modes - e.g.
+  /// Spark's Deposit to Stable, which shows a sats equivalent purely for reference and can't accept
+  /// sats-denominated input for the underlying SDK call.
+  final bool switchEnabled;
 
   final Money cryptoAmount;
   final Money fiatAmount;
@@ -37,36 +44,42 @@ class FiatAmountBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 8,
-              children: [
-                ModernButton.svg(
-                  backgroundColor: foregroundElementColor,
-                  size: 28,
-                  svgPath: "assets/new-ui/switch.svg",
-                  iconSize: 18,
-                  onPressed: onSwitchButtonPressed,
-                  semanticLabel: S.of(context).switch_input_currency,
-                ),
-                // Announced as the converted value only: the switch button next to it already
-                // exposes the same action, so this must not become a second control.
-                Flexible(
-                  child: GestureDetector(
-                    onTap: onSwitchButtonPressed,
-                    excludeFromSemantics: true,
-                    child: MoneyText(
-                      fiatInputMode ? cryptoAmount : fiatAmount,
-                      fractionalDigits: fiatInputMode ? 6 : fiatAmount.currency.decimals,
-                      trimZeros: fiatInputMode,
-                      isHiddenAmount: false,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+            child: IgnorePointer(
+              ignoring: !switchEnabled,
+              child: Opacity(
+                opacity: switchEnabled ? 1 : 0.5,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 8,
+                  children: [
+                    ModernButton.svg(
+                      backgroundColor: foregroundElementColor,
+                      size: 28,
+                      svgPath: "assets/new-ui/switch.svg",
+                      iconSize: 18,
+                      onPressed: onSwitchButtonPressed,
+                      semanticLabel: S.of(context).switch_input_currency,
                     ),
-                  ),
+                    // Announced as the converted value only: the switch button next to it already
+                    // exposes the same action, so this must not become a second control.
+                    Flexible(
+                      child: GestureDetector(
+                        onTap: onSwitchButtonPressed,
+                        excludeFromSemantics: true,
+                        child: MoneyText(
+                          fiatInputMode ? cryptoAmount : fiatAmount,
+                          fractionalDigits: fiatInputMode ? 6 : fiatAmount.currency.decimals,
+                          trimZeros: fiatInputMode,
+                          isHiddenAmount: false,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: textColor ?? Theme.of(context).colorScheme.onSurface),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           if (allAmount != null)

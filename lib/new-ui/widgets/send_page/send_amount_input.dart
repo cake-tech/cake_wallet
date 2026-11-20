@@ -150,7 +150,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 mainAxisSize: MainAxisSize.max,
                                 spacing: 8,
                                 children: [
-                                  if (widget.hasPicker && widget.currencyIconPath.isNotEmpty)
+                                  if (widget.currencyIconPath.isNotEmpty)
                                     TokenImageWidget(
                                       imageUrl: widget.currencyIconPath,
                                       size: 24,

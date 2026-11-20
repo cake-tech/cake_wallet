@@ -16,6 +16,7 @@ class ListItemToggleWidget extends StatefulWidget {
     this.leadingEndWidget,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.isLoading = false,
     this.testId,
   });
 
@@ -29,6 +30,7 @@ class ListItemToggleWidget extends StatefulWidget {
   final Widget? leadingEndWidget;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final bool isLoading;
   final String? testId;
 
   @override
@@ -48,9 +50,11 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
         iconPath: widget.iconPath,
-        onTap: () {
-          widget.onChanged(!widget.value);
-        },
+        onTap: widget.isLoading
+            ? null
+            : () {
+                widget.onChanged(!widget.value);
+              },
         builder: (context, textStyle, labelStyle) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -89,6 +93,7 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
               ),
               StandardSwitch(
                 value: widget.value,
+                isLoading: widget.isLoading,
                 onTapped: () {
                   widget.onChanged(!widget.value);
                 },
