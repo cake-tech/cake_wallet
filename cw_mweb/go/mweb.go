@@ -6,6 +6,7 @@ import (
 
 	"github.com/ltcmweb/mwebd"
 )
+import "runtime"
 
 var server *mwebd.Server
 
@@ -25,8 +26,16 @@ func StartServer(chain *C.char, dataDir *C.char, nodeUri *C.char, errMsg **C.cha
 		return 0
 	}
 
-// 	err = server.StartUnix(goDataDir + "/mwebd.sock")
-    start, err := server.Start(0)
+	if runtime.GOOS == "android" {
+		err = server.StartUnix(goDataDir + "/mwebd.sock")
+		if err != nil {
+			*errMsg = C.CString(err.Error())
+			return 0
+		}
+		return -1
+	}
+
+	start, err := server.Start(0)
 	if err != nil {
 		*errMsg = C.CString(err.Error())
 		return 0
