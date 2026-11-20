@@ -96,6 +96,20 @@ void main() {
       expect(uri.toString(), "ethereum:$recipient@1?value=1.0e18");
     });
 
+    test("keeps a 1 wei native amount in valid scientific notation", () {
+      final uri = ERC681URI(
+        chainId: 1,
+        address: recipient,
+        amount: "0.000000000000000001",
+        contractAddress: null,
+      );
+
+      expect(uri.toString(), "ethereum:$recipient@1?value=0.000000000000000001e18");
+
+      final parsed = ERC681URI.fromUri(Uri.parse(uri.toString()));
+      expect(parsed.amount, "0.000000000000000001");
+    });
+
     test("includes the mainnet chainId in the transfer form", () {
       final uri = ERC681URI(
         chainId: 1,
