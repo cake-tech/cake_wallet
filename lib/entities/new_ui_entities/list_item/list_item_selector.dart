@@ -6,11 +6,14 @@ class ListItemSelector extends ListItem {
     required this.options,
     required super.keyValue,
     required super.label,
+    super.testId,
     this.trailingText,
+    this.optionImagePath,
     required this.onTap,
   });
 
   final String? trailingText;
+  final String? optionImagePath;
   final VoidCallback onTap;
   final List<String> options;
 }
