@@ -1,21 +1,23 @@
+import 'package:cake_wallet/generated/i18n.dart';
+
 enum SyncStatusDisplayMode { eta, blocksRemaining }
 
 extension SyncStatusDisplayModeExtension on SyncStatusDisplayMode {
   String get title {
     switch (this) {
       case SyncStatusDisplayMode.eta:
-        return 'ETA';
+        return S.current.sync_status_display_mode_eta;
       case SyncStatusDisplayMode.blocksRemaining:
-        return 'Blocks Remaining';
+        return S.current.sync_status_display_mode_blocks;
     }
   }
 
   String get description {
     switch (this) {
       case SyncStatusDisplayMode.eta:
-        return 'Show estimated time remaining for sync completion';
+        return S.current.sync_status_display_mode_eta;
       case SyncStatusDisplayMode.blocksRemaining:
-        return 'Show number of blocks remaining to sync';
+        return S.current.sync_status_display_mode_blocks;
     }
   }
 

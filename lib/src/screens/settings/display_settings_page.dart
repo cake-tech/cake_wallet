@@ -78,7 +78,16 @@ class DisplaySettingsPage extends StatelessWidget {
                     PillSegmentedControl<ThemeMode>(
                       items: ThemeMode.values,
                       selectedItem: _displaySettingsViewModel.themeMode,
-                      labelFor: (mode) => mode.name[0].toUpperCase() + mode.name.substring(1),
+                      labelFor: (ThemeMode themeMode) {
+                        switch (themeMode) {
+                          case ThemeMode.system:
+                            return S.of(context).use_device_theme;
+                          case ThemeMode.light:
+                            return S.of(context).light_theme;
+                          case ThemeMode.dark:
+                            return S.of(context).dark_theme;
+                        }
+                      },
                       onSelected: _displaySettingsViewModel.setThemeMode,
                     ),
                     if (_displaySettingsViewModel.showThemePreview)

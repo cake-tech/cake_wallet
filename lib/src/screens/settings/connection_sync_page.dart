@@ -168,7 +168,7 @@ class ConnectionSyncPage extends BasePage {
                       ListItemSelector(
                           keyValue: "fiat_api",
                           label: S.of(context).fiat_api,
-                          options: [_connectionSyncViewModel.fiatApiMode.title],
+                          options: [_connectionSyncViewModel.fiatApiMode.toString()],
                           onTap: () async {
                             final items = FiatApiMode.all;
 
@@ -191,7 +191,7 @@ class ConnectionSyncPage extends BasePage {
                       ListItemSelector(
                           keyValue: "swap",
                           label: S.of(context).swap,
-                          options: [_connectionSyncViewModel.exchangeStatus.title],
+                          options: [_connectionSyncViewModel.exchangeStatus.toString()],
                           onTap: () async {
                             final items = ExchangeApiMode.all;
 
