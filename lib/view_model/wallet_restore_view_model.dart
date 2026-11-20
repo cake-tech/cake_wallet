@@ -144,6 +144,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               password: password,
               passphrase: passphrase ?? '');
         case WalletType.bitcoin:
+          return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password,
+            passphrase: passphrase,
+            derivationType: derivationInfo!.derivationType!,
+            derivationPath: derivationInfo.derivationPath!,
+            height: silentPaymentsScanHeight,
+            alwaysScan: alwaysScanSilentPayments,
+          );
+
         case WalletType.litecoin:
           return bitcoin!.createBitcoinRestoreWalletFromSeedCredentials(
             name: name,
@@ -252,11 +263,14 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
       switch (type) {
         case WalletType.bitcoin:
+          // xpub-only restore has no seed/scan key, so Silent Payments scanning can never
+          // run for this wallet - alwaysScan is intentionally not forwarded here.
           return bitcoin!.createBitcoinWalletFromKeys(
             name: name,
             password: password,
             xpub: viewKey!,
             hardwareWalletType: hardwareWalletType,
+            height: height,
           );
 
         case WalletType.litecoin:
@@ -266,6 +280,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             xpub: viewKey!,
             scanSecret: scanSecret!,
             spendPubkey: spendPubkey!,
+            height: height,
             hardwareWalletType: hardwareWalletType,
           );
 
