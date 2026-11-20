@@ -205,6 +205,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "wallet_accounts_page_top_bar",
               title: S.of(context).accounts,
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,

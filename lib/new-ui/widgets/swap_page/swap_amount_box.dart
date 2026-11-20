@@ -14,6 +14,7 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/currency.dart";
 import "package:cw_core/wallet_type.dart";
@@ -118,7 +119,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   child: Stack(
                                     clipBehavior: Clip.none,
                                     children: [
-                                      TextFormField(
+                                      TestId.container(
+                                          widget.isReceiverCard
+                                              ? "swap_page_receive_amount_field_key"
+                                              : "swap_page_deposit_amount_field_key",
+                                          child: TextFormField(
                                         key: ValueKey(widget.isReceiverCard
                                                 ? "swap_page_receive_amount_field_key"
                                                 : "swap_page_deposit_amount_field_key"),
@@ -158,7 +163,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                           focusedBorder: InputBorder.none,
                                           enabledBorder: InputBorder.none,
                                         ),
-                                      ),
+                                      )),
                                       Positioned.fill(
                                         child: IgnorePointer(
                                           child: AnimatedOpacity(
@@ -200,7 +205,11 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             ],
                           ),
                         ),
-                        GestureDetector(
+                        TestId.merge(
+                          widget.isReceiverCard
+                              ? "swap_amount_box_receive_currency_button_key"
+                              : "swap_amount_box_deposit_currency_button_key",
+                          child: GestureDetector(
                           key: ValueKey(widget.isReceiverCard
                                   ? "swap_amount_box_receive_currency_button_key"
                                   : "swap_amount_box_deposit_currency_button_key"),onTap: _presentCurrencyPicker,
@@ -263,7 +272,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                               ),
                             ),
                           ),
-                        ),
+                        )),
                       ],
                     ),
                   ),

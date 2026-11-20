@@ -34,6 +34,7 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -128,6 +129,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
           builder: (context, state) => Column(
             children: [
               ModalTopBar(
+                testId: "swap_page_top_bar",
                 title: S.of(context).swap,
                 leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
@@ -193,6 +195,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             ).colorScheme.surfaceContainerHigh,
                                           ),
                                           ModernButton.svg(
+                                            testId: "swap_page_reverse_button_key",
                                             size: 36,
                                             iconSize: 24,
                                             svgPath: "assets/new-ui/swap_amounts.svg",
@@ -501,7 +504,7 @@ class SwapProviderPreview extends StatelessWidget {
           forcedProvider = state.forcedProvider;
         }
 
-        return GestureDetector(
+        return TestId.merge("swap_page_provider_row_key", child: GestureDetector(
           onTap: () {
             if (forcedProvider != null) {
               bloc.add(const ForcedProviderSelected(null));
@@ -615,7 +618,7 @@ class SwapProviderPreview extends StatelessWidget {
               ),
             ),
           ),
-        );
+        ));
       },
     ),
   );

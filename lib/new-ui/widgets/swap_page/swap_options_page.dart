@@ -32,6 +32,7 @@ class SwapOptionsPage extends StatelessWidget {
   builder: (context, state) => Column(
       children: [
         ModalTopBar(
+          testId: "swap_options_page_top_bar",
           title: S.of(context).configure,
           leadingIcon: const Icon(Icons.arrow_back_ios_new),
           leadingSemanticLabel: S.of(context).seed_alert_back,

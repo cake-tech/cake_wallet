@@ -101,6 +101,7 @@ class SwapTransactionDetails extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
+          testId: "swap_confirm_sheet_top_bar",
           title: "",
           leadingWidget: SwapModalHeader(
               fromIconPath: state.depositAmount.currency.iconPath ?? "",
