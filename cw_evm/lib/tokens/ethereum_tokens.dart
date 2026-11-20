@@ -90,6 +90,13 @@ class EthereumTokens {
         enabled: false,
         iconPath: "assets/images/xaut.webp",
       ),
+      Erc20Token(
+        name: "WrappedXTM",
+        symbol: "wXTM",
+        contractAddress: "0xfD36fA88bb3feA8D1264fc89d70723b6a2B56958",
+        decimal: 18,
+        enabled: true,
+      ),
     ];
 
     return tokens.map((token) {
