@@ -49,6 +49,9 @@ abstract class ConnectionSyncViewModelBase with Store {
   bool get looksUpOpenAlias => _settingsStore.lookupsOpenAlias;
 
   @computed
+  bool get looksUpNamecoin => _settingsStore.lookupsNamecoin;
+
+  @computed
   bool get looksUpENS => _settingsStore.lookupsENS;
 
   @computed
@@ -102,6 +105,8 @@ abstract class ConnectionSyncViewModelBase with Store {
         return looksUpUnstoppableDomains;
       case AddressSource.openAlias:
         return looksUpOpenAlias;
+      case AddressSource.namecoin:
+        return looksUpNamecoin;
       case AddressSource.ens:
         return looksUpENS;
       case AddressSource.zcashName:
@@ -145,6 +150,9 @@ abstract class ConnectionSyncViewModelBase with Store {
         break;
       case AddressSource.openAlias:
         _settingsStore.lookupsOpenAlias = value;
+        break;
+      case AddressSource.namecoin:
+        _settingsStore.lookupsNamecoin = value;
         break;
       case AddressSource.ens:
         _settingsStore.lookupsENS = value;

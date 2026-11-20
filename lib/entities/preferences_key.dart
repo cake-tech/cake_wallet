@@ -107,6 +107,7 @@ class PreferencesKey {
   static const lookupsYatService = 'looks_up_yat';
   static const lookupsUnstoppableDomains = 'looks_up_unstoppable_domain';
   static const lookupsOpenAlias = 'looks_up_open_alias';
+  static const lookupsNamecoin = 'looks_up_namecoin';
   static const lookupsENS = 'looks_up_ens';
   static const lookupsZcashNames = 'looks_up_zcash_names';
   static const lookupsZcashAddress = 'looks_up_zcash_address';

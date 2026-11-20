@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
+import 'package:cake_wallet/core/address_resolver/namecoin/namecoin_record.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/di.dart';
@@ -47,35 +48,80 @@ abstract class ContactViewModelBase with Store {
   @observable
   CryptoCurrency? currency;
 
+  @observable
+  List<CryptoCurrency> currencies;
+
+  ParsedAddress? _resolvedAddress;
+  int _addressLookupGeneration = 0;
+
+  int get addressLookupGeneration => _addressLookupGeneration;
+
   DateTime? lastChange;
 
   @computed
-  bool get isReady =>
-      name.isNotEmpty && (currency?.toString().isNotEmpty ?? false) && address.isNotEmpty;
+  bool get isReady {
+    final selected = currency;
+    final hasResolvedNamecoin = selected != null &&
+        _resolvedAddress?.parsedAddressByCurrencyMap[selected] == address;
+    final hasUsableAddress =
+        !NamecoinRecord.isNamecoinIdentifier(address) || hasResolvedNamecoin;
+    return name.isNotEmpty && selected != null && address.isNotEmpty && hasUsableAddress;
+  }
 
-  final List<CryptoCurrency> currencies;
+  @computed
+  bool get canAttemptSave =>
+      isReady ||
+      (name.isNotEmpty && address.isNotEmpty && NamecoinRecord.isNamecoinIdentifier(address));
+
   final Box<Contact> _contacts;
   final ContactRecord? _contact;
 
   @action
   void reset() {
+    _addressLookupGeneration++;
     address = '';
     name = '';
     displayName = '';
     currency = null;
+    currencies = CryptoCurrency.all;
+    _resolvedAddress = null;
+  }
+
+  @action
+  void updateAddress(String value) {
+    if (value == address) return;
+
+    _addressLookupGeneration++;
+    address = value;
+    displayName = '';
+    _resolvedAddress = null;
+    currencies = CryptoCurrency.all;
+  }
+
+  @action
+  void selectCurrency(CryptoCurrency value) {
+    if (!currencies.contains(value)) return;
+
+    _addressLookupGeneration++;
+    currency = value;
+    final resolvedAddress = _resolvedAddress?.parsedAddressByCurrencyMap[value];
+    if (resolvedAddress != null && resolvedAddress.isNotEmpty) address = resolvedAddress;
   }
 
   Future<ParsedAddress?> extractParsedAddress(BuildContext context) async {
     final wallet = appStore.wallet;
     final currentCurrency = currency;
     final query = address.trim();
+    final generation = _addressLookupGeneration;
 
     if (wallet == null) return null;
-    if (currentCurrency == null) return null;
     if (query.isEmpty) return null;
 
-    // Check if the address is valid for the current currency (except for Zano, which can use handles as addresses)
-    if (currentCurrency != CryptoCurrency.zano) {
+    // Check if the address is valid for the selected currency. With no selection,
+    // resolution supplies the available currency choices instead.
+    if (currentCurrency != null &&
+        currentCurrency != CryptoCurrency.zano &&
+        !NamecoinRecord.isNamecoinIdentifier(query)) {
       final isValidAddress = AddressValidator(type: currentCurrency).isValid(query);
       if (isValidAddress) return null;
     }
@@ -86,25 +132,64 @@ abstract class ContactViewModelBase with Store {
       currency: currentCurrency,
     );
 
+    if (!isAddressLookupCurrent(
+      query: query,
+      currency: currentCurrency,
+      generation: generation,
+    )) {
+      return null;
+    }
+
     if (parsedAddresses.isEmpty) return null;
 
-    final resolvedAddress = parsedAddresses.first.parsedAddressByCurrencyMap[currentCurrency];
-    if (resolvedAddress == null || resolvedAddress.isEmpty) return null;
+    if (currentCurrency != null) {
+      final resolvedAddress = parsedAddresses.first.parsedAddressByCurrencyMap[currentCurrency];
+      if (resolvedAddress == null || resolvedAddress.isEmpty) return null;
+    }
 
     return parsedAddresses.first;
   }
 
+  bool isAddressLookupCurrent({
+    required String query,
+    required CryptoCurrency? currency,
+    required int generation,
+  }) =>
+      generation == _addressLookupGeneration &&
+      query == address.trim() &&
+      currency == this.currency;
+
   @action
   void applyParsedAddress(ParsedAddress parsedAddress) {
-    final currentCurrency = currency;
-    if (currentCurrency == null) return;
+    final addresses = parsedAddress.parsedAddressByCurrencyMap;
+    final availableCurrencies = CryptoCurrency.all
+        .where((item) => addresses[item]?.isNotEmpty ?? false)
+        .toList(growable: false);
+    if (availableCurrencies.isEmpty) return;
 
-    final resolvedAddress = parsedAddress.parsedAddressByCurrencyMap[currentCurrency];
-    if (resolvedAddress == null || resolvedAddress.isEmpty) return;
-
-    address = resolvedAddress;
+    _addressLookupGeneration++;
+    _resolvedAddress = parsedAddress;
+    currencies = availableCurrencies;
     displayName =
         parsedAddress.profileName.isNotEmpty ? parsedAddress.profileName : parsedAddress.handle;
+
+    final selected = currency;
+    if (selected != null) {
+      if (addresses[selected]?.isNotEmpty == true) {
+        address = addresses[selected]!;
+      } else {
+        // A selection made while the lookup was pending is explicit. Do not
+        // substitute a sole alternative currency when that selection is absent.
+        currency = null;
+      }
+    } else if (availableCurrencies.length == 1) {
+      currency = availableCurrencies.single;
+      address = addresses[currency]!;
+    } else {
+      // Keep the alias visible until the user chooses one of the currencies
+      // actually present in the record. Never substitute another chain.
+      currency = null;
+    }
   }
 
   Future<void> save() async {
