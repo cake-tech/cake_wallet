@@ -65,6 +65,7 @@
   "address_remove_contact": "Remove contact",
   "address_remove_content": "Are you sure that you want to remove selected contact?",
   "address_type": "Address type",
+  "address_type_has_balance_warning": "This address type still holds funds. Move or spend them before disabling it, otherwise those coins would be hidden from your balance and coin control.",
   "addresses": "Addresses",
   "advanced_settings": "Advanced Settings",
   "after_successful_transaction": "After successful transaction",

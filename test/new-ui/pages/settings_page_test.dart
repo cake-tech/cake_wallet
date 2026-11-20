@@ -86,6 +86,7 @@ void main() {
     when(() => dashboardViewModel.hasWalletConnect).thenReturn(false);
     when(() => wallet.hasAccountsSupport).thenReturn(false);
     when(() => wallet.hasCoinControl).thenReturn(false);
+    when(() => wallet.hasOptionalAddressTypes).thenReturn(false);
     when(() => wallet.name).thenReturn("My Cake Wallet");
     when(() => wallet.hardwareWalletType).thenReturn(null);
   });
@@ -181,6 +182,17 @@ void main() {
     expect(routes, contains(Routes.lightningUsernamePage));
     expect(routes, isNot(contains(Routes.walletAccountsPage)));
     expect(routes, isNot(contains(Routes.silentPaymentsSettings)));
+    expect(routes, isNot(contains(Routes.addressTypesSettings)));
+  });
+
+  test("Bitcoin settings show the address types row when optional types exist", () {
+    when(() => wallet.type).thenReturn(WalletType.bitcoin);
+    when(() => wallet.hasOptionalAddressTypes).thenReturn(true);
+
+    final sections = const WalletSettingsResolver().resolveSections(dashboardViewModel);
+    final routes = sections.expand((section) => section).map((item) => item.route);
+
+    expect(routes, contains(Routes.addressTypesSettings));
   });
 
   testWidgets("main Settings shows the active wallet and wallet-general/app groups",

@@ -86,8 +86,10 @@ abstract class ElectrumWalletBase
     CryptoCurrency? currency,
     bool? alwaysScan,
     bool useLightning = true,
+    Set<BitcoinAddressType>? enabledOptionalAddressTypes,
     List<int>? accountIndexes,
-  })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
+  })  : enabledOptionalAddressTypes = enabledOptionalAddressTypes ?? {},
+        _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
             currency, network, seedBytes, xpub, derivationInfo, walletInfo.hardwareWalletType,),
         syncStatus = NotConnectedSyncStatus(),
@@ -118,7 +120,7 @@ abstract class ElectrumWalletBase
 
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     accounts = ElectrumAccounts(
-      primaryTypes: supportedAddressTypes(walletInfo.type),
+      primaryTypes: supportedAddressTypes(walletInfo.type).where(isAddressTypeEnabled).toList(),
       accountHd: accountHD,
       masterHd: _masterHD,
       coinType: currency != null && !isElectrumDerivation ? _coinTypeFor(currency) : null,
@@ -351,6 +353,104 @@ abstract class ElectrumWalletBase
     return current;
   }
 
+  final Set<BitcoinAddressType> enabledOptionalAddressTypes;
+
+  bool isAddressTypeEnabled(BitcoinAddressType type) => isAddressTypeEnabledFor(
+        walletInfo.type,
+        type,
+        enabledOptionalAddressTypes: enabledOptionalAddressTypes,
+      );
+
+  bool addressTypeHasBalance(BitcoinAddressType type) {
+    if (unspentCoins.any((coin) => coin.bitcoinAddressRecord.type == type && coin.value > 0)) {
+      return true;
+    }
+
+    return walletAddresses.allAddresses
+        .any((address) => address.type == type && address.balance > 0);
+  }
+
+  /// Enables or disables an optional address type.
+  ///
+  /// Returns `false` when disabling is refused because [type] still has funds.
+  @action
+  Future<bool> setAddressTypeEnabled(BitcoinAddressType type, {bool willEnable = false}) async {
+    if (!OPTIONAL_BITCOIN_ADDRESS_TYPES.contains(type)) {
+      throw ArgumentError("$type can't be turned on or off");
+    }
+
+    final alreadyEnabled = enabledOptionalAddressTypes.contains(type);
+    if (willEnable == alreadyEnabled) {
+      return true;
+    }
+
+    if (!willEnable && addressTypeHasBalance(type)) {
+      return false;
+    }
+
+    if (willEnable) {
+      enabledOptionalAddressTypes.add(type);
+    } else {
+      enabledOptionalAddressTypes.remove(type);
+    }
+
+    // Account 0's supported types (and its HD keys) follow the enabled optional types.
+    accounts.setPrimaryTypes(
+      supportedAddressTypes(walletInfo.type).where(isAddressTypeEnabled).toList(),
+    );
+
+    if (willEnable) {
+      await walletAddresses.prepareAccountAddresses(0, types: [type], includeLegacy: true);
+    } else {
+      await _unsubscribeDisabledAddresses();
+
+      if (walletAddresses.addressPageType == type) {
+        await walletAddresses.setAddressType(SegwitAddresType.p2wpkh);
+      }
+    }
+
+    walletAddresses.updateReceiveAddresses();
+
+    await walletAddresses.updateAddressesInBox();
+    await save();
+
+    if (!electrumClient.isConnected) {
+      return true;
+    }
+
+    if (willEnable) {
+      await subscribeForUpdates();
+      final histories = <String, ElectrumTransactionInfo>{};
+
+      if (shouldUseBatchFetching) {
+        await fetchTransactionsForAddressTypeBatch(histories, type, accountIndex: 0);
+      } else {
+        await fetchTransactionsForAddressType(histories, type, accountIndex: 0);
+      }
+
+      await resolveQueuedTransactionDetails();
+    }
+
+    await updateAllUnspents();
+    await updateBalance();
+
+    return true;
+  }
+
+  Future<void> _unsubscribeDisabledAddresses() async {
+    final disabledScriptHashes = walletAddresses.allAddresses
+        .where((address) => !isAddressTypeEnabled(address.type))
+        .map((address) => address.getScriptHash(network));
+
+    for (final scriptHash in disabledScriptHashes) {
+      final subscription = _scripthashesUpdateSubject.remove(scriptHash);
+      try {
+        await subscription?.close();
+      } catch (e) {
+        printV("failed to close: $e");
+      }
+    }
+  }
   ElectrumBalance balanceForAccount(int accountIndex) =>
       accountBalances[accountIndex] ?? ElectrumBalance.zero(currency);
 
@@ -451,7 +551,7 @@ abstract class ElectrumWalletBase
       .map((addr) => (addr as BitcoinAddressRecord).getScriptHash(network))
       .toList();
 
-  List<String> get publicScriptHashes => walletAddresses.allAddresses
+  List<String> get publicScriptHashes => walletAddresses.activeAddresses
       .where((addr) => !addr.isHidden)
       .where((addr) => RegexUtils.addressTypeFromStr(addr.address, network) is! MwebAddress)
       .map((addr) => addr.getScriptHash(network))
@@ -548,6 +648,9 @@ abstract class ElectrumWalletBase
 
   @override
   bool get hasCoinControl => true;
+
+  @override
+  bool get hasOptionalAddressTypes => type == WalletType.bitcoin && !walletInfo.isHardwareWallet;
 
   @override
   bool get hasAccountsSupport =>
@@ -1984,7 +2087,9 @@ abstract class ElectrumWalletBase
         'mweb_addresses': walletAddresses.mwebAddresses.map((addr) => addr.toJSON()).toList(),
         'alwaysScan': alwaysScan,
         'useLightning': useLightning,
-        'cachedLightningAddress': walletAddresses.lightningAddress
+        'cachedLightningAddress': walletAddresses.lightningAddress,
+        'enabled_optional_address_types':
+            enabledOptionalAddressTypes.map((type) => type.value).toList(),
       });
 
   int feeRate(TransactionPriority priority) {
@@ -2119,7 +2224,7 @@ abstract class ElectrumWalletBase
 
     // Set the balance of all non-silent payment and non-mweb addresses to 0 before updating
 
-    final targetAddresses = walletAddresses.allAddresses
+    final targetAddresses = walletAddresses.activeAddresses
         .where((element) => element.type != SegwitAddresType.mweb)
         .toList();
 
@@ -2411,7 +2516,7 @@ abstract class ElectrumWalletBase
 
     final newBalances = <int, ElectrumBalance>{};
 
-    for (final addr in walletAddresses.allAddresses) {
+    for (final addr in walletAddresses.activeAddresses) {
       if (addr.type == SegwitAddresType.mweb) continue;
       final current = newBalances[addr.accountIndex] ?? ElectrumBalance.zero(currency);
       current.confirmed += Money.fromInt(addr.balance, currency);
@@ -2887,9 +2992,10 @@ abstract class ElectrumWalletBase
         if (isInitialBitcoinAccountsSync) {
           await fetchBitcoinTransactionsForInitialRestore(historiesWithDetails);
         } else {
-          await Future.wait(BITCOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
-              ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
-              : fetchTransactionsForAddressType(historiesWithDetails, type)));
+          await Future.wait(walletAddresses.enabledBitcoinAddressTypes.map((type) =>
+              shouldUseBatchFetching
+                  ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
+                  : fetchTransactionsForAddressType(historiesWithDetails, type)));
         }
       } else if (type == WalletType.bitcoinCash) {
         await Future.wait(BITCOIN_CASH_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
@@ -2938,6 +3044,8 @@ abstract class ElectrumWalletBase
       BitcoinAddressType type, {
         int? accountIndex,
       }) async {
+    if (!isAddressTypeEnabled(type)) return;
+
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
@@ -3353,7 +3461,7 @@ abstract class ElectrumWalletBase
         }
       }
 
-      final accountHasHistory = walletAddresses.allAddresses
+      final accountHasHistory = walletAddresses.activeAddresses
           .where((addr) => addr.accountIndex == accountIndex)
           .any((addr) => addr.isUsed);
 
@@ -3392,6 +3500,8 @@ abstract class ElectrumWalletBase
       BitcoinAddressType type, {
         int? accountIndex,
       }) async {
+    if (!isAddressTypeEnabled(type)) return;
+
     final addressesByType = walletAddresses.allAddresses
         .where((addr) => addr.type == type)
         .where((addr) => accountIndex == null || addr.accountIndex == accountIndex)
@@ -3921,7 +4031,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<void> subscribeForUpdates() async {
-    final unsubscribedScriptHashes = walletAddresses.allAddresses.where(
+    final unsubscribedScriptHashes = walletAddresses.activeAddresses.where(
       (address) =>
           !_scripthashesUpdateSubject.containsKey(address.getScriptHash(network)) &&
           address.type != SegwitAddresType.mweb,
@@ -4010,7 +4120,7 @@ abstract class ElectrumWalletBase
   }
 
   Future<ElectrumBalance> fetchBalances() async {
-    final addresses = walletAddresses.allAddresses
+    final addresses = walletAddresses.activeAddresses
         .where((address) => address.address.isNotEmpty)
         .where((address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
         .toList();
@@ -4211,7 +4321,7 @@ abstract class ElectrumWalletBase
   @override
   Future<bool> checkNodeHealth() async {
     try {
-      final addresses = walletAddresses.allAddresses
+      final addresses = walletAddresses.activeAddresses
           .where(
               (address) => RegexUtils.addressTypeFromStr(address.address, network) is! MwebAddress)
           .toList();
