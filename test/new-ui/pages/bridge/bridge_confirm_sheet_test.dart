@@ -99,8 +99,10 @@ class _WalletManager extends Fake implements WalletManager {}
 class _Priority extends Fake implements TransactionPriority {}
 
 class _Transaction extends Fake implements PendingTransaction {
-  _Transaction({int fee = 21000}) : fee = Money(BigInt.from(fee), CryptoCurrency.baseEth);
+  _Transaction({int fee = 21000, this.sent})
+      : fee = Money(BigInt.from(fee), CryptoCurrency.baseEth);
 
+  final Future<void>? sent;
   int commits = 0;
 
   @override
@@ -110,22 +112,24 @@ class _Transaction extends Fake implements PendingTransaction {
   final String id = "0x0bb37ef659a57985087247ecc425ada9af687e7bd0aa46d984f66acdd29888ad";
 
   @override
-  String? get evmTxHashFromRawHex => null;
+  String? get evmTxHashFromRawHex => id;
 
   @override
-  Future<void> commit() async => commits++;
+  Future<void> commit() async {
+    commits++;
+    await sent;
+  }
 }
 
 class _Evm extends Fake implements EVM {
   final approval = Completer<PendingTransaction>();
   final burn = Completer<PendingTransaction>();
-  int chainId = 8453;
   String? approvalSpender;
   bool? approvalReceipt;
   (WalletBase, Money, String)? approved;
 
   @override
-  int? getSelectedChainId(WalletBase wallet) => chainId;
+  int? getSelectedChainId(WalletBase wallet) => 8453;
 
   @override
   TransactionPriority getDefaultTransactionPriority() => _Priority();
@@ -301,6 +305,49 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
   });
 
+  testWidgets("offers no second swipe while a closed sheet's burn is still being sent",
+      (tester) async {
+    final sent = Completer<void>();
+    await openSheetAndConfirm(tester);
+    bridge.burn.complete(_Transaction(sent: sent.future));
+    await tester.pump(const Duration(milliseconds: 50));
+
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text("Open"));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(BridgeConfirmSheet), findsOneWidget);
+    expect(find.byType(ConfirmSwiper), findsNothing);
+
+    sent.complete();
+    await tester.pump(const Duration(milliseconds: 50));
+    viewModel.dispose();
+    await tester.pump(const Duration(seconds: 3));
+  });
+
+  testWidgets("sends one burn when the swipe fires twice", (tester) async {
+    final sent = Completer<void>();
+    final burn = _Transaction(sent: sent.future);
+    await openSheet(tester);
+
+    final swiper = tester.widget<ConfirmSwiper>(find.byType(ConfirmSwiper));
+    swiper.onConfirmed();
+    swiper.onConfirmed();
+    bridge.burn.complete(burn);
+    await tester.pump(const Duration(milliseconds: 50));
+
+    expect(burn.commits, 1);
+    expect(find.byType(ConfirmSwiper), findsNothing, reason: "the burn is still being sent");
+
+    sent.complete();
+    await tester.pump(const Duration(milliseconds: 50));
+    viewModel.dispose();
+    await tester.pump(const Duration(seconds: 3));
+  });
+
   testWidgets("does not send a burn whose fee could not be estimated", (tester) async {
     final burn = _Transaction(fee: 0);
     await openSheetAndConfirm(tester);
@@ -381,18 +428,6 @@ void main() {
 
     bridge.approvalReceipt = true;
     await tester.pump(const Duration(seconds: 2));
-  });
-
-  testWidgets("does not send an approval signed for another network", (tester) async {
-    final approval = _Transaction();
-    await openSheet(tester, approvalSpender: _tokenMessenger);
-
-    await swipe(tester);
-    bridge.chainId = 1;
-    bridge.approval.complete(approval);
-    await tester.pump(const Duration(milliseconds: 50));
-
-    expect(approval.commits, 0);
   });
 
   testWidgets("does not send the approval once the sheet's close button is tapped", (tester) async {

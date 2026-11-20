@@ -22,6 +22,4 @@ class CctpConfig {
   // "cctp-forward" padded to 24 bytes, then version 0 and data length 0 (4 bytes each).
   static const String forwardingHookData =
       "636374702d666f72776172640000000000000000000000000000000000000000";
-
-  static int? getDomain(int chainId) => domainByChainId[chainId];
 }

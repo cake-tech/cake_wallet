@@ -33,8 +33,8 @@ class CctpBridgeProvider extends BridgeProvider {
     required BigInt amount,
     required String recipientAddress,
   }) async {
-    final sourceDomain = _getDomain(sourceChainId);
-    final destinationDomain = _getDomain(destinationChainId);
+    final sourceDomain = CctpConfig.domainByChainId[sourceChainId]!;
+    final destinationDomain = CctpConfig.domainByChainId[destinationChainId]!;
 
     addressToBytes32(recipientAddress);
 
@@ -78,7 +78,7 @@ class CctpBridgeProvider extends BridgeProvider {
     required EVMChainTransactionPriority priority,
     required bool useBlinkProtection,
   }) async {
-    final destinationDomain = _getDomain(destinationChainId);
+    final destinationDomain = CctpConfig.domainByChainId[destinationChainId]!;
     final mintRecipient = addressToBytes32(recipientAddress);
 
     final dataHex = encodeDepositForBurnWithHook(
@@ -108,7 +108,7 @@ class CctpBridgeProvider extends BridgeProvider {
     required int sourceChainId,
     required String sourceTxHash,
   }) async {
-    final sourceDomain = _getDomain(sourceChainId);
+    final sourceDomain = CctpConfig.domainByChainId[sourceChainId]!;
 
     final uri = Uri.parse("$_irisBaseUrl/messages/$sourceDomain?transactionHash=$sourceTxHash");
     final response = await ProxyWrapper().get(clearnetUri: uri);
@@ -147,14 +147,5 @@ class CctpBridgeProvider extends BridgeProvider {
     }
 
     return const BridgeTransferStatus(message: "Waiting for Circle to confirm the transfer");
-  }
-
-  static int _getDomain(int chainId) {
-    final domain = CctpConfig.getDomain(chainId);
-    if (domain == null) {
-      throw BadChainIdException("CCTP not supported for chain $chainId");
-    }
-
-    return domain;
   }
 }

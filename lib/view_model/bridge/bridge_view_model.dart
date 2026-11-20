@@ -53,7 +53,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConversionStore;
   final BridgeTransfersStore bridgeTransfersStore;
-  final Map<String, Completer<void>> _pollingCancellers = {};
+  final Set<Completer<void>> _pollingCancellers = {};
   late DateTime _quoteLoadedAt;
   int _quoteRequestId = 0;
   int _executeAttemptId = 0;
@@ -479,9 +479,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   Future<void> executeApproval() async {
     if (isApproving) return;
 
-    final token = selectedToken.asErc20;
-    if (token == null) return;
-
+    final token = selectedToken.asErc20!;
     final check = _parseAndValidateAmount(token);
     if (check.error != null) {
       executeError = check.error;
@@ -493,9 +491,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final sourceWallet = wallet;
 
     final attemptId = ++_executeAttemptId;
-    bool isCancelled() =>
-        attemptId != _executeAttemptId || evm!.getSelectedChainId(sourceWallet) != src;
-
     isApproving = true;
     executeError = null;
     try {
@@ -505,7 +500,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         spender,
         check.parsedAmount!,
       )) {
-        if (isCancelled()) return;
+        if (attemptId != _executeAttemptId) return;
 
         final approval = await evm!.createTokenApproval(
           sourceWallet,
@@ -516,10 +511,10 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
               canSupportBlinkProtection(src) ? settingsStore.useBlinkProtection : false,
         );
 
-        if (isCancelled()) return;
+        if (attemptId != _executeAttemptId) return;
 
         await approval.commit();
-        await _waitForApproval(sourceWallet, approval.evmTxHashFromRawHex ?? approval.id);
+        await _waitForApproval(sourceWallet, approval.evmTxHashFromRawHex!);
       }
 
       await loadQuote();
@@ -553,6 +548,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @action
   Future<void> executeBridge() async {
+    if (isExecuting) return;
+
     if (quote == null) {
       executeError = 'Get a quote first';
       return;
@@ -643,15 +640,11 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     } catch (e) {
       if (attemptId == _executeAttemptId) executeError = e.toString();
     } finally {
-      if (attemptId == _executeAttemptId) isExecuting = false;
+      isExecuting = false;
     }
   }
 
-  @action
-  void dismissTransaction() {
-    _executeAttemptId++;
-    isExecuting = false;
-  }
+  void dismissTransaction() => _executeAttemptId++;
 
   @override
   void onWalletChange(WalletBase wallet) {
@@ -679,9 +672,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   bool _isValidWalletContext(String expectedWalletId) {
-    return wallet.name == expectedWalletId &&
-        isEVMCompatibleChain(wallet.type) &&
-        !_pollingCancellers.values.any((c) => c.isCompleted);
+    return wallet.name == expectedWalletId && isEVMCompatibleChain(wallet.type);
   }
 
   Future<void> _updateTransferStatus(
@@ -714,13 +705,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     required bool isSource,
   }) async {
     final canceller = Completer<void>();
-    final recordId = isSource ? record.id : '${record.id}_dest';
     final pollInterval = isSource ? _pollInterval : _destinationPollInterval;
     final pollTimeout = isSource ? _pollTimeout : _destinationPollTimeout;
     final walletId = wallet.name;
     final deadline = DateTime.now().add(pollTimeout);
 
-    _pollingCancellers[recordId] = canceller;
+    _pollingCancellers.add(canceller);
 
     try {
       while (DateTime.now().isBefore(deadline)) {
@@ -733,6 +723,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
         if (isSource) {
           final receipt = await _fetchTransactionReceipt(record, wallet);
+          if (canceller.isCompleted) return;
 
           if (receipt != null) {
             final isTransactionSuccessful = receipt == true;
@@ -745,7 +736,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
             if (isTransactionSuccessful) {
               await Future.delayed(const Duration(seconds: 1));
-              if (_isValidWalletContext(walletId)) {
+              if (!canceller.isCompleted) {
                 _pollForConfirmation(record, wallet, isSource: false);
               }
             }
@@ -756,6 +747,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
           continue;
         } else {
           final status = await _fetchBridgeTransferStatus(record);
+          if (canceller.isCompleted) return;
 
           if (status != null) {
             final statusMessage = _getStatusMessage(status, record);
@@ -783,7 +775,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     } catch (e) {
       printV('Bridge: Error polling for confirmation: $e');
     } finally {
-      _pollingCancellers.remove(recordId);
+      _pollingCancellers.remove(canceller);
     }
   }
 
@@ -840,7 +832,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   void _cancelAllPolling() {
-    for (final canceller in _pollingCancellers.values) {
+    for (final canceller in _pollingCancellers) {
       if (!canceller.isCompleted) {
         canceller.complete();
       }

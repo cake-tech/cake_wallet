@@ -137,7 +137,7 @@ void main() {
 
     final dataHex = encodeDepositForBurnWithHook(
       amount: BigInt.from(10000000),
-      destinationDomain: CctpConfig.getDomain(8453)!,
+      destinationDomain: CctpConfig.domainByChainId[8453]!,
       mintRecipient: addressToBytes32("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"),
       burnToken: CctpConfig.usdcTokenAddressByChainId[1]!,
       destinationCaller: Uint8List(32),
