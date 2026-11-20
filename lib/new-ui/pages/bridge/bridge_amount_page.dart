@@ -67,7 +67,7 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
             footerType: FooterType.doubleActionButton,
             titleText: 'Bridge initiated!',
             contentImage: 'assets/images/birthday_cake.png',
-            content: "Transfers usually arrive within 30 minutes.",
+            content: S.of(bottomSheetContext).bridge_arrival_time,
             doubleActionLeftButtonText: S.of(bottomSheetContext).close,
             doubleActionRightButtonText: 'View history',
             onLeftActionButtonPressed: () {

@@ -462,7 +462,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
       if (loadedQuote.receiveAmount.amount <= BigInt.zero) {
         final fee = amountParsingProxy.asDisplayStringWithSymbol(loadedQuote.fee);
-        quoteError = "The amount must be higher than the bridge fee of $fee.";
+        quoteError = S.current.bridge_amount_below_fee(fee);
         return;
       }
 
@@ -541,15 +541,11 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
       if (isSuccessful == true) return;
 
       if (isSuccessful == false) {
-        throw const TransactionSendingException(
-          "The approval failed. Only the network fee was charged.",
-        );
+        throw TransactionSendingException(S.current.bridge_approval_failed);
       }
     }
 
-    throw const TransactionSendingException(
-      "The approval has not confirmed yet. Try again once it has.",
-    );
+    throw TransactionSendingException(S.current.bridge_approval_not_confirmed);
   }
 
   @action
@@ -579,7 +575,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     if (DateTime.now().difference(_quoteLoadedAt) > _quoteMaxAge) {
       await loadQuote();
       if (quote != null) {
-        executeError = "The fee has been updated. Review it and confirm again.";
+        executeError = S.current.bridge_fee_updated;
       }
       return;
     }

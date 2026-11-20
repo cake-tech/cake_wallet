@@ -202,9 +202,9 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                         ConfirmDetailsCard(bridgeViewModel: bridgeViewModel),
                         if (bridgeViewModel.isApprovalRequired)
                           Text(
-                            "Step 1 of 2: give the bridge contract an unlimited "
-                            "${bridgeViewModel.selectedToken?.title} allowance. You confirm the "
-                            "transfer in step 2.",
+                            S.of(context).bridge_approval_step_note(
+                                  bridgeViewModel.selectedToken?.title ?? "",
+                                ),
                             textAlign: TextAlign.center,
                             style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
                           ),
@@ -227,7 +227,7 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
               child: Observer(
                 builder: (_) {
                   if (bridgeViewModel.isApproving) {
-                    return const LoadingBottomWidget(text: "Approving...");
+                    return LoadingBottomWidget(text: "${S.of(context).approving}...");
                   }
                   if (bridgeViewModel.isExecuting) {
                     return LoadingBottomWidget(

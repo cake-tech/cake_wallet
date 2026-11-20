@@ -74,8 +74,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            'Select a $chainName wallet or address to send '
-                            'the bridged $tokenTitle to.',
+                            S.of(context).bridge_receiving_wallet_prompt(chainName, tokenTitle),
                             textAlign: TextAlign.center,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   fontWeight: FontWeight.w400,
