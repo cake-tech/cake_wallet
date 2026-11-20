@@ -20,8 +20,7 @@ import 'package:cw_core/wallet_type.dart';
 class TokenUtilities {
   static bool walletHasEnabledSparkTokens(WalletBase wallet) =>
       FeatureFlag.isSparkTokensEnabled &&
-      wallet.type == WalletType.bitcoin &&
-      wallet.hasLightningSupport &&
+      wallet.hasStableBalanceSupport &&
       (bitcoin?.getSparkTokenCurrencies(wallet).isNotEmpty ?? false);
 
   /// The stablecoin Spark token Stable Balance converts to/from for [wallet] (e.g. USDB), or null

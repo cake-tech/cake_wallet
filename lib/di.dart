@@ -872,8 +872,7 @@ Future<void> setup({
   getIt.registerFactoryParam<NewSendPage, SendPageParams?, void>((params, _) {
     params ??= SendPageParams();
     final wallet = getIt.get<AppStore>().wallet!;
-    final hasStableBalanceSend =
-        isBitcoinEnabled && wallet.type == WalletType.bitcoin && wallet.hasLightningSupport;
+    final hasStableBalanceSend = isBitcoinEnabled && wallet.hasStableBalanceSupport;
     return NewSendPage(
       sendViewModel: getIt.get<SendViewModel>(param1: params.unspentCoinType),
       authService: getIt.get<AuthService>(),

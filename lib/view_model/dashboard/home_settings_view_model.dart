@@ -122,9 +122,7 @@ abstract class HomeSettingsViewModelBase with Store {
   WalletType get walletType => _balanceViewModel.wallet.type;
 
   bool get _isSparkTokenWallet =>
-      FeatureFlag.isSparkTokensEnabled &&
-      _balanceViewModel.wallet.type == WalletType.bitcoin &&
-      _balanceViewModel.wallet.hasLightningSupport;
+      FeatureFlag.isSparkTokensEnabled && _balanceViewModel.wallet.hasStableBalanceSupport;
 
   /// Same gate as [_isSparkTokenWallet] - the toggle only makes sense for a wallet that can hold
   /// a stablecoin Spark token in the first place.

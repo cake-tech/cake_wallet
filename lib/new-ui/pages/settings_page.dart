@@ -39,9 +39,7 @@ bool _requiresKeyImageSync(DashboardViewModel vm) =>
     [HardwareWalletType.cupcake, HardwareWalletType.trezor].contains(vm.wallet.hardwareWalletType);
 
 bool _hasSparkStableBalance(DashboardViewModel vm) =>
-    FeatureFlag.isSparkTokensEnabled &&
-    vm.wallet.type == WalletType.bitcoin &&
-    vm.wallet.hasLightningSupport;
+    FeatureFlag.isSparkTokensEnabled && vm.wallet.hasStableBalanceSupport;
 
 class SettingsListItem {
   const SettingsListItem(
