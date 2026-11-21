@@ -73,6 +73,7 @@ class TransactionService {
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.pivx:
       final hasLightning = (outputs.first.cryptoAmountMoney.currency as CryptoCurrency) == CryptoCurrency.btcln;
 
       return bitcoin!.createBitcoinTransactionCredentials(

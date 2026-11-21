@@ -938,6 +938,11 @@ abstract class DashboardViewModelBase with Store {
       (Platform.isIOS || Platform.isAndroid) &&
       !wallet.isHardwareWallet;
 
+  /// The card shows transparent + private (MWEB, PIVX shielded) as one total.
+  @computed
+  bool get showsCombinedPrivateBalance =>
+      (mwebEnabled && hasMweb) || wallet.type == WalletType.pivx;
+
   @computed
   bool get showMwebCard => hasMweb && settingsStore.mwebCardDisplay && !mwebEnabled;
 
@@ -1346,6 +1351,7 @@ abstract class DashboardViewModelBase with Store {
       case WalletType.wownero:
       case WalletType.decred:
       case WalletType.dogecoin:
+      case WalletType.pivx:
         return true;
       case WalletType.zano:
       case WalletType.haven:

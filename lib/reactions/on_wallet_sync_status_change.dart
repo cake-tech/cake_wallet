@@ -35,7 +35,9 @@ void startWalletSyncStatusChangeReaction(
         SyncingSyncStatus.blockHistory.clear();
       }
 
-      if (status is FailedSyncStatus) {
+      // Attempting follows a stalled Syncing (PIVX shielded retries) and would
+      // otherwise keep the screen awake with no sync running.
+      if (status is FailedSyncStatus || status is AttemptingSyncStatus) {
         await WakelockPlus.disable();
         SyncingSyncStatus.resetSyncStartTime();
       }

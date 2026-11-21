@@ -19,6 +19,8 @@ class SwapUriHelper {
         return BitcoinCashURI(address: address, amount: amount);
       case WalletType.dogecoin:
         return DogeURI(address: address, amount: amount);
+      case WalletType.pivx:
+        return PivxURI(address: address, amount: amount);
       case WalletType.ethereum:
       case WalletType.polygon:
       case WalletType.base:
