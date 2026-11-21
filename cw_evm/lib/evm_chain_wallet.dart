@@ -1596,8 +1596,10 @@ abstract class EVMChainWalletBase
   }
 
   @override
-  Future<String> signMessage(String message, {String? address}) async =>
-      bytesToHex(await _evmChainPrivateKey.signPersonalMessage(utf8.encode(message)));
+  Future<String> signMessage(String message, {String? address}) async => bytesToHex(
+        await _evmChainPrivateKey.signPersonalMessage(utf8.encode(message)),
+        include0x: true,
+  );
 
   @override
   Future<bool> verifyMessage(String message, String signature, {String? address}) async {
