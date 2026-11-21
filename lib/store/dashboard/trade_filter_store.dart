@@ -243,7 +243,7 @@ abstract class TradeFilterStoreBase with Store {
     _ when item.trade.accountIndex == -1 =>
       item.trade.fromWalletAddress == null ||
           wallet.walletAddresses.containsAddress(item.trade.fromWalletAddress!),
-    .monero => item.trade.accountIndex == monero!.getCurrentAccount(wallet).id,
+        .monero => item.trade.accountIndex == wallet.currentAccountIndex,
     .bitcoin => item.trade.accountIndex == wallet.walletInfo.currentAccountIndex,
     _ => true,
   };
