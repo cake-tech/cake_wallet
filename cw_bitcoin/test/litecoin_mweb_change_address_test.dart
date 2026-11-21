@@ -31,7 +31,7 @@ WalletInfo _walletInfo() => WalletInfo.external(
     );
 
 ElectrumAccounts _accounts() => ElectrumAccounts(
-  primaryTypes: LITECOIN_ADDRESS_TYPES
+  primaryTypes: LITECOIN_ADDRESS_TYPES,
   currency: CryptoCurrency.ltc,
   accountHd: _accountHd,
   masterHd: _master,

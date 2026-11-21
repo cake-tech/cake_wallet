@@ -4,11 +4,9 @@ import 'dart:isolate';
 import 'dart:math' show Random, min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
 import "package:cw_bitcoin/electrum_account.dart";
 import "package:cw_bitcoin/electrum_account_balance_calculator.dart";
 import "package:cw_bitcoin/electrum_balance.dart";
-import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import "package:cw_core/currency_for_wallet_type.dart";
@@ -32,7 +30,6 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_keys.dart';
 import 'package:cw_bitcoin/electrum.dart' as electrum;
-import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_history.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
@@ -467,7 +464,11 @@ abstract class ElectrumWalletBase
     walletAddresses.currentAccountIndex = accountIndex;
 
     final currentPageType = walletAddresses.addressPageType;
-    await walletAddresses.setAddressType(currentPageType);
+    await walletAddresses.setAddressType(
+      accountIndex != 0 && currentPageType == SilentPaymentsAddresType.p2sp
+          ? SegwitAddresType.p2wpkh
+          : currentPageType,
+    );
 
     // For extra accounts, we only prepare SegwitAddresType.p2wpkh type.
     if (isNewAccount) {
@@ -4111,7 +4112,7 @@ abstract class ElectrumWalletBase
 
     return all.where((tx) {
 
-      if (tx.additionalInfo["isLightning"] == true) return accountIndex == 0;
+      if (tx.additionalInfo["isLightning"] == true) return true;
       if (tx.isReceivedSilentPayment) return accountIndex == 0;
 
       // Locally created transactions store the account index explicitly,
