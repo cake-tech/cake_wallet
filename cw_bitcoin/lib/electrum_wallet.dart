@@ -4,11 +4,9 @@ import 'dart:isolate';
 import 'dart:math' show Random, min;
 
 import 'package:bitcoin_base/bitcoin_base.dart';
-import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
 import "package:cw_bitcoin/electrum_account.dart";
 import "package:cw_bitcoin/electrum_account_balance_calculator.dart";
 import "package:cw_bitcoin/electrum_balance.dart";
-import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import "package:cw_core/currency_for_wallet_type.dart";
