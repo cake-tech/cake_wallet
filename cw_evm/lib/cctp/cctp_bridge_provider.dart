@@ -122,30 +122,9 @@ class CctpBridgeProvider extends BridgeProvider {
     final forwardState = message["forwardState"];
 
     if (forwardState == "COMPLETE" || message["destinationMintTxHash"] != null) {
-      return const BridgeTransferStatus(
-        message: "Delivered to the destination network",
-        isDelivered: true,
-      );
+      return const BridgeTransferStatus(isDelivered: true);
     }
 
-    if (forwardState == "FAILED") {
-      return const BridgeTransferStatus(
-        message: "Circle could not deliver the transfer. The USDC is not lost. "
-            "Please contact support.",
-        isFailed: true,
-      );
-    }
-
-    if (message["status"] == "complete") {
-      return const BridgeTransferStatus(message: "Delivering to the destination network");
-    }
-
-    if (message["delayReason"] != null) {
-      return const BridgeTransferStatus(
-        message: "Waiting for finality on the source network, which can take about 20 minutes",
-      );
-    }
-
-    return const BridgeTransferStatus(message: "Waiting for Circle to confirm the transfer");
+    return BridgeTransferStatus(isFailed: forwardState == "FAILED");
   }
 }

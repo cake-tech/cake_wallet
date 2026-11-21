@@ -234,6 +234,9 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                       text: "${S.of(context).bridging}...",
                     );
                   }
+                  if (bridgeViewModel.quoteError != null) {
+                    return const SizedBox.shrink();
+                  }
                   if (bridgeViewModel.isQuoteLoading || bridgeViewModel.quote == null) {
                     return LoadingBottomWidget(text: "${S.of(context).loading}...");
                   }

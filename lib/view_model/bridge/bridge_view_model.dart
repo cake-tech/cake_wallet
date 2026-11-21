@@ -55,7 +55,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   final FiatConversionStore fiatConversionStore;
   final BridgeTransfersStore bridgeTransfersStore;
   final Set<Completer<void>> _pollingCancellers = {};
-  late DateTime _quoteLoadedAt;
   int _quoteRequestId = 0;
   int _executeAttemptId = 0;
 
@@ -63,7 +62,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   static const _pollTimeout = Duration(minutes: 5);
   static const _destinationPollInterval = Duration(seconds: 5);
   static const _destinationPollTimeout = Duration(minutes: 30);
-  static const _quoteMaxAge = Duration(minutes: 1);
   static final _unlimitedAllowance = (BigInt.one << 256) - BigInt.one;
 
   @observable
@@ -468,7 +466,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
       quote = loadedQuote;
       isApprovalRequired = approvalRequired;
-      _quoteLoadedAt = DateTime.now();
     } catch (e) {
       if (requestId == _quoteRequestId) quoteError = e.toString();
     } finally {
@@ -492,6 +489,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final sourceWallet = wallet;
 
     final attemptId = ++_executeAttemptId;
+    var isSent = false;
     isApproving = true;
     executeError = null;
     try {
@@ -520,12 +518,13 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         }
 
         await approval.commit();
+        isSent = true;
         await _waitForApproval(sourceWallet, approval.evmTxHashFromRawHex!);
       }
 
       await loadQuote();
     } catch (e) {
-      executeError = e.toString();
+      if (isSent || attemptId == _executeAttemptId) executeError = e.toString();
     } finally {
       isApproving = false;
     }
@@ -569,14 +568,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final check = _parseAndValidateAmount(token);
     if (check.error != null) {
       executeError = check.error;
-      return;
-    }
-
-    if (DateTime.now().difference(_quoteLoadedAt) > _quoteMaxAge) {
-      await loadQuote();
-      if (quote != null) {
-        executeError = S.current.bridge_fee_updated;
-      }
       return;
     }
 
