@@ -244,12 +244,10 @@ jobs:
       fail-fast: false
       matrix:
         shard: [1, 2, 3, 4]
-        leg: [control-6g, fix-6g]
+        leg: [jdk25-gradle91-6g]
         include:
-          - leg: control-6g
+          - leg: jdk25-gradle91-6g
             jvmargs: "-Xmx6144M"
-          - leg: fix-6g
-            jvmargs: "-Xmx6144M -XX:+IgnoreUnrecognizedVMOptions -XX:+UnlockDiagnosticVMOptions -XX:GCLockerRetryAllocationCount=100"
     container:
       image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
       env:
@@ -379,7 +377,13 @@ jobs:
           cat /sys/fs/cgroup/cpu.max 2>/dev/null || true
           java -version 2>&1
           mkdir -p /tmp/gclogs
-          sed -i "s|^org.gradle.jvmargs=.*|org.gradle.jvmargs=${{ matrix.jvmargs }} -Xlog:gc:file=/tmp/gclogs/gc-%p.log:time,uptime,pid|" android/gradle.properties
+          sudo apt-get update -qq && sudo apt-get install -y -qq --no-install-recommends openjdk-25-jdk-headless
+          J25=$(dirname $(dirname $(readlink -f /usr/lib/jvm/java-25-openjdk-*/bin/java)))
+          echo "JAVA_HOME=$J25" >> $GITHUB_ENV
+          $J25/bin/java -version 2>&1
+          sed -i 's|gradle-8.14.4-all.zip|gradle-9.1.0-all.zip|' android/gradle/wrapper/gradle-wrapper.properties
+          printf '\norg.gradle.java.home=%s\n' "$J25" >> android/gradle.properties
+          sed -i "s|^org.gradle.jvmargs=.*|org.gradle.jvmargs=${{ matrix.jvmargs }} -Xlog:gc,gc+init:file=/tmp/gclogs/gc-%p.log:time,uptime,pid|" android/gradle.properties
           printf '\norg.gradle.logging.stacktrace=all\n' >> android/gradle.properties
           cat android/gradle.properties
 
