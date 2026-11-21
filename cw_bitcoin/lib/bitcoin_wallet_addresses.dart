@@ -23,7 +23,6 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
   BitcoinWalletAddressesBase(
     super.walletInfo, {
     required super.accounts,
-    required int currentAccountIndex,
     required super.network,
     required super.isHardwareWallet,
     required this.payjoinManager,
@@ -34,19 +33,10 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses with S
     super.initialSilentAddressIndex = 0,
     super.masterHd,
     super.lightningWallet,
-      }) : _currentAccountIndex = currentAccountIndex;
+    super.currentAccountIndex,
+      });
 
   final PayjoinManager payjoinManager;
-
-  @observable
-  int _currentAccountIndex;
-
-  @override
-  int get currentAccountIndex => _currentAccountIndex;
-
-  @override
-  @action
-  void setCurrentAccountIndex(int index) => _currentAccountIndex = index;
 
   payjoin.Receiver? currentPayjoinReceiver;
 

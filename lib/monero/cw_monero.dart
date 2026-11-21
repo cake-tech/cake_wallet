@@ -325,7 +325,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  List<Unspent> getUnspents(Object wallet) {
+  List<MoneroUnspent> getUnspents(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.unspentCoins;
   }
@@ -420,4 +420,23 @@ class CWMonero extends Monero {
 
   @override
   Map<String, dynamic> getWalletCacheDebug() => monero_wallet_api.getWalletCacheDebug();
+
+  @override
+  Future<Money> getSendingBalance(WalletBase wallet) async {
+    await updateUnspents(wallet);
+
+    Money total = Money.zero(CryptoCurrency.xmr);
+    Set<String> seen = {};
+    for (final item in getUnspents(wallet)) {
+      if (seen.contains(item.toString())) {
+        continue;
+      }
+      seen.add(item.toString());
+      if (item.isFrozen || !item.isSending || !item.isUnlocked) {
+        continue;
+      }
+      total += Money.fromInt(item.value, CryptoCurrency.xmr);
+    }
+    return total;
+  }
 }

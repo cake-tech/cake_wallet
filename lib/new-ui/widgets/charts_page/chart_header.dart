@@ -35,8 +35,15 @@ class ChartHeader extends StatefulWidget {
 }
 
 class _ChartHeaderState extends State<ChartHeader> {
-  String? _viewedPrice;
-  String? _viewedTime;
+  final _viewedPrice = ValueNotifier<String?>(null);
+  final _viewedTime = ValueNotifier<String?>(null);
+
+  @override
+  void dispose() {
+    _viewedPrice.dispose();
+    _viewedTime.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => BlocBuilder<ChartsBloc, ChartsState>(
@@ -62,10 +69,13 @@ class _ChartHeaderState extends State<ChartHeader> {
                           height: 60,
                         ),
                       ChartViewCoinHeader(currency: widget.currency, isFavorite: widget.favorite),
-                      ChartViewPriceHeader(
-                        price: _viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2, meaningfulDecimals: 2) ?? "...",
-                        ticker: s.fiatTicker,
-                        highlight: _viewedPrice != null,
+                      ValueListenableBuilder(
+                        valueListenable: _viewedPrice,
+                        builder: (context, viewedPrice, _) => ChartViewPriceHeader(
+                          price: viewedPrice ?? s.priceFor(widget.currency)?.toStringWithPrecision(fractionalDigits: 2, meaningfulDecimals: 2) ?? "...",
+                          ticker: s.fiatTicker,
+                          highlight: viewedPrice != null,
+                        ),
                       ),
                       Column(
                         crossAxisAlignment:
@@ -76,20 +86,25 @@ class _ChartHeaderState extends State<ChartHeader> {
                             height: 36,
                             alignment: widget.centered ? Alignment.center : Alignment.centerLeft,
                             child: (s is ChartsLoaded)
-                                ? (_viewedPrice != null && _viewedTime != null)
-                                    ? Text(
-                                        _viewedTime!,
-                                        style: TextStyle(
-                                          fontFamily: "IBM Plex Mono",
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                          fontSize: 16,
-                                        ),
-                                      )
-                                    : ChangeDisplay(
-                                        changeData: s.changeDataFor(widget.currency),
-                                        ticker: s.fiatTicker,
-                                      )
+                                ? ListenableBuilder(
+                                    listenable: Listenable.merge([_viewedPrice, _viewedTime]),
+                                    builder: (context, _) =>
+                                        (_viewedPrice.value != null && _viewedTime.value != null)
+                                        ? Text(
+                                            _viewedTime.value!,
+                                            style: TextStyle(
+                                              fontFamily: "IBM Plex Sans",
+                                              fontFeatures: const [FontFeature.tabularFigures()],
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                              fontSize: 16,
+                                            ),
+                                          )
+                                        : ChangeDisplay(
+                                            changeData: s.changeDataFor(widget.currency),
+                                            ticker: s.fiatTicker,
+                                          ),
+                                  )
                                 : const SizedBox.shrink(),
                           ),
                           if (s is ChartsLoaded)
@@ -101,38 +116,36 @@ class _ChartHeaderState extends State<ChartHeader> {
                                 direction: s.changeDataFor(widget.currency).direction,
                                 touchCallback: (event, response) {
                                   if (!event.isInterestedForInteractions) {
-                                    setState(() {
-                                      _viewedPrice = null;
-                                      _viewedTime = null;
-                                    });
+                                    _viewedPrice.value = null;
+                                    _viewedTime.value = null;
                                     return;
                                   }
 
                                   final spotIndex = response?.lineBarSpots?.firstOrNull?.spotIndex;
-                                  final newPrice = spotIndex == null
+                                  final quote = spotIndex == null
                                       ? null
-                                      : s.dataFor(widget.currency).elementAtOrNull(spotIndex)?.quote
-                                          .toStringWithPrecision(
-                                            fractionalDigits: 2,
-                                            trimZeros: false,
-                                            meaningfulDecimals: 2,
-                                          );
+                                      : s.dataFor(widget.currency).elementAtOrNull(spotIndex)?.quote;
+                                  final newPrice = quote == null
+                                      ? null
+                                      : quote.toStringWithPrecision(
+                                          fractionalDigits:
+                                              quote.amount % BigInt.from(10).pow(quote.decimals) ==
+                                                      BigInt.zero
+                                                  ? 0
+                                                  : 2,
+                                          trimZeros: false,
+                                          meaningfulDecimals: 2,
+                                        );
                                   final newTime = DateFormat("M/d/y HH:mm").format(
                                     DateTime.fromMillisecondsSinceEpoch(
                                       response?.lineBarSpots?.firstOrNull?.x.toInt() ?? 0,
                                     ),
                                   );
-                                  if (_viewedPrice != newPrice) {
+                                  if (_viewedPrice.value != newPrice) {
                                     HapticFeedback.selectionClick();
-                                    setState(() {
-                                      _viewedPrice = newPrice;
-                                    });
+                                    _viewedPrice.value = newPrice;
                                   }
-                                  if (_viewedTime != newTime) {
-                                    setState(() {
-                                      _viewedTime = newTime;
-                                    });
-                                  }
+                                  _viewedTime.value = newTime;
                                 },
                               ),
                             )

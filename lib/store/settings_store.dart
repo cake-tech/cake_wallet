@@ -35,7 +35,7 @@ import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/utils/device_info.dart';
 import 'package:cake_wallet/utils/package_info.dart';
@@ -59,6 +59,8 @@ abstract class SettingsStoreBase with Store {
       {required SecureStorage secureStorage,
       required SharedPreferences sharedPreferences,
       required bool initialShouldShowMarketPlaceInDashboard,
+      required bool initialShouldShowChartsInDashboard,
+      required bool initialShouldShowNftsTab,
       required bool initialShowAddressBookPopupEnabled,
       required bool initialShowCiBuildOverlay,
       required SyncStatusDisplayMode initialSyncStatusDisplayMode,
@@ -126,6 +128,7 @@ abstract class SettingsStoreBase with Store {
       required this.useTronGrid,
       required this.useMempoolFeeAPI,
       required List<int> initialEvmHiddenChainIds,
+      required Map<String, bool> initialTrocadorProviderStates,
       required this.defaultNanoRep,
       required this.defaultBananoRep,
       required this.lookupsTwitter,
@@ -202,6 +205,8 @@ abstract class SettingsStoreBase with Store {
         walletListAscending = initialWalletListAscending,
         contactListAscending = initialContactListAscending,
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
+        shouldShowChartsInDashboard = initialShouldShowChartsInDashboard,
+        shouldShowNftsTab = initialShouldShowNftsTab,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         showCiBuildOverlay = initialShowCiBuildOverlay,
         syncStatusDisplayMode = initialSyncStatusDisplayMode,
@@ -228,6 +233,7 @@ abstract class SettingsStoreBase with Store {
         enableAutomaticNodeSwitching = initialEnableAutomaticNodeSwitching,
         backgroundImage = initialBackgroundImage,
         evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
+        trocadorProviderStates = ObservableMap.of(initialTrocadorProviderStates),
         priority = ObservableMap<WalletType, TransactionPriority>() {
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
@@ -454,6 +460,16 @@ abstract class SettingsStoreBase with Store {
         (_) => shouldShowMarketPlaceInDashboard,
         (bool value) =>
             sharedPreferences.setBool(PreferencesKey.shouldShowMarketPlaceInDashboard, value));
+
+    reaction(
+      (_) => shouldShowChartsInDashboard,
+      (value) => sharedPreferences.setBool(PreferencesKey.shouldShowChartsInDashboard, value),
+    );
+
+    reaction(
+      (_) => shouldShowNftsTab,
+      (value) => sharedPreferences.setBool(PreferencesKey.shouldShowNftsTab, value),
+    );
 
     reaction(
         (_) => showAddressBookPopupEnabled,
@@ -837,6 +853,12 @@ abstract class SettingsStoreBase with Store {
   bool shouldShowMarketPlaceInDashboard;
 
   @observable
+  bool shouldShowChartsInDashboard;
+
+  @observable
+  bool shouldShowNftsTab;
+
+  @observable
   bool showAddressBookPopupEnabled;
 
   @observable
@@ -966,7 +988,7 @@ abstract class SettingsStoreBase with Store {
   ObservableMap<WalletType, TransactionPriority> priority;
 
   @observable
-  ObservableMap<String, bool> trocadorProviderStates = ObservableMap<String, bool>();
+  ObservableMap<String, bool> trocadorProviderStates;
 
   @observable
   SortBalanceBy sortBalanceBy;
@@ -1332,6 +1354,9 @@ abstract class SettingsStoreBase with Store {
     final tokenTrialNumber = sharedPreferences.getInt(PreferencesKey.failedTotpTokenTrials) ?? 0;
     final shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ?? true;
+    final shouldShowChartsInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ?? true;
+    final shouldShowNftsTab = sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? true;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final showCiBuildOverlay = sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? true;
@@ -1371,6 +1396,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getStringList(PreferencesKey.evmHiddenChainIds) ?? const <String>[];
     final evmHiddenChainIds =
         evmHiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>().toList();
+    final trocadorProviderStates = _savedTrocadorProviderStates(sharedPreferences);
     final defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     final defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     final lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -1604,104 +1630,68 @@ abstract class SettingsStoreBase with Store {
     final builtinTor = sharedPreferences.getBool(PreferencesKey.builtinTorKey) ?? false;
 
     // migrated to secure:
-    final timeOutDuration = await SecureKey.getInt(
-      secureStorage: secureStorage,
-      sharedPreferences: sharedPreferences,
-      key: SecureKey.pinTimeOutDuration,
-    );
+    Future<bool> secureBool(String key) async =>
+        await SecureKey.getBool(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: key,
+        ) ??
+        false;
+    Future<int?> secureInt(String key) => SecureKey.getInt(
+          secureStorage: secureStorage,
+          sharedPreferences: sharedPreferences,
+          key: key,
+        );
+
+    // Independent reads, so they go to secure storage concurrently instead of one by one
+    final List<Future<Object?> Function()> secureReads = [
+      () => secureInt(SecureKey.pinTimeOutDuration),
+      () => secureBool(SecureKey.allowBiometricalAuthenticationKey),
+      () => secureBool(SecureKey.enableDuressPin),
+      () => secureInt(SecureKey.selectedCake2FAPreset),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAccessingWallet),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToNonContact),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAddingContacts),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForCreatingNewWallets),
+      () => secureBool(SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings),
+      () => secureBool(SecureKey.useTOTP2FA),
+      () => SecureKey.getString(
+        secureStorage: secureStorage,
+        sharedPreferences: sharedPreferences,
+        key: SecureKey.totpSecretKey,
+      ),
+    ];
+
+    final [
+      timeOutDuration as int?,
+      allowBiometricalAuthentication as bool,
+      enableDuressPin as bool,
+      selectedCake2FAPresetRaw as int?,
+      shouldRequireTOTP2FAForAccessingWallet as bool,
+      shouldRequireTOTP2FAForSendsToContact as bool,
+      shouldRequireTOTP2FAForSendsToNonContact as bool,
+      shouldRequireTOTP2FAForSendsToInternalWallets as bool,
+      shouldRequireTOTP2FAForExchangesToInternalWallets as bool,
+      shouldRequireTOTP2FAForExchangesToExternalWallets as bool,
+      shouldRequireTOTP2FAForAddingContacts as bool,
+      shouldRequireTOTP2FAForCreatingNewWallets as bool,
+      shouldRequireTOTP2FAForAllSecurityAndBackupSettings as bool,
+      useTOTP2FA as bool,
+      totpSecretKeyRaw as String?,
+    ] = Platform.isWindows
+        ? [for (final read in secureReads) await read()]
+        : await Future.wait(secureReads.map((read) => read()));
 
     final pinCodeTimeOutDuration = timeOutDuration != null
         ? PinCodeRequiredDuration.deserialize(raw: timeOutDuration)
         : defaultPinCodeTimeOutDuration;
-
-    final allowBiometricalAuthentication = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.allowBiometricalAuthenticationKey,
-        ) ??
-        false;
-
-    final enableDuressPin = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.enableDuressPin,
-        ) ??
-        false;
-
     final selectedCake2FAPreset = Cake2FAPresetsOptions.deserialize(
-        raw: await SecureKey.getInt(
-              secureStorage: secureStorage,
-              sharedPreferences: sharedPreferences,
-              key: SecureKey.selectedCake2FAPreset,
-            ) ??
-            Cake2FAPresetsOptions.normal.raw);
-
-    final shouldRequireTOTP2FAForAccessingWallet = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAccessingWallet,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToContact = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToContact,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToNonContact = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToNonContact,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForSendsToInternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForSendsToInternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForExchangesToInternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForExchangesToInternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForExchangesToExternalWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForExchangesToExternalWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForAddingContacts = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAddingContacts,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForCreatingNewWallets = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForCreatingNewWallets,
-        ) ??
-        false;
-    final shouldRequireTOTP2FAForAllSecurityAndBackupSettings = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.shouldRequireTOTP2FAForAllSecurityAndBackupSettings,
-        ) ??
-        false;
-    final useTOTP2FA = await SecureKey.getBool(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.useTOTP2FA,
-        ) ??
-        false;
-    final totpSecretKey = await SecureKey.getString(
-          secureStorage: secureStorage,
-          sharedPreferences: sharedPreferences,
-          key: SecureKey.totpSecretKey,
-        ) ??
-        '';
+        raw: selectedCake2FAPresetRaw ?? Cake2FAPresetsOptions.normal.raw);
+    final totpSecretKey = totpSecretKeyRaw ?? '';
 
     final mwebAdDismissed =
         await sharedPreferences.getBool(PreferencesKey.mwebAdDismissed) ?? false;
@@ -1716,6 +1706,8 @@ abstract class SettingsStoreBase with Store {
       secureStorage: secureStorage,
       sharedPreferences: sharedPreferences,
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
+      initialShouldShowChartsInDashboard: shouldShowChartsInDashboard,
+      initialShouldShowNftsTab: shouldShowNftsTab,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
       initialShowCiBuildOverlay: showCiBuildOverlay,
       initialSyncStatusDisplayMode: syncStatusDisplayMode,
@@ -1766,6 +1758,7 @@ abstract class SettingsStoreBase with Store {
       useMempoolFeeAPI: useMempoolFeeAPI,
       useBlinkProtection: useBlinkProtection,
       initialEvmHiddenChainIds: evmHiddenChainIds,
+      initialTrocadorProviderStates: trocadorProviderStates,
       defaultNanoRep: defaultNanoRep,
       defaultBananoRep: defaultBananoRep,
       lookupsTwitter: lookupsTwitter,
@@ -1965,6 +1958,11 @@ abstract class SettingsStoreBase with Store {
     shouldShowMarketPlaceInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowMarketPlaceInDashboard) ??
             shouldShowMarketPlaceInDashboard;
+    shouldShowChartsInDashboard =
+        sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ??
+            shouldShowChartsInDashboard;
+    shouldShowNftsTab =
+        sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? shouldShowNftsTab;
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
@@ -2019,6 +2017,9 @@ abstract class SettingsStoreBase with Store {
     evmHiddenChainIds
       ..clear()
       ..addAll(hiddenChainIdsRaw.map((value) => int.tryParse(value)).whereType<int>());
+    trocadorProviderStates
+      ..clear()
+      ..addAll(_savedTrocadorProviderStates(sharedPreferences));
     defaultNanoRep = sharedPreferences.getString(PreferencesKey.defaultNanoRep) ?? "";
     defaultBananoRep = sharedPreferences.getString(PreferencesKey.defaultBananoRep) ?? "";
     lookupsTwitter = sharedPreferences.getBool(PreferencesKey.lookupsTwitter) ?? true;
@@ -2338,34 +2339,14 @@ abstract class SettingsStoreBase with Store {
 
   @action
   Future<void> updateAllTrocadorProviderStates(List<String> availableProviders) async {
-    final jsonKey = PreferencesKey.trocadorProviderStatesKey;
-    String? serializedData = await _sharedPreferences.getString(jsonKey);
+    final newStates = {
+      for (final provider in availableProviders) provider: trocadorProviderStates[provider] ?? true,
+    };
 
-    if (serializedData == null) {
-      final Map<String, bool> migratedStates = {};
-      for (final provider in TrocadorExchangeProvider.availableProviders) {
-        final oldState = _sharedPreferences.getBool(provider) ?? true;
-        migratedStates[provider] = oldState;
-      }
-
-      trocadorProviderStates
-        ..clear()
-        ..addAll(migratedStates);
-
-      await saveMapToString(jsonKey, trocadorProviderStates);
-    } else {
-      final decodedMap = json.decode(serializedData) as Map<String, dynamic>;
-      final oldMap = decodedMap.map((k, v) => MapEntry(k, v == true));
-
-      final Map<String, bool> newStates = {
-        for (final provider in availableProviders) provider: oldMap[provider] ?? true
-      };
-
-      trocadorProviderStates
-        ..clear()
-        ..addAll(newStates);
-      await saveMapToString(jsonKey, trocadorProviderStates);
-    }
+    trocadorProviderStates
+      ..clear()
+      ..addAll(newStates);
+    await saveMapToString(PreferencesKey.trocadorProviderStatesKey, trocadorProviderStates);
   }
 
   @action
@@ -2377,6 +2358,26 @@ abstract class SettingsStoreBase with Store {
   Future<void> saveMapToString(String key, Map<String, bool> map) async {
     String serializedData = json.encode(map);
     await _sharedPreferences.setString(key, serializedData);
+  }
+
+  bool hasViewedExplainer(String preferencesKey) =>
+      _sharedPreferences.getBool(preferencesKey) ?? false;
+
+  Future<void> setExplainerViewed(String preferencesKey) =>
+      _sharedPreferences.setBool(preferencesKey, true);
+
+  static Map<String, bool> _savedTrocadorProviderStates(SharedPreferences sharedPreferences) {
+    final serializedData = sharedPreferences.getString(PreferencesKey.trocadorProviderStatesKey);
+
+    if (serializedData == null) {
+      return {
+        for (final provider in TrocadorExchangeProvider.availableProviders)
+          provider: sharedPreferences.getBool(provider) ?? true,
+      };
+    }
+
+    return (json.decode(serializedData) as Map<String, dynamic>)
+        .map((provider, state) => MapEntry(provider, state == true));
   }
 
   static String? _offeredLanguageCode(SharedPreferences sharedPreferences) {

@@ -36,7 +36,15 @@ class Money implements Comparable<Money> {
     return Money(amount, currency, decimals);
   }
 
-  /// Parse the [source] and turn it into [Money] if possible trimming trailing 0s
+  factory Money.safeParse(source, Currency currency, {bool isBaseUnit = false}) {
+    final amount = isBaseUnit
+        ? BigInt.parse(source.toString())
+        : parseFixed(source.toString().withDecimals(currency.decimals), currency.decimals);
+
+    return Money(amount, currency);
+  }
+
+  /// Parse the [source] and turn it into [Money] if possible
   ///
   /// As [parse] except that this method returns `null` if the input is not
   /// valid or if it is a decimal when [isBaseUnit]
@@ -214,7 +222,9 @@ class Money implements Comparable<Money> {
   /// If just [currency] is provided and the decimals missmatch
   /// the amount will be transformed to keep its canonical representation
   Money copyWith({BigInt? amount, Currency? currency, int? decimals}) {
-    if (currency != null && amount == null && decimals == null &&
+    if (currency != null &&
+        amount == null &&
+        decimals == null &&
         currency.decimals != this.decimals) {
       return Money(
         _transformAmount(this.amount, this.decimals, currency.decimals),
@@ -228,7 +238,8 @@ class Money implements Comparable<Money> {
 
   void _assertSameCurrency(Money other, [String? message]) {
     if (currency != other.currency) {
-      throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
+      throw ArgumentError(message ??
+          "Cannot operate with money values in different currencies. $currency - ${other.currency}");
     }
   }
 
@@ -332,4 +343,6 @@ class Money implements Comparable<Money> {
 
   /// new [Money] with absolute value of this instance
   Money abs() => copyWith(amount: amount.abs());
+
+  String get serialized => "${currency.serialized}:${amount.toString()}";
 }

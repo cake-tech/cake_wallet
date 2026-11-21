@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:polyseed/polyseed.dart';
 
 bool isBip39Seed(String mnemonic) => bip39.validateMnemonic(mnemonic);
@@ -9,7 +10,7 @@ bool isBip39Seed(String mnemonic) => bip39.validateMnemonic(mnemonic);
 String getBip39Seed() => bip39.generateMnemonic();
 
 String getLegacySeedFromBip39(String mnemonic, {int accountIndex = 0, String passphrase = ""}) {
-  final seed = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase);
+  final seed = bip39MnemonicToSeed(mnemonic, passphrase: passphrase);
 
   final bip32KeyPair = bip32.BIP32.fromSeed(seed).derivePath("m/44'/128'/$accountIndex'/0/0");
 

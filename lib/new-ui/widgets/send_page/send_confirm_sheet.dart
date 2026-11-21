@@ -10,6 +10,7 @@ import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
+import "package:cake_wallet/new-ui/widgets/send_page/generating_transaction_overlay.dart";
 import 'package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
@@ -142,6 +143,7 @@ class SendTransactionDetails extends StatelessWidget {
             mainAxisSize: isPage ? MainAxisSize.max : MainAxisSize.min,
             children: [
               ModalTopBar(
+                testId: "send_confirm_sheet_top_bar",
                 title: "",
                 leadingWidget: Row(
                   spacing: 8,
@@ -175,8 +177,8 @@ class SendTransactionDetails extends StatelessWidget {
                 onTrailingPressed: Navigator.of(context).maybePop,
               ),
               isPage
-                  ? Expanded(child: _buildMainContent(context))
-                  : Flexible(child: _buildMainContent(context))
+                  ? Expanded(child: _buildOverlaidContent(context))
+                  : Flexible(child: _buildOverlaidContent(context))
             ]),
     );
   }
@@ -193,6 +195,11 @@ class SendTransactionDetails extends StatelessWidget {
     final str = sumStr(list, picker);
     return "${decimals == null ? str : str.withDecimals(decimals)} $unit";
   }
+
+  Widget _buildOverlaidContent(BuildContext context) => GeneratingTransactionOverlay(
+        sendViewModel: sendViewModel,
+        child: _buildMainContent(context),
+      );
 
   Widget _buildMainContent(BuildContext context) => Observer(builder: (context) {
       final transaction = sendViewModel.pendingTransaction;
@@ -549,11 +556,14 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
 
                               final page = getIt.get<TransactionDetailsModal>(
                                   param1: widget.sendViewModel!.transactionInfo!, param2: true);
-                              showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  context: context,
-                                  builder: (context) =>
-                                      FractionallySizedBox(heightFactor: 0.9, child: page));
+                              if (context.mounted) {
+                                showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) =>
+                                        FractionallySizedBox(heightFactor: 0.9, child: page),
+                                  );
+                                }
                             }),
                     ],
                   ),

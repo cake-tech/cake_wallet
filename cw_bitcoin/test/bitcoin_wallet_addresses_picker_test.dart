@@ -2,10 +2,12 @@ import "package:bitcoin_base/bitcoin_base.dart";
 import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
+import "package:cw_bitcoin/electrum_account.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_bitcoin/litecoin_wallet_addresses.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -46,19 +48,27 @@ class _NoPayjoin implements PayjoinManager {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+ElectrumAccounts _bitcoinAccounts() => ElectrumAccounts(
+  primaryTypes: [SegwitAddresType.p2wpkh],
+  currency: CryptoCurrency.btc,
+  accountHd: _hd("m/84'/0'/0'"),
+  masterHd: _master,
+  coinType: 0,
+)..getOrCreate(0);
+
+ElectrumAccounts _litecoinAccounts() => ElectrumAccounts(
+  primaryTypes: LITECOIN_ADDRESS_TYPES,
+  currency: CryptoCurrency.ltc,
+  accountHd: _hd("m/84'/2'/0'"),
+  masterHd: _master,
+  coinType: 2,
+)..getOrCreate(0);
+
 class _BitcoinAddresses extends BitcoinWalletAddresses {
   _BitcoinAddresses(super.walletInfo)
       : super(
-          mainHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _receiveHd},
-          },
-          sideHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _changeHd},
-          },
-          accountIndexes: [0],
+          accounts: _bitcoinAccounts(),
           currentAccountIndex: 0,
-          legacyMainHd: _receiveHd,
-          legacySideHd: _changeHd,
           network: BitcoinNetwork.mainnet,
           isHardwareWallet: false,
           payjoinManager: _NoPayjoin(),
@@ -83,16 +93,7 @@ class _BitcoinAddresses extends BitcoinWalletAddresses {
 class _LitecoinAddresses extends LitecoinWalletAddresses {
   _LitecoinAddresses(super.walletInfo)
       : super(
-          mainHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _ltcReceiveHd, SegwitAddresType.mweb: _ltcReceiveHd},
-          },
-          sideHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _ltcChangeHd, SegwitAddresType.mweb: _ltcChangeHd},
-          },
-          accountIndexes: [0],
-          currentAccountIndex: 0,
-          legacyMainHd: _ltcReceiveHd,
-          legacySideHd: _ltcChangeHd,
+          accounts: _litecoinAccounts(),
           network: LitecoinNetwork.mainnet,
           isHardwareWallet: false,
           mwebHd: null,
@@ -178,7 +179,8 @@ void main() {
 
     expect(addresses.address, _mweb);
     expect(addresses.addressesMap[_mweb], "Active - MWEB");
-    expect(addresses.addressesMap.values.where((label) => label.startsWith("Active")), hasLength(1));
+    expect(
+        addresses.addressesMap.values.where((label) => label.startsWith("Active")), hasLength(1));
     expect(addresses.addressForBuy, _ltcReceive[1]);
   });
 

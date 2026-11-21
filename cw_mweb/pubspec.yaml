@@ -12,7 +12,6 @@ dependencies:
     sdk: flutter
   grpc: 4.0.1
   path_provider: ^2.1.2
-  plugin_platform_interface: ^2.0.2
   ffi: ^2.1.0
   protobuf: ^3.1.0
   fixnum: ^1.1.1

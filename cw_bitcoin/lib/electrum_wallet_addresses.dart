@@ -59,6 +59,21 @@ const List<BitcoinAddressType> DOGECOIN_ADDRESS_TYPES = [
 
 const List<BitcoinAddressType> EXTRA_ACCOUNT_ADDRESS_TYPES = [SegwitAddresType.p2wpkh];
 
+/// The index after the highest one on [branch] (0 when it's empty): where discovery continues.
+/// Counting the records instead falls short when lower indexes are missing, and runs ahead when an
+/// index appears twice.
+int nextIndexOf(Iterable<BaseBitcoinAddressRecord> branch) =>
+    branch.fold(-1, (int highest, record) => max(highest, record.index)) + 1;
+
+/// The lowest index not in [takenIndexes]: where a new address goes, so a branch grows without gaps.
+int firstFreeIndex(Set<int> takenIndexes) {
+  var index = 0;
+  while (takenIndexes.contains(index)) {
+    index++;
+  }
+  return index;
+}
+
 abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(
     WalletInfo walletInfo, {
@@ -73,6 +88,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     List<BitcoinAddressRecord>? initialMwebAddresses,
     Bip32Slip10Secp256k1? masterHd,
     BitcoinAddressType? initialAddressPageType,
+    this.currentAccountIndex = 0,
     this.lightningWallet,
   })  : _addresses = ObservableList<BitcoinAddressRecord>.of((initialAddresses ?? []).toSet()),
         addressesByReceiveType =
@@ -95,11 +111,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
         super(walletInfo) {
     _addressPageType = _resolveInitialAddressPageType(initialAddressPageType);
     if (masterHd != null) {
+      final silentPaymentsHd = masterHd.derivePath(SILENT_PAYMENTS_ACCOUNT_PATH);
+
       silentAddress = SilentPaymentOwner.fromPrivateKeys(
-        b_scan:
-            ECPrivate.fromHex(masterHd.derivePath(SILENT_PAYMENTS_SCAN_PATH).privateKey.toHex()),
-        b_spend:
-            ECPrivate.fromHex(masterHd.derivePath(SILENT_PAYMENTS_SPEND_PATH).privateKey.toHex()),
+        b_scan: ECPrivate.fromHex(
+            silentPaymentsHd.derivePath(SILENT_PAYMENTS_SCAN_SUBPATH).privateKey.toHex()),
+        b_spend: ECPrivate.fromHex(
+            silentPaymentsHd.derivePath(SILENT_PAYMENTS_SPEND_SUBPATH).privateKey.toHex()),
         network: network,
       );
 
@@ -152,12 +170,11 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   final BasedUtxoNetwork network;
   final ElectrumAccounts accounts;
 
-  int get currentAccountIndex => 0;
-
-  void setCurrentAccountIndex(int index) {}
-
   final bool isHardwareWallet;
   LightningWallet? lightningWallet;
+
+  @observable
+  int currentAccountIndex;
 
   @observable
   ObservableMap<BitcoinAddressType, String> lockedReceiveAddressByType;
@@ -334,10 +351,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   String _firstReceiveAddressForType(BitcoinAddressType addrType) {
-    final account = accounts[currentAccountIndex];
-    if (account == null) return "";
-
-    final hd = account.hd.receive(addrType) ?? account.hd.receive(account.supportedTypes.first);
+    final hd = accounts.receiveHd(currentAccountIndex, addrType);
     if (hd == null) return "";
 
     return getAddress(index: 0, hd: hd, addressType: addrType);
@@ -425,16 +439,15 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     updateChangeAddresses();
 
     if (changeAddresses.isEmpty) {
-      final accountChangeCount = _addresses
-          .where((addressRecord) =>
-              _isCurrentAccountAddress(addressRecord) &&
-              addressRecord.isHidden &&
-              addressRecord.type == addressPageType)
-          .length;
+      final takenIndexes = _takenStandardIndexes(
+        isHidden: true,
+        type: addressPageType,
+        accountIndex: currentAccountIndex,
+      );
 
       final newAddresses = await _createNewAddresses(
         gap,
-        startIndex: accountChangeCount,
+        startIndex: firstFreeIndex(takenIndexes),
         isHidden: true,
         type: addressPageType,
         accountIndex: currentAccountIndex,
@@ -527,13 +540,13 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       return address;
     }
 
-    final newAddressIndex = addressesByReceiveType.fold(
-        0,
-        (int acc, addressRecord) => addressRecord is BitcoinAddressRecord &&
-                addressRecord.accountIndex == currentAccountIndex &&
-                addressRecord.isHidden == false
-            ? acc + 1
-            : acc);
+    final newAddressIndex = firstFreeIndex(
+      _takenStandardIndexes(
+        isHidden: false,
+        type: addressPageType,
+        accountIndex: currentAccountIndex,
+      ),
+    );
 
     final hd = _hdForAddressGeneration(
       isHidden: false,
@@ -799,7 +812,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }) async {
     final newAddresses = await _createNewAddresses(
       gap,
-      startIndex: addressList.length,
+      startIndex: nextIndexOf(addressList),
       isHidden: isHidden,
       isLegacyDerivation: isLegacyDerivation,
       type: type,
@@ -835,7 +848,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }) async {
     final newAddresses = await _createNewAddresses(
       gap,
-      startIndex: addressList.length,
+      startIndex: nextIndexOf(addressList),
       isHidden: isHidden,
       type: type,
       isLegacyDerivation: isLegacyDerivation,
@@ -1125,6 +1138,42 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
           "No HD for account $accountIndex, type $type, legacy $isLegacyDerivation");
     }
     return hd;
+  }
+
+  /// The indexes taken on the standard [type] chain of [accountIndex]: its own records, and the
+  /// legacy ones too when the legacy derivation has the same keys, since then they are the same
+  /// addresses.
+  Set<int> _takenStandardIndexes({
+    required bool isHidden,
+    required BitcoinAddressType type,
+    required int accountIndex,
+  }) {
+    var legacyIsSameChain = false;
+    try {
+      final standard = _hdForAddressGeneration(
+        isHidden: isHidden,
+        type: type,
+        isLegacyDerivation: false,
+        accountIndex: accountIndex,
+      );
+      final legacy = _hdForAddressGeneration(
+        isHidden: isHidden,
+        type: type,
+        isLegacyDerivation: true,
+        accountIndex: accountIndex,
+      );
+      legacyIsSameChain = standard.publicKey.toHex() == legacy.publicKey.toHex() &&
+          standard.chainCode.toHex() == legacy.chainCode.toHex();
+    } on UnsupportedAddressTypeForAccountException catch (_) {}
+
+    return {
+      for (final record in _addresses)
+        if (record.isHidden == isHidden &&
+            record.type == type &&
+            (walletInfo.type != WalletType.bitcoin || record.accountIndex == accountIndex) &&
+            (!record.isLegacyDerivation || legacyIsSameChain))
+          record.index,
+    };
   }
 
   @action

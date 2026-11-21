@@ -10,6 +10,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/currency.dart';
 import 'package:cake_wallet/src/widgets/picker_wrapper_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class Picker<Item> extends StatefulWidget {
   Picker({
@@ -21,6 +22,7 @@ class Picker<Item> extends StatefulWidget {
     this.displayItemColor,
     this.displayItemFontSize,
     this.images = const <Widget>[],
+    this.imageSize,
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.isGridView = false,
@@ -49,6 +51,7 @@ class Picker<Item> extends StatefulWidget {
   final int selectedAtIndex;
   final List<Item> items;
   final List<Widget> images;
+  final Size? imageSize;
   final String? title;
   final String? description;
   final Function(Item) onItemSelected;
@@ -302,13 +305,11 @@ class _PickerState<Item> extends State<Picker<Item>> {
     );
   }
 
-  String _getItemName(Item item) => item is Currency ? item.name : item.toString();
-
   Widget buildItem(int index) {
     final item = widget.headerEnabled ? filteredItems[index] : items[index];
 
     final tag = item is Currency ? item.tag : null;
-    final itemName = _getItemName(item);
+    final itemIndex = items.indexOf(item);
 
     final icon = _getItemIcon(item);
 
@@ -321,7 +322,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
       mainAxisAlignment: widget.mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        image ?? Offstage(),
+        if (image != null && widget.imageSize != null)
+          SizedBox(
+            width: widget.imageSize!.width,
+            height: widget.imageSize!.height,
+            child: FittedBox(fit: BoxFit.contain, child: image),
+          )
+        else
+          image ?? Offstage(),
         Expanded(
           child: Padding(
             padding: EdgeInsets.only(left: image != null ? 12 : 0),
@@ -329,7 +337,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    key: ValueKey('picker_items_index_${itemName}_text_key'),
+                    key: ValueKey('picker_items_index_${itemIndex}_text_key'),
                     widget.displayItem?.call(item) ??
                         (item == CryptoCurrency.btcln ? "BTC (LN)" : item.toString()),
                     softWrap: true,
@@ -370,8 +378,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
       ],
     );
 
-    return GestureDetector(
-      key: ValueKey('picker_items_index_${itemName}_button_key'),
+    return TestId.merge("picker_items_index_${itemIndex}_button_key", child: Semantics(button: true, selected: false, inMutuallyExclusiveGroup: true, child: GestureDetector(
+      key: ValueKey('picker_items_index_${itemIndex}_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
         onItemSelected(item!);
@@ -390,14 +398,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
               )
             : itemContent,
       ),
-    );
+    )));
   }
 
   Widget buildSelectedItem(int index) {
     final item = items[index];
 
     final tag = item is Currency ? item.tag : null;
-    final itemName = _getItemName(item);
+    final itemIndex = items.indexOf(item);
     final icon = _getItemIcon(item);
 
     final image = images.isNotEmpty ? images[index] : icon;
@@ -410,7 +418,14 @@ class _PickerState<Item> extends State<Picker<Item>> {
       mainAxisAlignment: widget.mainAxisAlignment,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        image ?? Offstage(),
+        if (image != null && widget.imageSize != null)
+          SizedBox(
+            width: widget.imageSize!.width,
+            height: widget.imageSize!.height,
+            child: FittedBox(fit: BoxFit.contain, child: image),
+          )
+        else
+          image ?? Offstage(),
         Expanded(
           child: Padding(
             padding: EdgeInsets.only(left: image != null ? 12 : 0),
@@ -418,7 +433,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               children: [
                 Flexible(
                   child: Text(
-                    key: ValueKey('picker_items_index_${itemName}_selected_item_text_key'),
+                    key: ValueKey('picker_items_index_${itemIndex}_selected_item_text_key'),
                     widget.displayItem?.call(item) ?? item.toString(),
                     softWrap: true,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -459,8 +474,8 @@ class _PickerState<Item> extends State<Picker<Item>> {
       ],
     );
 
-    return GestureDetector(
-      key: ValueKey('picker_items_index_${itemName}_selected_item_button_key'),
+    return TestId.merge("picker_items_index_${itemIndex}_selected_item_button_key", child: Semantics(button: true, selected: true, inMutuallyExclusiveGroup: true, child: GestureDetector(
+      key: ValueKey('picker_items_index_${itemIndex}_selected_item_button_key'),
       onTap: () {
         if (widget.closeOnItemSelected) Navigator.of(context).pop();
       },
@@ -478,7 +493,7 @@ class _PickerState<Item> extends State<Picker<Item>> {
               )
             : itemContent,
       ),
-    );
+    )));
   }
 
   Widget? _getItemIcon(Item item) {

@@ -10,6 +10,8 @@ import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/wallet_types.g.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -35,6 +37,8 @@ class _MockAccountListViewModel extends Mock implements WalletAccountListViewMod
 
 class _MockAuthService extends Mock implements AuthService {}
 
+class _MockSettingsStore extends Mock implements SettingsStore {}
+
 class _MockDatabase extends Mock implements Database {}
 
 class _MockWallet extends Mock
@@ -50,6 +54,7 @@ void main() {
   late MockDashboardViewModel dashboardViewModel;
   late _MockWallet wallet;
   late _MockAuthService authService;
+  late _MockSettingsStore settingsStore;
 
   setUpAll(() async {
     english = await S.delegate.load(const Locale("en"));
@@ -63,6 +68,13 @@ void main() {
     dashboardViewModel = MockDashboardViewModel();
     wallet = _MockWallet();
     authService = _MockAuthService();
+    settingsStore = _MockSettingsStore();
+
+    // Bitcoin settings read the amount display mode, so the store cannot be a
+    // bare mock.
+    when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
+    when(() => settingsStore.displayAmountsInSatoshi)
+        .thenReturn(BitcoinAmountDisplayMode.bitcoin);
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
     when(() => dashboardViewModel.isMultiAccountsEnabled).thenReturn(true);
