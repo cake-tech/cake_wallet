@@ -235,13 +235,14 @@ void main() {
     rootNavigator = GlobalKey<NavigatorState>();
     evm = bridge = _Evm()..approvalSpender = approvalSpender;
     transfers = _TransfersStore();
+    final settingsStore = _SettingsStore();
     viewModel = BridgeViewModel(
       appStore: _AppStore(),
       bridgeTransfersStore: transfers,
       walletManager: _WalletManager(),
-      fiatConversionStore: FiatConversionStore()
+      fiatConversionStore: FiatConversionStore(settingsStore)
         ..prices.addAll({_usdc: 1, CryptoCurrency.baseEth: 3000}),
-      settingsStore: _SettingsStore(),
+      settingsStore: settingsStore,
     )
       ..setSelectedToken(_usdc)
       ..setDestinationChain(1)
