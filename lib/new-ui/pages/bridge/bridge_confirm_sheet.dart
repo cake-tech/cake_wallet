@@ -10,11 +10,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class BridgeConfirmSheet extends StatefulWidget {
   const BridgeConfirmSheet(this.bridgeViewModel);
 
   final BridgeViewModel bridgeViewModel;
+
+  static Future<void> show({
+    required BuildContext context,
+    required BridgeViewModel bridgeViewModel,
+  }) =>
+      showMaterialModalBottomSheet<void>(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (_) => BridgeConfirmSheet(bridgeViewModel),
+      ).whenComplete(bridgeViewModel.dismissTransaction);
 
   @override
   State<BridgeConfirmSheet> createState() => _BridgeConfirmSheetState();
@@ -93,126 +104,151 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                 );
               },
             ),
-            SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Observer(
-                builder: (_) {
-                  if (bridgeViewModel.isQuoteLoading && bridgeViewModel.quote == null) {
-                    return const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 48),
-                      child: Center(
-                        child: CupertinoActivityIndicator(),
-                      ),
-                    );
-                  }
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Observer(
+                  builder: (_) {
+                    if (bridgeViewModel.isQuoteLoading && bridgeViewModel.quote == null) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 48),
+                        child: Center(
+                          child: CupertinoActivityIndicator(),
+                        ),
+                      );
+                    }
 
-                  if (bridgeViewModel.quoteError != null) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: Column(
-                        children: [
-                          Text(
-                            bridgeViewModel.quoteError!,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 14,
-                                  letterSpacing: -0.07,
-                                  color: scheme.error,
-                                ),
-                          ),
-                          const SizedBox(height: 16),
-                          FilledButton(
-                            onPressed: () => bridgeViewModel.loadQuote(),
-                            child: Text(
-                              S.of(context).try_again,
+                    if (bridgeViewModel.quoteError != null) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 24),
+                        child: Column(
+                          children: [
+                            Text(
+                              bridgeViewModel.quoteError!,
+                              textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 16,
-                                    letterSpacing: -0.08,
-                                    color: scheme.onPrimary,
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    letterSpacing: -0.07,
+                                    color: scheme.error,
                                   ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 24,
-                    children: [
-                      Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            spacing: 4,
-                            children: [
-                              Text(
-                                bridgeViewModel.amountDisplayFormatted,
-                                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                      fontSize: 36,
-                                      fontWeight: FontWeight.w400,
-                                      color: scheme.onSurface,
+                            const SizedBox(height: 16),
+                            FilledButton(
+                              onPressed: () => bridgeViewModel.loadQuote(),
+                              child: Text(
+                                S.of(context).try_again,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 16,
+                                      letterSpacing: -0.08,
+                                      color: scheme.onPrimary,
                                     ),
                               ),
-                              Text(
-                                bridgeViewModel.selectedToken?.title ?? '',
-                                style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                                      fontSize: 36,
-                                      fontWeight: FontWeight.w400,
-                                      color: scheme.onSurfaceVariant,
-                                    ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${bridgeViewModel.fiatCurrencyTitle} ${bridgeViewModel.fiatAmountFormatted}',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w500,
-                                  color: scheme.onSurfaceVariant,
-                                  letterSpacing: -0.1,
-                                ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          NetworkPathPill(
-                            sourceChainName: bridgeViewModel.wallet.type.name,
-                            destChainName: bridgeViewModel.destinationChainInfo?.name ?? '',
-                          ),
-                        ],
-                      ),
-                      ConfirmDetailsCard(bridgeViewModel: bridgeViewModel),
-                      if (bridgeViewModel.executeError != null) ...[
-                        Text(
-                          bridgeViewModel.executeError!,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: scheme.error),
+                            ),
+                          ],
                         ),
+                      );
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 24,
+                      children: [
+                        Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              spacing: 4,
+                              children: [
+                                Text(
+                                  bridgeViewModel.amountDisplayFormatted,
+                                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.w400,
+                                        color: scheme.onSurface,
+                                      ),
+                                ),
+                                Text(
+                                  bridgeViewModel.selectedToken?.title ?? '',
+                                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                        fontSize: 36,
+                                        fontWeight: FontWeight.w400,
+                                        color: scheme.onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${bridgeViewModel.fiatCurrencyTitle} ${bridgeViewModel.fiatAmountFormatted}',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w500,
+                                    color: scheme.onSurfaceVariant,
+                                    letterSpacing: -0.1,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            NetworkPathPill(
+                              sourceChainName: bridgeViewModel.wallet.type.name,
+                              destChainName: bridgeViewModel.destinationChainInfo?.name ?? '',
+                            ),
+                          ],
+                        ),
+                        ConfirmDetailsCard(bridgeViewModel: bridgeViewModel),
+                        if (bridgeViewModel.isApprovalRequired)
+                          Text(
+                            S.of(context).bridge_approval_step_note(
+                                  bridgeViewModel.selectedToken?.title ?? "",
+                                ),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                          ),
+                        if (bridgeViewModel.executeError != null) ...[
+                          Text(
+                            bridgeViewModel.executeError!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: scheme.error),
+                          ),
+                        ],
+                        const SizedBox(height: 8),
                       ],
-                      const SizedBox(height: 8),
-                    ],
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Observer(
                 builder: (_) {
+                  if (bridgeViewModel.isApproving) {
+                    return LoadingBottomWidget(text: "${S.of(context).approving}...");
+                  }
                   if (bridgeViewModel.isExecuting) {
                     return LoadingBottomWidget(
                       text: "${S.of(context).bridging}...",
                     );
                   }
+                  if (bridgeViewModel.quoteError != null) {
+                    return const SizedBox.shrink();
+                  }
                   if (bridgeViewModel.isQuoteLoading || bridgeViewModel.quote == null) {
                     return LoadingBottomWidget(text: "${S.of(context).loading}...");
+                  }
+                  if (bridgeViewModel.isApprovalRequired) {
+                    return ConfirmSwiper(
+                      onConfirmed: () {
+                        bridgeViewModel.executeApproval();
+                      },
+                      swiperText: S.of(context).wc_swipe_to_approve,
+                      accessibleNavigationModeButtonText: S.of(context).approve,
+                    );
                   }
                   return ConfirmSwiper(
                     onConfirmed: () {

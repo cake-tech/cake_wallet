@@ -421,7 +421,7 @@ abstract class DashboardViewModelBase with Store {
   bool showBridge(CryptoCurrency currency) {
     if (!isEVMCompatibleChain(wallet.type)) return false;
 
-    if (evm!.isUSDT0Token(wallet, currency)) return true;
+    if (evm!.isBridgeToken(wallet, currency)) return true;
 
     return false;
   }

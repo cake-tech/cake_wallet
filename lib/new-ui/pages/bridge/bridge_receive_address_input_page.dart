@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class BridgeReceiveAddressInputPage extends StatefulWidget {
   const BridgeReceiveAddressInputPage({super.key, required this.bridgeViewModel});
@@ -24,6 +23,7 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
 
   late final TextEditingController _controller;
   final FocusNode _focusNode = FocusNode();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -111,29 +111,36 @@ class _BridgeReceiveAddressInputPageState extends State<BridgeReceiveAddressInpu
                         },
                       ),
                       const SizedBox(height: 24),
-                      NewSendAddressInput(
-                        hintText: 'Enter Address',
-                        addressController: _controller,
-                        focusNode: _focusNode,
-                        selectedCurrency: bridgeViewModel.wallet.currency,
-                        onEditingComplete: () {},
-                        validator:
-                            AddressValidator(type: bridgeViewModel.destinationChainInfo!.currency),
+                      Form(
+                        key: _formKey,
+                        child: NewSendAddressInput(
+                          hintText: 'Enter Address',
+                          addressController: _controller,
+                          focusNode: _focusNode,
+                          selectedCurrency: bridgeViewModel.wallet.currency,
+                          onEditingComplete: () {},
+                          validator: (value) => AddressValidator(
+                            type: bridgeViewModel.destinationChainInfo!.currency,
+                          )(value?.trim()),
+                        ),
                       ),
                       const Spacer(),
                       Observer(
                         builder: (_) {
                           return FilledButton(
                             onPressed: () {
+                              if (!_formKey.currentState!.validate()) {
+                                return;
+                              }
+
                               final overlayCtx = Navigator.of(context).overlay?.context;
                               bridgeViewModel.setRecipientAddress(_controller.text.trim());
 
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 if (overlayCtx != null && overlayCtx.mounted) {
-                                  showMaterialModalBottomSheet<void>(
+                                  BridgeConfirmSheet.show(
                                     context: overlayCtx,
-                                    backgroundColor: Colors.transparent,
-                                    builder: (ctx) => BridgeConfirmSheet(bridgeViewModel),
+                                    bridgeViewModel: bridgeViewModel,
                                   );
                                 }
                               });

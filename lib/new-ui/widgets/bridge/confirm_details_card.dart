@@ -16,10 +16,11 @@ class ConfirmDetailsCard extends StatelessWidget {
     return Observer(
       builder: (_) {
         final feeParts = <String>[
-          bridgeViewModel.quoteNativeFeeFormattedForDisplay,
-          bridgeViewModel.quoteNativeFiatFeeFormattedForDisplay,
+          bridgeViewModel.quoteFeeFormattedForDisplay,
+          bridgeViewModel.quoteFiatFeeFormattedForDisplay,
         ];
         final feeLine = feeParts.join(' ');
+        final receiveAmount = bridgeViewModel.quoteReceiveAmountFormattedForDisplay;
 
         return Container(
           decoration: BoxDecoration(
@@ -54,6 +55,17 @@ class ConfirmDetailsCard extends StatelessWidget {
                 title: feeLine,
                 showChevron: false,
               ),
+              if (receiveAmount != null) ...[
+                Divider(
+                  height: 1,
+                  color: scheme.surfaceContainerHigh,
+                ),
+                ExpandableBridgeDetailRow(
+                  label: S.of(context).you_will_receive_estimated_amount,
+                  title: receiveAmount,
+                  showChevron: false,
+                ),
+              ],
             ],
           ),
         );

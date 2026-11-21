@@ -11,17 +11,19 @@ import 'package:cake_wallet/view_model/bridge/bridge_receiving_wallet_option.dar
 import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/entities/wallet_manager.dart';
 import 'package:cake_wallet/evm/evm.dart';
+import "package:cake_wallet/generated/i18n.dart";
 import 'package:cake_wallet/reactions/wallet_connect.dart';
-import 'package:cake_wallet/core/layerzero_scan_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/bridge_transfers_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cw_core/amount/amount_sanitizer.dart';
 import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/crypto_amount_format.dart';
+import "package:cw_core/bridge_quote.dart";
+import "package:cw_core/bridge_transfer_status.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -39,7 +41,9 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     required this.fiatConversionStore,
     required this.settingsStore,
   })  : _appStore = appStore,
-        super(appStore: appStore);
+        super(appStore: appStore) {
+    _resumePollingForActiveTransfers(wallet);
+  }
 
   final AppStore _appStore;
 
@@ -50,12 +54,15 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConversionStore;
   final BridgeTransfersStore bridgeTransfersStore;
-  final Map<String, Completer<void>> _pollingCancellers = {};
+  final Set<Completer<void>> _pollingCancellers = {};
+  int _quoteRequestId = 0;
+  int _executeAttemptId = 0;
 
   static const _pollInterval = Duration(seconds: 2);
   static const _pollTimeout = Duration(minutes: 5);
   static const _destinationPollInterval = Duration(seconds: 5);
-  static const _destinationPollTimeout = Duration(minutes: 10);
+  static const _destinationPollTimeout = Duration(minutes: 30);
+  static final _unlimitedAllowance = (BigInt.one << 256) - BigInt.one;
 
   @observable
   ObservableList<BridgeReceivingWalletOption> bridgeReceivingWalletOptions =
@@ -89,6 +96,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   String? quoteError;
 
   @observable
+  bool isApprovalRequired = false;
+
+  @observable
+  bool isApproving = false;
+
+  @observable
   bool isExecuting = false;
 
   @observable
@@ -113,15 +126,18 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   List<ChainInfo> get availableDestinationChains {
     if (!isEVMCompatibleChain(wallet.type)) return [];
 
-    return evm!.getUSDT0DestinationChains(wallet);
+    final token = selectedToken;
+    if (token == null) return [];
+
+    return evm!.getBridgeDestinationChains(wallet, token);
   }
 
   @computed
-  List<Erc20Token> get availableUSDT0Tokens {
+  List<Erc20Token> get availableBridgeTokens {
     if (!isEVMCompatibleChain(wallet.type)) return [];
 
     final tokens = wallet.balance.keys.whereType<Erc20Token>();
-    return tokens.where((token) => evm!.isUSDT0Token(wallet, token)).toList(growable: false);
+    return tokens.where((token) => evm!.isBridgeToken(wallet, token)).toList(growable: false);
   }
 
   @computed
@@ -173,39 +189,43 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   @computed
-  String get quoteNativeFee {
-    if (quote == null) return '—';
+  String get quoteFeeFormattedForDisplay {
+    final fee = quote?.fee;
+    if (fee == null) return '—';
 
-    return amountParsingProxy.asDisplayString(Money(quote!.nativeFee, wallet.currency));
+    return amountParsingProxy.asDisplayStringWithSymbol(fee);
   }
 
   @computed
-  String get quoteNativeFeeFormattedForDisplay {
-    if (quoteNativeFee.isEmpty) return '';
-
-    return '${quoteNativeFee.withMaxDecimals(8)} ${wallet.currency.title}';
-  }
-
-  @computed
-  String get quoteNativeFiatFeeFormattedForDisplay {
+  String get quoteFiatFeeFormattedForDisplay {
     try {
-      if (quote == null || quoteNativeFee.isEmpty) return '';
+      final fee = quote?.fee;
+      if (fee == null) return '';
 
-      final price = fiatConversionStore.prices[wallet.currency];
+      final price = fiatConversionStore.prices[fee.currency];
       if (price == null) return '';
 
       final fiatFeeFormatted = calculateFiatAmount(
         price: price,
-        cryptoAmount: amountParsingProxy.getDisplayCryptoAmount(
-          quoteNativeFee.replaceAll(',', '.'),
-          wallet.currency,
-        ),
+        cryptoAmount: amountParsingProxy.asDisplayString(fee),
       );
 
       return '(${fiatCurrencyTitle} $fiatFeeFormatted)';
     } catch (_) {
       return '';
     }
+  }
+
+  @computed
+  String? get quoteReceiveAmountFormattedForDisplay {
+    final token = selectedToken.asErc20;
+    final receiveAmount = quote?.receiveAmount;
+    if (token == null || receiveAmount == null) return null;
+
+    final sentAmount = amountParsingProxy.tryParseCryptoString(amount.replaceAll(',', '.'), token);
+    if (sentAmount == null || receiveAmount.amount >= sentAmount.amount) return null;
+
+    return amountParsingProxy.asDisplayStringWithSymbol(receiveAmount);
   }
 
   @computed
@@ -255,7 +275,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
   @action
   void applyInitialBridgeToken(CryptoCurrency asset) {
-    final token = availableUSDT0Tokens.firstWhereOrNull((t) => t == asset);
+    final token = availableBridgeTokens.firstWhereOrNull((t) => t == asset);
     if (token != null) {
       setSelectedToken(token);
     }
@@ -418,26 +438,119 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final dst = destinationChainId!;
     final amountBigInt = check.parsedAmount!;
 
+    final requestId = ++_quoteRequestId;
     isQuoteLoading = true;
     _clearQuoteState();
 
     try {
-      quote = await evm!.quoteUSDT0Transfer(
+      final loadedQuote = await evm!.quoteBridgeTransfer(
         wallet: wallet,
+        token: token,
         sourceChainId: src,
         destinationChainId: dst,
         amount: amountBigInt,
         recipientAddress: recipientAddress.trim(),
       );
+
+      final spender = loadedQuote.approvalSpender;
+      final approvalRequired = spender != null &&
+          await evm!.isApprovalRequired(wallet, token.contractAddress, spender, amountBigInt);
+
+      if (requestId != _quoteRequestId) return;
+
+      if (loadedQuote.receiveAmount.amount <= BigInt.zero) {
+        final fee = amountParsingProxy.asDisplayStringWithSymbol(loadedQuote.fee);
+        quoteError = S.current.bridge_amount_below_fee(fee);
+        return;
+      }
+
+      quote = loadedQuote;
+      isApprovalRequired = approvalRequired;
     } catch (e) {
-      quoteError = e.toString();
+      if (requestId == _quoteRequestId) quoteError = e.toString();
     } finally {
-      isQuoteLoading = false;
+      if (requestId == _quoteRequestId) isQuoteLoading = false;
     }
   }
 
   @action
+  Future<void> executeApproval() async {
+    if (isApproving) return;
+
+    final token = selectedToken.asErc20!;
+    final check = _parseAndValidateAmount(token);
+    if (check.error != null) {
+      executeError = check.error;
+      return;
+    }
+
+    final src = sourceChainId!;
+    final spender = quote!.approvalSpender!;
+    final sourceWallet = wallet;
+
+    final attemptId = ++_executeAttemptId;
+    var isSent = false;
+    isApproving = true;
+    executeError = null;
+    try {
+      if (await evm!.isApprovalRequired(
+        sourceWallet,
+        token.contractAddress,
+        spender,
+        check.parsedAmount!,
+      )) {
+        if (attemptId != _executeAttemptId) return;
+
+        final approval = await evm!.createTokenApproval(
+          sourceWallet,
+          Money(_unlimitedAllowance, token),
+          spender,
+          evm!.getDefaultTransactionPriority(),
+          useBlinkProtection:
+              canSupportBlinkProtection(src) ? settingsStore.useBlinkProtection : false,
+        );
+
+        if (attemptId != _executeAttemptId) return;
+
+        if (approval.fee.isZero) {
+          executeError = S.current.tx_zero_fee_exception;
+          return;
+        }
+
+        await approval.commit();
+        isSent = true;
+        await _waitForApproval(sourceWallet, approval.evmTxHashFromRawHex!);
+      }
+
+      await loadQuote();
+    } catch (e) {
+      if (isSent || attemptId == _executeAttemptId) executeError = e.toString();
+    } finally {
+      isApproving = false;
+    }
+  }
+
+  Future<void> _waitForApproval(WalletBase sourceWallet, String txHash) async {
+    final deadline = DateTime.now().add(_pollTimeout);
+
+    while (DateTime.now().isBefore(deadline)) {
+      await Future.delayed(_pollInterval);
+
+      final isSuccessful = await evm!.getTransactionReceipt(sourceWallet, txHash);
+      if (isSuccessful == true) return;
+
+      if (isSuccessful == false) {
+        throw TransactionSendingException(S.current.bridge_approval_failed);
+      }
+    }
+
+    throw TransactionSendingException(S.current.bridge_approval_not_confirmed);
+  }
+
+  @action
   Future<void> executeBridge() async {
+    if (isExecuting) return;
+
     if (quote == null) {
       executeError = 'Get a quote first';
       return;
@@ -461,35 +574,47 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final src = sourceChainId!;
     final dst = destinationChainId!;
     final amountBigInt = check.parsedAmount!;
+    final sourceWallet = wallet;
+    final enteredAmount = amount;
+    final recipient = recipientAddress.trim();
 
+    final attemptId = ++_executeAttemptId;
     isExecuting = true;
     executeError = null;
     try {
       final priority = evm!.getDefaultTransactionPriority();
-      final pending = await evm!.executeUSDT0Transfer(
-        wallet: wallet,
+      final pending = await evm!.executeBridgeTransfer(
+        wallet: sourceWallet,
         token: token,
         sourceChainId: src,
         destinationChainId: dst,
         amount: amountBigInt,
-        recipientAddress: recipientAddress.trim(),
+        recipientAddress: recipient,
         quote: quote!,
         priority: priority,
-        useBlinkProtection: canSupportBlinkProtection(src),
+        useBlinkProtection:
+            canSupportBlinkProtection(src) ? settingsStore.useBlinkProtection : false,
       );
+
+      if (attemptId != _executeAttemptId) return;
+
+      if (pending.fee.isZero) {
+        executeError = S.current.tx_zero_fee_exception;
+        return;
+      }
 
       final sourceTxHash = pending.evmTxHashFromRawHex ?? pending.id;
       await pending.commit();
 
       final record = BridgeTransfer(
         id: '${sourceTxHash}_${DateTime.now().millisecondsSinceEpoch}',
-        walletId: wallet.name,
+        walletId: sourceWallet.name,
         sourceChainId: src,
         destinationChainId: dst,
         tokenSymbol: token.title,
         tokenContract: token.contractAddress,
-        amount: amount,
-        recipientAddress: recipientAddress.trim(),
+        amount: enteredAmount,
+        recipientAddress: recipient,
         sourceTxHash: sourceTxHash,
         status: 'submitted',
         createdAt: DateTime.now(),
@@ -502,13 +627,15 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         lastCreatedBridgeTransfer = record;
       });
       onBridgeSuccess?.call();
-      _pollForConfirmation(record, wallet, isSource: true);
+      _pollForConfirmation(record, sourceWallet, isSource: true);
     } catch (e) {
-      executeError = e.toString();
+      if (attemptId == _executeAttemptId) executeError = e.toString();
     } finally {
       isExecuting = false;
     }
   }
+
+  void dismissTransaction() => _executeAttemptId++;
 
   @override
   void onWalletChange(WalletBase wallet) {
@@ -525,6 +652,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
     for (final transfer in activeTransfers) {
       if (transfer.status == 'submitted' || transfer.status == 'confirming') {
+        if (transfer.sourceChainId != sourceChainId) continue;
+
         _pollForConfirmation(transfer, wallet, isSource: true);
       } else if (transfer.status == 'initiated') {
         _pollForConfirmation(transfer, wallet, isSource: false);
@@ -533,9 +662,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   bool _isValidWalletContext(String expectedWalletId) {
-    return wallet.name == expectedWalletId &&
-        isEVMCompatibleChain(wallet.type) &&
-        !_pollingCancellers.values.any((c) => c.isCompleted);
+    return wallet.name == expectedWalletId && isEVMCompatibleChain(wallet.type);
   }
 
   Future<void> _updateTransferStatus(
@@ -558,7 +685,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     try {
       await bridgeTransfersStore.updateTransfer(record);
     } catch (e) {
-      printV('USDT0 bridge: Error updating transfer status: $e');
+      printV('Bridge: Error updating transfer status: $e');
     }
   }
 
@@ -568,13 +695,12 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     required bool isSource,
   }) async {
     final canceller = Completer<void>();
-    final recordId = isSource ? record.id : '${record.id}_dest';
     final pollInterval = isSource ? _pollInterval : _destinationPollInterval;
     final pollTimeout = isSource ? _pollTimeout : _destinationPollTimeout;
     final walletId = wallet.name;
     final deadline = DateTime.now().add(pollTimeout);
 
-    _pollingCancellers[recordId] = canceller;
+    _pollingCancellers.add(canceller);
 
     try {
       while (DateTime.now().isBefore(deadline)) {
@@ -587,6 +713,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
         if (isSource) {
           final receipt = await _fetchTransactionReceipt(record, wallet);
+          if (canceller.isCompleted) return;
 
           if (receipt != null) {
             final isTransactionSuccessful = receipt == true;
@@ -599,7 +726,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
             if (isTransactionSuccessful) {
               await Future.delayed(const Duration(seconds: 1));
-              if (_isValidWalletContext(walletId)) {
+              if (!canceller.isCompleted) {
                 _pollForConfirmation(record, wallet, isSource: false);
               }
             }
@@ -609,16 +736,16 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
           continue;
         } else {
-          final status = await _fetchLayerZeroMessageStatus(record, wallet);
+          final status = await _fetchBridgeTransferStatus(record);
+          if (canceller.isCompleted) return;
 
           if (status != null) {
             final statusMessage = _getStatusMessage(status, record);
             await _updateTransferStatus(
               record,
               statusMessage,
-              errorMessage:
-                  status.isFailed ? status.status?.message ?? 'Bridge message failed' : null,
-              statusMessage: status.status?.message,
+              errorMessage: status.isFailed ? status.message ?? 'Bridge message failed' : null,
+              statusMessage: status.message,
             );
 
             if (status.isDelivered || status.isFailed) return;
@@ -636,13 +763,13 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         );
       }
     } catch (e) {
-      printV('USDT0 bridge: Error polling for confirmation: $e');
+      printV('Bridge: Error polling for confirmation: $e');
     } finally {
-      _pollingCancellers.remove(recordId);
+      _pollingCancellers.remove(canceller);
     }
   }
 
-  String _getStatusMessage(LayerZeroMessageStatus status, BridgeTransfer record) {
+  String _getStatusMessage(BridgeTransferStatus status, BridgeTransfer record) {
     if (status.isDelivered) {
       return 'completed';
     }
@@ -658,17 +785,20 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     try {
       return await evm!.getTransactionReceipt(wallet, record.sourceTxHash);
     } catch (e) {
-      printV('USDT0 bridge: Error fetching receipt: $e');
+      printV('Bridge: Error fetching receipt: $e');
       return null;
     }
   }
 
-  Future<LayerZeroMessageStatus?> _fetchLayerZeroMessageStatus(
-      BridgeTransfer record, WalletBase wallet) async {
+  Future<BridgeTransferStatus?> _fetchBridgeTransferStatus(BridgeTransfer record) async {
     try {
-      return await LayerZeroScanService.getMessageStatus(record.sourceTxHash);
+      return await evm!.getBridgeTransferStatus(
+        sourceChainId: record.sourceChainId,
+        tokenContract: record.tokenContract,
+        sourceTxHash: record.sourceTxHash,
+      );
     } catch (e) {
-      printV('USDT0 bridge: Error fetching LayerZero status: $e');
+      printV("Bridge: Error fetching transfer status: $e");
       return null;
     }
   }
@@ -692,7 +822,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   void _cancelAllPolling() {
-    for (final canceller in _pollingCancellers.values) {
+    for (final canceller in _pollingCancellers) {
       if (!canceller.isCompleted) {
         canceller.complete();
       }
@@ -701,6 +831,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
   }
 
   void dispose() {
+    dismissTransaction();
     _cancelAllPolling();
   }
 }
