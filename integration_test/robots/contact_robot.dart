@@ -1,5 +1,6 @@
 import "package:cake_wallet/src/screens/contact/contact_list_page.dart";
 import "package:cake_wallet/src/screens/contact/contact_page.dart";
+import "package:cw_core/currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 
@@ -26,7 +27,9 @@ class ContactRobot extends BaseRobot {
   Future<void> chooseCurrency(String currencyName) async {
     await tapByKey("contact_page_currency_picker_button_key");
 
-    await tapByKey("picker_items_index_${currencyName}_button_key");
+    final index = await pickerIndexWhere((item) => item is Currency && item.name == currencyName);
+
+    await tapByKey("picker_items_index_${index}_button_key");
 
     await settle();
   }

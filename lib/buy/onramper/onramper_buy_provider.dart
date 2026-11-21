@@ -212,11 +212,17 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     String? paymentMethod;
 
-    if (paymentType == PaymentType.all)
+    if (isBuyAction &&
+        cryptoCurrency == CryptoCurrency.xmr &&
+        (paymentType == null || paymentType == PaymentType.all)) {
+      paymentMethod = "debitcard";
+    } else if (paymentType == PaymentType.all) {
       paymentMethod = recommendedPaymentType ?? (isBuyAction ? "creditcard" : null);
-    else if (paymentType == PaymentType.unknown)
+    } else if (paymentType == PaymentType.unknown) {
       paymentMethod = customPaymentMethodType;
-    else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
+    } else if (paymentType != null) {
+      paymentMethod = normalizePaymentMethod(paymentType);
+    }
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 

@@ -1,6 +1,9 @@
 import "dart:math";
 
+import "package:auto_size_text/auto_size_text.dart";
+
 import "package:cake_wallet/themes/core/theme_extension.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
@@ -11,12 +14,14 @@ class CoinActionButton extends StatelessWidget {
     required this.action,
     super.key,
     this.gradientColors,
+    this.testId,
   });
 
   final Widget icon;
   final String label;
   final VoidCallback action;
   final List<Color>? gradientColors;
+  final String? testId;
 
   static const sizeFactor = 0.16;
 
@@ -29,6 +34,7 @@ class CoinActionButton extends StatelessWidget {
     // from the semantics tree to keep this a single button node.
     return MergeSemantics(
       child: Semantics(
+        identifier: testId ?? TestId.fromKey(key),
         button: true,
         label: label,
         child: Column(
@@ -66,11 +72,25 @@ class CoinActionButton extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ExcludeSemantics(
-                child: Text(
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                  label,
+                // Long translations (Tamil "பரிமாற்றம்", "ஸ்கேன் செய்யவும்")
+                // were wider than the circle and pushed the row past the
+                // screen edge; keep the caption inside the button's width.
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: effectiveSize + 12),
+                  child: AutoSizeText(
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    // The "copied" confirmation is one long word in Tamil
+                    // ("நகலெடுக்கப்பட்டது") and cannot wrap, so allow a deep
+                    // shrink and never clip silently.
+                    minFontSize: 6,
+                    overflow: TextOverflow.ellipsis,
+                    wrapWords: false,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                    label,
+                  ),
                 ),
               ),
             ),

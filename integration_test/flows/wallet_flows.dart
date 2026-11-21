@@ -17,7 +17,7 @@ class WalletFlows {
 
   Future<void> _expandWalletGroups({int maxGroups = 10}) async {
     for (int index = 0; index < maxGroups; index++) {
-      final tile = find.byKey(ValueKey("group_wallets_expansion_tile_widget_$index"));
+      final tile = find.byKey(ValueKey("wallet_list_group_${index}_key"));
 
       if (!tester.any(tile)) {
         return;
