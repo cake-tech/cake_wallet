@@ -9,6 +9,7 @@ import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_v
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cw_core/account.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
+import "package:cw_core/account_wallet.dart";
 import "package:cw_core/balance_card_layout.dart";
 import "package:cake_wallet/view_model/viewmodel_exceptions.dart";
 import "package:cw_core/balance_card_style_settings.dart";
@@ -62,6 +63,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_account.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -129,7 +131,7 @@ abstract class DashboardViewModelBase with Store {
     loadFilterItems();
 
     if (_wallet.type == WalletType.monero) {
-      subname = _wallet.currentWalletAccount.label;
+      subname = _accountLabel(_wallet);
 
       _onAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).account,
           (Account account) => _onMoneroAccountChange(_wallet));
@@ -156,7 +158,7 @@ abstract class DashboardViewModelBase with Store {
         ),
       );
     } else if (_wallet.type == WalletType.wownero) {
-      subname = _wallet.currentWalletAccount.label;
+      subname = _accountLabel(_wallet);
 
       _onAccountChangeReaction = reaction(
           (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
@@ -356,6 +358,12 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
+  String _accountLabel(WalletBase wallet) {
+    if (wallet is AccountWallet) return wallet.currentWalletAccount.label;
+    if (wallet.type == WalletType.wownero) return wow.wownero!.getCurrentAccount(wallet).label;
+    return "";
+  }
+
   @action
   void _reloadTransactions() {
     if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero) {
@@ -444,8 +452,10 @@ abstract class DashboardViewModelBase with Store {
     if (!_hasAccountCards) {
       return const [-1];
     }
+    final wallet = this.wallet;
+    final accounts = wallet is AccountWallet ? wallet.walletAccounts : const <WalletAccount>[];
     return [
-      ...wallet.walletAccounts.map((account) => account.index),
+      if (accounts.isEmpty) 0 else ...accounts.map((account) => account.index),
       if (_hasLightningCard) -2,
     ];
   }
@@ -1377,7 +1387,10 @@ abstract class DashboardViewModelBase with Store {
   }
 
   Future<void> _selectPrimaryAccount() async {
-    if (!wallet.hasAccountsSupport || wallet.currentAccountIndex == 0) return;
+    final wallet = this.wallet;
+    if (wallet is! AccountWallet || !wallet.hasAccountsSupport || wallet.currentAccountIndex == 0) {
+      return;
+    }
 
     await wallet.setCurrentAccount(0);
   }
@@ -1403,7 +1416,7 @@ abstract class DashboardViewModelBase with Store {
     loadFilterItems();
 
     if (wallet.type == WalletType.monero) {
-      subname = wallet.currentWalletAccount.label;
+      subname = _accountLabel(wallet);
 
       _onAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
@@ -1417,7 +1430,7 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroTransactionsUpdate(wallet);
     } else if (wallet.type == WalletType.wownero) {
-      subname = wallet.currentWalletAccount.label;
+      subname = _accountLabel(wallet);
 
       _onAccountChangeReaction?.reaction.dispose();
       _onMoneroBalanceChangeReaction?.reaction.dispose();
@@ -1495,7 +1508,7 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onMoneroAccountChange(WalletBase wallet) {
-    subname = wallet.currentWalletAccount.label;
+    subname = _accountLabel(wallet);
     _onMoneroTransactionsUpdate(wallet);
   }
 

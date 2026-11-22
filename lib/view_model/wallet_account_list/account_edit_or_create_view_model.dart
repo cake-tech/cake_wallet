@@ -2,9 +2,9 @@ import "dart:math";
 
 import "package:cake_wallet/core/execution_state.dart";
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cw_core/account_wallet.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/card_design.dart";
-import "package:cw_core/wallet_base.dart";
 import "package:flutter/material.dart";
 import "package:mobx/mobx.dart";
 
@@ -20,7 +20,7 @@ abstract class WalletAccountEditOrCreateViewModelBase with Store {
         label = account?.label ?? "",
         state = InitialExecutionState();
 
-  final WalletBase _wallet;
+  final AccountWallet _wallet;
   final AccountListItem? _account;
   final bool isEdit;
 

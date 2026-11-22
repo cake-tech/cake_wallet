@@ -273,6 +273,7 @@ import 'package:cake_wallet/view_model/wallet_unlock_verifiable_view_model.dart'
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/account_wallet.dart";
 import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/nano_account.dart';
@@ -573,10 +574,8 @@ Future<void> setup({
       balanceViewModel: getIt.get<BalanceViewModel>(),
       accountListViewModelFactory: () {
         final wallet = getIt.get<AppStore>().wallet;
-        if (wallet == null) return null;
-        final hasAccounts = wallet.hasAccountsSupport;
-        if (!hasAccounts) return null;
-        return getIt.get<WalletAccountListViewModel>();
+        if (wallet is! AccountWallet || !wallet.hasAccountsSupport) return null;
+        return getIt.get<WalletAccountListViewModel>(param1: wallet);
       },
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
@@ -922,12 +921,12 @@ Future<void> setup({
         'Unexpected wallet type: ${wallet.type} for generate Nano/Banano AccountListViewModel',wallet.type);
   });
 
-  getIt.registerFactory<WalletAccountListViewModel>(
-      () => WalletAccountListViewModel(getIt.get<AppStore>().wallet!));
+  getIt.registerFactoryParam<WalletAccountListViewModel, AccountWallet, void>(
+          (wallet, _) => WalletAccountListViewModel(wallet));
 
-  getIt.registerFactoryParam<WalletAccountEditOrCreateViewModel, AccountListItem?, void>(
-      (AccountListItem? account, _) =>
-          WalletAccountEditOrCreateViewModel(getIt.get<AppStore>().wallet!, account: account));
+  getIt.registerFactoryParam<WalletAccountEditOrCreateViewModel, AccountWallet, AccountListItem?>(
+          (wallet, account) =>
+          WalletAccountEditOrCreateViewModel(wallet, account: account));
 
   getIt.registerFactoryParam<NanoAccountEditOrCreateViewModel, NanoAccount?, void>(
       (NanoAccount? account, _) =>
@@ -1029,12 +1028,16 @@ Future<void> setup({
 
 
   getIt.registerFactoryParam<WalletAccountsPage, DashboardViewModel, void>(
-        (dashboardViewModel, _) => WalletAccountsPage(
-      dashboardViewModel: dashboardViewModel,
-      accountListViewModel:
-      dashboardViewModel.accountListViewModel ?? getIt.get<WalletAccountListViewModel>(),
-      accountEditOrCreateViewModel: getIt.get<WalletAccountEditOrCreateViewModel>(),
-    ),
+        (dashboardViewModel, _) {
+      final wallet = dashboardViewModel.wallet as AccountWallet;
+      return WalletAccountsPage(
+        dashboardViewModel: dashboardViewModel,
+        accountListViewModel: dashboardViewModel.accountListViewModel ??
+            getIt.get<WalletAccountListViewModel>(param1: wallet),
+        accountEditOrCreateViewModel:
+        getIt.get<WalletAccountEditOrCreateViewModel>(param1: wallet),
+      );
+    },
   );
 
   getIt.registerFactory(() => PrivacyPage(getIt.get<PrivacySettingsViewModel>()));

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import "package:cw_bitcoin/electrum_transaction_history.dart";
 import 'package:cw_core/utils/bip39_seed.dart';
+import "package:cw_core/account_wallet.dart";
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
@@ -56,7 +58,8 @@ part 'bitcoin_wallet.g.dart';
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
-abstract class BitcoinWalletBase extends ElectrumWallet with Store {
+abstract class BitcoinWalletBase extends ElectrumWallet
+    with Store, AccountWallet<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo> {
   BitcoinWalletBase({
     required String password,
     required WalletInfo walletInfo,

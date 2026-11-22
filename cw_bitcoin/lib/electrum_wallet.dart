@@ -137,7 +137,7 @@ abstract class ElectrumWalletBase
       coinType: currency != null && !isElectrumDerivation ? _coinTypeFor(currency) : null,
     );
 
-    final indexes = hasAccountsSupport ? (accountIndexes ?? [currentAccountIndex]) : [0];
+    final indexes = hasAccountsSupport ? {0, currentAccountIndex, ...?accountIndexes} : {0};
     for (final accountIndex in indexes) {
       accounts.getOrCreate(accountIndex);
     }
@@ -348,14 +348,9 @@ abstract class ElectrumWalletBase
   @observable
   late ObservableMap<CryptoCurrency, ElectrumBalance> balance;
 
-  @override
-  List<WalletAccount<ElectrumBalance>> get walletAccounts =>
-      hasAccountsSupport ? accounts.all : super.walletAccounts;
+  List<WalletAccount<ElectrumBalance>> get walletAccounts => accounts.all;
 
-  @override
-  WalletAccount<ElectrumBalance> get currentWalletAccount => hasAccountsSupport
-      ? (currentAccount ?? super.currentWalletAccount)
-      : super.currentWalletAccount;
+  WalletAccount<ElectrumBalance> get currentWalletAccount => currentAccount ?? accounts[0]!;
 
   @override
   @observable
@@ -379,7 +374,6 @@ abstract class ElectrumWalletBase
 
     final persisted = await walletInfo.getAccounts();
 
-    runInAction(() => _currentAccountIndex = walletInfo.currentAccountIndex);
     accounts.setLabels({for (final account in persisted) account.accountIndex: account.label});
     accounts.setBalances(savedBalances ?? _balancesFromAddressRecords());
     _syncCurrentAccountBalance();
@@ -399,14 +393,13 @@ abstract class ElectrumWalletBase
     return balances;
   }
 
-  Future<bool> _prepareAccount(int index, {String? label}) async {
-    if (accounts.contains(index)) return false;
+  Future<void> _prepareAccount(int index, {String? label}) async {
+    if (accounts.contains(index)) return;
 
     final account = accounts.getOrCreate(index, label: label);
     await walletAddresses.prepareAccountAddresses(index, types: account.supportedTypes);
     await walletAddresses.updateAddressesInBox();
     unawaited(_fetchNewAccountHistory(account));
-    return true;
   }
 
   Future<void> _fetchNewAccountHistory(ElectrumAccount account) async {
@@ -502,9 +495,8 @@ abstract class ElectrumWalletBase
   @override
   int get currentAccountIndex => _currentAccountIndex;
 
-  @override
   Future<int> addAccount({required String label}) async {
-    if (!hasAccountsSupport) return super.addAccount(label: label);
+    if (!hasAccountsSupport) throw UnsupportedError("$type wallet can't derive accounts");
 
     final persisted = await walletInfo.getAccounts();
     final used = {...persisted.map((a) => a.accountIndex), ...accounts.indexes};
@@ -516,15 +508,13 @@ abstract class ElectrumWalletBase
     return index;
   }
 
-  @override
   Future<void> renameAccount({required int index, required String label}) async {
-    if (!hasAccountsSupport) return super.renameAccount(index: index, label: label);
+    if (!hasAccountsSupport) throw UnsupportedError("$type wallet can't derive accounts");
 
     await walletInfo.renameAccount(accountIndex: index, label: label);
     accounts.setLabels({index: label});
   }
 
-  @override
   @action
   Future<void> setCurrentAccount(int accountIndex) async {
     if (!hasAccountsSupport) return;

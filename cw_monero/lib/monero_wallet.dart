@@ -6,6 +6,7 @@ import "dart:math" show max;
 
 import "package:collection/collection.dart";
 import 'package:cw_core/account.dart';
+import "package:cw_core/account_wallet.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
@@ -59,7 +60,8 @@ const MIN_RESTORE_HEIGHT = 1000;
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
 abstract class MoneroWalletBase
-    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo>
+    with Store, AccountWallet<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> {
   MoneroWalletBase(
       {required WalletInfo walletInfo,
       required DerivationInfo derivationInfo,

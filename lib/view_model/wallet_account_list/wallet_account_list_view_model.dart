@@ -1,7 +1,7 @@
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
 import "package:collection/collection.dart";
+import "package:cw_core/account_wallet.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:cw_core/wallet_base.dart";
 import "package:mobx/mobx.dart";
 
 part "wallet_account_list_view_model.g.dart";
@@ -11,7 +11,7 @@ class WalletAccountListViewModel = WalletAccountListViewModelBase with _$WalletA
 abstract class WalletAccountListViewModelBase with Store {
   WalletAccountListViewModelBase(this._wallet);
 
-  final WalletBase _wallet;
+  final AccountWallet _wallet;
 
   CryptoCurrency get currency => _wallet.currency;
 

@@ -1,5 +1,6 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cw_core/account_wallet.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/card_design.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -165,7 +166,12 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       return (accountName: "", accountIndex: -1);
     }
 
-    final account = _wallet.currentWalletAccount;
+    final wallet = _wallet;
+    if (wallet is! AccountWallet) {
+      return (accountName: "", accountIndex: 0);
+    }
+
+    final account = wallet.currentWalletAccount;
     return (accountName: account.label, accountIndex: account.index);
   }
 
@@ -253,9 +259,10 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
   }
 
   Future<void> saveAccountName() async {
-    if (!_accountNameEnabled || !_wallet.hasAccountsSupport) return;
+    final wallet = _wallet;
+    if (!_accountNameEnabled || !wallet.hasAccountsSupport || wallet is! AccountWallet) return;
 
-    await _wallet.renameAccount(index: state.accountIndex, label: state.accountName);
-    await _wallet.save();
+    await wallet.renameAccount(index: state.accountIndex, label: state.accountName);
+    await wallet.save();
   }
 }
