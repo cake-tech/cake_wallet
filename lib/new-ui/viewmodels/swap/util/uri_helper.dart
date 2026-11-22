@@ -9,7 +9,7 @@ class SwapUriHelper {
     final uriWalletType = cryptoCurrencyOrTokenToWalletType(currency);
 
     if (uriWalletType == null) {
-      return ExternalAddressURI(address: address, amount: amount);
+      return currency.tag == null ? ExternalAddressURI(address: address, amount: amount) : null;
     }
 
     switch (uriWalletType) {
