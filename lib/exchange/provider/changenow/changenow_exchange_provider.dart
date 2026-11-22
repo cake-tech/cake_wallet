@@ -56,9 +56,6 @@ class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
     if (from.title == "USDC" && from.tag == "POLY") {
       throw Exception("Only Bridged USDC (USDC.e) is allowed in ChangeNow");
     }
-    if (_isExcluded(from) || _isExcluded(to)) {
-      throw Exception("ChangeNow's USDT on Optimism is not USDT0");
-    }
 
     final responseData = await _api.send(
       ChangeNowRangeRequest(
@@ -82,9 +79,6 @@ class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
   Future<ProviderRate> fetchRate(RateRequest request) async {
     if (request.amount.isZero) {
       throw Exception("cannot fetch rate with zero amount");
-    }
-    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
-      throw Exception("ChangeNow's USDT on Optimism is not USDT0");
     }
 
     final (fromAmount, toAmount) = switch (request) {
@@ -126,10 +120,6 @@ class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
-      throw Exception("ChangeNow's USDT on Optimism is not USDT0");
-    }
-
     final distributionPath = await DistributionInfo.instance.getDistributionPath();
     final formattedAppVersion = int.tryParse(_settingsStore.appVersion.replaceAll(".", "")) ?? 0;
     final payload = ChangeNowCreateExchangePayload(
@@ -196,8 +186,6 @@ class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
         payoutAmount: responseJSON.amountTo == null ? null : Money.safeParse(responseJSON.amountTo, trade.payoutCurrency)
     );
   }
-
-  bool _isExcluded(CryptoCurrency currency) => currency.title == "USDT" && currency.tag == "OP";
 
   String _networkFor(CryptoCurrency currency) => switch (currency) {
     CryptoCurrency.usdtAvax || CryptoCurrency.usdcAvax => "avaxc",

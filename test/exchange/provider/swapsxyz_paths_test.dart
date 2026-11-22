@@ -10,6 +10,8 @@ import "mocks/canned_responses.dart";
 
 const _circleUsdcOp = "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85";
 const _bridgedUsdcOp = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+const _usdt0Op = "0x01bFF41798a0BcF287b996046Ca68b395DbC1071";
+const _legacyUsdtOp = "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58";
 
 // The provider keeps the chain list in a static, so every test in this file shares one
 const _chainList = '[{"chainId":1,"name":"Ethereum","vmId":"evm"},'
@@ -21,6 +23,10 @@ const _optimismBridgedUsdcFirst = '{"tokens":['
     '{"chainId":10,"address":"$_bridgedUsdcOp","name":"USD Coin","symbol":"USDC",'
     '"decimals":6,"isNative":false},'
     '{"chainId":10,"address":"$_circleUsdcOp","name":"USD Coin","symbol":"USDC",'
+    '"decimals":6,"isNative":false}]}';
+
+const _optimismLegacyUsdt = '{"tokens":['
+    '{"chainId":10,"address":"$_legacyUsdtOp","name":"Tether USD","symbol":"USDT",'
     '"decimals":6,"isNative":false}]}';
 
 class _PathsMock extends MockProxyWrapper {
@@ -131,5 +137,19 @@ void main() {
     );
 
     expect(mock.requestsTo("/api/getQuote").single.query["dstToken"], _circleUsdcOp);
+  });
+
+  test("USDT on Optimism is USDT0 even though the legacy USDT is listed as \"USDT\"", () async {
+    final mock = _PathsMock(tokenLists: {"10": _optimismLegacyUsdt});
+    final provider = SwapsXyzExchangeProvider(settingsStore: FakeSettingsStore(), proxyWrapper: mock);
+
+    await provider.fetchRate(
+      FloatingRateRequest(
+        depositAmount: Money.parse("2", CryptoCurrency.eth),
+        payoutCurrency: CryptoCurrency.usdtOp,
+      ),
+    );
+
+    expect(mock.requestsTo("/api/getQuote").single.query["dstToken"], _usdt0Op);
   });
 }

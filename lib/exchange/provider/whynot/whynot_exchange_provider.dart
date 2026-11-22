@@ -39,6 +39,10 @@ class WhyNotExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
+    if (_isExcluded(from) || _isExcluded(to)) {
+      throw Exception("WhyNot's USDD on Ethereum and Tron is not the official contract");
+    }
+
     final params = WhyNotInfoRequest(
       float: !isFixedRateMode,
       from: from.symbol,
@@ -59,6 +63,9 @@ class WhyNotExchangeProvider extends ExchangeProvider {
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
+      throw Exception("WhyNot's USDD on Ethereum and Tron is not the official contract");
+    }
 
     final params = WhyNotInfoRequest(
       float: request is FloatingRateRequest,
@@ -93,6 +100,10 @@ class WhyNotExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
+    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
+      throw Exception("WhyNot's USDD on Ethereum and Tron is not the official contract");
+    }
+
     final networkFrom = _getNetworkType(request.depositCurrency);
     final networkTo = _getNetworkType(request.payoutCurrency);
 
@@ -227,6 +238,9 @@ class WhyNotExchangeProvider extends ExchangeProvider {
     return WhyNotInfoResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
   }
 
+  bool _isExcluded(CryptoCurrency currency) =>
+      currency.title.toUpperCase() == "USDD" && ["TRX", "ETH"].contains(currency.tag);
+
   String? _getNetworkType(CryptoCurrency currency) {
     if (currency.tag != null && currency.tag!.isNotEmpty) {
       switch (currency.tag!) {
@@ -238,6 +252,9 @@ class WhyNotExchangeProvider extends ExchangeProvider {
           return "BEP20";
         case "ARB":
           return "ARBITRUM";
+        // WhyNot's USDT on OPTIMISM is the legacy 0x94b0 USDT, not USDT0
+        case "OP" when currency.title.toUpperCase() == "USDC":
+          return "OPTIMISM";
         default:
           return currency.tag!;
       }

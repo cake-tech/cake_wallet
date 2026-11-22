@@ -85,6 +85,13 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     CryptoCurrency.avaxc,
   ];
 
+  // Swaps.xyz lists these as "USD₮0" or beside a bridged/legacy "USDC"/"USDT"
+  static const _pinnedAddresses = <CryptoCurrency, String>{
+    CryptoCurrency.usdcOp: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+    CryptoCurrency.usdtOp: "0x01bFF41798a0BcF287b996046Ca68b395DbC1071",
+    CryptoCurrency.usdtPlasma: "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+  };
+
   static const _transferSig = "0xa9059cbb";
   static const _swapAndExecuteSig = "0x9be111d1";
 
@@ -613,9 +620,9 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
       return knownContract;
     }
 
-    // Pin Circle's USDC as Swaps.xyz also lists bridged USDC.e as "USDC"
-    if (currency.tag == "OP" && currency.title.toUpperCase() == "USDC") {
-      return "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85";
+    final pinnedAddress = _pinnedAddresses[currency];
+    if (pinnedAddress != null) {
+      return pinnedAddress;
     }
 
     final symbol = _normalizeCakeNativeTokenName(currency.title);
@@ -652,10 +659,6 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
   }
 
   SwapsXyzChain _findChainByCurrency(CryptoCurrency cur, List<SwapsXyzChain> chains) {
-    if (cur.tag == "OP" && cur.title.toUpperCase() == "USDT") {
-      throw Exception("Swaps.xyz's USDT on Optimism is not USDT0");
-    }
-
     final network = _normalizeCakeNetwork(cur.tag ?? cur.title);
     return chains.firstWhere(
       (c) => c.name.toUpperCase() == network,
