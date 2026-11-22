@@ -8,15 +8,36 @@ import "fakes.dart";
 import "mock_proxy_wrapper.dart";
 import "mocks/canned_responses.dart";
 
+const _circleUsdcOp = "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85";
+const _bridgedUsdcOp = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
+
+// The provider keeps the chain list in a static, so every test in this file shares one
+const _chainList = '[{"chainId":1,"name":"Ethereum","vmId":"evm"},'
+    '{"chainId":10,"name":"Optimism","vmId":"evm"}]';
+
+const _noTokens = '{"tokens":[]}';
+
+const _optimismBridgedUsdcFirst = '{"tokens":['
+    '{"chainId":10,"address":"$_bridgedUsdcOp","name":"USD Coin","symbol":"USDC",'
+    '"decimals":6,"isNative":false},'
+    '{"chainId":10,"address":"$_circleUsdcOp","name":"USD Coin","symbol":"USDC",'
+    '"decimals":6,"isNative":false}]}';
+
 class _PathsMock extends MockProxyWrapper {
-  _PathsMock({this.pairPaths = swapsXyzPairPaths, this.tokenPaths = swapsXyzTokenPaths});
+  _PathsMock({
+    this.pairPaths = swapsXyzPairPaths,
+    this.tokenPaths = swapsXyzTokenPaths,
+    this.tokenLists = const {},
+  });
 
   final String pairPaths;
   final String tokenPaths;
+  final Map<String, String> tokenLists;
 
   @override
   MockResponse? route(MockRequest request) => switch (request.path) {
-    "/api/getChainList" => const MockResponse(swapsXyzChainList),
+    "/api/getChainList" => const MockResponse(_chainList),
+    "/api/getTokenList" => MockResponse(tokenLists[request.query["chainId"]] ?? _noTokens),
     "/api/getPaths" => request.query.containsKey("dstChainId")
         ? MockResponse(pairPaths)
         : MockResponse(tokenPaths),
@@ -96,5 +117,19 @@ void main() {
     );
 
     expect(mock.requestsTo("/api/getQuote").single.query["srcToken"], swapsXyzNativeAddress);
+  });
+
+  test("USDC on Optimism is Circle's even when the bridged USDC.e is listed first", () async {
+    final mock = _PathsMock(tokenLists: {"10": _optimismBridgedUsdcFirst});
+    final provider = SwapsXyzExchangeProvider(settingsStore: FakeSettingsStore(), proxyWrapper: mock);
+
+    await provider.fetchRate(
+      FloatingRateRequest(
+        depositAmount: Money.parse("2", CryptoCurrency.eth),
+        payoutCurrency: CryptoCurrency.usdcOp,
+      ),
+    );
+
+    expect(mock.requestsTo("/api/getQuote").single.query["dstToken"], _circleUsdcOp);
   });
 }

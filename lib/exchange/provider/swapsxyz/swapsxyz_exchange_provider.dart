@@ -613,6 +613,11 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
       return knownContract;
     }
 
+    // Pin Circle's USDC as Swaps.xyz also lists bridged USDC.e as "USDC"
+    if (currency.tag == "OP" && currency.title.toUpperCase() == "USDC") {
+      return "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85";
+    }
+
     final symbol = _normalizeCakeNativeTokenName(currency.title);
     final list = _tokensCache[chain.chainId];
 
