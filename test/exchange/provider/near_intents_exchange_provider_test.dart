@@ -1,15 +1,17 @@
-import "package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/near_intents/near_intents_api_schema.dart";
+import "package:cake_wallet/exchange/provider/near_intents/near_intents_exchange_provider.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/tron_token.dart";
 import "package:flutter_test/flutter_test.dart";
 
-Token _token(String assetId, String blockchain, String symbol, String? contract) => Token(
+NearIntentsToken _token(String assetId, String blockchain, String symbol, String? contract) =>
+    NearIntentsToken(
       assetId: assetId,
       decimals: 6,
       blockchain: blockchain,
       symbol: symbol,
-      priceUsd: 1,
-      priceUpdatedAt: null,
+      price: 1,
+      priceUpdatedAt: DateTime(2026),
       contractAddress: contract,
     );
 

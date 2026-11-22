@@ -1,3 +1,4 @@
+import "package:another_flushbar/flushbar.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart";
 import "package:cw_core/wallet_type.dart";
@@ -49,6 +50,7 @@ void main() {
     await settingsRobot.settle(max: const Duration(seconds: 3));
     expect(find.byType(WalletKeysPage), findsNothing);
     expect(authFlows.isPinWidgetShown(), true);
+    await settingsRobot.pumpUntilGone(find.byWidgetPredicate((widget) => widget is Flushbar));
 
     await authFlows.authenticateWithPin();
 

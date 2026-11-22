@@ -1,4 +1,4 @@
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
 
@@ -28,7 +28,9 @@ abstract class TrocadorProvidersViewModelBase with Store {
         ObservableFuture(trocadorExchangeProvider.fetchProviders().then((providers) {
       var providerNames = providers.map((e) => e.name).toList();
 
-      providerRatings = {for (var provider in providers) provider.name: provider.rating};
+      providerRatings = {
+        for (var provider in providers) provider.name: provider.rating?.label ?? "N/A",
+      };
 
       return _settingsStore
           .updateAllTrocadorProviderStates(providerNames)

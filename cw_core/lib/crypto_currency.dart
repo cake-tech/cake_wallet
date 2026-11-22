@@ -5,6 +5,8 @@ import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/format_fixed.dart';
 
+enum MemoLabelType { destinationTag, memo }
+
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implements Currency {
   const CryptoCurrency({
     String title = '',
@@ -19,6 +21,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     this.enabled = false,
     this.isPotentialScam = false,
     this.groups = const {},
+    this.memoLabelType,
   }) : super(title: title, raw: raw);
 
   final String? flatIconPath;
@@ -26,6 +29,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   final bool enabled;
   final bool isPotentialScam;
   final Set<String> groups;
+  final MemoLabelType? memoLabelType;
 
   @override
   final String name;
@@ -123,6 +127,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     CryptoCurrency.storj,
     CryptoCurrency.tusd,
     CryptoCurrency.wbtc,
+    CryptoCurrency.cbbtc,
     CryptoCurrency.weth,
     CryptoCurrency.zrx,
     CryptoCurrency.dydx,
@@ -271,7 +276,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 7,
       name: 'eos',
       iconPath: 'assets/images/eos_icon.png',
-      decimals: 4);
+      decimals: 4,
+      memoLabelType: MemoLabelType.memo,
+  );
   static const eth = CryptoCurrency(
       title: 'ETH',
       fullName: 'Ethereum',
@@ -331,14 +338,18 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 14,
       name: 'xlm',
       iconPath: 'assets/images/xlm_icon.png',
-      decimals: 7);
+      decimals: 7,
+      memoLabelType: MemoLabelType.memo,
+  );
   static const xrp = CryptoCurrency(
       title: 'XRP',
       fullName: 'Ripple',
       raw: 15,
       name: 'xrp',
       iconPath: 'assets/images/xrp_icon.png',
-      decimals: 6);
+      decimals: 6,
+      memoLabelType: MemoLabelType.destinationTag,
+  );
   static const xhv = CryptoCurrency(
       title: 'XHV',
       fullName: 'Haven Protocol',
@@ -429,7 +440,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 37,
       name: 'hbar',
       iconPath: 'assets/images/hbar_icon.png',
-      decimals: 8);
+      decimals: 8,
+      memoLabelType: MemoLabelType.memo,
+  );
   static const sc = CryptoCurrency(
       title: 'SC',
       fullName: 'Siacoin',
@@ -886,7 +899,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       raw: 95,
       name: 'ton',
       iconPath: 'assets/new-ui/crypto_full_icons/ton.svg',
-      decimals: 8);
+      decimals: 8,
+      memoLabelType: MemoLabelType.memo,
+  );
   static const zano = CryptoCurrency(
       title: 'ZANO',
       tag: 'ZANO',
@@ -1225,6 +1240,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     iconPath: "assets/new-ui/crypto_full_icons/usdt.svg",
     decimals: 6,
     groups: {CurrencyGroups.stablecoin},
+    memoLabelType: MemoLabelType.memo,
   );
   static const usdtAvax = CryptoCurrency(
     title: "USDT",
@@ -1365,6 +1381,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     iconPath: "assets/new-ui/crypto_full_icons/usde.svg",
     decimals: 6,
     groups: {CurrencyGroups.stablecoin},
+    memoLabelType: MemoLabelType.memo,
   );
   static const usd1Apt = CryptoCurrency(
     title: "USD1",
@@ -1386,6 +1403,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     iconPath: "assets/new-ui/crypto_full_icons/rlusd.svg",
     decimals: 15,
     groups: {CurrencyGroups.stablecoin},
+    memoLabelType: MemoLabelType.destinationTag,
   );
   static const usddEth = CryptoCurrency(
     title: "USDD",
@@ -1406,6 +1424,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
     iconPath: "assets/new-ui/crypto_full_icons/usdc.svg",
     decimals: 7,
     groups: {CurrencyGroups.stablecoin},
+    memoLabelType: MemoLabelType.memo,
   );
 
   static final Map<int, CryptoCurrency> _rawCurrencyMap = [
@@ -1598,4 +1617,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   /// Format the raw amount into its decimal representation eg. turn Sats into Bitcoin
   String formatAmount(BigInt amount, {int? fractionalDigits, bool trimZeros = true}) =>
       formatFixed(amount, decimals, fractionalDigits: fractionalDigits, trimZeros: trimZeros);
+
+  @override
+  String get serialized => tag == null ? "crypto^$symbol" : "crypto^$symbol^$tag";
 }
