@@ -45,7 +45,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
       (_wallet.hasNativeAccounts || _wallet.walletInfo.isMultiAccountsEnabled == true);
 
 
-  bool get _hasAccountCards => _wallet.hasAccountsSupport || _wallet.type == WalletType.bitcoin;
+  bool get _hasAccountCards => _wallet.hasAccountsSupport || _wallet.hasLightningSupport;
 
   CryptoCurrency get _currency => lightningMode ? CryptoCurrency.btcln : _wallet.currency;
 

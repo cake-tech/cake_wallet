@@ -7,7 +7,6 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
-import 'package:cw_core/account.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
 import "package:cw_core/account_wallet.dart";
 import "package:cw_core/balance_card_layout.dart";
@@ -130,71 +129,9 @@ abstract class DashboardViewModelBase with Store {
 
     loadFilterItems();
 
-    if (_wallet.type == WalletType.monero) {
-      subname = _accountLabel(_wallet);
-
-      _onAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).account,
-          (Account account) => _onMoneroAccountChange(_wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).balance,
-          (MoneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
-
-      final _accountTransactions = _wallet.transactionHistory.transactions.values
-          .where((tx) => monero!.getTransactionInfoAccountId(tx) == wallet.currentAccountIndex)
-          .toList();
-
-      final sortedTransactions = [..._accountTransactions];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
-
-      transactions = ObservableList.of(
-        sortedTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${_historyKeyIndex++}_key'),
-          ),
-        ),
-      );
-    } else if (_wallet.type == WalletType.wownero) {
-      subname = _accountLabel(_wallet);
-
-      _onAccountChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
-          (Account account) => _onMoneroAccountChange(_wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
-          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
-
-      final _accountTransactions = _wallet.transactionHistory.transactions.values
-          .where((tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wallet.currentAccountIndex)
-          .toList();
-
-      final sortedTransactions = [..._accountTransactions];
-      sortedTransactions.sort((a, b) => a.date.compareTo(b.date));
-
-      transactions = ObservableList.of(
-        sortedTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${_historyKeyIndex++}_key'),
-          ),
-        ),
-      );
-    } else {
-      subname = "";
-      _reloadTransactions();
-      _setupAccountChangeReaction(_wallet);
-    }
-
-    // TODO: nano sub-account generation is disabled:
-    // if (_wallet.type == WalletType.nano || _wallet.type == WalletType.banano) {
-    //   subname = nano!.getCurrentAccount(_wallet).label;
-    // }
+    subname = _accountLabel(_wallet);
+    _reloadTransactions();
+    _setupAccountChangeReaction(_wallet);
 
     _walletChangeDisposer?.reaction.dispose();
     _walletChangeDisposer = reaction((_) => appStore.wallet, (wallet) {
@@ -358,24 +295,19 @@ abstract class DashboardViewModelBase with Store {
 
   bool _isTransactionDisposerCallbackRunning = false;
 
-  String _accountLabel(WalletBase wallet) {
-    if (wallet is AccountWallet) return wallet.currentWalletAccount.label;
-    if (wallet.type == WalletType.wownero) return wow.wownero!.getCurrentAccount(wallet).label;
-    return "";
-  }
+  String _accountLabel(WalletBase wallet) =>
+      wallet is AccountWallet ? wallet.currentWalletAccount.label : "";
+
+  List<TransactionInfo> _currentAccountTransactions(WalletBase wallet) => wallet is AccountWallet
+      ? wallet.currentAccountTransactions
+      : wallet.transactionHistory.transactions.values.toList();
 
   @action
   void _reloadTransactions() {
-    if (wallet.type == WalletType.monero || wallet.type == WalletType.wownero) {
-      return; // Monero/Wownero transactions are handled separately
-    }
-
     transactions.clear();
     _historyKeyIndex = 0;
 
-    final filteredTransactions = wallet.type == WalletType.bitcoin
-        ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet)
-        : wallet.transactionHistory.transactions.values.toList();
+    final filteredTransactions = _currentAccountTransactions(wallet);
     filteredTransactions.sort((a, b) => a.date.compareTo(b.date));
 
 
@@ -526,25 +458,7 @@ abstract class DashboardViewModelBase with Store {
     await Future.delayed(Duration.zero);
 
     try {
-      final currentAccountId = wallet.currentAccountIndex;
-
-      final allTxs = appStore.wallet!.transactionHistory.transactions.values;
-      final List<TransactionInfo> relevantTxs;
-
-      if (wallet.type == WalletType.monero) {
-        relevantTxs = allTxs
-            .where((tx) => monero!.getTransactionInfoAccountId(tx) == currentAccountId)
-            .toList();
-      } else if (wallet.type == WalletType.wownero) {
-        relevantTxs = allTxs
-            .where((tx) => wow.wownero!.getTransactionInfoAccountId(tx) == currentAccountId)
-            .toList();
-      } else if (wallet.type == WalletType.bitcoin) {
-        relevantTxs = bitcoin!.getCurrentAccountBitcoinTransactions(wallet);
-      } else {
-        relevantTxs = allTxs.toList();
-      }
-      // printV("Transaction disposer callback (relevantTxs: ${relevantTxs.length} current: ${transactions.length})");
+      final relevantTxs = _currentAccountTransactions(wallet);
 
       // TODO(malik) update this in a saner way during the vm refactor
       String _txIdentityString(String txHash, TransactionDirection direction) =>
@@ -1304,8 +1218,6 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer? _onAccountChangeReaction;
 
-  ReactionDisposer? _onMoneroBalanceChangeReaction;
-
   ReactionDisposer? _transactionDisposer;
 
   ReactionDisposer? _walletChangeDisposer;
@@ -1415,42 +1327,9 @@ abstract class DashboardViewModelBase with Store {
     _onAccountChangeReaction = null;
     loadFilterItems();
 
-    if (wallet.type == WalletType.monero) {
-      subname = _accountLabel(wallet);
-
-      _onAccountChangeReaction?.reaction.dispose();
-      _onMoneroBalanceChangeReaction?.reaction.dispose();
-
-      _onAccountChangeReaction = reaction((_) => monero!.getMoneroWalletDetails(wallet).account,
-          (Account account) => _onMoneroAccountChange(wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => monero!.getMoneroWalletDetails(wallet).balance,
-          (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
-
-      _onMoneroTransactionsUpdate(wallet);
-    } else if (wallet.type == WalletType.wownero) {
-      subname = _accountLabel(wallet);
-
-      _onAccountChangeReaction?.reaction.dispose();
-      _onMoneroBalanceChangeReaction?.reaction.dispose();
-
-      _onAccountChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).account,
-          (Account account) => _onMoneroAccountChange(wallet));
-
-      _onMoneroBalanceChangeReaction = reaction(
-          (_) => wow.wownero!.getWowneroWalletDetails(wallet).balance,
-          (wow.WowneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
-
-      _onMoneroTransactionsUpdate(wallet);
-    } else {
-      // FIX-ME: Check for side effects
-      // subname = null;
-      subname = '';
-      _setupAccountChangeReaction(wallet);
-      _reloadTransactions();
-    }
+    subname = _accountLabel(wallet);
+    _setupAccountChangeReaction(wallet);
+    _reloadTransactions();
 
     _transactionDisposer?.reaction.dispose();
 
@@ -1498,61 +1377,12 @@ abstract class DashboardViewModelBase with Store {
 
     _onAccountChangeReaction?.reaction.dispose();
     _onAccountChangeReaction = reaction(
-      (_) => wallet.currentAccountIndex,
-      (_) {
+          (_) => wallet.currentAccountIndex,
+          (_) {
+        subname = _accountLabel(wallet);
         _reloadTransactions();
       },
-      fireImmediately: true,
     );
-  }
-
-  @action
-  void _onMoneroAccountChange(WalletBase wallet) {
-    subname = _accountLabel(wallet);
-    _onMoneroTransactionsUpdate(wallet);
-  }
-
-  @action
-  void _onMoneroTransactionsUpdate(WalletBase wallet) {
-    transactions.clear();
-    _historyKeyIndex = 0;
-    if (wallet.type == WalletType.monero) {
-      final _accountTransactions = monero!
-          .getTransactionHistory(wallet)
-          .transactions
-          .values
-          .where((tx) => monero!.getTransactionInfoAccountId(tx) == wallet.currentAccountIndex)
-          .toList();
-
-      transactions.addAll(
-        _accountTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${_historyKeyIndex++}_key'),
-          ),
-        ),
-      );
-    } else if (wallet.type == WalletType.wownero) {
-      final _accountTransactions = wow.wownero!
-          .getTransactionHistory(wallet)
-          .transactions
-          .values
-          .where((tx) => wow.wownero!.getTransactionInfoAccountId(tx) == wallet.currentAccountIndex)
-          .toList();
-
-      transactions.addAll(
-        _accountTransactions.map(
-          (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${_historyKeyIndex++}_key'),
-          ),
-        ),
-      );
-    }
   }
 
   @action

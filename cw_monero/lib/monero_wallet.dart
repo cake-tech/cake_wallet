@@ -141,6 +141,12 @@ abstract class MoneroWalletBase
   int get currentAccountIndex => walletAddresses.account?.id ?? 0;
 
   @override
+  List<MoneroTransactionInfo> get currentAccountTransactions => transactionHistory
+      .transactions.values
+      .where((tx) => tx.accountIndex == currentAccountIndex)
+      .toList();
+
+  @override
   List<WalletAccount<MoneroBalance>> get walletAccounts {
     final accounts = walletAddresses.accountList.accounts;
     if (accounts.isEmpty) return [currentWalletAccount];

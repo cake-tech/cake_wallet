@@ -925,8 +925,4 @@ class CWBitcoin extends Bitcoin {
     }
     return null;
   }
-
-  @override
-  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet) =>
-      (wallet as ElectrumWallet).currentAccountBitcoinTransactions;
 }

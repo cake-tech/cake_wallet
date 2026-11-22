@@ -305,7 +305,6 @@ abstract class Bitcoin {
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
   String? getBreezSdkError(Object exception);
-  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet);
 }
   """;
 

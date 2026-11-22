@@ -4128,7 +4128,7 @@ abstract class ElectrumWalletBase
     );
   }
 
-  List<ElectrumTransactionInfo> get currentAccountBitcoinTransactions {
+  List<ElectrumTransactionInfo> get currentAccountTransactions {
     final all = transactionHistory.transactions.values;
     if (!hasAccountsSupport) return all.toList();
 

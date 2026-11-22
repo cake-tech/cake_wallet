@@ -10,6 +10,8 @@ on WalletBase<B, H, T> {
 
   WalletAccount<B> get currentWalletAccount;
 
+  List<T> get currentAccountTransactions;
+
   Future<void> setCurrentAccount(int accountIndex);
 
   Future<int> addAccount({required String label});
