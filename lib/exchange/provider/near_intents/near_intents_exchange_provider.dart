@@ -194,10 +194,10 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> updateTrade(Trade trade)  async {
-    final idParts = trade.id.split("?");
+    final depositMemo = trade.memo;
     final data = await _api.send(NearIntentsStatusRequest(
-      depositAddress: idParts.first,
-      depositMemo: idParts.length > 1 ? Uri.splitQueryString(idParts[1])["depositMemo"] : null,
+      depositAddress: trade.id.split("?").first,
+      depositMemo: depositMemo != null && depositMemo.isNotEmpty ? depositMemo : null,
     ));
 
     final quoteResponse = data.quoteResponse;
