@@ -367,7 +367,7 @@ Map<String, String> _nearIntentsHeaders() => {
 
 List<Object> _nearIntentsAppFees() {
   const recipient = secrets.nearIntentsAppFeeRecipient;
-  final fee = int.tryParse(secrets.nearIntentsAppFee);
+  final fee = int.tryParse(secrets.nearIntentsAppFee.toString());
   if (recipient.trim().isEmpty || fee == null) {
     return const [];
   }

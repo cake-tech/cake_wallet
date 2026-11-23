@@ -556,11 +556,14 @@ class _TransactionCommitedScreenState extends State<TransactionCommitedScreen> {
 
                               final page = getIt.get<TransactionDetailsModal>(
                                   param1: widget.sendViewModel!.transactionInfo!, param2: true);
-                              showModalBottomSheet(
-                                  isScrollControlled: true,
-                                  context: context,
-                                  builder: (context) =>
-                                      FractionallySizedBox(heightFactor: 0.9, child: page));
+                              if (context.mounted) {
+                                showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    builder: (context) =>
+                                        FractionallySizedBox(heightFactor: 0.9, child: page),
+                                  );
+                                }
                             }),
                     ],
                   ),
