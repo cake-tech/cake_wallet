@@ -17,6 +17,7 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/unknown_derivation.dart';
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
@@ -134,13 +135,15 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
-          accountIndexes: accountIndexes
+          accountIndexes: accountIndexes,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
     // String derivationPath = walletInfo.derivationInfo!.derivationPath!;
     // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
     // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
+
+    _sparkTokens = initialSparkTokens ?? [];
 
     if (mnemonic != null && this.useLightning && LightningWallet.isAvailable) {
       try {
@@ -182,6 +185,16 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     reaction((_) => this.useLightning, (bool useLightning) {
       if (useLightning && LightningWallet.isAvailable) {
         if (mnemonic != null) {
+          final tokens = _withDefaultSparkTokens(_sparkTokens, walletInfo.name);
+
+          _setSparkTokens(tokens);
+
+          unawaited(
+            _saveSparkTokens(tokens).catchError(
+              (Object e) => printV("SparkTokens: failed to save defaults: $e"),
+            ),
+          );
+
           // Reuse the instance walletAddresses holds (it's the one setLightningAddress connects);
           // a fresh one here would never connect while the old one kept running.
           lightningWallet = walletAddresses.lightningWallet ??
@@ -206,8 +219,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (initialLightningBalance != null) {
       balance[CryptoCurrency.btcln] = initialLightningBalance;
     }
-
-    _sparkTokens = initialSparkTokens ?? [];
 
     for (final token in _sparkTokens.where((t) => t.enabled)) {
       balance[token] = ElectrumBalance(
@@ -267,36 +278,36 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     _sparkTokens.add(token);
   }
 
-  /// Idempotent: seeds the default Spark tokens (currently just USDB) for wallets that don't
-  /// have them yet, preserving the enabled/disabled state of any that already exist.
-  Future<void> addInitialSparkTokens() async {
-    if (!useLightning || !LightningWallet.isAvailable) {
-      return;
+  static List<SparkToken> _withDefaultSparkTokens(List<SparkToken> existing, String walletName) {
+    final merged = [...existing];
+
+    for (final token in DefaultSparkTokens().initialSparkTokens(walletName)) {
+      final current = merged.firstWhereOrNull((t) => t.tokenIdentifier == token.tokenIdentifier);
+      merged.removeWhere((t) => t.tokenIdentifier == token.tokenIdentifier);
+      merged.add(SparkToken.copyWith(token, enabled: current?.enabled ?? token.enabled));
     }
 
-    final defaults = DefaultSparkTokens().initialSparkTokens(walletInfo.name);
+    return merged;
+  }
 
-    for (final token in defaults) {
-      final existing = getSparkTokenByIdentifier(token.tokenIdentifier);
-      final newToken = SparkToken.copyWith(
-        token,
-        enabled: existing?.enabled ?? token.enabled,
-        walletName: walletInfo.name,
-      );
+  static Future<void> _saveSparkTokens(List<SparkToken> tokens) async {
+    for (final token in tokens) {
+      await token.save();
+    }
+  }
 
-      await newToken.save();
-      _upsertCachedSparkToken(newToken);
+  void _setSparkTokens(List<SparkToken> tokens) {
+    _sparkTokens = tokens;
 
-      if (newToken.enabled) {
-        final existingBalance = balance[newToken];
-        balance.remove(newToken);
-        balance[newToken] = existingBalance ??
-            ElectrumBalance(
-              confirmed: Money.zero(newToken),
-              unconfirmed: Money.zero(newToken),
-              frozen: Money.zero(newToken),
-            );
-      }
+    for (final token in tokens.where((t) => t.enabled)) {
+      final existingBalance = balance[token];
+      balance.remove(token);
+      balance[token] = existingBalance ??
+          ElectrumBalance(
+            confirmed: Money.zero(token),
+            unconfirmed: Money.zero(token),
+            frozen: Money.zero(token),
+          );
     }
   }
 
@@ -395,18 +406,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
     }
 
-    // Passed in as initialSparkTokens (not just added afterwards): the constructor kicks off
-    // LightningWallet.init() (via setLightningAddress) without awaiting it, and that init reads
-    // the wallet's in-memory Spark tokens to build the Stable Balance config. Added any later,
-    // they'd race it and lose, silently leaving this wallet's first session with no
-    // Stable-Balance-eligible tokens.
     final defaultSparkTokens = LightningWallet.isAvailable
-        ? DefaultSparkTokens().initialSparkTokens(walletInfo.name)
+        ? _withDefaultSparkTokens(const [], walletInfo.name)
         : <SparkToken>[];
 
-    for (final token in defaultSparkTokens) {
-      await token.save();
-    }
+    await _saveSparkTokens(defaultSparkTokens);
 
     final wallet = BitcoinWallet(
       mnemonic: mnemonic,
@@ -429,8 +433,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       payjoinBox: payjoinBox,
       useLightning: true,
     );
-
-    await wallet.addInitialSparkTokens();
 
     return wallet;
   }
@@ -513,7 +515,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    final initialSparkTokens = await SparkToken.getAllForWallet(name);
+    final storedSparkTokens = await SparkToken.getAllForWallet(name);
+
+    final lightningEnabled = (snp?.useLightning ?? true) && LightningWallet.isAvailable;
+    final initialSparkTokens = lightningEnabled
+        ? _withDefaultSparkTokens(storedSparkTokens, walletInfo.name)
+        : storedSparkTokens;
+
+    if (lightningEnabled) {
+      await _saveSparkTokens(initialSparkTokens);
+    }
+
     final accountIndexes =
         (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
 
@@ -545,9 +557,6 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       payjoinBox: payjoinBox,
       accountIndexes: accountIndexes,
     );
-
-    // Idempotent: backfills defaults (USDB) for wallets that predate this feature.
-    await wallet.addInitialSparkTokens();
 
     return wallet;
   }
@@ -909,7 +918,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final sparkToken = currency is SparkToken ? currency : null;
 
     if (sparkToken != null && !isLightningInitialized) {
-      throw Exception("Lightning wallet is not available - cannot send ${sparkToken.title}");
+      throw SparkTokenSendUnavailableException(
+        "Lightning wallet is not available - cannot send ${sparkToken.title}",
+      );
     }
 
     final isLNCompatible = await lightningWallet?.isCompatible(lnAddr) ?? false;
