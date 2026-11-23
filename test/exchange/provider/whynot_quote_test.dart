@@ -12,7 +12,8 @@ import "package:flutter_test/flutter_test.dart";
 import "mocks/whynot_mock.dart";
 
 void main() {
-  final officialUsdd = <CryptoCurrency>[
+  final excluded = <CryptoCurrency>[
+    CryptoCurrency.usdtOp,
     CryptoCurrency.usddEth,
     CryptoCurrency.usddTrx,
     Erc20Token(
@@ -30,9 +31,9 @@ void main() {
     ),
   ];
 
-  for (final usdd in officialUsdd) {
-    test("${usdd.title} on ${usdd.tag} (${usdd.runtimeType}) never reaches WhyNot", () async {
-      for (final (from, to) in [(usdd, CryptoCurrency.btc), (CryptoCurrency.btc, usdd)]) {
+  for (final coin in excluded) {
+    test("${coin.title} on ${coin.tag} (${coin.runtimeType}) never reaches WhyNot", () async {
+      for (final (from, to) in [(coin, CryptoCurrency.btc), (CryptoCurrency.btc, coin)]) {
         final mock = WhyNotMockProxyWrapper();
         final provider = WhyNotExchangeProvider(proxyWrapper: mock);
 
@@ -76,23 +77,16 @@ void main() {
     expect(mock.requestsTo("/api/v1/info"), hasLength(1));
   });
 
-  test("USDC on Optimism goes to WhyNot as OPTIMISM, USDT on Optimism does not", () async {
+  test("USDC on Optimism goes to WhyNot as OPTIMISM", () async {
     final mock = WhyNotMockProxyWrapper();
-    final provider = WhyNotExchangeProvider(proxyWrapper: mock);
+    await WhyNotExchangeProvider(proxyWrapper: mock).fetchRate(
+      FloatingRateRequest(
+        depositAmount: Money.parse("100", CryptoCurrency.usdcOp),
+        payoutCurrency: CryptoCurrency.btc,
+      ),
+    );
 
-    for (final coin in [CryptoCurrency.usdcOp, CryptoCurrency.usdtOp]) {
-      await provider.fetchRate(
-        FloatingRateRequest(
-          depositAmount: Money.parse("100", coin),
-          payoutCurrency: CryptoCurrency.btc,
-        ),
-      );
-    }
-
-    final networks = mock
-        .requestsTo("/api/v1/info")
-        .map((request) => (json.decode(request.body!) as Map<String, dynamic>)["network_from"])
-        .toList();
-    expect(networks, ["OPTIMISM", isNot("OPTIMISM")]);
+    final request = mock.requestsTo("/api/v1/info").single;
+    expect((json.decode(request.body!) as Map<String, dynamic>)["network_from"], "OPTIMISM");
   });
 }

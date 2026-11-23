@@ -107,6 +107,7 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
 
   static final _supportedChainList = <SwapsXyzChain>[];
   final Map<int, List<TokenPathInfo>> _tokensCache = {};
+  final Set<int> _tokenListChainIds = {};
 
   @override
   bool get supportsFixedRate => false;
@@ -513,23 +514,10 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     required CryptoCurrency from,
     required CryptoCurrency to,
   }) async {
-    final needSrc =
-        !_tokensCache.containsKey(fromChain.chainId) ||
-        (_tokensCache[fromChain.chainId]?.isEmpty ?? true);
-
-    final needDst =
-        !_tokensCache.containsKey(toChain.chainId) ||
-        (_tokensCache[toChain.chainId]?.isEmpty ?? true);
-
-    if (!needSrc && !needDst) {
-      return;
-    }
-
-    if (needSrc) {
-      await _fetchAndCacheTokens(srcChainId: fromChain.chainId);
-    }
-    if (needDst) {
-      await _fetchAndCacheTokens(srcChainId: toChain.chainId);
+    for (final chainId in {fromChain.chainId, toChain.chainId}) {
+      if (!_tokenListChainIds.contains(chainId)) {
+        await _fetchAndCacheTokens(srcChainId: chainId);
+      }
     }
   }
 
@@ -538,6 +526,7 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     try {
       final response = await _api.send(SwapsXyzTokenListRequest(chainId: srcChainId.toString()));
       _mergeCache(srcChainId, response.tokens.map(TokenPathInfo.fromTokenInfo).toList());
+      _tokenListChainIds.add(srcChainId);
     } catch (e) {
       printV("getTokenList failed: $e");
     }
@@ -585,12 +574,11 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
       if (cur == null) {
         bySymbol[key] = t;
       } else {
-        // If incoming has a real address/decimals, prefer it
+        // If incoming has a real address, prefer it
         final hasBetterAddr =
             (t.address != null && t.address!.isNotEmpty) &&
             (cur.address == null || cur.address!.isEmpty);
-        final hasBetterDec = (t.decimals != null) && (cur.decimals == null);
-        if (hasBetterAddr || hasBetterDec) {
+        if (hasBetterAddr) {
           bySymbol.remove(key);
           bySymbol[key] = t;
         }

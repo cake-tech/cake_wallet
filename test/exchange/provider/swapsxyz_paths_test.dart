@@ -12,10 +12,13 @@ const _circleUsdcOp = "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85";
 const _bridgedUsdcOp = "0x7F5c764cBc14f9669B88837ca1490cCa17c31607";
 const _usdt0Op = "0x01bFF41798a0BcF287b996046Ca68b395DbC1071";
 const _legacyUsdtOp = "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58";
+const _circleUsdcSui =
+    "0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC";
 
 // The provider keeps the chain list in a static, so every test in this file shares one
 const _chainList = '[{"chainId":1,"name":"Ethereum","vmId":"evm"},'
-    '{"chainId":10,"name":"Optimism","vmId":"evm"}]';
+    '{"chainId":10,"name":"Optimism","vmId":"evm"},'
+    '{"chainId":999000938,"name":"sui","vmId":"alt-vm"}]';
 
 const _noTokens = '{"tokens":[]}';
 
@@ -27,6 +30,16 @@ const _optimismBridgedUsdcFirst = '{"tokens":['
 
 const _optimismLegacyUsdt = '{"tokens":['
     '{"chainId":10,"address":"$_legacyUsdtOp","name":"Tether USD","symbol":"USDT",'
+    '"decimals":6,"isNative":false}]}';
+
+const _ethereumPathsWithOnlySuiNative = '{"srcChainId":1,"srcToken":{"chainId":1,'
+    '"address":"$swapsXyzNativeAddress","name":"Ether","symbol":"ETH","decimals":18,'
+    '"isNative":true},"paths":[{"chainId":999000938,"tokens":[{"chainId":999000938,'
+    '"address":"0x2::sui::SUI","name":"Sui","symbol":"SUI","decimals":9,"isNative":true}],'
+    '"supportsExactAmountIn":true,"supportsExactAmountOut":false}]}';
+
+const _suiUsdc = '{"tokens":['
+    '{"chainId":999000938,"address":"$_circleUsdcSui","name":"USDC","symbol":"USDC",'
     '"decimals":6,"isNative":false}]}';
 
 class _PathsMock extends MockProxyWrapper {
@@ -151,5 +164,25 @@ void main() {
     );
 
     expect(mock.requestsTo("/api/getQuote").single.query["dstToken"], _usdt0Op);
+  });
+
+  test("USDC on Sui resolves even after other paths listed only native SUI", () async {
+    final mock = _PathsMock(
+      tokenPaths: _ethereumPathsWithOnlySuiNative,
+      tokenLists: {"999000938": _suiUsdc},
+    );
+    final provider = SwapsXyzExchangeProvider(settingsStore: FakeSettingsStore(), proxyWrapper: mock);
+
+    for (final payout in [CryptoCurrency.usdterc20, CryptoCurrency.usdcSui]) {
+      await provider.fetchRate(
+        FloatingRateRequest(
+          depositAmount: Money.parse("2", CryptoCurrency.eth),
+          payoutCurrency: payout,
+        ),
+      );
+    }
+
+    expect(mock.requestsTo("/api/getQuote").last.query["dstToken"], _circleUsdcSui);
+    expect(mock.requestsTo("/api/getTokenList").map((r) => r.query["chainId"]), ["1", "999000938"]);
   });
 }
