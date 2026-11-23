@@ -14,6 +14,7 @@ env:
   CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
   CW_DOCKER_USE_CLOUD: "true"
   GITHUB_TOKEN: ${{ github.token }}
+  SIMPLYBS_TOKEN: ${{ secrets.SIMPLYBS_TOKEN }}
 
 concurrency:
   group: linux-${{ github.event.pull_request.number }}

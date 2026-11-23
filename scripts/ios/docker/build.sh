@@ -8,6 +8,7 @@ IMAGE_PREFIX="ios-deps"
 
 SCRIPT_DIR="$(pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+GIT_CREDENTIAL_HELPER="$REPO_ROOT/scripts/docker/git-credential-github.sh"
 
 ONLY=""
 TARGET=""
@@ -121,7 +122,21 @@ build() {
     return 0
   fi
   echo "==> building $name${extra}"
-  docker build \
+  local -a secret_args=()
+  if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+    secret_args+=(--secret id=github_token,env=GITHUB_TOKEN)
+  elif [[ -n "${GH_TOKEN:-}" ]]; then
+    secret_args+=(--secret id=github_token,env=GH_TOKEN)
+  fi
+  if [[ "$name" == "monero" || "$name" == "torch" ]]; then
+    if [[ -z "${SIMPLYBS_TOKEN:-}" ]]; then
+      echo "SIMPLYBS_TOKEN is not set" >&2
+      exit 1
+    fi
+    secret_args+=(--secret id=simplybs_token,env=SIMPLYBS_TOKEN)
+  fi
+  DOCKER_BUILDKIT=1 docker build \
+    ${secret_args[@]+"${secret_args[@]}"} \
     --platform linux/amd64 \
     --file     "$SCRIPT_DIR/Dockerfile.${name}" \
     --tag      "$tag" \
@@ -181,8 +196,8 @@ merge_slices() {
 }
 
 base_ver="latest"
-torch_ver="$(tinysha $SCRIPT_DIR/Dockerfile.torch $REPO_ROOT/scripts/prepare_torch.sh $REPO_ROOT/scripts/ios/build_torch.sh)"
-monero_ver="$(tinysha $SCRIPT_DIR/Dockerfile.monero $REPO_ROOT/scripts/functions.sh $REPO_ROOT/scripts/prepare_moneroc.sh $REPO_ROOT/scripts/ios/build_monero_all.sh)"
+torch_ver="$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.torch $REPO_ROOT/scripts/prepare_simplybs.sh $REPO_ROOT/scripts/prepare_torch.sh $REPO_ROOT/scripts/ios/build_torch.sh)"
+monero_ver="$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.monero $REPO_ROOT/scripts/functions.sh $REPO_ROOT/scripts/prepare_simplybs.sh $REPO_ROOT/scripts/prepare_moneroc.sh $REPO_ROOT/scripts/ios/build_monero_all.sh)"
 
 # `./build.sh --image torch` prints the ref without touching docker, so the
 # macOS runner can resolve the same tag before pulling it with crane.

@@ -2,6 +2,7 @@
 set -x -e
 
 cd "$(dirname "$0")"
+../prepare_simplybs.sh
 ../prepare_moneroc.sh
 
 NPROC="-j$(sysctl -n hw.logicalcpu)"

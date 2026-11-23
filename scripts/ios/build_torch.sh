@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x -e
+
 cd "$(dirname "$0")"
 
 DEFAULT_TARGETS=(
@@ -15,6 +16,7 @@ else
   TARGETS=("${DEFAULT_TARGETS[@]}")
 fi
 
+../prepare_simplybs.sh
 ../prepare_torch.sh
 
 cd ../torch_dart

@@ -1,3 +1,8 @@
 FROM --platform=linux/amd64 ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
 
+RUN groupadd -g 10001 builder \
+ && useradd -m -u 10001 -g 10001 -s /bin/bash builder \
+ && mkdir -p /opt/_ \
+ && chown 10001:10001 /opt/_
+
 WORKDIR /w

@@ -7,6 +7,7 @@ set -x -e
 
 cd "$(dirname "$0")"
 
+../prepare_simplybs.sh
 ../prepare_moneroc.sh
 
 if [[ -n "${COIN:-}" ]]; then
