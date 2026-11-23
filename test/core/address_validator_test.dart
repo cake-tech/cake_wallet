@@ -163,8 +163,10 @@ void main() {
 
       test("validates Algorand stablecoin addresses", () {
         const address = "4H5UNRBJ2Q6JENAXQ6HNTGKLKINP4J4VTQBEPK5F3I6RDICMZBPGNH6KD4";
+        final badChecksum = address.replaceRange(address.length - 1, address.length, "Y");
         final validator = AddressValidator(type: CryptoCurrency.usdcAlgo);
         expect(validator.isValid(address), isTrue);
+        expect(validator.isValid(badChecksum), isFalse);
         expect(validator.isValid(address.replaceRange(0, 1, "0")), isFalse);
         expect(validator.isValid(address.substring(1)), isFalse);
       });
@@ -181,6 +183,7 @@ void main() {
         const bounceable = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
         const nonBounceable = "UQDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff+W72r5gqPuwA";
         const testnet = "0QDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff-W72r5gqPleK";
+        final badChecksum = bounceable.replaceRange(bounceable.length - 1, bounceable.length, "t");
         for (final currency in [
           CryptoCurrency.ton,
           CryptoCurrency.usdtTon,
@@ -189,6 +192,7 @@ void main() {
           final validator = AddressValidator(type: currency);
           expect(validator.isValid(bounceable), isTrue, reason: currency.toString());
           expect(validator.isValid(nonBounceable), isTrue, reason: currency.toString());
+          expect(validator.isValid(badChecksum), isFalse, reason: currency.toString());
           expect(validator.isValid(testnet), isFalse, reason: currency.toString());
           expect(validator.isValid(bounceable.substring(1)), isFalse, reason: currency.toString());
           expect(
