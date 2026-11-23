@@ -15,6 +15,7 @@ import "package:cw_core/balance_card_style_settings.dart";
 import 'package:cake_wallet/core/trade_monitor.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/service_status.dart';
@@ -151,7 +152,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('monero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );
@@ -181,7 +182,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('wownero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );
@@ -320,10 +321,10 @@ abstract class DashboardViewModelBase with Store {
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.thorChain)),
       SwapProviderFilterItem(
-          providerDescription: ExchangeProviderDescription.letsExchange,
-          value: () => tradeFilterStore.displayLetsExchange,
+          providerDescription: ExchangeProviderDescription.whyNot,
+          value: () => tradeFilterStore.displayWhyNot,
           onChanged: () =>
-              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.letsExchange)),
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.whyNot)),
       SwapProviderFilterItem(
           providerDescription: ExchangeProviderDescription.stealthEx,
           value: () => tradeFilterStore.displayStealthEx,
@@ -349,6 +350,11 @@ abstract class DashboardViewModelBase with Store {
           value: () => tradeFilterStore.displayNearIntents,
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.nearIntents)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.jupiter,
+          value: () => tradeFilterStore.displayJupiter,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.jupiter)),
     ];
   }
 
@@ -361,6 +367,7 @@ abstract class DashboardViewModelBase with Store {
     }
 
     transactions.clear();
+    _historyKeyIndex = 0;
 
     final filteredTransactions = wallet.type == WalletType.bitcoin
         ? bitcoin!.getCurrentAccountBitcoinTransactions(wallet)
@@ -374,7 +381,7 @@ abstract class DashboardViewModelBase with Store {
           transaction: transaction,
           balanceViewModel: balanceViewModel,
           appStore: appStore,
-          key: ValueKey('${wallet.type.name}_transaction_history_item_${transaction.id}_key'),
+          key: ValueKey('${wallet.type.name}_transaction_history_item_${_historyKeyIndex++}_key'),
         ),
       ),
     );
@@ -385,7 +392,8 @@ abstract class DashboardViewModelBase with Store {
       wallet.type == WalletType.zcash && (zcash?.hasOrchardMigratableBalance(wallet) ?? false);
 
   @computed
-  bool get requiresManualShield => wallet.type == WalletType.zcash && wallet.isHardwareWallet;
+  bool get requiresManualShield =>
+      wallet.type == WalletType.zcash && wallet.hardwareWalletType != null;
 
   @computed
   bool get isSyncHeavy {
@@ -567,7 +575,7 @@ abstract class DashboardViewModelBase with Store {
                 transaction: tx,
                 balanceViewModel: balanceViewModel,
                 appStore: appStore,
-                key: ValueKey('${wallet.type.name}_transaction_history_item_${tx.id}_key'),
+                key: ValueKey('${wallet.type.name}_transaction_history_item_${_historyKeyIndex++}_key'),
               ))
           .toList();
 
@@ -724,12 +732,17 @@ abstract class DashboardViewModelBase with Store {
   bool get showApps => appStore.settingsStore.shouldShowMarketPlaceInDashboard;
 
   @computed
-  List<TradeListItem> get trades => tradesStore.trades.where((trade) {
-        final isSameChain = trade.trade.chainId != null
-            ? trade.trade.chainId == wallet.chainId
-            : true; // returning default as true here so it falls back to the default checks if there's no chainId
-        return trade.trade.walletId == wallet.id && isSameChain;
-      }).toList();
+  bool get showCharts => appStore.settingsStore.shouldShowChartsInDashboard;
+
+  @computed
+  bool get showNftsTab => appStore.settingsStore.shouldShowNftsTab;
+
+  @action
+  void setDisplayAmountsInSatoshi(BitcoinAmountDisplayMode mode) =>
+      appStore.settingsStore.displayAmountsInSatoshi = mode;
+
+  @computed
+  List<TradeListItem> get trades => tradesStore.trades.where((trade) => trade.trade.walletId == wallet.id).toList();
 
   @computed
   bool get shouldShowBalanceHiddenMessage =>
@@ -782,6 +795,8 @@ abstract class DashboardViewModelBase with Store {
 
     return formattedItemsList(_items);
   }
+
+  int _historyKeyIndex = 0;
 
   static const shortHistoryLength = 3;
 
@@ -1374,14 +1389,7 @@ abstract class DashboardViewModelBase with Store {
   void toggleLightningMode() {
     lightningMode = !lightningMode;
 
-    // Lightning belongs to the primary account only
-    if (lightningMode) {
-      unawaited(_selectPrimaryAccount().then((_) async {
-        if (!lightningMode && isMultiAccountsEnabled) {
-          await loadCardDesigns();
-        }
-      }));
-    } else {
+    if (!lightningMode) {
       unawaited(loadCardDesigns());
     }
   }
@@ -1522,6 +1530,7 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onMoneroTransactionsUpdate(WalletBase wallet) {
     transactions.clear();
+    _historyKeyIndex = 0;
     if (wallet.type == WalletType.monero) {
       final _accountTransactions = monero!
           .getTransactionHistory(wallet)
@@ -1537,7 +1546,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('monero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('monero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );
@@ -1557,7 +1566,7 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             appStore: appStore,
-            key: ValueKey('wownero_transaction_history_item_${transaction.id}_key'),
+            key: ValueKey('wownero_transaction_history_item_${_historyKeyIndex++}_key'),
           ),
         ),
       );

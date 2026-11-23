@@ -21,7 +21,9 @@ class DisplaySettingsPageRobot extends BaseRobot {
   }
 
   Future<void> chooseLanguage(String code) async {
-    await tapByKey("picker_items_index_${code}_button_key");
+    final index = await pickerIndexWhere((item) => item == code);
+
+    await tapByKey("picker_items_index_${index}_button_key");
 
     await settle();
   }
@@ -58,7 +60,7 @@ class DisplaySettingsPageRobot extends BaseRobot {
     expect(
       find.descendant(
         of: find.byKey(const ValueKey("display_settings_fiat_currency")),
-        matching: find.text(currency.title),
+        matching: find.textContaining(currency.title),
       ),
       findsOneWidget,
       reason: "The currency row still does not show ${currency.title}",

@@ -245,6 +245,7 @@ class SolanaChainService {
     if (wallet != null) {
       final keys = wcKeyService.getKeysForChain(wallet);
       if (keys.isNotEmpty &&
+          keys.first.chains.contains(getChainId()) &&
           MethodsUtils.isSessionOwnedByWallet(
             walletKit.sessions.get(topic),
             keys.first.publicKey,

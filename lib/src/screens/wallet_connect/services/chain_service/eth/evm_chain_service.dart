@@ -518,6 +518,11 @@ class EvmChainServiceImpl {
       return false;
     }
 
+    // Requests can arrive on chains the open wallet has no account on; don't sign those.
+    if (!keys.first.chains.contains(getChainId())) {
+      return false;
+    }
+
     final walletAddress = keys.first.publicKey;
     final ownsSession =
         MethodsUtils.isSessionOwnedByWallet(walletKit.sessions.get(topic), walletAddress);

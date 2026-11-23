@@ -86,6 +86,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
+          testId: "l2_action_wallet_selector_top_bar",
           title: widget.action == L2Actions.deposit
               ? "${S.of(context).send_from}..."
               : "${S.of(context).receive_to}...",
@@ -279,8 +280,9 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
                               if (widget.action == L2Actions.deposit) {
                                 await _handleChangeWallet(items[_selectedWalletIndex]);
                               } else {
-                                if (items[_selectedWalletIndex].name !=
-                                    widget.sendViewModel.wallet.name) {
+                                if (addressController.text.isNotEmpty ||
+                                    items[_selectedWalletIndex].name !=
+                                        widget.sendViewModel.wallet.name) {
                                   widget.sendViewModel.outputs.first.address =
                                       addressController.text.isNotEmpty
                                           ? addressController.text
@@ -354,8 +356,7 @@ class WalletRow extends StatelessWidget {
   final bool? isSelected;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => MergeSemantics(child: Container(
       height: isCurrent ? 64 : 48,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -397,15 +398,25 @@ class WalletRow extends StatelessWidget {
                 ),
                 isSelected != null
                     ? NewSimpleCheckbox(value: isSelected!, onChanged: (val) {})
-                    : Icon(
-                        Icons.chevron_right,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    : SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: Center(
+                          child: CakeImageWidget(
+                            imageUrl: "assets/new-ui/arrow_right.svg",
+                            width: 7,
+                            height: 12,
+                            colorFilter: ColorFilter.mode(
+                              Theme.of(context).colorScheme.onSurfaceVariant,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
                       )
               ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ));
 }

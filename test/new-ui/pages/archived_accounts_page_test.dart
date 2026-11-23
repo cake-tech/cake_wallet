@@ -290,7 +290,7 @@ void main() {
         BalanceViewModel(
           appStore: appStore,
           settingsStore: settingsStore,
-          fiatConversionStore: FiatConversionStore()..prices[currency] = 20,
+          fiatConversionStore: FiatConversionStore(settingsStore)..prices[currency] = 20,
         ),
       );
       await tester.runAsync(() async {

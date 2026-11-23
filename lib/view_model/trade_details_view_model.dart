@@ -1,21 +1,18 @@
 import 'dart:async';
 
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/provider/chainflip_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/chainflip/chainflip_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/exolix_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/letsexchange_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/near_Intents_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swapsxyz_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/swaptrade_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/sideshift_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/simpleswap_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/stealth_ex_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/thorchain_exchange.provider.dart';
-import 'package:cake_wallet/exchange/provider/trocador_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/xoswap_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/near_intents/near_intents_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/stealthex/stealthex_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/whynot/whynot_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/xoswap/xoswap_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
@@ -26,7 +23,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cw_core/currencies_with_memo.dart';
+import "package:cw_core/crypto_currency.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
@@ -46,25 +43,17 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.changeNow:
         _provider = ChangeNowExchangeProvider(settingsStore: appStore.settingsStore);
         break;
-      case ExchangeProviderDescription.sideShift:
-        _provider = SideShiftExchangeProvider();
-        break;
-      case ExchangeProviderDescription.simpleSwap:
-        _provider = SimpleSwapExchangeProvider();
-        break;
       case ExchangeProviderDescription.trocador:
         _provider = TrocadorExchangeProvider();
         break;
       case ExchangeProviderDescription.exolix:
         _provider = ExolixExchangeProvider();
         break;
-      case ExchangeProviderDescription.thorChain:
-        _provider = ThorChainExchangeProvider();
-        break;
+
       case ExchangeProviderDescription.swapTrade:
         _provider = SwapTradeExchangeProvider();
-      case ExchangeProviderDescription.letsExchange:
-        _provider = LetsExchangeExchangeProvider();
+      case ExchangeProviderDescription.whyNot:
+        _provider = WhyNotExchangeProvider();
         break;
       case ExchangeProviderDescription.stealthEx:
         _provider = StealthExExchangeProvider();
@@ -76,7 +65,7 @@ abstract class TradeDetailsViewModelBase with Store {
         _provider = XOSwapExchangeProvider();
         break;
       case ExchangeProviderDescription.swapsXyz:
-        _provider = SwapsXyzExchangeProvider();
+        _provider = SwapsXyzExchangeProvider(settingsStore: appStore.settingsStore);
         break;
       case ExchangeProviderDescription.jupiter:
         _provider = JupiterExchangeProvider();
@@ -84,6 +73,13 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.nearIntents:
         _provider = NearIntentsExchangeProvider();
         break;
+      case ExchangeProviderDescription.xmrto:
+      case ExchangeProviderDescription.morphToken:
+      case ExchangeProviderDescription.sideShift:
+      case ExchangeProviderDescription.simpleSwap:
+      case ExchangeProviderDescription.all:
+      case ExchangeProviderDescription.thorChain:
+        _provider = null;
     }
 
     _updateItems();
@@ -94,39 +90,24 @@ abstract class TradeDetailsViewModelBase with Store {
     }
   }
 
-  static String? getTrackUrl(ExchangeProviderDescription provider, Trade trade) {
-    switch (provider) {
-      case ExchangeProviderDescription.changeNow:
-        return 'https://changenow.io/exchange/txs/${trade.id}';
-      case ExchangeProviderDescription.sideShift:
-        return 'https://sideshift.ai/orders/${trade.id}';
-      case ExchangeProviderDescription.simpleSwap:
-        return 'https://simpleswap.io/exchange?id=${trade.id}';
-      case ExchangeProviderDescription.trocador:
-        return 'https://trocador.app/en/checkout/${trade.id}';
-      case ExchangeProviderDescription.exolix:
-        return 'https://exolix.com/transaction/${trade.id}';
-      case ExchangeProviderDescription.thorChain:
-        return 'https://track.ninerealms.com/${trade.id}';
-      case ExchangeProviderDescription.swapTrade:
-        return 'https://swaptrade.io/send/${trade.id}';
-      case ExchangeProviderDescription.letsExchange:
-        return 'https://letsexchange.io/?transactionId=${trade.id}';
-      case ExchangeProviderDescription.stealthEx:
-        return 'https://stealthex.io/exchange/?id=${trade.id}';
-      case ExchangeProviderDescription.chainflip:
-        return 'https://scan.chainflip.io/channels/${trade.id}';
-      case ExchangeProviderDescription.xoSwap:
-        return 'https://orders.xoswap.com/${trade.id}';
-      case ExchangeProviderDescription.swapsXyz:
-        return 'https://scan.swaps.xyz/transactions/${trade.id}';
-      case ExchangeProviderDescription.jupiter:
-        return 'https://solscan.io/tx/${trade.txId}';
-      case ExchangeProviderDescription.nearIntents:
-        return 'https://explorer.near-intents.org/transactions/${trade.id}';
-    }
-    return null;
-  }
+  static String? getTrackUrl(ExchangeProviderDescription provider, Trade trade) =>
+      switch (provider) {
+            .changeNow => 'https://changenow.io/exchange/txs/${trade.id}',
+            .sideShift => 'https://sideshift.ai/orders/${trade.id}',
+            .simpleSwap => 'https://simpleswap.io/exchange?id=${trade.id}',
+            .trocador => 'https://trocador.app/en/checkout/${trade.id}',
+            .exolix => 'https://exolix.com/transaction/${trade.id}',
+            .thorChain => 'https://track.ninerealms.com/${trade.id}',
+            .swapTrade => 'https://swaptrade.io/send/${trade.id}',
+            .whyNot => "https://receipt.whynot.exchange/${trade.id}",
+            .stealthEx => 'https://stealthex.io/exchange/?id=${trade.id}',
+            .chainflip => 'https://scan.chainflip.io/channels/${trade.id}',
+            .xoSwap => 'https://orders.xoswap.com/${trade.id}',
+            .swapsXyz => 'https://scan.swaps.xyz/transactions/${trade.id}',
+            .jupiter => 'https://solscan.io/tx/${trade.txId}',
+            .nearIntents => 'https://explorer.near-intents.org/transactions/${trade.id}',
+            .xmrto || .morphToken || .all => null
+      };
 
   @observable
   Trade trade;
@@ -143,9 +124,7 @@ abstract class TradeDetailsViewModelBase with Store {
   @action
   Future<void> _updateTrade() async {
     try {
-      final updatedTrade = await _provider!.findTradeById(id: trade.id);
-
-      trade.mergeFindTradeByIdResult(updatedTrade);
+      trade = await _provider!.updateTrade(trade);
       await trade.save();
 
       _updateItems();
@@ -166,10 +145,9 @@ abstract class TradeDetailsViewModelBase with Store {
     items.add(
         DetailsListStatusItem(title: S.current.trade_details_state, value: trade.state.toString()));
 
-    final tradeFrom = trade.from;
-    final tradeTo = trade.to;
+    final tradeFrom = trade.depositCurrency;
+    final tradeTo = trade.payoutCurrency;
 
-    if (tradeFrom != null && tradeTo != null) {
       items.add(TradeDetailsListCardItem.tradeDetails(
         id: trade.id,
         extraId: trade.extraId,
@@ -181,13 +159,12 @@ abstract class TradeDetailsViewModelBase with Store {
           showBar<void>(context, S.of(context).copied_to_clipboard);
         },
       ));
-    }
 
     final destinationMemo = trade.toAddressExtraId;
-    final destinationCurrency = trade.to;
-    if (destinationMemo != null && destinationMemo.isNotEmpty && destinationCurrency != null) {
+    final destinationCurrency = trade.payoutCurrency;
+    if (destinationMemo != null && destinationMemo.isNotEmpty) {
       final isDestinationTag =
-          memoLabelTypeFor(destinationCurrency) == MemoLabelType.destinationTag;
+          destinationCurrency.memoLabelType == MemoLabelType.destinationTag;
       items.add(StandartListItem(
           title: isDestinationTag ? S.current.destination_tag : S.current.memo,
           value: destinationMemo));

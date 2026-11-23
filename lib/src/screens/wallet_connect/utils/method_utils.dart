@@ -39,6 +39,7 @@ class MethodsUtils {
     "solana_signTransaction",
     "solana_signAllTransactions",
     "solana_signAndSendTransaction",
+    "tron_signTransaction",
     "wallet_switchEthereumChain",
     "wallet_addEthereumChain",
   };

@@ -99,6 +99,11 @@ dependency_overrides:
       url: https://github.com/felangel/bloc
       ref: 13dbe0ce078e7efaebb54b37489879daeb57459d
       path: ./packages/bloc_concurrency
+  bloc_presentation:
+    git:
+      url: https://github.com/leancodepl/bloc_presentation
+      ref: e7325b9bf57a1c607034de87a2378ec9bd5c0011
+      path: ./packages/bloc_presentation
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -112,11 +117,6 @@ dependency_overrides:
       url: https://github.com/dart-lang/tools
       ref: b1312b18df67b0be3101ca15c03dfd8d7c9383bb
       path: ./pkgs/boolean_selector
-  borsh_annotation:
-    git:
-      url: https://github.com/espresso-cash/espresso-cash-public
-      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      path: ./packages/borsh_annotation
   breez_sdk_spark_flutter:
     git:
       url: https://github.com/breez/breez-sdk-spark-flutter
@@ -825,6 +825,11 @@ dependency_overrides:
       url: https://github.com/dart-lang/tools
       ref: 88087ae253cab7ff9eccadb3c8cbf550ee071226
       path: ./pkgs/json_rpc_2
+  json_serializable:
+    git:
+      url: https://github.com/google/json_serializable.dart
+      ref: 61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc
+      path: ./json_serializable
   kepler:
     git:
       url: https://github.com/tjcampanella/kepler
@@ -851,12 +856,12 @@ dependency_overrides:
   ledger_bitcoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
-      ref: 75bba8632c529debf30ee2b1858530009fa6440b
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       path: ./packages/ledger-bitcoin
   ledger_ethereum:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
-      ref: f4761cd5171d4c1e2e42fd3298261650539fb2db
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       path: ./packages/ledger-ethereum
   ledger_flutter_plus:
     git:
@@ -865,7 +870,7 @@ dependency_overrides:
   ledger_litecoin:
     git:
       url: https://github.com/cake-tech/ledger-flutter-plus-plugins
-      ref: 75bba8632c529debf30ee2b1858530009fa6440b
+      ref: bd86993c6c41085f9b2aa0b723f734bc4f6bf508
       path: ./packages/ledger-litecoin
   ledger_usb_plus:
     git:
@@ -955,7 +960,7 @@ dependency_overrides:
   modal_bottom_sheet:
     git:
       url: https://github.com/cake-tech/modal_bottom_sheet
-      ref: b1cca111c53d41b9f07123a8c67cfe06fb1b69bf
+      ref: 04f3f5c920b394913467687630de0dc598b4c845
       path: ./modal_bottom_sheet
   monero:
     git:
@@ -1239,7 +1244,7 @@ dependency_overrides:
   rlz:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653
       path: ./rust_builder
   rxdart:
     git:
@@ -1339,16 +1344,15 @@ dependency_overrides:
     git:
       url: https://github.com/sneurlax/socks_socket
       ref: e6232c53c1595469931ababa878759a067c02e94
-  solana:
-    git:
-      url: https://github.com/espresso-cash/espresso-cash-public
-      ref: ab60e9d4c7d7271037597154ad2a835812054ed6
-      path: ./packages/solana
   source_gen:
     git:
       url: https://github.com/dart-lang/source_gen
       ref: 98cbdb6b17cdccabb0fec6e37fd66e2790d05092
       path: ./source_gen
+  source_helper:
+    git:
+      url: https://github.com/google/source_helper.dart
+      ref: 760e41a7742d211543cbbf510fc588e96d0cc0a2
   source_map_stack_trace:
     git:
       url: https://github.com/dart-lang/tools
@@ -1681,4 +1685,4 @@ dependency_overrides:
   zkool:
     git:
       url: https://github.com/cake-tech/zkool2.git
-      ref: b56be32eca373e5ddd0ef703614d4f81cba403f7
+      ref: cb3e96f10e58a8fc8632b40636a0c64aa21fb653

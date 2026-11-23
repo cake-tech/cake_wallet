@@ -18,6 +18,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
     this.subtitle,
     this.iconPath,
     this.showArrow = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -31,6 +32,7 @@ class ListItemCheckboxWidget extends StatefulWidget {
   final ValueChanged<bool> onChanged;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemCheckboxWidget> createState() => _ListItemCheckboxWidgetState();
@@ -39,7 +41,9 @@ class ListItemCheckboxWidget extends StatefulWidget {
 class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
   @override
   Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+    final row = ListItemStyleWrapper(
+      testId: widget.testId,
+      mergeTestId: widget.onTap == null,
       iconPath: widget.iconPath,
       onTap: widget.onTap ??
           () {
@@ -97,6 +101,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
             ),
             NewSimpleCheckbox(
               value: widget.value,
+              semanticLabel: widget.onTap == null ? null : widget.label,
               onChanged: (newValue) {
                 widget.onChanged(newValue);
               },
@@ -105,5 +110,7 @@ class _ListItemCheckboxWidgetState extends State<ListItemCheckboxWidget> {
         );
       },
     );
+
+    return widget.testId == null && widget.onTap == null ? MergeSemantics(child: row) : row;
   }
 }
