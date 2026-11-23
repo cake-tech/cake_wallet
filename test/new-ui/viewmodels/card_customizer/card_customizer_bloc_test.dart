@@ -1,35 +1,18 @@
 import "package:cake_wallet/new-ui/viewmodels/card_customizer/card_customizer_bloc.dart";
-import "package:cake_wallet/wownero/wownero.dart" as wow;
-import "package:cw_core/account.dart";
-import "package:cw_core/balance.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart" as sqlite;
-import "package:cw_core/transaction_history.dart";
-import "package:cw_core/transaction_info.dart";
-import "package:cw_core/wallet_base.dart";
-import "package:cw_core/wallet_info.dart";
-import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mocktail/mocktail.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
-class _MockWallet extends Mock
-    implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
-
-class _MockWalletInfo extends Mock implements WalletInfo {}
-
-class _MockWownero extends Mock implements wow.Wownero {}
-
-class _MockWowneroAccountList extends Mock implements wow.WowneroAccountList {}
+import "../../../view_model/wallet_account_list/fake_account_wallet.dart";
 
 void main() {
   late DatabaseFactory? originalDatabaseFactory;
   late Database? originalDatabase;
-  late wow.Wownero? originalWownero;
-  late _MockWallet wallet;
-  late _MockWownero wowneroAdapter;
-  late _MockWowneroAccountList accountList;
+  late FakeAccountWallet wallet;
 
   setUpAll(() {
     originalDatabaseFactory = databaseFactoryOrNull;
@@ -43,7 +26,6 @@ void main() {
 
   setUp(() async {
     originalDatabase = sqlite.db;
-    originalWownero = wow.wownero;
     sqlite.db = await databaseFactory.openDatabase(inMemoryDatabasePath);
     await sqlite.db!.execute("""
       CREATE TABLE ${BalanceCardStyleSettings.tableName} (
@@ -60,37 +42,26 @@ void main() {
       )
     """);
 
-    wallet = _MockWallet();
-    final walletInfo = _MockWalletInfo();
-    wowneroAdapter = _MockWownero();
-    accountList = _MockWowneroAccountList();
-    wow.wownero = wowneroAdapter;
-
-    when(() => wallet.hasNativeAccounts).thenReturn(true);
-    when(() => wallet.type).thenReturn(WalletType.wownero);
-    when(() => wallet.currency).thenReturn(CryptoCurrency.wow);
-    when(() => wallet.walletInfo).thenReturn(walletInfo);
+    final walletInfo = FakeWalletInfo();
     when(() => walletInfo.internalId).thenReturn(42);
-    when(() => wallet.save()).thenAnswer((_) async {});
-    when(() => wowneroAdapter.getCurrentAccount(wallet))
-        .thenReturn(Account(id: 3, label: "Savings", balance: "2.0"));
-    when(() => wowneroAdapter.getAccountList(wallet)).thenReturn(accountList);
-    when(
-      () => accountList.setLabelAccount(
-        wallet,
-        accountIndex: any(named: "accountIndex"),
-        label: any(named: "label"),
-      ),
-    ).thenAnswer((_) async {});
+    wallet = FakeAccountWallet(
+      currency: CryptoCurrency.wow,
+      walletInfo: walletInfo,
+      currentAccountIndex: 3,
+      accounts: [
+        FakeWalletAccount(index: 0, label: "Primary", balance: Money.zero(CryptoCurrency.wow)),
+        FakeWalletAccount(index: 3, label: "Savings", balance: Money.zero(CryptoCurrency.wow)),
+      ],
+    );
+    when(() => wallet.hasNativeAccounts).thenReturn(true);
   });
 
   tearDown(() async {
-    wow.wownero = originalWownero;
     await sqlite.db?.close();
     sqlite.db = originalDatabase;
   });
 
-  test("Wownero customization saves the selected account identity and name", () async {
+  test("customization saves the selected account identity and name", () async {
     final bloc = CardCustomizerBloc(wallet);
     addTearDown(bloc.close);
 
@@ -107,14 +78,9 @@ void main() {
     bloc.add(DesignSaved());
     await saved;
 
-    verify(
-      () => accountList.setLabelAccount(
-        wallet,
-        accountIndex: 3,
-        label: "Long-term Savings",
-      ),
-    ).called(1);
-    verify(() => wallet.save()).called(1);
+    expect(wallet.account(3).label, "Long-term Savings");
+    expect(wallet.account(0).label, "Primary");
+    expect(wallet.saveCount, 1);
 
     final persisted = await BalanceCardStyleSettings.get(42, 3);
     expect(persisted, isNotNull);

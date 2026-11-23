@@ -13,20 +13,20 @@ import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/wownero/wownero.dart" as wow;
 import "package:cw_core/account.dart";
-import "package:cw_core/balance.dart";
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart" as sqlite;
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
-import "package:cw_core/wallet_base.dart";
-import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:mobx/mobx.dart" show ObservableList, ObservableMap;
+import "package:mobx/mobx.dart" show ObservableMap;
 import "package:mocktail/mocktail.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
+
+import "../wallet_account_list/fake_account_wallet.dart";
 
 class _MockBalanceViewModel extends Mock implements BalanceViewModel {}
 
@@ -52,16 +52,9 @@ class _MockPayjoinTransactionsStore extends Mock implements PayjoinTransactionsS
 
 class _MockKeyService extends Mock implements KeyService {}
 
-class _MockWallet extends Mock
-    implements WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> {}
-
-class _MockWalletInfo extends Mock implements WalletInfo {}
-
 class _MockTransactionHistory extends Mock implements TransactionHistoryBase<TransactionInfo> {}
 
 class _MockWownero extends Mock implements wow.Wownero {}
-
-class _MockWowneroAccountList extends Mock implements wow.WowneroAccountList {}
 
 class _MockWowneroWalletDetails extends Mock implements wow.WowneroWalletDetails {}
 
@@ -143,24 +136,26 @@ void main() {
     sqlite.db = originalDatabase;
   });
 
-  test("Wownero keeps every account card and maps the selected account", () async {
+  test("keeps every account card and maps the selected account", () async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
     final sharedPreferences = await SharedPreferences.getInstance();
-    final wallet = _MockWallet();
-    final walletInfo = _MockWalletInfo();
+    final walletInfo = FakeWalletInfo();
+    final wallet = FakeAccountWallet(
+      currency: CryptoCurrency.wow,
+      walletInfo: walletInfo,
+      currentAccountIndex: 1,
+      accounts: [
+        FakeWalletAccount(index: 0, label: "Primary", balance: Money.zero(CryptoCurrency.wow)),
+        FakeWalletAccount(index: 1, label: "Savings", balance: Money.zero(CryptoCurrency.wow)),
+      ],
+    );
     final transactionHistory = _MockTransactionHistory();
     final appStore = _MockAppStore();
     final settingsStore = _MockSettingsStore();
     final tradesStore = _MockTradesStore();
     final tradeMonitor = _MockTradeMonitor();
     final wowneroAdapter = _MockWownero();
-    final accountList = _MockWowneroAccountList();
     final walletDetails = _MockWowneroWalletDetails();
-    final wowneroBalance = _MockWowneroBalance();
-    final accounts = ObservableList.of(<Account>[
-      Account(id: 0, label: "Primary", balance: "1.0"),
-      Account(id: 1, label: "Savings", balance: "2.0"),
-    ]);
 
     wow.wownero = wowneroAdapter;
     when(() => appStore.wallet).thenReturn(wallet);
@@ -168,19 +163,14 @@ void main() {
     when(() => wallet.name).thenReturn("Wownero Wallet");
     when(() => wallet.id).thenReturn("wownero-wallet");
     when(() => wallet.type).thenReturn(WalletType.wownero);
-    when(() => wallet.currency).thenReturn(CryptoCurrency.wow);
-    when(() => wallet.walletInfo).thenReturn(walletInfo);
     when(() => walletInfo.internalId).thenReturn(42);
     when(() => walletInfo.showSeedBackupReminder).thenReturn(false);
     when(() => wallet.transactionHistory).thenReturn(transactionHistory);
     when(() => transactionHistory.transactions)
         .thenReturn(ObservableMap<String, TransactionInfo>());
-    when(() => wowneroAdapter.getAccountList(wallet)).thenReturn(accountList);
-    when(() => accountList.accounts).thenReturn(accounts);
-    when(() => wowneroAdapter.getCurrentAccount(wallet)).thenReturn(accounts[1]);
     when(() => wowneroAdapter.getWowneroWalletDetails(wallet)).thenReturn(walletDetails);
-    when(() => walletDetails.account).thenReturn(accounts[1]);
-    when(() => walletDetails.balance).thenReturn(wowneroBalance);
+    when(() => walletDetails.account).thenReturn(Account(id: 1, label: "Savings"));
+    when(() => walletDetails.balance).thenReturn(_MockWowneroBalance());
     when(() => settingsStore.mwebAlwaysScan).thenReturn(false);
     when(() => tradesStore.trades).thenReturn(const []);
     when(() => tradeMonitor.monitorActiveTrades(any())).thenReturn(null);
@@ -202,6 +192,7 @@ void main() {
       keyService: _MockKeyService(),
     );
 
+    expect(viewModel.subname, "Savings");
     expect(viewModel.cardAccountIndices, <int>[0, 1]);
     expect(viewModel.currentCardAccountIndex, 1);
 
@@ -211,5 +202,10 @@ void main() {
     expect(viewModel.cardOrder, <int, int>{0: 0, 1: 1});
     expect(viewModel.cardDesigns, hasLength(2));
     expect(viewModel.currentCardDesign, same(viewModel.cardDesigns[1]));
+
+    await wallet.setCurrentAccount(0);
+
+    expect(viewModel.currentCardAccountIndex, 0);
+    expect(viewModel.currentCardDesign, same(viewModel.cardDesigns[0]));
   });
 }

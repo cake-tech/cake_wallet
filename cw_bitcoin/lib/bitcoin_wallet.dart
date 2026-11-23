@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import "package:cw_bitcoin/electrum_transaction_history.dart";
 import 'package:cw_core/utils/bip39_seed.dart';
+import "package:cw_core/account_wallet.dart";
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
@@ -56,7 +58,8 @@ part 'bitcoin_wallet.g.dart';
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
-abstract class BitcoinWalletBase extends ElectrumWallet with Store {
+abstract class BitcoinWalletBase extends ElectrumWallet
+    with Store, AccountWallet<ElectrumBalance, ElectrumTransactionHistory, ElectrumTransactionInfo> {
   BitcoinWalletBase({
     required String password,
     required WalletInfo walletInfo,
@@ -81,7 +84,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     bool? useLightning,
     String? cachedLightningAddress,
-    List<int>? accountIndexes,
+    Map<int, String>? accountLabels,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -104,7 +107,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
-          accountIndexes: accountIndexes
+          accountLabels: accountLabels
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -312,8 +315,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    final accountIndexes =
-    (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
+    final accountLabels = {
+      for (final account in await walletInfo.getAccounts()) account.accountIndex: account.label,
+    };
 
     return BitcoinWallet(
       mnemonic: mnemonic,
@@ -339,7 +343,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
       payjoinBox: payjoinBox,
-      accountIndexes: accountIndexes,
+      accountLabels: accountLabels,
     );
   }
 

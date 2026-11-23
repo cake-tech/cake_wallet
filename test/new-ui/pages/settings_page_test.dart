@@ -9,7 +9,7 @@ import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/routes.dart";
 import "package:cake_wallet/view_model/dashboard/balance_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
-import "package:cake_wallet/view_model/wallet_account_list/monero_account_list/monero_account_list_view_model.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/wallet_types.g.dart";
@@ -33,7 +33,7 @@ class MockDashboardViewModel extends Mock implements DashboardViewModel {}
 
 class _MockAccountEditOrCreateViewModel extends Mock implements WalletAccountEditOrCreateViewModel {}
 
-class _MockAccountListViewModel extends Mock implements MoneroAccountListViewModel {}
+class _MockAccountListViewModel extends Mock implements WalletAccountListViewModel {}
 
 class _MockAuthService extends Mock implements AuthService {}
 

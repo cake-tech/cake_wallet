@@ -6,6 +6,7 @@ import "package:cw_bitcoin/electrum_balance.dart";
 import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_account.dart";
 import "package:mobx/mobx.dart";
 
 int purposeForType(BitcoinAddressType type) {
@@ -61,13 +62,13 @@ class ElectrumAccounts {
   }) =>
       _hdByIndex[accountIndex]?.branch(type, isChange: isChange, isLegacy: isLegacy);
 
-  ElectrumAccount getOrCreate(int index) {
+  ElectrumAccount getOrCreate(int index, {String? label}) {
     final existing = _byIndex[index];
     if (existing != null) return existing;
 
     final account = ElectrumAccount(
       index: index,
-      label: index == 0 ? "Primary account" : "Account $index",
+      label: _labelOrNull(label),
       supportedTypes: index == 0 ? _primaryTypes : _extraTypes,
       initialBalance: ElectrumBalance.zero(currency),
     );
@@ -88,6 +89,12 @@ class ElectrumAccounts {
     if (removed != null) {
       printV("[ELECTRUM ACCOUNTS] removed account $index, now $indexes");
     }
+  }
+
+  void setLabel(int index, String? label) {
+    final account = _byIndex[index];
+    if (account == null) return;
+    runInAction(() => account._label.value = _labelOrNull(label));
   }
 
   Bip32Slip10Secp256k1? receiveHd(int index, BitcoinAddressType type) =>
@@ -127,6 +134,8 @@ class ElectrumAccounts {
   Map<String, String> balancesToJson() => {
         for (final account in all) "${account.index}": account._balance.value.toJSON(),
       };
+
+  String? _labelOrNull(String? label) => label == null || label.isEmpty ? null : label;
 
   AccountHdKeys _deriveHd(int index, List<BitcoinAddressType> types) {
     final hd = AccountHdKeys();
@@ -172,21 +181,28 @@ class ElectrumAccounts {
       'ElectrumAccounts(${indexes.map((i) => '${_byIndex[i]} ${_hdByIndex[i]}').join(',\n')})';
 }
 
-class ElectrumAccount {
+class ElectrumAccount implements WalletAccount<ElectrumBalance> {
   ElectrumAccount({
     required this.index,
-    required this.label,
+    String? label,
     required List<BitcoinAddressType> supportedTypes,
     required ElectrumBalance initialBalance,
   })  : supportedTypes = List.unmodifiable(supportedTypes),
+        _label = Observable(label),
         _balance = Observable(initialBalance);
 
+  @override
   final int index;
-  String label;
+
   final List<BitcoinAddressType> supportedTypes;
 
+  final Observable<String?> _label;
   final Observable<ElectrumBalance> _balance;
 
+  @override
+  String? get label => _label.value;
+
+  @override
   ElectrumBalance get balance => _balance.value.copy();
 
   bool supports(BitcoinAddressType type) => supportedTypes.contains(type);

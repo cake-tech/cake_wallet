@@ -51,7 +51,7 @@ class TradeCreator {
 
   int _accountIndexFor(Trade trade) => switch (_appStore.wallet!.type) {
     _ when trade.depositCurrency == CryptoCurrency.btcln => 0,
-    .monero => monero!.getCurrentAccount(_appStore.wallet!).id,
+    .monero => _appStore.wallet!.currentAccountIndex,
     .bitcoin => _appStore.wallet!.walletInfo.currentAccountIndex,
     _ => 0,
   };

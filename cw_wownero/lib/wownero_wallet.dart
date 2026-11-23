@@ -141,9 +141,6 @@ abstract class WowneroWalletBase
   bool get hasCoinControl => true;
 
   @override
-  bool get hasAccountsSupport => true;
-
-  @override
   MoneroWalletKeys get keys => MoneroWalletKeys(
       primaryAddress: wownero_wallet.getAddress(accountIndex: 0, addressIndex: 0),
       privateSpendKey: wownero_wallet.getSecretSpendKey(),

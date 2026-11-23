@@ -3,6 +3,7 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/currency.dart';
 
 class ZanoBalance extends Balance {
+  @override
   final Money total;
   final Money unlocked;
 

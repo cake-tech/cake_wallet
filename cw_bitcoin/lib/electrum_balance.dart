@@ -36,6 +36,9 @@ class ElectrumBalance extends Balance {
   @override
   Money frozen;
 
+  @override
+  Money get total => confirmed + unconfirmed;
+
   ElectrumBalance copy() => ElectrumBalance(
         confirmed: confirmed,
         unconfirmed: unconfirmed,
