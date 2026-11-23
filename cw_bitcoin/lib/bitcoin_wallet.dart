@@ -84,7 +84,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet
     bool? alwaysScan,
     bool? useLightning,
     String? cachedLightningAddress,
-    List<int>? accountIndexes,
+    Map<int, String>? accountLabels,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -107,7 +107,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
-          accountIndexes: accountIndexes
+          accountLabels: accountLabels
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -315,8 +315,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet
       }
     }
 
-    final accountIndexes =
-    (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
+    final accountLabels = {
+      for (final account in await walletInfo.getAccounts()) account.accountIndex: account.label,
+    };
 
     return BitcoinWallet(
       mnemonic: mnemonic,
@@ -342,7 +343,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
       payjoinBox: payjoinBox,
-      accountIndexes: accountIndexes,
+      accountLabels: accountLabels,
     );
   }
 

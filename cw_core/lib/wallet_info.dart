@@ -638,7 +638,7 @@ class WalletInfo {
       await WalletInfoAccount.insertOrUpdate(
         walletInfoId: internalId,
         accountIndex: 0,
-        label: "Primary account",
+        label: "",
       );
 
       accounts = await WalletInfoAccount.selectList(internalId);

@@ -1,5 +1,6 @@
 import "package:bloc/bloc.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_label.dart";
 import "package:cw_core/account_wallet.dart";
 import "package:cw_core/balance_card_style_settings.dart";
 import "package:cw_core/card_design.dart";
@@ -172,7 +173,7 @@ class CardCustomizerBloc extends Bloc<CardCustomizerEvent, CardCustomizerState> 
     }
 
     final account = wallet.currentWalletAccount;
-    return (accountName: account.label, accountIndex: account.index);
+    return (accountName: account.displayLabel, accountIndex: account.index);
   }
 
   void _onDesignSelected(CardDesignSelected event, Emitter<CardCustomizerState> emit) {

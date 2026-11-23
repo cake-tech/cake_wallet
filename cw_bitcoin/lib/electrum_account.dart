@@ -68,7 +68,7 @@ class ElectrumAccounts {
 
     final account = ElectrumAccount(
       index: index,
-      label: label ?? (index == 0 ? "Primary account" : "Account $index"),
+      label: _labelOrNull(label),
       supportedTypes: index == 0 ? _primaryTypes : _extraTypes,
       initialBalance: ElectrumBalance.zero(currency),
     );
@@ -91,13 +91,10 @@ class ElectrumAccounts {
     }
   }
 
-  void setLabels(Map<int, String> byAccount) {
-    runInAction(() {
-      for (final entry in byAccount.entries) {
-        final account = _byIndex[entry.key];
-        if (account != null) account._label.value = entry.value;
-      }
-    });
+  void setLabel(int index, String? label) {
+    final account = _byIndex[index];
+    if (account == null) return;
+    runInAction(() => account._label.value = _labelOrNull(label));
   }
 
   Bip32Slip10Secp256k1? receiveHd(int index, BitcoinAddressType type) =>
@@ -137,6 +134,8 @@ class ElectrumAccounts {
   Map<String, String> balancesToJson() => {
         for (final account in all) "${account.index}": account._balance.value.toJSON(),
       };
+
+  String? _labelOrNull(String? label) => label == null || label.isEmpty ? null : label;
 
   AccountHdKeys _deriveHd(int index, List<BitcoinAddressType> types) {
     final hd = AccountHdKeys();
@@ -185,7 +184,7 @@ class ElectrumAccounts {
 class ElectrumAccount implements WalletAccount<ElectrumBalance> {
   ElectrumAccount({
     required this.index,
-    required String label,
+    String? label,
     required List<BitcoinAddressType> supportedTypes,
     required ElectrumBalance initialBalance,
   })  : supportedTypes = List.unmodifiable(supportedTypes),
@@ -197,11 +196,11 @@ class ElectrumAccount implements WalletAccount<ElectrumBalance> {
 
   final List<BitcoinAddressType> supportedTypes;
 
-  final Observable<String> _label;
+  final Observable<String?> _label;
   final Observable<ElectrumBalance> _balance;
 
   @override
-  String get label => _label.value;
+  String? get label => _label.value;
 
   @override
   ElectrumBalance get balance => _balance.value.copy();

@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_label.dart";
 import 'package:cake_wallet/view_model/wallet_account_list/wallet_account_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -190,35 +191,6 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void loadFilterItems() {
-    filterItems = [
-      // FilterItem(
-      //     value: () => transactionFilterStore.displayAll,
-      //     caption: S.current.all_transactions,
-      //     onChanged: transactionFilterStore.toggleAll),
-      FilterItem(
-          value: () => transactionFilterStore.displayOutgoing,
-          caption: S.current.send,
-          onChanged: transactionFilterStore.toggleOutgoing),
-      FilterItem(
-          value: () => transactionFilterStore.displayIncoming,
-          caption: S.current.receive,
-          onChanged: transactionFilterStore.toggleIncoming),
-      if (appStore.wallet!.type == WalletType.bitcoin)
-        FilterItem(
-          value: () => transactionFilterStore.displaySilentPayments,
-          caption: S.current.silent_payments,
-          onChanged: transactionFilterStore.toggleSilentPayments,
-        ),
-      SwapFilterItem(
-          enabledProviders: () => tradeFilterStore.enabledProvidersCount,
-          allEnabled: () => tradeFilterStore.displayAllTrades,
-          value: () => tradeFilterStore.enabledProvidersCount > 0,
-          onChanged: () => tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
-      FilterItem(
-          value: () => orderFilterStore.displayCakePay,
-          caption: 'Cake Pay',
-          onChanged: () => orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
-    ];
     exchangeFilterItems = [
       SwapProviderFilterItem(
           providerDescription: ExchangeProviderDescription.changeNow,
@@ -291,12 +263,41 @@ abstract class DashboardViewModelBase with Store {
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.jupiter)),
     ];
+    filterItems = [
+      // FilterItem(
+      //     value: () => transactionFilterStore.displayAll,
+      //     caption: S.current.all_transactions,
+      //     onChanged: transactionFilterStore.toggleAll),
+      FilterItem(
+          value: () => transactionFilterStore.displayOutgoing,
+          caption: S.current.send,
+          onChanged: transactionFilterStore.toggleOutgoing),
+      FilterItem(
+          value: () => transactionFilterStore.displayIncoming,
+          caption: S.current.receive,
+          onChanged: transactionFilterStore.toggleIncoming),
+      if (appStore.wallet!.type == WalletType.bitcoin)
+        FilterItem(
+          value: () => transactionFilterStore.displaySilentPayments,
+          caption: S.current.silent_payments,
+          onChanged: transactionFilterStore.toggleSilentPayments,
+        ),
+      SwapFilterItem(
+          enabledProviders: () => tradeFilterStore.enabledProvidersCount,
+          allEnabled: () => tradeFilterStore.displayAllTrades,
+          value: () => tradeFilterStore.enabledProvidersCount > 0,
+          onChanged: () => tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.all)),
+      FilterItem(
+          value: () => orderFilterStore.displayCakePay,
+          caption: 'Cake Pay',
+          onChanged: () => orderFilterStore.toggleDisplayOrder(OrderProviderDescription.cakePay)),
+    ];
   }
 
   bool _isTransactionDisposerCallbackRunning = false;
 
   String _accountLabel(WalletBase wallet) =>
-      wallet is AccountWallet ? wallet.currentWalletAccount.label : "";
+      wallet is AccountWallet ? wallet.currentWalletAccount.displayLabel : "";
 
   List<TransactionInfo> _currentAccountTransactions(WalletBase wallet) => wallet is AccountWallet
       ? wallet.currentAccountTransactions

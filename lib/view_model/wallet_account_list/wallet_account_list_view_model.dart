@@ -1,4 +1,5 @@
 import "package:cake_wallet/view_model/wallet_account_list/account_list_item.dart";
+import "package:cake_wallet/view_model/wallet_account_list/wallet_account_label.dart";
 import "package:collection/collection.dart";
 import "package:cw_core/account_wallet.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -20,7 +21,7 @@ abstract class WalletAccountListViewModelBase with Store {
         for (final account in _wallet.walletAccounts)
           AccountListItem(
             id: account.index,
-            label: account.label,
+            label: account.displayLabel,
             balance: account.balance.total,
             isSelected: account.index == _wallet.currentAccountIndex,
           ),

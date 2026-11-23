@@ -90,7 +90,7 @@ abstract class ElectrumWalletBase
     CryptoCurrency? currency,
     bool? alwaysScan,
     bool useLightning = true,
-    List<int>? accountIndexes,
+    Map<int, String>? accountLabels,
   })  : _masterHD = getMasterHD(seedBytes, network, walletInfo.hardwareWalletType),
         accountHD = getAccountHDWallet(
           currency,
@@ -137,9 +137,9 @@ abstract class ElectrumWalletBase
       coinType: currency != null && !isElectrumDerivation ? _coinTypeFor(currency) : null,
     );
 
-    final indexes = hasAccountsSupport ? {0, currentAccountIndex, ...?accountIndexes} : {0};
+    final indexes = hasAccountsSupport ? {0, currentAccountIndex, ...?accountLabels?.keys} : {0};
     for (final accountIndex in indexes) {
-      accounts.getOrCreate(accountIndex);
+      accounts.getOrCreate(accountIndex, label: accountLabels?[accountIndex]);
     }
   }
 
@@ -372,9 +372,6 @@ abstract class ElectrumWalletBase
       return;
     }
 
-    final persisted = await walletInfo.getAccounts();
-
-    accounts.setLabels({for (final account in persisted) account.accountIndex: account.label});
     accounts.setBalances(savedBalances ?? _balancesFromAddressRecords());
     _syncCurrentAccountBalance();
   }
@@ -503,8 +500,8 @@ abstract class ElectrumWalletBase
     final index = used.isEmpty ? 0 : used.reduce(max) + 1;
     final accountLabel = label.isEmpty ? "Account $index" : label;
 
-    await walletInfo.addAccount(accountIndex: index, label: accountLabel);
-    await _prepareAccount(index, label: accountLabel);
+    await walletInfo.addAccount(accountIndex: index, label: label);
+    await _prepareAccount(index, label: label);
     return index;
   }
 
@@ -512,7 +509,6 @@ abstract class ElectrumWalletBase
     if (!hasAccountsSupport) throw UnsupportedError("$type wallet can't derive accounts");
 
     await walletInfo.renameAccount(accountIndex: index, label: label);
-    accounts.setLabels({index: label});
   }
 
   @action
@@ -3366,7 +3362,7 @@ abstract class ElectrumWalletBase
         if (!persisted.any((a) => a.accountIndex == accountIndex)) {
           await walletInfo.addAccount(
             accountIndex: accountIndex,
-            label: accounts[accountIndex]!.label,
+            label: accounts[accountIndex]!.label ?? "",
           );
         }
       }
