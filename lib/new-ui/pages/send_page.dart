@@ -233,6 +233,8 @@ class _NewSendPageState extends State<NewSendPage> {
     );
     _addInputControllers();
 
+    _disposers.add(widget.sendViewModel.trackSendAllAmount());
+
     _disposers.add(
       reaction((_) => widget.sendViewModel.outputs[_selectedOutput].sendAll, (all) {
         if (all) {
@@ -571,7 +573,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                             onSwitchButtonPressed: _onFiatSwitchPressed,
                                             fiatAmount: output.fiatAmountMoney,
                                             cryptoAmount: output.cryptoAmountMoney,
-                                            allAmount: widget.sendViewModel.availableBalance,
+                                            allAmount: widget.sendViewModel.sendAllAmount,
                                             onAllButtonPressed: () async {
                                               output.setSendAll(
                                                 await widget.sendViewModel.sendingBalance,

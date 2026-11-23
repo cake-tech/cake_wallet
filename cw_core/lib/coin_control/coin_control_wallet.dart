@@ -1,8 +1,10 @@
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/coin_control/frozen_coins_store.dart";
 import "package:cw_core/transaction_history.dart";
 import "package:cw_core/transaction_info.dart";
+import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/unspent_transaction_output.dart";
 import "package:cw_core/wallet_base.dart";
@@ -40,6 +42,18 @@ mixin CoinControlWallet<BalanceType extends Balance, HistoryType extends Transac
         )
         .toList();
   }
+
+  Future<Money> estimateSendAllAmount({
+    required TransactionPriority priority,
+    CoinSelection selection = const AllCoinSelection(),
+    UnspentCoinType coinType = UnspentCoinType.any,
+    int? customFeeRate,
+  }) async =>
+      Money.fromInt(
+        (await spendableCoins(selection: selection, coinType: coinType))
+            .fold<int>(0, (sum, coin) => sum + coin.value),
+        currency,
+      );
 
   Future<int> frozenBalance() async {
     final frozen = await frozenIds();

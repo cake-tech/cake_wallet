@@ -493,26 +493,4 @@ class CWMonero extends Monero {
 
   @override
   Map<String, dynamic> getWalletCacheDebug() => monero_wallet_api.getWalletCacheDebug();
-
-  @override
-  Future<Money> getSendingBalance(WalletBase wallet,
-      {CoinSelection coinSelection = const AllCoinSelection()}) async {
-    final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.refreshUnspents();
-
-    Money total = Money.zero(CryptoCurrency.xmr);
-    Set<String> seen = {};
-    final spendable = await moneroWallet.spendableCoins(selection: coinSelection);
-    for (final item in spendable.cast<MoneroUnspent>()) {
-      if (seen.contains(item.toString())) {
-        continue;
-      }
-      seen.add(item.toString());
-      if (!item.isUnlocked) {
-        continue;
-      }
-      total += Money.fromInt(item.value, CryptoCurrency.xmr);
-    }
-    return total;
-  }
 }

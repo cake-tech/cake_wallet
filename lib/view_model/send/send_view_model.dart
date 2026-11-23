@@ -380,23 +380,48 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   @action
   void applyCoinSelection(CoinSelection selection) => coinSelection = selection;
 
-  @computed
-  Future<String> get sendingBalance async {
-    final CoinControlWallet? w =
-        wallet is CoinControlWallet ? wallet as CoinControlWallet : null;
-    if (w == null) return balance;
-    if (selectedCryptoCurrency == CryptoCurrency.btcln) return balance;
+  @observable
+  Money? sendAllAmount;
 
-    final spendable = await w.spendableCoins(selection: coinSelection, coinType: coinTypeToSpendFrom);
-    final total = spendable.fold<int>(0, (sum, coin) => sum + coin.value);
+  int _sendAllAmountRequest = 0;
 
-    if (wallet.type == WalletType.bitcoin) {
-      return _appStore.amountParsingProxy
-          .getDisplayCryptoString(total, walletTypeToCryptoCurrency(walletType));
+  ReactionDisposer trackSendAllAmount() => reaction(
+        (_) => (
+          wallet,
+          wallet.balance[selectedCryptoCurrency],
+          selectedCryptoCurrency,
+          coinTypeToSpendFrom,
+          coinSelection,
+          _settingsStore.getPriority(wallet.type, chainId: wallet.chainId),
+          feesViewModel.customBitcoinFeeRate,
+        ),
+        (_) => updateSendAllAmount(),
+        fireImmediately: true,
+        delay: 250,
+      );
+
+  @action
+  Future<Money> updateSendAllAmount() async {
+    final request = ++_sendAllAmountRequest;
+    final amount = await _estimateSendAllAmount();
+    if (request == _sendAllAmountRequest) {
+      sendAllAmount = amount;
     }
-
-    return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(total));
+    return amount;
   }
+
+  Future<Money> _estimateSendAllAmount() async =>
+      wallet is! CoinControlWallet || selectedCryptoCurrency == CryptoCurrency.btcln
+          ? availableBalance
+          : (wallet as CoinControlWallet).estimateSendAllAmount(
+              priority: feesViewModel.transactionPriority,
+              selection: coinSelection,
+              coinType: coinTypeToSpendFrom,
+              customFeeRate: feesViewModel.customBitcoinFeeRate,
+            );
+
+  Future<String> get sendingBalance async =>
+      _appStore.amountParsingProxy.asDisplayString(await updateSendAllAmount());
 
   @computed
   bool get isFiatDisabled => balanceViewModel.isFiatDisabled;

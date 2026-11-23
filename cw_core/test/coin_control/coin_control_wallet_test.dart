@@ -1,5 +1,8 @@
+import "package:cw_core/amount/money.dart";
 import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/coin_control/frozen_coins_store.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/monero_transaction_priority.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/unspent_transaction_output.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -150,6 +153,46 @@ void main() {
         coinType: UnspentCoinType.nonMweb,
       );
       expect(spendable, isEmpty);
+    });
+  });
+
+  group("estimateSendAllAmount", () {
+    const priority = MoneroTransactionPriority.slow;
+
+    test("sums every spendable output by default", () async {
+      expect(
+        await wallet.estimateSendAllAmount(priority: priority),
+        Money.fromInt(600, CryptoCurrency.btc),
+      );
+    });
+
+    test("counts only the selected outputs", () async {
+      expect(
+        await wallet.estimateSendAllAmount(
+          priority: priority,
+          selection: SpecificCoinSelection({a.id, c.id}),
+        ),
+        Money.fromInt(400, CryptoCurrency.btc),
+      );
+    });
+
+    test("leaves frozen outputs out", () async {
+      await wallet.setFrozen(b.id, true);
+
+      expect(
+        await wallet.estimateSendAllAmount(priority: priority),
+        Money.fromInt(400, CryptoCurrency.btc),
+      );
+    });
+
+    test("is zero for an empty selection", () async {
+      expect(
+        await wallet.estimateSendAllAmount(
+          priority: priority,
+          selection: SpecificCoinSelection(const <String>{}),
+        ),
+        Money.zero(CryptoCurrency.btc),
+      );
     });
   });
 

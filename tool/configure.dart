@@ -224,8 +224,6 @@ abstract class Bitcoin {
   List<ElectrumSubAddress> getSilentPaymentAddresses(Object wallet);
   List<ElectrumSubAddress> getSilentPaymentReceivedAddresses(Object wallet);
 
-  Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
-      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any, CoinSelection coinSelection = const AllCoinSelection()});
   List<ElectrumSubAddress> getSubAddresses(Object wallet);
 
   String formatterBitcoinAmountToString({required int amount});
@@ -500,7 +498,6 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   bool isBackgroundSyncRunning(Object wallet);
   Future<void> startBackgroundSync(Object wallet);
   Future<void> stopBackgroundSync(Object wallet, String password);
-  Future<Money> getSendingBalance(WalletBase wallet, {CoinSelection coinSelection = const AllCoinSelection()});
 }
 
 abstract class MoneroSubaddressList {

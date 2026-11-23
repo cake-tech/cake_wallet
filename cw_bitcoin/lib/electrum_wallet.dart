@@ -677,6 +677,33 @@ abstract class ElectrumWalletBase
   @override
   Future<void> refreshUnspents() => updateAllUnspents();
 
+  @override
+  Future<Money> estimateSendAllAmount({
+    required TransactionPriority priority,
+    CoinSelection selection = const AllCoinSelection(),
+    UnspentCoinType coinType = UnspentCoinType.any,
+    int? customFeeRate,
+  }) async {
+    try {
+      final estimatedTx = await estimateSendAllTx(
+        [
+          BitcoinOutput(
+            address: ECPrivate.random().getPublic().toP2pkhAddress(),
+            value: BigInt.zero,
+          ),
+        ],
+        priority == BitcoinTransactionPriority.custom && customFeeRate != null
+            ? customFeeRate
+            : feeRate(priority),
+        candidates: (await spendableCoins(selection: selection, coinType: coinType))
+            .cast<BitcoinUnspent>(),
+      );
+      return estimatedTx.amount;
+    } catch (_) {
+      return Money.zero(currency);
+    }
+  }
+
   List<int> _feeRates;
 
   // ignore: prefer_final_fields

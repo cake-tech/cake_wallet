@@ -21,6 +21,7 @@ import "package:cw_core/unspent_transaction_output.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import "package:cw_core/coin_control/coin_selection.dart";
+import "package:cw_core/unspent_coin_type.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/account_list.dart';
@@ -166,6 +167,23 @@ abstract class MoneroWalletBase
 
   @override
   Future<void> refreshUnspents() => updateUnspent();
+
+  @override
+  Future<Money> estimateSendAllAmount({
+    required TransactionPriority priority,
+    CoinSelection selection = const AllCoinSelection(),
+    UnspentCoinType coinType = UnspentCoinType.any,
+    int? customFeeRate,
+  }) async {
+    await updateUnspent();
+    return Money.fromInt(
+      (await spendableCoins(selection: selection, coinType: coinType))
+          .cast<MoneroUnspent>()
+          .where((coin) => coin.isUnlocked)
+          .fold<int>(0, (sum, coin) => sum + coin.value),
+      currency,
+    );
+  }
 
   @override
   final MoneroFrozenCoinsStore frozenCoinsStore = MoneroFrozenCoinsStore();

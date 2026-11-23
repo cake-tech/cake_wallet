@@ -1158,6 +1158,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           priority: btcCreds.priority,
           feeRate: btcCreds.feeRate,
           coinTypeToSpendFrom: UnspentCoinType.nonMweb,
+          coinSelection: btcCreds.coinSelection,
         );
       } else {
         creds = credentials;
