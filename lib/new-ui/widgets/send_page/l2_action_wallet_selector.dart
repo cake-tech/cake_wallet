@@ -86,6 +86,7 @@ class _L2ActionWalletSelectorState extends State<L2ActionWalletSelector> {
       mainAxisSize: MainAxisSize.min,
       children: [
         ModalTopBar(
+          testId: "l2_action_wallet_selector_top_bar",
           title: widget.action == L2Actions.deposit
               ? "${S.of(context).send_from}..."
               : "${S.of(context).receive_to}...",
@@ -355,7 +356,7 @@ class WalletRow extends StatelessWidget {
   final bool? isSelected;
 
   @override
-  Widget build(BuildContext context) => Container(
+  Widget build(BuildContext context) => MergeSemantics(child: Container(
       height: isCurrent ? 64 : 48,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainer,
@@ -417,5 +418,5 @@ class WalletRow extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
 }

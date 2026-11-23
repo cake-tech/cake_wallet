@@ -452,7 +452,10 @@ abstract class ZcashWalletBase
 
   @override
   Future<PendingTransaction> createTransaction(final Object credentials) =>
-      _createTransaction(credentials);
+      withCompactRustErrors(
+        () => _createTransaction(credentials),
+        TransactionGenerationException.new,
+      );
 
   Future<PendingTransaction> _createTransaction(
     final Object credentials, {
@@ -1304,7 +1307,10 @@ abstract class ZcashWalletBase
 
   bool hasOrchardMigratableBalance() => _orchardMigratable;
 
-  Future<PendingTransaction?> createShieldingTransaction() async {
+  Future<PendingTransaction?> createShieldingTransaction() =>
+      withCompactRustErrors(_createShieldingTransaction, TransactionGenerationException.new);
+
+  Future<PendingTransaction?> _createShieldingTransaction() async {
     final txPlan = await runWithCoin(
       accountId: accountId,
       func: (coin) async {

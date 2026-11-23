@@ -18,6 +18,9 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/coin_control_page.dart";
+import "package:cake_wallet/new-ui/pages/explainers/explainer_page.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_deposit_explainer.dart";
+import "package:cake_wallet/new-ui/pages/explainers/lightning_withdraw_explainer.dart";
 import "package:cake_wallet/new-ui/widgets/animated_dropdown.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/anypay_flow.dart";
 import "package:cake_wallet/new-ui/widgets/anypay/recipient_network_row.dart";
@@ -25,6 +28,7 @@ import "package:cake_wallet/new-ui/widgets/anypay/select_recipient_network_sheet
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
+import "package:cake_wallet/new-ui/widgets/hardware_wallet/connect_hardware_wallet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_future_primary_button.dart";
@@ -42,15 +46,14 @@ import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/routes.dart" show Routes;
-import "package:cake_wallet/src/screens/connect_device/connect_device_page.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/src/widgets/new_list_row/list_item_regular_row_widget.dart";
 import "package:cake_wallet/src/widgets/standard_checkbox.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
 import "package:cake_wallet/view_model/contact_list/contact_list_view_model.dart";
-import "package:cake_wallet/view_model/hardware_wallet/trezor_connect_view_model.dart";
 import "package:cake_wallet/view_model/link_view_model.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
@@ -93,6 +96,7 @@ class SendPageModes {
     this.description,
     this.confirmSheetIconPath,
     this.helpContent,
+    this.explainer,
     this.popOnConfirmation = true,
   });
 
@@ -101,6 +105,7 @@ class SendPageModes {
   final String? description;
   final String? confirmSheetIconPath;
   final SendPageHelpContent? helpContent;
+  final ExplainerPage? explainer;
   final bool popOnConfirmation;
 
   static final SendPageModes normal = SendPageModes(title: S.current.send, showAddressField: true);
@@ -109,12 +114,8 @@ class SendPageModes {
     title: S.current.bitcoin_lightning_deposit,
     description: S.current.to_lightning,
     showAddressField: false,
-    helpContent: SendPageHelpContent(
-      title: S.current.bitcoin_lightning_deposit,
-      imagePath: "assets/new-ui/lightning_deposit_help.svg",
-      description: S.current.lightning_deposit_desc,
-      disclaimer: S.current.lightning_deposit_disclaimer,
-    ),
+    confirmSheetIconPath: "assets/new-ui/lightning_deposit_help.svg",
+    explainer: const LightningDepositExplainer(),
     popOnConfirmation: false,
   );
 
@@ -122,12 +123,8 @@ class SendPageModes {
     title: S.current.bitcoin_lightning_withdraw,
     description: S.current.to_on_chain,
     showAddressField: false,
-    helpContent: SendPageHelpContent(
-      title: S.current.bitcoin_lightning_withdraw,
-      imagePath: "assets/new-ui/lightning_withdraw_help.svg",
-      description: S.current.lightning_withdraw_desc,
-      disclaimer: S.current.lightning_withdraw_disclaimer,
-    ),
+    confirmSheetIconPath: "assets/new-ui/lightning_withdraw_help.svg",
+    explainer: const LightningWithdrawExplainer(),
     popOnConfirmation: false,
   );
 
@@ -184,6 +181,7 @@ class NewSendPage extends StatefulWidget {
     required this.walletSwitcherViewModel,
     required this.contactListViewModel,
     required this.authService,
+    required this.settingsStore,
     required SendPageParams params,
     super.key,
   })  : initialPaymentRequest = params.initialPaymentRequest,
@@ -200,6 +198,7 @@ class NewSendPage extends StatefulWidget {
   final WalletSwitcherViewModel walletSwitcherViewModel;
   final ContactListViewModel contactListViewModel;
   final AuthService authService;
+  final SettingsStore settingsStore;
   final PaymentRequest? initialPaymentRequest;
   final String? initialRawInput;
   final SendPageModes mode;
@@ -269,6 +268,12 @@ class _NewSendPageState extends State<NewSendPage> {
           paymentRequest: widget.initialPaymentRequest,
         );
       });
+    }
+
+    if (widget.mode.explainer != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => widget.mode.explainer!.showIfNeeded(context, widget.settingsStore),
+      );
     }
 
     if (widget.mode == SendPageModes.normal) {
@@ -367,6 +372,7 @@ class _NewSendPageState extends State<NewSendPage> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       ModalTopBar(
+                        testId: "send_page_top_bar",
                         title: widget.mode.title,
                         subtitle: widget.mode.description,
                         leadingIcon: const Icon(Icons.close),
@@ -413,7 +419,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                     _setOutput(widget.sendViewModel.outputs.length - 1);
                                   },
                                 ),
-                              if (widget.mode.helpContent != null)
+                              if (widget.mode.explainer != null || widget.mode.helpContent != null)
                                 ModernButton(
                                   size: 36,
                                   icon: CakeImageWidget(
@@ -424,15 +430,15 @@ class _NewSendPageState extends State<NewSendPage> {
                                     ),
                                   ),
                                   semanticLabel: S.of(context).help,
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      CupertinoPageRoute(
-                                        builder: (context) => Material(
-                                          child: SendHelpPage(content: widget.mode.helpContent!),
+                                  onPressed: () => widget.mode.explainer != null
+                                      ? widget.mode.explainer!.show(context)
+                                      : Navigator.of(context).push(
+                                          CupertinoPageRoute(
+                                            builder: (context) => Material(
+                                              child: SendHelpPage(content: widget.mode.helpContent!),
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  },
                                 ),
                             ],
                           ),
@@ -563,15 +569,9 @@ class _NewSendPageState extends State<NewSendPage> {
                                           FiatAmountBar(
                                             fiatInputMode: output.isFiatEntry,
                                             onSwitchButtonPressed: _onFiatSwitchPressed,
-                                            fiatAmount:
-                                                _wrapAmount(output.roundedFiatAmount(6), 20),
-                                            cryptoAmount:
-                                                _wrapAmount(output.roundedCryptoAmount(6), 20),
-                                            allAmount: widget.sendViewModel.balance,
-                                            cryptoCurrencySymbol:
-                                                widget.sendViewModel.selectedCryptoCurrencySymbol,
-                                            fiatCurrencySymbol:
-                                                widget.sendViewModel.fiatCurrency.symbol,
+                                            fiatAmount: output.fiatAmountMoney,
+                                            cryptoAmount: output.cryptoAmountMoney,
+                                            allAmount: widget.sendViewModel.availableBalance,
                                             onAllButtonPressed: () async {
                                               output.setSendAll(
                                                 await widget.sendViewModel.sendingBalance,
@@ -610,6 +610,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               if (widget.sendViewModel.hasFees)
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
+                                                  testId: "send_page_fee_row_key",
                                                   label: S.of(context).fees,
                                                   subtitle:
                                                       "~${output.estimatedFee} ${widget.sendViewModel.currencySymbol} (${output.estimatedFeeFiatAmount} ${widget.sendViewModel.fiatCurrency})",
@@ -627,6 +628,7 @@ class _NewSendPageState extends State<NewSendPage> {
                                               if (widget.sendViewModel.hasCoinControl)
                                                 ListItemRegularRowWidget(
                                                   keyValue: "",
+                                                  testId: "send_page_coin_control_row_key",
                                                   label: S.of(context).coin_control,
                                                   onTap: () async {
                                                     final selection =
@@ -879,48 +881,13 @@ class _NewSendPageState extends State<NewSendPage> {
       return;
     }
 
-    if (widget.sendViewModel.wallet.isHardwareWallet) {
-      final trezorVM = widget.sendViewModel.hardwareWalletViewModel;
-      if (trezorVM is TrezorConnectViewModel &&
-          widget.sendViewModel.walletType == WalletType.bitcoin &&
-          trezorVM.isConnected(WalletType.bitcoin) &&
-          !trezorVM.isSessionFor(widget.sendViewModel.wallet)) {
-        // The live session belongs to another wallet (passphrase); open one for this wallet
-        await trezorVM.dropSession();
-      }
-
-      if (!widget.sendViewModel.hardwareWalletViewModel!
-          .isConnected(widget.sendViewModel.walletType)) {
-        final hardwareWalletVM = widget.sendViewModel.hardwareWalletViewModel;
-        if (hardwareWalletVM is TrezorConnectViewModel &&
-            widget.sendViewModel.walletType == WalletType.bitcoin) {
-          hardwareWalletVM.prepareReconnect(widget.sendViewModel.wallet);
-        }
-
-        await Navigator.of(context).pushNamed(
-          Routes.connectDevices,
-          arguments: ConnectDevicePageParams(
-            walletType: widget.sendViewModel.walletType,
-            hardwareWalletType: widget.sendViewModel.wallet.walletInfo.hardwareWalletType!,
-            onConnectDevice: (_, __) {
-              widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
-              Navigator.of(context).pop();
-            },
-            isReconnect: false,
-          ),
-        );
-        if (hardwareWalletVM is TrezorConnectViewModel) {
-          hardwareWalletVM.cancelReconnect();
-        }
-
-        // Recheck to handle tap-backs
-        if (!widget.sendViewModel.hardwareWalletViewModel!
-            .isConnected(widget.sendViewModel.walletType)) {
-          return;
-        }
-      } else {
-        await widget.sendViewModel.hardwareWalletViewModel!.initWallet(widget.sendViewModel.wallet);
-      }
+    if (widget.sendViewModel.wallet.isHardwareWallet &&
+        !await connectHardwareWallet(
+          context,
+          widget.sendViewModel.wallet,
+          widget.sendViewModel.hardwareWalletViewModel!,
+        )) {
+      return;
     }
 
     if (widget.sendViewModel.wallet.type == WalletType.monero) {
@@ -957,7 +924,7 @@ class _NewSendPageState extends State<NewSendPage> {
             backgroundColor: Colors.transparent,
             builder: (context) => SendConfirmSheet(
               title: widget.mode.title,
-              iconPath: widget.mode.helpContent?.imagePath,
+              iconPath: widget.mode.helpContent?.imagePath ?? widget.mode.confirmSheetIconPath,
               sendViewModel: widget.sendViewModel,
             ),
           ).then((value) {
@@ -1371,9 +1338,6 @@ class _NewSendPageState extends State<NewSendPage> {
     );
   }
 
-  String _wrapAmount(String amount, int maxChars) =>
-      amount.length <= maxChars ? amount : "${amount.substring(0, maxChars - 3)}...";
-
   // TODO: make a separate variable for memo in payment request model
   void _applyNote(String note, int selectedOutput) {
     if (widget.sendViewModel.hasMemos && note.length <= widget.sendViewModel.maxMemoLength) {
@@ -1396,6 +1360,7 @@ class SendHelpPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             ModalTopBar(
+              testId: "send_help_page_top_bar",
               title: content.title,
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

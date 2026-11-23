@@ -1,3 +1,4 @@
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class ListItemStyleWrapper extends StatelessWidget {
@@ -11,6 +12,8 @@ class ListItemStyleWrapper extends StatelessWidget {
     this.iconPath,
     this.contentPadding,
     this.height,
+    this.testId,
+    this.mergeTestId = true,
   });
 
   final String? iconPath;
@@ -21,6 +24,8 @@ class ListItemStyleWrapper extends StatelessWidget {
   final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
   final EdgeInsets? contentPadding;
+  final String? testId;
+  final bool mergeTestId;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,7 @@ class ListItemStyleWrapper extends StatelessWidget {
       borderRadius: radius,
       child: Column(
         children: [
-          Container(
+          (mergeTestId ? TestId.merge : TestId.container)(testId, child: Container(
               height: height,
               decoration: ShapeDecoration(
                 shape: RoundedSuperellipseBorder(
@@ -65,6 +70,7 @@ class ListItemStyleWrapper extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12, vertical: height == null ? 11 : 0),
                           child: builder(context, textStyle, labelStyle))))),
+          ),
           if (iconPath != null && isLastInSection == false)
             Container(
               color: theme.colorScheme.surfaceContainer,

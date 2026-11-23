@@ -1,7 +1,8 @@
-import "package:cake_wallet/di.dart";
+import "package:cake_wallet/core/fiat_conversion_service.dart";
 import "package:cake_wallet/entities/fiat_api_mode.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/store/settings_store.dart";
+import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import 'package:cw_core/crypto_currency.dart';
 import "package:cw_core/currency.dart";
@@ -12,33 +13,59 @@ part 'fiat_conversion_store.g.dart';
 class FiatConversionStore = FiatConversionStoreBase with _$FiatConversionStore;
 
 abstract class FiatConversionStoreBase with Store {
-  FiatConversionStoreBase() : prices = ObservableMap<CryptoCurrency, double>();
+  FiatConversionStoreBase(this._settingsStore) : prices = ObservableMap<CryptoCurrency, double>();
+
+  final SettingsStore _settingsStore;
 
   @observable
   ObservableMap<CryptoCurrency, double> prices;
 
-  Money? convertSync(Money amount, Currency target) {
-    final fiatApiMode = getIt.get<SettingsStore>().fiatApiMode;
-    if(fiatApiMode == FiatApiMode.disabled) {
+  Future<Money> convert(Money amount, Currency target) async {
+    final (crypto, fiat) = switch ((amount.currency, target)) {
+      (final CryptoCurrency crypto, final FiatCurrency fiat) => (crypto, fiat),
+      (final FiatCurrency fiat, final CryptoCurrency crypto) => (crypto, fiat),
+      _ => throw ArgumentError("for now, only fiat <-> crypto conversions are supported"),
+    };
+
+    final price = await _price(crypto, fiat);
+    if (price == null) {
+      return Money.zero(target);
+    }
+
+    final rate = ExchangeRate(
+      base: crypto,
+      quote: Money.parse(_plainDecimal(price), fiat, strictParsing: false),
+    );
+    return rate.convert(amount).copyWith(currency: target);
+  }
+
+  Future<double?> _price(CryptoCurrency crypto, FiatCurrency fiat) async {
+    final mode = _settingsStore.fiatApiMode;
+    if (mode == FiatApiMode.disabled) {
       return null;
     }
 
-    if (amount.currency is FiatCurrency && target is CryptoCurrency) {
-      if (prices[target] == null) {
-        return null;
-      }
-      final price = prices[target];
-      final convertedValue = double.parse(amount.toString()) / price!;
-      return Money.safeParse(convertedValue, target);
-    } else if (amount.currency is CryptoCurrency && target is FiatCurrency) {
-      if (prices[amount.currency] == null) {
-        return null;
-      }
-      final price = prices[amount.currency];
-
-      final convertedValue = double.parse(amount.toString()) * price!;
-      return Money.safeParse(convertedValue, target);
+    final cached = prices[crypto];
+    if (cached != null && cached > 0) {
+      return cached;
     }
-    throw ArgumentError("for now, only fiat <-> crypto conversions are supported");
+
+    final price = await FiatConversionService.fetchPrice(
+      crypto: crypto,
+      fiat: fiat,
+      torOnly: mode == FiatApiMode.torOnly,
+    );
+
+    if (price <= 0) {
+      return null;
+    }
+
+    prices[crypto] = price;
+    return price;
+  }
+
+  static String _plainDecimal(double value) {
+    final source = value.toString();
+    return source.contains("e") ? value.toStringAsFixed(20) : source;
   }
 }
