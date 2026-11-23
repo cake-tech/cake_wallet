@@ -114,6 +114,10 @@ abstract class DEuroViewModelBase with Store {
   @computed
   String get fiatAccruedInterestFormated => _getDEuroFiatAmount(accruedInterest);
 
+  @computed
+  String get accruedInterestFiatAmountFormatted =>
+      isFiatDisabled ? "" : fiat.format(fiatAccruedInterestFormated);
+
   @observable
   BigInt approvedTokens = BigInt.zero;
 
