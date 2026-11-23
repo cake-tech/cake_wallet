@@ -1,22 +1,46 @@
-import 'package:cw_core/crypto_currency.dart';
+import "package:cake_wallet/exchange/rate_request.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/crypto_currency.dart";
 
 class TradeRequest {
-  TradeRequest(
-      {required this.fromCurrency,
-      required this.toCurrency,
-      required this.toAddress,
-      required this.refundAddress,
-      required this.fromAmount,
-      this.toAmount = '',
-      this.toAddressExtraId = '',
-      this.isFixedRate = false});
+  TradeRequest({
+    required this.refundAddress,
+    required this.payoutAddress,
+    required this.depositAmount,
+    required this.payoutAmount,
+    required this.isFixedRate,
+    this.refundInvoice,
+    this.payoutInvoice,
+    String? toAddressExtraId,
+    // providers really don't like when you send an empty extraId, so we make it null
+  }) : toAddressExtraId = toAddressExtraId?.isEmpty ?? false ? null : toAddressExtraId;
 
-  final CryptoCurrency fromCurrency;
-  final CryptoCurrency toCurrency;
-  final String toAddress;
   final String refundAddress;
-  final String fromAmount;
-  final String toAmount;
-  final String toAddressExtraId;
+  final String payoutAddress;
+  // set when the address is a lightning address, for providers that can't take those
+  final String? refundInvoice;
+  final String? payoutInvoice;
+  final Money depositAmount;
+  final Money payoutAmount;
+  final String? toAddressExtraId;
   final bool isFixedRate;
+
+  CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
+
+  CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
+
+  RateRequest get rateRequest => isFixedRate
+      ? FixedRateRequest(depositCurrency: depositCurrency, payoutAmount: payoutAmount)
+      : FloatingRateRequest(depositAmount: depositAmount, payoutCurrency: payoutCurrency);
+
+  Map<String, dynamic> toJson() => {
+      "refundAddress": refundAddress,
+      "payoutAddress": payoutAddress,
+      "refundInvoice": refundInvoice,
+      "payoutInvoice": payoutInvoice,
+      "depositAmount": depositAmount.serialized,
+      "payoutAmount": payoutAmount.serialized,
+      "toAddressExtraId": toAddressExtraId,
+      "isFixedRate": isFixedRate,
+    };
 }

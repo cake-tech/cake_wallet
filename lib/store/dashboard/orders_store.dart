@@ -38,10 +38,10 @@ abstract class OrdersStoreBase with Store {
 
   @action
   Future updateOrderList() async => orders = ordersSource.values
-      .map((order) => OrderListItem(
-            order: order,
+      .indexed.map((entry) => OrderListItem(
+            order: entry.$2,
             settingsStore: settingsStore,
-            key: ValueKey('order_list_item_${order.id}_key'),
+            key: ValueKey('order_list_item_${entry.$1}_key'),
           ))
       .toList();
 }
