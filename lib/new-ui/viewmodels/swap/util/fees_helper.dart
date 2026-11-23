@@ -53,6 +53,7 @@ class FeesHelper {
       case WalletType.solana:
       case WalletType.tron:
       case WalletType.arbitrum:
+      case WalletType.robinhood:
       case WalletType.zcash:
         return false;
     }

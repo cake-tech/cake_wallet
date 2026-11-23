@@ -7,6 +7,7 @@ import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/cake_hive.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/hive_type_ids.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:hive/hive.dart";
@@ -127,9 +128,11 @@ class TradeLegacy extends HiveObject {
       payoutAddress: payoutAddress ?? "",
       password: password,
       providerId: providerId,
+      providerName: providerName,
       memo: memo,
       txId: txId,
       isRefund: isRefund,
+      accountIndex: fromRaw == CryptoCurrency.xmr.raw ? -1 : 0,
       depositAmount: Money.parse(
         amount,
         TradeCurrencySnapshot.fromLegacyHive(raw: fromRaw, displayTitleTag: userCurrencyFromRaw)!,
@@ -142,6 +145,14 @@ class TradeLegacy extends HiveObject {
       provider: ExchangeProviderDescription.deserialize(raw: providerRaw),
     );
     await trade.save();
+    if (fromRaw == CryptoCurrency.xmr.raw) {
+      await db!.update(
+        Trade.tableName,
+        {"fromWalletAddress": fromWalletAddress},
+        where: "${Trade.selfIdColumn} = ?",
+        whereArgs: [id],
+      );
+    }
   }
 
   static Future<void> migrateAllToSqlite(Box<TradeLegacy> box) async {

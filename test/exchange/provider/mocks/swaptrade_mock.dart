@@ -12,7 +12,7 @@ class SwapTradeMockProxyWrapper extends MockProxyWrapper {
   @override
   MockResponse? route(MockRequest request) => switch ((request.method, request.path)) {
     ("GET", "/api/swap/get-coins") => const MockResponse(swapTradeCoins),
-    ("POST", "/api/swap/get-rate") => const MockResponse(swapTradeRate),
+    ("POST", "/api/swap/get-price") => const MockResponse(swapTradePrice),
     ("POST", "/api/swap/create-order") => const MockResponse(swapTradeCreateOrder),
     ("POST", "/api/swap/order") => (request.body ?? "").contains(swapTradeTradeId)
         ? const MockResponse(swapTradeOrder)
@@ -34,19 +34,21 @@ ProviderScenario swapTradeScenario() => ProviderScenario(
   isFixedRate: false,
   expectedLimitsMin: Money.parse("0.001", CryptoCurrency.btc),
   expectedLimitsMax: Money.parse("20", CryptoCurrency.btc),
-  // SwapTrade quotes a unit price directly rather than an output for an input
   expectedRateQuote: Money.parse("250", CryptoCurrency.xmr),
   expectedRateLimitsMin: Money.parse("0.001", CryptoCurrency.btc),
   expectedRateLimitsMax: Money.parse("20", CryptoCurrency.btc),
+  // create-order answers 495, the trade is refreshed from /order, which answers 500
   expectedCreatedTrade: ExpectedTrade(
     id: swapTradeTradeId,
-    state: TradeState.created,
+    state: TradeState.exchanging,
     depositAmount: Money.parse("2", CryptoCurrency.btc),
     payoutAmount: Money.parse("500", CryptoCurrency.xmr),
     fundingAddress: swapTradeServerAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    createdAtIsNow: true,
+    memo: "st-memo",
+    isRefund: false,
+    createdAt: DateTime.parse(swapTradeCreatedAt),
   ),
   tradeId: swapTradeTradeId,
   expectedFoundTrade: ExpectedTrade(
@@ -57,8 +59,9 @@ ProviderScenario swapTradeScenario() => ProviderScenario(
     payoutAmount: Money.parse("500", CryptoCurrency.xmr),
     fundingAddress: swapTradeServerAddress,
     payoutAddress: "payout-address",
-    refundAddress: "",
+    refundAddress: "refund-address",
     memo: "st-memo",
+    isRefund: false,
     createdAt: DateTime.parse(swapTradeCreatedAt),
   ),
   unknownTradeIdThrows: isA<Exception>(),

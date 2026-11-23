@@ -5,6 +5,7 @@ import "package:sqflite/sqflite.dart";
 
 Future<void> migrateTradeTableToNewSchema(Database db) async {
   await db.execute("ALTER TABLE Trade RENAME TO Trade_old;");
+  await db.execute("DROP INDEX IF EXISTS idx_trade_id_unique;");
   await createTradeTable(db);
   final List<Map<String, Object?>> oldTrades = await db.query("Trade_old");
 
@@ -12,16 +13,15 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
     try {
       final depositMoney = Money.safeParse(
         row["amount"] as String? ?? "0",
-        _reconstructCurrency(row, "from"),
+        _reconstructCurrency(row, .from),
       );
       final payoutMoney = Money.safeParse(
         row["receiveAmount"] as String? ?? "0",
-        _reconstructCurrency(row, "to"),
+        _reconstructCurrency(row, .to),
       );
 
       final newRow = {
-        "tradeId": row["tradeId"],
-        "id": row["id"],
+        "tradeId": row["id"],
         "provider": row["providerRaw"] ?? 0,
         "state": row["stateRaw"] ?? "",
         "depositAmount": depositMoney.serialized,
@@ -29,7 +29,9 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
         "fundingAddress": row["inputAddress"],
         "refundAddress": row["refundAddress"],
         "payoutAddress": row["payoutAddress"],
-        "accountIndex": 0,
+        "accountIndex": row["fromTitle"] == CryptoCurrency.xmr.title ? -1 : 0,
+        "fromWalletAddress":
+            row["fromTitle"] == CryptoCurrency.xmr.title ? row["fromWalletAddress"] : null,
         "createdAt": row["createdAt"],
         "expiredAt": row["expiredAt"],
         "extraId": row["extraId"],
@@ -38,6 +40,7 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
         "toAddressExtraId": row["toAddressExtraId"],
         "password": row["password"],
         "providerId": row["providerId"],
+        "providerName": row["providerName"],
         "memo": row["memo"],
         "txId": row["txId"],
         "isRefund": row["isRefund"],
@@ -49,8 +52,15 @@ Future<void> migrateTradeTableToNewSchema(Database db) async {
   }
 }
 
-CryptoCurrency _reconstructCurrency(Map<String, dynamic> row, String prefix) {
-  final title = row["${prefix}Title"] as String;
+enum _direction {to, from}
+
+CryptoCurrency _reconstructCurrency(Map<String, dynamic> row, _direction dir) {
+  final prefix = switch(dir) {
+        .to => "to",
+        .from => "from"
+  };
+
+  final title = row["${prefix}Title"] as String?;
 
   final tag = row["${prefix}Tag"] as String?;
 
@@ -58,7 +68,7 @@ CryptoCurrency _reconstructCurrency(Map<String, dynamic> row, String prefix) {
   if (live != null) return live;
 
   return CryptoCurrency(
-    title: title,
+    title: title ?? "",
     name: row["${prefix}Name"] as String? ?? "",
     tag: tag,
     fullName: row["${prefix}FullName"] as String?,

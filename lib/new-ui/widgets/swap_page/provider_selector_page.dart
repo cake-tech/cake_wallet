@@ -36,6 +36,7 @@ class ProviderSelectorPage extends StatelessWidget {
               return Column(
                 children: [
                   ModalTopBar(
+                    testId: "provider_selector_page_top_bar",
                     title: S.of(context).change_provider,
                     leadingIcon: const Icon(Icons.arrow_back_ios_new),
                     leadingSemanticLabel: S.of(context).seed_alert_back,onLeadingPressed: Navigator.of(context).maybePop,
@@ -91,19 +92,20 @@ class ProviderSelectorPage extends StatelessWidget {
                                       ),
                                     )
                                     .toList(),
-                                S.of(context).centralized: centralizedProviders
-                                    .map(
-                                      (item) => ListItemRegularRow(
-                                        iconPath: item.image,
-                                        keyValue: item.title,
-                                        label: item.title,
-                                        onTap: () {
-                                          bloc.add(ForcedProviderSelected(item));
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    )
-                                    .toList(),
+                                if (!s.forceDecentralizedProviders)
+                                  S.of(context).centralized: centralizedProviders
+                                      .map(
+                                        (item) => ListItemRegularRow(
+                                          iconPath: item.image,
+                                          keyValue: item.title,
+                                          label: item.title,
+                                          onTap: () {
+                                            bloc.add(ForcedProviderSelected(item));
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      )
+                                      .toList(),
                               },
                             ),
                           ),

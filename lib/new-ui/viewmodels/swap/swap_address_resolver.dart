@@ -2,7 +2,6 @@
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/lightning_invoice_service.dart";
 import "package:cake_wallet/core/utilities.dart";
-import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/store/app_store.dart";
@@ -10,57 +9,53 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_info.dart";
 
 class SwapAddressResolver {
-  const SwapAddressResolver(
-      {required WalletSwitchService walletSwitchService, required AppStore appStore})
-      : _walletSwitchService = walletSwitchService,
-        _appStore = appStore;
+  const SwapAddressResolver({required AppStore appStore}) : _appStore = appStore;
 
-
-  final WalletSwitchService _walletSwitchService;
   final AppStore _appStore;
 
 
 
 
-  Future<String> resolveRefundAddress(SwapSource source, CryptoCurrency curr)async {
-    if (source case final ExternalSwapSource source) {
-      return source.refundAddress;
-    } else if (source case final InternalSwapSource source) {
-      String refundAddress;
+  Future<String> resolveRefundAddress(SwapSource source, CryptoCurrency curr) async =>
+      source.refundAddress ?? await _ownAddress(curr);
 
-      if (source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
-        await _walletSwitchService.switchToWallet(source.sourceWallet);
-      }
-      refundAddress = curr == CryptoCurrency.btcln
-          ? (await bitcoin!.getLightningInvoice(_appStore.wallet!, BigInt.zero))!
-        : _appStore.wallet!.walletAddresses.addressForExchange;
-      return refundAddress;
-    }
-    throw Exception("unreachable");
-  }
+  Future<String> resolvePayoutAddress(SwapAddress address, CryptoCurrency curr) async =>
+      switch (address) {
+        InternalWalletSwapAddress(:final walletInfo) =>
+          await _addressFromWalletInfo(walletInfo, curr),
+        _ => address.address,
+      };
 
-  Future<String> resolvePayoutAddress(SwapAddress address, CryptoCurrency curr) async {
-    String payoutAddress = address.address;
-    if (address case final InternalWalletSwapAddress address) {
-      payoutAddress = await _addressFromWalletInfo(address.walletInfo, curr);
-    }
+  Future<String?> lightningInvoiceFor(String address) async => switch (address) {
+    _ when !address.contains("@") => null,
+    _ when address == _ownLightningAddress => await _newLightningInvoice(),
+    _ => await getBolt11FromLightingAddress(address),
+  };
 
-    if (payoutAddress.contains("@")) {
-      payoutAddress = await getBolt11FromLightingAddress(payoutAddress) ?? payoutAddress;
-    }
+  // a lightning address registered this session isn't in addressesMap until the next refresh
+  Future<String> _ownAddress(CryptoCurrency curr) async => curr == CryptoCurrency.btcln
+      ? _ownLightningAddress ?? await _newLightningInvoice()
+      : _appStore.wallet!.walletAddresses.addressForExchange;
 
-    return payoutAddress;
-  }
+  String? get _ownLightningAddress =>
+      _lightningAddressIn(_appStore.wallet!.walletAddresses.addressesMap);
 
+  Future<String> _newLightningInvoice() async =>
+      (await bitcoin!.getLightningInvoice(_appStore.wallet!, BigInt.zero))!;
+
+  String? _lightningAddressIn(Map<String, String> addresses) =>
+      addresses.entries.firstWhereOrNull((e) => e.value.contains("LN") && e.key.contains("@"))?.key;
 
   // HACK: not much more we can do here with the way we fetch the wallet list
   Future<String> _addressFromWalletInfo(WalletInfo wi, CryptoCurrency curr) async {
+    if (wi.internalId == _appStore.wallet!.walletInfo.internalId) {
+      return _ownAddress(curr);
+    }
+
     if (wi.type == .bitcoin) {
       final _walletAddresses = await wi.getAddresses();
       if (curr == CryptoCurrency.btcln) {
-        final lightningAddressOfWallet = _walletAddresses.entries
-            .firstWhereOrNull((e) => e.value.contains("LN"))
-            ?.key;
+        final lightningAddressOfWallet = _lightningAddressIn(_walletAddresses);
         if (lightningAddressOfWallet != null) {
           return lightningAddressOfWallet;
         }
@@ -73,6 +68,14 @@ class SwapAddressResolver {
           return segwitAddressOfWallet;
         }
       }
+    }
+
+    if (wi.type == .zcash && curr == CryptoCurrency.zec) {
+
+      return (await wi.getAddresses()).entries
+              .firstWhereOrNull((e) => e.value == "transparent")
+              ?.key ??
+          wi.address;
     }
 
     return wi.address;

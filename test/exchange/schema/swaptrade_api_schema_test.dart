@@ -62,40 +62,43 @@ void main() {
       }
     });
 
-    test("a coin on one network parses as an empty network list", () {
+    test("every coin lists the chains it moves on", () {
       final response = SwapTradeCoinsResponse.fromJson(fixtureMap("swaptrade", "get_coins"));
-      final singles = response.data!.where((c) => c.network.isEmpty);
+      final networks = {for (final coin in response.data!) coin.id: coin.network};
 
-      expect(singles, isNotEmpty, reason: "the api sends \"\" for those");
-      for (final coin in singles) {
-        expect(coin.network, isEmpty);
+      for (final entry in networks.entries) {
+        expect(entry.value, isNotEmpty, reason: entry.key);
       }
+      expect(networks["BTC"], contains("BTC"));
+      expect(networks["XMR"], ["XMR"]);
+      expect(networks["ETH"], containsAll(["ETH", "BASE", "ARB", "BSC"]));
+      expect(networks["USDT"], containsAll(["ETH", "TRX", "BSC"]));
     });
   });
 
   group("SwapTradeRateResponse", () {
-    test("parses get_rate", () {
-      final raw = fixtureMap("swaptrade", "get_rate");
+    test("parses get_price", () {
+      final raw = fixtureMap("swaptrade", "get_price");
       final response = SwapTradeRateResponse.fromJson(raw);
-      final rawRate = raw["data"] as Map<String, dynamic>;
+      final rawPrice = raw["data"] as Map<String, dynamic>;
 
       expect(response.success, isTrue);
       expect(response.status, raw["status"]);
       expect(response.msg, raw["msg"]);
       expect(response.errors, isNull);
-      expect(response.data, isNotNull);
-      expect(response.data!.price, double.parse(rawRate["price"].toString()));
-      expect(response.data!.symbol, rawRate["symbol"]);
+      expect(response.data!.price, rawPrice["data"]);
+      expect(response.data!.symbol, isNull);
     });
 
-    test("an unsupported pair answers 200 with a NaN price", () {
-      final raw = fixtureMap("swaptrade", "get_rate_unknown_pair");
-      final response = SwapTradeRateResponse.fromJson(raw);
+    test("a rejected quote answers 200 with success false and the reason in errors", () {
+      for (final name in ["get_price_below_min", "get_price_invalid_coin"]) {
+        final raw = fixtureMap("swaptrade", name);
+        final response = SwapTradeRateResponse.fromJson(raw);
 
-      expect(response.success, isTrue, reason: "swaptrade reports this as a success");
-      expect(response.data!.price.isNaN, isTrue);
-      expect(response.data!.price > 0, isFalse, reason: "which is what the provider relies on");
-      expect(response.data!.symbol, raw["data"]["symbol"]);
+        expect(response.success, isFalse, reason: name);
+        expect(response.data, isNull, reason: name);
+        expect(response.errors!.single.msg, (raw["errors"] as List).single["msg"], reason: name);
+      }
     });
   });
 
@@ -118,9 +121,11 @@ void main() {
       expect(order.amountReceive, double.parse(rawOrder["amount_receive"].toString()));
       expect(order.memo, rawOrder["memo"]);
       expect(order.createdAt, DateTime.parse(rawOrder["created_at"] as String));
+      expect(order.refundAddress, rawOrder["refund_address"]);
+      expect(order.outgoingTx, rawOrder["outgoing_tx"]);
       expect(
         order.status,
-        TradeState.deserialize(raw: rawOrder["status"] as String),
+        TradeState.waitingPayment,
         reason: "swaptrade sends the status as a number in a string, \"1\" here",
       );
     });
@@ -194,12 +199,32 @@ void main() {
       expect(json["ref"], isNull);
     });
 
+    test("SwapTradeGetPriceRequest serializes every key with a fractional markup", () {
+      final json = SwapTradeGetPriceRequest(
+        coinSend: "BTC",
+        coinSendNetwork: "BTC",
+        coinReceive: "XMR",
+        coinReceiveNetwork: "XMR",
+        amountSend: "0.01",
+        markup: 1.5,
+      ).toJson();
+
+      expect(json, {
+        "coin_send": "BTC",
+        "coin_send_network": "BTC",
+        "coin_receive": "XMR",
+        "coin_receive_network": "XMR",
+        "amount_send": "0.01",
+        "markup": 1.5,
+      });
+    });
+
     test("SwapTradeCreateOrderRequest serializes every key", () {
       final json = const SwapTradeCreateOrderRequest(
         coinSend: "ETH",
         coinSendNetwork: "ETH",
         coinReceive: "USDT",
-        coinReceiveNetwork: "USDT_ERC20",
+        coinReceiveNetwork: "ETH",
         amountSend: "0.01",
         recipient: "0xrecipient",
         refundAddress: "0xrefund",
@@ -211,7 +236,7 @@ void main() {
         "coin_send": "ETH",
         "coin_send_network": "ETH",
         "coin_receive": "USDT",
-        "coin_receive_network": "USDT_ERC20",
+        "coin_receive_network": "ETH",
         "amount_send": "0.01",
         "recipient": "0xrecipient",
         "refund_address": "0xrefund",

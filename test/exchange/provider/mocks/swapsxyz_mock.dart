@@ -61,10 +61,7 @@ ProviderScenario swapsXyzScenario() => ProviderScenario(
     id: swapsXyzTxId,
     state: TradeState.pending,
     depositAmount: Money.parse("2", CryptoCurrency.eth),
-    // the status body has no chain id on the payout token, so the provider resolves the
-    // bare "USDT" ticker, which lands on omni usdt rather than the erc20 one. same
-    // decimals, so the amount is right and only the label is off
-    payoutAmount: Money.parse("4000", CryptoCurrency.usdt),
+    payoutAmount: Money.parse("4000", CryptoCurrency.usdterc20),
     fundingAddress: swapsXyzRouter,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",

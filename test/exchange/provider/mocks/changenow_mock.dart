@@ -1,5 +1,5 @@
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart";
-import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -48,10 +48,8 @@ ProviderScenario changeNowScenario() => ProviderScenario(
     depositAmount: Money.parse("2", CryptoCurrency.btc),
     payoutAmount: Money.parse("500", CryptoCurrency.xmr),
     fundingAddress: changeNowPayinAddress,
-    // the provider drops the payout address on create rather than echoing the one it sent
-    payoutAddress: "",
+    payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    toAddressExtraId: "",
     createdAtIsNow: true,
   ),
   tradeId: changeNowTradeId,
@@ -60,10 +58,12 @@ ProviderScenario changeNowScenario() => ProviderScenario(
     state: TradeState.confirming,
     depositAmount: Money.parse("2", CryptoCurrency.btc),
     payoutAmount: Money.parse("500", CryptoCurrency.xmr),
-    fundingAddress: changeNowPayinAddress,
-    payoutAddress: "payout-address",
-    refundAddress: "refund-address",
+    // the lookup only refreshes status and amounts, the addresses stay as the stored trade had them
+    fundingAddress: "",
+    payoutAddress: "",
+    refundAddress: "",
     outputTransaction: "cn-payout-hash",
+    createdAt: DateTime.parse(changeNowCreatedAt),
     expiredAt: DateTime.parse(changeNowValidUntil),
   ),
   unknownTradeIdThrows: isA<TradeNotFoundException>(),

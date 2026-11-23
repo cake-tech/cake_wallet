@@ -5,11 +5,18 @@ class ListItemToggle extends ListItem {
   const ListItemToggle({
     required super.keyValue,
     required super.label,
+    super.testId,
+    this.subtitle,
+    this.iconPath,
+    this.iconColor,
     required this.value,
     required this.onChanged,
     this.leadingEndWidget,
   });
 
+  final String? subtitle;
+  final String? iconPath;
+  final Color? iconColor;
   final ValueChanged<bool> onChanged;
   final Widget? leadingEndWidget;
   final bool value;

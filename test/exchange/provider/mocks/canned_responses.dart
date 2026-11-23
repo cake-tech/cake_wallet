@@ -19,6 +19,7 @@ const refundAddress = "refund-address";
 
 const changeNowTradeId = "cn-trade-1";
 const changeNowPayinAddress = "bc1qchangenowdepositaddress";
+const changeNowCreatedAt = "2026-07-29T14:04:27.001Z";
 const changeNowValidUntil = "2026-07-29T15:04:27.001Z";
 
 const changeNowRange = '{"fromCurrency":"btc","fromNetwork":"btc","toCurrency":"xmr",'
@@ -41,7 +42,7 @@ const changeNowById = '{"id":"$changeNowTradeId","status":"confirming",'
     '"amountTo":500,"payinAddress":"$changeNowPayinAddress",'
     '"payoutAddress":"$payoutAddress","payinExtraId":null,"payoutExtraId":null,'
     '"refundAddress":"$refundAddress","refundExtraId":null,'
-    '"createdAt":"2026-07-29T14:04:27.001Z","updatedAt":"2026-07-29T14:04:27.010Z",'
+    '"createdAt":"$changeNowCreatedAt","updatedAt":"2026-07-29T14:04:27.010Z",'
     '"validUntil":"$changeNowValidUntil","depositReceivedAt":null,'
     '"payinHash":"cn-payin-hash","payoutHash":"cn-payout-hash","fromLegacyTicker":"btc",'
     '"toLegacyTicker":"xmr","refundHash":null,"refundAmount":null,"userId":null}';
@@ -102,35 +103,61 @@ const stealthExExchange = '{"id":"$stealthExTradeId","status":"waiting","rate":"
 
 const stealthExNotFound = '{"err":{"kind":"NotFound","details":"exchange not found"}}';
 
-// ── LetsExchange - usdt to usdc, both erc20, floating ─────────────────────────────────────
+// ── WhyNot - usdt to usdc, both erc20, floating ─────────────────────────────────────
 //
-// LetsExchange looks a trade's currencies up by ticker plus network, and a non-empty network
+// WhyNot looks a trade's currencies up by ticker plus network, and a non-empty network
 // tag has to match a tagged currency exactly - so this pair is two erc20 tokens rather than
 // the btc/xmr pair the other providers use.
 
-const letsExchangeTradeId = "le-trade-1";
-const letsExchangeDepositAddress = "0xletsexchangedepositaddress";
-const letsExchangeCreatedAt = "2026-07-29 17:04:31";
-const letsExchangeExpiredAtSeconds = 1785335671;
+const whyNotTradeId = "le-trade-1";
+const whyNotDepositAddress = "0xwhynotdepositaddress";
+const whyNotCreatedAt = "2026-07-29 17:04:31";
+const whyNotExpiredAtSeconds = 1785335671;
 
-const letsExchangeInfo = '{"deposit_min_amount":"10","deposit_max_amount":"50000",'
+const whyNotInfo = '{"deposit_min_amount":"10","deposit_max_amount":"50000",'
     '"min_amount":"10","max_amount":"50000","amount":"99","fee":"0","rate":"0.99",'
     '"profit":"0","withdrawal_fee":"0","extra_fee_amount":"0","rate_id":"le-rate-1",'
     '"rate_id_expired_at":0,"applied_promo_code_id":null,"networks_from":[],'
     '"networks_to":[],"deposit_amount_usdt":"100","expired_at":"1785333936912",'
     '"base_amount":"99"}';
 
-const letsExchangeTransaction = '{"is_float":true,"status":"wait","type":"cex",'
+const whyNotTransaction = '{"is_float":true,"status":"wait","type":"cex",'
     '"coin_from":"USDT","coin_to":"USDC","deposit_amount":"100",'
     '"withdrawal_amount":"99","withdrawal":"$payoutAddress","withdrawal_extra_id":null,'
     '"return":"$refundAddress","return_extra_id":null,"coin_from_network":"ERC20",'
-    '"coin_to_network":"ERC20","deposit":"$letsExchangeDepositAddress",'
+    '"coin_to_network":"ERC20","deposit":"$whyNotDepositAddress",'
     '"deposit_extra_id":null,"rate":"0.99","fee":"0","revert":false,'
-    '"transaction_id":"$letsExchangeTradeId","expired_at":$letsExchangeExpiredAtSeconds,'
-    '"created_at":"$letsExchangeCreatedAt","hash_in":null,"hash_out":null,'
+    '"transaction_id":"$whyNotTradeId","expired_at":$whyNotExpiredAtSeconds,'
+    '"created_at":"$whyNotCreatedAt","hash_in":null,"hash_out":null,'
     '"confirmations":0,"need_confirmations":64,"aml_error_signals":[],"error_code":""}';
 
-const letsExchangeNotFound = '{"error":"Transaction not found"}';
+const whyNotNotFound = '{"error":"Transaction not found"}';
+
+// ── WhyNot - eth to btc, fixed ───────────────────────────────────────────────────────────
+//
+// info-revert takes the amount to receive and answers with the amount to send. Its
+// min_amount / max_amount are on the receive side, only deposit_min_amount /
+// deposit_max_amount are in the deposit currency - see fixtures/whynot/info_revert.json.
+
+const whyNotFixedTradeId = "le-trade-fixed-1";
+const whyNotFixedDepositAddress = "0xwhynotfixeddepositaddress";
+
+const whyNotInfoRevert = '{"deposit_min_amount":"0.1","deposit_max_amount":"100",'
+    '"min_amount":"0.0025","max_amount":"2.5","amount":"4","fee":"0","rate":"0.025",'
+    '"profit":"0","withdrawal_fee":"0","extra_fee_amount":"0","rate_id":"le-rate-fixed-1",'
+    '"rate_id_expired_at":"1785333936912","applied_promo_code_id":null,"networks_from":[],'
+    '"networks_to":[],"deposit_amount_usdt":"12000","expired_at":"1785333936912",'
+    '"base_amount":"4"}';
+
+const whyNotTransactionRevert = '{"is_float":false,"status":"wait","type":"cex",'
+    '"coin_from":"ETH","coin_to":"BTC","deposit_amount":"4",'
+    '"withdrawal_amount":"0.1","withdrawal":"$payoutAddress","withdrawal_extra_id":null,'
+    '"return":"$refundAddress","return_extra_id":null,"coin_from_network":"ETH",'
+    '"coin_to_network":"BTC","deposit":"$whyNotFixedDepositAddress",'
+    '"deposit_extra_id":null,"rate":"0.025","fee":"0","revert":true,'
+    '"transaction_id":"$whyNotFixedTradeId","expired_at":$whyNotExpiredAtSeconds,'
+    '"created_at":"$whyNotCreatedAt","hash_in":null,"hash_out":null,'
+    '"confirmations":0,"need_confirmations":2,"aml_error_signals":[],"error_code":""}';
 
 // ── Trocador - btc to xmr, floating ──────────────────────────────────────────────────────
 
@@ -171,12 +198,12 @@ const swapTradeCoins = '{"success":true,"status":200,"msg":"Fetch Coins successf
     '{"id":"XMR","name":"Monero","network":"XMR","price":"256","min":"0.1","max":"5000",'
     '"memo":false,"enabled":true}]}';
 
-const swapTradeRate = '{"success":true,"status":200,"msg":"Fetch Full Rate successfully !",'
-    '"data":{"price":"250","symbol":"BTCXMR"}}';
+const swapTradePrice = '{"success":true,"status":200,"msg":"Get price successful !",'
+    '"data":{"data":500}}';
 
 const swapTradeCreateOrder = '{"success":true,"status":200,'
     '"msg":"Create Order successfully !","data":{"order_id":"$swapTradeTradeId",'
-    '"server_address":"$swapTradeServerAddress","amount_receive":"500"}}';
+    '"server_address":"$swapTradeServerAddress","amount_receive":"495"}}';
 
 const swapTradeOrder = '{"success":true,"status":200,"msg":"Fetch Order successfully !",'
     '"data":{"id":47063,"order_id":"$swapTradeTradeId","coin_send":"BTC",'
@@ -281,7 +308,7 @@ const chainflipStatus = '{"id":61978,"platform":"chainflip","status":{"state":"s
 // Near Intents has no monero asset, so this pair is btc -> zec.
 
 const nearDepositAddress = "near-deposit-address";
-const nearBtcAsset = "nep141:btc.omft.near";
+const nearBtcAsset = "1cs_v1:btc:native:coin";
 const nearZecAsset = "nep141:zec.omft.near";
 
 const nearTokens = "["

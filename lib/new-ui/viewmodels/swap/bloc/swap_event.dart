@@ -7,17 +7,29 @@ sealed class SwapEvent {
 
 final class _Init extends SwapEvent {}
 
+final class InitialValuesApplied extends SwapEvent {
+  const InitialValuesApplied({
+    this.depositCurrency,
+    this.depositAmount,
+    this.payoutCurrency,
+    this.payoutAmount,
+    this.payoutAddress,
+  });
+
+  final CryptoCurrency? depositCurrency;
+  final Money? depositAmount;
+  final CryptoCurrency? payoutCurrency;
+  final Money? payoutAmount;
+  final SwapAddress? payoutAddress;
+}
+
 final class SourceChanged extends SwapEvent {
-  const SourceChanged(this.newSource);
+  const SourceChanged(this.newSource, {this.initiateSwap = false});
 
   final SwapSource newSource;
+  final bool initiateSwap;
 }
 
-final class SendingWalletChanged extends SwapEvent {
-  const SendingWalletChanged(this.newWallet);
-
-  final WalletInfo newWallet;
-}
 
 final class PayoutAddressChanged extends SwapEvent {
   const PayoutAddressChanged(this.newAddress);
@@ -44,9 +56,10 @@ final class SwapAllEnabled extends SwapEvent {
 final class RatesLoadStarted extends SwapEvent {}
 
 final class DepositCurrencyChanged extends SwapEvent {
-  const DepositCurrencyChanged(this.newCurrency);
+  const DepositCurrencyChanged(this.newCurrency, {this.selectSource = false});
 
   final CryptoCurrency newCurrency;
+  final bool selectSource;
 }
 
 final class PayoutCurrencyChanged extends SwapEvent {

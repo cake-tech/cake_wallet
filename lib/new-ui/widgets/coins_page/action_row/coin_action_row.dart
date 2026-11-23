@@ -41,116 +41,106 @@ class CoinActionRow extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.center,
-        spacing: MediaQuery.of(context).size.width * 0.05,
+        spacing: MediaQuery.sizeOf(context).width * 0.05,
         children: [
-          CoinActionButton(
-            icon: CakeImageWidget(
-              imageUrl: "assets/new-ui/send.svg",
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcIn,
-              ),
-            ),
-            label: S.of(context).send,
-            action: () {
-              if (FeatureFlag.hasNewUiExtraPages) {
-                final sendPage = getIt.get<NewSendPage>(
-                  param1: SendPageParams(
-                    unspentCoinType:
-                        lightningMode ? UnspentCoinType.lightning : UnspentCoinType.nonMweb,
-                  ),
-                );
-
-                CupertinoScaffold.showCupertinoModalBottomSheet(
-                  context: context,
-                  isDismissible: true,
-                  barrierColor: Colors.black.withAlpha(60),
-                  builder: (context) {
-                    return Material(
-                      child: ModalNavigator(
-                        rootPage: sendPage,
-                        parentContext: context,
-                      ),
-                    );
-                  },
-                );
-              } else {
-                Map<String, dynamic>? args;
-                if (lightningMode) args = {'coinTypeToSpendFrom': UnspentCoinType.lightning};
-                Navigator.of(context).pushNamed(Routes.send, arguments: args);
-              }
-            },
-          ),
-          CoinActionButton(
-            icon: CakeImageWidget(
-              imageUrl: "assets/new-ui/receive.svg",
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcIn,
-              ),
-            ),
-            label: S.of(context).receive,
-            action: () async {
-              if (FeatureFlag.hasNewUiExtraPages) {
-                final page = getIt.get<NewReceivePage>(param1: lightningMode);
-                CupertinoScaffold.showCupertinoModalBottomSheet(
-                  context: context,
-                  barrierColor: Colors.black.withAlpha(60),
-                  builder: (context) {
-                    return Material(child: ModalNavigator(parentContext: context, rootPage: page));
-                  },
-                );
-              } else {
-                // ToDo: (Konsti) refactor as part of the derivation PR (I hate myself for it)
-                if (lightningMode) {
-                  await getIt<WalletAddressListViewModel>().setAddressType(
-                      bitcoin!.getOptionToType(bitcoin!.getBitcoinLightningReceivePageOption()));
-                } else {
-                  await getIt<WalletAddressListViewModel>().setAddressType(
-                      bitcoin!.getOptionToType(bitcoin!.getBitcoinSegwitPageOption()));
-                }
-                Navigator.of(context).pushNamed(Routes.addressPage);
-              }
-            },
-          ),
-          if (showSwap)
-            CoinActionButton(
+          Expanded(
+            child: CoinActionButton(
+              key: ValueKey("home_page_send_button_key"),
               icon: CakeImageWidget(
-                imageUrl: "assets/new-ui/exchange.svg",
+                imageUrl: "assets/new-ui/send.svg",
                 colorFilter: ColorFilter.mode(
                   Theme.of(context).colorScheme.primary,
                   BlendMode.srcIn,
                 ),
               ),
-              label: S.of(context).swap,
+              label: S.of(context).send,
               action: () {
-                final page =
-                    getIt.get<NewSwapPage>(param2: lightningMode ? CryptoCurrency.btcln : null);
-                if (FeatureFlag.hasNewUiExtraPages) {
+                  final sendPage = getIt.get<NewSendPage>(
+                    param1: SendPageParams(
+                      unspentCoinType:
+                          lightningMode ? UnspentCoinType.lightning : UnspentCoinType.nonMweb,
+                    ),
+                  );
+
                   CupertinoScaffold.showCupertinoModalBottomSheet(
                     context: context,
-                    barrierColor: Colors.black.withAlpha(85),
-                    builder: (context) => Material(
+                    isDismissible: true,
+                    barrierColor: Colors.black.withAlpha(60),
+                    builder: (context) {
+                      return Material(
                         child: ModalNavigator(
-                      rootPage: page,
-                      parentContext: context,
-                    )),
+                          rootPage: sendPage,
+                          parentContext: context,
+                        ),
+                      );
+                    },
                   );
-                } else {
-                  Navigator.of(context).pushNamed(Routes.exchange);
-                }
               },
             ),
-          CoinActionButton(
-            icon: CakeImageWidget(
-              imageUrl: "assets/new-ui/scan.svg",
-              colorFilter: ColorFilter.mode(
-                Theme.of(context).colorScheme.primary,
-                BlendMode.srcIn,
+          ),
+          Expanded(
+            child: CoinActionButton(
+              key: ValueKey("home_page_receive_button_key"),
+              icon: CakeImageWidget(
+                imageUrl: "assets/new-ui/receive.svg",
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
+              label: S.of(context).receive,
+              action: () async {
+                  final page = getIt.get<NewReceivePage>(param1: lightningMode);
+                  CupertinoScaffold.showCupertinoModalBottomSheet(
+                    context: context,
+                    barrierColor: Colors.black.withAlpha(60),
+                    builder: (context) {
+                      return Material(child: ModalNavigator(parentContext: context, rootPage: page));
+                    },
+                  );
+              },
+            ),
+          ),
+          if (showSwap)
+            Expanded(
+              child: CoinActionButton(
+                key: ValueKey("home_page_swap_button_key"),
+                icon: CakeImageWidget(
+                  imageUrl: "assets/new-ui/exchange.svg",
+                  colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                label: S.of(context).swap,
+                action: () {
+                  final page =
+                      getIt.get<NewSwapPage>(param2: lightningMode ? CryptoCurrency.btcln : null);
+                    CupertinoScaffold.showCupertinoModalBottomSheet(
+                      context: context,
+                      barrierColor: Colors.black.withAlpha(85),
+                      builder: (context) => Material(
+                          child: ModalNavigator(
+                        rootPage: page,
+                        parentContext: context,
+                      )),
+                    );
+                },
               ),
             ),
-            label: S.of(context).scan,
-            action: () => _onPressedScan(context),
+          Expanded(
+            child: CoinActionButton(
+              key: ValueKey("home_page_scan_button_key"),
+              icon: CakeImageWidget(
+                imageUrl: "assets/new-ui/scan.svg",
+                colorFilter: ColorFilter.mode(
+                  Theme.of(context).colorScheme.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
+              label: S.of(context).scan,
+              action: () => _onPressedScan(context),
+            ),
           ),
         ],
       ),

@@ -207,7 +207,7 @@ class CWSolana extends Solana {
     final solanaProvider = solanaWallet.solanaProvider;
 
     if (solanaProvider == null) {
-      throw Exception('Solana provider not available');
+      throw TransactionGenerationException('Solana provider not available');
     }
 
     final unsignedTransactionBytes = base64.decode(base64Transaction);
@@ -222,11 +222,11 @@ class CWSolana extends Solana {
     Future<String> sendTx() async {
       try {
         if (signedTransactionBase64.isEmpty) {
-          throw Exception('Invalid transaction: transaction is empty');
+          throw TransactionSendingException('Invalid transaction: transaction is empty');
         }
 
         if (requestId.isEmpty) {
-          throw Exception('Invalid requestId: requestId is empty');
+          throw TransactionSendingException('Invalid requestId: requestId is empty');
         }
 
         final jupiterProvider = JupiterExchangeProvider();
@@ -236,24 +236,23 @@ class CWSolana extends Solana {
           requestId: requestId,
         );
 
-        final status = executeResponse['status'] as String?;
-        final signature = executeResponse['signature'] as String?;
-        final errorCode = executeResponse['code'] as num?;
-        final errorMessage = executeResponse['error'] as String? ?? 'Unknown error';
+        final signature = executeResponse.signature;
+        final errorCode = executeResponse.code;
+        final errorMessage = executeResponse.error ?? 'Unknown error';
 
         // Handle different status cases
-        switch (status) {
-          case 'Success':
+        switch (executeResponse.status) {
+          case JupiterExecuteStatus.success:
             if (signature == null ||
                 signature.isEmpty ||
                 signature == '1111111111111111111111111111111111111111111111111111111111111111') {
-              throw Exception(
+              throw ExchangeProviderResponseException(
                 'Invalid transaction signature received from Jupiter. '
-                'Status: $status',
+                'Status: ${executeResponse.status.name}',
               );
             }
             return signature;
-          case 'Failed':
+          case JupiterExecuteStatus.failed:
             String userFriendlyError = _getJupiterErrorMessage(errorCode, errorMessage);
             // Even when failed, Jupiter may return a signature for solscan
             if (signature != null && signature.isNotEmpty) {
@@ -264,22 +263,22 @@ class CWSolana extends Solana {
                 errorMessage: errorMessage,
               );
             } else {
-              throw Exception(userFriendlyError);
+              throw ExchangeProviderResponseException(userFriendlyError);
             }
-          case 'Pending':
-          case 'Processing':
-            throw Exception(
+          case JupiterExecuteStatus.pending:
+          case JupiterExecuteStatus.processing:
+            throw ExchangeProviderResponseException(
               'Jupiter swap is still processing. Please wait and try checking the transaction status.',
             );
-          default:
-            throw Exception(
-              'Jupiter swap returned unknown status: $status. Error: $errorMessage. Code: $errorCode',
+          case JupiterExecuteStatus.unknown:
+            throw ExchangeProviderResponseException(
+              'Jupiter swap returned unknown status. Error: $errorMessage. Code: $errorCode',
             );
         }
       } on JupiterSwapFailedException {
         rethrow;
       } catch (e) {
-        throw Exception('Failed to execute Jupiter swap: $e');
+        throw TradeNotCreatedException(ExchangeProviderDescription.jupiter, description: 'Failed to execute Jupiter swap: $e');
       }
     }
 
@@ -293,12 +292,12 @@ class CWSolana extends Solana {
   }
 
   /// Get user-friendly error message based on Jupiter error code
-  String _getJupiterErrorMessage(num? errorCode, String errorMessage) {
+  String _getJupiterErrorMessage(int? errorCode, String errorMessage) {
     if (errorCode == null) {
       return 'Jupiter swap failed: $errorMessage';
     }
 
-    switch (errorCode.toInt()) {
+    switch (errorCode) {
       case -2000:
         return 'Transaction failed to land on the network. Please try again.';
       case -2001:
@@ -348,6 +347,16 @@ class CWSolana extends Solana {
       initialDelay: initialDelay,
       maxRetries: maxRetries,
     );
+  }
+
+  @override
+  Future<bool?> getTransactionResult(String signature) {
+    final client = SolanaWalletClient();
+    if (!client.connect(getIt.get<SettingsStore>().getCurrentNode(WalletType.solana))) {
+      throw Exception("Failed to connect to the Solana node");
+    }
+
+    return client.getTransactionResult(signature);
   }
 
   @override

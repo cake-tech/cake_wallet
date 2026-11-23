@@ -6,7 +6,7 @@ import "package:cw_core/currency.dart";
 import "package:cw_core/wallet_type.dart";
 
 Future<Currency> currencyFromSerialized(String serialized) async {
-  final parts = serialized.split(".");
+  final parts = serialized.split(serialized.contains("^") ? "^" : ".");
 
   switch (parts.first) {
     case "fiat":
@@ -23,6 +23,7 @@ Future<Currency> currencyFromSerialized(String serialized) async {
         "8453" => WalletType.base,
         "42161" => WalletType.arbitrum,
         "56" => WalletType.bsc,
+        "4663" => WalletType.robinhood,
         _ => throw ArgumentError("bad chain id for evm token deserialize"),
       };
       return (await TokenUtilities.findTokenByAddress(walletType: walletType, address: parts[1]))!;

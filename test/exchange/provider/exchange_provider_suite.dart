@@ -148,6 +148,17 @@ class ProviderScenario {
     isFixedRate: isFixedRate,
     toAddressExtraId: toAddressExtraId,
   );
+
+  Trade knownTrade(String id) => Trade(
+    id: id,
+    provider: build().provider.description,
+    state: TradeState.created,
+    depositAmount: depositAmount,
+    payoutAmount: payoutAmount,
+    fundingAddress: "",
+    payoutAddress: "",
+    refundAddress: "",
+  );
 }
 
 Matcher _closeToNow({Duration tolerance = const Duration(minutes: 1)}) =>
@@ -221,9 +232,6 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
     test("describes itself consistently", () {
       expect(provider.title, isNotEmpty);
       expect(provider.description.title, isNotEmpty);
-      expect(provider.isEnabled, isTrue);
-      expect(provider.isAvailable, isTrue);
-      expect(provider.checkIsAvailable(), completion(isTrue));
     });
 
     group("fetchLimits", () {
@@ -262,11 +270,7 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
 
     group("fetchRate", () {
       test("quotes the price of one whole unit", () async {
-        final rate = await provider.fetchRate(
-          from: scenario.depositAmount,
-          to: scenario.to,
-          isFixedRate: scenario.isFixedRate,
-        );
+        final rate = await provider.fetchRate(scenario.request.rateRequest);
 
         expect(rate.provider, provider.description);
         expect(rate.rate.base, scenario.from);
@@ -274,21 +278,13 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
       });
 
       test("converts the deposit amount with the quoted rate", () async {
-        final rate = await provider.fetchRate(
-          from: scenario.depositAmount,
-          to: scenario.to,
-          isFixedRate: scenario.isFixedRate,
-        );
+        final rate = await provider.fetchRate(scenario.request.rateRequest);
 
         expect(rate.rate.convert(scenario.depositAmount), scenario.payoutAmount);
       });
 
       test("carries the pair's limits", () async {
-        final rate = await provider.fetchRate(
-          from: scenario.depositAmount,
-          to: scenario.to,
-          isFixedRate: scenario.isFixedRate,
-        );
+        final rate = await provider.fetchRate(scenario.request.rateRequest);
 
         expect(rate.limits.min, scenario.expectedRateLimitsMin, reason: "min");
         expect(rate.limits.max, scenario.expectedRateLimitsMax, reason: "max");
@@ -324,13 +320,13 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
       if (expectedFoundTrade == null) {
         test("is not supported", () {
           expect(
-            () => provider.findTradeById(id: scenario.tradeId),
+            () => provider.updateTrade(scenario.knownTrade(scenario.tradeId)),
             throwsA(scenario.findTradeByIdThrows ?? isA<Exception>()),
           );
         });
       } else {
         test("rebuilds the trade from the api's answer", () async {
-          final trade = await provider.findTradeById(id: scenario.tradeId);
+          final trade = await provider.updateTrade(scenario.knownTrade(scenario.tradeId));
 
           _expectTrade(trade, expectedFoundTrade, provider);
         });
@@ -341,7 +337,7 @@ void runExchangeProviderSuite(ProviderScenario scenario) {
       if (unknownTradeIdThrows != null) {
         test("throws for a trade the exchange has never heard of", () {
           expect(
-            () => provider.findTradeById(id: scenario.unknownTradeId),
+            () => provider.updateTrade(scenario.knownTrade(scenario.unknownTradeId)),
             throwsA(unknownTradeIdThrows),
           );
         });

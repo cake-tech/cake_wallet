@@ -2,7 +2,6 @@ import "package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
-import "package:flutter_test/flutter_test.dart";
 
 import "../exchange_provider_suite.dart";
 import "../mock_proxy_wrapper.dart";
@@ -52,7 +51,14 @@ ProviderScenario jupiterScenario() => ProviderScenario(
   ),
   tradeId: jupiterRequestId,
   // the ultra api has no lookup by order id: status lives on chain, under the signature the
-  // wallet gets after broadcasting
-  expectedFoundTrade: null,
-  findTradeByIdThrows: isA<Exception>(),
+  // wallet gets after broadcasting. this trade has none, so the order was never executed
+  expectedFoundTrade: ExpectedTrade(
+    id: jupiterRequestId,
+    state: TradeState.expired,
+    depositAmount: Money.parse("2", CryptoCurrency.sol),
+    payoutAmount: Money.parse("400", CryptoCurrency.usdcsol),
+    fundingAddress: "",
+    payoutAddress: "",
+    refundAddress: "",
+  ),
 );

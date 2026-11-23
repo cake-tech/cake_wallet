@@ -2,7 +2,6 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import "package:cake_wallet/monero/monero.dart";
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cw_core/wallet_base.dart';
-import "package:cw_core/wallet_type.dart";
 import 'package:mobx/mobx.dart';
 
 part 'trade_filter_store.g.dart';
@@ -20,12 +19,13 @@ abstract class TradeFilterStoreBase with Store {
         displayExolix = true,
         displayChainflip = true,
         displayThorChain = true,
-        displayLetsExchange = true,
+        displayWhyNot = true,
         displayStealthEx = true,
         displayXOSwap = true,
         displaySwapTrade = true,
         displaySwapXyz = true,
-        displayNearIntents = true;
+        displayNearIntents = true,
+        displayJupiter = true;
 
   @observable
   bool displayXMRTO;
@@ -55,7 +55,7 @@ abstract class TradeFilterStoreBase with Store {
   bool displayThorChain;
 
   @observable
-  bool displayLetsExchange;
+  bool displayWhyNot;
 
   @observable
   bool displayStealthEx;
@@ -71,6 +71,9 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displayNearIntents;
 
+  @observable
+  bool displayJupiter;
+
   @computed
   int get enabledProvidersCount => [
         displayChangeNow,
@@ -80,12 +83,13 @@ abstract class TradeFilterStoreBase with Store {
         displayExolix,
         displayChainflip,
         displayThorChain,
-        displayLetsExchange,
+        displayWhyNot,
         displayStealthEx,
         displayXOSwap,
         displaySwapTrade,
         displaySwapXyz,
-        displayNearIntents
+        displayNearIntents,
+        displayJupiter
       ].where((item) => item).length;
 
   @computed
@@ -97,12 +101,13 @@ abstract class TradeFilterStoreBase with Store {
       displayExolix &&
       displayChainflip &&
       displayThorChain &&
-      displayLetsExchange &&
+      displayWhyNot &&
       displayStealthEx &&
       displayXOSwap &&
       displaySwapTrade &&
       displaySwapXyz &&
-      displayNearIntents;
+      displayNearIntents &&
+      displayJupiter;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -134,8 +139,8 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.thorChain:
         displayThorChain = !displayThorChain;
         break;
-      case ExchangeProviderDescription.letsExchange:
-        displayLetsExchange = !displayLetsExchange;
+      case ExchangeProviderDescription.whyNot:
+        displayWhyNot = !displayWhyNot;
         break;
       case ExchangeProviderDescription.stealthEx:
         displayStealthEx = !displayStealthEx;
@@ -152,6 +157,9 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.nearIntents:
         displayNearIntents = !displayNearIntents;
         break;
+      case ExchangeProviderDescription.jupiter:
+        displayJupiter = !displayJupiter;
+        break;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -163,12 +171,13 @@ abstract class TradeFilterStoreBase with Store {
           displayExolix = false;
           displayChainflip = false;
           displayThorChain = false;
-          displayLetsExchange = false;
+          displayWhyNot = false;
           displayStealthEx = false;
           displayXOSwap = false;
           displaySwapTrade = false;
           displaySwapXyz = false;
           displayNearIntents = false;
+          displayJupiter = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -179,12 +188,13 @@ abstract class TradeFilterStoreBase with Store {
           displayExolix = true;
           displayChainflip = true;
           displayThorChain = true;
-          displayLetsExchange = true;
+          displayWhyNot = true;
           displayStealthEx = true;
           displayXOSwap = true;
           displaySwapTrade = true;
           displaySwapXyz = true;
           displayNearIntents = true;
+          displayJupiter = true;
         }
         break;
     }
@@ -192,10 +202,7 @@ abstract class TradeFilterStoreBase with Store {
 
   List<TradeListItem> filtered({required List<TradeListItem> trades, required WalletBase wallet}) {
     final _trades = trades.where((item) {
-      final isSameChain = item.trade.chainId != null
-          ? item.trade.chainId == wallet.chainId
-          : true; // returning default as true here so it falls back to the default checks if there's no chainId
-      return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet) && isSameChain;
+      return item.trade.walletId == wallet.id && isTradeInAccount(item, wallet);
     }).toList();
     final needToFilter = !displayAllTrades;
 
@@ -217,8 +224,8 @@ abstract class TradeFilterStoreBase with Store {
                     item.trade.provider == ExchangeProviderDescription.chainflip) ||
                 (displayThorChain &&
                     item.trade.provider == ExchangeProviderDescription.thorChain) ||
-                (displayLetsExchange &&
-                    item.trade.provider == ExchangeProviderDescription.letsExchange) ||
+                (displayWhyNot &&
+                    item.trade.provider == ExchangeProviderDescription.whyNot) ||
                 (displayStealthEx &&
                     item.trade.provider == ExchangeProviderDescription.stealthEx) ||
                 (displayXOSwap && item.trade.provider == ExchangeProviderDescription.xoSwap) ||
@@ -226,16 +233,18 @@ abstract class TradeFilterStoreBase with Store {
                     item.trade.provider == ExchangeProviderDescription.swapTrade) ||
                 (displaySwapXyz && item.trade.provider == ExchangeProviderDescription.swapsXyz) ||
                 (displayNearIntents &&
-                    item.trade.provider == ExchangeProviderDescription.nearIntents))
+                    item.trade.provider == ExchangeProviderDescription.nearIntents) ||
+                (displayJupiter && item.trade.provider == ExchangeProviderDescription.jupiter))
             .toList()
         : _trades;
   }
 
-  bool isTradeInAccount(TradeListItem item, WalletBase wallet) {
-    if(wallet.type != WalletType.monero) {
-      return true;
-    }
-
-    return item.trade.accountIndex == monero!.getCurrentAccount(wallet).id;
-  }
+  bool isTradeInAccount(TradeListItem item, WalletBase wallet) => switch (wallet.type) {
+    _ when item.trade.accountIndex == -1 =>
+      item.trade.fromWalletAddress == null ||
+          wallet.walletAddresses.containsAddress(item.trade.fromWalletAddress!),
+    .monero => item.trade.accountIndex == monero!.getCurrentAccount(wallet).id,
+    .bitcoin => item.trade.accountIndex == wallet.walletInfo.currentAccountIndex,
+    _ => true,
+  };
 }

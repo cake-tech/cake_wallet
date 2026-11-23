@@ -2,6 +2,7 @@
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "xoswap_api_schema.g.dart";
@@ -59,7 +60,7 @@ class XOSwapAmount {
 
 
 @JsonSerializable()
-class XOSwapAssetsRequest {
+class XOSwapAssetsRequest extends ApiRequest<List<XOSwapAsset>> {
   const XOSwapAssetsRequest({this.networks, this.query});
 
   @JsonKey(name: "networks", includeIfNull: false)
@@ -68,7 +69,16 @@ class XOSwapAssetsRequest {
   @JsonKey(name: "query", includeIfNull: false)
   final String? query;
 
+  @override
+  String path() => "/v3/assets";
+
+  @override
   Map<String, dynamic> toJson() => _$XOSwapAssetsRequestToJson(this);
+
+  @override
+  List<XOSwapAsset> decode(Object json) => (json as List<dynamic>)
+      .map((item) => XOSwapAsset.fromJson(item as Map<String, dynamic>))
+      .toList();
 }
 
 @JsonSerializable(createToJson: false)
@@ -114,8 +124,25 @@ class XOSwapRate {
 }
 
 
+class XOSwapPairRatesRequest extends ApiRequest<List<XOSwapRate>> {
+  const XOSwapPairRatesRequest({required this.pairId});
+
+  final String pairId;
+
+  @override
+  String path() => "/v3/pairs/$pairId/rates";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  @override
+  List<XOSwapRate> decode(Object json) => (json as List<dynamic>)
+      .map((item) => XOSwapRate.fromJson(item as Map<String, dynamic>))
+      .toList();
+}
+
 @JsonSerializable()
-class XOSwapCreateOrderRequest {
+class XOSwapCreateOrderRequest extends ApiRequest<XOSwapOrder> {
   const XOSwapCreateOrderRequest({
     required this.pairId,
     required this.fromAmount,
@@ -125,7 +152,7 @@ class XOSwapCreateOrderRequest {
     this.fromAddressTag,
     this.toAddressTag,
     this.slippage,
-  });
+  }) : super.post();
 
   @JsonKey(name: "pairId")
   final String pairId;
@@ -149,7 +176,29 @@ class XOSwapCreateOrderRequest {
   @JsonKey(name: "slippage", includeIfNull: false)
   final double? slippage;
 
+  @override
+  String path() => "/v3/orders";
+
+  @override
   Map<String, dynamic> toJson() => _$XOSwapCreateOrderRequestToJson(this);
+
+  @override
+  XOSwapOrder decode(Object json) => XOSwapOrder.fromJson(json as Map<String, dynamic>);
+}
+
+class XOSwapOrderRequest extends ApiRequest<XOSwapOrder> {
+  const XOSwapOrderRequest({required this.id});
+
+  final String id;
+
+  @override
+  String path() => "/v3/orders/$id";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  @override
+  XOSwapOrder decode(Object json) => XOSwapOrder.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)

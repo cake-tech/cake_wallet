@@ -2,9 +2,9 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_monero/api/account_list.dart';
-import 'package:cw_monero/api/exceptions/wallet_creation_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/api/exceptions/wallet_restore_from_seed_exception.dart';
@@ -91,7 +91,7 @@ void createWallet(
 
   int status = newW.status();
   if (status != 0) {
-    throw WalletCreationException(message: newW.errorString());
+    throw WalletCreationException(newW.errorString());
   }
   newW.store(path: path);
   setupBackgroundSync(password, newW);
@@ -217,6 +217,11 @@ void restoreWalletFromKeys(
 
   currentWallet = newW;
 
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
+
   openedWalletsByPath[path] = currentWallet!;
 }
 
@@ -300,6 +305,10 @@ void restoreWalletFromSpendKeySync(
 
   currentWallet = newW;
 
+  if (restoreHeight > 0) {
+    setRefreshFromBlockHeight(height: restoreHeight);
+    currentWallet!.store(path: path);
+  }
   currentWallet!.setCacheAttribute(key: "cakewallet.seed", value: seed);
 
   storeSync();
@@ -332,6 +341,9 @@ Future<void> restoreWalletFromHardwareWallet(
   }
 
   currentWallet = newW;
+
+  setRefreshFromBlockHeight(height: restoreHeight);
+
   currentWallet!.store(path: path);
   openedWalletsByPath[path] = currentWallet!;
 }
@@ -380,9 +392,9 @@ Future<void> loadWallet({required String path, required String password, int net
     deviceType = 0;
   }
 
-  if (deviceType == 1) {
-    if (gLedger == null) {
-      throw Exception("Tried to open a ledger wallet with no ledger connected");
+    if (deviceType == 1) {
+      if (gLedger == null) {
+       throw HardwareWalletNotConnectedException("Tried to open a ledger wallet with no ledger connected");
     }
     enableLedgerExchange(gLedger!);
   }

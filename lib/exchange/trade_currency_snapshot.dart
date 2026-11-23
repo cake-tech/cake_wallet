@@ -24,7 +24,7 @@ class TradeCurrencySnapshot {
         title: titleTag,
         name: '',
         raw: -1,
-        decimals: 1,
+        decimals: 18,
       );
     }
 
@@ -39,7 +39,7 @@ class TradeCurrencySnapshot {
       tag: tag.isNotEmpty ? tag : null,
       name: '',
       raw: -1,
-      decimals: 1,
+      decimals: 18,
     );
   }
 }

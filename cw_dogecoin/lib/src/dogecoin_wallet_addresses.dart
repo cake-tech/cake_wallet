@@ -13,10 +13,7 @@ class DogeCoinWalletAddresses = DogeCoinWalletAddressesBase with _$DogeCoinWalle
 abstract class DogeCoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   DogeCoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHdByType,
-    required super.sideHdByType,
-    required super.legacyMainHd,
-    required super.legacySideHd,
+    required super.accounts,
     required super.network,
     required super.isHardwareWallet,
     super.initialAddresses,

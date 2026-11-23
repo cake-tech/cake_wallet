@@ -3,6 +3,7 @@ import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
@@ -52,7 +53,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
             Container(
               decoration: BoxDecoration(
                 color: widget.hasPicker
-                    ? Theme.of(context).colorScheme.surfaceContainerHigh
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
                     : Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(18),
               ),
@@ -68,7 +69,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                         mainAxisSize: MainAxisSize.max,
                         spacing: 8,
                         children: [
-                          // Deliberately unwrapped. Naming the field with
+                          // Naming the field with
                           // MergeSemantics > Semantics(label:) made Android announce
                           // the amount twice: FormField's own wrapper node reflects
                           // its descendants' text, so the authored label came back a
@@ -77,7 +78,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                           // must stay in the semantics tree for this field to be
                           // named at all.
                           Expanded(
-                            child: TextField(
+                            child: TestId.container(TestId.fromKey(widget.key), child: TextField(
                               keyboardType: TextInputType.numberWithOptions(
                                 signed: false,
                                 decimal: widget.maxDecimals > 0,
@@ -93,7 +94,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 errorMaxLines: 3,
                               ),
                               onChanged: state.didChange,
-                            ),
+                            )),
                           ),
                           FloatingIconButton(
                             iconPath: "assets/new-ui/paste.svg",
@@ -139,7 +140,7 @@ class _NewSendAmountInputState extends State<NewSendAmountInput> {
                                 bottomRight: Radius.circular(18),
                               ),
                               color: widget.hasPicker
-                                  ? Theme.of(context).colorScheme.surfaceContainerHigh
+                                  ? Theme.of(context).colorScheme.surfaceContainerHighest
                                   : Theme.of(context).colorScheme.surfaceContainer,
                             ),
                             child: Padding(

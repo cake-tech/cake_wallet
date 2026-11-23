@@ -8,8 +8,9 @@ import "package:cake_wallet/utils/currency_from_serialized.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
-import "package:cw_core/generate_name.dart";
+import "package:cw_core/erc20_token.dart";
 import "package:cw_core/payment_uris.dart";
+import "package:cw_core/utils/print_verbose.dart";
 import "package:sqflite/sqflite.dart";
 
 class Trade {
@@ -19,7 +20,7 @@ class Trade {
     required this.payoutAmount,
     required this.fundingAddress,
     this.providerName,
-    required this.id, required this.provider, required this.payoutAddress, required this.refundAddress, this.internalId = 0,
+    required this.id, required this.provider, required this.payoutAddress, required this.refundAddress,
     this.createdAt,
     this.expiredAt,
     this.accountIndex = 0,
@@ -32,7 +33,6 @@ class Trade {
     this.memo,
     this.txId,
     this.isRefund,
-    this.chainId
   });
 
   static const tableName = "Trade";
@@ -42,8 +42,6 @@ class Trade {
   static const boxKey = "tradesBoxKey";
 
   static final StreamController<void> onChanged = StreamController<void>.broadcast();
-
-  int internalId;
 
   final String id;
 
@@ -63,8 +61,6 @@ class Trade {
   final String refundAddress;
   final String payoutAddress;
   final String? providerName;
-
-  // holds the receive address memo or destination tag that was passed for this trade
   final String? toAddressExtraId;
   final String? password;
   final String? providerId;
@@ -72,38 +68,33 @@ class Trade {
   final String? txId;
   final bool? isRefund;
 
+  // legacy field. used only for migrated trades, do not use in new trades
+  String? _fromWalletAddress;
+
+  String? get fromWalletAddress => _fromWalletAddress;
+
   CryptoCurrency get depositCurrency => depositAmount.currency as CryptoCurrency;
   CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
 
-  PaymentURI get uri =>
+  PaymentURI? get uri =>
       SwapUriHelper.getUri(
           fundingAddress, depositAmount.toString(), depositAmount.currency as CryptoCurrency);
 
-
-  final int? chainId;
-
-  String get chainName {
-    if (chainId == null) {
-      return "";
-    }
-
-    return evm!.getChainNameByChainId(chainId!).capitalized();
-  }
-
-  // ── SQLite CRUD ──────────────────────────────────────
-
-  Future<int> save() async {
-    final json = toSqliteMap();
-    if (json[selfIdColumn] == 0) {
-      json[selfIdColumn] = null;
-    }
-    internalId = await db!.insert(
+  Future<void> save() async {
+    _fillMissingChainId(depositCurrency);
+    _fillMissingChainId(payoutCurrency);
+    await db!.insert(
       tableName,
-      json,
+      toSqliteMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     onChanged.add(null);
-    return internalId;
+  }
+
+  // default evm tokens have no chainId, which would serialize as "evm^<address>^null"
+  static void _fillMissingChainId(CryptoCurrency currency) {
+    if (currency is! Erc20Token || currency.chainId != null || currency.tag == null) return;
+    currency.chainId = evm!.getChainIdByTag(currency.tag!);
   }
 
   static Future<List<Trade>> getAll({String? orderBy}) async {
@@ -111,16 +102,22 @@ class Trade {
       tableName,
       orderBy: orderBy ?? "createdAt DESC",
     );
-    return Future.wait( List.generate(
-      list.length,
-      (i) => Trade.fromSqliteRow(list[i]),
-    ));
+    return (await Future.wait(
+      list.map((row) async {
+        try {
+          return await Trade.fromSqliteRow(row);
+        } catch (e, st) {
+          printV("failed to deserialize trade ${row[selfIdColumn]}: $e\n$st");
+          return null;
+        }
+      }),
+    )).nonNulls.toList();
   }
 
   static Future<Trade?> getByTradeId(String id) async {
     final list = await db!.query(
       tableName,
-      where: "id = ?",
+      where: "$selfIdColumn = ?",
       whereArgs: [id],
       limit: 1,
     );
@@ -134,15 +131,14 @@ class Trade {
     final rows = await db!.delete(
       tableName,
       where: "$selfIdColumn = ?",
-      whereArgs: [trade.internalId],
+      whereArgs: [trade.id],
     );
     onChanged.add(null);
     return rows;
   }
 
   Map<String, dynamic> toSqliteMap() => {
-      selfIdColumn: internalId,
-      "id": id,
+      selfIdColumn: id,
       "provider": provider.raw,
       "payoutAmount": payoutAmount.serialized,
       "depositAmount": depositAmount.serialized,
@@ -157,17 +153,17 @@ class Trade {
       "password": password,
       "accountIndex": accountIndex,
       "providerId": providerId,
+      "providerName": providerName,
       "memo": memo,
       "txId": txId,
       "isRefund": isRefund == true ? 1 : 0,
-      "chainId": chainId,
       "fundingAddress": fundingAddress,
-      "refundAddress": refundAddress
+      "refundAddress": refundAddress,
+      "fromWalletAddress": fromWalletAddress,
     };
 
   static Future<Trade> fromSqliteRow(Map<String, dynamic> row) async => Trade(
-      internalId:  row[selfIdColumn] as int? ?? 0,
-      id: row["id"] as String? ?? "",
+      id: row[selfIdColumn] as String,
       createdAt: row["createdAt"] != null
           ? DateTime.fromMillisecondsSinceEpoch(
               row["createdAt"] as int,
@@ -188,6 +184,7 @@ class Trade {
       toAddressExtraId: row["toAddressExtraId"] as String?,
       password: row["password"] as String?,
       providerId: row["providerId"] as String?,
+      providerName: row["providerName"] as String?,
       state: TradeState.deserialize(raw: row["state"] as String),
       memo: row["memo"] as String?,
       txId: row["txId"] as String?,
@@ -195,7 +192,7 @@ class Trade {
       depositAmount: await moneyFromSerialized(row["depositAmount"] as String),
       payoutAmount: await moneyFromSerialized(row["payoutAmount"] as String),
       fundingAddress: row["fundingAddress"] as String,
-    );
+    ).._fromWalletAddress = row["fromWalletAddress"] as String?;
 
   Trade copyWith({
     TradeState? state,
@@ -208,7 +205,6 @@ class Trade {
     String? payoutAddress,
     String? refundAddress,
     int? accountIndex,
-    int? internalId,
     DateTime? createdAt,
     DateTime? expiredAt,
     String? extraId,
@@ -220,7 +216,6 @@ class Trade {
     String? memo,
     String? txId,
     bool? isRefund,
-    int? chainId,
   }) => Trade(
       state: state ?? this.state,
       depositAmount: depositAmount ?? this.depositAmount,
@@ -232,7 +227,6 @@ class Trade {
       provider: provider ?? this.provider,
       payoutAddress: payoutAddress ?? this.payoutAddress,
       refundAddress: refundAddress ?? this.refundAddress,
-      internalId: internalId ?? this.internalId,
       createdAt: createdAt ?? this.createdAt,
       expiredAt: expiredAt ?? this.expiredAt,
       extraId: extraId ?? this.extraId,
@@ -244,8 +238,7 @@ class Trade {
       memo: memo ?? this.memo,
       txId: txId ?? this.txId,
       isRefund: isRefund ?? this.isRefund,
-      chainId: chainId ?? this.chainId,
-    );
+    ).._fromWalletAddress = _fromWalletAddress;
 
 }
 
@@ -261,7 +254,6 @@ class RoutableTrade extends Trade {
     super.password,
     super.providerId,
     super.memo,
-    super.chainId,
     super.txId,
     super.isRefund, this.router,});
 

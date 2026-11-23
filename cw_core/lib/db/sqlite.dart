@@ -1,6 +1,14 @@
 import "dart:io";
 
 import "package:cw_core/db/sqlite_debug.dart";
+import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/root_dir.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:flutter/foundation.dart";
+import "package:path/path.dart" as p;
+import "package:sqflite_common_ffi/sqflite_ffi.dart";
+import "package:cw_core/db/sqlite_debug.dart";
 import "package:cw_core/db/trade_migration.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -11,11 +19,11 @@ import "package:path/path.dart" as p;
 Database? db;
 
 Future<void> _addColumnIfNotExists(
-  Database db, {
-  required String table,
-  required String column,
-  required String definition,
-}) async {
+    Database db, {
+      required String table,
+      required String column,
+      required String definition,
+    }) async {
   final result = await db.rawQuery("PRAGMA table_info($table)");
   final columnExists = result.any((row) => row["name"] == column);
 
@@ -32,6 +40,10 @@ Future<File> sqliteDebugMarkerFile() async {
   return File(dbDebugMarker);
 }
 
+class DebugMarkerException extends CakeException {
+  const DebugMarkerException() : super("Debug marker is present");
+}
+
 Future<void> initDb({String? pathOverride}) async {
   if (!kDebugMode && !kProfileMode) {
     await _initDb(pathOverride: pathOverride);
@@ -40,7 +52,7 @@ Future<void> initDb({String? pathOverride}) async {
   final dbDebugMarker = await sqliteDebugMarkerFile();
   try {
     if (dbDebugMarker.existsSync()) {
-      throw Exception("Debug marker is present");
+      throw const DebugMarkerException();
     }
     await _initDb(pathOverride: pathOverride);
   } catch (e, s) {
@@ -64,11 +76,13 @@ Future<void> _initDb({String? pathOverride}) async {
     }
   }
   await db?.close();
-  db = await openDatabase(dbFile.path, version: 12,
-      onUpgrade: (Database db, int oldVersion, int newVersion) async {
-    printV("migrating: $oldVersion, $newVersion");
-    if (oldVersion <= 1) {
-      await db.execute("""
+  db = await openDatabase(
+    dbFile.path,
+    version: 16,
+    onUpgrade: (db, oldVersion, newVersion) async {
+      printV("migrating: $oldVersion, $newVersion");
+      if (oldVersion <= 1) {
+        await db.execute("""
 DELETE FROM WalletInfo
 WHERE walletInfoId NOT IN (
     SELECT MIN(walletInfoId)
@@ -79,9 +93,9 @@ WHERE walletInfoId NOT IN (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
 ON WalletInfo (id);
 """);
-    }
-    if (oldVersion <= 2) {
-      await db.execute('''
+      }
+      if (oldVersion <= 2) {
+        await db.execute('''
 CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
   walletInfoId INTEGER,
   accountIndex INTEGER DEFAULT -1,
@@ -92,76 +106,119 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
 ''');
-      await _addColumnIfNotExists(
-        db,
-        table: "WalletInfo",
-        column: "receiveInfoboxDismissed",
-        definition: "BOOLEAN DEFAULT FALSE",
-      );
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "receiveInfoboxDismissed",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
 
-      await _addColumnIfNotExists(
-        db,
-        table: "BalanceCardStyleSettings",
-        column: "cardOrder",
-        definition: "INTEGER DEFAULT 0",
-      );
-    }
-    if (oldVersion <= 3) {
-      await _addColumnIfNotExists(db,
-          table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
-      // null - primary token (eth, sol etc)
-      // not null - address of fav token
-      // if address doesn't correspond to a valid token, fallback to primary token
-      await _addColumnIfNotExists(db,
-          table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
-    }
+        await _addColumnIfNotExists(
+          db,
+          table: 'BalanceCardStyleSettings',
+          column: 'cardOrder',
+          definition: 'INTEGER DEFAULT 0',
+        );
+      }
+      if (oldVersion <= 3) {
+        await _addColumnIfNotExists(db,
+            table: "WalletInfo", column: "showCombinedBalance", definition: "BOOLEAN DEFAULT TRUE");
+        // null - primary token (eth, sol etc)
+        // not null - address of fav token
+        // if address doesn't correspond to a valid token, fallback to primary token
+        await _addColumnIfNotExists(db,
+            table: "WalletInfo", column: "favoriteTokenAddress", definition: "TEXT DEFAULT NULL");
+      }
 
-    if (oldVersion <= 4) {
-      await _createBridgeTransferTable(db);
-    }
+      if (oldVersion <= 4) {
+        await _createBridgeTransferTable(db);
+      }
 
-    if (oldVersion <= 5) {
-      await createTradeTable(db);
-    }
-    if (oldVersion <= 6) {
-      await _addColumnIfNotExists(
-        db,
-        table: "Trade",
-        column: "toAddressExtraId",
-        definition: "TEXT",
-      );
-    }
-    if (oldVersion <= 7) {
-      await _createNodeTable(db);
-    }
-    if (oldVersion <= 8) {
-      await _addColumnIfNotExists(
-        db,
-        table: "BalanceCardStyleSettings",
-        column: "iconStyleIndex",
-        definition: "INTEGER DEFAULT 0",
-      );
-      await _addColumnIfNotExists(
-        db,
-        table: "BalanceCardStyleSettings",
-        column: "isGradientOnly",
-        definition: "BOOLEAN DEFAULT FALSE",
-      );
-    }
-    if (oldVersion <= 9) {
-      await _createErc20TokenTable(db);
-      await _createSplTokenTable(db);
-      await _createTronTokenTable(db);
-    }
+      if (oldVersion <= 5) {
+        await _createOldTradeTable(db);
+      }
+      if (oldVersion <= 6) {
+        await _addColumnIfNotExists(
+          db,
+          table: 'Trade',
+          column: 'toAddressExtraId',
+          definition: 'TEXT',
+        );
+      }
+      if (oldVersion <= 7) {
+        await _createNodeTable(db);
+      }
+      if (oldVersion <= 8) {
+        await _addColumnIfNotExists(
+          db,
+          table: 'BalanceCardStyleSettings',
+          column: 'iconStyleIndex',
+          definition: 'INTEGER DEFAULT 0',
+        );
+        await _addColumnIfNotExists(
+          db,
+          table: 'BalanceCardStyleSettings',
+          column: 'isGradientOnly',
+          definition: 'BOOLEAN DEFAULT FALSE',
+        );
+      }
+      if (oldVersion <= 9) {
+        await _createErc20TokenTable(db);
+        await _createSplTokenTable(db);
+        await _createTronTokenTable(db);
+      }
+      if (oldVersion <= 10) {
+        await _createImportedNFTTable(db);
+      }
+      if (oldVersion <= 11) {
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "showSeedBackupReminder",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
+      if (oldVersion <= 12) {
+        await _createChartsTables(db);
+      }
 
-    if (oldVersion <= 10) {
-      await _createImportedNFTTable(db);
-    }
-    if(oldVersion <= 11) {
-      await migrateTradeTableToNewSchema(db);
-    }
-  }, onCreate: (Database db, int version) async {
-    await db.execute('''
+      if (oldVersion <= 13) {
+        await _createWalletInfoAccountTable(db);
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "accountDiscoveryLimit",
+          definition: "INTEGER DEFAULT NULL",
+        );
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "isMultiAccountsEnabled",
+          definition: "INTEGER DEFAULT NULL",
+        );
+        await _addColumnIfNotExists(
+          db,
+          table: "WalletInfo",
+          column: "currentAccountIndex",
+          definition: "INTEGER NOT NULL DEFAULT 0",
+        );
+
+        await _migrateBitcoinCardStylesForAccounts(db);
+      }
+      if(oldVersion <= 14) {
+        await _addColumnIfNotExists(
+          db,
+          table: "BalanceCardStyleSettings",
+          column: "hidden",
+          definition: "BOOLEAN DEFAULT FALSE",
+        );
+      }
+      if(oldVersion <= 15) {
+        await migrateTradeTableToNewSchema(db);
+      }
+    },
+    onCreate: (Database db, int version) async {
+      await db.execute('''
 CREATE TABLE WalletInfo (
 	walletInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	id TEXT NOT NULL,
@@ -184,13 +241,17 @@ CREATE TABLE WalletInfo (
   hashedWalletIdentifier TEXT,
   isNonSeedWallet INTEGER DEFAULT (0) NOT NULL,
   sortOrder INTEGER DEFAULT (0) NOT NULL,
+  currentAccountIndex INTEGER NOT NULL DEFAULT 0,
   receiveInfoboxDismissed BOOLEAN DEFAULT FALSE,
   showCombinedBalance BOOLEAN DEFAULT TRUE,
-  favoriteTokenAddress TEXT DEFAULT NULL
+  favoriteTokenAddress TEXT DEFAULT NULL,
+  accountDiscoveryLimit INTEGER DEFAULT NULL,
+  isMultiAccountsEnabled INTEGER DEFAULT NULL,
+  showSeedBackupReminder BOOLEAN DEFAULT FALSE
 );
 ''');
 
-    await db.execute("""
+      await db.execute("""
 CREATE TABLE WalletInfoDerivationInfo (
 	walletInfoDerivationInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	address TEXT NOT NULL,
@@ -203,7 +264,7 @@ CREATE TABLE WalletInfoDerivationInfo (
 );
 """);
 
-    await db.execute('''
+      await db.execute('''
 CREATE TABLE WalletInfoAddress (
 	walletInfoAddressId INTEGER PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER,
@@ -213,7 +274,7 @@ CREATE TABLE WalletInfoAddress (
 );
 ''');
 
-    await db.execute("""
+      await db.execute("""
 CREATE TABLE WalletInfoAddressInfo (
 	walletInfoAddressInfoId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,
@@ -225,7 +286,7 @@ CREATE TABLE WalletInfoAddressInfo (
 );
 """);
 
-    await db.execute('''
+      await db.execute('''
 CREATE TABLE "WalletInfoAddressMap" (
 	walletInfoAddressMapId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	walletInfoId INTEGER NOT NULL,
@@ -234,11 +295,11 @@ CREATE TABLE "WalletInfoAddressMap" (
 	CONSTRAINT WalletInfoAddress_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
-    await db.execute("""
+      await db.execute("""
 CREATE UNIQUE INDEX IF NOT EXISTS idx_walletinfo_id_unique
 ON WalletInfo (id);
 """);
-    await db.execute('''
+      await db.execute('''
 CREATE TABLE BalanceCardStyleSettings (
   walletInfoId INTEGER,
   accountIndex INTEGER DEFAULT -1,
@@ -248,25 +309,110 @@ CREATE TABLE BalanceCardStyleSettings (
   iconStyleIndex INTEGER DEFAULT 0,
   isGradientOnly BOOLEAN DEFAULT FALSE,
   cardOrder INTEGER DEFAULT 0,
+  hidden BOOLEAN DEFAULT FALSE,
   PRIMARY KEY (walletInfoId, accountIndex),
   FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
 );
         ''');
-    await _createBridgeTransferTable(db);
-    await _createNodeTable(db);
-    await createTradeTable(db);
-    await _createErc20TokenTable(db);
-    await _createSplTokenTable(db);
-    await _createTronTokenTable(db);
-    await _createImportedNFTTable(db);
-  });
+      await _createBridgeTransferTable(db);
+      await _createNodeTable(db);
+      await createTradeTable(db);
+      await _createChartsTables(db);
+      await _createErc20TokenTable(db);
+      await _createSplTokenTable(db);
+      await _createTronTokenTable(db);
+      await _createImportedNFTTable(db);
+      await _createWalletInfoAccountTable(db);
+    },
+  );
 }
+
+Future<void> _createChartsTables(Database db) async {
+  await db.execute("""
+CREATE TABLE PriceData (
+  fromCurrency TEXT NOT NULL,
+  toCurrency TEXT NOT NULL,
+  timestamp INTEGER NOT NULL,
+  price TEXT NOT NULL,
+  PRIMARY KEY (fromCurrency, toCurrency, timestamp)
+);
+""");
+  await db.execute("""
+CREATE TABLE ChartsAssets (
+  asset TEXT PRIMARY KEY,
+  isFavorite BOOLEAN DEFAULT FALSE
+);
+        """);
+}
+
+Future<void> _createOldTradeTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS Trade (
+  tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  id TEXT NOT NULL,
+  providerRaw INTEGER NOT NULL DEFAULT 0,
+  fromTitle TEXT,
+  fromName TEXT,
+  fromTag TEXT,
+  fromFullName TEXT,
+  fromDecimals INTEGER,
+  fromRaw INTEGER,
+  fromIconPath TEXT,
+  fromFlatIconPath TEXT,
+  fromChainIconPath TEXT,
+  toTitle TEXT,
+  toName TEXT,
+  toTag TEXT,
+  toFullName TEXT,
+  toDecimals INTEGER,
+  toRaw INTEGER,
+  toIconPath TEXT,
+  toFlatIconPath TEXT,
+  toChainIconPath TEXT,
+  stateRaw TEXT NOT NULL DEFAULT '',
+  createdAt INTEGER,
+  expiredAt INTEGER,
+  amount TEXT NOT NULL DEFAULT '',
+  receiveAmount TEXT,
+  inputAddress TEXT,
+  extraId TEXT,
+  outputTransaction TEXT,
+  refundAddress TEXT,
+  walletId TEXT,
+  payoutAddress TEXT,
+  toAddressExtraId TEXT,
+  password TEXT,
+  providerId TEXT,
+  providerName TEXT,
+  fromWalletAddress TEXT,
+  memo TEXT,
+  txId TEXT,
+  isRefund INTEGER DEFAULT 0,
+  isSendAll INTEGER DEFAULT 0,
+  router TEXT,
+  needToRegisterInSwapXyz INTEGER DEFAULT 0,
+  sourceTokenAddress TEXT,
+  sourceTokenDecimals INTEGER,
+  routerData TEXT,
+  routerValue TEXT,
+  routerChainId INTEGER,
+  sourceTokenAmountRaw TEXT,
+  requiresTokenApproval INTEGER DEFAULT 0,
+  chainId INTEGER,
+  fee REAL
+);
+""");
+  await db.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
+ON Trade (id);
+""");
+}
+
 
 Future<void> createTradeTable(Database db) async {
   await db.execute("""
 CREATE TABLE Trade (
-    tradeId INTEGER PRIMARY KEY AUTOINCREMENT,
-    id TEXT NOT NULL,
+    tradeId TEXT PRIMARY KEY NOT NULL,
     provider INTEGER, 
     state TEXT,
     accountIndex INTEGER,
@@ -283,17 +429,51 @@ CREATE TABLE Trade (
     toAddressExtraId TEXT,
     password TEXT,
     providerId TEXT,
+    providerName TEXT,
     memo TEXT,
     txId TEXT,
     isRefund INTEGER,
-    chainId INTEGER
+    chainId INTEGER,
+    fromWalletAddress TEXT
 );
+""");
+}
 
-""");
+Future<void> _createWalletInfoAccountTable(Database db) async {
   await db.execute("""
-CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
-ON Trade (id);
+CREATE TABLE IF NOT EXISTS WalletInfoAccount (
+  walletInfoId INTEGER NOT NULL,
+  accountIndex INTEGER NOT NULL,
+  label TEXT NOT NULL,
+  PRIMARY KEY (walletInfoId, accountIndex),
+  CONSTRAINT WalletInfoAccount_WalletInfo_FK FOREIGN KEY (walletInfoId) REFERENCES WalletInfo(walletInfoId)
+);
 """);
+
+  await db.execute("""
+CREATE INDEX IF NOT EXISTS idx_walletinfoaccount_walletinfoid
+ON WalletInfoAccount(walletInfoId);
+""");
+}
+
+
+Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
+  const bitcoinWallets = 'SELECT walletInfoId FROM WalletInfo WHERE "type" = ?';
+  final btc = WalletType.bitcoin.index;
+
+  // Lightning: 0 -> -2 (first, so accountIndex 0 is free for the Bitcoin card)
+  await db.rawUpdate(
+    "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = -2 "
+        "WHERE accountIndex = 0 AND walletInfoId IN ($bitcoinWallets)",
+    [btc],
+  );
+
+  // Bitcoin: -1 -> 0 (primary account, first in order)
+  await db.rawUpdate(
+    "UPDATE OR REPLACE BalanceCardStyleSettings SET accountIndex = 0, cardOrder = 0 "
+        "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
+    [btc],
+  );
 }
 
 Future<Map<String, dynamic>> dumpDb() async {
@@ -309,7 +489,7 @@ Future<Map<String, dynamic>> dumpDb() async {
 
 Future<List<String>> _getTableNames(Database db) async {
   final tableNames = await db.rawQuery('SELECT name FROM sqlite_master WHERE type = "table"');
-  return tableNames.map((e) => (e["name"]).toString()).toList();
+  return tableNames.map((e) => e["name"].toString()).toList();
 }
 
 Future<Map<String, dynamic>> _dumpDb() async {
@@ -444,7 +624,7 @@ ON TronToken (walletName, contractAddress);
 }
 
 Future<void> _createNodeTable(Database db) async {
-  db.execute("""
+  await db.execute("""
 CREATE TABLE Node (
 NodeId INTEGER PRIMARY KEY,
 uri TEXT NOT NULL,

@@ -54,6 +54,7 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return ModalPageWrapper(
       topBar: ModalTopBar(
+        testId: "about_page_top_bar",
         title: S.of(context).about,
         leadingIcon: Icon(Icons.arrow_back_ios_new),
         leadingSemanticLabel: S.of(context).seed_alert_back,
@@ -111,14 +112,14 @@ class _AboutPageState extends State<AboutPage> {
                     ListItemRegularRow(
                         keyValue: "official website",
                         label: "Official Website",
-                        onTap: () => launchUrl(Uri.https("cakewallet.com")),
+                        onTap: () => launchUrl(Uri.https("cakewallet.com"), mode: LaunchMode.externalApplication),
                         trailingIconPath: "assets/new-ui/link_arrow.svg",
                         foregroundColor: Theme.of(context).colorScheme.primary,
                         trailingIconSize: 10),
                     ListItemRegularRow(
                         keyValue: "docs",
                         label: "Cake Docs",
-                        onTap: () => launchUrl(Uri.https("docs.cakewallet.com")),
+                        onTap: () => launchUrl(Uri.https("docs.cakewallet.com"), mode: LaunchMode.externalApplication),
                         trailingIconPath: "assets/new-ui/link_arrow.svg",
                         foregroundColor: Theme.of(context).colorScheme.primary,
                         trailingIconSize: 10)
@@ -127,21 +128,21 @@ class _AboutPageState extends State<AboutPage> {
                     ListItemRegularRow(
                         keyValue: "gh",
                         label: "GitHub",
-                        onTap: () => launchUrl(Uri.https("github.com", "cake-tech")),
+                        onTap: () => launchUrl(Uri.https("github.com", "cake-tech"), mode: LaunchMode.externalApplication),
                         trailingIconPath: "assets/new-ui/link_arrow.svg",
                         foregroundColor: Theme.of(context).colorScheme.primary,
                         trailingIconSize: 10),
                     ListItemRegularRow(
                         keyValue: "twitter",
                         label: "X (Twitter)",
-                        onTap: () => launchUrl(Uri.https("twitter.com", "cakewallet")),
+                        onTap: () => launchUrl(Uri.https("twitter.com", "cakewallet"), mode: LaunchMode.externalApplication),
                         trailingIconPath: "assets/new-ui/link_arrow.svg",
                         foregroundColor: Theme.of(context).colorScheme.primary,
                         trailingIconSize: 10),
                     ListItemRegularRow(
                         keyValue: "tg",
                         label: "Telegram",
-                        onTap: () => launchUrl(Uri.https("t.me", "cakewallet")),
+                        onTap: () => launchUrl(Uri.https("t.me", "cakewallet"), mode: LaunchMode.externalApplication),
                         trailingIconPath: "assets/new-ui/link_arrow.svg",
                         foregroundColor: Theme.of(context).colorScheme.primary,
                         trailingIconSize: 10)

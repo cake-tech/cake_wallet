@@ -2,6 +2,7 @@
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "trocador_api_schema.g.dart";
@@ -43,12 +44,20 @@ enum TrocadorRating {
   c,
   @JsonValue("D")
   d,
-  unknown,
+  unknown;
+
+  String get label => switch (this) {
+    a => "A",
+    b => "B",
+    c => "C",
+    d => "D",
+    unknown => "N/A",
+  };
 }
 
 
 @JsonSerializable()
-class TrocadorCoinRequest {
+class TrocadorCoinRequest extends ApiRequest<List<TrocadorCoin>> {
   const TrocadorCoinRequest({this.ticker, this.name});
 
   @JsonKey(name: "ticker", includeIfNull: false)
@@ -56,7 +65,16 @@ class TrocadorCoinRequest {
   @JsonKey(name: "name", includeIfNull: false)
   final String? name;
 
+  @override
+  String path() => "/coin";
+
+  @override
   Map<String, dynamic> toJson() => _$TrocadorCoinRequestToJson(this);
+
+  @override
+  List<TrocadorCoin> decode(Object json) => (json as List<dynamic>)
+      .map((item) => TrocadorCoin.fromJson(item as Map<String, dynamic>))
+      .toList();
 }
 
 @JsonSerializable(createToJson: false)
@@ -96,7 +114,7 @@ class TrocadorCoin {
 
 @JsonSerializable()
 @TrocadorBoolConverter()
-class TrocadorNewRateRequest {
+class TrocadorNewRateRequest extends ApiRequest<TrocadorRate> {
   const TrocadorNewRateRequest({
     required this.tickerFrom,
     required this.networkFrom,
@@ -135,17 +153,35 @@ class TrocadorNewRateRequest {
   @JsonKey(name: "best_only", includeIfNull: false)
   final bool? bestOnly;
 
+  @override
+  String path() => "/new_rate";
+
+  @override
   Map<String, dynamic> toJson() => _$TrocadorNewRateRequestToJson(this);
+
+  @override
+  TrocadorRate decode(Object json) => TrocadorRate.fromJson(json as Map<String, dynamic>);
 }
 
+// every provider is quoted once per rate type, so the same provider can show up twice.
+// a swap quote carries amount_to, a payment quote carries amount_from instead
 @JsonSerializable(createToJson: false)
+@TrocadorBoolConverter()
 class TrocadorQuote {
-  const TrocadorQuote({required this.provider});
+  const TrocadorQuote({required this.provider, this.fixed, this.amountFrom, this.amountTo});
 
   factory TrocadorQuote.fromJson(Map<String, dynamic> json) => _$TrocadorQuoteFromJson(json);
 
   @JsonKey(name: "provider")
   final String provider;
+  @JsonKey(name: "fixed")
+  final bool? fixed;
+  @JsonKey(name: "amount_from")
+  @TrocadorAmountConverter()
+  final String? amountFrom;
+  @JsonKey(name: "amount_to")
+  @TrocadorAmountConverter()
+  final String? amountTo;
 }
 
 @JsonSerializable(createToJson: false)
@@ -221,7 +257,7 @@ class TrocadorRate {
 
 @JsonSerializable()
 @TrocadorBoolConverter()
-class TrocadorNewTradeRequest {
+class TrocadorNewTradeRequest extends ApiRequest<TrocadorTrade> {
   const TrocadorNewTradeRequest({
     required this.tickerFrom,
     required this.networkFrom,
@@ -284,7 +320,32 @@ class TrocadorNewTradeRequest {
   @JsonKey(name: "markup", includeIfNull: false)
   final String? markup;
 
+  @override
+  String path() => "/new_trade";
+
+  @override
   Map<String, dynamic> toJson() => _$TrocadorNewTradeRequestToJson(this);
+
+  @override
+  TrocadorTrade decode(Object json) => TrocadorTrade.fromJson(json as Map<String, dynamic>);
+}
+
+@JsonSerializable(createFactory: false)
+class TrocadorTradeRequest extends ApiRequest<TrocadorTrade> {
+  const TrocadorTradeRequest({required this.id});
+
+  @JsonKey(name: "id")
+  final String id;
+
+  @override
+  String path() => "/trade";
+
+  @override
+  Map<String, dynamic> toJson() => _$TrocadorTradeRequestToJson(this);
+
+  @override
+  TrocadorTrade decode(Object json) =>
+      TrocadorTrade.fromJson((json as List<dynamic>).first as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -410,6 +471,24 @@ class TrocadorPartner {
   final bool? enabledMarkup;
   @JsonKey(name: "eta")
   final double? eta;
+}
+
+@JsonSerializable(createFactory: false)
+class TrocadorExchangesRequest extends ApiRequest<TrocadorExchangesResponse> {
+  const TrocadorExchangesRequest({required this.apiKey});
+
+  @JsonKey(name: "api_key")
+  final String apiKey;
+
+  @override
+  String path() => "/exchanges";
+
+  @override
+  Map<String, dynamic> toJson() => _$TrocadorExchangesRequestToJson(this);
+
+  @override
+  TrocadorExchangesResponse decode(Object json) =>
+      TrocadorExchangesResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)

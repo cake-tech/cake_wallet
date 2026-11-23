@@ -6,6 +6,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/zano/zano.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -23,7 +24,6 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(this._appStore)
       : _wallet = _appStore.wallet!,
-        _walletName = _appStore.wallet!.type.name,
         _restoreHeight = _appStore.wallet!.walletInfo.restoreHeight,
         _restoreHeightByTransactions = 0,
         items = ObservableList<StandartListItem>(),
@@ -93,7 +93,6 @@ abstract class WalletKeysViewModelBase with Store {
   String get title => _title;
 
   final WalletBase _wallet;
-  final String _walletName;
   final AppStore _appStore;
   final int _restoreHeight;
 
@@ -171,12 +170,13 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
       case WalletType.solana:
       case WalletType.tron:
         items.addAll([
           if (_wallet.privateKey != null)
             StandartListItem(
-              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_private_key_item_key'),
               title: S.current.private_key,
               value: _wallet.privateKey!,
             ),
@@ -188,13 +188,13 @@ abstract class WalletKeysViewModelBase with Store {
         items.addAll([
           if (_wallet.hexSeed != null)
             StandartListItem(
-              key: ValueKey('${_walletName}_wallet_hex_seed_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_hex_seed_key'),
               title: S.current.seed_hex_form,
               value: _wallet.hexSeed!,
             ),
           if (_wallet.privateKey != null)
             StandartListItem(
-              key: ValueKey('${_walletName}_wallet_private_key_item_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_private_key_item_key'),
               title: S.current.private_key,
               value: _wallet.privateKey!,
             ),
@@ -225,10 +225,8 @@ abstract class WalletKeysViewModelBase with Store {
           if ((electrumKeys['wif'] ?? '').isNotEmpty)
             StandartListItem(title: "WIF", value: electrumKeys['wif']!),
           if ((electrumKeys['privateKey'] ?? '').isNotEmpty)
-            StandartListItem(title: S.current.private_key, value: electrumKeys['privateKey']!),
-          if (electrumKeys['publicKey'] != null)
-            StandartListItem(title: S.current.public_key, value: electrumKeys['publicKey']!),
-          if (electrumKeys['xpub'] != null)
+            StandartListItem(title: "xPrv", value: electrumKeys['privateKey']!),
+          if ((electrumKeys['xpub'] ?? '').isNotEmpty)
             StandartListItem(title: "xPub", value: electrumKeys['xpub']!),
         ]);
         break;
@@ -242,42 +240,42 @@ abstract class WalletKeysViewModelBase with Store {
       keysList.addAll([
         if ((keys['primaryAddress'] ?? '').isNotEmpty)
           StandartListItem(
-              key: ValueKey('${_walletName}_wallet_primary_address_item_key'),
+              key: ValueKey('${_wallet.type.name}_wallet_primary_address_item_key'),
               title: S.current.primary_address,
               value: keys['primaryAddress']!),
         if ((keys['publicSpendKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_spend_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_public_spend_key_item_key'),
             title: S.current.spend_key_public,
             value: keys['publicSpendKey']!,
           ),
         if ((keys['privateSpendKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_spend_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_private_spend_key_item_key'),
             title: S.current.spend_key_private,
             value: keys['privateSpendKey']!,
           ),
         if ((keys['publicViewKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_public_view_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_public_view_key_item_key'),
             title: S.current.view_key_public,
             value: keys['publicViewKey']!,
           ),
         if ((keys['privateViewKey'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_private_view_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_private_view_key_item_key'),
             title: S.current.view_key_private,
             value: keys['privateViewKey']!,
           ),
         if ((keys['tsk'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_transparent_secret_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_transparent_secret_key_item_key'),
             title: S.current.transparent_secret_key,
             value: keys['tsk']!,
           ),
         if ((keys['uvk'] ?? '').isNotEmpty)
           StandartListItem(
-            key: ValueKey('${_walletName}_wallet_unified_view_key_item_key'),
+            key: ValueKey('${_wallet.type.name}_wallet_unified_view_key_item_key'),
             title: S.current.unified_view_key,
             value: keys['uvk']!,
           ),
@@ -321,6 +319,8 @@ abstract class WalletKeysViewModelBase with Store {
         return 'arbitrum-wallet';
       case WalletType.bsc:
         return 'bsc-wallet';
+      case WalletType.robinhood:
+        return "robinhood-wallet";
       case WalletType.solana:
         return 'solana-wallet';
       case WalletType.tron:
@@ -336,7 +336,7 @@ abstract class WalletKeysViewModelBase with Store {
       case WalletType.zcash:
         return 'zcash-wallet';
       case WalletType.none:
-        throw Exception('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys');
+        throw BadWalletTypeException('Unexpected wallet type: ${_wallet.type.toString()} for wallet keys', _wallet.type);
     }
   }
 

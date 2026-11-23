@@ -8,6 +8,43 @@
 	<array>
 		<string>com.fotolockr.cakewallet.monero_sync_task</string>
 	</array>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>ar</string>
+		<string>bg</string>
+		<string>bn</string>
+		<string>cs</string>
+		<string>de</string>
+		<string>es</string>
+		<string>fa</string>
+		<string>fr</string>
+		<string>ha</string>
+		<string>hi</string>
+		<string>hr</string>
+		<string>hy</string>
+		<string>id</string>
+		<string>it</string>
+		<string>ja</string>
+		<string>ko</string>
+		<string>mr</string>
+		<string>my</string>
+		<string>nl</string>
+		<string>pl</string>
+		<string>pt</string>
+		<string>pt_BR</string>
+		<string>ru</string>
+		<string>ta</string>
+		<string>te</string>
+		<string>th</string>
+		<string>tl</string>
+		<string>tr</string>
+		<string>uk</string>
+		<string>ur</string>
+		<string>vi</string>
+		<string>yo</string>
+		<string>zh</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -361,6 +398,26 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>bsc-wallet</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>robinhood</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>robinhood</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>CFBundleURLName</key>
+            <string>robinhood-wallet</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>robinhood-wallet</string>
             </array>
         </dict>
         <dict>

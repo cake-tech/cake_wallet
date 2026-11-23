@@ -12,11 +12,13 @@ class HistoryTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliverToBoxAdapter(
       child: Semantics(
+        identifier: "history_top_bar_key",
         button: true,
         label: S.of(context).history,
         onTap: onTap,
         child: ExcludeSemantics(
           child: GestureDetector(
+            key: const ValueKey("history_top_bar_key"),
             onTap: onTap,
             behavior: HitTestBehavior.opaque,
             child: Padding(

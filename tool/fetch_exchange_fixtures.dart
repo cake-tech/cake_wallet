@@ -243,6 +243,12 @@ List<Fixture> _trocador() => [
           "&amount_from=0.01&payment=False&min_kycrating=C&markup=$_trocadorMarkup",
           headers: _trocadorHeaders(),
         )),
+      Fixture("trocador", "new_rate_payment", (_) => _get(
+          "https://api.trocador.app/new_rate"
+          "?ticker_from=btc&ticker_to=xmr&network_from=Mainnet&network_to=Mainnet"
+          "&amount_to=1&payment=True&min_kycrating=C&markup=$_trocadorMarkup",
+          headers: _trocadorHeaders(),
+        )),
       Fixture("trocador", "exchanges", (_) => _get(
           "https://api.trocador.app/exchanges"
           '?api_key=${_requireKey('trocadorApiKey', secrets.trocadorApiKey)}',
@@ -267,17 +273,30 @@ List<Fixture> _trocador() => [
 
 List<Fixture> _swapTrade() => [
       Fixture("swaptrade", "get_coins", (_) => _get("https://api.swaptrade.io/api/swap/get-coins")),
-      Fixture("swaptrade", "get_rate", (_) => _postJson("https://api.swaptrade.io/api/swap/get-rate", {
+      Fixture("swaptrade", "get_price", (_) => _postJson("https://api.swaptrade.io/api/swap/get-price", {
           "coin_send": "BTC",
+          "coin_send_network": "BTC",
           "coin_receive": "XMR",
-          "amount": "0.01",
-          "ref": "cake",
+          "coin_receive_network": "XMR",
+          "amount_send": "2",
+          "markup": 0,
         })),
-      // an unsupported pair answers 200 with price "NaN"
-      Fixture("swaptrade", "get_rate_unknown_pair", (_) => _postJson("https://api.swaptrade.io/api/swap/get-rate", {
-          "coin_send": "NOPECOIN",
+      // a rejected quote answers 200 with success false and the reason in errors
+      Fixture("swaptrade", "get_price_below_min", (_) => _postJson("https://api.swaptrade.io/api/swap/get-price", {
+          "coin_send": "BTC",
+          "coin_send_network": "BTC",
           "coin_receive": "XMR",
-          "amount": "0.01",
+          "coin_receive_network": "XMR",
+          "amount_send": "0.0001",
+          "markup": 0,
+        })),
+      Fixture("swaptrade", "get_price_invalid_coin", (_) => _postJson("https://api.swaptrade.io/api/swap/get-price", {
+          "coin_send": "NOPECOIN",
+          "coin_send_network": "NOPE",
+          "coin_receive": "XMR",
+          "coin_receive_network": "XMR",
+          "amount_send": "2",
+          "markup": 0,
         })),
       // empty body, for the {success: false, errors: [...]} envelope. swaptrade answers 200 and
       // puts the real status in the body, so this one does expect a 2xx
@@ -289,7 +308,7 @@ List<Fixture> _swapTrade() => [
           "coin_send": "ETH",
           "coin_send_network": "ETH",
           "coin_receive": "USDT",
-          "coin_receive_network": "USDT_ERC20",
+          "coin_receive_network": "ETH",
           "amount_send": "100.01",
           "recipient": _ethAddress,
           "refund_address": _ethAddress,
@@ -348,7 +367,7 @@ Map<String, String> _nearIntentsHeaders() => {
 
 List<Object> _nearIntentsAppFees() {
   const recipient = secrets.nearIntentsAppFeeRecipient;
-  final fee = int.tryParse(secrets.nearIntentsAppFee);
+  final fee = int.tryParse(secrets.nearIntentsAppFee.toString());
   if (recipient.trim().isEmpty || fee == null) {
     return const [];
   }
@@ -568,41 +587,41 @@ List<Fixture> _exolix() => [
     ];
 
 // ---------------------------------------------------------------------------
-// letsexchange - https://api.letsexchange.io, Authorization header, no Bearer prefix
+// whynot - https://api.y-not.io, Authorization header, no Bearer prefix
 // ---------------------------------------------------------------------------
 
-Map<String, String> _letsExchangeHeaders() => {
+Map<String, String> _whyNotHeaders() => {
       "Accept": "application/json",
-      "Authorization": _requireKey("letsExchangeBearerToken", secrets.letsExchangeBearerToken),
+      "Authorization": _requireKey("whyNotBearerToken", secrets.whyNotBearerToken),
     };
 
-Map<String, Object> _letsExchangeInfoBody({required bool float}) => {
+Map<String, Object> _whyNotInfoBody({required bool float}) => {
       "from": "BTC",
       "to": "XMR",
       "amount": "1",
-      "affiliate_id": secrets.letsExchangeAffiliateId,
+      "affiliate_id": secrets.whyNotAffiliateId,
       "float": float,
     };
 
-List<Fixture> _letsExchange() => [
-      Fixture("letsexchange", "info", (_) => _postJson(
-          "https://api.letsexchange.io/api/v1/info",
-          _letsExchangeInfoBody(float: true),
-          headers: _letsExchangeHeaders())),
+List<Fixture> _whyNot() => [
+      Fixture("whynot", "info", (_) => _postJson(
+          "https://api.y-not.io/api/v1/info",
+          _whyNotInfoBody(float: true),
+          headers: _whyNotHeaders())),
       // the fixed rate variant, which is what supportsFixedRate uses
-      Fixture("letsexchange", "info_revert", (_) => _postJson(
-          "https://api.letsexchange.io/api/v1/info-revert",
-          _letsExchangeInfoBody(float: false),
-          headers: _letsExchangeHeaders())),
-      Fixture("letsexchange", "info_bad_request", (_) => _postJson(
-          "https://api.letsexchange.io/api/v1/info",
+      Fixture("whynot", "info_revert", (_) => _postJson(
+          "https://api.y-not.io/api/v1/info-revert",
+          _whyNotInfoBody(float: false),
+          headers: _whyNotHeaders())),
+      Fixture("whynot", "info_bad_request", (_) => _postJson(
+          "https://api.y-not.io/api/v1/info",
           const <String, Object>{},
-          headers: _letsExchangeHeaders()), expectSuccess: false),
-      Fixture("letsexchange", "transaction", (options) => _get(
-          "https://api.letsexchange.io/api/v1/transaction/${options.id("letsexchange")}",
-          headers: _letsExchangeHeaders()), needsId: true),
-      Fixture("letsexchange", "create_transaction", (options) => _postJson(
-          "https://api.letsexchange.io/api/v1/transaction",
+          headers: _whyNotHeaders()), expectSuccess: false),
+      Fixture("whynot", "transaction", (options) => _get(
+          "https://api.y-not.io/api/v1/transaction/${options.id("whynot")}",
+          headers: _whyNotHeaders()), needsId: true),
+      Fixture("whynot", "create_transaction", (options) => _postJson(
+          "https://api.y-not.io/api/v1/transaction",
           {
             "coin_from": "USDT",
             "coin_to": "USDC",
@@ -612,10 +631,10 @@ List<Fixture> _letsExchange() => [
             "withdrawal": _ethAddress,
             "withdrawal_extra_id": "",
             "return": _ethAddress,
-            "affiliate_id": secrets.letsExchangeAffiliateId,
+            "affiliate_id": secrets.whyNotAffiliateId,
             "float": true,
           },
-          headers: _letsExchangeHeaders()), createsOrder: true, publishId: (body) => _pick(body, ["transaction_id"])),
+          headers: _whyNotHeaders()), createsOrder: true, publishId: (body) => _pick(body, ["transaction_id"])),
     ];
 
 
@@ -624,7 +643,7 @@ List<Fixture> _allFixtures() => [
       ..._chainflip(),
       ..._changeNow(),
       ..._exolix(),
-      ..._letsExchange(),
+      ..._whyNot(),
       ..._stealthEx(),
       ..._xoSwap(),
       ..._trocador(),

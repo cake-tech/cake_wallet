@@ -2,6 +2,7 @@
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "changenow_api_schema.g.dart";
@@ -39,7 +40,7 @@ class ChangeNowErrorResponse {
 
 
 @JsonSerializable()
-class ChangeNowRangeRequest {
+class ChangeNowRangeRequest extends ApiRequest<ChangeNowRangeResponse> {
   const ChangeNowRangeRequest({
     required this.fromCurrency,
     required this.toCurrency,
@@ -59,7 +60,15 @@ class ChangeNowRangeRequest {
   @JsonKey(name: "flow")
   final ChangeNowFlow flow;
 
+  @override
+  String path() => "/v2/exchange/range";
+
+  @override
   Map<String, dynamic> toJson() => _$ChangeNowRangeRequestToJson(this);
+
+  @override
+  ChangeNowRangeResponse decode(Object json) =>
+      ChangeNowRangeResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -95,7 +104,7 @@ class ChangeNowRangeResponse {
 
 
 @JsonSerializable()
-class ChangeNowEstimatedAmountRequest {
+class ChangeNowEstimatedAmountRequest extends ApiRequest<ChangeNowEstimatedAmountResponse> {
   const ChangeNowEstimatedAmountRequest({
     required this.fromCurrency,
     required this.toCurrency,
@@ -127,7 +136,15 @@ class ChangeNowEstimatedAmountRequest {
   @JsonKey(name: "useRateId", includeIfNull: false)
   final String? useRateId;
 
+  @override
+  String path() => "/v2/exchange/estimated-amount";
+
+  @override
   Map<String, dynamic> toJson() => _$ChangeNowEstimatedAmountRequestToJson(this);
+
+  @override
+  ChangeNowEstimatedAmountResponse decode(Object json) =>
+      ChangeNowEstimatedAmountResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -210,7 +227,7 @@ class ChangeNowCreateExchangePayload {
 }
 
 @JsonSerializable(explicitToJson: true)
-class ChangeNowCreateExchangeRequest {
+class ChangeNowCreateExchangeRequest extends ApiRequest<ChangeNowCreateExchangeResponse> {
   const ChangeNowCreateExchangeRequest({
     required this.fromCurrency,
     required this.toCurrency,
@@ -229,7 +246,7 @@ class ChangeNowCreateExchangeRequest {
     this.contactEmail,
     this.source,
     this.rateId,
-  });
+  }) : super.post();
 
   @JsonKey(name: "fromCurrency")
   final String fromCurrency;
@@ -266,7 +283,15 @@ class ChangeNowCreateExchangeRequest {
   @JsonKey(name: "rateId", includeIfNull: false)
   final String? rateId;
 
+  @override
+  String path() => "/v2/exchange";
+
+  @override
   Map<String, dynamic> toJson() => _$ChangeNowCreateExchangeRequestToJson(this);
+
+  @override
+  ChangeNowCreateExchangeResponse decode(Object json) =>
+      ChangeNowCreateExchangeResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -326,13 +351,21 @@ class ChangeNowCreateExchangeResponse {
 
 
 @JsonSerializable()
-class ChangeNowByIdRequest {
+class ChangeNowByIdRequest extends ApiRequest<ChangeNowTransactionResponse> {
   const ChangeNowByIdRequest({required this.id});
 
   @JsonKey(name: "id")
   final String id;
 
+  @override
+  String path() => "/v2/exchange/by-id";
+
+  @override
   Map<String, dynamic> toJson() => _$ChangeNowByIdRequestToJson(this);
+
+  @override
+  ChangeNowTransactionResponse decode(Object json) =>
+      ChangeNowTransactionResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)

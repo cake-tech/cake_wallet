@@ -2,20 +2,11 @@
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "chainflip_api_schema.g.dart";
-
-class IntStringConverter extends JsonConverter<int, String> {
-  const IntStringConverter();
-
-  @override
-  int fromJson(String json) => int.parse(json);
-
-  @override
-  String toJson(int value) => value.toString();
-}
 
 class ChainflipCurrencyConverter implements JsonConverter<CryptoCurrency, String> {
   const ChainflipCurrencyConverter();
@@ -65,34 +56,9 @@ class ChainflipCurrencyConverter implements JsonConverter<CryptoCurrency, String
   }
 }
 
-class ChainflipTradeStateConverter implements JsonConverter<TradeState, String> {
-  const ChainflipTradeStateConverter();
-
-  @override
-  String toJson(TradeState state) => switch (state) {
-    TradeState.waiting => "waiting",
-    TradeState.processing => "processing",
-    TradeState.success => "completed",
-    TradeState.failed => "failed",
-    _ => "unknown",
-  };
-
-  @override
-  TradeState fromJson(String json) => switch (json) {
-    "waiting" => TradeState.waiting,
-    "receiving" => TradeState.processing,
-    "swapping" => TradeState.processing,
-    "sending" => TradeState.processing,
-    "sent" => TradeState.processing,
-    "completed" => TradeState.success,
-    "failed" => TradeState.failed,
-    _ => TradeState.notFound,
-  };
-}
-
 @JsonSerializable()
 @ChainflipCurrencyConverter()
-class ChainflipFetchQuotesRequest {
+class ChainflipFetchQuotesRequest extends ApiRequest<ChainflipFetchQuotesResponse> {
   const ChainflipFetchQuotesRequest({
     required this.apiKey,
     required this.sourceAsset,
@@ -112,7 +78,15 @@ class ChainflipFetchQuotesRequest {
   @JsonKey(name: "commissionBps")
   final String commissionBps;
 
+  @override
+  String path() => "/quotes-native";
+
+  @override
   Map<String, dynamic> toJson() => _$ChainflipFetchQuotesRequestToJson(this);
+
+  @override
+  ChainflipFetchQuotesResponse decode(Object json) =>
+      ChainflipFetchQuotesResponse.fromJson(json as List<dynamic>);
 }
 
 enum ChainflipFeeType {
@@ -139,6 +113,37 @@ enum ChainflipQuoteType {
   @JsonValue("dca")
   dca,
   unknown,
+}
+
+enum ChainflipSwapState {
+  @JsonValue("waiting")
+  waiting,
+  @JsonValue("receiving")
+  receiving,
+  @JsonValue("swapping")
+  swapping,
+  @JsonValue("sending")
+  sending,
+  @JsonValue("sent")
+  sent,
+  @JsonValue("completed")
+  completed,
+  @JsonValue("failed")
+  failed,
+  unknown,
+}
+
+extension StatusToState on ChainflipSwapState {
+  TradeState get toState => switch (this) {
+    .waiting => .waiting,
+    .receiving => .processing,
+    .swapping => .processing,
+    .sending => .processing,
+    .sent => .processing,
+    .completed => .success,
+    .failed => .failed,
+    .unknown => .notFound,
+  };
 }
 
 @JsonSerializable(createToJson: false)
@@ -412,6 +417,20 @@ class ChainflipAsset {
   final List<String> platforms;
 }
 
+class ChainflipAssetsRequest extends ApiRequest<ChainflipAssetsResponse> {
+  const ChainflipAssetsRequest();
+
+  @override
+  String path() => "/assets";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  @override
+  ChainflipAssetsResponse decode(Object json) =>
+      ChainflipAssetsResponse.fromJson(json as Map<String, dynamic>);
+}
+
 class ChainflipAssetsResponse {
   const ChainflipAssetsResponse({required this.assets});
 
@@ -433,7 +452,7 @@ class ChainflipAssetsResponse {
 
 @JsonSerializable()
 @ChainflipCurrencyConverter()
-class ChainflipSwapRequest {
+class ChainflipSwapRequest extends ApiRequest<ChainflipSwapResponse> {
   const ChainflipSwapRequest({
     required this.apiKey,
     required this.sourceAsset,
@@ -474,7 +493,15 @@ class ChainflipSwapRequest {
   @JsonKey(name: "chunkIntervalBlocks", includeIfNull: false)
   final int? chunkIntervalBlocks;
 
+  @override
+  String path() => "/swap";
+
+  @override
   Map<String, dynamic> toJson() => _$ChainflipSwapRequestToJson(this);
+
+  @override
+  ChainflipSwapResponse decode(Object json) =>
+      ChainflipSwapResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -513,7 +540,7 @@ class ChainflipSwapResponse {
 
 @IntStringConverter()
 @JsonSerializable()
-class ChainflipStatusRequest {
+class ChainflipStatusRequest extends ApiRequest<ChainflipStatusResponse> {
   const ChainflipStatusRequest({
     required this.apiKey,
     required this.issuedBlock,
@@ -530,7 +557,15 @@ class ChainflipStatusRequest {
   @JsonKey(name: "channelId")
   final int channelId;
 
+  @override
+  String path() => "/status-by-deposit-channel";
+
+  @override
   Map<String, dynamic> toJson() => _$ChainflipStatusRequestToJson(this);
+
+  @override
+  ChainflipStatusResponse decode(Object json) =>
+      ChainflipStatusResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -874,7 +909,6 @@ class ChainflipStatusDepositChannel {
 
 @JsonSerializable(createToJson: false)
 @ChainflipCurrencyConverter()
-@ChainflipTradeStateConverter()
 @MillisDateTimeConverter()
 class ChainflipStatusData {
   const ChainflipStatusData({
@@ -899,8 +933,8 @@ class ChainflipStatusData {
   factory ChainflipStatusData.fromJson(Map<String, dynamic> json) =>
       _$ChainflipStatusDataFromJson(json);
 
-  @JsonKey(name: "state")
-  final TradeState state;
+  @JsonKey(name: "state", unknownEnumValue: ChainflipSwapState.unknown)
+  final ChainflipSwapState state;
   @JsonKey(name: "swapId")
   final String? swapId;
   @JsonKey(name: "sourceAsset")

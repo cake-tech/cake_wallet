@@ -1,4 +1,4 @@
-import "package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/stealthex/stealthex_exchange_provider.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -57,7 +57,6 @@ ProviderScenario stealthExScenario() => ProviderScenario(
     fundingAddress: stealthExDepositAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    toAddressExtraId: "",
     createdAt: DateTime.parse(stealthExCreatedAt).toLocal(),
     // a floating rate has no rate id to expire, so the provider invents a five minute window
     expiredAtIsNowPlus: const Duration(minutes: 5),

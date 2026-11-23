@@ -5,7 +5,6 @@ import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_picker_sheet.dart";
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/new-ui/widgets/swap_page/provider_options_page.dart';
@@ -33,6 +32,7 @@ class SwapOptionsPage extends StatelessWidget {
   builder: (context, state) => Column(
       children: [
         ModalTopBar(
+          testId: "swap_options_page_top_bar",
           title: S.of(context).configure,
           leadingIcon: const Icon(Icons.arrow_back_ios_new),
           leadingSemanticLabel: S.of(context).seed_alert_back,
@@ -89,7 +89,7 @@ class SwapOptionsPage extends StatelessWidget {
                                 builder: (context) => RefundAddressModal(
                                       selectedCurrency: state.depositAmount.currency)).then((val) {
                               if (val != null && val is String) {
-                                bloc.add(SourceChanged(ExternalSwapSource(val)));
+                                bloc.add(SourceChanged(state.source.withAddress(val)));
                               }
                             });
                           })
@@ -133,13 +133,6 @@ class SwapOptionsPage extends StatelessWidget {
                             );
 
                           })
-                    ],
-                    //FIXME(malik): remove this after tests
-                    "test": [
-                      ListItemRegularRow(keyValue: "send logs", label: "Send logs", onTap: (){
-                        final logs = ExchangeProviderLogger.getLogsAsText();
-                        ShareUtil.share(text: logs, context: context);
-                      })
                     ],
                   })
             ],

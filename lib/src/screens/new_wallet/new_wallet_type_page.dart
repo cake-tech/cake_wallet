@@ -14,6 +14,7 @@ import 'package:cw_core/hardware/device_connection_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class NewWalletTypePageHeader extends StatelessWidget {
   const NewWalletTypePageHeader({super.key});
@@ -103,11 +104,15 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   @override
   void initState() {
     types = filteredTypes = availableWalletTypes
-        .where((element) =>
-            !widget.isHardwareWallet ||
-            DeviceConnectionType.supportedConnectionTypes(
-                    element, widget.hardwareWalletType!, Platform.isIOS)
-                .isNotEmpty)
+        .where(
+          (element) =>
+              !widget.isHardwareWallet ||
+              DeviceConnectionType.supportedConnectionTypes(
+                element,
+                widget.hardwareWalletType!,
+                isIOS: Platform.isIOS,
+              ).isNotEmpty,
+        )
         .toList();
     super.initState();
   }
@@ -122,8 +127,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
           children: [
             widget.hardwareWalletType != null
                 ? const NewWalletTypePageHeader()
-                : const CakeImageWidget(
-                    imageUrl: "assets/new-ui/wallet.svg",
+                : CakeImageWidget(
+                    imageUrl: Theme.of(context).brightness == Brightness.dark
+                        ? "assets/new-ui/hero/welcome_wallet_dark.svg"
+                        : "assets/new-ui/hero/welcome_wallet_light.svg",
                     width: 100,
                     height: 100,
                   ),
@@ -153,13 +160,13 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                         physics: NeverScrollableScrollPhysics(),
                         padding: EdgeInsets.zero,
                         itemBuilder: (context, index) {
-                          final item = filteredTypes[index];
+                          final type = filteredTypes[index];
 
-                          return GestureDetector(
-                            key: ValueKey('new_wallet_type_${item.name}_button_key'),
+                          return TestId.merge("new_wallet_type_${type.name}_button_key", child: GestureDetector(
+                            key: ValueKey('new_wallet_type_${type.name}_button_key'),
                             behavior: HitTestBehavior.opaque,
                             onTap: () {
-                              onTypeSelected(item);
+                              onTypeSelected(type);
                             },
                             child: SizedBox(
                               height: 50,
@@ -173,13 +180,16 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                         CakeImageWidget(
                                           height: 24,
                                           width: 24,
-                                          imageUrl: getCryptoCurrencyIconForWalletListItem(item),
+                                          imageUrl: getCryptoCurrencyIconForWalletListItem(type),
                                         ),
                                         const SizedBox(width: 12),
-                                        Text(walletTypeToDisplayName(item)),
+                                        Semantics(
+                                          button: true,
+                                          child: Text(walletTypeToDisplayName(type)),
+                                        ),
                                         const SizedBox(width: 4),
                                         Text(
-                                          walletTypeToDisplayTicker(item),
+                                          walletTypeToDisplayTicker(type),
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                                           ),
@@ -198,7 +208,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                                 ),
                               ),
                             ),
-                          );
+                          ));
                         },
                         separatorBuilder: (context, index) => Container(
                           height: 1,

@@ -1,5 +1,6 @@
 // spec reference: https://developers.jup.ag/docs/ultra-api
 
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "jupiter_api_schema.g.dart";
@@ -73,7 +74,7 @@ class JupiterErrorResponse {
 
 
 @JsonSerializable()
-class JupiterOrderRequest {
+class JupiterOrderRequest extends ApiRequest<JupiterOrder> {
   const JupiterOrderRequest({
     required this.inputMint,
     required this.outputMint,
@@ -103,7 +104,14 @@ class JupiterOrderRequest {
   @JsonKey(name: "referralFee", includeIfNull: false)
   final String? referralFee;
 
+  @override
+  String path() => "/ultra/v1/order";
+
+  @override
   Map<String, dynamic> toJson() => _$JupiterOrderRequestToJson(this);
+
+  @override
+  JupiterOrder decode(Object json) => JupiterOrder.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -299,15 +307,24 @@ class JupiterOrder {
 
 
 @JsonSerializable()
-class JupiterExecuteRequest {
-  const JupiterExecuteRequest({required this.signedTransaction, required this.requestId});
+class JupiterExecuteRequest extends ApiRequest<JupiterExecuteResponse> {
+  const JupiterExecuteRequest({required this.signedTransaction, required this.requestId})
+    : super.post();
 
   @JsonKey(name: "signedTransaction")
   final String signedTransaction;
   @JsonKey(name: "requestId")
   final String requestId;
 
+  @override
+  String path() => "/ultra/v1/execute";
+
+  @override
   Map<String, dynamic> toJson() => _$JupiterExecuteRequestToJson(this);
+
+  @override
+  JupiterExecuteResponse decode(Object json) =>
+      JupiterExecuteResponse.fromJson(json as Map<String, dynamic>);
 }
 
 enum JupiterExecuteStatus {

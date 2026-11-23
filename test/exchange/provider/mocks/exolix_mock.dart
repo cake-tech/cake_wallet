@@ -1,5 +1,5 @@
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart";
-import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -56,7 +56,6 @@ ProviderScenario exolixScenario() => ProviderScenario(
     fundingAddress: exolixDepositAddress,
     payoutAddress: "payout-address",
     refundAddress: "refund-address",
-    toAddressExtraId: "",
     createdAtIsNow: true,
   ),
   tradeId: exolixTradeId,

@@ -9,9 +9,9 @@ import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/flashnet/flashnet_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/stealthex/stealth_ex_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/whynot/whynot_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/near_intents/near_intents_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/stealthex/stealthex_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
@@ -31,10 +31,10 @@ class ExchangeProviderRegistry {
   late final Map<ExchangeProviderDescription, ExchangeProvider> _providers = {
     ExchangeProviderDescription.changeNow: ChangeNowExchangeProvider(settingsStore: _settingsStore),
     ExchangeProviderDescription.chainflip: ChainflipExchangeProvider(),
-    ExchangeProviderDescription.exolix: ExolixExchangeProvider(),
+    // ExchangeProviderDescription.exolix: ExolixExchangeProvider(),
     ExchangeProviderDescription.swapTrade: SwapTradeExchangeProvider(),
-    ExchangeProviderDescription.letsExchange: LetsExchangeExchangeProvider(),
-    ExchangeProviderDescription.stealthEx: StealthExExchangeProvider(),
+    ExchangeProviderDescription.whyNot: WhyNotExchangeProvider(),
+    // ExchangeProviderDescription.stealthEx: StealthExExchangeProvider(),
     ExchangeProviderDescription.xoSwap: XOSwapExchangeProvider(),
     ExchangeProviderDescription.swapsXyz: SwapsXyzExchangeProvider(settingsStore: _settingsStore),
     ExchangeProviderDescription.jupiter: JupiterExchangeProvider(),
@@ -66,9 +66,15 @@ class ExchangeProviderRegistry {
       final providerSettings = json.decode(_sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
       as Map<String, dynamic>;
 
-      return _providers.keys.where((item)=>providerSettings[item.title] != false).toList();
+      return allProviders.where((item)=>providerSettings[item.title] != false).toList();
     }
 
 
-  List<ExchangeProviderDescription> get allProviders => _providers.keys.toList();
+  List<ExchangeProviderDescription> get allProviders => _providers.keys
+      .where(
+        (item) =>
+            _settingsStore.exchangeStatus != ExchangeApiMode.torOnly ||
+            _providers[item]!.supportsOnionAddress,
+      )
+      .toList();
 }

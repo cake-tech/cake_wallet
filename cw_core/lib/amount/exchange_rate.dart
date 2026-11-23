@@ -12,9 +12,14 @@ class ExchangeRate implements Comparable<ExchangeRate> {
       );
     }
 
-    final scale = BigInt.from(10).pow(from.currency.decimals);
+    final quote = Money(
+          to.amount * BigInt.from(10).pow(2 * from.decimals),
+          to.currency,
+          from.decimals + to.decimals,
+        ) /
+        from.amount;
 
-    return ExchangeRate(base: from.currency, quote: to * scale / from.amount);
+    return ExchangeRate(base: from.currency, quote: quote);
   }
 
   /// The currency being priced (e.g. BTC in a BTC/USD pair).
@@ -40,7 +45,8 @@ class ExchangeRate implements Comparable<ExchangeRate> {
 
       return quote.isZero
           ? Money.zero(quote.currency)
-          : Money(amount.amount * quote.amount ~/ scale, quote.currency, quote.decimals);
+          : Money(amount.amount * quote.amount ~/ scale, quote.currency, quote.decimals)
+              .copyWith(currency: quote.currency);
     }
 
     if (amount.currency == quote.currency) {

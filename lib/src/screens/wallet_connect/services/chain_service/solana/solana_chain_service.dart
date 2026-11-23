@@ -213,7 +213,8 @@ class SolanaChainService {
 
       if (isApproved) {
         if (params.containsKey('transactions')) {
-          final transactions = params['transactions'] as List<String>;
+          final transactions =
+              List<String>.from(params['transactions'] as List<dynamic>);
 
           List<String> signedTransactions = [];
           for (var transaction in transactions) {
@@ -274,6 +275,11 @@ class SolanaChainService {
 
     final keys = wcKeyService.getKeysForChain(wallet);
     if (keys.isEmpty) {
+      return false;
+    }
+
+    // Requests can arrive on chains the open wallet has no account on; don't sign those.
+    if (!keys.first.chains.contains(getChainId())) {
       return false;
     }
 

@@ -153,7 +153,11 @@ class SyncBar extends StatelessWidget {
             width: 20,
             height: 20,
           ),
-        if (_showDot()) const CupertinoActivityIndicator(radius: 8),
+        if (_showDot())
+          CupertinoActivityIndicator(
+            key: ValueKey(dashboardViewModel.status.runtimeType),
+            radius: 8,
+          ),
         if (_showLightSyncCheck()) const Icon(Icons.check, color: syncedColor, size: 18),
       ],
     );

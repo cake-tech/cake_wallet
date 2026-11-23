@@ -2,6 +2,7 @@ import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
 import "package:cake_wallet/core/auth_service.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -9,13 +10,18 @@ import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/new-ui/widgets/hardware_wallet/connect_hardware_wallet.dart";
 import "package:cake_wallet/new-ui/widgets/keyboard_hide_overlay.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_memo_input.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_syncing_indicator.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/anypay_swap_footer.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/provider_selector_page.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
+import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_from_send_args.dart";
@@ -28,18 +34,21 @@ import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/show_pop_up.dart";
+import "package:cake_wallet/utils/test_id.dart";
+import "package:cake_wallet/view_model/hardware_wallet/hardware_wallet_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/sync_status.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_mobx/flutter_mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class NewSwapPage extends StatefulWidget {
   NewSwapPage(
     this.bloc,
     this.authService,
-    this.adrResService,
     this.initialPaymentRequest, {
       this.fromSend,
     CryptoCurrency? initialCurrency,
@@ -51,7 +60,6 @@ class NewSwapPage extends StatefulWidget {
 
   final SwapBloc bloc;
   final AuthService authService;
-  final AddressResolverService adrResService;
   final PaymentRequest? initialPaymentRequest;
   final SwapFromSendArgs? fromSend;
 
@@ -69,21 +77,23 @@ class _NewSwapPageState extends State<NewSwapPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.initialPaymentRequest != null) {
         final newCurr = CryptoCurrency.fromString(widget.initialPaymentRequest!.scheme);
-        widget.bloc.add(DepositCurrencyChanged(newCurr));
         widget.bloc.add(
-          DepositAmountChanged(Money.parse(widget.initialPaymentRequest!.amount, newCurr)),
-        );
-        widget.bloc.add(
-          PayoutAddressChanged(ExternalSwapAddress(widget.initialPaymentRequest!.address)),
+          InitialValuesApplied(
+            payoutCurrency: newCurr,
+            payoutAmount: Money.tryParse(widget.initialPaymentRequest!.amount, newCurr),
+            payoutAddress: ExternalSwapAddress(widget.initialPaymentRequest!.address),
+          ),
         );
       }
-      
-      if(widget.fromSend != null) {
-        widget.bloc.add(PayoutCurrencyChanged(widget.fromSend!.receiveCurrency));
-        widget.bloc.add(PayoutAddressChanged(ExternalSwapAddress(widget.fromSend!.recipientAddress)));
-        if(widget.fromSend!.receiveAmount != null) {
-          widget.bloc.add(PayoutAmountChanged(widget.fromSend!.receiveAmount!));
-        }
+
+      if (widget.fromSend != null) {
+        widget.bloc.add(
+          InitialValuesApplied(
+            payoutCurrency: widget.fromSend!.receiveCurrency,
+            payoutAmount: widget.fromSend!.receiveAmount,
+            payoutAddress: ExternalSwapAddress(widget.fromSend!.recipientAddress),
+          ),
+        );
       }
     });
   }
@@ -105,17 +115,21 @@ class _NewSwapPageState extends State<NewSwapPage> {
       child: BlocPresentationListener<SwapBloc, SwapPresentationEvent>(
         bloc: widget.bloc,
         listener: (context, event) => switch (event) {
-          AddressValidationFailed() => _showAddressValidationFailurePopup(),
+          AddressValidationFailed(:final currency) => _showAddressValidationFailurePopup(currency),
           AliaspayAddressFound(:final address) => _showParsedAddressPopup(address),
           SwapCreationStarted() => _showConfirmSheet(),
           SwapAllNotReady() => _showSwapAllNotReadyPopup(),
-          LowFeeAlert() => _showFeeAlert(),
+          LowFeeAlert() => Future.delayed(const Duration(seconds: 1), _showFeeAlert),
+          WalletSwitchFailed(:final error) => _showWalletSwitchFailedPopup(error),
+          SourceWalletSelectionRequested() => _showSourceWalletPicker(),
+          RefundAddressRequired(:final currency) => _askForRefundAddress(currency),
         },
         child: BlocBuilder<SwapBloc, SwapState>(
           bloc: widget.bloc,
           builder: (context, state) => Column(
             children: [
               ModalTopBar(
+                testId: "swap_page_top_bar",
                 title: S.of(context).swap,
                 leadingIcon: const Icon(Icons.close),
                 leadingSemanticLabel: S.of(context).close,
@@ -158,6 +172,16 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                     else
                                     SwapAmountBox(isReceiverCard: false, bloc: widget.bloc),
                                     SwapLimitPopup(bloc: widget.bloc),
+                                    if (widget.fromSend != null)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 24),
+                                        child: Icon(
+                                          Icons.arrow_downward,
+                                          size: 24,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      )
+                                    else
                                     Padding(
                                       padding: const EdgeInsets.symmetric(vertical: 12),
                                       child: Stack(
@@ -171,6 +195,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                             ).colorScheme.surfaceContainerHigh,
                                           ),
                                           ModernButton.svg(
+                                            testId: "swap_page_reverse_button_key",
                                             size: 36,
                                             iconSize: 24,
                                             svgPath: "assets/new-ui/swap_amounts.svg",
@@ -181,7 +206,11 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                         ],
                                       ),
                                     ),
-                                    SwapAmountBox(isReceiverCard: true, bloc: widget.bloc),
+                                    SwapAmountBox(
+                                      isReceiverCard: true,
+                                      bloc: widget.bloc,
+                                      network: widget.fromSend?.targetWalletType,
+                                    ),
                                     const SizedBox(height: 24),
                                     SwapMemoInput(bloc: widget.bloc),
                                   ],
@@ -194,8 +223,12 @@ class _NewSwapPageState extends State<NewSwapPage> {
                           spacing: 12,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            // if (widget.wallet.status is! SyncedSyncStatus)
-                            //   SendSyncingIndicator(status: widget.exchangeViewModel.status),
+                            Observer(builder:(context){
+              if (widget.bloc.wallet.syncStatus is! SyncedSyncStatus) {
+                return SendSyncingIndicator(status: widget.bloc.wallet.syncStatus);
+              }return const SizedBox.shrink();
+
+                            }),
                             if (widget.fromSend == null && widget.bloc.state is SwapStateWithInputs &&
                                 (widget.bloc.state as SwapStateWithInputs).isFixedRate)
                               Text(
@@ -207,6 +240,7 @@ class _NewSwapPageState extends State<NewSwapPage> {
                               ),
                             if(widget.fromSend != null)
                               AnyPaySwapFooter(bloc: widget.bloc),
+                            if(widget.fromSend == null)
                             SwapProviderPreview(bloc: widget.bloc),
                             BlocBuilder<RateCubit, RateState>(
                               bloc: widget.bloc.rateCubit,
@@ -218,9 +252,9 @@ class _NewSwapPageState extends State<NewSwapPage> {
                                       formKey.currentState!.validate()) {
                                     widget.authService.authenticateAction(
                                       context,
-                                      conditionToDetermineIfToUse2FA: false,
-                                      onAuthSuccess: (value) {
-                                        if (value) {
+                                      conditionToDetermineIfToUse2FA: _requiresTotp,
+                                      onAuthSuccess: (value) async {
+                                        if (value && await _connectHardwareWallet()) {
                                           widget.bloc.add(SwapInitiated());
                                         }
                                       },
@@ -274,6 +308,31 @@ class _NewSwapPageState extends State<NewSwapPage> {
   }
 
 
+  bool get _requiresTotp => switch (widget.bloc.state) {
+    SwapStateWithInputs(payoutAddress: InternalWalletSwapAddress() || InternalAccountSwapAddress()) =>
+      widget.authService.settingsStore.shouldRequireTOTP2FAForExchangesToInternalWallets,
+    _ => widget.authService.settingsStore.shouldRequireTOTP2FAForExchangesToExternalWallets,
+  };
+
+  Future<bool> _connectHardwareWallet() async {
+    final wallet = widget.bloc.wallet;
+    final isSentFromWallet = switch (widget.bloc.state) {
+      SwapStateWithInputs(:final source) => source is InternalSwapSource,
+      _ => false,
+    };
+
+    if (!wallet.isHardwareWallet || !isSentFromWallet) {
+      return true;
+    }
+
+    return mounted &&
+        await connectHardwareWallet(
+          context,
+          wallet,
+          getIt<HardwareWalletViewModel>(param1: wallet.hardwareWalletType!),
+        );
+  }
+
   Future<void> _showConfirmSheet() async {
     final page = SwapConfirmSheet(bloc: widget.bloc);
     await showMaterialModalBottomSheet(
@@ -285,19 +344,52 @@ class _NewSwapPageState extends State<NewSwapPage> {
     );
   }
 
-  Future<void> _showAddressValidationFailurePopup() async {
-    if (widget.bloc.state case final SwapStateWithInputs s) {
-      await showPopUp(
-        context: context,
-        builder: (context) => AlertWithOneAction(
-          alertTitle: S.of(context).invalid_address,
-          alertContent:
-              "${S.of(context).invalid_address_desc} ${s.payoutAmount.currency.fullName ?? s.payoutAmount.currency.symbol}.",
-          buttonText: S.of(context).ok,
-          buttonAction: Navigator.of(context).pop,
-        ),
-      );
+  Future<void> _askForRefundAddress(CryptoCurrency currency) async {
+    final refundAddress = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => RefundAddressModal(selectedCurrency: currency),
+    );
+    if (refundAddress != null && refundAddress.isNotEmpty) {
+      widget.bloc.add(SourceChanged(ExternalSwapSource(refundAddress), initiateSwap: true));
     }
+  }
+
+  Future<void> _showAddressValidationFailurePopup(CryptoCurrency currency) async {
+    await showPopUp(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).invalid_address,
+        alertContent:
+            "${S.of(context).invalid_address_desc} ${currency.fullName ?? currency.symbol}.",
+        buttonText: S.of(context).ok,
+        buttonAction: Navigator.of(context).pop,
+      ),
+    );
+  }
+
+  Future<void> _showSourceWalletPicker() async {
+    await showMaterialModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.6),
+        child: SwapAddressSelectionModal(isSelectingReceiver: false, bloc: widget.bloc),
+      ),
+    );
+  }
+
+  Future<void> _showWalletSwitchFailedPopup(Object error) async {
+    await showPopUp(
+      context: context,
+      builder: (context) => AlertWithOneAction(
+        alertTitle: S.of(context).error,
+        alertContent: error.toString(),
+        buttonText: S.of(context).ok,
+        buttonAction: Navigator.of(context).pop,
+      ),
+    );
   }
 
   Future<void> _showSwapAllNotReadyPopup() async {
@@ -341,7 +433,20 @@ class SwapMemoInput extends StatefulWidget {
 }
 
 class _SwapMemoInputState extends State<SwapMemoInput> {
-  final memoController = TextEditingController();
+  late final TextEditingController memoController;
+
+  @override
+  void initState() {
+    super.initState();
+    memoController = TextEditingController()
+      ..addListener(() => widget.bloc.add(MemoChanged(memoController.text)));
+  }
+
+  @override
+  void dispose() {
+    memoController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => BlocBuilder<SwapBloc, SwapState>(
@@ -399,7 +504,7 @@ class SwapProviderPreview extends StatelessWidget {
           forcedProvider = state.forcedProvider;
         }
 
-        return GestureDetector(
+        return TestId.merge("swap_page_provider_row_key", child: GestureDetector(
           onTap: () {
             if (forcedProvider != null) {
               bloc.add(const ForcedProviderSelected(null));
@@ -434,6 +539,10 @@ class SwapProviderPreview extends StatelessWidget {
                             imageUrl: forcedProvider?.image ?? "assets/new-ui/warning.svg",
                             width: 28,
                             height: 28,
+                            colorFilter: forcedProvider != null ? null : ColorFilter.mode(Theme
+                                .of(context)
+                                .colorScheme
+                                .error, BlendMode.srcIn),
                           ),
                           Flexible(
                             child: Column(
@@ -509,7 +618,7 @@ class SwapProviderPreview extends StatelessWidget {
               ),
             ),
           ),
-        );
+        ));
       },
     ),
   );

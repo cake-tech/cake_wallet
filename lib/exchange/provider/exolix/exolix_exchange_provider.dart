@@ -1,12 +1,12 @@
 import "dart:convert";
 
 import "package:cake_wallet/.secrets.g.dart" as secrets;
-import "package:cake_wallet/core/lightning_invoice_service.dart";
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
-import "package:cake_wallet/exchange/trade_not_found_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
@@ -25,22 +25,10 @@ class ExolixExchangeProvider extends ExchangeProvider {
   static const ratePath = "/api/v2/rate";
 
   @override
-  String get title => "Exolix";
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
-  bool get supportsFixedRate => true;
+  bool get supportsFixedRate => false;
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.exolix;
-
-  @override
-  Future<bool> checkIsAvailable() async => true;
 
   @override
   Future<ExchangeLimits> fetchLimits({
@@ -105,18 +93,15 @@ class ExolixExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required bool isFixedRate,
-    required CryptoCurrency to,
-  }) async {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+
     final params = ExolixRateRequest(
-      coinFrom: _normalizeCurrency(_overrideFromCryptoCurrency(from.currency as CryptoCurrency)),
-      coinTo: _normalizeCurrency(to),
-      networkFrom: _networkFor(from.currency as CryptoCurrency),
-      networkTo: _networkFor(to),
-      rateType: isFixedRate ? ExolixRateType.fixed : ExolixRateType.float,
-      amount: from.toString(),
+      coinFrom: _normalizeCurrency(_overrideFromCryptoCurrency(request.depositCurrency)),
+      coinTo: _normalizeCurrency(request.payoutCurrency),
+      networkFrom: _networkFor(request.depositCurrency),
+      networkTo: _networkFor(request.payoutCurrency),
+      rateType: ExolixRateType.float,
+      amount: (request as FloatingRateRequest).depositAmount.toString(),
       apiToken: apiKey,
     );
 
@@ -136,12 +121,12 @@ class ExolixExchangeProvider extends ExchangeProvider {
     return ProviderRate(
       provider: description,
       rate: ExchangeRate.fromAmounts(
-        Money.safeParse(responseData.fromAmount, from.currency),
-        Money.safeParse(responseData.toAmount, to),
+        Money.safeParse(responseData.fromAmount, request.depositCurrency),
+        Money.safeParse(responseData.toAmount, request.payoutCurrency),
       ),
       limits: ExchangeLimits(
-        min: Money.safeParse(responseData.minAmount, from.currency),
-        max: Money.safeParse(responseData.maxAmount, from.currency),
+        min: Money.safeParse(responseData.minAmount, request.depositCurrency),
+        max: Money.safeParse(responseData.maxAmount, request.depositCurrency),
       ),
     );
   }
@@ -157,7 +142,9 @@ class ExolixExchangeProvider extends ExchangeProvider {
       ),
       networkFrom: _networkFor(request.depositCurrency),
       networkTo: _networkFor(request.payoutCurrency),
-      withdrawalAddress: await _normalizeAddress(request.payoutAddress),
+      refundAddress: request.refundInvoice ?? request.refundAddress,
+      withdrawalExtraId: request.toAddressExtraId,
+      withdrawalAddress: _normalizeAddress(request.payoutInvoice ?? request.payoutAddress),
       withdrawalAmount: request.isFixedRate ? request.payoutAmount.toString() : null,
       amount: request.isFixedRate ? null : request.depositAmount.toString(),
       rateType: request.isFixedRate ? ExolixRateType.fixed : ExolixRateType.float,
@@ -280,16 +267,7 @@ class ExolixExchangeProvider extends ExchangeProvider {
     }
   }
 
-  Future<String> _normalizeAddress(String address) async {
-    if (address.startsWith("bitcoincash:")) {
-      return address.replaceFirst("bitcoincash:", "");
-    }
-
-    // Lightning addresses
-    if (address.contains("@")) {
-      return await getBolt11FromLightingAddress(address) ?? address;
-    }
-
-    return address;
-  }
+  String _normalizeAddress(String address) => address.startsWith("bitcoincash:")
+      ? address.replaceFirst("bitcoincash:", "")
+      : address;
 }

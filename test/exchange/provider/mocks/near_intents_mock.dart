@@ -1,4 +1,4 @@
-import "package:cake_wallet/exchange/provider/near_intents/near_Intents_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/near_intents/near_intents_exchange_provider.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";

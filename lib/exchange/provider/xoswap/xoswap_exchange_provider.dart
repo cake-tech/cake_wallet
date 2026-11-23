@@ -1,17 +1,19 @@
-import "dart:convert";
-
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/xoswap/xoswap_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/package_info.dart";
+import "package:collection/collection.dart" show IterableDoubleExtension;
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/amount/money_double.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 
@@ -29,13 +31,15 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   static const _apiAuthority = "exchange.exodus.io";
-  static const _apiPath = "/v3";
-  static const _pairsPath = "/pairs";
-  static const _ratePath = "/rates";
-  static const _orders = "/orders";
-  static const _assets = "/assets";
 
-  static final _headers = {"Content-Type": "application/json", "App-Name": "cake-labs"};
+  static final _headers = {"App-Name": "cake-labs"};
+
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _apiAuthority,
+    headers: _headers,
+    errorMessage: (json) => (json["message"] ?? json["error"])?.toString(),
+  );
 
   final _networks = <String, String>{
     "POL": "matic",
@@ -80,22 +84,10 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   ];
 
   @override
-  String get title => "XOSwap";
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
   bool get supportsFixedRate => true;
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.xoSwap;
-
-  @override
-  Future<bool> checkIsAvailable() async => true;
 
   Future<String?> _getAssets(CryptoCurrency currency) async {
     if (currency.tag == null) {
@@ -107,20 +99,9 @@ class XOSwapExchangeProvider extends ExchangeProvider {
         return null;
       }
 
-      final uri = Uri.https(_apiAuthority, _apiPath + _assets,
-          XOSwapAssetsRequest(networks: normalizedNetwork, query: currency.title).toJson());
-
-      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-      if (response.statusCode != 200) {
-        throw Exception("Failed to fetch assets for ${currency.title} on ${currency.tag}");
-      }
-
-      final decoded = jsonDecode(response.body);
-      if (decoded is! List) {
-        throw const FormatException("Unexpected response for`mat");
-      }
-      final assets = decoded.map((e) => XOSwapAsset.fromJson(e as Map<String,dynamic>)).toList();
+      final assets = await _api.send(
+        XOSwapAssetsRequest(networks: normalizedNetwork, query: currency.title),
+      );
 
       final asset = assets.firstWhereOrNull(
         (asset) => removeNonAlphanumeric(asset.symbol.toString()) == currency.title,
@@ -146,37 +127,17 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       if (curFrom == null || curTo == null) {
         return [];
       }
-      final pairId = "${curFrom}_$curTo";
-      final uri = Uri.https(_apiAuthority, "$_apiPath$_pairsPath/$pairId$_ratePath");
-      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-      if (response.statusCode != 200) {
-        printV("xoswap rates for $pairId: ${response.statusCode} ${response.body}");
-        return [];
-      }
-      return (json.decode(response.body) as List<dynamic>).map((item)=>XOSwapRate.fromJson(item as Map<String, dynamic>)).toList();
+      return await _api.send(XOSwapPairRatesRequest(pairId: "${curFrom}_$curTo"));
     } catch (e) {
       printV(e.toString());
       return [];
     }
   }
 
-  ExchangeLimits _exchangeLimitsFromRateList(CryptoCurrency from, List<XOSwapRate> rates) {
-    double minLimit = double.infinity;
-    double maxLimit = 0;
-
-    for (final rate in rates) {
-      final double currentMin = rate.min.value;
-      final double currentMax = rate.max.value;
-      if (currentMin < minLimit) {
-        minLimit = currentMin;
-      }
-      if (currentMax > maxLimit) {
-        maxLimit = currentMax;
-      }
-    }
-    return ExchangeLimits(min: Money.trySafeParse(minLimit, from), max: Money.trySafeParse(maxLimit, from));
-  }
+  ExchangeLimits _exchangeLimitsFromRateList(CryptoCurrency from, List<XOSwapRate> rates) => ExchangeLimits(
+        min: Money.trySafeParse(rates.map((rate) => rate.min.value).min, from),
+        max: Money.trySafeParse(rates.map((rate) => rate.max.value).max, from),
+      );
 
 
   @override
@@ -194,58 +155,61 @@ class XOSwapExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate(
-      {required Money from, required bool isFixedRate, required CryptoCurrency to}) async {
-    final rates = await getRatesForPair(from: from.currency as CryptoCurrency, to: to);
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    final rates = await getRatesForPair(from: request.depositCurrency, to: request.payoutCurrency);
     if (rates.isEmpty) {
       throw Exception("no rate from xoswap");
     }
 
-    final amount = double.parse(from.toString());
-    double result;
-    if (!isFixedRate) {
-      double bestOutput = 0;
-      for (final rate in rates) {
-        final double minVal = rate.min.value;
-        final double maxVal = rate.max.value;
-        if (amount >= minVal && amount <= maxVal) {
-          final double rateMultiplier = rate.amount.value;
-          final double minerFee = rate.minerFee.value;
-          final double outputAmount = (amount * rateMultiplier) - minerFee;
-          if (outputAmount > bestOutput) {
-            bestOutput = outputAmount;
-          }
-        }
-      }
-      result = bestOutput > 0 ? (bestOutput / amount) : 0;
-    } else {
-      double bestInput = double.infinity;
-      for (final rate in rates) {
-        final double rateMultiplier = rate.amount.value;
-        final double minerFee = rate.minerFee.value;
-        final double minVal = rate.min.value;
-        final double maxVal = rate.max.value;
-        final double requiredSend = (amount + minerFee) / rateMultiplier;
-        if (requiredSend >= minVal && requiredSend <= maxVal) {
-          if (requiredSend < bestInput) {
-            bestInput = requiredSend;
-          }
-        }
-      }
-      result = bestInput < double.infinity ? amount / bestInput : 0;
-    }
+    return ProviderRate(
+      provider: description,
+      rate: switch (request) {
+        FloatingRateRequest(:final depositAmount) => ExchangeRate.fromAmounts(
+          depositAmount,
+          _bestPayout(rates, depositAmount).toMoney(request.payoutCurrency),
+        ),
+        FixedRateRequest(:final payoutAmount) => ExchangeRate.fromAmounts(
+          _bestDeposit(rates, payoutAmount).toMoney(request.depositCurrency),
+          payoutAmount,
+        ),
+      },
+      limits: _exchangeLimitsFromRateList(request.depositCurrency, rates),
+    );
+  }
 
-    return ProviderRate(provider: description,
-        rate: ExchangeRate(base: from.currency, quote: Money.safeParse(result, to)),
-        limits: _exchangeLimitsFromRateList(from.currency as CryptoCurrency, rates));
+  double _bestPayout(List<XOSwapRate> rates, Money depositAmount) {
+    final deposit = double.parse(depositAmount.toString());
+    final payouts = [
+      for (final rate in rates)
+        if (deposit >= rate.min.value && deposit <= rate.max.value)
+          deposit * rate.amount.value - rate.minerFee.value,
+    ].where((payout) => payout > 0);
+
+    if (payouts.isEmpty) {
+      throw Exception("no xoswap rate accepts a deposit of $depositAmount");
+    }
+    return payouts.max;
+  }
+
+  double _bestDeposit(List<XOSwapRate> rates, Money payoutAmount) {
+    final payout = double.parse(payoutAmount.toString());
+    final deposits = [
+      for (final rate in rates)
+        if ((payout + rate.minerFee.value) / rate.amount.value case final deposit
+            when deposit >= rate.min.value && deposit <= rate.max.value)
+          deposit,
+    ];
+
+    if (deposits.isEmpty) {
+      throw Exception("no xoswap rate can pay out $payoutAmount");
+    }
+    return deposits.min;
   }
 
   @override
   Future<Trade> createTrade({
     required TradeRequest request,
   }) async {
-      final uri = Uri.https(_apiAuthority, "$_apiPath$_orders");
-
       final curFrom = await _getAssets(request.depositCurrency);
       final curTo = await _getAssets(request.payoutCurrency);
 
@@ -255,26 +219,13 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
       final pairId = "${curFrom}_$curTo";
 
-      final payload = XOSwapCreateOrderRequest(pairId: pairId,
+      final responseData = await _api.send(XOSwapCreateOrderRequest(pairId: pairId,
           fromAmount: request.depositAmount.toString(),
           fromAddress: request.refundAddress,
           toAmount: request.payoutAmount.toString(),
           toAddress: request.payoutAddress,
           toAddressTag: request.toAddressExtraId
-      );
-
-      final response = await proxyWrapper.post(
-        clearnetUri: uri,
-        headers: _headers,
-        body: json.encode(payload),
-      );
-
-      if (response.statusCode != 201) {
-        final error = XOSwapErrorResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
-
-        throw Exception(error);
-      }
-      final responseData = XOSwapOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
+      ));
 
 
       return Trade(
@@ -294,25 +245,21 @@ class XOSwapExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
-    final uri = Uri.https(_apiAuthority, "$_apiPath$_orders/${trade.id}");
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (response.statusCode != 200) {
-      final error = XOSwapErrorResponse.fromJson(
-          json.decode(response.body) as Map<String, dynamic>);
-      if (error.code == "NOT_FOUND") {
-        throw Exception("Trade not found");
-      }
-      throw Exception(error);
-    }
-    final responseData = XOSwapOrder.fromJson(json.decode(response.body) as Map<String, dynamic>);
+    final responseData = await _api.send(
+      XOSwapOrderRequest(id: trade.id),
+      mapError: (e) => switch (e.json) {
+        {"code": "NOT_FOUND"} => Exception("Trade not found"),
+        _ => null,
+      },
+    );
 
 
     return trade.copyWith(
       refundAddress: responseData.fromAddress,
       fundingAddress: responseData.payInAddress,
       depositAmount: Money.safeParse(responseData.amount.value, trade.depositCurrency),
-      payoutAmount: Money.safeParse(responseData.toAmount?.value ?? 0, trade.payoutCurrency),
+      payoutAmount: responseData.toAmount?.value != null ? Money.safeParse(
+          responseData.toAmount!.value, trade.payoutCurrency) : null,
       state: responseData.status,
       createdAt: responseData.createdAt,
       payoutAddress: responseData.toAddress,

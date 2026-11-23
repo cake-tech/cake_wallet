@@ -24,6 +24,7 @@ class BridgeHistoryPage extends StatelessWidget {
       child: Column(
         children: [
           ModalTopBar(
+            testId: "bridge_history_page_top_bar",
             title: "Bridge history",
             leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
             leadingSemanticLabel: S.of(context).seed_alert_back,

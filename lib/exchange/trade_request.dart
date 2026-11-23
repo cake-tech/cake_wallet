@@ -1,3 +1,4 @@
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
@@ -8,12 +9,17 @@ class TradeRequest {
     required this.depositAmount,
     required this.payoutAmount,
     required this.isFixedRate,
+    this.refundInvoice,
+    this.payoutInvoice,
     String? toAddressExtraId,
     // providers really don't like when you send an empty extraId, so we make it null
   }) : toAddressExtraId = toAddressExtraId?.isEmpty ?? false ? null : toAddressExtraId;
 
   final String refundAddress;
   final String payoutAddress;
+  // set when the address is a lightning address, for providers that can't take those
+  final String? refundInvoice;
+  final String? payoutInvoice;
   final Money depositAmount;
   final Money payoutAmount;
   final String? toAddressExtraId;
@@ -23,9 +29,15 @@ class TradeRequest {
 
   CryptoCurrency get payoutCurrency => payoutAmount.currency as CryptoCurrency;
 
+  RateRequest get rateRequest => isFixedRate
+      ? FixedRateRequest(depositCurrency: depositCurrency, payoutAmount: payoutAmount)
+      : FloatingRateRequest(depositAmount: depositAmount, payoutCurrency: payoutCurrency);
+
   Map<String, dynamic> toJson() => {
       "refundAddress": refundAddress,
       "payoutAddress": payoutAddress,
+      "refundInvoice": refundInvoice,
+      "payoutInvoice": payoutInvoice,
       "depositAmount": depositAmount.serialized,
       "payoutAmount": payoutAmount.serialized,
       "toAddressExtraId": toAddressExtraId,

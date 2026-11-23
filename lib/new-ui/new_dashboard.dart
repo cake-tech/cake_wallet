@@ -1,10 +1,16 @@
 import 'dart:io';
 
+import "package:cake_wallet/ci_build_overlay.dart";
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import "package:cake_wallet/new-ui/modal_transition_snapshot.dart";
 import "package:cake_wallet/new-ui/page_open_listener.dart";
+import "package:cake_wallet/new-ui/page_open_listener.dart";
+import 'package:cake_wallet/new-ui/pages/charts_page.dart';
 import 'package:cake_wallet/new-ui/pages/home_page.dart';
 import 'package:cake_wallet/new-ui/widgets/changelog_modal.dart';
+import "package:cake_wallet/new-ui/widgets/more_actions_button.dart";
+import "package:cake_wallet/new-ui/widgets/wallet_removal_popup.dart";
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/pages/cake_features_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/new_main_navbar_widget.dart';
@@ -34,9 +40,9 @@ class NewDashboard extends StatefulWidget {
   final List<Widget> dashboardPageWidgets = [
     getIt.get<NewHomePage>(),
     getIt.get<WalletListPage>(),
-    getIt.get<ContactListPage>(),
+    // getIt.get<ContactListPage>(),
     getIt.get<CakeFeaturesPage>(),
-    Placeholder(),
+    getIt.get<ChartsPage>()
   ];
 
   @override
@@ -53,6 +59,7 @@ class _NewDashboardState extends State<NewDashboard> {
       setState(() {
         _selectedPage = 0;
       });
+      _showWalletRemovalPopup(context);
     });
 
     Future.delayed(Duration(milliseconds: 300)).then((_) {
@@ -61,6 +68,7 @@ class _NewDashboardState extends State<NewDashboard> {
       });
     });
     _showVulnerableSeedsPopup(context);
+    _showWalletRemovalPopup(context);
   }
 
   @override
@@ -68,62 +76,90 @@ class _NewDashboardState extends State<NewDashboard> {
     return BottomSheetListener(
       bottomSheetService: widget.bottomSheetService,
       child: CupertinoScaffold(
-        body: Material(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              // widget.dashboardPageWidgets[_selectedPage],
-              IndexedStack(
-                index: _selectedPage,
-                children: widget.dashboardPageWidgets,
-              ),
-              IgnorePointer(
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                        Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
-                      ],
+        body: ModalTransitionSnapshot(
+          child: Material(
+            key: ValueKey("new_dashboard_page_key"),
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                // widget.dashboardPageWidgets[_selectedPage],
+                IndexedStack(
+                  index: _selectedPage,
+                  children: [
+                    for (int i = 0; i < widget.dashboardPageWidgets.length; i++)
+                      TickerMode(enabled: i == _selectedPage, child: widget.dashboardPageWidgets[i]),
+                  ],
+                ),
+                IgnorePointer(
+                  child: Container(
+                    height: 150,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(5),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(50),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(100),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(200),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Invisible pointer-absorbing strip behind the nav bar: it must not
-              // be reachable by screen-reader traversal either.
-              ExcludeSemantics(
-                child: SafeArea(
-                  bottom: !(Platform.isIOS),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
-                    child: AbsorbPointer(
-                      absorbing: true,
-                      child: Container(color: Colors.transparent),
+                // Invisible pointer-absorbing strip behind the nav bar: it must not
+                // be reachable by screen-reader traversal either.
+                ExcludeSemantics(
+                  child: SafeArea(
+                    bottom: !(Platform.isIOS),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: NewMainNavBar.barHeight + NewMainNavBar.barBottomPadding,
+                      child: AbsorbPointer(
+                        absorbing: true,
+                        child: Container(color: Colors.transparent),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              NewMainNavBar(
-                dashboardViewModel: widget.dashboardViewModel,
-                selectedIndex: _selectedPage,
-                onItemTap: (index) {
-                  setState(() {
-                    _selectedPage = index;
-                  });
-                  if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
-                    page.onPageOpen();
-                  }
-                },
-              )
-            ],
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SafeArea(
+                    top: false,
+                    bottom: !(Platform.isIOS),
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: NewMainNavBar.barBottomPadding),
+                      child: Row(
+                        spacing:12,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Flexible(
+                            child: NewMainNavBar(
+                              dashboardViewModel: widget.dashboardViewModel,
+                              selectedIndex: _selectedPage,
+                              onItemTap: (index) {
+                                setState(() {
+                                  _selectedPage = index;
+                                });
+                                if (widget.dashboardPageWidgets[_selectedPage] case PageOpenListener page) {
+                                  page.onPageOpen();
+                                }
+                              },
+                            ),
+                          ),
+                          MoreActionsButton(
+                            key: const ValueKey("dashboard_page_more_actions_button_key"),
+                            dashboardViewModel: widget.dashboardViewModel,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),
@@ -131,6 +167,10 @@ class _NewDashboardState extends State<NewDashboard> {
   }
 
   void _showChangelog(BuildContext context) async {
+    if(CiBuildOverlay.isCiBuild) {
+      return;
+    }
+
     final sharedPrefs = await SharedPreferences.getInstance();
     final currentAppVersion = VersionComparator.getExtendedVersionNumber(
         widget.dashboardViewModel.settingsStore.appVersion);
@@ -148,6 +188,7 @@ class _NewDashboardState extends State<NewDashboard> {
                 builder: (context) {
                   return ChangelogModal(
                     version: widget.dashboardViewModel.settingsStore.appVersion,
+                    languageCode: widget.dashboardViewModel.settingsStore.languageCode,
                   );
                 });
           }
@@ -177,6 +218,16 @@ class _NewDashboardState extends State<NewDashboard> {
           }
         },
       );
+    }
+  }
+
+  Future<void> _showWalletRemovalPopup(BuildContext context) async {
+    if(await widget.dashboardViewModel.shouldShowRemovalPopup()) {
+      await Future.delayed(const Duration(seconds: 1));
+      final toBeRemoved = await widget.dashboardViewModel.walletsToBeRemoved;
+      if(context.mounted) {
+        await showPopUp<void>(context: context, builder: (context)=>WalletRemovalPopup(affectedWallets: toBeRemoved,));
+      }
     }
   }
 }

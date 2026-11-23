@@ -5,33 +5,43 @@ import "package:bloc_concurrency/bloc_concurrency.dart";
 import "package:bloc_presentation/bloc_presentation.dart";
 import "package:cake_wallet/core/address_resolver/address_resolver_service.dart";
 import "package:cake_wallet/core/address_validator.dart";
+import "package:cake_wallet/core/trade_monitor.dart";
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
+import "package:cake_wallet/exchange/utils/deposit_wallet_utils.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
+import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/swap_wallet_list_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/trade_creator.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/fees_helper.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_amount.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/reactions/wallet_utils.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
+import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/sync_status.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/wallet_base.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:meta/meta.dart";
@@ -46,6 +56,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     required FeesHelper feesHelper, required TradeCreator creator, required SwapAddressResolver addressResolver,
     required AddressResolverService addressResolverService,
     required TransactionService transactionService,
+    required TradeMonitor tradeMonitor,
+    required WalletSwitchService walletSwitchService,
     required this.rateCubit,
     required this.currencyStore,
     required SwapAmountFactory amountFactory,
@@ -57,12 +69,15 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         _addressResolver = addressResolver,
        _addressResolverService = addressResolverService,
        _transactionService = transactionService,
+       _tradeMonitor = tradeMonitor,
+       _walletSwitchService = walletSwitchService,
        _amountFactory = amountFactory,
        _registry = registry,
        _appStore = appStore,
        super(const SwapStateNotLoaded()) {
     on<_Init>(_init);
-    on<SourceChanged>(_onSourceChanged, transformer: restartable());
+    on<InitialValuesApplied>(_onInitialValuesApplied, transformer: sequential());
+    on<SourceChanged>(_onSourceChanged, transformer: sequential());
     on<PayoutAddressChanged>(_onPayoutAddressChanged, transformer: restartable());
     on<DepositAmountChanged>(_onDepositAmountChanged, transformer: restartable());
     on<PayoutAmountChanged>(_onPayoutAmountChanged, transformer: restartable());
@@ -87,8 +102,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   final AppStore _appStore;
+  WalletBase get wallet => _appStore.wallet!;
   final AddressResolverService _addressResolverService;
   final TransactionService _transactionService;
+  final TradeMonitor _tradeMonitor;
+  final WalletSwitchService _walletSwitchService;
   final ExchangeProviderRegistry _registry;
   final RateCubit rateCubit;
   final SwapAmountFactory _amountFactory;
@@ -99,6 +117,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   Timer? _rateTimer;
 
   FiatCurrency get fiat => _appStore.settingsStore.fiatCurrency;
+
+  @override
+  void emitPresentation(SwapPresentationEvent event) {
+    if(isClosed) {
+      return;
+    }
+    super.emitPresentation(event);
+  }
 
   Money get spendingBalance {
     if (state case final SwapStateWithInputs s) {
@@ -115,15 +141,36 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   Future<void> _reloadRates() async {
-    if (state case final SwapStateWithInputs s) {
-      await rateCubit.fetchRates(
-        s.usableProviders,
-        from: s.isFixedRate ? s.payoutAmount.cryptoAmount : s.depositAmount.cryptoAmount,
-        to: s.isFixedRate ? s.depositAmount.currency : s.payoutAmount.currency,
-        isFixedRate: s.isFixedRate,
-      );
+    if (state case final SwapStateWithInputs s when s is! SwapStateWithTrade) {
+      await rateCubit.fetchRates(s.usableProviders, s.rateRequest, isExternalSend: s.isExternalSend);
     }
   }
+
+  ExchangeRate? _bestRate(SwapInputState s) => switch (rateCubit.state) {
+    final RatesLoaded rs
+        when {rs.request.depositCurrency, rs.request.payoutCurrency}
+            .containsAll({s.depositAmount.currency, s.payoutAmount.currency}) =>
+      rs.rates.max.rate,
+    _ => null,
+  };
+
+  bool _ratesAreCurrent() {
+    if (state case final SwapInputState s) {
+      return rateCubit.state.request == s.rateRequest;
+    }
+    return true;
+  }
+
+  bool _samePair(SwapInputState now, SwapInputState before) =>
+      now.depositAmount.currency == before.depositAmount.currency &&
+      now.payoutAmount.currency == before.payoutAmount.currency;
+
+  bool _sameInputs(SwapInputState now, SwapInputState before) =>
+      _samePair(now, before) &&
+      now.isFixedRate == before.isFixedRate &&
+      (now.isFixedRate
+          ? now.payoutAmount.cryptoAmount == before.payoutAmount.cryptoAmount
+          : now.depositAmount.cryptoAmount == before.depositAmount.cryptoAmount);
 
   Future<void> _init(_Init event, Emitter<SwapState> emit) async {
     final initialDepositCurrency = _appStore.wallet!.currency;
@@ -140,7 +187,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       fiatAmount: Money.zero(_appStore.settingsStore.fiatCurrency),
     );
 
-    _rateTimer = Timer.periodic(const Duration(seconds: 4), (_) => add(RatesLoadStarted()));
+    _rateTimer = Timer.periodic(const Duration(seconds: 10), (_) => add(RatesLoadStarted()));
 
     emit(
       SwapInputState(
@@ -158,8 +205,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     );
 
     if(_feesHelper.isLowFee) {
-      unawaited(Future.delayed(const Duration(seconds: 1)).then((_) =>
-          emitPresentation(const LowFeeAlert())));
+      emitPresentation(const LowFeeAlert());
     }
   }
 
@@ -169,36 +215,128 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     await super.close();
   }
 
-  void _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) {
+  Future<void> _onSourceChanged(SourceChanged event, Emitter<SwapState> emit) async {
+    if (state case final SwapInputState s
+        when !_isValidRefundAddress(event.newSource, s.depositAmount.currency)) {
+      emitPresentation(AddressValidationFailed(s.depositAmount.currency));
+      return;
+    }
+
+    var isWalletSwitched = false;
+    if (event.newSource case final InternalSwapSource source
+        when source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
+      try {
+        await _walletSwitchService.switchToWallet(source.sourceWallet);
+        isWalletSwitched = true;
+      } catch (e) {
+        emitPresentation(WalletSwitchFailed(e));
+        return;
+      }
+    }
+
     if (state case final SwapInputState s) {
-      emit(s.copyWith(source: event.newSource));
+      if (s.isSwapAll && (isWalletSwitched || event.newSource is ExternalSwapSource)) {
+        final depositAmount = await _amountFactory.getSwapAmount(
+          Money.zero(s.depositAmount.currency),
+          s.depositAmount.currency,
+        );
+        final payoutAmount = await _amountFactory.getSwapAmount(
+          Money.zero(s.payoutAmount.currency),
+          s.payoutAmount.currency,
+        );
+        if (state case final SwapInputState current when _samePair(current, s)) {
+          emit(
+            current.copyWith(
+              source: event.newSource,
+              hasSwapAll: _amountFactory.hasSwapAll,
+              depositAmount: depositAmount,
+              payoutAmount: payoutAmount,
+            ),
+          );
+        }
+      } else {
+        emit(s.copyWith(source: event.newSource, hasSwapAll: _amountFactory.hasSwapAll));
+      }
+      add(RatesLoadStarted());
+      if (event.initiateSwap) {
+        add(SwapInitiated());
+      }
+    }
+  }
+
+  bool _isValidRefundAddress(SwapSource source, CryptoCurrency currency) =>
+      switch (source.refundAddress) {
+        null || "" => true,
+        final address => AddressValidator(type: currency).isValid(address),
+      };
+
+  Future<void> _onInitialValuesApplied(InitialValuesApplied event, Emitter<SwapState> emit) async {
+    if (state case final SwapInputState s) {
+      final depositCurrency = event.depositCurrency ?? s.depositAmount.currency;
+      final payoutCurrency = event.payoutCurrency ?? s.payoutAmount.currency;
+      final isSamePayoutChain = _isSameChain(s.payoutAmount.currency, payoutCurrency);
+
+      final payoutAddress = event.payoutAddress != null
+          ? await _resolvePayoutAddress(event.payoutAddress!, payoutCurrency)
+          : (isSamePayoutChain ? s.payoutAddress : null);
+
+      final depositAmount = await _amountFactory.getSwapAmount(
+        (event.payoutAmount == null ? event.depositAmount : null) ?? Money.zero(depositCurrency),
+        depositCurrency,
+      );
+      final payoutAmount = await _amountFactory.getSwapAmount(
+        event.payoutAmount ?? Money.zero(payoutCurrency),
+        payoutCurrency,
+      );
+
+      if (state case final SwapInputState current when _samePair(current, s)) {
+        emit(
+          current.copyWith(
+            isFixedRate: event.payoutAmount != null,
+            depositAmount: depositAmount,
+            payoutAmount: payoutAmount,
+            source: _sourceFor(current.source, s.depositAmount.currency, depositCurrency),
+            memo: isSamePayoutChain && payoutCurrency.memoLabelType != null ? current.memo : "",
+            payoutAddress: () => payoutAddress,
+          ),
+        );
+        add(RatesLoadStarted());
+      }
     }
   }
 
   Future<void> _onPayoutAddressChanged(PayoutAddressChanged event, Emitter<SwapState> emit) async {
     if (state case final SwapInputState s) {
-      SwapAddress newAddress = event.newAddress;
-      if (event.newAddress is ExternalSwapAddress) {
-        final parsed = await _addressResolverService.resolve(
-          query: event.newAddress.address,
-          wallet: _appStore.wallet!,
-          currency: s.payoutAmount.currency,
-        );
-        if (parsed.isNotEmpty) {
-          final parsedAddr = parsed.first;
-          emitPresentation(AliaspayAddressFound(parsedAddr));
-          newAddress = PayAnythingSwapAddress(parsedAddr, s.payoutAmount.currency);
-        }
+      final newAddress = await _resolvePayoutAddress(event.newAddress, s.payoutAmount.currency);
+      if (state case final SwapInputState current
+          when newAddress != null && current.payoutAmount.currency == s.payoutAmount.currency) {
+        emit(current.copyWith(payoutAddress: () => newAddress));
       }
-
-      if (newAddress is! InternalWalletSwapAddress &&
-          !AddressValidator(type: s.payoutAmount.currency).isValid(newAddress.address)) {
-        emitPresentation(const AddressValidationFailed());
-        return;
-      }
-
-      emit(s.copyWith(payoutAddress: () => newAddress));
     }
+  }
+
+  Future<SwapAddress?> _resolvePayoutAddress(SwapAddress address, CryptoCurrency currency) async {
+    SwapAddress newAddress = address;
+    if (address is ExternalSwapAddress) {
+      final parsed = await _addressResolverService.resolve(
+        query: address.address,
+        wallet: _appStore.wallet!,
+        currency: currency,
+      );
+      if (parsed.isNotEmpty) {
+        final parsedAddr = parsed.first;
+        emitPresentation(AliaspayAddressFound(parsedAddr));
+        newAddress = PayAnythingSwapAddress(parsedAddr, currency);
+      }
+    }
+
+    if (newAddress is! InternalWalletSwapAddress &&
+        !AddressValidator(type: currency).isValid(newAddress.address)) {
+      emitPresentation(AddressValidationFailed(currency));
+      return null;
+    }
+
+    return newAddress;
   }
 
   Future<void> _onDepositAmountChanged(DepositAmountChanged event, Emitter<SwapState> emit) async {
@@ -208,26 +346,25 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         s.depositAmount.currency,
       );
 
-      final Money newPayoutCryptoAmount;
-      if (rateCubit.state case final RatesLoaded l) {
-        newPayoutCryptoAmount = l.rates.max.rate.convert(newDepositAmount.cryptoAmount);
-      } else {
-        newPayoutCryptoAmount = Money.zero(s.payoutAmount.currency);
-      }
+      final newPayoutCryptoAmount =
+          _bestRate(s)?.convert(newDepositAmount.cryptoAmount) ??
+          Money.zero(s.payoutAmount.currency);
 
       final newPayoutAmount = await _amountFactory.getSwapAmount(
         newPayoutCryptoAmount,
         s.payoutAmount.currency,
       );
 
-      emit(
-        s.copyWith(
-          isFixedRate: false,
-          depositAmount: newDepositAmount,
-          payoutAmount: newPayoutAmount,
-        ),
-      );
-      add(RatesLoadStarted());
+      if (state case final SwapInputState current when _samePair(current, s)) {
+        emit(
+          current.copyWith(
+            isFixedRate: false,
+            depositAmount: newDepositAmount,
+            payoutAmount: newPayoutAmount,
+          ),
+        );
+        add(RatesLoadStarted());
+      }
     }
   }
 
@@ -238,26 +375,25 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         s.payoutAmount.currency,
       );
 
-      final Money newDepositCryptoAmount;
-      if (rateCubit.state case final RatesLoaded l) {
-        newDepositCryptoAmount = l.rates.max.rate.convert(newPayoutAmount.cryptoAmount);
-      } else {
-        newDepositCryptoAmount = Money.zero(s.depositAmount.currency);
-      }
+      final newDepositCryptoAmount =
+          _bestRate(s)?.convert(newPayoutAmount.cryptoAmount) ??
+          Money.zero(s.depositAmount.currency);
 
       final newDepositAmount = await _amountFactory.getSwapAmount(
         newDepositCryptoAmount,
         s.depositAmount.currency,
       );
 
-      emit(
-        s.copyWith(
-          isFixedRate: true,
-          depositAmount: newDepositAmount,
-          payoutAmount: newPayoutAmount,
-        ),
-      );
-      add(RatesLoadStarted());
+      if (state case final SwapInputState current when _samePair(current, s)) {
+        emit(
+          current.copyWith(
+            isFixedRate: true,
+            depositAmount: newDepositAmount,
+            payoutAmount: newPayoutAmount,
+          ),
+        );
+        add(RatesLoadStarted());
+      }
     }
   }
 
@@ -266,49 +402,55 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       if (_appStore.wallet!.syncStatus is! SyncedSyncStatus) {
         // enabling swap all on an unsynced wallet would lead to garbage results because balances either won't match or won't exist.
         emitPresentation(const SwapAllNotReady());
+        return;
       }
 
       final newDepositAmount = await _amountFactory.getSwapAllAmount(s.depositAmount.currency);
-      final Money newPayoutCryptoAmount;
-      if (rateCubit.state case final RatesLoaded l) {
-        newPayoutCryptoAmount = l.rates.max.rate.convert(newDepositAmount.cryptoAmount);
-      } else {
-        newPayoutCryptoAmount = Money.zero(s.payoutAmount.currency);
-      }
+      final newPayoutCryptoAmount =
+          _bestRate(s)?.convert(newDepositAmount.cryptoAmount) ??
+          Money.zero(s.payoutAmount.currency);
 
       final newPayoutAmount = await _amountFactory.getSwapAmount(
         newPayoutCryptoAmount,
         s.payoutAmount.currency,
       );
 
-      emit(s.copyWith(
-          depositAmount: newDepositAmount,
-          payoutAmount: newPayoutAmount,
-          isFixedRate: false,
-      ));
+      if (state case final SwapInputState current when _samePair(current, s)) {
+        emit(current.copyWith(
+            depositAmount: newDepositAmount,
+            payoutAmount: newPayoutAmount,
+            isFixedRate: false,
+        ));
+        add(RatesLoadStarted());
+      }
     }
   }
 
   Future<void> _onRatesLoadStarted(RatesLoadStarted event, Emitter<SwapState> emit) async {
-    await _reloadRates();
+    do {
+      await _reloadRates();
+    } while (!_ratesAreCurrent());
+
     if (state case final SwapInputState s) {
-      if (rateCubit.state case final RatesLoaded rs) {
+      if (_bestRate(s) case final rate?) {
         final SwapAmount newDepositAmount;
         final SwapAmount newPayoutAmount;
         if (s.isFixedRate) {
           newDepositAmount = await _amountFactory.getSwapAmount(
-            rs.rates.max.rate.convert(s.payoutAmount.cryptoAmount),
+            rate.convert(s.payoutAmount.cryptoAmount),
             s.depositAmount.currency,
           );
           newPayoutAmount = s.payoutAmount;
         } else {
           newDepositAmount = s.depositAmount;
           newPayoutAmount = await _amountFactory.getSwapAmount(
-            rs.rates.max.rate.convert(s.depositAmount.cryptoAmount),
+            rate.convert(s.depositAmount.cryptoAmount),
             s.payoutAmount.currency,
           );
         }
-        emit(s.copyWith(depositAmount: newDepositAmount, payoutAmount: newPayoutAmount));
+        if (state case final SwapInputState current when _sameInputs(current, s)) {
+          emit(current.copyWith(depositAmount: newDepositAmount, payoutAmount: newPayoutAmount));
+        }
       }
     }
   }
@@ -321,9 +463,8 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       final SwapAmount newDepositAmount;
       final SwapAmount newPayoutAmount;
       if (s.isSwapAll) {
-        final newCurrencyWalletType = cryptoCurrencyOrTokenToWalletType(event.newCurrency);
         final canSendNewCurrency =
-            newCurrencyWalletType == _appStore.wallet!.type &&
+            _isSameChain(event.newCurrency, _appStore.wallet!.currency) &&
                 _appStore.wallet!.balance.keys.any((item) => item.symbol == event.newCurrency.symbol);
 
         newDepositAmount = canSendNewCurrency
@@ -350,24 +491,25 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         );
       }
 
-      SwapSource newSource = s.source;
-      if (s.source case final InternalSwapSource iss) {
-        if (cryptoCurrencyOrTokenToWalletType(event.newCurrency) != iss.sourceWallet.type) {
-          newSource = const ExternalSwapSource("");
+      if (state case final SwapInputState current when _samePair(current, s)) {
+        emit(
+          current.copyWith(
+            depositAmount: newDepositAmount,
+            payoutAmount: newPayoutAmount,
+            // the swap all amount is pinned to the deposit side, so it has to be the one driving
+            // the rate - otherwise the next rate load would overwrite it.
+            isFixedRate: s.isSwapAll ? false : s.isFixedRate,
+            source: _sourceFor(current.source, s.depositAmount.currency, event.newCurrency),
+          ),
+        );
+        add(RatesLoadStarted());
+
+        if (event.selectSource &&
+            (await SwapWalletListService.getDepositWallets(event.newCurrency)).isNotEmpty &&
+            !emit.isDone) {
+          emitPresentation(const SourceWalletSelectionRequested());
         }
       }
-
-      emit(
-        s.copyWith(
-          depositAmount: newDepositAmount,
-          payoutAmount: newPayoutAmount,
-          // the swap all amount is pinned to the deposit side, so it has to be the one driving
-          // the rate - otherwise the next rate load would overwrite it.
-          isFixedRate: s.isSwapAll ? false : s.isFixedRate,
-          source: newSource,
-        ),
-      );
-      add(RatesLoadStarted());
     }
   }
 
@@ -384,7 +526,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           s.depositAmount.currency,
         );
         newPayoutAmount = await _amountFactory.getSwapAmount(
-          Money(s.payoutAmount.cryptoAmount.amount, event.newCurrency),
+          Money.safeParse(s.payoutAmount.cryptoAmount.toString(), event.newCurrency),
           event.newCurrency,
         );
       } else {
@@ -395,26 +537,19 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         );
       }
 
-      String newMemo = s.memo;
-      if (event.newCurrency.memoLabelType == null) {
-        newMemo = "";
-      }
+      final isSameChain = _isSameChain(s.payoutAmount.currency, event.newCurrency);
 
-      SwapAddress? newPayoutddress = s.payoutAddress;
-      if (cryptoCurrencyOrTokenToWalletType(s.payoutAmount.currency) !=
-          cryptoCurrencyOrTokenToWalletType(event.newCurrency)) {
-        newPayoutddress = null;
+      if (state case final SwapInputState current when _samePair(current, s)) {
+        emit(
+          current.copyWith(
+            depositAmount: newDepositAmount,
+            payoutAmount: newPayoutAmount,
+            memo: isSameChain && event.newCurrency.memoLabelType != null ? current.memo : "",
+            payoutAddress: () => isSameChain ? current.payoutAddress : null,
+          ),
+        );
+        add(RatesLoadStarted());
       }
-
-      emit(
-        s.copyWith(
-          depositAmount: newDepositAmount,
-          payoutAmount: newPayoutAmount,
-          memo: newMemo,
-          payoutAddress: () => newPayoutddress,
-        ),
-      );
-      add(RatesLoadStarted());
     }
   }
 
@@ -438,10 +573,34 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
           s.depositAmount.currency,
         );
       }
-      emit(s.copyWith(depositAmount: newDepositAmount, payoutAmount: newPayoutAmount));
-      add(RatesLoadStarted());
+
+      final isSameChain = _isSameChain(s.depositAmount.currency, s.payoutAmount.currency);
+
+      if (state case final SwapInputState current when _samePair(current, s)) {
+        emit(
+          current.copyWith(
+            depositAmount: newDepositAmount,
+            payoutAmount: newPayoutAmount,
+            source: _sourceFor(current.source, s.depositAmount.currency, s.payoutAmount.currency),
+            payoutAddress: () => isSameChain ? current.payoutAddress : null,
+            memo:
+                isSameChain && newPayoutAmount.currency.memoLabelType != null ? current.memo : "",
+          ),
+        );
+        add(RatesLoadStarted());
+      }
     }
   }
+
+  bool _isSameChain(CryptoCurrency a, CryptoCurrency b) =>
+      cryptoCurrencyOrTokenToWalletType(a) != null &&
+      cryptoCurrencyOrTokenToWalletType(a) == cryptoCurrencyOrTokenToWalletType(b);
+
+  SwapSource _sourceFor(SwapSource source, CryptoCurrency from, CryptoCurrency to) =>
+      _isSameChain(from, to) &&
+          (source is! InternalSwapSource || canFundDeposit(source.sourceWallet, to))
+      ? source
+      : const ExternalSwapSource("");
 
   Future<void> _onForcedProviderSelected(
     ForcedProviderSelected event,
@@ -489,18 +648,19 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   Future<void> _onFiatCurrencyChanged(FiatCurrencyChanged event, Emitter<SwapState> emit) async {
     _appStore.settingsStore.fiatCurrency = event.newCurrency;
     if (state case final SwapInputState s) {
-      emit(
-        s.copyWith(
-          depositAmount: await _amountFactory.getSwapAmount(
-            s.depositAmount.cryptoAmount,
-            s.depositAmount.currency,
-          ),
-          payoutAmount: await _amountFactory.getSwapAmount(
-            s.payoutAmount.cryptoAmount,
-            s.payoutAmount.currency,
-          ),
-        ),
+      final depositAmount = await _amountFactory.getSwapAmount(
+        s.depositAmount.cryptoAmount,
+        s.depositAmount.currency,
       );
+      final payoutAmount = await _amountFactory.getSwapAmount(
+        s.payoutAmount.cryptoAmount,
+        s.payoutAmount.currency,
+      );
+      if (state case final SwapInputState current
+          when current.depositAmount.cryptoAmount == s.depositAmount.cryptoAmount &&
+              current.payoutAmount.cryptoAmount == s.payoutAmount.cryptoAmount) {
+        emit(current.copyWith(depositAmount: depositAmount, payoutAmount: payoutAmount));
+      }
     }
   }
 
@@ -517,7 +677,14 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     if (state case final SwapInputState s) {
       final newState = !s.forceDecentralizedProviders;
       _appStore.settingsStore.forceDecentralizedExchanges = newState;
-      emit(s.copyWith(forceDecentralizedProviders: newState));
+      emit(
+        s.copyWith(
+          forceDecentralizedProviders: newState,
+          forcedProvider: () =>
+              newState && s.forcedProvider?.isCentralized == true ? null : s.forcedProvider,
+        ),
+      );
+      add(RatesLoadStarted());
     }
   }
 
@@ -526,36 +693,63 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   }
 
   Future<void> _onSwapInitiated(SwapInitiated event, Emitter<SwapState> emit) async {
-    emitPresentation(const SwapCreationStarted());
-    await _reloadRates();
-    if(rateCubit.state is! RatesLoaded) {
+    final inputs = state;
+    if (inputs is! SwapInputState) {
       return;
     }
-    final rates = (rateCubit.state as RatesLoaded).rates.toList();
 
-    if (state case final SwapStateWithInputs s) {
-      if(s.source case final InternalSwapSource source) {
-        if(source.sourceWallet.internalId != _appStore.wallet!.walletInfo.internalId) {
-          emit(SwapAwaitingWalletSwitch(depositAmount: s.depositAmount,
-              isFixedRate: s.isFixedRate,
-              memo: s.memo,
-              payoutAmount: s.payoutAmount,
-              usableProviders: s.usableProviders,
-              source: source));
-        }
+    if (inputs.source case ExternalSwapSource(refundAddress: "")) {
+      emitPresentation(RefundAddressRequired(inputs.depositAmount.currency));
+      return;
+    }
+
+    emitPresentation(const SwapCreationStarted());
+
+    try {
+      await _createSwap(emit);
+    } catch (e) {
+      emit(switch (state) {
+        final SwapStateCreating creating => creating.toError(e),
+        final SwapInputState s => SwapInitiationError(inputs: s, error: e),
+        _ => SwapInitiationError(inputs: inputs, error: e),
+      });
+    }
+  }
+
+  Future<void> _createSwap(Emitter<SwapState> emit) async {
+    await _reloadRates();
+
+    if (state case final SwapInputState s) {
+      final rates = switch (rateCubit.state) {
+        final RatesLoaded rs when _bestRate(s) != null => rs.rates.toList(),
+        _ => null,
+      };
+
+      if (rates == null) {
+        emit(
+          SwapInitiationError(
+            inputs: s,
+            error: Exception(S.current.none_of_selected_providers_can_exchange),
+          ),
+        );
+        return;
       }
 
+      final refundAddress = await _addressResolver.resolveRefundAddress(
+          s.source, s.depositAmount.currency);
+      final payoutAddress = await _addressResolver.resolvePayoutAddress(
+          s.payoutAddress!, s.payoutAmount.currency);
+
       final req = TradeRequest(
-        refundAddress: await _addressResolver.resolveRefundAddress(
-            s.source, s.depositAmount.currency),
-        payoutAddress: await _addressResolver.resolvePayoutAddress(
-            s.payoutAddress!, s.payoutAmount.currency),
+        refundAddress: refundAddress,
+        payoutAddress: payoutAddress,
+        refundInvoice: await _addressResolver.lightningInvoiceFor(refundAddress),
+        payoutInvoice: await _addressResolver.lightningInvoiceFor(payoutAddress),
         depositAmount: s.depositAmount.cryptoAmount,
         payoutAmount: s.payoutAmount.cryptoAmount,
         isFixedRate: s.isFixedRate,
         toAddressExtraId: s.memo,
       );
-
 
       final creatingState = SwapStateCreating(
         source: s.source,
@@ -563,31 +757,74 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         request: req,
         depositAmount: s.depositAmount,
         payoutAmount: s.payoutAmount,
+        payoutAddress: s.payoutAddress!,
       );
 
       emit(creatingState);
 
       final trade = await _creator.createTrade(rates, req);
 
-
       if (trade == null) {
         emit(creatingState.toError(Exception(S.current.none_of_selected_providers_can_exchange)));
         return;
       }
 
-      if(_registry.getProvider(trade.provider) is! TransactionRegistrationExchangeProvider) {
+      if (_registry.getProvider(trade.provider) is! TransactionRegistrationExchangeProvider) {
         await _creator.persistTrade(trade);
       }
 
+      final depositFiatAmount =
+          (await _amountFactory.getSwapAmount(trade.depositAmount, trade.depositCurrency)).fiatAmount;
+      final payoutFiatAmount =
+          (await _amountFactory.getSwapAmount(trade.payoutAmount, trade.payoutCurrency)).fiatAmount;
+
       if (s.source case final ExternalSwapSource source) {
-        emit(SwapAwaitingExternalSend(trade: trade, source: source));
+        emit(
+          SwapAwaitingExternalSend(
+            trade: trade,
+            source: source,
+            depositFiatAmount: depositFiatAmount,
+            payoutFiatAmount: payoutFiatAmount,
+            payoutAddress: s.payoutAddress!,
+            isFixedRate: s.isFixedRate,
+          ),
+        );
       } else if (s.source case final InternalSwapSource source) {
-        final generatingState = SwapGeneratingTransaction(trade: trade, source: source);
+        final generatingState = wallet.isHardwareWallet && wallet.type != WalletType.monero
+            ? SwapGeneratingHardwareWalletTransaction(
+          type: wallet.hardwareWalletType!,
+          trade: trade,
+          source: source,
+          depositFiatAmount: depositFiatAmount,
+          payoutFiatAmount: payoutFiatAmount,
+          payoutAddress: s.payoutAddress!,
+          isFixedRate: s.isFixedRate,
+        ) : SwapGeneratingTransaction(
+          trade: trade,
+          source: source,
+          depositFiatAmount: depositFiatAmount,
+          payoutFiatAmount: payoutFiatAmount,
+          payoutAddress: s.payoutAddress!,
+          isFixedRate: s.isFixedRate,
+        );
         emit(generatingState);
 
         try {
           final tx = await _createSwapTransaction(trade, s.isSwapAll);
-          emit(SwapAwaitingSend(trade: trade, transaction: tx, source: source));
+          final feeFiatAmount =
+              (await _amountFactory.getSwapAmount(tx.fee, tx.fee.currency as CryptoCurrency)).fiatAmount;
+          emit(
+            SwapAwaitingSend(
+              trade: trade,
+              transaction: tx,
+              feeFiatAmount: feeFiatAmount,
+              source: source,
+              depositFiatAmount: depositFiatAmount,
+              payoutFiatAmount: payoutFiatAmount,
+              payoutAddress: s.payoutAddress!,
+              isFixedRate: s.isFixedRate,
+            ),
+          );
         } catch (e) {
           emit(generatingState.toError(e));
         }
@@ -597,45 +834,124 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
   Future<PendingTransaction> _createSwapTransaction(Trade trade, bool isSendAll) async {
     if (_registry.getProvider(trade.provider) case final TransactionCreationExchangeProvider p) {
-      return  p.createTransaction(_appStore.wallet!, trade);
-    } else {
-      final curr = trade.depositAmount.currency as CryptoCurrency;
-      // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
-      final output = Output(
-        _appStore.wallet!,
-        _appStore,
-        getIt.get<FiatConversionStore>(),
-            () => curr,
-      );
-      if(!isSendAll) {
-        output.setCryptoAmount(trade.depositAmount.toString());
-      } else {
-        output.setSendAll(
-            (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
+      if (await p.createTransaction(_appStore.wallet!, trade) case final transaction?) {
+        return transaction;
       }
-      output.address = trade.fundingAddress;
-      return _transactionService.createTransaction([output]);
     }
+
+    final curr = trade.depositAmount.currency as CryptoCurrency;
+    // FIXME(malik): output should NOT depend on FiatConversionStore. fix after send refactor
+    final output = Output(
+      _appStore.wallet!,
+      _appStore,
+      getIt.get<FiatConversionStore>(),
+          () => curr,
+    );
+    if(!isSendAll) {
+      output.setCryptoAmount(trade.depositAmount.toString());
+    } else {
+      output.setSendAll(
+          (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
+    }
+    output.address = trade.fundingAddress;
+    return _transactionService.createTransaction([output], coinTypeToSpendFrom: .nonMweb);
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {
     if (state case final SwapStateWithTransaction s) {
-      emit(SwapSending(trade: s.trade, transaction: s.transaction, source: s.source));
+      emit(
+        wallet.isHardwareWallet && wallet.type == WalletType.monero
+            ? SwapAwaitingHardwareWallet(
+                type: wallet.hardwareWalletType!,
+                trade: s.trade,
+                transaction: s.transaction,
+                feeFiatAmount: s.feeFiatAmount,
+                source: s.source,
+                depositFiatAmount: s.depositFiatAmount,
+                payoutFiatAmount: s.payoutFiatAmount,
+                payoutAddress: s.payoutAddress,
+                isFixedRate: s.isFixedRate,
+              )
+            : SwapSending(
+                trade: s.trade,
+                transaction: s.transaction,
+                feeFiatAmount: s.feeFiatAmount,
+                source: s.source,
+                depositFiatAmount: s.depositFiatAmount,
+                payoutFiatAmount: s.payoutFiatAmount,
+                payoutAddress: s.payoutAddress,
+                isFixedRate: s.isFixedRate,
+              ),
+      );
       try {
         await _transactionService.commitTransaction(s.transaction);
-        Trade trade = s.trade;
-        if (_registry.getProvider(s.trade.provider)
-        case final TransactionRegistrationExchangeProvider p) {
-          final txHash = s.transaction.evmTxHashFromRawHex ?? s.transaction.id;
-          trade = await p.registerTransaction(s.trade, txHash);
-          await _creator.persistTrade(trade);
-        }
-        emit(
-            SwapTransactionCommitted(trade: trade, transaction: s.transaction, source: s.source));
       } catch (e) {
         emit(s.toError(e));
         return;
       }
+
+      final txHash = s.transaction.evmTxHashFromRawHex ?? s.transaction.id;
+      final Trade trade;
+      try {
+        trade = await _registerTransaction(s.trade, txHash);
+      } catch (e) {
+        emit(s.toError(e));
+        return;
+      }
+      unawaited(_tradeMonitor.recordDeposit(trade.id, txHash));
+
+      emit(
+        SwapTransactionCommitted(
+          trade: trade,
+          transaction: s.transaction,
+          feeFiatAmount: s.feeFiatAmount,
+          source: s.source,
+          depositFiatAmount: s.depositFiatAmount,
+          payoutFiatAmount: s.payoutFiatAmount,
+          payoutAddress: s.payoutAddress,
+          isFixedRate: s.isFixedRate,
+        ),
+      );
+      await _hideSwapAddress(trade, s.source);
+    }
+  }
+
+  Future<Trade> _registerTransaction(Trade trade, String txHash) async {
+    if (_registry.getProvider(trade.provider) case final TransactionRegistrationExchangeProvider p) {
+      var registered = trade;
+      try {
+        registered = await p.registerTransaction(trade, txHash);
+      } catch (e, st) {
+        ExchangeProviderLogger.logError(
+          provider: trade.provider,
+          error: e,
+          stackTrace: st,
+          function: "registerTransaction",
+          requestData: {"txHash": txHash},
+        );
+      }
+
+      await _creator.persistTrade(registered);
+      return registered;
+    }
+
+    return trade;
+  }
+
+  Future<void> _hideSwapAddress(Trade trade, SwapSource source) async {
+    if (trade.depositCurrency == CryptoCurrency.btcln ||
+        (source is InternalSwapSource && source.refundAddress != null) ||
+        (!isElectrumWallet(_appStore.wallet!.type) &&
+            !<WalletType>[.monero, .zcash].contains(_appStore.wallet!.type))) {
+      return;
+    }
+
+    try {
+      _appStore.wallet!.walletAddresses.hiddenAddresses
+          .add(_appStore.wallet!.walletAddresses.addressForExchange);
+      await _appStore.wallet!.walletAddresses.saveAddressesInBox();
+    } catch (e) {
+      printV("failed to hide swap address: $e");
     }
   }
 }

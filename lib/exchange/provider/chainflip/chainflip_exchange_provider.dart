@@ -1,12 +1,12 @@
-import "dart:convert";
-
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/chainflip/chainflip_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/list_extension.dart";
@@ -14,7 +14,7 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
-class ChainflipExchangeProvider extends ExchangeProvider {
+class ChainflipExchangeProvider extends LimitsCacheExchangeProvider {
   ChainflipExchangeProvider({super.proxyWrapper});
 
   static final List<CryptoCurrency> _supported = [
@@ -32,36 +32,26 @@ class ChainflipExchangeProvider extends ExchangeProvider {
     CryptoCurrency.usdtArb,
     CryptoCurrency.trx,
     CryptoCurrency.usdttrc20,
+    CryptoCurrency.cbbtc,
+    CryptoCurrency.bnb,
+    CryptoCurrency.usdtbsc,
   ];
 
   static const _baseURL = "chainflip-broker.io";
-  static const _assetsPath = "/assets";
-  static const _quotePath = "/quotes-native";
-  static const _swapPath = "/swap";
-  static const _txInfoPath = "/status-by-deposit-channel";
   static const _affiliateBps = secrets.chainflipAffiliateFee;
   static const _affiliateKey = secrets.chainflipApiKey;
 
-  @override
-  String get title => "Chainflip";
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _baseURL,
+    errorMessage: (json) => (json["detail"] ?? json["title"])?.toString(),
+  );
 
   @override
   bool get supportsFixedRate => false;
 
   @override
-  bool get supportsMemoOrDestinationTag => false;
-
-  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.chainflip;
-
-  @override
-  Future<bool> checkIsAvailable() async => true;
 
   @override
   Future<ExchangeLimits> fetchLimits({
@@ -73,7 +63,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       throw Exception("No rates found for $from to $to");
     }
 
-    final assetsResponse = ChainflipAssetsResponse.fromJson(await _getAssets());
+    final assetsResponse = await _api.send(const ChainflipAssetsRequest());
 
     final asset = assetsResponse.assets.firstWhere((item) => item.id == from);
     final minAmount = Money(asset.minimalAmountNative, from);
@@ -86,32 +76,35 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required bool isFixedRate,
-    required CryptoCurrency to,
-  }) async {
-    if (!_supported.contains(from.currency) || !_supported.contains(to)) {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (request is! FloatingRateRequest) {
+      throw Exception("fixed rate unsupported");
+    }
+
+    if (!_supported.contains(request.depositCurrency) || !_supported.contains(request.payoutCurrency)) {
       throw Exception("unsupported");
     }
 
     final quoteParams = ChainflipFetchQuotesRequest(
       apiKey: _affiliateKey,
-      sourceAsset: from.currency as CryptoCurrency,
-      destinationAsset: to,
-      amount: from.amount,
+      sourceAsset: request.depositCurrency,
+      destinationAsset: request.payoutCurrency,
+      amount: request.depositAmount.amount,
       commissionBps: _affiliateBps,
     );
 
-    final bestQuote = await _getSwapQuote(quoteParams);
+    final bestQuote = (await _api.send(quoteParams)).quotes.max;
 
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(from, Money(bestQuote.egressAmountNative, to)),
-      limits: await fetchLimits(
-        from: from.currency as CryptoCurrency,
-        to: to,
-        isFixedRateMode: isFixedRate,
+      rate: ExchangeRate.fromAmounts(
+        request.depositAmount,
+        Money(bestQuote.egressAmountNative, request.payoutCurrency),
+      ),
+      limits: await getLimits(
+        from: request.depositCurrency,
+        to: request.payoutCurrency,
+        isFixedRateMode: false,
       ),
     );
   }
@@ -128,7 +121,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       commissionBps: _affiliateBps,
     );
 
-    final quote = await _getSwapQuote(quoteParams);
+    final quote = (await _api.send(quoteParams)).quotes.max;
     final estimatedPrice = quote.estimatedPrice;
     final minimumPrice = estimatedPrice * (100 - maxSlippage) / 100;
 
@@ -145,13 +138,10 @@ class ChainflipExchangeProvider extends ExchangeProvider {
       chunkIntervalBlocks: quote.chunkIntervalBlocks,
     );
 
-    final swapResponse = await _openDepositChannel(swapParams);
-
-    final id =
-        "${swapResponse.issuedBlock}-${swapResponse.network.name}-${swapResponse.channelId}";
+    final swapResponse = await _api.send(swapParams);
 
     return Trade(
-      id: id,
+      id: "${swapResponse.issuedBlock}-${swapResponse.network.name}-${swapResponse.channelId}",
       provider: description,
       createdAt: DateTime.now(),
       state: TradeState.waiting,
@@ -167,7 +157,7 @@ class ChainflipExchangeProvider extends ExchangeProvider {
   Future<Trade> updateTrade(Trade trade) async {
       final channelParts = trade.id.split("-");
       final network = channelParts[1];
-      final normalizedNetwork = _normalizeNetworkName(network);
+      final normalizedNetwork = network.toLowerCase();
 
       final statusParams = ChainflipStatusRequest(
         apiKey: _affiliateKey,
@@ -176,104 +166,21 @@ class ChainflipExchangeProvider extends ExchangeProvider {
         channelId: int.parse(channelParts[2]),
       );
 
-      final statusResponse = await _getStatus(statusParams);
-
-      if (statusResponse == null) {
-        throw Exception("Trade not found for id: ${trade.id}");
-      }
-
-      final status = statusResponse.status;
-      final currentState = status.state;
-
-      final depositAmount = Money(status.deposit?.amountNative ?? BigInt.zero, status.sourceAsset);
-      final receiveAmount = Money(
-        status.swapEgress?.amountNative ?? BigInt.zero,
-        status.destinationAsset,
+      final statusResponse = await _api.send(
+        statusParams,
+        mapError: (e) => switch (e.statusCode) {
+          404 => Exception("Trade not found for id: ${trade.id}"),
+          _ => null,
+        },
       );
-      final refundAmount = Money(
-        status.refundEgress?.amountNative ?? BigInt.zero,
-        status.sourceAsset,
-      );
-      final isRefund = status.refundEgress != null;
-      final amount = isRefund ? refundAmount : receiveAmount;
 
       return trade.copyWith(
-        state: currentState,
-        outputTransaction: status.swapEgress?.transactionReference,
-        isRefund: isRefund,
-        depositAmount: depositAmount,
-        payoutAmount: amount,
-        fundingAddress: status.depositChannel?.depositAddress ?? "",
-        payoutAddress: status.destinationAddress,
-        refundAddress: "",
+        state: statusResponse.status.state.toState,
+        outputTransaction: statusResponse.status.swapEgress?.transactionReference,
+        isRefund: statusResponse.status.refundEgress != null,
+        fundingAddress: statusResponse.status.depositChannel?.depositAddress,
+        payoutAddress: statusResponse.status.destinationAddress,
       );
 
-  }
-
-  String _normalizeNetworkName(String name) {
-    final networkName = switch (name.toUpperCase()) {
-      "BITCOIN" => "bitcoin",
-      "ETHEREUM" => "ethereum",
-      "ARBITRUM" => "arbitrum",
-      "SOLANA" => "solana",
-      "TRON" => "tron",
-      "ASSETHUB" => "assethub",
-      _ => name,
-    };
-
-    return networkName;
-  }
-
-  Future<Map<String, dynamic>> _getAssets() => _getRequest(_assetsPath, {});
-
-  Future<ChainflipSwapResponse> _openDepositChannel(ChainflipSwapRequest params) async =>
-      ChainflipSwapResponse.fromJson(await _getRequest(_swapPath, params.toJson()));
-
-  Future<Map<String, dynamic>> _getRequest(String path, Map<String, dynamic> params) async {
-    final uri = Uri.https(_baseURL, path, params);
-
-    final response = await proxyWrapper.get(clearnetUri: uri);
-
-    if ((response.statusCode != 200) || (response.body.contains("error"))) {
-      throw Exception(
-        "Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}",
-      );
-    }
-
-    return json.decode(response.body) as Map<String, dynamic>;
-  }
-
-  Future<ChainflipQuote> _getSwapQuote(ChainflipFetchQuotesRequest params) async {
-    final uri = Uri.https(_baseURL, _quotePath, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri);
-
-    if(response.statusCode < 200 || response.statusCode > 299) {
-      throw Exception("status code: ${response.statusCode}\n${response.body}");
-    }
-
-    final quotes = ChainflipFetchQuotesResponse.fromJson(
-      jsonDecode(response.body) as List<dynamic>,
-    );
-    return quotes.quotes.max;
-  }
-
-  Future<ChainflipStatusResponse?> _getStatus(ChainflipStatusRequest params) async {
-    final uri = Uri.https(_baseURL, _txInfoPath, params.toJson());
-
-    final response = await proxyWrapper.get(clearnetUri: uri);
-
-    if (response.statusCode == 404) {
-      return null;
-    }
-
-    if ((response.statusCode != 200) || (response.body.contains("error"))) {
-      throw Exception(
-        "Unexpected response: ${response.statusCode} / ${uri.toString()} / ${response.body}",
-      );
-    }
-
-    return ChainflipStatusResponse.fromJson(
-      await json.decode(response.body) as Map<String, dynamic>,
-    );
   }
 }

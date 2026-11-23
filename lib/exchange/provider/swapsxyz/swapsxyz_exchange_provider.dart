@@ -1,14 +1,14 @@
-import "dart:convert";
-
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
@@ -21,11 +21,10 @@ import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
-import "package:json_annotation/json_annotation.dart";
 
 class SwapsXyzTrade extends RoutableTrade {
   SwapsXyzTrade({
-    required this.needToRegister,
+    required this.vmId, required this.needToRegister,
     required this.sourceTokenAddress,
     required this.sourceTokenDecimals,
     required this.sourceTokenAmountRaw,
@@ -55,22 +54,16 @@ class SwapsXyzTrade extends RoutableTrade {
     super.isRefund,
   }) : super();
 
-  // final trade = Trade(
-  //   needToRegisterInSwapXyz: needToRegisterInSwapXyz,
-  //   sourceTokenAddress: srcTokenAddr ?? srcToken,
-  //   sourceTokenDecimals: srcTokenDecs,
-  //   sourceTokenAmountRaw: reqAmountRaw,
-  //   requiresTokenApproval: requiresTokenApproval,
-  // );
   final bool needToRegister;
   final String sourceTokenAddress;
   final int sourceTokenDecimals;
+  final SwapsXyzVmId vmId;
   final String sourceTokenAmountRaw;
   final bool requiresTokenApproval;
 }
 
-class SwapsXyzExchangeProvider extends ExchangeProvider
-    implements TransactionCreationExchangeProvider {
+class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
+    implements TransactionCreationExchangeProvider, TransactionRegistrationExchangeProvider {
   SwapsXyzExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper})
     : _settingsStore = settingsStore;
 
@@ -88,38 +81,22 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
   static const _apiKey = secrets.swapsXyzApiKey;
   static const _baseUrl = "api-v2.swaps.xyz";
-  static const _getChainList = "api/getChainList";
-  static const _getPaths = "api/getPaths";
-  static const _getQuotePaths = "api/getQuote";
-  static const _getAction = "api/getAction";
-  static const _registerTxs = "api/registerTxs";
-  static const _getStatus = "api/getStatus";
 
-  static final _headers = {"x-api-key": _apiKey};
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _baseUrl,
+    headers: {"x-api-key": _apiKey},
+    errorMessage: SwapsXyzErrorResponse.messageOf,
+  );
 
   static final _supportedChainList = <SwapsXyzChain>[];
   final Map<int, List<TokenPathInfo>> _tokensCache = {};
 
   @override
-  String get title => "Swaps.XYZ";
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
-
-  @override
   bool get supportsFixedRate => false;
 
   @override
-  bool get supportsMemoOrDestinationTag => false;
-
-  @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.swapsXyz;
-
-  @override
-  Future<bool> checkIsAvailable() async => true;
 
   @override
   Future<ExchangeLimits> fetchLimits({
@@ -143,20 +120,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final srcToken = _getTokenAddress(currency: fromToUse, chain: srcChain);
     final dstToken = _getTokenAddress(currency: toToUse, chain: dstChain);
 
-    final params = SwapsXyzPathsRequest(
-      srcChainId: srcChain.chainId.toString(),
-      srcToken: srcToken,
-      dstChainId: dstChain.chainId.toString(),
-      dstToken: dstToken,
+    final body = await _api.send(
+      SwapsXyzPathsRequest(
+        srcChainId: srcChain.chainId.toString(),
+        srcToken: srcToken,
+        dstChainId: dstChain.chainId.toString(),
+        dstToken: dstToken,
+      ),
     );
-
-    final uri = Uri.https(_baseUrl, _getPaths, params.toJson());
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-    if (res.statusCode != 200) {
-      throw Exception("Unexpected http status: ${res.statusCode}");
-    }
-
-    final body = SwapsXyzPathsResponse.fromJson(json.decode(res.body) as Map<String, dynamic>);
 
     if (body.paths.isEmpty) {
       throw Exception("No paths for ${fromToUse.title} -> ${toToUse.title}");
@@ -181,7 +152,7 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     if (isFixedRateMode) {
       final tokensField = path.tokens;
 
-      if (tokensField is List && tokensField.isNotEmpty) {
+      if (tokensField.isNotEmpty) {
         final tokens = tokensField.tokens!;
         final wantSym = _normalizeCakeNativeTokenName(toToUse.title).toUpperCase();
         final wantAddr = dstToken.toLowerCase();
@@ -206,49 +177,38 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     );
   }
 
-  Future<_PathInfo?> _pickPath({
+  Future<SwapsXyzChainPath?> _pickPath({
     required int srcChainId,
     required String srcToken,
     required int dstChainId,
     required String dstToken,
   }) async {
-    final uri = Uri.https(_baseUrl, _getPaths, {
-      "srcChainId": "$srcChainId",
-      "srcToken": srcToken,
-      "dstChainId": "$dstChainId",
-      "dstToken": dstToken,
-    });
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-    if (res.statusCode != 200) {
+    try {
+      final response = await _api.send(
+        SwapsXyzPathsRequest(
+          srcChainId: srcChainId.toString(),
+          srcToken: srcToken,
+          dstChainId: dstChainId.toString(),
+          dstToken: dstToken,
+        ),
+      );
+      return response.paths.firstOrNull;
+    } on ProviderHttpException {
       return null;
     }
-    final body = json.decode(res.body) as Map<String, dynamic>;
-    final paths = (body["paths"] as List?)?.cast<Map<String, dynamic>>() ?? const [];
-    if (paths.isEmpty) {
-      return null;
-    }
-    final p = paths.first;
-    return _PathInfo(
-      supportsExactOut: p["supportsExactAmountOut"] == true,
-      minToAmountHuman: (p["amountLimits"]?["minAmount"] as String?) ?? "0",
-    );
   }
 
   @override
-  Future<ProviderRate> fetchRate({
-    required Money from,
-    required CryptoCurrency to,
-    required bool isFixedRate,
-  }) async {
-    if (_notSupportedAsSourceToken.contains(from.currency as CryptoCurrency)) {
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (_notSupportedAsSourceToken.contains(request.depositCurrency)) {
       throw Exception(
-        "fetchRate: source token ${from.currency.symbol} is not supported as source token",
+        "fetchRate: source token ${request.depositCurrency.symbol} is not supported as source token",
       );
     }
 
-    if(_notSupportedAsSourceToken.contains(to)) {
+    if(_notSupportedAsSourceToken.contains(request.payoutCurrency)) {
       throw Exception(
-        "fetchRate: source token ${from.currency.symbol} is not supported as destination token",
+        "fetchRate: source token ${request.payoutCurrency.symbol} is not supported as destination token",
       );
     }
 
@@ -257,60 +217,69 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       throw Exception("chains.isEmpty");
     }
 
-    final srcChain = _findChainByCurrency(from.currency as CryptoCurrency, chains);
-    final dstChain = _findChainByCurrency(to, chains);
+    final srcChain = _findChainByCurrency(request.depositCurrency, chains);
+    final dstChain = _findChainByCurrency(request.payoutCurrency, chains);
 
     await _ensureTokensCached(
       fromChain: srcChain,
       toChain: dstChain,
-      from: from.currency as CryptoCurrency,
-      to: to,
+      from: request.depositCurrency,
+      to: request.payoutCurrency,
     );
 
-    final srcToken = _getTokenAddress(currency: from.currency as CryptoCurrency, chain: srcChain);
-    final dstToken = _getTokenAddress(currency: to, chain: dstChain);
+    final srcToken = _getTokenAddress(currency: request.depositCurrency, chain: srcChain);
+    final dstToken = _getTokenAddress(currency: request.payoutCurrency, chain: dstChain);
 
-    if (isFixedRate) {
+    if (request is FixedRateRequest) {
       final path = await _pickPath(
         srcChainId: srcChain.chainId,
         srcToken: srcToken,
         dstChainId: dstChain.chainId,
         dstToken: dstToken,
       );
-      if (path == null || !path.supportsExactOut) {
+      if (path == null || !path.supportsExactAmountOut) {
         throw Exception(
-          "fetchRate: route does not support exact-amount-out for ${from.currency.symbol} -> ${to.title}",
+          "fetchRate: route does not support exact-amount-out for ${request.depositCurrency.symbol} -> ${request.payoutCurrency.title}",
         );
       }
     }
 
-    final params = SwapsXyzQuoteRequest(
-      srcChainId: srcChain.chainId.toString(),
-      srcToken: srcToken,
-      dstChainId: dstChain.chainId.toString(),
-      dstToken: dstToken,
-      amount: from.amount.toString(),
-      swapDirection: .exactAmountIn,
+    final decimals = request is FixedRateRequest
+        ? _chainDecimals(request.payoutCurrency, dstChain)
+        : _chainDecimals(request.depositCurrency, srcChain);
+
+    final data = await _api.send(
+      SwapsXyzQuoteRequest(
+        srcChainId: srcChain.chainId.toString(),
+        srcToken: srcToken,
+        dstChainId: dstChain.chainId.toString(),
+        dstToken: dstToken,
+        amount: _toChainUnits(request.amount, decimals).toString(),
+        swapDirection: switch (request) {
+          FloatingRateRequest() => .exactAmountIn,
+          FixedRateRequest() => .exactAmountOut,
+        },
+      ),
     );
 
-    final uri = Uri.https(_baseUrl, _getQuotePaths, params.toJson());
-    final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
+    _checkDecimals(request is FixedRateRequest ? data.amountOut : data.amountIn, decimals);
 
-    if (response.statusCode != 200) {
-      throw Exception("fetchRate failed: ${response.body}");
-    }
-
-    final data = SwapsXyzQuote.fromJson(json.decode(response.body) as Map<String, dynamic>);
     return ProviderRate(
       provider: description,
-      rate: ExchangeRate.fromAmounts(
-        Money(data.amountIn.amount, from.currency),
-        Money(data.amountOut.amount, to),
-      ),
-      limits: await fetchLimits(
-        from: from.currency as CryptoCurrency,
-        to: to,
-        isFixedRateMode: isFixedRate,
+      rate: switch (request) {
+        FloatingRateRequest() => ExchangeRate.fromAmounts(
+          request.amount,
+          data.amountOut.toMoney(request.payoutCurrency),
+        ),
+        FixedRateRequest() => ExchangeRate.fromAmounts(
+          data.amountIn.toMoney(request.depositCurrency),
+          request.amount,
+        ),
+      },
+      limits: await getLimits(
+        from: request.depositCurrency,
+        to: request.payoutCurrency,
+        isFixedRateMode: request is FixedRateRequest,
       ),
     );
   }
@@ -343,28 +312,26 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     final amount = request.isFixedRate
         ? request.payoutAmount
         : request.depositAmount;
+    final decimals = request.isFixedRate
+        ? _chainDecimals(request.payoutCurrency, dstChain)
+        : _chainDecimals(request.depositCurrency, srcChain);
 
-    final params = SwapsXyzActionRequest(
-      actionType: .swapAction,
-      sender: sender,
-      srcChainId: srcChain.chainId.toString(),
-      srcToken: srcToken,
-      dstChainId: dstChain.chainId.toString(),
-      dstToken: dstToken,
-      slippage: "300",
-      swapDirection: request.isFixedRate ? .exactAmountOut : .exactAmountIn,
-      amount: amount.amount.toString(),
-      recipient: recipient,
+    final data = await _api.send(
+      SwapsXyzActionRequest(
+        actionType: .swapAction,
+        sender: sender,
+        srcChainId: srcChain.chainId.toString(),
+        srcToken: srcToken,
+        dstChainId: dstChain.chainId.toString(),
+        dstToken: dstToken,
+        slippage: "300",
+        swapDirection: request.isFixedRate ? .exactAmountOut : .exactAmountIn,
+        amount: _toChainUnits(amount, decimals).toString(),
+        recipient: recipient,
+      ),
     );
 
-    final uri = Uri.https(_baseUrl, _getAction, params.toJson());
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-
-    if (res.statusCode != 200) {
-      throw Exception("getAction failed: ${res.statusCode} ${res.body}");
-    }
-
-    final data = SwapsXyzActionResponse.fromJson(json.decode(res.body) as Map<String, dynamic>);
+    _checkDecimals(request.isFixedRate ? data.amountOut : data.amountIn, decimals);
 
     final txId = data.txId;
 
@@ -424,8 +391,9 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       refundAddress: request.refundAddress,
       routerData: routerData ?? "",
       routerValue: txValue,
-      router: chainId,
+      router: srcChain.chainId.toString(),
       providerId: vmId.name,
+      vmId: vmId,
       needToRegister: needToRegisterInSwapXyz,
       sourceTokenAddress: data.amountIn.address,
       sourceTokenDecimals: data.amountIn.decimals,
@@ -434,102 +402,72 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     );
   }
 
-  /// Register a broadcasted tx with Swaps.xyz (required for alt-vm).
-  Future<bool> registerAltVmTx({
-    required String txId,
-    required String txHash,
-    required int chainId,
-    required String vmId,
-  }) async {
-    try {
-      final uri = Uri.https(_baseUrl, _registerTxs);
-      final payload = {"txId": txId, "vmId": vmId, "txHash": txHash, "chainId": chainId};
+  /// Alt-vm routes are only picked up once their source tx is registered with Swaps.xyz.
+  @override
+  Future<Trade> registerTransaction(Trade trade, String txHash) async {
+    trade as SwapsXyzTrade;
 
-      final res = await proxyWrapper.post(
-        clearnetUri: uri,
-        headers: {..._headers, "content-type": "application/json"},
-        body: jsonEncode(payload),
-      );
-
-      if (res.statusCode != 200) {
-        printV("registerTxs failed: ${res.statusCode} ${res.body}");
-        return false;
-      }
-      final List<dynamic> body = json.decode(res.body) as List<dynamic>;
-      if (body.isEmpty) {
-        return false;
-      }
-
-      final isSuccess = (body[0] as Map<String, dynamic>)["success"] as bool? ?? false;
-
-      return isSuccess;
-    } catch (e) {
-      printV("registerAltVmTx error: $e");
-      return false;
+    if (!trade.needToRegister) {
+      return trade;
     }
+
+    final chainId = int.tryParse(trade.router ?? "");
+    if (chainId == null || chainId <= 0) {
+      throw Exception("Can't register $txHash, invalid chain id ${trade.router}");
+    }
+
+    final response = await _api.send(
+      SwapsXyzTxRegistrationRequest(
+        txId: trade.id,
+        txHash: txHash,
+        vmId: trade.vmId.toJson(),
+        chainId: chainId,
+      ),
+    );
+
+    if (response.firstOrNull?.success != true) {
+      throw Exception("Swaps.xyz didn't accept the registration of $txHash");
+    }
+
+    return trade;
   }
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
-    final uri = Uri.https(_baseUrl, _getStatus, {"txId": trade.id});
-    final resp = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
+    final data = await _api.send(SwapsXyzStatusRequest(txId: trade.id));
 
-    if (resp.statusCode != 200) {
-      throw Exception("getStatus failed: ${resp.statusCode} ${resp.body}");
-    }
-
-    final SwapsXyzTxDetails data;
-    try {
-      data = SwapsXyzTxDetails.fromJson(json.decode(resp.body) as Map<String, dynamic>);
-    } on CheckedFromJsonException {
-      final error = SwapsXyzError.fromJson(json.decode(resp.body) as Map<String, dynamic>);
-      throw Exception(error);
-    }
-
-    final status = data.status.toState;
-    final refundAddress = data.sender.toString();
-
-    final srcTransaction = data.srcTx;
-    final dstTransaction = data.dstTx;
-
-    final inputAddress = srcTransaction?.toAddress;
-
-    final srcPaymentToken = srcTransaction?.paymentToken;
-    final dstPaymentToken = dstTransaction?.paymentToken;
-
-
-
-    final txHash = srcTransaction?.txHash;
-
-    // Minimal-unit amounts like "12000n"
-    final srcAmountRaw = srcPaymentToken?.amount;
-    final dstAmountRaw = dstPaymentToken?.amount;
-
-
-    // Timestamps can be num or "123n"  handle both
-    final srcTs = srcTransaction?.timestamp;
-    final dstTs = dstTransaction?.timestamp;
-    final timestamp = srcTs ?? dstTs;
-
-    return SwapsXyzTrade(
+    return trade.copyWith(
       id: data.txId,
       provider: description,
-      fundingAddress: inputAddress ?? "",
-      payoutAddress: dstTransaction?.toAddress ?? "",
-      txId: txHash,
-      state: status,
-      createdAt: timestamp,
-      refundAddress: refundAddress,
-      needToRegister: false,
-      sourceTokenAddress: srcPaymentToken?.address ?? "",
-      sourceTokenDecimals: srcPaymentToken?.decimals ?? 0,
-      sourceTokenAmountRaw: srcPaymentToken?.amount.toString() ?? "",
-      requiresTokenApproval: false,
-      depositAmount: Money(srcAmountRaw ?? BigInt.zero, trade.depositCurrency),
-      payoutAmount: Money(dstAmountRaw ?? BigInt.zero, trade.payoutCurrency),
-      routerData: "",
-      routerValue: "",
+      fundingAddress: data.srcTx?.toAddress,
+      payoutAddress: data.dstTx?.toAddress,
+      txId: data.srcTx?.txHash,
+      state: data.status.toState,
+      createdAt: data.srcTx?.timestamp ?? data.dstTx?.timestamp,
+      refundAddress: data.sender,
+      depositAmount: data.srcTx?.paymentToken?.toMoney(trade.depositCurrency),
+      payoutAmount: data.dstTx?.paymentToken?.toMoney(trade.payoutCurrency),
     );
+  }
+
+  /// Swaps.xyz counts in the token's on-chain decimals, which aren't always Cake's
+  /// (AVAX is 9 in Cake, 18 on the C-chain)
+  int _chainDecimals(CryptoCurrency currency, SwapsXyzChain chain) =>
+      _tokensCache[chain.chainId]
+          ?.firstWhereOrNull((t) => t.symbol == _normalizeCakeNativeTokenName(currency.title))
+          ?.decimals ??
+      currency.decimals;
+
+  static BigInt _toChainUnits(Money amount, int decimals) => decimals >= amount.decimals
+      ? amount.amount * BigInt.from(10).pow(decimals - amount.decimals)
+      : amount.amount ~/ BigInt.from(10).pow(amount.decimals - decimals);
+
+  static void _checkDecimals(SwapsXyzPayment echoed, int sent) {
+    if (echoed.decimals != sent) {
+      throw Exception(
+        "Swaps.xyz counts ${echoed.symbol} in ${echoed.decimals} decimals, the amount was sent in $sent",
+      );
+    }
   }
 
   // Load & cache supported chains once
@@ -538,16 +476,10 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       return _supportedChainList;
     }
     try {
-      final uri = Uri.https(_baseUrl, _getChainList);
-      final response = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-      if (response.statusCode != 200) {
-        return [];
-      }
-
-      final data = json.decode(response.body) as List<dynamic>;
+      final data = await _api.send(const SwapsXyzChainListRequest());
       _supportedChainList
         ..clear()
-        ..addAll(data.map((e) => SwapsXyzChain.fromJson(e as Map<String, dynamic>)));
+        ..addAll(data);
       return _supportedChainList;
     } catch (e) {
       printV(e);
@@ -583,85 +515,32 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
 
   // call getPaths and merge tokens into cache keyed by the chainId
   Future<void> _fetchAndCacheTokens({required int srcChainId}) async {
-    final params = <String, String>{
-      "srcChainId": "$srcChainId",
-      "srcToken": "0x0000000000000000000000000000000000000000",
-      // Native placeholder
-    };
-
-    final uri = Uri.https(_baseUrl, _getPaths, params);
-    final res = await proxyWrapper.get(clearnetUri: uri, headers: _headers);
-    if (res.statusCode != 200) {
-      printV("getPaths failed: ${res.statusCode} ${res.body}");
-      return;
-    }
-
-    Map<String, dynamic> body;
+    final SwapsXyzPathsResponse body;
     try {
-      body = json.decode(res.body) as Map<String, dynamic>;
+      body = await _api.send(
+        SwapsXyzPathsRequest(
+          srcChainId: srcChainId.toString(),
+          // Native placeholder
+          srcToken: "0x0000000000000000000000000000000000000000",
+        ),
+      );
     } catch (e) {
-      printV("getPaths JSON decode error: $e");
+      printV("getPaths failed: $e");
       return;
     }
 
-    // Always cache the source chain's native token (from body['srcToken'])
-    final srcTokenJson = body["srcToken"] as Map<String, dynamic>?;
-    if (srcTokenJson != null) {
-      final symbol = (srcTokenJson["symbol"] as String? ?? "").toUpperCase();
-      if (symbol.isNotEmpty) {
-        final isNative = srcTokenJson["isNative"] == true;
-        final decimals = (srcTokenJson["decimals"] as num?)?.toInt();
-        // Treat native token as address = null so _getTokenAddress() emits zero-address
-        final addr = isNative ? null : (srcTokenJson["address"] as String?);
-        _mergeCache(srcChainId, [
-          TokenPathInfo(
-            symbol: symbol,
-            address: addr,
-            decimals: decimals,
-            minAmount: srcTokenJson["minAmount"]?.toString(),
-            maxAmount: srcTokenJson["maxAmount"]?.toString(),
-          ),
-        ]);
-      }
+    // Always cache the source chain's native token
+    if (body.srcToken.symbol.isNotEmpty) {
+      // Treat native token as address = null so _getTokenAddress() emits zero-address
+      _mergeCache(srcChainId, [TokenPathInfo.fromToken(body.srcToken, dropNativeAddress: true)]);
     }
 
-    final paths = (body["paths"] as List?) ?? const [];
-    if (paths.isEmpty) {
-      return;
-    }
-
-    for (final path in paths) {
-      final map = path as Map<String, dynamic>;
-      final pathChainId = (map["chainId"] as num?)?.toInt();
-      if (pathChainId == null) {
-        continue;
-      }
-
-      final tokensField = map["tokens"];
-
-      // Case 1: String "all" -> cache empty list to indicate all tokens supported
-      if (tokensField is String) {
-        if (tokensField.toLowerCase() == "all") {
-          _tokensCache[pathChainId] = _tokensCache[pathChainId] ?? <TokenPathInfo>[];
-        }
-        continue;
-      }
-
-      // Case 2: List -> parse and merge
-      if (tokensField is List) {
-        final parsed = <TokenPathInfo>[];
-        for (final token in tokensField) {
-          if (token is Map<String, dynamic>) {
-            try {
-              parsed.add(TokenPathInfo.fromJson(token));
-            } catch (e) {
-              printV("Token parse error on chain $pathChainId: $e : $token");
-            }
-          }
-        }
-        if (parsed.isNotEmpty) {
-          _mergeCache(pathChainId, parsed);
-        }
+    for (final path in body.paths) {
+      // "all" -> cache empty list to indicate all tokens supported
+      if (path.tokens.isAll) {
+        _tokensCache[path.chainId] ??= <TokenPathInfo>[];
+      } else if (path.tokens.isNotEmpty) {
+        _mergeCache(path.chainId, path.tokens.tokens!.map(TokenPathInfo.fromToken).toList());
       }
     }
   }
@@ -756,14 +635,14 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       (s.startsWith("0x") && s.length >= 10) ? s.substring(0, 10) : "";
 
   @override
-  Future<PendingTransaction> createTransaction(WalletBase wallet, Trade trade) async {
+  Future<PendingTransaction?> createTransaction(WalletBase wallet, Trade trade) async {
     trade as SwapsXyzTrade;
 
     final routerTo = trade.fundingAddress;
     final routerData = trade.routerData;
 
-    if (routerData == "0x") {
-      throw Exception("invalid router data");
+    if (!isEVMCompatibleChain(wallet.type) || routerData.isEmpty || routerData == "0x") {
+      return null;
     }
 
     final tokenContract = trade.sourceTokenAddress.toLowerCase();
@@ -793,6 +672,22 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
       final requiredAmount =
           BigInt.tryParse(trade.sourceTokenAmountRaw.replaceAll("n", "")) ?? BigInt.zero;
 
+      Future<PendingTransaction> buildSwap() {
+        printV("[Swaps.xyz sending flow] Building swap transaction");
+        return evm!.createRawCallDataTransaction(
+          wallet,
+          routerTo,
+          routerData,
+          Money(routerValueWei, wallet.currency),
+          priority,
+          sourceTokenAddress: tokenContract,
+          sourceTokenAmount: requiredAmount,
+          useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
+              ? _settingsStore.useBlinkProtection
+              : false,
+        );
+      }
+
       final needsApproval = tokenContract.isNotEmpty && requiredAmount > BigInt.zero
           ? await evm!.isApprovalRequired(wallet, tokenContract, routerTo, requiredAmount)
           : false;
@@ -801,56 +696,30 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         "[Swaps.xyz sending flow] Approval required: $needsApproval for token ${trade.depositAmount.serialized} with amount $requiredAmount",
       );
 
-      if (needsApproval) {
-        // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
-        final isUSDTMainnet =
-            wallet.chainId == 1 &&
-            tokenContract.toLowerCase() == "0xdac17f958d2ee523a2206206994597c13d831ec7";
+      if (!needsApproval) {
+        return buildSwap();
+      }
 
-        if (isUSDTMainnet) {
-          final currentAllowance = await evm!.getAllowance(wallet, tokenContract, routerTo);
+      // USDT Approval Flow (Special Case). We must reset allowance to 0 first.
+      final isUSDTMainnet =
+          wallet.chainId == 1 &&
+          tokenContract.toLowerCase() == "0xdac17f958d2ee523a2206206994597c13d831ec7";
+      final currentAllowance =
+          isUSDTMainnet ? await evm!.getAllowance(wallet, tokenContract, routerTo) : null;
+      final needsReset = currentAllowance != null && currentAllowance > BigInt.zero;
 
-          if (currentAllowance != null && currentAllowance > BigInt.zero) {
-            printV(
-              "[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.",
-            );
+      if (needsReset) {
+        printV(
+          "[Swaps.xyz sending flow] currentAllowance USDT: $currentAllowance. Resetting to 0 before setting new allowance.",
+        );
+      }
 
-            final resetTx = await buildApprovalNeeded(
-              wallet: wallet,
-              spender: routerTo,
-              tokenContract: tokenContract,
-              requiredAmount: BigInt.zero,
-              // Approve 0
-              sourceTokenDecimals: trade.sourceTokenDecimals,
-              priority: priority,
-            );
-
-            if (resetTx != null) {
-              await resetTx.commit();
-
-              final resetConfirmed = await _waitForApprovalUpdate(
-                wallet: wallet,
-                tokenContract: tokenContract,
-                spender: routerTo,
-                requiredAmount: BigInt.zero,
-                // Wait until it equals 0
-                waitForExactMatch: true,
-              );
-
-              if (!resetConfirmed) {
-                throw Exception("Failed to reset USDT allowance. Please try again.");
-              }
-              printV("[Swaps.xyz sending flow] USDT allowance reset to 0 confirmed on-chain.");
-            }
-          }
-        }
-
-        // Standard Approval Flow
+      Future<PendingTransaction> buildApproval(BigInt amount) async {
         final approvalTx = await buildApprovalNeeded(
           wallet: wallet,
           spender: routerTo,
           tokenContract: tokenContract,
-          requiredAmount: requiredAmount,
+          requiredAmount: amount,
           sourceTokenDecimals: trade.sourceTokenDecimals,
           priority: priority,
         );
@@ -858,42 +727,46 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
         if (approvalTx == null) {
           throw Exception("Failed to build approval transaction");
         }
+        return approvalTx;
+      }
 
+      Future<void> sendApproval(PendingTransaction approvalTx, BigInt amount) async {
         printV(
-          "[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.depositAmount.serialized}",
+          "[Swaps.xyz sending flow] Submitting approval transaction for token ${trade.depositAmount.serialized} with amount $amount",
         );
         await approvalTx.commit();
 
-        // Wait for the approval to be mined on-chain
+        final isReset = amount == BigInt.zero;
         final isApproved = await _waitForApprovalUpdate(
           wallet: wallet,
           tokenContract: tokenContract,
           spender: routerTo,
-          requiredAmount: requiredAmount,
+          requiredAmount: amount,
+          waitForExactMatch: isReset,
         );
 
         if (!isApproved) {
-          throw Exception("Approval transaction failed or timed out on-chain. Try again.");
+          throw Exception(
+            isReset
+                ? "Failed to reset USDT allowance. Please try again."
+                : "Approval transaction failed or timed out on-chain. Try again.",
+          );
         }
-        printV(
-          "[Swaps.xyz sending flow] Approval transaction confirmed on-chain. Proceeding with swap execution.",
-        );
+        printV("[Swaps.xyz sending flow] Approval to $amount confirmed on-chain.");
       }
 
-      // Construct Final Swap Transaction
-      printV("[Swaps.xyz sending flow] Building swap transaction");
-      return evm!.createRawCallDataTransaction(
-        wallet,
-        routerTo,
-        routerData,
-        Money(routerValueWei, wallet.currency),
-        priority,
-        sourceTokenAddress: tokenContract,
-        sourceTokenAmount: requiredAmount,
-        useBlinkProtection: canSupportBlinkProtection(wallet.chainId)
-            ? _settingsStore.useBlinkProtection
-            : false,
-      );
+      final firstApproval = await buildApproval(needsReset ? BigInt.zero : requiredAmount);
+
+      return _ApproveThenSwapTransaction(firstApproval, () async {
+        await sendApproval(firstApproval, needsReset ? BigInt.zero : requiredAmount);
+        if (needsReset) {
+          await sendApproval(await buildApproval(requiredAmount), requiredAmount);
+        }
+
+        final swapTx = await buildSwap();
+        await swapTx.commit();
+        return swapTx;
+      });
     }
 
     throw Exception("invalid selector");
@@ -977,50 +850,46 @@ class SwapsXyzExchangeProvider extends ExchangeProvider
     printV("[Swaps.xyz sending flow] Allowance check timed out.");
     return false;
   }
+}
 
-  Future<void> registerSwapsXyzTransaction(Trade trade, PendingTransaction pendingTransaction) async {
-    trade as SwapsXyzTrade;
-      // register only for vmId is alt-vm or bridgeId is alt-vm (trade.needToRegisterInSwapXyz)
-      final needToRegister = trade.needToRegister;
-      if (!needToRegister) {
-        return;
-      }
+class _ApproveThenSwapTransaction with PendingTransaction {
+  _ApproveThenSwapTransaction(this._firstApproval, this._send);
 
-      final vmId = (trade.providerId ?? "").toLowerCase();
-      if (vmId.isEmpty) {
-        printV("SwapsXyz: transaction register: skipped (vmId empty)");
-        return;
-      }
+  final PendingTransaction _firstApproval;
+  final Future<PendingTransaction> Function() _send;
+  PendingTransaction? _swap;
 
-      final txHash = pendingTransaction.evmTxHashFromRawHex ?? pendingTransaction.id;
+  PendingTransaction get _current => _swap ?? _firstApproval;
 
-      if (txHash.isEmpty) {
-        printV("SwapsXyz: transaction register: skipped (txHash empty)");
-        return;
-      }
+  @override
+  String get id => _current.id;
 
-      final chainId = int.tryParse(trade.router ?? "") ?? 0;
-      if (chainId <= 0) {
-        printV("SwapsXyz: transaction register: skipped (invalid chainId)");
-        return;
-      }
+  @override
+  Money get amount => _current.amount;
 
-      printV(
-          "SwapsXyz: attempting to register transaction: tradeId = ${trade.id}, txHash = $txHash, chainId = $chainId, vmId = $vmId");
+  @override
+  Money get fee => _current.fee;
 
-      final registered = await registerAltVmTx(
-        txId: trade.id,
-        txHash: txHash,
-        chainId: chainId,
-        vmId: vmId,
-      );
+  @override
+  String get amountFormatted => _current.amountFormatted;
 
-      if (!registered) {
-        printV("SwapsXyz: transaction register: failed");
-      } else {
-        printV("SwapsXyz: transaction register: success");
-      }
-  }
+  @override
+  String get feeFormatted => _current.feeFormatted;
+
+  @override
+  String get feeFormattedValue => _current.feeFormattedValue;
+
+  @override
+  String get hex => _current.hex;
+
+  @override
+  String? get evmTxHashFromRawHex => _current.evmTxHashFromRawHex;
+
+  @override
+  Future<void> commit() async => _swap = await _send();
+
+  @override
+  Future<Map<String, String>> commitUR() => throw UnimplementedError();
 }
 
 class TokenPathInfo {
@@ -1032,23 +901,19 @@ class TokenPathInfo {
     required this.maxAmount,
   });
 
-  factory TokenPathInfo.fromJson(Map<String, dynamic> json) => TokenPathInfo(
-    symbol: (json["symbol"] as String?)?.toUpperCase() ?? "",
-    address: json["address"] as String?,
-    decimals: json["decimals"] as int?,
-    minAmount: json["minAmount"]?.toString(),
-    maxAmount: json["maxAmount"]?.toString(),
+  factory TokenPathInfo.fromToken(
+    SwapsXyzTokenInfoWithAmounts token, {
+    bool dropNativeAddress = false,
+  }) => TokenPathInfo(
+    symbol: token.symbol.toUpperCase(),
+    address: dropNativeAddress && token.isNative ? null : token.address,
+    decimals: token.decimals,
+    minAmount: token.minAmount,
+    maxAmount: token.maxAmount,
   );
   final String symbol;
   final String? address;
   final int? decimals;
   final String? minAmount;
   final String? maxAmount;
-}
-
-class _PathInfo {
-  _PathInfo({required this.supportsExactOut, required this.minToAmountHuman});
-
-  final bool supportsExactOut;
-  final String minToAmountHuman;
 }

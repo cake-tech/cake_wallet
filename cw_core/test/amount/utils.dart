@@ -30,6 +30,12 @@ class FiatCurrency implements Currency {
   String? get tag => throw UnimplementedError();
 
   @override
+  String get apiString => "fiat.$symbol";
+
+  @override
+  String get serialized => "fiat^$symbol";
+
+  @override
   Money parseAmount(String value) => Money.parse(value, this);
 
   @override

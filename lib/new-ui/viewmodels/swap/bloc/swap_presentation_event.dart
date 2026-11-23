@@ -1,4 +1,5 @@
 import "package:cake_wallet/core/address_resolver/parsed_address.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:flutter/foundation.dart";
 
 @immutable
@@ -7,7 +8,9 @@ sealed class SwapPresentationEvent {
 }
 
 final class AddressValidationFailed extends SwapPresentationEvent {
-  const AddressValidationFailed();
+  const AddressValidationFailed(this.currency);
+
+  final CryptoCurrency currency;
 }
 
 final class AliaspayAddressFound extends SwapPresentationEvent {
@@ -26,4 +29,20 @@ final class SwapAllNotReady extends SwapPresentationEvent {
 
 final class LowFeeAlert extends SwapPresentationEvent {
   const LowFeeAlert();
+}
+
+final class RefundAddressRequired extends SwapPresentationEvent {
+  const RefundAddressRequired(this.currency);
+
+  final CryptoCurrency currency;
+}
+
+final class SourceWalletSelectionRequested extends SwapPresentationEvent {
+  const SourceWalletSelectionRequested();
+}
+
+final class WalletSwitchFailed extends SwapPresentationEvent {
+  const WalletSwitchFailed(this.error);
+
+  final Object error;
 }

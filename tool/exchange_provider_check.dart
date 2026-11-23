@@ -37,10 +37,11 @@ import "package:cake_wallet/entities/sort_balance_types.dart";
 import "package:cake_wallet/entities/sync_status_display_mode.dart";
 import "package:cake_wallet/entities/wallet_list_order_types.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart";
-import "package:cake_wallet/exchange/provider/letsexchange/letsexchange_exchange_provider.dart";
+import "package:cake_wallet/exchange/provider/whynot/whynot_exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/trocador/trocador_exchange_provider.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cake_wallet/view_model/settings/sync_mode.dart";
 import "package:cw_core/amount/money.dart";
@@ -455,6 +456,45 @@ class FakeSettingsStore implements SettingsStore {
   @override
   Future<void> updateAllTrocadorProviderStates(List<String> availableProviders) {
     // TODO: implement updateAllTrocadorProviderStates
+    throw UnimplementedError();
+  }
+
+  @override
+  late bool accountsHomePromoDismissed;
+
+  @override
+  late bool shouldShowChartsInDashboard;
+
+  @override
+  late bool shouldShowNftsTab;
+
+  @override
+  late bool showCiBuildOverlay;
+
+  @override
+  late bool useRobinhoodScan;
+
+  @override
+  Future<void> dismissEducation(String educationId) {
+    // TODO: implement dismissEducation
+    throw UnimplementedError();
+  }
+
+  @override
+  bool hasViewedExplainer(String preferencesKey) {
+    // TODO: implement hasViewedExplainer
+    throw UnimplementedError();
+  }
+
+  @override
+  bool isEducationDismissed(String educationId) {
+    // TODO: implement isEducationDismissed
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> setExplainerViewed(String preferencesKey) {
+    // TODO: implement setExplainerViewed
     throw UnimplementedError();
   }
 }
@@ -898,12 +938,34 @@ Future<TradeResult> checkProvider(
   // FIXED=1 exercises the fixed-rate path, which is otherwise never covered.
   final isFixedRate = Platform.environment["FIXED"] != null;
   var from = baseline;
+  var payout = baselineAmount(to);
+
+  TradeRequest tradeRequest() => TradeRequest(
+        refundAddress: placeholderAddress(from.currency as CryptoCurrency),
+        payoutAddress: placeholderAddress(to),
+        depositAmount: from,
+        isFixedRate: isFixedRate,
+        payoutAmount: payout,
+      );
+
+  // As in the app, a fixed rate is quoted for the payout amount and a
+  // floating rate for the deposit amount; the rate fills in the other side.
+  Future<ProviderRate> quote() async {
+    final rate = await provider.fetchRate(tradeRequest().rateRequest);
+    if (isFixedRate) {
+      from = rate.rate.convert(payout);
+    } else {
+      payout = rate.rate.convert(from);
+    }
+    return rate;
+  }
+
   try {
     // Mirrors the real app flow: a rate is always fetched before the user
     // can confirm a trade. This is also a hard requirement for some
     // providers internally (e.g. Trocador populates its enabled-provider
     // list only inside fetchRate).
-    var rate = await provider.fetchRate(from: from, to: to, isFixedRate: isFixedRate);
+    var rate = await quote();
 
     // Our baseline is a rough USD guess, so it can easily land outside a
     // provider's accepted range. Being out of range is expected behavior,
@@ -913,8 +975,9 @@ Future<TradeResult> checkProvider(
         ? amountWithinLimits(from, rate.limits)
         : null;
     if (corrected != null) {
+      payout = rate.rate.convert(corrected);
       from = corrected;
-      rate = await provider.fetchRate(from: from, to: to, isFixedRate: isFixedRate);
+      rate = await quote();
     }
 
     if (rate.rate.quote.isZero || rate.rate.quote.isNegative) {
@@ -929,15 +992,7 @@ Future<TradeResult> checkProvider(
       );
     }
 
-    final request = TradeRequest(
-      refundAddress: placeholderAddress(from.currency as CryptoCurrency),
-      payoutAddress: placeholderAddress(to),
-      depositAmount: from,
-      isFixedRate: isFixedRate,
-      payoutAmount: rate.rate.convert(from),
-    );
-
-    final trade = await provider.createTrade(request: request);
+    final trade = await provider.createTrade(request: tradeRequest());
 
     return TradeResult(
       provider: provider.title,

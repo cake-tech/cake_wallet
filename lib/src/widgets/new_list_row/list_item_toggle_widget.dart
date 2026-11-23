@@ -1,3 +1,4 @@
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
 import 'package:flutter/material.dart';
@@ -7,20 +8,28 @@ class ListItemToggleWidget extends StatefulWidget {
     super.key,
     required this.keyValue,
     required this.label,
+    this.subtitle,
+    this.iconPath,
+    this.iconColor,
     required this.value,
     required this.onChanged,
     this.leadingEndWidget,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.testId,
   });
 
   final String keyValue;
+  final String? iconPath;
+  final Color? iconColor;
   final String label;
+  final String? subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
   final Widget? leadingEndWidget;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemToggleWidget> createState() => _ListItemToggleWidgetState();
@@ -34,9 +43,11 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+    return MergeSemantics(child: ListItemStyleWrapper(
+        testId: widget.testId,
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
+        iconPath: widget.iconPath,
         onTap: () {
           widget.onChanged(!widget.value);
         },
@@ -48,8 +59,29 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
                 child: Row(
                   spacing: 8,
                   children: [
+                    if (widget.iconPath != null && widget.iconPath!.isNotEmpty)
+                      CakeImageWidget(
+                        imageUrl: widget.iconPath,
+                        width: 24,
+                        height: 24,
+                        color: widget.iconColor,
+                      ),
                     Flexible(
-                      child: Text(widget.label, style: textStyle, softWrap: true),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(widget.label, style: textStyle, softWrap: true),
+                          if (widget.subtitle != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: Text(
+                                widget.subtitle!,
+                                style: labelStyle.copyWith(fontSize: 12),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                     if (widget.leadingEndWidget != null) widget.leadingEndWidget!
                   ],
@@ -63,6 +95,6 @@ class _ListItemToggleWidgetState extends State<ListItemToggleWidget> {
               ),
             ],
           );
-        });
+        }));
   }
 }

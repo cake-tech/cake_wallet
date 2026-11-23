@@ -94,7 +94,7 @@ class WalletListPage extends BasePage {
                 );
               },
               child: Semantics(
-                label: 'Transaction Filter',
+                label: S.of(context).order_by,
                 button: true,
                 enabled: true,
                 child: Container(
@@ -107,6 +107,7 @@ class WalletListPage extends BasePage {
                   child: Image.asset(
                     'assets/images/filter_icon.png',
                     color: Theme.of(context).colorScheme.primary,
+                    excludeFromSemantics: true,
                   ),
                 ),
               ),
@@ -194,7 +195,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                 shouldShowCurrentWalletPointer: true,
                                 borderRadius: BorderRadius.all(Radius.circular(18)),
                                 title: groupName,
-                                tileKey: ValueKey('group_wallets_expansion_tile_widget_$index'),
+                                tileKey: ValueKey('wallet_list_group_${index}_key'),
                                 leadingWidget: CakeImageWidget(
                                   imageUrl: "assets/new-ui/navbar/wallets.svg",
                                   width: 28,
@@ -231,6 +232,8 @@ class WalletListBodyState extends State<WalletListBody> {
                                   return item.isCurrent
                                       ? SizedBox.shrink()
                                       : EditWalletButtonWidget(
+                                          key: ValueKey(
+                                              "wallet_list_group_${index}_wallet_${group.wallets.indexWhere((info) => info.name == item.name)}_edit_button_key"),
                                           width: 64,
                                           onTap: () => Navigator.of(context).pushNamed(
                                             Routes.walletEdit,
@@ -276,7 +279,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                   ? Theme.of(context).colorScheme.primary
                                   : Theme.of(context).colorScheme.surface;
                               return GroupedWalletExpansionTile(
-                                tileKey: ValueKey('single_wallets_expansion_tile_widget_$index'),
+                                tileKey: ValueKey('wallet_list_single_wallet_${index}_key'),
                                 isCurrentlySelectedWallet: wallet.isCurrent,
                                 leadingWidget: SizedBox(
                                   width: wallet.isCurrent ? 56 : 40,
@@ -307,13 +310,16 @@ class WalletListBodyState extends State<WalletListBody> {
                                   ),
                                 ),
                                 title: wallet.name,
+                                titleSemanticsLabel:
+                                    '${wallet.name}, ${walletTypeToDisplayName(wallet.type)}',
                                 isSelected: false,
                                 borderRadius: BorderRadius.all(Radius.circular(18)),
                                 margin: EdgeInsets.only(left: 20, right: 20, bottom: 12),
-                                onTitleTapped: () => wallet.isCurrent ? null : _loadWallet(wallet),
+                                onTitleTapped: wallet.isCurrent ? null : () => _loadWallet(wallet),
                                 trailingWidget: wallet.isCurrent
                                     ? null
                                     : EditWalletButtonWidget(
+                                        key: ValueKey("wallet_list_single_wallet_${index}_edit_button_key"),
                                         width: 64,
                                         onTap: () {
                                           Navigator.of(context).pushNamed(
@@ -339,48 +345,29 @@ class WalletListBodyState extends State<WalletListBody> {
             Stack(
               alignment: Alignment.bottomCenter,
               children: [
-                !FeatureFlag.hasNewUi
-                    ? IgnorePointer(
-                        child: Container(
-                          alignment: Alignment.bottomCenter,
-                          height: 185,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: <Color>[
-                                Theme.of(context).colorScheme.surface.withAlpha(10),
-                                Theme.of(context).colorScheme.surface,
-                                Theme.of(context).colorScheme.surface,
-                                Theme.of(context).colorScheme.surface
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
-                    : IgnorePointer(
-                        child: Container(
-                          height: 275,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: <Color>[
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(10),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
-                                Theme.of(context).colorScheme.surfaceDim.withAlpha(255)
-                              ],
-                            ),
-                          ),
-                        ),
+                IgnorePointer(
+                  child: Container(
+                    height: 275,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(10),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(150),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255),
+                          Theme.of(context).colorScheme.surfaceDim.withAlpha(255)
+                        ],
                       ),
+                    ),
+                  ),
+                ),
                 Container(
                   height: 240,
-                  width: MediaQuery.of(context).size.width,
+                  width: MediaQuery.sizeOf(context).width,
                   margin: EdgeInsets.only(bottom: 24),
                   padding: EdgeInsets.only(left: 16, right: 16),
                   child: Column(
@@ -464,7 +451,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         color: Theme.of(context).colorScheme.primary,
                         textColor: Theme.of(context).colorScheme.onPrimary,
                       ),
-                      if (FeatureFlag.hasNewUi) SizedBox(height: 52.0)
+                      SizedBox(height: 52.0)
                     ],
                   ),
                 ),

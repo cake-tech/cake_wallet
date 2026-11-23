@@ -16,6 +16,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import "package:cake_wallet/utils/test_id.dart";
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {required this.isNewWalletCreated});
@@ -30,7 +31,7 @@ class WalletSeedPage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     return isNewWalletCreated
-        ? GestureDetector(
+        ? TestId.merge("wallet_seed_page_copy_seeds_button_key", child: GestureDetector(
             key: ValueKey('wallet_seed_page_copy_seeds_button_key'),
             onTap: () {
               ClipboardUtil.setSensitiveDataToClipboard(
@@ -52,7 +53,7 @@ class WalletSeedPage extends BasePage {
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
-          )
+          ))
         : Offstage();
   }
 
@@ -124,9 +125,12 @@ class WalletSeedPage extends BasePage {
                           padding: EdgeInsets.only(left: 8.0, top: 8.0),
                           child: PrimaryButton(
                             key: ValueKey('wallet_seed_page_verify_seed_button_key'),
-                            onPressed: () =>
-                                Navigator.pushNamed(context, Routes.walletSeedVerificationPage),
-                            text: S.current.verify_seed,
+                            onPressed: () => Navigator.pushNamed(
+                              context,
+                              Routes.walletSeedVerificationPage,
+                              arguments: isNewWalletCreated,
+                            ),
+                            text: S.current.verify_phrase,
                             color: Theme.of(context).colorScheme.primary,
                             textColor: Theme.of(context).colorScheme.onPrimary,
                           ),

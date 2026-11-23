@@ -347,7 +347,6 @@ class AnyPayFlow {
     final page = NewSwapPage(
       getIt.get<SwapBloc>(),
       authService,
-      getIt.get<AddressResolverService>(),
       null,
       fromSend: SwapFromSendArgs.fromIntent(intent),
     );

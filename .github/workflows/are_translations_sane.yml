@@ -2,9 +2,12 @@ name: Are translations sane
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   PR_test_build:
-    runs-on: ubuntu-24.04
+    runs-on: puzl-ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -16,3 +19,15 @@ jobs:
             echo "tr: $i"
             cat $i | jq || exit 1
           done
+
+      - uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d # v1.8.1
+        with:
+          sdk: 3.5.4
+
+      - name: Lint translations
+        if: github.event_name == 'pull_request'
+        run: dart tool/i18n_lint.dart
+
+      - name: Test the lint fixtures
+        if: github.event_name == 'pull_request'
+        run: bash tool/i18n_lint_selftest.sh
