@@ -46,21 +46,6 @@ class CardsView extends StatefulWidget {
 
   @override
   _CardsViewState createState() => _CardsViewState();
-  /// Opens the one-off BTC -> stablecoin conversion flow (see `spark_deposit_to_stable.dart`).
-  Future<void> depositToStable() async {
-    final page = getIt.get<SparkDepositToStablePage>();
-    showCupertinoModalBottomSheet(
-        context: context,
-        barrierColor: Colors.black.withAlpha(128),
-        builder: (context) {
-          return Padding(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: ModalNavigator(parentContext: context, rootPage: Material(child: page))),
-          );
-        });
-  }
 }
 
 class _CardsViewState extends State<CardsView> {
@@ -70,6 +55,27 @@ class _CardsViewState extends State<CardsView> {
 
   int get _fallbackSelectedIndex =>
       max(0, widget.dashboardViewModel.cardOrder.length - 1);
+
+  /// Opens the one-off BTC -> stablecoin conversion flow (see `spark_deposit_to_stable.dart`).
+  Future<void> depositToStable() async {
+    final page = getIt.get<SparkDepositToStablePage>();
+    showCupertinoModalBottomSheet(
+      context: context,
+      barrierColor: Colors.black.withAlpha(128),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: ModalNavigator(
+              parentContext: context,
+              rootPage: Material(child: page),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -186,7 +192,8 @@ class _CardsViewState extends State<CardsView> {
                   walletBalance = walletBalanceRecord?.combinedAvailableBalance ?? "0";
                   walletFiatBalance = walletBalanceRecord?.combinedFiatAvailableBalance ?? "0.00";
                 }
-              } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
+              } else if (widget.dashboardViewModel.balanceViewModel
+                  .showCombinedBalance(lightningMode: widget.lightningMode)) {
                 walletBalance = "";
                 walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
               } else {
@@ -208,7 +215,8 @@ class _CardsViewState extends State<CardsView> {
               final accountName = showAccount ? account.label : "";
               final accountBalance = showAccount ? account.balance : null;
 
-              final assetName = widget.dashboardViewModel.balanceViewModel.showCombinedBalance
+              final assetName = widget.dashboardViewModel.balanceViewModel
+                      .showCombinedBalance(lightningMode: widget.lightningMode)
                   ? ""
                   : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
 
@@ -229,7 +237,8 @@ class _CardsViewState extends State<CardsView> {
                 balance: walletBalance,
                 fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
                     widget.dashboardViewModel.settingsStore.fiatCurrency.title,
-                fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
+                fiatFirst: widget.dashboardViewModel.balanceViewModel
+                    .showCombinedBalance(lightningMode: widget.lightningMode),
                 fiatBalance: walletFiatBalance,
                 selected: _selectedIndex == visualIndex,
                 onCustomizeTapped: _selectedIndex == visualIndex ? widget.onCustomizeTapped : null,

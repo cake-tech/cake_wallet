@@ -194,7 +194,8 @@ void main() {
     when(() => dashboard.balanceViewModel).thenReturn(balance);
     when(() => balance.displayMode).thenReturn(BalanceDisplayMode.displayableBalance);
     when(() => balance.getMainBalanceRecord(any())).thenReturn(null);
-    when(() => balance.showCombinedBalance).thenReturn(false);
+    when(() => balance.showCombinedBalance(lightningMode: any(named: 'lightningMode')))
+        .thenReturn(false);
     when(() => dashboard.mwebEnabled).thenReturn(false);
     when(() => dashboard.hasMweb).thenReturn(false);
     when(() => dashboard.isEnabledTradeAction).thenReturn(false);
