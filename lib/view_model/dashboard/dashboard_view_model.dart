@@ -355,6 +355,11 @@ abstract class DashboardViewModelBase with Store {
           value: () => tradeFilterStore.displayJupiter,
           onChanged: () =>
               tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.jupiter)),
+      SwapProviderFilterItem(
+          providerDescription: ExchangeProviderDescription.flashnet,
+          value: () => tradeFilterStore.displayFlashnet,
+          onChanged: () =>
+              tradeFilterStore.toggleDisplayExchange(ExchangeProviderDescription.flashnet)),
     ];
   }
 

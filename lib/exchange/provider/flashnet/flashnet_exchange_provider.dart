@@ -1,15 +1,16 @@
-import "dart:convert";
-
 import "dart:math";
 
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/flashnet/flashnet_api_schema.dart";
+import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
-import "package:cake_wallet/exchange/trade_not_found_exception.dart";
+import "package:cake_wallet/exchange/trade_not_created_exception.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/list_extension.dart";
@@ -17,15 +18,11 @@ import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 
-class FlashnetExchangeProvider extends ExchangeProvider
+class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
     implements TransactionRegistrationExchangeProvider {
+  FlashnetExchangeProvider({super.proxyWrapper});
 
-  static const baseUrl = "orchestration.flashnet.xyz";
-  static const limitsPath = "/v1/orchestration/limits";
-  static const estimatePath = "/v1/orchestration/estimate";
-  static const quotePath = "/v1/orchestration/quote";
-  static const submitPath = "/v1/orchestration/submit";
-  static const statusPath = "/v1/orchestration/status";
+  static const _apiAuthority = "orchestration.flashnet.xyz";
 
   static const _submitPropagationRetries = 3;
   static const _submitRetryDelay = Duration(seconds: 1);
@@ -34,22 +31,18 @@ class FlashnetExchangeProvider extends ExchangeProvider
   static const slippageBps = 50;
   static const affiliateId = "cake_wallet";
 
-  static const headers = {
-    "Authorization": "Bearer ${apiKey}",
-    "Content-Type": "application/json",
-  };
-
-  @override
-  Future<bool> checkIsAvailable() async => true;
+  late final _api = ProviderApi(
+    proxyWrapper,
+    authority: _apiAuthority,
+    headers: const {"Authorization": "Bearer $apiKey"},
+    errorMessage: (json) => switch (json["error"]) {
+      {"code": final Object code, "message": final Object message} => "$code: $message",
+      _ => null,
+    },
+  );
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.flashnet;
-
-  @override
-  bool get isAvailable => true;
-
-  @override
-  bool get isEnabled => true;
 
   @override
   bool get supportsFixedRate => true;
@@ -57,20 +50,14 @@ class FlashnetExchangeProvider extends ExchangeProvider
 
   @override
   Future<ExchangeLimits> fetchLimits({required CryptoCurrency from, required CryptoCurrency to, required bool isFixedRateMode}) async {
-    final req = FlashnetLimitsRequest(
-      sourceAsset: _normalizeCurrency(from),
-      destinationAsset: _normalizeCurrency(to),
-      sourceChain: _chainFor(from),
-      destinationChain: _chainFor(to)
+    final respData = await _api.send(
+      FlashnetLimitsRequest(
+        sourceAsset: _normalizeCurrency(from),
+        destinationAsset: _normalizeCurrency(to),
+        sourceChain: _chainFor(from),
+        destinationChain: _chainFor(to),
+      ),
     );
-
-    final resp = await proxyWrapper.get(headers: headers, clearnetUri: Uri.https(baseUrl, limitsPath, req.toJson()));
-    if(resp.statusCode < 200 || resp.statusCode > 299) {
-      throw Exception("status code: ${resp.statusCode}");
-    }
-    final respData = FlashnetLimitsResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
-
-
 
     final routeLimits = respData.routes
         .map((item) => isFixedRateMode ? item.limits.exactOut : item.limits.exactIn)
@@ -111,64 +98,80 @@ class FlashnetExchangeProvider extends ExchangeProvider
   }
 
   @override
-  Future<ProviderRate> fetchRate({required Money from, required CryptoCurrency to, required bool isFixedRate}) async {
-    final req = FlashnetEstimateRequest(sourceChain: _chainFor(from.currency as CryptoCurrency),
-        sourceAsset: _normalizeCurrency(from.currency as CryptoCurrency),
-        destinationChain: _chainFor(to),
-        destinationAsset: _normalizeCurrency(to),
-        amount: from.toStringWithPrecision(useBaseUnit: true),
-        amountMode: isFixedRate ? .exactOut : .exactIn,
-        deliveryMode: isFixedRate ? .fixed : .variable,
+  Future<ProviderRate> fetchRate(RateRequest request) async {
+    final respData = await _api.send(
+      FlashnetEstimateRequest(
+        sourceChain: _chainFor(request.depositCurrency),
+        sourceAsset: _normalizeCurrency(request.depositCurrency),
+        destinationChain: _chainFor(request.payoutCurrency),
+        destinationAsset: _normalizeCurrency(request.payoutCurrency),
+        amount: request.amount.toStringWithPrecision(useBaseUnit: true),
+        amountMode: request is FixedRateRequest ? .exactOut : .exactIn,
         slippageBps: slippageBps,
-      affiliateId: affiliateId
+        affiliateId: affiliateId,
+      ),
     );
 
-    final resp = await proxyWrapper.get(headers: headers, clearnetUri: Uri.https(baseUrl, estimatePath, req.toJson()));
-    if(resp.statusCode < 200 || resp.statusCode > 299) {
-      throw Exception("status code: ${resp.statusCode}");
-    }
-    final respData = FlashnetEstimateResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+    final rate = switch (request) {
+      FloatingRateRequest(:final depositAmount) => ExchangeRate.fromAmounts(
+        depositAmount,
+        Money.parse(respData.estimatedOut, request.payoutCurrency, isBaseUnit: true),
+      ),
+      FixedRateRequest(:final payoutAmount) => ExchangeRate.fromAmounts(
+        Money.parse(
+          respData.requiredAmountIn ?? (throw Exception("no requiredAmountIn on exact_out estimate")),
+          request.depositCurrency,
+          isBaseUnit: true,
+        ),
+        payoutAmount,
+      ),
+    };
 
+    final limits = await getLimits(
+      from: request.depositCurrency,
+      to: request.payoutCurrency,
+      isFixedRateMode: request is FixedRateRequest,
+    );
 
-    return ProviderRate(provider: description,
-        rate: ExchangeRate.fromAmounts(
-            from, Money.parse(respData.estimatedOut, to, isBaseUnit: true)),
-        limits: await fetchLimits(
-            from: from.currency as CryptoCurrency, to: to, isFixedRateMode: isFixedRate));
+    return ProviderRate(
+      provider: description,
+      rate: rate,
+      // exact_out limits come in the payout asset, but RatesLoaded compares every provider's
+      // limits against each other in the deposit asset
+      limits: switch (request) {
+        FloatingRateRequest() => limits,
+        FixedRateRequest() => ExchangeLimits(
+          min: limits.min == null ? null : rate.convert(limits.min!),
+          max: limits.max == null ? null : rate.convert(limits.max!),
+        ),
+      },
+    );
   }
 
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
-    final req = FlashnetQuoteRequest(
-      sourceChain: _chainFor(request.depositCurrency),
-      sourceAsset: _normalizeCurrency(request.depositCurrency),
-      destinationChain: _chainFor(request.payoutCurrency),
-      destinationAsset: _normalizeCurrency(request.payoutCurrency),
-      amount:
-      request.isFixedRate ?
-      request.payoutAmount.toStringWithPrecision(useBaseUnit: true)
-          : request.depositAmount.toStringWithPrecision(useBaseUnit: true),
-      amountMode: request.isFixedRate ? .exactOut : .exactIn,
-      deliveryMode: request.isFixedRate ? .fixed : .variable,
-      recipientAddress: request.payoutAddress,
-      refundAddress: request.refundAddress,
-      affiliateId: affiliateId,
-      slippageBps: slippageBps,
+    final respData = await _api.send(
+      FlashnetQuoteRequest(
+        sourceChain: _chainFor(request.depositCurrency),
+        sourceAsset: _normalizeCurrency(request.depositCurrency),
+        destinationChain: _chainFor(request.payoutCurrency),
+        destinationAsset: _normalizeCurrency(request.payoutCurrency),
+        amount:
+        request.isFixedRate ?
+        request.payoutAmount.toStringWithPrecision(useBaseUnit: true)
+            : request.depositAmount.toStringWithPrecision(useBaseUnit: true),
+        amountMode: request.isFixedRate ? .exactOut : .exactIn,
+        recipientAddress: request.payoutAddress,
+        refundAddress: request.refundAddress,
+        affiliateId: affiliateId,
+        slippageBps: slippageBps,
 
-      refundChain: _chainFor(request.depositCurrency),
+        refundChain: _chainFor(request.depositCurrency),
+      ),
+      headers: {"X-Idempotency-Key": _idempotencyKey},
+      mapError: (e) => TradeNotCreatedException(description, description: e.message),
     );
-
-    final resp = await proxyWrapper.post(
-        headers: {...headers, "X-Idempotency-Key": _idempotencyKey},
-        clearnetUri: Uri.https(baseUrl, quotePath),
-        body: jsonEncode(req.toJson()));
-
-    if(resp.statusCode < 200 || resp.statusCode > 299) {
-      throw Exception("status code: ${resp.statusCode}\n${resp.body}");
-    }
-
-    final respData = FlashnetQuoteResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
 
     return Trade(
       id: respData.quoteId,
@@ -225,64 +228,33 @@ class FlashnetExchangeProvider extends ExchangeProvider
     // this means we have to keep trying /submit until it's propagated, usually just a few seconds
     while (true) {
       await Future<void>.delayed(_submitRetryDelay * attempt);
-      final resp = await proxyWrapper.post(
-        headers: {
-          ...headers,
-          "X-Idempotency-Key": idempotencyKey,
-        },
-        clearnetUri: Uri.https(baseUrl, submitPath),
-        body: jsonEncode(req.toJson()),
-      );
-
-      if (resp.statusCode == 400) {
-        final error =
-            FlashnetErrorResponse
-                .fromJson(jsonDecode(resp.body) as Map<String, dynamic>)
-                .error;
-
-        if (error.code == "tx_not_found") {
+      try {
+        return await _api.send(req, headers: {"X-Idempotency-Key": idempotencyKey});
+      } on ProviderHttpException catch (e) {
+        if (e.json case {"error": {"code": "tx_not_found"}}) {
           attempt++;
           if (attempt > _submitPropagationRetries) {
             throw Exception("max submit retries exceeded");
           }
           continue;
-        } else {
-          throw Exception(error.code);
         }
+        rethrow;
       }
-
-      if (resp.statusCode < 200 || resp.statusCode > 299) {
-        throw Exception("status code: ${resp.statusCode}\n${resp.body}");
-      }
-      return FlashnetSubmitResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
     }
   }
 
   @override
   Future<Trade> updateTrade(Trade trade) async {
-    final req = FlashnetStatusRequest(id: trade.id, readToken: trade.password);
-
-    final resp = await proxyWrapper.get(headers: headers,
-        clearnetUri: Uri.https(baseUrl, statusPath, req.toJson()));
-
-    if (resp.statusCode == 404) {
-      throw TradeNotFoundException(trade.id, provider: description);
-    }
-
-    if (resp.statusCode == 403) {
-      final error = FlashnetErrorResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
-
-      throw TradeNotFoundException(trade.id, provider: description,
-          description: "${error.error.code}: ${error.error.message} "
-              "(read token ${trade.password}, ${trade.password?.length ?? 0} chars)");
-    }
-
-    if (resp.statusCode < 200 || resp.statusCode > 299) {
-      throw Exception("status code: ${resp.statusCode}\n${resp.body}");
-    }
-
-    final respData =
-    FlashnetStatusResponse.fromJson(jsonDecode(resp.body) as Map<String, dynamic>);
+    final respData = await _api.send(
+      FlashnetStatusRequest(id: trade.id, readToken: trade.password),
+      mapError: (e) => switch (e.statusCode) {
+        404 => TradeNotFoundException(trade.id, provider: description),
+        403 => TradeNotFoundException(trade.id, provider: description,
+            description: "${e.message} "
+                "(read token ${trade.password}, ${trade.password?.length ?? 0} chars)"),
+        _ => null,
+      },
+    );
     final order = respData.order;
 
     return trade.copyWith(
@@ -294,17 +266,13 @@ class FlashnetExchangeProvider extends ExchangeProvider
       payoutAddress: order.destinationAddress,
       depositAmount: order.amountIn == null
           ? null
-          : Money.parse(order.amountIn, trade.depositCurrency, isBaseUnit: true),
+          : Money.parse(order.amountIn!, trade.depositCurrency, isBaseUnit: true),
       payoutAmount: order.amountOut == null
           ? null
-          : Money.parse(order.amountOut, trade.payoutCurrency, isBaseUnit: true),
+          : Money.parse(order.amountOut!, trade.payoutCurrency, isBaseUnit: true),
     );
   }
 
-
-
-  @override
-  String get title => description.title;
 
   String get _idempotencyKey {
     final rnd = Random.secure();

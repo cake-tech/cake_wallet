@@ -464,3 +464,111 @@ String jupiterOrder({required bool withTaker}) =>
     '"routePlan":[{"percent":100,"bps":10000,"swapInfo":{"ammKey":"jup-amm-1",'
     '"label":"Orca","inputMint":"$jupiterSolMint","outputMint":"$jupiterUsdcMint",'
     '"inAmount":"2000000000","outAmount":"400000000"}}]}';
+
+// ── Flashnet - btc to usdc on solana ─────────────────────────────────────────────────────
+//
+// The route the fixtures were fetched on. 0.002 btc for 120 usdc either way round, so one btc
+// is 60000 usdc in both the floating and the fixed rate scenario. The status body follows the
+// example in the openapi spec, since getting a real one takes a real deposit.
+
+const flashnetQuoteId = "q_flashnet-quote-1";
+const flashnetFixedQuoteId = "q_flashnet-quote-2";
+const flashnetOrderId = "ord_flashnet-order-1";
+const flashnetDepositAddress = "bc1pflashnetdepositaddress";
+const flashnetExpiresAt = "2026-11-23T18:06:00.841Z";
+const flashnetReadToken = "flashnet-read-token";
+const flashnetSourceTxHash = "flashnet-source-tx";
+const flashnetDestinationTxHash = "flashnet-destination-tx";
+
+const _flashnetBtc = '{"chain":"bitcoin","asset":"BTC","assetDisplayName":"Bitcoin",'
+    '"assetDisplaySymbol":"BTC","chainDisplayName":"Bitcoin","contractAddress":null,'
+    '"decimals":8,"chainId":null}';
+
+const _flashnetUsdc = '{"chain":"solana","asset":"USDC","assetDisplayName":"USDC",'
+    '"assetDisplaySymbol":"USDC","chainDisplayName":"Solana",'
+    '"contractAddress":"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","decimals":6,'
+    '"chainId":"solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"}';
+
+/// exact_in is bounded at 0.0001 - 1 btc. exact_out takes [exactOutMin] and [exactOutMax] in
+/// usdc's smallest unit, which the real route leaves null - only the usd cent bounds are set.
+String flashnetLimitsBody({String? exactOutMin, String? exactOutMax}) =>
+    '{"generatedAt":"2026-11-23T18:03:56.700Z","routes":[{"sourceChain":"bitcoin",'
+    '"sourceAsset":"BTC","destinationChain":"solana","destinationAsset":"USDC",'
+    '"exactOutEligible":true,"fixedEligible":true,"source":$_flashnetBtc,'
+    '"destination":$_flashnetUsdc,"direction":"sell","limits":{"orderNotionalUsd":'
+    '{"minCents":"80","maxCents":"3210000","source":"runtime_order_bounds"},'
+    '"exactIn":{"supported":true,"requestAmount":{"leg":"source","chain":"bitcoin",'
+    '"asset":"BTC","minAmountSmallest":"10000","maxAmountSmallest":"100000000",'
+    '"minUsdCents":"80","maxUsdCents":"3210000"},"constraints":["order_notional_usd"]},'
+    '"exactOut":{"supported":true,"requestAmount":{"leg":"destination","chain":"solana",'
+    '"asset":"USDC","minAmountSmallest":${_jsonString(exactOutMin)},'
+    '"maxAmountSmallest":${_jsonString(exactOutMax)},"minUsdCents":"80",'
+    '"maxUsdCents":"3210000"},"constraints":["order_notional_usd"]},"fiatUsd":null,'
+    '"dynamicProviderLimits":{"possible":false,"components":[],"description":null},'
+    '"constraints":[{"id":"order_notional_usd","amountMode":"all","leg":"route",'
+    '"source":"runtime_order_bounds","description":"Runtime USD notional bounds",'
+    '"chain":null,"asset":null,"minAmountSmallest":null,"maxAmountSmallest":null,'
+    '"minUsdCents":"80","maxUsdCents":"3210000"}]}}]}';
+
+String _jsonString(String? value) => value == null ? "null" : '"$value"';
+
+final flashnetLimits = flashnetLimitsBody();
+
+/// 0.002 btc in, 120 usdc out.
+const flashnetEstimate = '{"estimatedOut":"120000000","feeAmount":"180000","feeBps":15,'
+    '"totalFeeAmount":"2280000","feeAsset":"USDC","route":["bitcoin:BTC","spark:USDB",'
+    '"solana:USDC"],"networkCostAmount":"0","networkCostAsset":"USDC",'
+    '"networkCostRequired":false,"networkCosts":[{"type":"solana_associated_token_account",'
+    '"nativeAmount":"0","nativeAsset":"SOL","amount":"0","asset":"USDC",'
+    '"assumption":"observed_exists"}],"amountMode":"exact_in","source":$_flashnetBtc,'
+    '"destination":$_flashnetUsdc}';
+
+/// 120 usdc out needs 0.002 btc in. maxAcceptedAmountIn sits 20 bps above it, so a provider
+/// reading the wrong field prices the trade off.
+const flashnetEstimateExactOut = '{"amountMode":"exact_out","targetAmountOut":"120000000",'
+    '"requiredAmountIn":"200000","maxAcceptedAmountIn":"200400","inputBufferBps":20,'
+    '"estimatedOut":"120000000","feeAmount":"180000","feeBps":15,"totalFeeAmount":"2280000",'
+    '"feeAsset":"USDC","route":["BTC","USDB","USDC"],"source":$_flashnetBtc,'
+    '"destination":$_flashnetUsdc}';
+
+const flashnetQuote = '{"quoteId":"$flashnetQuoteId",'
+    '"depositAddress":"$flashnetDepositAddress","amountIn":"200000",'
+    '"expiresAt":"$flashnetExpiresAt","estimatedOut":"120000000","feeAmount":"180000",'
+    '"feeBps":15,"totalFeeAmount":"2280000","feeAsset":"USDC",'
+    '"route":["spark:BTC","spark:USDB","solana:USDC"],"priceLockMode":"approval_required",'
+    '"lockedMinAmountOut":"119400000","readToken":"quote-read-token","amountMode":"exact_in",'
+    '"tag":null}';
+
+/// amountIn is the ceiling here and requiredAmountIn is the price, so the trade has to take
+/// the latter.
+const flashnetQuoteExactOut = '{"quoteId":"$flashnetFixedQuoteId",'
+    '"depositAddress":"$flashnetDepositAddress","amountIn":"200400",'
+    '"amountMode":"exact_out","targetAmountOut":"120000000","requiredAmountIn":"200000",'
+    '"maxAcceptedAmountIn":"200400","inputBufferBps":20,"expiresAt":"$flashnetExpiresAt",'
+    '"estimatedOut":"120000000","feeAmount":"180000","feeBps":15,"totalFeeAmount":"2280000",'
+    '"feeAsset":"USDC","route":["BTC","USDB","USDC"],"readToken":"quote-read-token",'
+    '"tag":null}';
+
+/// The spec's example plus the read token a public client key gets back, which the provider
+/// keeps as the trade's password for status reads.
+const flashnetSubmit =
+    '{"orderId":"$flashnetOrderId","status":"confirming","readToken":"$flashnetReadToken"}';
+
+const flashnetStatus = '{"order":{"id":"$flashnetOrderId","type":"order",'
+    '"quoteId":"$flashnetQuoteId","status":"completed","sourceChain":"bitcoin",'
+    '"sourceAsset":"BTC","destinationChain":"solana","destinationAsset":"USDC",'
+    '"depositAddress":"$flashnetDepositAddress","recipientAddress":"$payoutAddress",'
+    '"sourceAssetAddress":null,'
+    '"destinationAssetAddress":"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",'
+    '"sourceTxHash":"$flashnetSourceTxHash","destinationTxHash":"$flashnetDestinationTxHash",'
+    '"amountIn":"200000","amountOut":"120000000","feeAmount":"180000","feeAsset":"USDC",'
+    '"feeBps":15,"slippageBps":50,"createdAt":"2026-11-23T18:04:00.000Z",'
+    '"updatedAt":"2026-11-23T18:08:00.000Z","completedAt":"2026-11-23T18:08:00.000Z"},'
+    '"stages":[{"name":"completed","status":"completed",'
+    '"completedAt":"2026-11-23T18:08:00.000Z"}]}';
+
+const flashnetReadTokenRequired =
+    '{"error":{"code":"read_token_required","message":"readToken is required"}}';
+
+const flashnetTxNotFound =
+    '{"error":{"code":"tx_not_found","message":"Deposit transaction not found"}}';

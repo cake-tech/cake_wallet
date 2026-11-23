@@ -3,6 +3,7 @@ import "dart:convert";
 import "package:cake_wallet/exchange/provider/chainflip/chainflip_api_schema.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exolix/exolix_api_schema.dart";
+import "package:cake_wallet/exchange/provider/flashnet/flashnet_api_schema.dart";
 import "package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart";
 import "package:cake_wallet/exchange/provider/whynot/whynot_api_schema.dart";
 import "package:cake_wallet/exchange/provider/near_intents/near_intents_api_schema.dart";
@@ -591,6 +592,117 @@ void main() {
       expect(order.slippageBps, 100);
       expect(order.totalFee, 15000, reason: "5000 signature + 10000 prioritization");
       expect(order.routePlan!.single.swapInfo.label, "Orca");
+    });
+  });
+
+  group("Flashnet", () {
+    Money btc(String smallest) => Money.parse(smallest, CryptoCurrency.btc, isBaseUnit: true);
+    Money usdc(String smallest) => Money.parse(smallest, CryptoCurrency.usdcsol, isBaseUnit: true);
+
+    test("the limits body bounds exact_in at 0.0001 - 1 btc and leaves exact_out unbounded", () {
+      final limits = FlashnetLimitsResponse.fromJson(_map(flashnetLimits)).routes.single.limits;
+
+      expect(btc(limits.exactIn.requestAmount!.minAmountSmallest!), Money.parse("0.0001", CryptoCurrency.btc));
+      expect(btc(limits.exactIn.requestAmount!.maxAmountSmallest!), Money.parse("1", CryptoCurrency.btc));
+      expect(limits.exactOut.requestAmount!.minAmountSmallest, isNull);
+      expect(limits.exactOut.requestAmount!.maxAmountSmallest, isNull);
+    });
+
+    test("the bounded limits body puts 6 - 1200 usdc on exact_out", () {
+      final limits = FlashnetLimitsResponse.fromJson(
+        _map(flashnetLimitsBody(exactOutMin: "6000000", exactOutMax: "1200000000")),
+      ).routes.single.limits;
+
+      expect(usdc(limits.exactOut.requestAmount!.minAmountSmallest!), Money.parse("6", CryptoCurrency.usdcsol));
+      expect(usdc(limits.exactOut.requestAmount!.maxAmountSmallest!), Money.parse("1200", CryptoCurrency.usdcsol));
+    });
+
+    test("0.002 btc for 120 usdc prices one btc at 60000 usdc", () {
+      final estimate = FlashnetEstimateResponse.fromJson(_map(flashnetEstimate));
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse("0.002", CryptoCurrency.btc),
+        usdc(estimate.estimatedOut),
+      );
+
+      expect(estimate.amountMode, FlashnetAmountMode.exactIn);
+      expect(rate.quote, Money.parse("60000", CryptoCurrency.usdcsol));
+    });
+
+    test("120 usdc out needs 0.002 btc in, at the same 60000 usdc", () {
+      final estimate = FlashnetEstimateResponse.fromJson(_map(flashnetEstimateExactOut));
+      final rate = ExchangeRate.fromAmounts(
+        btc(estimate.requiredAmountIn!),
+        usdc(estimate.targetAmountOut!),
+      );
+
+      expect(estimate.amountMode, FlashnetAmountMode.exactOut);
+      expect(estimate.maxAcceptedAmountIn, isNot(estimate.requiredAmountIn));
+      expect(rate.quote, Money.parse("60000", CryptoCurrency.usdcsol));
+    });
+
+    test("6 - 1200 usdc at 60000 usdc a btc is 0.0001 - 0.02 btc", () {
+      final rate = ExchangeRate.fromAmounts(
+        Money.parse("0.002", CryptoCurrency.btc),
+        Money.parse("120", CryptoCurrency.usdcsol),
+      );
+
+      expect(rate.convert(Money.parse("6", CryptoCurrency.usdcsol)), Money.parse("0.0001", CryptoCurrency.btc));
+      expect(rate.convert(Money.parse("1200", CryptoCurrency.usdcsol)), Money.parse("0.02", CryptoCurrency.btc));
+    });
+
+    test("the exact_in quote deposits amountIn", () {
+      final quote = FlashnetQuoteResponse.fromJson(_map(flashnetQuote));
+
+      expect(quote.quoteId, flashnetQuoteId);
+      expect(quote.depositAddress, flashnetDepositAddress);
+      expect(quote.requiredAmountIn, isNull);
+      expect(btc(quote.amountIn), Money.parse("0.002", CryptoCurrency.btc));
+      expect(usdc(quote.estimatedOut), Money.parse("120", CryptoCurrency.usdcsol));
+      expect(quote.expiresAt, DateTime.parse(flashnetExpiresAt));
+    });
+
+    test("the exact_out quote prices the deposit as requiredAmountIn, below amountIn", () {
+      final quote = FlashnetQuoteResponse.fromJson(_map(flashnetQuoteExactOut));
+
+      expect(quote.quoteId, flashnetFixedQuoteId);
+      expect(btc(quote.requiredAmountIn!), Money.parse("0.002", CryptoCurrency.btc));
+      expect(btc(quote.amountIn), greaterThan(btc(quote.requiredAmountIn!)));
+      expect(usdc(quote.targetAmountOut!), Money.parse("120", CryptoCurrency.usdcsol));
+    });
+
+    test("the submit body is a confirming order with a read token", () {
+      final submit = FlashnetSubmitResponse.fromJson(_map(flashnetSubmit));
+
+      expect(submit.orderId, flashnetOrderId);
+      expect(submit.status, TradeState.confirming);
+      expect(submit.readToken, flashnetReadToken);
+    });
+
+    test("the status body is the completed order", () {
+      final status = FlashnetStatusResponse.fromJson(_map(flashnetStatus));
+      final order = status.order;
+
+      expect(order.id, flashnetOrderId);
+      expect(order.type, FlashnetOperationType.order);
+      expect(order.quoteId, flashnetQuoteId);
+      expect(order.status, TradeState.completed);
+      expect(order.sourceChain, FlashnetChain.bitcoin);
+      expect(order.destinationChain, FlashnetChain.solana);
+      expect(order.depositAddress, flashnetDepositAddress);
+      expect(order.recipientAddress, payoutAddress);
+      expect(order.destinationAddress, isNull);
+      expect(order.sourceTxHash, flashnetSourceTxHash);
+      expect(order.destinationTxHash, flashnetDestinationTxHash);
+      expect(order.refundTxHash, isNull);
+      expect(btc(order.amountIn!), Money.parse("0.002", CryptoCurrency.btc));
+      expect(usdc(order.amountOut!), Money.parse("120", CryptoCurrency.usdcsol));
+      expect(order.completedAt, DateTime.parse("2026-11-23T18:08:00.000Z"));
+      expect(status.stages.single.name, "completed");
+    });
+
+    test("the error bodies parse", () {
+      expect(FlashnetErrorResponse.fromJson(_map(flashnetReadTokenRequired)).error.code, "read_token_required");
+      expect(FlashnetErrorResponse.fromJson(_map(flashnetTxNotFound)).error.code, "tx_not_found");
     });
   });
 }

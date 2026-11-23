@@ -12,6 +12,7 @@ import "dart:convert";
 
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/json_converters.dart";
+import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
 
 part "flashnet_api_schema.g.dart";
@@ -231,7 +232,7 @@ class FlashnetAssetDetails {
 /// query for GET /v1/orchestration/limits. leave every field off to get the whole route table -
 /// this endpoint needs no auth but is rate limited per IP
 @JsonSerializable(createFactory: false)
-class FlashnetLimitsRequest {
+class FlashnetLimitsRequest extends ApiRequest<FlashnetLimitsResponse> {
   const FlashnetLimitsRequest({
     this.sourceChain,
     this.sourceAsset,
@@ -249,7 +250,15 @@ class FlashnetLimitsRequest {
   @JsonKey(name: "destinationAsset", includeIfNull: false)
   final String? destinationAsset;
 
+  @override
+  String path() => "/v1/orchestration/limits";
+
+  @override
   Map<String, dynamic> toJson() => _$FlashnetLimitsRequestToJson(this);
+
+  @override
+  FlashnetLimitsResponse decode(Object json) =>
+      FlashnetLimitsResponse.fromJson(json as Map<String, dynamic>);
 }
 
 /// the amount a quote request should carry for one amount mode, and the bounds on it. the
@@ -556,20 +565,6 @@ class FlashnetNetworkCost {
   final String? assumption;
 }
 
-/// Uri.https rejects any query value that is not a String or an Iterable<String>, and fails with
-/// "int is not a subtype of Iterable" rather than anything readable, so the one integer query
-/// param is stringified here instead of at the call site. the POST bodies keep their real ints,
-/// which is what the spec types them as there
-class FlashnetQueryIntConverter implements JsonConverter<int, String> {
-  const FlashnetQueryIntConverter();
-
-  @override
-  int fromJson(String json) => int.parse(json);
-
-  @override
-  String toJson(int value) => value.toString();
-}
-
 /// a GET has nowhere to put a nested array, so /estimate takes its fee lists as JSON in the
 /// query string. the POST /quote body takes the same lists as real json, hence the separate
 /// converters here - these only ever encode, nothing decodes an outbound query
@@ -611,7 +606,7 @@ class FlashnetQueryAffiliateIdsConverter
 /// appFees, affiliateId and affiliateIds are absent from the openapi spec but documented and
 /// live - see https://docs.flashnet.xyz/products/orchestration/api/quotes-and-orders
 @JsonSerializable(createFactory: false)
-class FlashnetEstimateRequest {
+class FlashnetEstimateRequest extends ApiRequest<FlashnetEstimateResponse> {
   const FlashnetEstimateRequest({
     required this.sourceChain,
     required this.sourceAsset,
@@ -651,7 +646,7 @@ class FlashnetEstimateRequest {
   final String? recipientAddress;
 
   @JsonKey(name: "slippageBps", includeIfNull: false)
-  @FlashnetQueryIntConverter()
+  @IntStringConverter()
   final int? slippageBps;
 
   @JsonKey(name: "appFees", includeIfNull: false)
@@ -663,7 +658,15 @@ class FlashnetEstimateRequest {
   @FlashnetQueryAffiliateIdsConverter()
   final List<FlashnetAffiliateIdEntry>? affiliateIds;
 
+  @override
+  String path() => "/v1/orchestration/estimate";
+
+  @override
   Map<String, dynamic> toJson() => _$FlashnetEstimateRequestToJson(this);
+
+  @override
+  FlashnetEstimateResponse decode(Object json) =>
+      FlashnetEstimateResponse.fromJson(json as Map<String, dynamic>);
 }
 
 /// response of GET /v1/orchestration/estimate. the same priced shape a quote answers with, minus
@@ -830,7 +833,7 @@ class FlashnetAffiliateIdEntryConverter
 /// body for POST /v1/orchestration/quote. needs a bearer key and a unique X-Idempotency-Key
 /// header - replaying the same key returns the same quote rather than pricing a new one
 @JsonSerializable(createFactory: false)
-class FlashnetQuoteRequest {
+class FlashnetQuoteRequest extends ApiRequest<FlashnetQuoteResponse> {
   const FlashnetQuoteRequest({
     required this.sourceChain,
     required this.sourceAsset,
@@ -846,7 +849,7 @@ class FlashnetQuoteRequest {
     this.appFees,
     this.affiliateId,
     this.affiliateIds,
-  });
+  }) : super.post();
 
   @JsonKey(name: "sourceChain")
   final FlashnetChain sourceChain;
@@ -902,7 +905,15 @@ class FlashnetQuoteRequest {
   @FlashnetAffiliateIdEntryConverter()
   final List<FlashnetAffiliateIdEntry>? affiliateIds;
 
+  @override
+  String path() => "/v1/orchestration/quote";
+
+  @override
   Map<String, dynamic> toJson() => _$FlashnetQuoteRequestToJson(this);
+
+  @override
+  FlashnetQuoteResponse decode(Object json) =>
+      FlashnetQuoteResponse.fromJson(json as Map<String, dynamic>);
 }
 
 /// how one app fee resolved against the quote
@@ -1065,7 +1076,7 @@ class FlashnetQuoteResponse {
 /// lightningReceiveRequestId. needs a bearer key and an X-Idempotency-Key header - replaying the
 /// same key returns the existing order instead of creating a second one
 @JsonSerializable(createFactory: false)
-class FlashnetSubmitRequest {
+class FlashnetSubmitRequest extends ApiRequest<FlashnetSubmitResponse> {
   const FlashnetSubmitRequest({
     required this.quoteId,
     this.txHash,
@@ -1075,7 +1086,7 @@ class FlashnetSubmitRequest {
     this.bitcoinTxid,
     this.bitcoinVout,
     this.lightningReceiveRequestId,
-  });
+  }) : super.post();
 
   @JsonKey(name: "quoteId")
   final String quoteId;
@@ -1103,7 +1114,15 @@ class FlashnetSubmitRequest {
   @JsonKey(name: "lightningReceiveRequestId", includeIfNull: false)
   final String? lightningReceiveRequestId;
 
+  @override
+  String path() => "/v1/orchestration/submit";
+
+  @override
   Map<String, dynamic> toJson() => _$FlashnetSubmitRequestToJson(this);
+
+  @override
+  FlashnetSubmitResponse decode(Object json) =>
+      FlashnetSubmitResponse.fromJson(json as Map<String, dynamic>);
 }
 
 @JsonSerializable(createToJson: false)
@@ -1130,7 +1149,7 @@ class FlashnetSubmitResponse {
 /// or by txHash plus the sourceChain it landed on. readToken is required for public client keys
 /// (`fnp_`), which must also look up by id - it can go in the X-Read-Token header instead
 @JsonSerializable(createFactory: false)
-class FlashnetStatusRequest {
+class FlashnetStatusRequest extends ApiRequest<FlashnetStatusResponse> {
   const FlashnetStatusRequest({this.id, this.quoteId, this.txHash, this.sourceChain, this.readToken});
 
   @JsonKey(name: "id", includeIfNull: false)
@@ -1145,7 +1164,15 @@ class FlashnetStatusRequest {
   @JsonKey(name: "readToken", includeIfNull: false)
   final String? readToken;
 
+  @override
+  String path() => "/v1/orchestration/status";
+
+  @override
   Map<String, dynamic> toJson() => _$FlashnetStatusRequestToJson(this);
+
+  @override
+  FlashnetStatusResponse decode(Object json) =>
+      FlashnetStatusResponse.fromJson(json as Map<String, dynamic>);
 }
 
 /// a milestone the order has already passed - the API only emits stages once completed
