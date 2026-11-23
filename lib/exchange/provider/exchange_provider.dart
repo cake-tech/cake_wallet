@@ -72,5 +72,7 @@ abstract interface class TransactionCreationExchangeProvider {
 }
 
 abstract interface class TransactionRegistrationExchangeProvider {
+  bool get supportsExternalSend;
+
   Future<Trade> registerTransaction(Trade trade, String txHash);
 }

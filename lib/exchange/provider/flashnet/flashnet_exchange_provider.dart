@@ -31,6 +31,9 @@ class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
   static const slippageBps = 50;
   static const affiliateId = "cake_wallet";
 
+  @override
+  bool get supportsExternalSend => true;
+
   late final _api = ProviderApi(
     proxyWrapper,
     authority: _apiAuthority,
@@ -195,6 +198,7 @@ class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
       refundAddress: request.refundAddress,
       extraId: respData.depositMemo,
       toAddressExtraId: request.toAddressExtraId,
+      password: respData.readToken,
     );
   }
 
@@ -207,29 +211,28 @@ class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
       _ => FlashnetSubmitRequest(quoteId: trade.id, txHash: txHash),
     };
 
-    final respData = await _getSubmitResponse(req, "${trade.id}:$txHash");
+    final respData = await _getSubmitResponse(req);
 
 
     return trade.copyWith(
-      id: respData.orderId,
       state: respData.status,
       txId: txHash,
-      password: respData.readToken,
+      providerId: respData.orderId,
     );
   }
 
-  Future<FlashnetSubmitResponse> _getSubmitResponse(FlashnetSubmitRequest req,
-      String idempotencyKey) async {
+  Future<FlashnetSubmitResponse> _getSubmitResponse(FlashnetSubmitRequest req) async {
     int attempt = 1;
 
 
     // flashnet requires the tx to have been propagated before /submit.
     // if it's not propagated the api will return tx_not_found
     // this means we have to keep trying /submit until it's propagated, usually just a few seconds
+    // 4xx answers are cached per idempotency key, so every attempt needs a fresh one
     while (true) {
       await Future<void>.delayed(_submitRetryDelay * attempt);
       try {
-        return await _api.send(req, headers: {"X-Idempotency-Key": idempotencyKey});
+        return await _api.send(req, headers: {"X-Idempotency-Key": _idempotencyKey});
       } on ProviderHttpException catch (e) {
         if (e.json case {"error": {"code": "tx_not_found"}}) {
           attempt++;
@@ -246,7 +249,7 @@ class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
   @override
   Future<Trade> updateTrade(Trade trade) async {
     final respData = await _api.send(
-      FlashnetStatusRequest(id: trade.id, readToken: trade.password),
+      FlashnetStatusRequest(quoteId: trade.id, readToken: trade.password),
       mapError: (e) => switch (e.statusCode) {
         404 => TradeNotFoundException(trade.id, provider: description),
         403 => TradeNotFoundException(trade.id, provider: description,
@@ -258,6 +261,7 @@ class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
     final order = respData.order;
 
     return trade.copyWith(
+      providerId: order.id,
       state: order.status,
       isRefund: order.refundTxHash != null,
       txId: order.sourceTxHash,

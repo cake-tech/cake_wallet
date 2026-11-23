@@ -109,7 +109,9 @@ abstract class TradeDetailsViewModelBase with Store {
             .swapsXyz => 'https://scan.swaps.xyz/transactions/${trade.id}',
             .jupiter => 'https://solscan.io/tx/${trade.txId}',
             .nearIntents => 'https://explorer.near-intents.org/transactions/${trade.id}',
-            .flashnet => "https://orchestra.flashnet.xyz/explorer/${trade.id}",
+            .flashnet => trade.providerId == null // (it's null on external swaps since they have no provider id)
+                ? null
+                : "https://orchestra.flashnet.xyz/explorer/${trade.providerId}",
             .xmrto || .morphToken || .all => null
       };
 

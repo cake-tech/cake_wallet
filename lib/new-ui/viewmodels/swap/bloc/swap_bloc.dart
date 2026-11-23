@@ -769,7 +769,9 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         return;
       }
 
-      if (_registry.getProvider(trade.provider) is! TransactionRegistrationExchangeProvider) {
+      if (_registry.getProvider(trade.provider) is! TransactionRegistrationExchangeProvider ||
+          (_registry.getProvider(trade.provider) as TransactionRegistrationExchangeProvider)
+              .supportsExternalSend && s.source is ExternalSwapSource) {
         await _creator.persistTrade(trade);
       }
 

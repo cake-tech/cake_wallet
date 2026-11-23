@@ -476,7 +476,8 @@ const flashnetFixedQuoteId = "q_flashnet-quote-2";
 const flashnetOrderId = "ord_flashnet-order-1";
 const flashnetDepositAddress = "bc1pflashnetdepositaddress";
 const flashnetExpiresAt = "2026-11-23T18:06:00.841Z";
-const flashnetReadToken = "flashnet-read-token";
+const flashnetQuoteReadToken = "flashnet-quote-read-token";
+const flashnetOrderReadToken = "flashnet-order-read-token";
 const flashnetSourceTxHash = "flashnet-source-tx";
 const flashnetDestinationTxHash = "flashnet-destination-tx";
 
@@ -536,7 +537,7 @@ const flashnetQuote = '{"quoteId":"$flashnetQuoteId",'
     '"expiresAt":"$flashnetExpiresAt","estimatedOut":"120000000","feeAmount":"180000",'
     '"feeBps":15,"totalFeeAmount":"2280000","feeAsset":"USDC",'
     '"route":["spark:BTC","spark:USDB","solana:USDC"],"priceLockMode":"approval_required",'
-    '"lockedMinAmountOut":"119400000","readToken":"quote-read-token","amountMode":"exact_in",'
+    '"lockedMinAmountOut":"119400000","readToken":"$flashnetQuoteReadToken","amountMode":"exact_in",'
     '"tag":null}';
 
 /// amountIn is the ceiling here and requiredAmountIn is the price, so the trade has to take
@@ -546,13 +547,14 @@ const flashnetQuoteExactOut = '{"quoteId":"$flashnetFixedQuoteId",'
     '"amountMode":"exact_out","targetAmountOut":"120000000","requiredAmountIn":"200000",'
     '"maxAcceptedAmountIn":"200400","inputBufferBps":20,"expiresAt":"$flashnetExpiresAt",'
     '"estimatedOut":"120000000","feeAmount":"180000","feeBps":15,"totalFeeAmount":"2280000",'
-    '"feeAsset":"USDC","route":["BTC","USDB","USDC"],"readToken":"quote-read-token",'
+    '"feeAsset":"USDC","route":["BTC","USDB","USDC"],"readToken":"$flashnetQuoteReadToken",'
     '"tag":null}';
 
-/// The spec's example plus the read token a public client key gets back, which the provider
-/// keeps as the trade's password for status reads.
+/// The spec's example plus the read token a public client key gets back. That one pairs with a
+/// lookup by order id, which the provider does not do - it reads status by quoteId with the
+/// quote's token.
 const flashnetSubmit =
-    '{"orderId":"$flashnetOrderId","status":"confirming","readToken":"$flashnetReadToken"}';
+    '{"orderId":"$flashnetOrderId","status":"confirming","readToken":"$flashnetOrderReadToken"}';
 
 const flashnetStatus = '{"order":{"id":"$flashnetOrderId","type":"order",'
     '"quoteId":"$flashnetQuoteId","status":"completed","sourceChain":"bitcoin",'

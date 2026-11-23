@@ -675,7 +675,15 @@ void main() {
 
       expect(submit.orderId, flashnetOrderId);
       expect(submit.status, TradeState.confirming);
-      expect(submit.readToken, flashnetReadToken);
+      expect(submit.readToken, flashnetOrderReadToken);
+    });
+
+    test("both quotes carry the quote's read token", () {
+      expect(FlashnetQuoteResponse.fromJson(_map(flashnetQuote)).readToken, flashnetQuoteReadToken);
+      expect(
+        FlashnetQuoteResponse.fromJson(_map(flashnetQuoteExactOut)).readToken,
+        flashnetQuoteReadToken,
+      );
     });
 
     test("the status body is the completed order", () {
