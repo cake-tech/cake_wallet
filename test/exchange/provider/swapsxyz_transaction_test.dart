@@ -108,15 +108,23 @@ void main() {
     });
   }
 
-  test("an alt-vm source wallet is left to the regular send", () async {
+  test("an alt-vm deposit is left to the regular send", () async {
     final (tx, chain) = await createTransaction(
       token: _otherToken,
       allowance: 0,
+      routerData: "",
       walletType: WalletType.bitcoin,
     );
 
     expect(tx, isNull);
     expect(chain.log, isEmpty);
+  });
+
+  test("calldata a non-evm wallet can't send is refused, not dropped", () async {
+    await expectLater(
+      createTransaction(token: _otherToken, allowance: 0, walletType: WalletType.bitcoin),
+      throwsA(isA<Exception>()),
+    );
   });
 }
 

@@ -768,22 +768,12 @@ class SwapsXyzActionResponse {
 
 @JsonSerializable()
 class SwapsXyzTxRegistrationRequest extends ApiRequest<List<SwapsXyzValidatedTxId>> {
-  const SwapsXyzTxRegistrationRequest({
-    required this.txId,
-    this.txHash,
-    this.vmId,
-    this.chainId,
-  }) : super.post();
+  const SwapsXyzTxRegistrationRequest({required this.txId, required this.txHash}) : super.post();
 
   @JsonKey(name: "txId")
   final String txId;
-  @JsonKey(name: "txHash", includeIfNull: false)
-  final String? txHash;
-
-  @JsonKey(name: "vmId", includeIfNull: false)
-  final String? vmId;
-  @JsonKey(name: "chainId", includeIfNull: false)
-  final int? chainId;
+  @JsonKey(name: "txHash")
+  final String txHash;
 
   @override
   String path() => "/api/registerTxs";

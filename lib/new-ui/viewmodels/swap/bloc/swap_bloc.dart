@@ -918,21 +918,20 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
 
   Future<Trade> _registerTransaction(Trade trade, String txHash) async {
     if (_registry.getProvider(trade.provider) case final TransactionRegistrationExchangeProvider p) {
-      var registered = trade;
-      try {
-        registered = await p.registerTransaction(trade, txHash);
-      } catch (e, st) {
-        ExchangeProviderLogger.logError(
-          provider: trade.provider,
-          error: e,
-          stackTrace: st,
-          function: "registerTransaction",
-          requestData: {"txHash": txHash},
-        );
-      }
+      await _creator.persistTrade(trade.copyWith(txId: txHash));
 
-      await _creator.persistTrade(registered);
-      return registered;
+      unawaited(
+        p.registerTransaction(trade, txHash).catchError((Object e, StackTrace st) {
+          ExchangeProviderLogger.logError(
+            provider: trade.provider,
+            error: e,
+            stackTrace: st,
+            function: "registerTransaction",
+            requestData: {"tradeId": trade.id, "txHash": txHash},
+          );
+          return trade;
+        }),
+      );
     }
 
     return trade;

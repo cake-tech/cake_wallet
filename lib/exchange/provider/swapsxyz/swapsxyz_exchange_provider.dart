@@ -21,6 +21,7 @@ import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_priority.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/wallet_base.dart";
+import "package:meta/meta.dart";
 
 class SwapsXyzTrade extends RoutableTrade {
   SwapsXyzTrade({
@@ -64,10 +65,22 @@ class SwapsXyzTrade extends RoutableTrade {
 
 class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     implements TransactionCreationExchangeProvider, TransactionRegistrationExchangeProvider {
-  SwapsXyzExchangeProvider({required SettingsStore settingsStore, super.proxyWrapper})
-    : _settingsStore = settingsStore;
+  SwapsXyzExchangeProvider({
+    required SettingsStore settingsStore,
+    super.proxyWrapper,
+    @visibleForTesting List<Duration>? registrationRetryDelays,
+  }) : _settingsStore = settingsStore,
+       _registrationRetryDelays = registrationRetryDelays ?? _defaultRegistrationRetryDelays;
 
   final SettingsStore _settingsStore;
+
+  // swaps.xyz may not have seen a tx broadcast a moment ago
+  static const _defaultRegistrationRetryDelays = [
+    Duration(seconds: 3),
+    Duration(seconds: 10),
+    Duration(seconds: 30),
+  ];
+  final List<Duration> _registrationRetryDelays;
 
   static final List<CryptoCurrency> _notSupportedAsSourceToken = [
     CryptoCurrency.sol,
@@ -339,7 +352,6 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     final txObj = data.tx;
 
     final txTo = txObj["to"]?.toString();
-    final chainId = txObj["chainId"]?.toString();
     final routerData = txObj["data"]?.toString();
 
     // Allow only:
@@ -359,25 +371,14 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
 
     final txValue = txObj["value"]?.toString() ?? "0";
 
-    final bridgeIds = data.bridgeIds ?? [];
     if (txId.isEmpty) {
       throw Exception("No txId returned by getAction");
     }
 
-    // final amtIn = (data['amountIn'] as Map?) ?? const {};
-    // final amtInMax = (data['amountInMax'] as Map?) ?? const {};
-    // final srcTokenAddr = amtIn['address']?.toString();
-    // final srcTokenDecs = (amtIn['decimals'] as num?)?.toInt() ?? request.fromCurrency.decimals;
-    // final requiresTokenApproval = data['requiresTokenApproval'] as bool? ?? false;
-
-    // final reqAmountStr = (amtInMax['amount'] ?? amtIn['amount'])?.toString() ?? '0';
-    // final reqAmountRaw = reqAmountStr.replaceAll('n', '');
-
     final needToRegisterInSwapXyz =
-        vmId == .altVm ||
-        bridgeIds.contains("alt-vm") ||
-        chainId == "solana" ||
-        bridgeIds.contains("solana");
+        data.requiresRegisterTransaction ||
+        vmId != .evm ||
+        (data.bridgeIds ?? []).any((id) => id.startsWith("alt-vm"));
 
     return SwapsXyzTrade(
       state: TradeState.created,
@@ -411,25 +412,28 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
       return trade;
     }
 
-    final chainId = int.tryParse(trade.router ?? "");
-    if (chainId == null || chainId <= 0) {
-      throw Exception("Can't register $txHash, invalid chain id ${trade.router}");
+    int attempt = 0;
+    while (true) {
+      try {
+        await _register(trade.id, txHash);
+        return trade;
+      } catch (e) {
+        if (attempt >= _registrationRetryDelays.length) {
+          rethrow;
+        }
+        printV("swaps.xyz registration of $txHash failed, retrying: $e");
+        await Future<void>.delayed(_registrationRetryDelays[attempt++]);
+      }
     }
+  }
 
-    final response = await _api.send(
-      SwapsXyzTxRegistrationRequest(
-        txId: trade.id,
-        txHash: txHash,
-        vmId: trade.vmId.toJson(),
-        chainId: chainId,
-      ),
-    );
+  Future<void> _register(String txId, String txHash) async {
+    final response = await _api.send(SwapsXyzTxRegistrationRequest(txId: txId, txHash: txHash));
+    final result = response.firstOrNull;
 
-    if (response.firstOrNull?.success != true) {
-      throw Exception("Swaps.xyz didn't accept the registration of $txHash");
+    if (result?.success != true) {
+      throw Exception("Swaps.xyz didn't accept the registration of $txHash: ${result?.error}");
     }
-
-    return trade;
   }
 
   @override
@@ -641,8 +645,13 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     final routerTo = trade.fundingAddress;
     final routerData = trade.routerData;
 
-    if (!isEVMCompatibleChain(wallet.type) || routerData.isEmpty || routerData == "0x") {
+    if (routerData.isEmpty || routerData == "0x") {
       return null;
+    }
+
+    // a plain send to the router would drop the calldata and strand the funds
+    if (!isEVMCompatibleChain(wallet.type)) {
+      throw Exception("Swaps.xyz route needs a contract call ${wallet.type} wallets can't make");
     }
 
     final tokenContract = trade.sourceTokenAddress.toLowerCase();
