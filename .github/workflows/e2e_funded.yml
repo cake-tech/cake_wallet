@@ -16,7 +16,7 @@ on:
         type: boolean
         default: false
       grep:
-        description: "only tests whose title matches this regular expression (empty = the four core send tests)"
+        description: "only tests whose title matches this regular expression (empty = the five core send tests)"
         type: string
         default: ""
       qa_ref:
@@ -136,7 +136,7 @@ jobs:
           E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
           CW_DEVICE: emulator-5554
           SHADOW_BUILD: ${{ format('run-{0}', needs.resolve.outputs.run_id) }}
-          GREP: "${{ inputs.grep || 'funded: (history order|multi-recipient|MWEB peg-in|transparent balance)' }}"
+          GREP: "${{ inputs.grep || 'funded: (history order|multi-recipient|MWEB peg-in|transparent balance|POL and USDT)' }}"
         with:
           api-level: 34
           target: google_apis
