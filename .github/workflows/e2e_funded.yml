@@ -115,8 +115,10 @@ jobs:
       - name: Download the build
         env:
           GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ needs.resolve.outputs.run_id }}
+          ARTIFACT: ${{ needs.resolve.outputs.artifact }}
         run: |
-          gh run download "${{ needs.resolve.outputs.run_id }}" -n "${{ needs.resolve.outputs.artifact }}" -D apk -R "${{ github.repository }}"
+          gh run download "$RUN_ID" -n "$ARTIFACT" -D apk -R "$GITHUB_REPOSITORY"
           [ -f apk/app-x86_64-release.apk ] || mv "$(ls apk/*_x86.apk | head -n 1)" apk/app-x86_64-release.apk
 
       - name: Enable KVM
@@ -194,6 +196,8 @@ jobs:
       - name: PR comment with the result and each failure's reason
         if: ${{ !cancelled() && env.PR != '' }}
         uses: actions/github-script@v7
+        env:
+          RUN_ID: ${{ needs.resolve.outputs.run_id }}
         with:
           script: |
             const fs = require('fs');
@@ -215,6 +219,6 @@ jobs:
               `#### QA e2e funded (${process.env.SPEND === 'true' ? 'self-sends broadcast' : 'dry run, nothing broadcast'})`,
               counts,
               failures.length ? `Failed:\n${failures.join('\n')}` : '',
-              `[Run](${run}) against build run ${{ needs.resolve.outputs.run_id }}. Add the \`e2e-funded\` label again to re-run.`,
+              `[Run](${run}) against build run ${process.env.RUN_ID}. Add the \`e2e-funded\` label again to re-run.`,
             ].filter(Boolean).join('\n\n');
             await github.rest.issues.createComment({ ...context.repo, issue_number: Number(process.env.PR), body });
