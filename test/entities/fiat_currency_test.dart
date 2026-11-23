@@ -2,7 +2,6 @@ import "dart:math" as math;
 
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/amount/money_local.dart";
 import "package:flutter/painting.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:intl/intl.dart" show Bidi;

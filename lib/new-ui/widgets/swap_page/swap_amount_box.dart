@@ -90,6 +90,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       final amount = widget.isReceiverCard ? state.payoutAmount : state.depositAmount;
       final hasSwapAll = state is SwapInputState && state.hasSwapAll && !widget.bloc.spendingBalance.isZero;
       final Currency inputCurrency = _fiatInputMode ? widget.bloc.fiat : amount.currency;
+      final showsAll = !widget.isReceiverCard && state.isSwapAll && !amountFocusNode.hasFocus;
+      final showsFiatSign = _fiatInputMode && !showsAll;
       return Column(
         spacing: 12,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,7 +130,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                             spacing: _fiatInputMode && widget.bloc.fiat.signTouchesAmount ? 0 : 4,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              if (_fiatInputMode && !widget.bloc.fiat.signAfterAmount)
+                              if (showsFiatSign && !widget.bloc.fiat.signAfterAmount)
                                 _fiatSign(context),
                               Flexible(
                                 child: IntrinsicWidth(
@@ -184,9 +186,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                         child: IgnorePointer(
                                           child: AnimatedOpacity(
                                             duration: const Duration(milliseconds: 150),
-                                            opacity: widget.isReceiverCard || !state.isSwapAll || amountFocusNode.hasFocus
-                                                ? 0
-                                                : 1,
+                                            opacity: showsAll ? 1 : 0,
                                             child: ExcludeSemantics(
                                               child: ColoredBox(
                                                 color: Theme.of(context).colorScheme.surfaceContainer,
@@ -208,7 +208,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   ),
                                 ),
                               ),
-                              if (_fiatInputMode && widget.bloc.fiat.signAfterAmount)
+                              if (showsFiatSign && widget.bloc.fiat.signAfterAmount)
                                 _fiatSign(context),
                             ],
                           ),

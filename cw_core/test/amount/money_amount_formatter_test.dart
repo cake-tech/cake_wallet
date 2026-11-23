@@ -1,5 +1,4 @@
 import "package:cw_core/amount/money.dart";
-import "package:cw_core/amount/money_local.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
 import "package:flutter_test/flutter_test.dart";
@@ -24,7 +23,7 @@ void main() {
     expect(money.toLocalStringWithSymbol(trimZeros: false, locale: "de"), "<1.234,50 €>");
   });
 
-  test("keeps the symbol after the amount for every other currency", () {
+  test("leaves every other currency's symbol where it was", () {
     expect(Money.parse("1.5", CryptoCurrency.btc).toStringWithSymbol(), "1.5 BTC");
     expect(Money.parse("1.5", EUR).toStringWithSymbol(withSymbolPrefix: true), "EUR 1.5");
   });

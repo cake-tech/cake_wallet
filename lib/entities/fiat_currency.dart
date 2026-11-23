@@ -135,6 +135,7 @@ class FiatCurrency extends EnumerableItem<String>
   String get _isolatedSign =>
       Bidi.hasAnyRtl(sign) ? "$_firstStrongIsolate$sign$_popDirectionalIsolate" : sign;
 
+  @override
   String format(String amount) =>
       amount.isEmpty ? amount : "$_leftToRightIsolate${_withSign(amount)}$_popDirectionalIsolate";
 
