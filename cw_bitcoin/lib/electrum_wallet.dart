@@ -115,6 +115,7 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
+    unawaited(_loadCachedFeeRates());
 
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     accounts = ElectrumAccounts(
@@ -900,6 +901,10 @@ abstract class ElectrumWalletBase
 
       syncStatus = SyncronizingSyncStatus();
 
+      unawaited(updateFeeRates());
+      _updateFeeRateTimer ??=
+          Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
+
       if (hasSilentPaymentsScanning) {
         silentPaymentsScanningActive = alwaysScan ?? false;
         await _setInitialHeight();
@@ -952,11 +957,6 @@ abstract class ElectrumWalletBase
         syncStatus = SyncedSyncStatus();
       }
 
-      await updateFeeRates();
-
-      _updateFeeRateTimer ??=
-          Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
-
       unawaited(resolveQueuedTransactionDetails());
     } catch (e, stacktrace) {
       final syncEnd = DateTime.now();
@@ -977,6 +977,30 @@ abstract class ElectrumWalletBase
 
   static bool _isValidFeeRates(List<int> feeRates) =>
       feeRates.length == 3 && feeRates.every((rate) => rate > 0);
+
+  String get _feeRatesCacheKey => "electrum_fee_rates_${type.name}_${network.value}";
+
+  Future<void> _loadCachedFeeRates() async {
+    final cached = (await sharedPrefs.future)
+        .getStringList(_feeRatesCacheKey)
+        ?.map((rate) => int.tryParse(rate) ?? 0)
+        .toList();
+
+    if (cached != null && _isValidFeeRates(cached) && !_isValidFeeRates(_feeRates)) {
+      _feeRates = cached;
+    }
+  }
+
+  Future<bool> _trySetFeeRates(List<int> feeRates) async {
+    if (!_isValidFeeRates(feeRates)) {
+      return false;
+    }
+
+    _feeRates = feeRates;
+    await (await sharedPrefs.future)
+        .setStringList(_feeRatesCacheKey, feeRates.map((rate) => rate.toString()).toList());
+    return true;
+  }
 
   @action
   Future<void> updateFeeRates() async {
@@ -1000,17 +1024,19 @@ abstract class ElectrumWalletBase
         while (fastFee <= mediumFee) {
           fastFee++;
         }
-        _feeRates = [slowFee, mediumFee, fastFee];
-        return;
+        if (await _trySetFeeRates([slowFee, mediumFee, fastFee])) {
+          return;
+        }
       } catch (e) {
         printV(e);
       }
     }
 
-    final feeRates = await electrumClient.feeRates(network: network);
-    if (_isValidFeeRates(feeRates)) {
-      _feeRates = feeRates;
-    } else if (isTestnet) {
+    if (await _trySetFeeRates(await electrumClient.feeRates(network: network))) {
+      return;
+    }
+
+    if (isTestnet && !_isValidFeeRates(_feeRates)) {
       _feeRates = [1, 1, 1];
     }
   }
@@ -1761,6 +1787,11 @@ abstract class ElectrumWalletBase
             isSilentPayment: isSilentPayment,
           ));
         }
+      }
+
+      if (transactionCredentials.feeRate == null &&
+          feeRate(transactionCredentials.priority!) <= 0) {
+        await updateFeeRates();
       }
 
       final feeRateInt = transactionCredentials.feeRate != null
