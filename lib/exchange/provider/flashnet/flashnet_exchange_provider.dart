@@ -165,11 +165,10 @@ class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
         request.payoutAmount.toStringWithPrecision(useBaseUnit: true)
             : request.depositAmount.toStringWithPrecision(useBaseUnit: true),
         amountMode: request.isFixedRate ? .exactOut : .exactIn,
-        recipientAddress: request.payoutAddress,
-        refundAddress: request.refundAddress,
+        recipientAddress: request.payoutInvoice ?? request.payoutAddress,
+        refundAddress: request.refundInvoice ?? request.refundAddress,
         affiliateId: affiliateId,
         slippageBps: slippageBps,
-
         refundChain: _chainFor(request.depositCurrency),
       ),
       headers: {"X-Idempotency-Key": _idempotencyKey},
@@ -251,10 +250,7 @@ class FlashnetExchangeProvider extends LimitsCacheExchangeProvider
     final respData = await _api.send(
       FlashnetStatusRequest(quoteId: trade.id, readToken: trade.password),
       mapError: (e) => switch (e.statusCode) {
-        404 => TradeNotFoundException(trade.id, provider: description),
-        403 => TradeNotFoundException(trade.id, provider: description,
-            description: "${e.message} "
-                "(read token ${trade.password}, ${trade.password?.length ?? 0} chars)"),
+        404 || 403 => TradeNotFoundException(trade.id, provider: description),
         _ => null,
       },
     );

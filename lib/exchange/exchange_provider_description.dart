@@ -114,6 +114,7 @@ enum ExchangeProviderDescription implements EnumerableItem<int> {
   flashnet(
     title: "Flashnet",
     raw: 17,
+    supportsMemoOrDestinationTag: false,
     image: "assets/new-ui/trade_providers/flashnet.svg",
     isCentralized: false
   );
