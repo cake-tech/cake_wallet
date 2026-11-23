@@ -199,6 +199,33 @@ void main() {
         }
       });
 
+      test("validates NEAR named and implicit accounts", () {
+        for (final currency in [CryptoCurrency.near, CryptoCurrency.usdtNear]) {
+          final validator = AddressValidator(type: currency);
+          for (final account in [
+            "aurora.near",
+            "user_1.tg",
+            "a1-b2.c3.near",
+            "98793cd91a3f870fb126f66285808c7e094afcfc4eda8a970f6648cdf0dbd6de",
+            "0x85f17cf997934a597031b2e18a9ab6ebd4b9f6a4",
+          ]) {
+            expect(validator.isValid(account), isTrue, reason: "$currency $account");
+          }
+          for (final account in [
+            "Aurora.near",
+            "a",
+            "aurora..near",
+            "aurora.near.",
+            "-aurora.near",
+            "alice@fiotestnet",
+            "aurora near",
+            "${"a" * 60}.near",
+          ]) {
+            expect(validator.isValid(account), isFalse, reason: "$currency $account");
+          }
+        }
+      });
+
       test('validates valid Monero address', () {
         final validator = AddressValidator(type: CryptoCurrency.xmr);
         expect(

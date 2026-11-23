@@ -210,7 +210,7 @@ class AddressValidator extends TextValidator {
         pattern = '[Rr]([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.near:
       case CryptoCurrency.usdtNear:
-        pattern = '[0-9a-f]{64}';
+        pattern = r"^(?=[a-z\d._-]{2,64}$)(?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+$";
       case CryptoCurrency.usdtApt:
       case CryptoCurrency.usdcApt:
       case CryptoCurrency.usd1Apt:
@@ -406,9 +406,6 @@ class AddressValidator extends TextValidator {
         return [43];
       case CryptoCurrency.scrt:
         return [45];
-      case CryptoCurrency.near:
-      case CryptoCurrency.usdtNear:
-        return [64];
       case CryptoCurrency.usdtApt:
       case CryptoCurrency.usdcApt:
       case CryptoCurrency.usd1Apt:
