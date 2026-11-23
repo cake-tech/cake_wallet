@@ -84,7 +84,7 @@ jobs:
   e2e:
     needs: resolve
     runs-on: ubuntu-latest
-    environment: funds
+    environment: e2e-funded
     concurrency:
       group: e2e-funded
       cancel-in-progress: false
