@@ -11,6 +11,7 @@ class HistoryTile extends StatelessWidget {
   const HistoryTile({
     super.key,
     required this.title,
+    required this.titleIsNote,
     required this.date,
     required this.amount,
     required this.amountFiat,
@@ -26,6 +27,7 @@ class HistoryTile extends StatelessWidget {
   });
 
   final String title;
+  final bool titleIsNote;
   final String date;
   final String amount;
   final bool signedAmount;
@@ -68,7 +70,7 @@ class HistoryTile extends StatelessWidget {
           ? context.customColors.receivedAmountColor
           : null;
 
-  Widget _getLeadingIcon(BuildContext context) {
+  Widget _getLeadingIcon(BuildContext context, Color directionColor) {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
@@ -89,11 +91,7 @@ class HistoryTile extends StatelessWidget {
                 imageUrl: _getDirectionIconToken(),
                 height: 14,
                 width: 14,
-                colorFilter: ColorFilter.mode(
-                    direction == TransactionDirection.outgoing
-                        ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
-                        : Colors.green,
-                    BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(directionColor, BlendMode.srcIn),
               ),
             ),
           )
@@ -134,22 +132,24 @@ class HistoryTile extends StatelessWidget {
 
     return CakeImageWidget(
         imageUrl: _getDirectionIcon(),
-        colorFilter: ColorFilter.mode(
-            direction == TransactionDirection.outgoing
-                ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
-                : Colors.green,
-            BlendMode.srcIn));
+        colorFilter: ColorFilter.mode(directionColor, BlendMode.srcIn));
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final directionColor = direction == TransactionDirection.outgoing
+        ? colorScheme.inverseSurface.withAlpha(175)
+        : context.customColors.receivedIconColor;
+
     return HistoryTileBase(
       title: title,
+      titleFontWeight: titleIsNote ? FontWeight.w600 : null,
       date: date,
       amount: amount,
       amountFiat: amountFiat,
       // Decorative: the title or the amount's +/- already reads out the direction.
-      leadingIcon: ExcludeSemantics(child: _getLeadingIcon(context)),
+      leadingIcon: ExcludeSemantics(child: _getLeadingIcon(context, directionColor)),
       primaryTextColor: _getPrimaryTextColor(context),
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,

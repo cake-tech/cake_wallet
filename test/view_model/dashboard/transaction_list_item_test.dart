@@ -112,46 +112,47 @@ void main() {
     });
   });
 
-  group("formattedTitle", () {
-    test("shows the note instead of Received or Sent once the transaction is confirmed", () {
+  group("noteTitle", () {
+    test("is the note once the transaction is confirmed", () {
       final received = itemFor(TransactionDirection.incoming);
       final sent = itemFor(TransactionDirection.outgoing);
 
-      expect(received.formattedTitle(note: "Friday dinner"), "Friday dinner");
-      expect(received.formattedTitle(), S.current.received);
-      expect(sent.formattedTitle(note: "VPN Subscription"), "VPN Subscription");
-      expect(sent.formattedTitle(), S.current.sent);
+      expect(received.noteTitle("Friday dinner"), "Friday dinner");
+      expect(sent.noteTitle("VPN Subscription"), "VPN Subscription");
+      expect(received.formattedTitle, S.current.received);
+      expect(sent.formattedTitle, S.current.sent);
     });
 
-    test("keeps the pending title while the transaction confirms", () {
+    test("is empty while the transaction confirms", () {
       final item = itemFor(TransactionDirection.outgoing, isPending: true);
 
-      expect(item.formattedTitle(note: "VPN Subscription"), item.formattedTitle());
-      expect(item.formattedTitle(), startsWith(S.current.sending));
+      expect(item.noteTitle("VPN Subscription"), isEmpty);
+      expect(item.formattedTitle, startsWith(S.current.sending));
     });
 
-    test("goes back to Received or Sent while amounts are hidden", () {
+    test("is empty while amounts are hidden", () {
       hideAmounts();
       final item = itemFor(TransactionDirection.incoming);
 
-      expect(item.formattedTitle(note: "Friday dinner"), S.current.received);
+      expect(item.noteTitle("Friday dinner"), isEmpty);
     });
 
-    test("shows a multi-line note on one line and ignores a blank one", () {
+    test("puts a multi-line note on one line and ignores a blank one", () {
       final item = itemFor(TransactionDirection.outgoing);
 
-      expect(item.formattedTitle(note: " Rent\n\nUtilities "), "Rent Utilities");
-      expect(item.formattedTitle(note: " \n "), S.current.sent);
+      expect(item.noteTitle(" Rent\n\nUtilities "), "Rent Utilities");
+      expect(item.noteTitle(" \n "), isEmpty);
     });
 
-    test("keeps the shielding and migration titles", () {
+    test("is empty for shielding and migration transactions", () {
       final shielding =
           itemFor(TransactionDirection.outgoing, additionalInfo: {"isAutoShield": true});
       final migration =
           itemFor(TransactionDirection.outgoing, additionalInfo: {"isIronwoodMigration": true});
 
-      expect(shielding.formattedTitle(note: "Note"), S.current.shielding);
-      expect(migration.formattedTitle(note: "Note"), migration.formattedTitle());
+      expect(shielding.noteTitle("Note"), isEmpty);
+      expect(shielding.formattedTitle, S.current.shielding);
+      expect(migration.noteTitle("Note"), isEmpty);
     });
   });
 }

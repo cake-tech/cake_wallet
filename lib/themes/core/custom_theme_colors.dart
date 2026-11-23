@@ -20,6 +20,7 @@ abstract class CustomThemeColors {
   Color get toggleColorOffState;
 
   Color get receivedAmountColor;
+  Color get receivedIconColor;
 
   // Sync colors (common across themes)
   static const syncGreen = Color(0xFFFF12A439);

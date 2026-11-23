@@ -28,4 +28,7 @@ class BlackThemeCustomColors extends CustomThemeColors {
 
   @override
   Color get receivedAmountColor => const Color(0xFF55CD74);
+
+  @override
+  Color get receivedIconColor => const Color(0xFF4CAF50);
 }

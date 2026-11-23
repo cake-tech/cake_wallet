@@ -64,7 +64,20 @@ class TransactionListItem extends ActionListItem with Keyable {
     return transaction.direction == TransactionDirection.incoming ? "+$amount" : "-$amount";
   }
 
-  String formattedTitle({String note = ""}) {
+  static final _whitespace = RegExp(r"\s+");
+
+  String noteTitle(String note) {
+    if (displayMode == BalanceDisplayMode.hiddenBalance ||
+        transaction.isPending ||
+        transaction.additionalInfo["isIronwoodMigration"] == true ||
+        transaction.additionalInfo["isAutoShield"] == true) {
+      return "";
+    }
+
+    return note.replaceAll(_whitespace, " ").trim();
+  }
+
+  String get formattedTitle {
 
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';
@@ -83,11 +96,6 @@ class TransactionListItem extends ActionListItem with Keyable {
           ? S.current.receiving
           : S.current.sending;
       return status.isNotEmpty ? "$baseString $status" : "$baseString...";
-    }
-
-    final singleLineNote = note.replaceAll(RegExp(r"\s+"), " ").trim();
-    if (singleLineNote.isNotEmpty && displayMode != BalanceDisplayMode.hiddenBalance) {
-      return singleLineNote;
     }
 
     if (transaction.direction == TransactionDirection.incoming) {

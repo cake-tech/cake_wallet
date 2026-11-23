@@ -27,5 +27,8 @@ class LightThemeCustomColors extends CustomThemeColors {
   Color get toggleColorOffState => const Color(0xFFCACAE7);
 
   @override
-  Color get receivedAmountColor => const Color(0xFF2E7D32);
+  Color get receivedAmountColor => const Color(0xFF00B215);
+
+  @override
+  Color get receivedIconColor => const Color(0xFF00B215);
 }
