@@ -1,6 +1,8 @@
 import "dart:math" as math;
 
 import "package:cake_wallet/entities/fiat_currency.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/amount/money_local.dart";
 import "package:flutter/painting.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:intl/intl.dart" show Bidi;
@@ -271,6 +273,17 @@ void main() {
     runInAction(() => showsIsoCode.value = true);
 
     expect(shown, [ltr("5 €"), ltr("EUR 5")]);
+  });
+
+  group("Money in a fiat currency", () {
+    test("is shown through FiatCurrency.format", () {
+      expect(Money.parse("1234.56", FiatCurrency.usd).toStringWithSymbol(), ltr(r"$1234.56"));
+      expect(
+        Money.parse("1234.5", FiatCurrency.eur)
+            .toLocalStringWithSymbol(trimZeros: false, locale: "de"),
+        ltr("1.234,50 €"),
+      );
+    });
   });
 
   group("FiatCurrency.label", () {

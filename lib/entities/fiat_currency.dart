@@ -3,7 +3,9 @@ import "package:cw_core/currency.dart";
 import "package:cw_core/enumerable_item.dart";
 import "package:intl/intl.dart";
 
-class FiatCurrency extends EnumerableItem<String> with Serializable<String> implements Currency {
+class FiatCurrency extends EnumerableItem<String>
+    with Serializable<String>
+    implements Currency, AmountFormatter {
   const FiatCurrency({
     required this.symbol,
     required this.countryCode,

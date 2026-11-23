@@ -24,3 +24,7 @@ abstract class Currency {
 
   String get serialized;
 }
+
+abstract class AmountFormatter {
+  String format(String amount);
+}
