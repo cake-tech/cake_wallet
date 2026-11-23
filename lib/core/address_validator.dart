@@ -127,6 +127,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.usdtPlasma:
       case CryptoCurrency.usdtAvax:
       case CryptoCurrency.usdtOp:
+      case CryptoCurrency.usdtKaia:
       case CryptoCurrency.usdtXlayer:
       case CryptoCurrency.usdtCelo:
       case CryptoCurrency.usdtMon:
@@ -322,6 +323,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.usdtPlasma:
       case CryptoCurrency.usdtAvax:
       case CryptoCurrency.usdtOp:
+      case CryptoCurrency.usdtKaia:
       case CryptoCurrency.usdtXlayer:
       case CryptoCurrency.usdtCelo:
       case CryptoCurrency.usdtMon:
