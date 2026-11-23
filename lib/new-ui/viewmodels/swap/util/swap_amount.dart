@@ -8,6 +8,7 @@ import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/wallet_type.dart";
@@ -42,7 +43,7 @@ class SwapAmountFactory {
           <WalletType>[.bitcoin, .monero, .litecoin, .bitcoinCash, .dogecoin].contains(
               _appStore.wallet!.type);
 
-  Future<Money> _getMaximumTransactionAmount(CryptoCurrency curr) async {
+  Future<Money> _getMaximumTransactionAmount(CryptoCurrency curr, CoinSelection coinSelection) async {
     if (<WalletType>[
       .litecoin,
       .bitcoin,
@@ -62,10 +63,11 @@ class SwapAmountFactory {
             : curr == CryptoCurrency.btcln
             ? UnspentCoinType.lightning
             : UnspentCoinType.any,
+        coinSelection: coinSelection,
       );
 
     } else if (_appStore.wallet!.type == WalletType.monero) {
-      return monero!.getSendingBalance(_appStore.wallet!);
+      return monero!.getSendingBalance(_appStore.wallet!, coinSelection: coinSelection);
     } else if (isEVMCompatibleChain(_appStore.wallet!.type)) {
       final balanceCurrency = _appStore.wallet!.balance.keys.firstWhereOrNull(
             (currency) =>
@@ -94,8 +96,11 @@ class SwapAmountFactory {
     }
   }
 
-  Future<SwapAmount> getSwapAllAmount(CryptoCurrency curr) async {
-    final amount = await _getMaximumTransactionAmount(curr);
+  Future<SwapAmount> getSwapAllAmount(
+    CryptoCurrency curr, {
+    CoinSelection coinSelection = const AllCoinSelection(),
+  }) async {
+    final amount = await _getMaximumTransactionAmount(curr, coinSelection);
     final fiat = _appStore.settingsStore.fiatCurrency;
 
 

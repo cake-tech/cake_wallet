@@ -1,5 +1,6 @@
 import "package:cake_wallet/new-ui/viewmodels/coin_control/coin_control_bloc.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
+import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/coin_control/coin_control_wallet.dart";
 import "package:cw_core/coin_control/coin_notes_store.dart";
@@ -223,7 +224,7 @@ void main() {
   }) =>
       CoinControlBloc(
         wallet: wallet,
-        fiatConversionStore: FiatConversionStore(),
+        fiatConversionStore: FiatConversionStore(_FakeSettingsStore()),
         constraint: constraint,
         initialSelection: initialSelection,
       );
@@ -757,5 +758,7 @@ void main() {
     });
   });
 }
+
+class _FakeSettingsStore extends Fake implements SettingsStore {}
 
 /// Delays writes so a save racing an in-flight freeze can be observed.

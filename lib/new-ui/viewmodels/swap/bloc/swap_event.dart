@@ -90,6 +90,12 @@ final class ProviderToggled extends SwapEvent {
 
 final class FixedRateToggled extends SwapEvent {}
 
+final class CoinSelectionChanged extends SwapEvent {
+  const CoinSelectionChanged(this.newSelection);
+
+  final CoinSelection newSelection;
+}
+
 final class FiatCurrencyChanged extends SwapEvent {
   const FiatCurrencyChanged(this.newCurrency);
 

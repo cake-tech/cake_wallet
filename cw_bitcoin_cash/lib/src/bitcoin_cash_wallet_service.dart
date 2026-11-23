@@ -104,7 +104,6 @@ class BitcoinCashWalletService extends WalletService<
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       addressPageType: P2pkhAddressType.p2pkh,
     );

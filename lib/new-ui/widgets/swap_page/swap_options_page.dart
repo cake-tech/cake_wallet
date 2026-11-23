@@ -2,9 +2,9 @@ import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_selector.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
+import 'package:cw_core/coin_control/coin_control_wallet.dart';
 import 'package:cw_core/coin_control/coin_selection.dart';
 import 'package:cw_core/unspent_coin_type.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/coin_control_page.dart';
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -16,7 +16,6 @@ import "package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/share_util.dart";
-import "package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -107,25 +106,31 @@ class SwapOptionsPage extends StatelessWidget {
                                     child: ProviderOptionsPage(
                                         bloc: bloc))));
                           }),
-                      ListItemRegularRow(
-                          keyValue: "coin control",
-                          label: "Coin Control",
-                          onTap: () {
-                            final selection =
-                                await showCupertinoModalBottomSheet<CoinSelection?>(
-                                enableDrag: false,
-                                useRootNavigator: true,
-                                isDismissible: false,
-                                context: context,
-                                builder: (_) => getIt.get<NewCoinControlPage>(
-                                  param1: CoinControlPageArgs(
-                                    canEdit: true,
-                                    coinTypeToSpendFrom: UnspentCoinType.nonMweb,
-                                    initialSelection: exchangeViewModel.coinSelection,
-                                  ),
-                                ));
-//TODO
-                          }),
+                      if (bloc.wallet is CoinControlWallet && !state.isExternalSend)
+                        ListItemRegularRow(
+                            keyValue: "coin control",
+                            label: "Coin Control",
+                            onTap: () async {
+                              final selection =
+                                  await showCupertinoModalBottomSheet<CoinSelection?>(
+                                      enableDrag: false,
+                                      useRootNavigator: true,
+                                      isDismissible: false,
+                                      context: context,
+                                      builder: (_) => getIt.get<NewCoinControlPage>(
+                                            param1: CoinControlPageArgs(
+                                              canEdit: true,
+                                              coinTypeToSpendFrom: UnspentCoinType.nonMweb,
+                                              initialSelection: state is SwapInputState
+                                                  ? state.coinSelection
+                                                  : null,
+                                            ),
+                                          ));
+
+                              if (selection != null) {
+                                bloc.add(CoinSelectionChanged(selection));
+                              }
+                            }),
                       ListItemSelector(
                           keyValue: "curr",
                           label: S.of(context).change_fiat_currency,

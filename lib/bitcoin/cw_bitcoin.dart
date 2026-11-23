@@ -4,8 +4,9 @@ class CWBitcoin extends Bitcoin {
   Future<List<BitcoinUnspent>> _allSpendable(
     ElectrumWallet wallet, {
     UnspentCoinType coinType = UnspentCoinType.any,
+    CoinSelection selection = const AllCoinSelection(),
   }) async =>
-      (await wallet.spendableCoins(coinType: coinType))
+      (await wallet.spendableCoins(selection: selection, coinType: coinType))
           .cast<BitcoinUnspent>();
 
   WalletCredentials createBitcoinRestoreWalletFromSeedCredentials({
@@ -200,7 +201,8 @@ class CWBitcoin extends Bitcoin {
 
   @override
   Future<Money> estimateFakeSendAllTxAmount(WalletBase wallet, TransactionPriority priority,
-      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) async {
+      {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any,
+      CoinSelection coinSelection = const AllCoinSelection()}) async {
     try {
       final sk = ECPrivate.random();
       final electrumWallet = wallet as ElectrumWallet;
@@ -210,7 +212,7 @@ class CWBitcoin extends Bitcoin {
         final estimatedTx = await electrumWallet.estimateSendAllTx(
           [BitcoinOutput(address: p2pkhAddr, value: BigInt.zero)],
           getFeeRate(wallet, priority as BitcoinCashTransactionPriority),
-          candidates: await _allSpendable(electrumWallet),
+          candidates: await _allSpendable(electrumWallet, selection: coinSelection),
         );
 
         return estimatedTx.amount;
@@ -221,7 +223,11 @@ class CWBitcoin extends Bitcoin {
         final estimatedTx = await electrumWallet.estimateSendAllTx(
           [BitcoinOutput(address: dogeAddr, value: BigInt.zero)],
           getFeeRate(wallet, priority as BitcoinTransactionPriority),
-          candidates: await _allSpendable(electrumWallet, coinType: coinTypeToSpendFrom),
+          candidates: await _allSpendable(
+            electrumWallet,
+            coinType: coinTypeToSpendFrom,
+            selection: coinSelection,
+          ),
         );
         return estimatedTx.amount;
       }
@@ -235,7 +241,11 @@ class CWBitcoin extends Bitcoin {
               ? priority as LitecoinTransactionPriority
               : priority as BitcoinTransactionPriority,
         ),
-        candidates: await _allSpendable(electrumWallet, coinType: coinTypeToSpendFrom),
+        candidates: await _allSpendable(
+          electrumWallet,
+          coinType: coinTypeToSpendFrom,
+          selection: coinSelection,
+        ),
       );
 
       return estimatedTx.amount;

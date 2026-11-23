@@ -15,6 +15,7 @@ import "package:cake_wallet/view_model/send/output.dart";
 import "package:cake_wallet/wownero/wownero.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:cake_wallet/zcash/zcash.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/transaction_direction.dart";
@@ -32,11 +33,12 @@ class TransactionService {
   Future<PendingTransaction> createTransaction(
     List<Output> outputs, {
     required UnspentCoinType coinTypeToSpendFrom,
+    CoinSelection coinSelection = const AllCoinSelection(),
   }) async {
 
 
-    final pendingTransaction =
-        await _appStore.wallet!.createTransaction(_credentials(outputs, coinTypeToSpendFrom));
+    final pendingTransaction = await _appStore.wallet!
+        .createTransaction(_credentials(outputs, coinTypeToSpendFrom, coinSelection));
 
 
 
@@ -52,7 +54,11 @@ class TransactionService {
   }
 
   // TODO(malik): i think it would be nice to have a createCredentials virtual method on WalletBase. all the wallets use it anyway
-  Object _credentials(List<Output> outputs, UnspentCoinType coinTypeToSpendFrom) {
+  Object _credentials(
+    List<Output> outputs,
+    UnspentCoinType coinTypeToSpendFrom,
+    CoinSelection coinSelection,
+  ) {
     final priority = _appStore.settingsStore.getPriority(_appStore.wallet!.type, chainId: _appStore.wallet!.chainId);
 
 
@@ -80,6 +86,7 @@ class TransactionService {
           priority: priority!,
           feeRate: _appStore.settingsStore.customBitcoinFeeRate,
           coinTypeToSpendFrom: hasLightning ? .lightning : coinTypeToSpendFrom,
+          coinSelection: coinSelection,
         );
       case WalletType.litecoin:
         return bitcoin!.createBitcoinTransactionCredentials(
@@ -87,11 +94,12 @@ class TransactionService {
           priority: priority!,
           feeRate: _appStore.settingsStore.customBitcoinFeeRate,
           coinTypeToSpendFrom: coinTypeToSpendFrom,
+          coinSelection: coinSelection,
         );
 
       case WalletType.monero:
-        return monero!
-            .createMoneroTransactionCreationCredentials(outputs: outputs, priority: priority!);
+        return monero!.createMoneroTransactionCreationCredentials(
+            outputs: outputs, priority: priority!, coinSelection: coinSelection);
 
       case WalletType.wownero:
         return wownero!
@@ -127,7 +135,8 @@ class TransactionService {
         return zano!.createZanoTransactionCredentials(
             outputs: outputs, priority: priority!, currency: selectedCryptoCurrency);
       case WalletType.decred:
-        return decred!.createDecredTransactionCredentials(outputs, priority!);
+        return decred!
+            .createDecredTransactionCredentials(outputs, priority!, coinSelection: coinSelection);
       case WalletType.zcash:
         final selectedCryptoCurrency = outputs.first.cryptoAmountMoney.currency as CryptoCurrency;
         return zcash!.createZcashTransactionCredentials(
