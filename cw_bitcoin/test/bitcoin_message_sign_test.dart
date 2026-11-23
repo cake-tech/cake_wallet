@@ -5,6 +5,7 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_message_sign.dart";
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
+import "package:cw_bitcoin/electrum_account.dart";
 import "package:cw_bitcoin/electrum_wallet.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
@@ -50,25 +51,24 @@ class _NoUnspentsBox implements Box<UnspentCoinsInfo> {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+ElectrumAccounts _accounts() => ElectrumAccounts(
+  primaryTypes: [SegwitAddresType.p2wpkh],
+  accountHd: _master.derivePath("m/84'/0'/0'") as Bip32Slip10Secp256k1,
+  masterHd: _master,
+  coinType: 0,
+)..getOrCreate(0);
+
 class _Addresses extends BitcoinWalletAddresses {
   _Addresses(super.walletInfo, List<BitcoinAddressRecord> records)
       : super(
-          mainHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _receiveHd},
-          },
-          sideHdByTypeAndAccount: {
-            0: {SegwitAddresType.p2wpkh: _changeHd},
-          },
-          accountIndexes: [0],
-          currentAccountIndex: 0,
-          legacyMainHd: _receiveHd,
-          legacySideHd: _changeHd,
-          network: BitcoinNetwork.mainnet,
-          isHardwareWallet: false,
-          payjoinManager: _NoPayjoin(),
-          masterHd: _master,
-          initialAddresses: records,
-        );
+    accounts: _accounts(),
+    currentAccountIndex: 0,
+    network: BitcoinNetwork.mainnet,
+    isHardwareWallet: false,
+    payjoinManager: _NoPayjoin(),
+    masterHd: _master,
+    initialAddresses: records,
+  );
 
   @override
   Future<void> saveAddressesInBox() async {}
