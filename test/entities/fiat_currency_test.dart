@@ -36,7 +36,7 @@ void main() {
     const before = false;
     const after = true;
 
-    test("follows the CW-1209 table, with ¥ before the number for JPY and £ for GBP", () {
+    test("follows the CW-1209 table, with ¥ and CN¥ before the number, £ and COP", () {
       final shown = {
         for (final currency in FiatCurrency.all)
           currency.title: (currency.sign, currency.signAfterAmount),
@@ -52,8 +52,8 @@ void main() {
         "CAD": (r"C$", before),
         "CHF": ("CHF", after),
         "CLP": ("CLP", before),
-        "CNY": ("CN¥", after),
-        "COP": (r"COL$", before),
+        "CNY": ("CN¥", before),
+        "COP": ("COP", before),
         "CZK": ("Kč", after),
         "DKK": ("Dkr", after),
         "EGP": ("E£", before),
@@ -108,33 +108,52 @@ void main() {
   });
 
   group("FiatCurrency.format", () {
-    test("puts a currency sign directly in front of the amount", () {
+    test("puts a one-character sign directly in front of the amount", () {
       expect(FiatCurrency.usd.format("1,234.56"), ltr(r"$1,234.56"));
       expect(FiatCurrency.gbp.format("1,234.56"), ltr("£1,234.56"));
       expect(FiatCurrency.jpy.format("1,234"), ltr("¥1,234"));
-      expect(FiatCurrency.cad.format("12.34"), ltr(r"C$12.34"));
       expect(FiatCurrency.inr.format("500.00"), ltr("₹500.00"));
-      expect(FiatCurrency.ghs.format("5"), ltr("GH₵5"));
     });
 
-    test("separates a symbol that ends in a letter or a dot", () {
+    test("separates a longer sign, or one that is a letter", () {
+      expect(FiatCurrency.ars.format("10,000"), ltr(r"AR$ 10,000"));
+      expect(FiatCurrency.cad.format("12.34"), ltr(r"C$ 12.34"));
+      expect(FiatCurrency.cny.format("12.34"), ltr("CN¥ 12.34"));
+      expect(FiatCurrency.ghs.format("5"), ltr("GH₵ 5"));
+      expect(FiatCurrency.cop.format("12"), ltr("COP 12"));
       expect(FiatCurrency.idr.format("12.34"), ltr("Rp 12.34"));
-      expect(FiatCurrency.zar.format("12.34"), ltr("R 12.34"));
       expect(FiatCurrency.vef.format("12.34"), ltr("Bs. 12.34"));
-      expect(FiatCurrency.clp.format("12"), ltr("CLP 12"));
+      expect(FiatCurrency.zar.format("12.34"), ltr("R 12.34"));
     });
 
-    test("touches the amount only with a sign before it that ends in neither a letter nor a dot",
-        () {
-      final spacedBefore = FiatCurrency.all
-          .where((currency) => !currency.signAfterAmount && !currency.signTouchesAmount)
+    test("touches the amount only with a one-character sign before it that isn't a letter", () {
+      final touching = FiatCurrency.all
+          .where((currency) => currency.signTouchesAmount)
           .map((currency) => currency.title);
 
       expect(
-        spacedBefore,
-        unorderedEquals(["CLP", "GTQ", "IDR", "IRR", "KES", "MYR", "PKR", "VEF", "ZAR"]),
+        touching,
+        unorderedEquals([
+          "AMD", "BDT", "GBP", "ILS", "INR", "JPY", "KRW", //
+          "NGN", "PHP", "SAR", "THB", "TRY", "UAH", "USD",
+        ]),
       );
-      expect(FiatCurrency.all.where((c) => c.signAfterAmount && c.signTouchesAmount), isEmpty);
+    });
+
+    test("knows which signs are one character", () {
+      expect(FiatCurrency.usd.signIsSingleCharacter, isTrue);
+      expect(FiatCurrency.eur.signIsSingleCharacter, isTrue);
+      expect(FiatCurrency.zar.signIsSingleCharacter, isTrue);
+      expect(FiatCurrency.cad.signIsSingleCharacter, isFalse);
+      expect(FiatCurrency.cny.signIsSingleCharacter, isFalse);
+    });
+
+    test("writes a prefix that follows the same spacing for any currency", () {
+      expect(FiatCurrency.usd.signAsPrefix, r"$");
+      expect(FiatCurrency.eur.signAsPrefix, "€");
+      expect(FiatCurrency.ars.signAsPrefix, r"AR$ ");
+      expect(FiatCurrency.idr.signAsPrefix, "Rp ");
+      expect(FiatCurrency.zar.signAsPrefix, "R ");
     });
 
     test("puts the symbol after the amount where the design does, with a space", () {
@@ -142,7 +161,7 @@ void main() {
       expect(FiatCurrency.sek.format("12,34"), ltr("12,34 kr"));
       expect(FiatCurrency.chf.format("12.34"), ltr("12.34 CHF"));
       expect(FiatCurrency.pln.format("9,99"), ltr("9,99 zł"));
-      expect(FiatCurrency.cny.format("12.34"), ltr("12.34 CN¥"));
+      expect(FiatCurrency.czk.format("12,34"), ltr("12,34 Kč"));
       expect(FiatCurrency.vnd.format("1.000"), ltr("1.000 ₫"));
     });
 
@@ -254,6 +273,8 @@ void main() {
         expect(currency.sign, currency.title);
         expect(currency.signAfterAmount, isFalse, reason: currency.title);
         expect(currency.signTouchesAmount, isFalse, reason: currency.title);
+        expect(currency.signIsSingleCharacter, isFalse, reason: currency.title);
+        expect(currency.signAsPrefix, "${currency.title} ", reason: currency.title);
       }
     });
 
@@ -297,6 +318,7 @@ void main() {
     test("is the bare code when the symbol is the code", () {
       expect(FiatCurrency.chf.label, "CHF");
       expect(FiatCurrency.clp.label, "CLP");
+      expect(FiatCurrency.cop.label, "COP");
     });
   });
 

@@ -84,7 +84,9 @@ class _FiatCurrencyPickerSheetState extends State<FiatCurrencyPickerSheet> {
   bool _matches(FiatCurrency c, String query) {
     if (query.isEmpty) return true;
     final q = query.toLowerCase();
-    return c.fullName.toLowerCase().contains(q) || c.title.toLowerCase().contains(q);
+    return c.fullName.toLowerCase().contains(q) ||
+        c.title.toLowerCase().contains(q) ||
+        c.symbolSign.toLowerCase().contains(q);
   }
 
   void _selectFiatCurrency(FiatCurrency c) {

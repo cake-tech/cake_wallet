@@ -53,7 +53,7 @@ class FiatCurrency extends EnumerableItem<String>
     "CHF": "CHF",
     "CLP": "CLP",
     "CNY": "CN¥",
-    "COP": r"COL$",
+    "COP": "COP",
     "CZK": "Kč",
     "DKK": "Dkr",
     "EGP": "E£",
@@ -99,7 +99,6 @@ class FiatCurrency extends EnumerableItem<String>
   static const _symbolSignsAfterAmount = {
     "BGN",
     "CHF",
-    "CNY",
     "CZK",
     "DKK",
     "EUR",
@@ -121,9 +120,13 @@ class FiatCurrency extends EnumerableItem<String>
 
   bool get signAfterAmount => !showsIsoCode() && _symbolSignsAfterAmount.contains(title);
 
-  bool get signTouchesAmount => !signAfterAmount && !_endsWithLetterOrDot.hasMatch(sign);
+  bool get signIsSingleCharacter => sign.runes.length == 1;
 
-  String get signAsPrefix => _endsWithLetterOrDot.hasMatch(sign) ? "$sign " : sign;
+  bool get signTouchesAmount => !signAfterAmount && _signHugsNumber;
+
+  String get signAsPrefix => _signHugsNumber ? sign : "$sign ";
+
+  bool get _signHugsNumber => signIsSingleCharacter && !_endsWithLetterOrDot.hasMatch(sign);
 
   String get label => symbolSign == title ? title : "$title ($symbolSign)";
 

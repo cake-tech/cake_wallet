@@ -59,7 +59,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         child: Text(
           widget.bloc.fiat.sign,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: widget.bloc.fiat.signIsSingleCharacter ? 28 : 16,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
