@@ -143,7 +143,6 @@
   "Blocks_remaining": "剩余 ${status} 个区块",
   "bluetooth": "蓝牙",
   "bridge_amount_below_fee": "金额必须高于 ${fee} 的手续费。",
-  "bridge_approval_failed": "授权交易失败。",
   "bridge_approval_not_confirmed": "授权交易尚未在网络上确认。确认后请重试。",
   "bridge_approval_step_note": "步骤 1/2：允许 Bridge 智能合约无限量地使用您的 ${token}。您将在步骤 2 中确认转账。",
   "bridge_arrival_time": "资金通常会在 30 分钟内到达。",

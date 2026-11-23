@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} Blok Kaldı",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "Tutar, ${fee} tutarındaki ücretten yüksek olmalıdır.",
-  "bridge_approval_failed": "Onay işlemi başarısız oldu.",
   "bridge_approval_not_confirmed": "Onay işlemi henüz ağ üzerinde doğrulanmadı. Doğrulandıktan sonra tekrar deneyin.",
   "bridge_approval_step_note": "Adım 1/2: Bridge akıllı sözleşmesinin sınırsız miktarda ${token} kullanmasına izin verin. 2. adımda aktarımı onaylayacaksınız.",
   "bridge_arrival_time": "Fonlar genellikle 30 dakika içinde ulaşır.",

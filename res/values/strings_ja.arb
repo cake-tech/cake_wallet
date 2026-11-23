@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} ブロック残り",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "金額は手数料 ${fee} より大きくなければなりません。",
-  "bridge_approval_failed": "承認トランザクションが失敗しました。",
   "bridge_approval_not_confirmed": "承認トランザクションはまだネットワーク上で確認されていません。確認できましたら再度お試しください。",
   "bridge_approval_step_note": "ステップ 1/2: Bridge スマートコントラクトが ${token} を無制限に使用できるようにします。ステップ 2 で転送を確認します。",
   "bridge_arrival_time": "通常、資金は 30 分以内に到着します。",

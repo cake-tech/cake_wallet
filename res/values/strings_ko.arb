@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status}개 블록 남음",
   "bluetooth": "블루투스",
   "bridge_amount_below_fee": "금액은 수수료 ${fee}보다 높아야 합니다.",
-  "bridge_approval_failed": "승인 거래에 실패했습니다.",
   "bridge_approval_not_confirmed": "아직 네트워크에서 승인 거래가 확인되지 않았습니다. 확인 후 다시 시도해 보세요.",
   "bridge_approval_step_note": "1/2단계: Bridge 스마트 컨트랙트가 귀하의 ${token}을 무제한으로 사용할 수 있도록 허용합니다. 2단계에서 전송을 확인하게 됩니다.",
   "bridge_arrival_time": "자금은 보통 30분 이내에 도착합니다.",

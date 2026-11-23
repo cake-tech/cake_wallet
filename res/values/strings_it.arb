@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} blocchi rimanenti",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "L'importo deve essere superiore alla commissione di ${fee}.",
-  "bridge_approval_failed": "La transazione di approvazione non è riuscita.",
   "bridge_approval_not_confirmed": "La transazione di approvazione non è stata ancora confermata sulla rete. Riprova una volta confermata.",
   "bridge_approval_step_note": "Passaggio 1/2: consenti allo smart contract Bridge di utilizzare un importo illimitato del tuo ${token}. Confermerai il trasferimento al passaggio 2.",
   "bridge_arrival_time": "I fondi solitamente arrivano entro 30 minuti.",

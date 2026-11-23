@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} بلاک باقی‌مانده",
   "bluetooth": "بلوتوث",
   "bridge_amount_below_fee": "مبلغ باید بیشتر از کارمزد ${fee} باشد.",
-  "bridge_approval_failed": "تراکنش تایید ناموفق بود.",
   "bridge_approval_not_confirmed": "تراکنش تایید هنوز در شبکه تایید نشده است. پس از تایید دوباره امتحان کنید.",
   "bridge_approval_step_note": "مرحله 1/2: به قرارداد هوشمند Bridge اجازه دهید تا از مقدار نامحدودی از ${token} شما استفاده کند. در مرحله 2 انتقال را تایید خواهید کرد.",
   "bridge_arrival_time": "وجوه معمولاً ظرف 30 دقیقه می رسد.",

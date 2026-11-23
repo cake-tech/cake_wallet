@@ -18,6 +18,7 @@ import "package:cake_wallet/view_model/bridge/bridge_view_model.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/balance.dart";
 import "package:cw_core/bridge_quote.dart";
+import "package:cw_core/bridge_transfer_status.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/erc20_token.dart";
 import "package:cw_core/pending_transaction.dart";
@@ -84,6 +85,9 @@ class _TransfersStore extends Fake implements BridgeTransfersStore {
 
   @override
   Future<void> addTransfer(BridgeTransfer transfer) async => bridgeTransfers.add(transfer);
+
+  @override
+  Future<void> updateTransfer(BridgeTransfer transfer) async {}
 }
 
 class _SettingsStore extends Fake implements SettingsStore {
@@ -126,7 +130,8 @@ class _Evm extends Fake implements EVM {
   final burn = Completer<PendingTransaction>();
   Future<void>? quoteDelay;
   String? approvalSpender;
-  bool? approvalReceipt;
+  bool isApproved = false;
+  BridgeTransferStatus? transferStatus;
   (WalletBase, Money, String)? approved;
 
   @override
@@ -165,7 +170,7 @@ class _Evm extends Fake implements EVM {
     String spender,
     BigInt requiredAmount,
   ) async =>
-      approvalReceipt != true;
+      !isApproved;
 
   @override
   Future<PendingTransaction> createTokenApproval(
@@ -180,7 +185,15 @@ class _Evm extends Fake implements EVM {
   }
 
   @override
-  Future<bool?> getTransactionReceipt(WalletBase wallet, String txHash) async => approvalReceipt;
+  Future<bool?> getTransactionReceipt(WalletBase wallet, String txHash) async => null;
+
+  @override
+  Future<BridgeTransferStatus?> getBridgeTransferStatus({
+    required int sourceChainId,
+    required String tokenContract,
+    required String sourceTxHash,
+  }) async =>
+      transferStatus;
 
   @override
   Future<PendingTransaction> executeBridgeTransfer({
@@ -309,6 +322,20 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
   });
 
+  testWidgets("completes a transfer the bridge reports when the node serves no receipt",
+      (tester) async {
+    await openSheetAndConfirm(tester);
+    bridge.burn.complete(_Transaction());
+    await tester.pump(const Duration(milliseconds: 50));
+
+    bridge.transferStatus = const BridgeTransferStatus(isDelivered: true);
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 5));
+
+    expect(transfers.bridgeTransfers.single.status, "completed");
+  });
+
   testWidgets("does not send the burn once the sheet's close button is tapped", (tester) async {
     final burn = _Transaction();
     await openSheetAndConfirm(tester);
@@ -418,7 +445,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
     expect(find.byType(ConfirmSwiper), findsNothing, reason: "the approval is not mined yet");
 
-    bridge.approvalReceipt = true;
+    bridge.isApproved = true;
     await tester.pump(const Duration(seconds: 2));
     await tester.pump();
     expect(burn.commits, 0);
@@ -446,7 +473,7 @@ void main() {
     expect(approval.commits, 1);
     expect(find.byType(ConfirmSwiper), findsNothing, reason: "the approval is not mined yet");
 
-    bridge.approvalReceipt = true;
+    bridge.isApproved = true;
     await tester.pump(const Duration(seconds: 2));
   });
 

@@ -171,7 +171,6 @@
   "Blocks_remaining": "${status} Blocks Remaining",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "The amount must be higher than the bridge fee of ${fee}.",
-  "bridge_approval_failed": "The approval failed.",
   "bridge_approval_not_confirmed": "The approval has not confirmed yet. Try again once it has.",
   "bridge_approval_step_note": "Step 1 of 2: give the bridge contract an unlimited ${token} allowance. You confirm the transfer in step 2.",
   "bridge_arrival_time": "Transfers usually arrive within 30 minutes.",

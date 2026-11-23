@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} khối còn lại",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "Số tiền phải cao hơn mức phí ${fee}.",
-  "bridge_approval_failed": "Giao dịch phê duyệt không thành công.",
   "bridge_approval_not_confirmed": "Giao dịch phê duyệt vẫn chưa được xác nhận trên mạng. Hãy thử lại sau khi nó đã được xác nhận.",
   "bridge_approval_step_note": "Bước 1/2: cho phép hợp đồng thông minh Bridge sử dụng số lượng ${token} không giới hạn. Bạn sẽ xác nhận việc chuyển tiền ở bước 2.",
   "bridge_arrival_time": "Tiền thường đến trong vòng 30 phút.",

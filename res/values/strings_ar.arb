@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} كتل متبقية",
   "bluetooth": "بلوتوث",
   "bridge_amount_below_fee": "يجب أن يكون المبلغ أعلى من الرسوم البالغة ${fee}.",
-  "bridge_approval_failed": "فشلت معاملة الموافقة.",
   "bridge_approval_not_confirmed": "لم يتم تأكيد معاملة الموافقة على الشبكة بعد. حاول مرة أخرى بمجرد تأكيد ذلك.",
   "bridge_approval_step_note": "الخطوة 1/2: اسمح لعقد Bridge الذكي باستخدام كمية غير محدودة من ${token}. سوف تقوم بتأكيد النقل في الخطوة 2.",
   "bridge_arrival_time": "تصل الأموال عادةً خلال 30 دقيقة.",

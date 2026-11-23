@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} Tubalan da suka rage",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "Dole ne adadin ya zama sama da kuɗin ${fee}.",
-  "bridge_approval_failed": "Amincewar ta kasa.",
   "bridge_approval_not_confirmed": "Har yanzu ba a tabbatar da cinikin amincewa akan hanyar sadarwar ba. A sake gwadawa da zarar an tabbatar.",
   "bridge_approval_step_note": "Mataki 1/2: ba da izinin kwangilar smart ta Bridge don amfani da iyaka mara iyaka na ${token}. Za ku tabbatar da canja wuri a mataki na 2.",
   "bridge_arrival_time": "Kudaden yawanci suna zuwa cikin mintuna 30.",

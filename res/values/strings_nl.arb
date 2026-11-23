@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} resterende blokken",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "Het bedrag moet hoger zijn dan de kosten van ${fee}.",
-  "bridge_approval_failed": "De goedkeuringstransactie is mislukt.",
   "bridge_approval_not_confirmed": "De goedkeuringstransactie is nog niet bevestigd op het netwerk. Probeer het opnieuw zodra deze is bevestigd.",
   "bridge_approval_step_note": "Stap 1/2: sta toe dat het smart contract van Bridge een onbeperkt bedrag van je ${token} gebruikt. In stap 2 bevestig je de overdracht.",
   "bridge_arrival_time": "Het geld arriveert meestal binnen 30 minuten.",

@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} Àwọn bulọọki tó kù",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "Iye naa gbọdọ ga ju ọya ${fee} lọ.",
-  "bridge_approval_failed": "Iṣowo ifọwọsi kuna.",
   "bridge_approval_not_confirmed": "Idunadura alakosile ko tii timo lori nẹtiwọki sibẹsibẹ. Gbiyanju lẹẹkansi ni kete ti o ti jẹrisi.",
   "bridge_approval_step_note": "Igbesẹ 1/2: gba adehun ọlọ́gbọ́n Bridge laaye lati lo iye ailopin ti ${token} rẹ. Iwọ yoo jẹrisi gbigbe ni igbese 2.",
   "bridge_arrival_time": "Awọn owo maa n de laarin ọgbọn iṣẹju.",

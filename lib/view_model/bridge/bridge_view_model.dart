@@ -519,7 +519,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
         await approval.commit();
         isSent = true;
-        await _waitForApproval(sourceWallet, approval.evmTxHashFromRawHex!);
+        await _waitForApproval(sourceWallet, token.contractAddress, spender, check.parsedAmount!);
       }
 
       await loadQuote();
@@ -530,18 +530,18 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     }
   }
 
-  Future<void> _waitForApproval(WalletBase sourceWallet, String txHash) async {
+  Future<void> _waitForApproval(
+    WalletBase sourceWallet,
+    String tokenContract,
+    String spender,
+    BigInt amount,
+  ) async {
     final deadline = DateTime.now().add(_pollTimeout);
 
     while (DateTime.now().isBefore(deadline)) {
       await Future.delayed(_pollInterval);
 
-      final isSuccessful = await evm!.getTransactionReceipt(sourceWallet, txHash);
-      if (isSuccessful == true) return;
-
-      if (isSuccessful == false) {
-        throw TransactionSendingException(S.current.bridge_approval_failed);
-      }
+      if (!await evm!.isApprovalRequired(sourceWallet, tokenContract, spender, amount)) return;
     }
 
     throw TransactionSendingException(S.current.bridge_approval_not_confirmed);
@@ -712,7 +712,8 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         if (canceller.isCompleted || !_isValidWalletContext(walletId)) return;
 
         if (isSource) {
-          final receipt = await _fetchTransactionReceipt(record, wallet);
+          var receipt = await _fetchTransactionReceipt(record, wallet);
+          if (receipt == null && await _fetchBridgeTransferStatus(record) != null) receipt = true;
           if (canceller.isCompleted) return;
 
           if (receipt != null) {
@@ -796,7 +797,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         sourceChainId: record.sourceChainId,
         tokenContract: record.tokenContract,
         sourceTxHash: record.sourceTxHash,
-      );
+      ).timeout(const Duration(seconds: 10));
     } catch (e) {
       printV("Bridge: Error fetching transfer status: $e");
       return null;

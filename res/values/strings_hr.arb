@@ -143,7 +143,6 @@
   "Blocks_remaining": "${status} preostalih blokova",
   "bluetooth": "Bluetooth",
   "bridge_amount_below_fee": "Iznos mora biti veći od naknade od ${fee}.",
-  "bridge_approval_failed": "Transakcija odobrenja nije uspjela.",
   "bridge_approval_not_confirmed": "Transakcija odobrenja još nije potvrđena na mreži. Pokušajte ponovno nakon potvrde.",
   "bridge_approval_step_note": "Korak 1/2: dopustite Bridge pametnom ugovoru da koristi neograničeni iznos vaših ${token}. Prijenos ćete potvrditi u koraku 2.",
   "bridge_arrival_time": "Sredstva obično stižu u roku od 30 minuta.",
