@@ -313,7 +313,6 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       builder: (_) => Material(child: modal),
     );
     if (res == true && mounted) {
-      await widget.accountListViewModel.reload();
       final accounts = widget.accountListViewModel.accounts;
       if (accounts.isNotEmpty) {
         await widget.accountListViewModel.select(
@@ -368,7 +367,6 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
             nextAccount,
       );
     }
-    await widget.accountListViewModel.reload();
     await widget.dashboardViewModel.loadCardDesigns();
     if (!mounted) {
       return;

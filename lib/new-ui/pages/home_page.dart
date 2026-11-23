@@ -155,7 +155,6 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                     ),
                                   ),
                                 ).then((_) async {
-                                  widget.dashboardViewModel.accountListViewModel?.reload();
                                   await Future<void>.delayed(Duration.zero);
                                   await widget.dashboardViewModel.loadCardDesigns();
                                   if (mounted) setState(() {});
@@ -290,7 +289,6 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
           : null,
       lightningMode: widget.dashboardViewModel.lightningMode,
     );
-    await widget.dashboardViewModel.accountListViewModel?.reload();
     await widget.dashboardViewModel.loadCardDesigns();
   }
 

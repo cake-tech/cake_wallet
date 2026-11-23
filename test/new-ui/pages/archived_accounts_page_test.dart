@@ -174,7 +174,6 @@ void main() {
     when(() => settingsStore.displayAmountsInSatoshi).thenReturn(BitcoinAmountDisplayMode.bitcoin);
     when(() => dashboardViewModel.settingsStore).thenReturn(settingsStore);
     when(() => accountListViewModel.select(any())).thenAnswer((_) async {});
-    when(() => accountListViewModel.reload()).thenAnswer((_) async {});
 
     when(() => dashboardViewModel.balanceViewModel).thenReturn(balanceViewModel);
     when(() => balanceViewModel.accountFiatBalance(any())).thenReturn(null);

@@ -29,7 +29,5 @@ abstract class WalletAccountListViewModelBase with Store {
   @computed
   AccountListItem? get selectedAccount => accounts.firstWhereOrNull((item) => item.isSelected);
 
-  Future<void> reload() async {}
-
   Future<void> select(AccountListItem item) => _wallet.setCurrentAccount(item.id);
 }
