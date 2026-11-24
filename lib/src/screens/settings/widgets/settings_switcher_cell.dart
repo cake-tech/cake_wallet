@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/src/widgets/standard_switch.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class SettingsSwitcherCell extends StandardListRow {
@@ -14,7 +15,8 @@ class SettingsSwitcherCell extends StandardListRow {
     this.padding,
     this.switchBackgroundColor,
     this.height = 56,
-  }) : super(title: title, isSelected: false, decoration: decoration, onTap: onTap, key: key);
+    String? testId,
+  }) : super(title: title, isSelected: false, decoration: decoration, onTap: onTap, key: key, testId: testId);
 
   final bool value;
   final Color? switchBackgroundColor;
@@ -38,7 +40,7 @@ class SettingsSwitcherCell extends StandardListRow {
   Widget build(BuildContext context) {
     final leading = buildLeading(context);
     final trailing = buildTrailing(context);
-    final row = Container(
+    final row = TestId.merge(testId ?? TestId.fromKey(key), child: Container(
       height: height,
       padding: padding ?? EdgeInsets.only(left: 12, right: 12),
       child: TextButton(
@@ -67,6 +69,7 @@ class SettingsSwitcherCell extends StandardListRow {
           ],
         ),
       ),
+    ),
     );
     return onTap == null ? MergeSemantics(child: row) : row;
   }

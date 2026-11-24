@@ -99,6 +99,11 @@ dependency_overrides:
       url: https://github.com/felangel/bloc
       ref: 13dbe0ce078e7efaebb54b37489879daeb57459d
       path: ./packages/bloc_concurrency
+  bloc_presentation:
+    git:
+      url: https://github.com/leancodepl/bloc_presentation
+      ref: e7325b9bf57a1c607034de87a2378ec9bd5c0011
+      path: ./packages/bloc_presentation
   blockchain_utils:
     git:
       url: https://github.com/cake-tech/blockchain_utils
@@ -820,6 +825,11 @@ dependency_overrides:
       url: https://github.com/dart-lang/tools
       ref: 88087ae253cab7ff9eccadb3c8cbf550ee071226
       path: ./pkgs/json_rpc_2
+  json_serializable:
+    git:
+      url: https://github.com/google/json_serializable.dart
+      ref: 61e7b879b22af58f2f942ccf6c0ae81acd0cb1bc
+      path: ./json_serializable
   kepler:
     git:
       url: https://github.com/tjcampanella/kepler
@@ -1339,6 +1349,10 @@ dependency_overrides:
       url: https://github.com/dart-lang/source_gen
       ref: 98cbdb6b17cdccabb0fec6e37fd66e2790d05092
       path: ./source_gen
+  source_helper:
+    git:
+      url: https://github.com/google/source_helper.dart
+      ref: 760e41a7742d211543cbbf510fc588e96d0cc0a2
   source_map_stack_trace:
     git:
       url: https://github.com/dart-lang/tools

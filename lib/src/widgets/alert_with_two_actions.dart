@@ -19,7 +19,7 @@ class AlertWithTwoActions extends BaseAlertDialog {
     this.alertRightActionButtonKey,
     this.alertLeftActionButtonKey,
     this.alertDialogKey,
-  });
+  }) : super(key: alertDialogKey);
 
   final String alertTitle;
   final String alertContent;

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import "package:flutter/services.dart";
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -191,6 +192,7 @@ class _NEWNewMainNavBarState extends State<NewMainNavBar> {
                                     : 0),
                             curve: Curves.easeOutCubic,
                             child: Semantics(
+                              identifier: TestId.fromKey(visibleActions[i].key),
                               button: true,
                               selected: i == realSelectedIndex,
                               inMutuallyExclusiveGroup: true,

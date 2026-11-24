@@ -36,7 +36,7 @@ abstract class PayjoinTransactionsStoreBase with Store {
         updatedTransactions.add(PayjoinTransactionListItem(
           sessionId: key as String,
           session: session,
-          key: ValueKey('payjoin_transaction_list_item_${key}_key'),
+          key: ValueKey('payjoin_transaction_list_item_${updatedTransactions.length}_key'),
         ));
       }
     });
