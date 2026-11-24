@@ -21,7 +21,11 @@ class WalletFlows {
     final nameFinder = find.text(name);
 
     for (int index = 0; index < maxGroups; index++) {
-      final tile = find.byKey(ValueKey("group_wallets_expansion_tile_widget_$index"));
+      final tile = find.byWidgetPredicate(
+            (widget) =>
+        widget.key == ValueKey("wallet_list_group_${index}_key") ||
+            widget.key == ValueKey("group_wallets_expansion_tile_widget_$index"),
+      );
       if (!tester.any(tile)) return;
 
       final before = nameFinder.evaluate().length;

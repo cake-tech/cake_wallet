@@ -1,3 +1,4 @@
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 
 class ListItemStyleWrapper extends StatelessWidget {
@@ -12,6 +13,8 @@ class ListItemStyleWrapper extends StatelessWidget {
     this.contentPadding,
     this.height,
     this.leadingAccessory,
+    this.testId,
+    this.mergeTestId = true,
   });
 
   final String? iconPath;
@@ -23,6 +26,8 @@ class ListItemStyleWrapper extends StatelessWidget {
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
   final EdgeInsets? contentPadding;
   final bool? leadingAccessory;
+  final String? testId;
+  final bool mergeTestId;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +56,9 @@ class ListItemStyleWrapper extends StatelessWidget {
       borderRadius: radius,
       child: Column(
         children: [
-          Container(
+          (mergeTestId ? TestId.merge : TestId.container)(
+            testId,
+            child: Container(
               height: height,
               decoration: ShapeDecoration(
                 shape: RoundedSuperellipseBorder(
@@ -60,18 +67,27 @@ class ListItemStyleWrapper extends StatelessWidget {
                 color: backgroundColor ?? theme.colorScheme.surfaceContainer,
               ),
               child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                      onTap: onTap,
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                      hoverColor: Colors.transparent,
-                      focusColor: Colors.transparent,
-                      splashFactory: NoSplash.splashFactory,
-                      child: Padding(
-                          padding: EdgeInsets.fromLTRB(leadingAccessory == true ? 0 : 12,
-                              height == null ? 11 : 0, 12, height == null ? 11 : 0),
-                          child: builder(context, textStyle, labelStyle))))),
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTap,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  splashFactory: NoSplash.splashFactory,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      leadingAccessory == true ? 0 : 12,
+                      height == null ? 11 : 0,
+                      12,
+                      height == null ? 11 : 0,
+                    ),
+                    child: builder(context, textStyle, labelStyle),
+                  ),
+                ),
+              ),
+            ),
+          ),
           if (iconPath != null && isLastInSection == false)
             Container(
               color: theme.colorScheme.surfaceContainer,

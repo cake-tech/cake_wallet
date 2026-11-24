@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class PrimaryButton extends StatelessWidget {
     this.onDisabledPressed,
     this.borderRadius,
     this.height = 52.0,
+    this.testId,
     super.key,
   });
 
@@ -29,35 +31,39 @@ class PrimaryButton extends StatelessWidget {
   final bool isDottedBorder;
   final BorderRadius? borderRadius;
   final double? height;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
-    final content = ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-      child: SizedBox(
-        width: double.infinity,
-        height: height,
-        child: TextButton(
-          onPressed:
-              isDisabled ? (onDisabledPressed != null ? onDisabledPressed : null) : onPressed,
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(
-              isDisabled ? color.withOpacity(0.5) : color,
-            ),
-            shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(
-                borderRadius: borderRadius ?? BorderRadius.circular(18.0),
+    final content = TestId.merge(
+      testId ?? TestId.fromKey(key),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+        child: SizedBox(
+          width: double.infinity,
+          height: height,
+          child: TextButton(
+            onPressed:
+                isDisabled ? (onDisabledPressed != null ? onDisabledPressed : null) : onPressed,
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.all(
+                isDisabled ? color.withOpacity(0.5) : color,
+              ),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: borderRadius ?? BorderRadius.circular(18.0),
+                ),
               ),
             ),
-          ),
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                  color: isDisabled ? textColor.withOpacity(0.5) : textColor,
-                ),
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: isDisabled ? textColor.withOpacity(0.5) : textColor,
+                  ),
+            ),
           ),
         ),
       ),
@@ -69,7 +75,7 @@ class PrimaryButton extends StatelessWidget {
             dashPattern: [6, 4],
             color: borderColor,
             strokeWidth: 2,
-            radius: Radius.circular(15),
+            radius: const Radius.circular(15),
             child: content)
         : content;
   }
@@ -83,6 +89,7 @@ class LoadingPrimaryButton extends StatelessWidget {
     required this.textColor,
     this.isDisabled = false,
     this.isLoading = false,
+    this.testId,
     super.key,
   });
 
@@ -92,6 +99,7 @@ class LoadingPrimaryButton extends StatelessWidget {
   final bool isLoading;
   final bool isDisabled;
   final String text;
+  final String? testId;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +108,7 @@ class LoadingPrimaryButton extends StatelessWidget {
     // The spinner replaces the label while loading, so the name is kept on a single
     // semantics node that also reports the loading and disabled states.
     return Semantics(
+      identifier: testId ?? TestId.fromKey(key),
       button: true,
       enabled: isEnabled,
       label: text,
@@ -112,10 +121,10 @@ class LoadingPrimaryButton extends StatelessWidget {
           : null,
       excludeSemantics: true,
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+        constraints: const BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
         child: SizedBox(
           width: double.infinity,
-          height: 52.0,
+          height: 52,
           child: TextButton(
             onPressed: (isLoading || isDisabled)
                 ? null
@@ -128,7 +137,7 @@ class LoadingPrimaryButton extends StatelessWidget {
                     WidgetStateProperty.all(isDisabled ? color.withOpacity(0.5) : color),
                 shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18.0),
+                    borderRadius: BorderRadius.circular(18),
                   ),
                 )),
             child: isLoading
@@ -136,7 +145,7 @@ class LoadingPrimaryButton extends StatelessWidget {
                 : Text(
                     text,
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          fontSize: 15.0,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: isDisabled ? textColor.withOpacity(0.5) : textColor,
                         ),
@@ -175,53 +184,53 @@ class PrimaryIconButton extends StatelessWidget {
   final double radius;
 
   @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-      child: SizedBox(
-          width: double.infinity,
-          height: 52.0,
-          child: TextButton(
-            onPressed: onPressed,
-            style: ButtonStyle(
-                backgroundColor: WidgetStateProperty.all(color),
-                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(radius),
+  Widget build(BuildContext context) => ConstrainedBox(
+        constraints:
+            const BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+        child: SizedBox(
+            width: double.infinity,
+            height: 52.0,
+            child: TextButton(
+              onPressed: onPressed,
+              style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(color),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(radius),
+                    ),
+                  )),
+              child: Stack(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: mainAxisAlignment,
+                    children: <Widget>[
+                      Container(
+                        width: 26.0,
+                        height: 52.0,
+                        decoration:
+                            BoxDecoration(shape: BoxShape.circle, color: iconBackgroundColor),
+                        child: Center(
+                          child: Icon(iconData, color: iconColor, size: 22.0),
+                        ),
+                      ),
+                    ],
                   ),
-                )),
-            child: Stack(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: mainAxisAlignment,
-                  children: <Widget>[
-                    Container(
-                      width: 26.0,
-                      height: 52.0,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: iconBackgroundColor),
-                      child: Center(
-                        child: Icon(iconData, color: iconColor, size: 22.0),
+                  Container(
+                    height: 52.0,
+                    child: Center(
+                      child: Text(
+                        text,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 16,
+                              color: textColor,
+                            ),
                       ),
                     ),
-                  ],
-                ),
-                Container(
-                  height: 52.0,
-                  child: Center(
-                    child: Text(
-                      text,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 16,
-                            color: textColor,
-                          ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          )),
-    );
-  }
+                  )
+                ],
+              ),
+            )),
+      );
 }
 
 class PrimaryImageButton extends StatelessWidget {
@@ -232,6 +241,7 @@ class PrimaryImageButton extends StatelessWidget {
       required this.color,
       required this.textColor,
       this.borderColor = Colors.transparent,
+      this.testId,
       super.key});
 
   final VoidCallback onPressed;
@@ -240,42 +250,45 @@ class PrimaryImageButton extends StatelessWidget {
   final Color textColor;
   final Color borderColor;
   final String text;
+  final String? testId;
 
   @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52.0,
-        child: TextButton(
-          onPressed: onPressed,
-          style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.all(color),
-              shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
+  Widget build(BuildContext context) => TestId.merge(
+        testId ?? TestId.fromKey(key),
+        child: ConstrainedBox(
+          constraints:
+              BoxConstraints(maxWidth: ResponsiveLayoutUtilBase.kDesktopMaxWidthConstraint),
+          child: SizedBox(
+            width: double.infinity,
+            height: 52.0,
+            child: TextButton(
+              onPressed: onPressed,
+              style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.all(color),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                  )),
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    image,
+                    SizedBox(width: 15),
+                    Text(
+                      text,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                          ),
+                    )
+                  ],
                 ),
-              )),
-          child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                image,
-                SizedBox(width: 15),
-                Text(
-                  text,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                      ),
-                )
-              ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 }

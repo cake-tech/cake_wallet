@@ -118,12 +118,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
-      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
-      accountIndexes: [currentAccountIndex],
-      currentAccountIndex: currentAccountIndex,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
+      accounts: accounts,
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
@@ -500,6 +495,37 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);
   }
 
+  static Future<void> copyMwebBox({
+    required String fromName,
+    required String toName,
+  }) async {
+    final oldBoxName = "${fromName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final newBoxName = "${toName.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    if (oldBoxName == newBoxName) return;
+
+    final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
+    final newBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
+    for (final key in oldBox.keys) {
+      final utxo = oldBox.get(key)!;
+      await newBox.put(
+        key,
+        MwebUtxo(
+          height: utxo.height,
+          value: utxo.value,
+          address: utxo.address,
+          outputId: utxo.outputId,
+          blockTime: utxo.blockTime,
+          spent: utxo.spent,
+        ),
+      );
+    }
+  }
+
+  static Future<void> deleteMwebBox(String name) async {
+    final boxName = "${name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
+    final box = await CakeHive.openBox<MwebUtxo>(boxName);
+    await box.deleteFromDisk();
+  }
 
   @action
   @override

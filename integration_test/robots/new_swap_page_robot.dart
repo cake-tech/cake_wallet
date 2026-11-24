@@ -1,15 +1,20 @@
-import "package:cake_wallet/core/execution_state.dart";
-import "package:cake_wallet/exchange/limits_state.dart";
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_row.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_search_field.dart";
+import "package:cake_wallet/new-ui/widgets/modern_button.dart";
+import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
+import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_amount_box.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_confirm_sheet.dart";
-import "package:cake_wallet/src/widgets/primary_button.dart";
-import "package:cake_wallet/view_model/send/send_view_model_state.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "../core/base_robot.dart";
@@ -47,12 +52,11 @@ class NewSwapPageRobot extends BaseRobot {
       ),
     );
 
-    final chosen = await pumpUntil(
-      () => _isSameCurrency(
-        tester.widget<NewSwapPage>(find.byType(NewSwapPage)).exchangeViewModel.receiveCurrency,
-        currency,
-      ),
-    );
+    final chosen = await pumpUntil(() {
+      final payoutCurrency = _inputs?.payoutAmount.currency;
+
+      return payoutCurrency != null && _isSameCurrency(payoutCurrency, currency);
+    });
 
     expect(
       chosen,
@@ -66,53 +70,62 @@ class NewSwapPageRobot extends BaseRobot {
       (one.tag ?? "").toLowerCase() == (other.tag ?? "").toLowerCase();
 
   Future<void> confirmQuoteReceived({Duration timeout = const Duration(seconds: 90)}) async {
-    final received = await pumpUntil(() => _bestRate() > 0, timeout: timeout);
+    final received = await pumpUntil(() => _currentRates != null, timeout: timeout);
 
-    expect(received, true, reason: "No provider quote arrived within ${timeout.inSeconds}s");
+    expect(
+      received,
+      true,
+      reason: "No provider quote arrived within ${timeout.inSeconds}s, "
+          "the rates were ${_bloc?.rateCubit.state.runtimeType}",
+    );
   }
 
   Future<void> enterMinimumViableDepositAmount() async {
-    final limitsLoaded = await pumpUntil(
-      () => _limitsState() is LimitsLoadedSuccessfully,
-      timeout: const Duration(seconds: 90),
-    );
+    final inputs = _inputs;
 
-    expect(limitsLoaded, true, reason: "Provider limits never loaded");
+    expect(inputs, isNotNull, reason: "The swap page never showed its amounts");
 
-    final min = _limitsMin() ?? 0;
+    final limits = await _providerLimits(inputs!);
+
+    expect(limits, isNotEmpty, reason: "Provider limits never loaded");
+
+    final min = limits.any((limits) => limits.min == null)
+        ? null
+        : limits.map((limits) => limits.min!).reduce((a, b) => a < b ? a : b);
 
     // 5 percent over the minimum, so a small rate move does not invalidate the trade.
-    final amount = min > 0 ? (min * 1.05).toStringAsFixed(8) : "0.01";
+    final amount = min == null || min.isZero
+        ? "0.01"
+        : (min * BigInt.from(105) / BigInt.from(100)).toString();
     await enterDepositAmount(amount);
   }
 
   Future<String> enterTestReceiveAddress() async {
-    final exchangeViewModel =
-        tester.widget<NewSwapPage>(find.byType(NewSwapPage)).exchangeViewModel;
-    final receiveType = cryptoCurrencyOrTokenToWalletType(exchangeViewModel.receiveCurrency);
+    final payoutCurrency = _inputs?.payoutAmount.currency;
+    final receiveType =
+        payoutCurrency == null ? null : cryptoCurrencyOrTokenToWalletType(payoutCurrency);
     final address = receiveType == null ? "" : TestWallets.receiveAddressFor(receiveType);
 
     expect(
       address.isNotEmpty,
       true,
-      reason: "No test receive address for ${exchangeViewModel.receiveCurrency.title}",
+      reason: "No test receive address for ${payoutCurrency?.title}",
     );
 
-    final receiveCard = find.byWidgetPredicate(
-      (widget) => widget is SwapAmountBox && widget.isReceiverCard,
-    );
+    await Clipboard.setData(ClipboardData(text: address));
+    await tapWhenVisible(_receivePasteButton);
 
-    tester.state<SwapAmountBoxState>(receiveCard).addressController.text = address;
-    await settle();
+    final entered = await pumpUntil(() => _inputs?.payoutAddress?.address == address);
+
+    expect(entered, true, reason: "The swap page did not take $address as the receive address");
 
     return address;
   }
 
   Future<void> confirmSwapButtonEnabled({Duration timeout = TestConfig.walletSyncBudget}) async {
-    final button = find.byKey(const ValueKey("exchange_page_exchange_button_key"));
-
     final enabled = await pumpUntil(
-      () => tester.any(button) && !tester.widget<LoadingPrimaryButton>(button).isDisabled,
+      () =>
+          tester.any(_swapButton) && !tester.widget<NewPrimaryButton>(_swapButton.first).disabled,
       timeout: timeout,
     );
 
@@ -124,16 +137,34 @@ class NewSwapPageRobot extends BaseRobot {
   }
 
   Future<void> tapSwapButton() async {
-    await tapByKey("exchange_page_exchange_button_key");
+    await tapWhenVisible(_swapButton);
   }
 
   Future<void> confirmTradeCreated({Duration timeout = const Duration(minutes: 2)}) async {
     await pumpUntilFound(find.byType(SwapConfirmSheet), timeout: timeout);
+
+    SwapState? lastState;
+
+    await pumpUntil(
+      () {
+        lastState = _sheetState;
+
+        return lastState is SwapStateWithTrade || lastState is SwapFailureState;
+      },
+      timeout: timeout,
+    );
+
+    expect(
+      lastState,
+      isA<SwapStateWithTrade>(),
+      reason: "No trade was created within ${timeout.inMinutes}m, "
+          "the sheet reported ${_describe(lastState)}",
+    );
   }
 
   void confirmPayoutAddress(String expected) {
-    final sheet = tester.widget<SwapConfirmSheet>(find.byType(SwapConfirmSheet));
-    final payout = sheet.exchangeTradeViewModel.trade.payoutAddress ?? "";
+    final state = _sheetState;
+    final payout = state is SwapStateWithTrade ? state.trade.payoutAddress : "";
     final isHex = expected.startsWith("0x");
 
     expect(
@@ -144,68 +175,110 @@ class NewSwapPageRobot extends BaseRobot {
   }
 
   Future<void> confirmDepositCommitted({Duration timeout = const Duration(minutes: 3)}) async {
-    ExecutionState? lastState;
+    SwapState? lastState;
 
-    final committed = await pumpUntil(
+    final settled = await pumpUntil(
       () {
-        final sheet = find.byType(SwapConfirmSheet);
-
-        if (!tester.any(sheet)) {
+        if (!tester.any(find.byType(SwapConfirmSheet))) {
           return true;
         }
 
-        lastState =
-            tester.widget<SwapConfirmSheet>(sheet).exchangeTradeViewModel.sendViewModel.state;
+        lastState = _sheetState;
 
-        return lastState is TransactionCommitted;
+        return lastState is SwapTransactionCommitted || lastState is SwapFailureState;
       },
       timeout: timeout,
     );
 
     expect(
-      committed,
+      settled,
       true,
       reason: "The deposit never committed within ${timeout.inMinutes}m, "
-          "the sheet reported ${lastState.runtimeType}",
+          "the sheet reported ${_describe(lastState)}",
     );
 
     expect(
       lastState,
-      isA<TransactionCommitted>(),
-      reason: "The confirm sheet closed before the deposit committed, "
-          "it last reported ${lastState.runtimeType}",
+      isA<SwapTransactionCommitted>(),
+      reason: "The deposit did not commit, the sheet last reported ${_describe(lastState)}",
+    );
+
+    await tapWhenVisible(
+      find.descendant(
+        of: find.byType(TransactionCommitedScreen),
+        matching: find.byType(NewPrimaryButton),
+      ),
     );
 
     await pumpUntilGone(find.byType(NewSwapPage));
   }
 
-  double? _limitsMin() {
+  Future<List<ExchangeLimits>> _providerLimits(SwapStateWithInputs inputs) async {
+    final registry = getIt.get<ExchangeProviderRegistry>();
+
+    final limits = await Future.wait(
+      inputs.usableProviders.map(
+        (provider) => registry
+            .getProvider(provider)
+            .fetchLimits(
+              from: inputs.depositAmount.currency,
+              to: inputs.payoutAmount.currency,
+              isFixedRateMode: false,
+            )
+            .timeout(const Duration(seconds: 7))
+            .then<ExchangeLimits?>((limits) => limits, onError: (_) => null),
+      ),
+    );
+
+    return limits.whereType<ExchangeLimits>().toList();
+  }
+
+  static String _describe(SwapState? state) => switch (state) {
+        final SwapFailureState failure => "${failure.runtimeType}: ${failure.error}",
+        _ => "${state.runtimeType}",
+      };
+
+  Finder get _swapButton => find.descendant(
+        of: find.byType(NewSwapPage),
+        matching: find.byType(NewPrimaryButton),
+      );
+
+  Finder get _receivePasteButton => find.descendant(
+        of: find.byWidgetPredicate((widget) => widget is SwapAmountBox && widget.isReceiverCard),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is ModernButton && widget.svgPath == "assets/new-ui/paste.svg",
+        ),
+      );
+
+  SwapBloc? get _bloc {
     final finder = find.byType(NewSwapPage);
 
     if (!tester.any(finder)) {
       return null;
     }
 
-    return tester.widget<NewSwapPage>(finder.first).exchangeViewModel.limits.min;
+    return tester.widget<NewSwapPage>(finder.first).bloc;
   }
 
-  LimitsState? _limitsState() {
-    final finder = find.byType(NewSwapPage);
+  SwapStateWithInputs? get _inputs {
+    final state = _bloc?.state;
+
+    return state is SwapStateWithInputs ? state : null;
+  }
+
+  RatesLoaded? get _currentRates {
+    final rates = _bloc?.rateCubit.state;
+
+    return rates is RatesLoaded && rates.request == _inputs?.rateRequest ? rates : null;
+  }
+
+  SwapState? get _sheetState {
+    final finder = find.byType(SwapConfirmSheet);
 
     if (!tester.any(finder)) {
       return null;
     }
 
-    return tester.widget<NewSwapPage>(finder.first).exchangeViewModel.limitsState;
-  }
-
-  double _bestRate() {
-    final finder = find.byType(NewSwapPage);
-
-    if (!tester.any(finder)) {
-      return 0;
-    }
-
-    return tester.widget<NewSwapPage>(finder.first).exchangeViewModel.bestRate;
+    return tester.widget<SwapConfirmSheet>(finder.first).bloc.state;
   }
 }

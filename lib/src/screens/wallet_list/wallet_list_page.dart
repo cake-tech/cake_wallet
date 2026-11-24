@@ -180,7 +180,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final isExpanded = _viewModel.expansionTileStateTrack[index] ?? false;
 
     return GroupedWalletExpansionTile(
-      tileKey: ValueKey("group_wallets_expansion_tile_widget_$index"),
+      tileKey: ValueKey("wallet_list_group_${index}_key"),
       title: groupName,
       borderRadius: _tileRadius,
       isSelected: false,
@@ -188,6 +188,7 @@ class WalletListBodyState extends State<WalletListBody> {
       onExpansionChanged: (value) => setState(() => _viewModel.updateTileState(index, value)),
       leadingWidget: _GroupLeading(icon: group.icon),
       trailingWidget: EditWalletButtonWidget(
+        key: ValueKey("wallet_list_group_${index}_edit_button_key"),
         width: 88,
         isGroup: true,
         isExpanded: isExpanded,
@@ -207,8 +208,9 @@ class WalletListBodyState extends State<WalletListBody> {
     final title = group?.groupName ?? wallet.name;
 
     return GroupedWalletExpansionTile(
-      tileKey: ValueKey("single_wallets_expansion_tile_widget_$index"),
+      tileKey: ValueKey("wallet_list_single_wallet_${index}_key"),
       title: title,
+      titleSemanticsLabel: "$title, ${walletTypeToDisplayName(wallet.type)}",
       borderRadius: _tileRadius,
       margin: const EdgeInsets.only(left: 20, right: 20, bottom: 12),
       isSelected: false,
@@ -218,7 +220,7 @@ class WalletListBodyState extends State<WalletListBody> {
       trailingWidget: group == null
           ? null
           : EditWalletButtonWidget(
-              key: ValueKey("wallet_list_edit_${wallet.name}_button_key"),
+              key: ValueKey("wallet_list_single_wallet_${index}_edit_button_key"),
               width: 64,
               onTap: () => _openGroupEdit(group),
             ),
@@ -419,17 +421,17 @@ class _SingleWalletLeading extends StatelessWidget {
         children: [
           wallet.isCurrent
               ? Container(
-            height: 35,
-            width: 6,
-            margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(18),
-                bottomRight: Radius.circular(18),
-              ),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          )
+                  height: 35,
+                  width: 6,
+                  margin: const EdgeInsets.only(right: 16),
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(18),
+                      bottomRight: Radius.circular(18),
+                    ),
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                )
               : const SizedBox(width: 6),
           if (hasGroupIcon)
             WalletIconAvatar(
@@ -572,5 +574,3 @@ class _GroupLeading extends StatelessWidget {
     return WalletIconAvatar(icon: icon, size: _iconSize, contentSize: _iconContentSize);
   }
 }
-
-

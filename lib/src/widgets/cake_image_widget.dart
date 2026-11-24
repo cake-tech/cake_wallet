@@ -93,8 +93,7 @@ class CakeImageWidget extends StatelessWidget {
             width: width,
             errorBuilder: (_, __, ___) => SizedBox(height: height, width: width),
             colorFilter: effectiveColorFilter,
-            semanticsLabel: semanticsLabel,
-            excludeFromSemantics: _isDecorative,
+            excludeFromSemantics: true,
             fit: fit ?? BoxFit.contain,
           );
         });

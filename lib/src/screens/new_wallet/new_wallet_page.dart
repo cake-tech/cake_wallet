@@ -18,6 +18,7 @@ import 'package:cake_wallet/src/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:cake_wallet/utils/responsive_layout_util.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/seed_settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -182,7 +183,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                                 fontSize: 16.0,
                               ),
                           hintText: S.of(context).wallet_name,
-                          suffixIcon: Semantics(
+                          suffixIcon: TestId.merge("new_wallet_page_wallet_name_textformfield_generate_name_button_key",
                             label: S.of(context).generate_name,
                             child: IconButton(
                               key: ValueKey(

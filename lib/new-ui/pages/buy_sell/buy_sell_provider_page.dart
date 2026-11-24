@@ -46,6 +46,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
           child: Column(
             children: [
               ModalTopBar(
+                testId: "buy_sell_provider_page_top_bar",
                 title: _pageTitle,
                 leadingIcon: const Icon(Icons.arrow_back_ios_new),
                 onLeadingPressed: Navigator.of(context).pop,
@@ -75,12 +76,28 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                     if (widget.buySellViewModel.buySellQuotState is BuySellQuotFailed) {
                       final recommendedFiat = widget.buySellViewModel.recommendedFiat;
 
-                      return BuySellQuoteFailure(
-                        state: widget.buySellViewModel.buySellQuotState as BuySellQuotFailed,
-                        recommendedFiat: recommendedFiat == widget.buySellViewModel.fiatCurrency
-                            ? null
-                            : recommendedFiat,
-                        onRetryPressed: widget.buySellViewModel.retryWithRecommendedFiat,
+                      return Column(
+                        children: [
+                          if (widget.buySellViewModel.paymentMethodState is PaymentMethodLoaded)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 18),
+                              child: NewListSections(
+                                sections: {
+                                  "": [paymentMethodListItem()],
+                                },
+                              ),
+                            ),
+                          Expanded(
+                            child: BuySellQuoteFailure(
+                              state: widget.buySellViewModel.buySellQuotState as BuySellQuotFailed,
+                              recommendedFiat:
+                                  recommendedFiat == widget.buySellViewModel.fiatCurrency
+                                      ? null
+                                      : recommendedFiat,
+                              onRetryPressed: widget.buySellViewModel.retryWithRecommendedFiat,
+                            ),
+                          ),
+                        ],
                       );
                     }
 
@@ -91,27 +108,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
                         child: NewListSections(
                           showHeader: true,
                           sections: {
-                            "": [
-                              ListItemRegularRow(
-                                keyValue: "payment method",
-                                label: S.of(context).payment_method,
-                                showArrow: true,
-                                onTap: () {
-                                  final page = BuySellPaymentMethodPage(
-                                    buySellViewModel: widget.buySellViewModel,
-                                  );
-                                  Navigator.of(context).push(
-                                    CupertinoPageRoute(
-                                      builder: (context) => Material(
-                                        color: Colors.transparent,
-                                        child: page,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                trailingText: widget.buySellViewModel.selectedPaymentMethod?.title,
-                              ),
-                            ],
+                            "": [paymentMethodListItem()],
                             S.of(context).available_providers: [
                               ...widget.buySellViewModel.sortedRecommendedQuotes.map(quoteListItem),
                               if (widget.buySellViewModel.sortedQuotes.isNotEmpty)
@@ -142,10 +139,30 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
   String get _pageTitle =>
       "${widget.buySellViewModel.mode == BuySellPageMode.buy ? S.current.buy : S.current.sell} ${widget.buySellViewModel.cryptoCurrency.fullName ?? ""}";
 
+  ListItem paymentMethodListItem() => ListItemRegularRow(
+        keyValue: "payment method",
+        label: S.of(context).payment_method,
+        showArrow: true,
+        onTap: () {
+          final page = BuySellPaymentMethodPage(
+            buySellViewModel: widget.buySellViewModel,
+          );
+          Navigator.of(context).push(
+            CupertinoPageRoute(
+              builder: (context) => Material(
+                color: Colors.transparent,
+                child: page,
+              ),
+            ),
+          );
+        },
+        trailingText: widget.buySellViewModel.selectedPaymentMethod?.title,
+      );
+
   ListItem quoteListItem(Quote quote) {
     final fiatAmount = widget.buySellViewModel.fiatAmountForQuote(quote);
     return ListItemRegularRow(
-      keyValue: quote.provider.title+(quote.rampName??""),
+      keyValue: [quote.provider.title, quote.rampId ?? "", quote.paymentType.name].join("|"),
       label: quote.rampName ?? quote.provider.title,
       secondaryLabel: quote.rampName != null ? quote.provider.title : null,
       subtitle: quote.badges.isEmpty ? null : quote.badges.join(" - "),

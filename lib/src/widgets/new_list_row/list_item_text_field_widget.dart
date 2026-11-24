@@ -1,12 +1,10 @@
-import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart";
+import "package:cake_wallet/utils/test_id.dart";
+import "package:flutter/material.dart";
 
 class ListItemTextFieldWidget extends StatefulWidget {
   const ListItemTextFieldWidget({
-    super.key,
-    required this.keyValue,
-    required this.label,
-    required this.controller,
+    required this.keyValue, required this.label, required this.controller, super.key,
     this.validator,
     this.onChanged,
     this.onFieldSubmitted,
@@ -20,6 +18,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
     this.disabledBorder = InputBorder.none,
     this.suffixIcon,
     this.suffixIconConstraints,
+    this.testId,
   });
 
   final String keyValue;
@@ -38,6 +37,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final InputBorder disabledBorder;
   final Widget? suffixIcon;
   final BoxConstraints? suffixIconConstraints;
+  final String? testId;
 
   @override
   State<ListItemTextFieldWidget> createState() => _ListItemTextFieldWidgetState();
@@ -50,8 +50,10 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
         isLastInSection: widget.isLastInSection,
         height: widget.height,
         builder: (context, textStyle, labelStyle) => Row(
-            children: [
-              Expanded(
+          children: [
+            Expanded(
+              child: TestId.container(
+                widget.testId,
                 child: TextFormField(
                   controller: widget.controller,
                   validator: widget.validator,
@@ -73,6 +75,8 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
                   ),
                 ),
               ),
-            ],
-          ));
+            ),
+          ],
+        ),
+      );
 }

@@ -29,6 +29,7 @@ class LightningSwitcher extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
+      identifier: "home_page_lightning_switch_key",
       button: true,
       toggled: lightningMode,
       label: S.of(context).lightning_mode,

@@ -163,6 +163,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
       newItems.add(
         AccountCustomizerListItem(
           card: BalanceCard(
+            excludeAccountName: true,
             accountName: "${account.id + 1}. $accountLabel",
             accountBalance: account.balance,
             fiatBalance:
@@ -205,6 +206,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "wallet_accounts_page_top_bar",
               title: S.of(context).accounts,
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,
@@ -387,6 +389,7 @@ class _WalletAccountsPageState extends State<WalletAccountsPage> {
     for (int i = 0; i < _items.length; i++) {
       _items[i] = AccountCustomizerListItem(
         card: BalanceCard(
+          excludeAccountName: true,
           accountName: _items[i].card.accountName,
           balance: _items[i].card.balance,
           accountIndex: _items[i].card.accountIndex,
@@ -469,6 +472,9 @@ class _AccountCards extends StatelessWidget {
               return Container(
                 key: ValueKey(items[index].accountListItem.id),
                 child: Semantics(
+                  container: true,
+                  explicitChildNodes: true,
+                  identifier: "wallet_accounts_page_account_${index}_key",
                   button: true,
                   selected: selectedItemIndex == index,
                   label: "${items[index].accountListItem.id + 1}. "

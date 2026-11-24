@@ -4,7 +4,9 @@ import "package:flutter/services.dart";
 
 class ChainIcon extends StatelessWidget {
   const ChainIcon({
-    required this.iconPath, required this.openChainSelection, super.key,
+    required this.iconPath,
+    required this.openChainSelection,
+    super.key,
   });
 
   static const _containerRadius = 12.0;

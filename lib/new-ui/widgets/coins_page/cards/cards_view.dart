@@ -71,10 +71,12 @@ class _CardsViewState extends State<CardsView> {
   static const double compactOverlap = 5;
   static const double regularOverlap = 46;
 
+  /// Bitcoin with multi-accounts off always renders a single card, in any mode.
   bool get _isSingleCardWallet =>
       widget.dashboardViewModel.wallet.type == WalletType.bitcoin &&
       !widget.dashboardViewModel.isMultiAccountsEnabled;
 
+  /// No account name on the card: Lightning card, or a single-card wallet.
   bool get _hideAccountInfo => widget.lightningMode || _isSingleCardWallet;
 
   Widget _buildCard(int visualIndex, int realIndex, int numCards, double parentWidth,
@@ -84,6 +86,8 @@ class _CardsViewState extends State<CardsView> {
 
     final howFarBehind = (_selectedIndex - visualIndex + numCards) % numCards;
 
+    // In Lightning mode every card is full size so the background cards hide
+    // exactly behind the front card instead of showing stepped edges.
     final scale = widget.lightningMode ? 1.0 : pow(scaleFactor, howFarBehind).toDouble();
 
     final top = baseTop - (howFarBehind * overlapAmount);
@@ -91,6 +95,7 @@ class _CardsViewState extends State<CardsView> {
 
     final isSelected = _selectedIndex == visualIndex;
 
+    // In Lightning mode the account stack collapses behind the front card.
     final isCollapsedAway = widget.lightningMode && !isSelected;
 
     final accounts = widget.accountListViewModel?.accounts;
@@ -127,6 +132,7 @@ class _CardsViewState extends State<CardsView> {
         child: ExcludeSemantics(
           excluding: isCollapsedAway,
           child: AnimatedOpacity(
+            // Fast fade-out going into Lightning, slower fade-in coming back.
             duration: isCollapsedAway ? fadeOutDuration : fadeInDuration,
             curve: isCollapsedAway ? Curves.easeOut : Curves.easeIn,
             opacity: isCollapsedAway ? 0 : 1,
@@ -134,7 +140,12 @@ class _CardsViewState extends State<CardsView> {
               duration: animDuration,
               curve: animCurve,
               scale: scale,
+              // The card is the tap target; the balances and the card's own buttons stay
+              // reachable as children of this node.
               child: Semantics(
+                container: true,
+                explicitChildNodes: true,
+                identifier: "home_page_balance_card_${realIndex}_key",
                 button: true,
                 selected: isSelected,
                 label: cardLabel,
@@ -153,6 +164,8 @@ class _CardsViewState extends State<CardsView> {
                   child: Observer(builder: (_) {
                     final account = widget.accountListViewModel?.accounts
                         .firstWhereOrNull((account) => account.id == realIndex);
+
+                    // The second balance should always be the lightning balance
                     final walletBalanceRecord = widget.dashboardViewModel.balanceViewModel
                         .getMainBalanceRecord(widget.lightningMode);
 
@@ -178,6 +191,8 @@ class _CardsViewState extends State<CardsView> {
                       walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
                     }
 
+                    // the card designs is empty if widget gets built before it loads.
+                    // should get populated before user sees anything
                     final designIndex = widget.dashboardViewModel.cardAccountIndices.indexOf(
                       widget.lightningMode ? -2 : realIndex,
                     );
@@ -195,6 +210,7 @@ class _CardsViewState extends State<CardsView> {
                         : walletBalanceRecord?.formattedAssetTitle ?? assetTitleFallback;
 
                     return BalanceCard(
+                      excludeAccountName: true,
                       width: effectiveCardWidth,
                       accountName: accountName,
                       accountBalance: accountBalance,
@@ -265,6 +281,8 @@ class _CardsViewState extends State<CardsView> {
         final parentWidth = MediaQuery.sizeOf(context).width;
         final children = <Widget>[];
 
+        // The account stack stays built in Lightning mode so it can animate
+        // in and out instead of being swapped for a separate single card.
         final stack = _isSingleCardWallet
             ? const [0]
             : BalanceCardLayout.stackFromOrder(widget.dashboardViewModel.cardOrder);

@@ -35,6 +35,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
     this.isEnabled = true,
     this.leadingWidget,
     this.secondaryLabel,
+    this.testId,
   });
 
   final String keyValue;
@@ -67,6 +68,7 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final Color? iconColor;
   final Widget? leadingWidget;
   final bool isEnabled;
+  final String? testId;
 
   static const _disabledOpacity = 0.38;
 
@@ -84,6 +86,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
         duration: const Duration(milliseconds: 150),
         child: ListItemStyleWrapper(
             key: ValueKey(copied),
+            testId: testId,
+            mergeTestId: trailingWidget == null && bottomWidget == null,
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
             leadingAccessory: null,
             onTap: isEnabled ? onTap : null,
@@ -203,7 +207,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                                   ),
                                                 )
                                               else
-                                                Text(label, style: labelTextStyle),
+                                                Flexible(
+                                                  child: Text(label, style: labelTextStyle),
+                                                ),
                                               if (secondaryLabel != null)
                                                 Text(
                                                   secondaryLabel!,

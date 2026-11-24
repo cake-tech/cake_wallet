@@ -25,6 +25,8 @@ const Duration _kSwitchDuration = Duration(milliseconds: 200);
 
 const double _kTrailingTextHorizontalPadding = 16;
 
+const String _kDefaultTestId = "modal_top_bar";
+
 class ModalTopBar extends StatelessWidget {
   ModalTopBar({
     required this.title,
@@ -43,6 +45,7 @@ class ModalTopBar extends StatelessWidget {
     this.alignTitleLeft = false,
     this.leadingSemanticLabel,
     this.trailingSemanticLabel,
+    this.testId,
   }) {
     if (leadingIcon != null && leadingWidget != null) {
       throw ArgumentError("Cannot have both leadingIcon and leadingWidget");
@@ -72,10 +75,13 @@ class ModalTopBar extends StatelessWidget {
   final bool alignTitleLeft;
   final String? leadingSemanticLabel;
   final String? trailingSemanticLabel;
+  final String? testId;
 
   bool get _hasBottomText => bottomText != null && bottomText!.isNotEmpty;
 
   bool get _hasSubtitle => subtitle != null && subtitle!.isNotEmpty;
+
+  String get _baseTestId => testId ?? _kDefaultTestId;
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +90,7 @@ class ModalTopBar extends StatelessWidget {
       bottomText: _hasBottomText ? bottomText : null,
       titleLeadingWidget: titleLeadingWidget,
       alignLeft: alignTitleLeft,
+      testId: "${_baseTestId}_title_key",
     );
     final subtitleWidget = _hasSubtitle ? _Subtitle(text: subtitle!) : null;
 
@@ -108,13 +115,18 @@ class ModalTopBar extends StatelessWidget {
       onPressed: onLeadingPressed,
       icon: leadingIcon!,
       semanticLabel: leadingSemanticLabel,
+      testId: "${_baseTestId}_leading_key",
       iconColor: Theme.of(context).colorScheme.onSurfaceVariant,
     );
   }
 
   Widget _buildTrailing() {
     if (trailingText != null) {
-      return _TrailingTextButton(text: trailingText!, onPressed: onTrailingPressed);
+      return _TrailingTextButton(
+        text: trailingText!,
+        onPressed: onTrailingPressed,
+        testId: "${_baseTestId}_trailing_key",
+      );
     }
     if (trailingIcon == null && trailingWidget == null) {
       return const SizedBox(width: _kButtonSize);
@@ -127,8 +139,9 @@ class ModalTopBar extends StatelessWidget {
               key: ValueKey(trailingIcon.hashCode),
               size: _kButtonSize,
               onPressed: onTrailingPressed,
-              icon: trailingIcon,
+              icon: trailingIcon!,
               semanticLabel: trailingSemanticLabel,
+              testId: "${_baseTestId}_trailing_key",
             )
           : trailingWidget!,
     );
@@ -194,17 +207,20 @@ class _TitleBlock extends StatelessWidget {
     required this.bottomText,
     required this.titleLeadingWidget,
     required this.alignLeft,
+    required this.testId,
   });
 
   final String title;
   final String? bottomText;
   final Widget? titleLeadingWidget;
   final bool alignLeft;
+  final String testId;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasBottomText = bottomText != null;
+    final hasTitle = title.isNotEmpty;
     final titleStyle = theme.textTheme.headlineMedium?.copyWith(
       fontSize: hasBottomText ? _kTitleFontSizeWithBottomText : _kTitleFontSize,
     );
@@ -217,10 +233,12 @@ class _TitleBlock extends StatelessWidget {
           duration: _kSwitchDuration,
           child: Semantics(
             key: ValueKey(title),
-            header: title.isNotEmpty,
+            container: hasTitle,
+            identifier: hasTitle ? testId : null,
+            header: hasTitle,
             // Android reads the heading from headingLevel since the
             // Flutter 3.41 engine; header: alone only covers iOS.
-            headingLevel: title.isNotEmpty ? 1 : null,
+            headingLevel: hasTitle ? 1 : null,
             child: titleLeadingWidget == null
                 ? Text(title, style: titleStyle)
                 : Row(
@@ -272,10 +290,15 @@ class _Subtitle extends StatelessWidget {
 }
 
 class _TrailingTextButton extends StatelessWidget {
-  const _TrailingTextButton({required this.text, required this.onPressed});
+  const _TrailingTextButton({
+    required this.text,
+    required this.onPressed,
+    required this.testId,
+  });
 
   final String text;
   final VoidCallback onPressed;
+  final String testId;
 
   @override
   Widget build(BuildContext context) {
@@ -283,6 +306,7 @@ class _TrailingTextButton extends StatelessWidget {
     final scheme = theme.colorScheme;
 
     return Semantics(
+      identifier: testId,
       button: true,
       label: text,
       excludeSemantics: true,

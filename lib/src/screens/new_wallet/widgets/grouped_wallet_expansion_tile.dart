@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/new-ui/entries/omnichain_wallet/wallet_icon.dart";
 import "package:cake_wallet/new-ui/widgets/image_widgets/wallet_icon_widget.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import "package:cw_core/wallet_type.dart";
@@ -80,7 +81,8 @@ class GroupedWalletExpansionTile extends StatelessWidget {
         ? WalletIconAvatar(icon: walletIcon, size: 32, contentSize: 24)
         : leadingWidget;
 
-    final currentSuffix = ', ${S.of(context).current_wallet}';
+    final currentSuffix = ", ${S.of(context).current_wallet}";
+    final baseTestId = TestId.fromKey(tileKey);
 
     if (childWallets.isEmpty) {
       return Padding(
@@ -91,19 +93,22 @@ class GroupedWalletExpansionTile extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: ListTile(
             contentPadding:
-            EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
+                EdgeInsets.symmetric(vertical: 1, horizontal: !isCurrentlySelectedWallet ? 16 : 0),
             leading: effectiveLeadingWidget,
-            title: Text(
-              walletNameToDisplay(title),
-              semanticsLabel: isCurrentlySelectedWallet
-                  ? '${titleSemanticsLabel ?? title}$currentSuffix'
-                  : titleSemanticsLabel,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: effectiveTextColor,
+            title: Semantics(
+              identifier: baseTestId,
+              child: Text(
+                walletNameToDisplay(title),
+                semanticsLabel: isCurrentlySelectedWallet
+                    ? "${titleSemanticsLabel ?? title}$currentSuffix"
+                    : titleSemanticsLabel,
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: effectiveTextColor,
+                    ),
+                textAlign: TextAlign.left,
               ),
-              textAlign: TextAlign.left,
             ),
             trailing: trailingWidget ?? const SizedBox.shrink(),
             onTap: onTitleTapped,
@@ -113,7 +118,7 @@ class GroupedWalletExpansionTile extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: ExpansionTile(
         shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
         collapsedShape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(18)),
@@ -130,16 +135,19 @@ class GroupedWalletExpansionTile extends StatelessWidget {
         collapsedIconColor: effectiveArrowColor,
         leading: effectiveLeadingWidget,
         trailing: trailingWidget,
-        title: GestureDetector(
-          onTap: onTitleTapped,
-          child: Text(
-            walletNameToDisplay(title),
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: effectiveTextColor,
-                ),
-            textAlign: TextAlign.left,
+        title: Semantics(
+          identifier: baseTestId,
+          child: GestureDetector(
+            onTap: onTitleTapped,
+            child: Text(
+              walletNameToDisplay(title),
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
+                    color: effectiveTextColor,
+                  ),
+              textAlign: TextAlign.left,
+            ),
           ),
         ),
         children: childWallets.asMap().entries.map(
@@ -150,46 +158,49 @@ class GroupedWalletExpansionTile extends StatelessWidget {
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.surface;
 
-            return ListTile(
-              contentPadding: EdgeInsets.zero,
-              key: ValueKey('${index}_${item.name}'),
-              trailing: childTrailingWidget?.call(item),
-              onTap: () => onChildItemTapped(item),
-              leading: SizedBox(
-                width: 64,
-                child: Row(
-                  children: [
-                    item.isCurrent && shouldShowCurrentWalletPointer
-                        ? Container(
-                            height: 35,
-                            width: 6,
-                            decoration: BoxDecoration(
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(16),
-                                bottomRight: Radius.circular(16),
+            return TestId.container(
+              baseTestId?.replaceFirst(RegExp(r"_key$"), "_wallet_${index}_key"),
+              child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                key: ValueKey('${index}_${item.name}'),
+                trailing: childTrailingWidget?.call(item),
+                onTap: () => onChildItemTapped(item),
+                leading: SizedBox(
+                  width: 64,
+                  child: Row(
+                    children: [
+                      item.isCurrent && shouldShowCurrentWalletPointer
+                          ? Container(
+                              height: 35,
+                              width: 6,
+                              decoration: BoxDecoration(
+                                borderRadius: const BorderRadius.only(
+                                  topRight: Radius.circular(16),
+                                  bottomRight: Radius.circular(16),
+                                ),
+                                color: currentColor,
                               ),
-                              color: currentColor,
-                            ),
-                          )
-                        : const SizedBox(width: 7),
-                    const SizedBox(width: 24),
-                    CakeImageWidget(
-                      imageUrl: getCryptoCurrencyIconForWalletListItem(item.type),
-                      width: 32,
-                      height: 32,
-                    ),
-                  ],
+                            )
+                          : const SizedBox(width: 7),
+                      const SizedBox(width: 24),
+                      CakeImageWidget(
+                        imageUrl: getCryptoCurrencyIconForWalletListItem(item.type),
+                        width: 32,
+                        height: 32,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              title: Text(
-                walletTypeToDisplayName(item.type),
-                semanticsLabel: "${walletTypeToDisplayName(item.type)}"
-                    '${item.isCurrent && shouldShowCurrentWalletPointer ? currentSuffix : ''}',
-                maxLines: 2,
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: effectiveTextColor,
+                title: Text(
+                  walletTypeToDisplayName(item.type),
+                  semanticsLabel: "${walletTypeToDisplayName(item.type)}"
+                      '${item.isCurrent && shouldShowCurrentWalletPointer ? currentSuffix : ''}',
+                  maxLines: 2,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: effectiveTextColor,
+                      ),
                 ),
               ),
             );
