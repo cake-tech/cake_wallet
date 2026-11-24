@@ -82,6 +82,7 @@ void main() {
     when(() => addresses.hasAddressRotation).thenReturn(false);
     when(() => addresses.hasAddressList).thenReturn(false);
     when(() => addresses.hasPayjoin).thenReturn(false);
+    when(() => addresses.hasTokensList).thenReturn(false);
     when(() => addresses.qrImage).thenReturn("assets/images/xmr_chain_qr.svg");
     when(() => addresses.isLightning).thenReturn(false);
     when(() => options.options).thenReturn([ReceivePageOption.mainnet]);
