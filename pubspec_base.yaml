@@ -260,6 +260,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/ask_cake/
     - assets/images/evm_switcher_icons/
     - assets/images/flags/
     - assets/images/hardware_wallet/
