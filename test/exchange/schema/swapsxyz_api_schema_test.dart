@@ -455,15 +455,19 @@ void main() {
       expect(json.values.whereType<String>(), hasLength(json.length));
     });
 
-    test("SwapsXyzTxRegistrationRequest carries the undocumented vmId and chainId too", () {
-      final json = const SwapsXyzTxRegistrationRequest(
-        txId: "0xtxid",
-        txHash: "0xhash",
-        vmId: "evm",
-        chainId: 1,
-      ).toJson();
+    test("SwapsXyzTxRegistrationRequest is the spec's TxRegistrationEvent and nothing more", () {
+      final json = const SwapsXyzTxRegistrationRequest(txId: "0xtxid", txHash: "0xhash").toJson();
 
-      expect(json, {"txId": "0xtxid", "txHash": "0xhash", "vmId": "evm", "chainId": 1});
+      expect(json, {"txId": "0xtxid", "txHash": "0xhash"});
+    });
+
+    test("SwapsXyzTxRegistrationRequest reads the array registerTxs answers with", () {
+      final results = const SwapsXyzTxRegistrationRequest(txId: "0xtxid", txHash: "0xhash").decode([
+        {"txId": "0xtxid", "success": false, "error": "Failed to register transaction"},
+      ]);
+
+      expect(results.single.success, isFalse);
+      expect(results.single.error, "Failed to register transaction");
     });
 
     test("SwapsXyzStatusRequest can look up by txId or by hash and chain", () {
