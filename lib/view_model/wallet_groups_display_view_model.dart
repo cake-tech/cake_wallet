@@ -1,13 +1,18 @@
 import 'dart:async';
 
+import "package:cake_wallet/core/execution_state.dart";
+import "package:cake_wallet/core/new_wallet_arguments.dart";
 import 'package:cake_wallet/core/wallet_loading_service.dart';
+import "package:cake_wallet/entities/seed_type.dart";
 import 'package:cake_wallet/entities/wallet_group.dart';
 import "package:cake_wallet/core/services/wallet_group_service.dart";
 import 'package:cake_wallet/new-ui/utils/omnichain_compatibility.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import "package:cake_wallet/view_model/wallet_new_vm.dart";
 import 'package:cake_wallet/wallet_types.g.dart';
+import "package:cw_core/generate_name.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -24,7 +29,9 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
     this._walletManager,
     this.walletListViewModel, {
     required this.type,
-  }) : isFetchingMnemonic = false {
+    required WalletNewVM Function(NewWalletArguments) walletNewVMBuilder,
+  })  : _walletNewVMBuilder = walletNewVMBuilder,
+        isFetchingMnemonic = false {
     reaction((_) => _appStore.wallet, (_) => unawaited(updateWalletInfoSourceList()));
     unawaited(updateWalletInfoSourceList());
   }
@@ -34,6 +41,11 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
   final WalletGroupService _walletManager;
   final WalletLoadingService _walletLoadingService;
   final WalletListViewModel walletListViewModel;
+
+  final WalletNewVM Function(NewWalletArguments) _walletNewVMBuilder;
+
+  @observable
+  bool isCreatingWallet = false;
 
   @observable
   ObservableList<WalletGroup> multiWalletGroups = ObservableList<WalletGroup>();
@@ -73,11 +85,20 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
       }
     }
 
+    // Already open: read its seed instead of opening a second copy.
+    final current = _appStore.wallet;
+    if (current != null && current.walletInfo.id == walletInfo.id) {
+      return current.seed;
+    }
+
     try {
       isFetchingMnemonic = true;
       final wallet = await _walletLoadingService.load(walletInfo);
-
-      return wallet.seed;
+      try {
+        return wallet.seed;
+      } finally {
+        await wallet.close(shouldCleanup: false);
+      }
     } catch (e) {
       return null;
     } finally {
@@ -141,4 +162,39 @@ abstract class WalletGroupsDisplayViewModelBase with Store {
         isTestnet: info.network?.toLowerCase().contains('testnet') ?? false,
         isHardware: info.isHardwareWallet,
       );
+
+  @action
+  Future<String?> addWalletToSelectedGroup(String mnemonic) async {
+    isCreatingWallet = true;
+    try {
+      final walletNewVM = _walletNewVMBuilder(NewWalletArguments(
+        type: type,
+        mnemonic: mnemonic,
+        isChildWallet: true,
+        parentGroupId: selectedWalletGroup?.groupKey ?? selectedSingleWallet?.groupId,
+      ));
+
+      walletNewVM.seedSettingsViewModel.setMoneroSeedType(MoneroSeedType.bip39);
+      walletNewVM.name = await _generateUniqueName(walletNewVM);
+
+      await walletNewVM.create(
+        options: walletNewVM.hasLanguageSelector ? ["English", MoneroSeedType.bip39] : null,
+      );
+
+      final state = walletNewVM.state;
+      return state is FailureState ? state.error : null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      isCreatingWallet = false;
+    }
+  }
+
+  Future<String> _generateUniqueName(WalletNewVM walletNewVM) async {
+    for (var attempt = 0; attempt < 20; attempt++) {
+      final name = await generateName();
+      if (!await walletNewVM.nameExists(name)) return name;
+    }
+    throw Exception("Could not generate a unique wallet name");
+  }
 }

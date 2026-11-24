@@ -13,11 +13,16 @@ class WalletPresetIconDefinition {
 class WalletPresetIcons {
   const WalletPresetIcons._();
 
-  static const defaultValue = "wallet";
+  static const defaultValue = "chains";
 
   static const List<WalletPresetIconDefinition> all = [
     WalletPresetIconDefinition(
       value: defaultValue,
+      assetPath: "assets/new-ui/chains.svg",
+      label: "Wallet",
+    ),
+    WalletPresetIconDefinition(
+      value: "wallet",
       assetPath: "assets/new-ui/wallets.svg",
       label: "Wallet",
     ),

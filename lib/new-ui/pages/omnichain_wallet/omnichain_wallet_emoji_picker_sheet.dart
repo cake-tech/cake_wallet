@@ -10,11 +10,12 @@ import "package:flutter/material.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 // TODO(serhii): localize strings
-const _titleText = "Select Icon";
+const _titleText = "Wallet Icon";
 const _doneText = "Done";
 const _searchHintText = "Search Emoji";
 const _noRecentsText = "No recents";
 const _noResultsText = "No emoji found";
+const _selectBackgroundColorText = "Background";
 
 const _pickerHeight = 500.0;
 
@@ -50,7 +51,6 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
 
   late String _selectedEmoji;
   late int _selectedColorIndex;
-  late bool _isBackgroundEnabled;
 
   @override
   void initState() {
@@ -58,8 +58,7 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
 
     final initial = widget.initial;
     _selectedEmoji = initial?.type == WalletIconType.emoji ? initial!.value : "";
-    _selectedColorIndex = initial?.colorIndex ?? 0;
-    _isBackgroundEnabled = initial?.backgroundEnabled ?? false;
+    _selectedColorIndex = (initial?.backgroundEnabled ?? false) ? initial!.colorIndex : 0;
   }
 
   void _onEmojiSelected(Category? category, Emoji emoji) =>
@@ -76,7 +75,7 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
         type: WalletIconType.emoji,
         value: _selectedEmoji,
         colorIndex: colorIndex,
-        backgroundEnabled: _isBackgroundEnabled,
+        backgroundEnabled: colorIndex != 0,
       ),
     );
   }
@@ -95,36 +94,35 @@ class _OmniChainWalletEmojiPickerSheetState extends State<OmniChainWalletEmojiPi
         children: [
           ModalTopBar(
             title: _titleText,
-            leadingIcon: const Icon(Icons.arrow_back_ios_new),
+            alignTitleLeft: true,
+            leadingIcon: const Icon(Icons.close),
             leadingSemanticLabel: S.of(context).close,
             onLeadingPressed: () => Navigator.of(context).pop(),
-            trailingIcon: const Icon(Icons.check),
-            trailingSemanticLabel: _doneText,
+            trailingText: _doneText,
             onTrailingPressed: () => _onDone(colorIndex),
           ),
           const SizedBox(height: 24),
           WalletIconPreviewCircle(
             size: _previewSize,
-            background: _isBackgroundEnabled ? colors[colorIndex] : null,
+            background: colorIndex == 0 ? null : colors[colorIndex],
             icon: _selectedEmoji.isEmpty
                 ? null
                 : WalletIcon(
                     type: WalletIconType.emoji,
                     value: _selectedEmoji,
                     colorIndex: colorIndex,
-                    backgroundEnabled: _isBackgroundEnabled,
+                    backgroundEnabled: colorIndex != 0,
                   ),
           ),
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: SelectBackgroundColorWidget(
+              title: _selectBackgroundColorText,
               colors: colors,
               selectedIndex: colorIndex,
+              firstIsEmpty: true,
               onColorSelected: (index) => setState(() => _selectedColorIndex = index),
-              isToggleable: true,
-              isEnabled: _isBackgroundEnabled,
-              onToggleChanged: (value) => setState(() => _isBackgroundEnabled = value),
             ),
           ),
           const SizedBox(height: 20),

@@ -20,7 +20,7 @@ class WalletIcon {
 
   static const defaultIcon = WalletIcon(
     type: WalletIconType.preset,
-    value: "wallet",
+    value: "chains",
     colorIndex: 0,
     backgroundEnabled: false,
   );

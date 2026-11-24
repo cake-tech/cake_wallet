@@ -11,11 +11,14 @@ class WalletIconAvatar extends StatelessWidget {
     required this.icon,
     this.size = 100,
     this.contentSize = 48,
+    this.iconColor,
+    super.key,
   });
 
   final WalletIcon? icon;
   final double size;
   final double contentSize;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -32,16 +35,22 @@ class WalletIconAvatar extends StatelessWidget {
         color: backgroundEnabled ? null : Colors.transparent,
       ),
       alignment: Alignment.center,
-      child: WalletIconContent(icon: icon, size: contentSize),
+      child: WalletIconContent(icon: icon, size: contentSize, iconColor: iconColor),
     );
   }
 }
 
 class WalletIconContent extends StatelessWidget {
-  const WalletIconContent({required this.icon, required this.size, super.key});
+  const WalletIconContent({
+    required this.icon,
+    required this.size,
+    this.iconColor,
+    super.key,
+  });
 
   final WalletIcon? icon;
   final double size;
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +64,16 @@ class WalletIconContent extends StatelessWidget {
         return CakeImageWidget(imageUrl: icon.value, width: size, height: size);
       case WalletIconType.preset:
         final assetPath = WalletPresetIcons.assetPathFor(icon.value) ?? icon.value;
-        return CakeImageWidget(imageUrl: assetPath, width: size, height: size);
+        return CakeImageWidget(
+          imageUrl: assetPath,
+          width: size,
+          height: size,
+          color: iconColor ?? Theme.of(context).colorScheme.onPrimaryContainer,
+        );
       case WalletIconType.crypto:
         final walletType = WalletType.values.asNameMap()[icon.value];
         final assetPath =
-        walletType != null ? getCryptoCurrencyIconForWalletListItem(walletType) : icon.value;
+            walletType != null ? getCryptoCurrencyIconForWalletListItem(walletType) : icon.value;
         return CakeImageWidget(imageUrl: assetPath, width: size, height: size);
     }
   }

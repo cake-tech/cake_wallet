@@ -16,7 +16,7 @@ class WalletCreationDetailsPage extends BasePage {
   WalletCreationDetailsPage();
 
   @override
-  String get title => S.current.new_wallet;
+  String get title => S.current.wallet_name;
 
   @override
   Widget body(BuildContext context) => const WalletCreationDetailsPageBody();
@@ -82,6 +82,7 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
               WalletIconEditor(
                 icon: state.walletIcon,
                 cryptoTypes: const [],
+                emojiOnly: true,
                 onChanged: (icon) => context.read<OmniChainWalletBloc>().add(
                   OmniChainWalletIconChanged(icon),
                 ),
@@ -146,7 +147,7 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                   ),
                 ),
               ],
-              const SizedBox(height: 32),
+                    const Spacer(flex: 2),
               Center(
                 child: Material(
                   color: Colors.transparent,
@@ -182,7 +183,7 @@ class _WalletCreationDetailsPageBodyState extends State<WalletCreationDetailsPag
                   ),
                 ),
               ),
-              const Spacer(flex: 3),
+              const SizedBox(height: 18),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: PrimaryButton(

@@ -1,6 +1,6 @@
 import "dart:async";
 
-import "package:cake_wallet/entities/wallet_group_db_entry.dart";
+import "package:cw_core/wallet_group_db_entry.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 

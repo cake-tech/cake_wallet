@@ -6,35 +6,36 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 
 class ListItemRegularRowWidget extends StatelessWidget {
-  const ListItemRegularRowWidget(
-      {super.key,
-        required this.keyValue,
-        required this.label,
-        this.subtitle,
-        this.trailingText,
-        this.iconPath,
-        this.badgeIconPath,
-        this.onTap,
-        this.isFirstInSection = false,
-        this.isLastInSection = false,
-        this.showArrow = true,
-        this.trailingIconPath,
-        this.truncateTrailingText = false,
-        this.truncateLabel = false,
-        this.foregroundColor,
-        this.trailingIconSize,
-        this.bottomWidget,
-        this.subtitleColor,
-        this.trailingWidget,
-        this.leadingAccessory,
-        this.copyableText,
-        this.leadingIconErrorWidget,
-        this.leadingIconSize,
-        this.badgeIconSize,
-        this.iconColor,
-        this.isEnabled = true,
-        this.leadingWidget,
-        this.secondaryLabel,});
+  const ListItemRegularRowWidget({
+    super.key,
+    required this.keyValue,
+    required this.label,
+    this.subtitle,
+    this.trailingText,
+    this.iconPath,
+    this.badgeIconPath,
+    this.onTap,
+    this.isFirstInSection = false,
+    this.isLastInSection = false,
+    this.showArrow = true,
+    this.trailingIconPath,
+    this.truncateTrailingText = false,
+    this.truncateLabel = false,
+    this.foregroundColor,
+    this.trailingIconSize,
+    this.bottomWidget,
+    this.subtitleColor,
+    this.trailingWidget,
+    this.leadingAccessory,
+    this.copyableText,
+    this.leadingIconErrorWidget,
+    this.leadingIconSize,
+    this.badgeIconSize,
+    this.iconColor,
+    this.isEnabled = true,
+    this.leadingWidget,
+    this.secondaryLabel,
+  });
 
   final String keyValue;
   final String label;
@@ -51,6 +52,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
   final String? trailingIconPath;
   final Widget? bottomWidget;
   final Widget? trailingWidget;
+
+  /// null = no accessory slot (rows look as before);
+  /// true = check mark; false = empty slot of the same width, so rows stay aligned.
   final bool? leadingAccessory;
   final bool truncateTrailingText;
   final bool truncateLabel;
@@ -70,9 +74,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final trailingTextToShow =
-    truncateTrailingText && trailingText != null && trailingText!.length > 20
-        ? "${trailingText!.substring(0, 17)}..."
-        : trailingText;
+        truncateTrailingText && trailingText != null && trailingText!.length > 20
+            ? "${trailingText!.substring(0, 17)}..."
+            : trailingText;
 
     return CopyWrapper(
       data: copyableText != null ? ClipboardData(text: copyableText!) : null,
@@ -81,60 +85,59 @@ class ListItemRegularRowWidget extends StatelessWidget {
         child: ListItemStyleWrapper(
             key: ValueKey(copied),
             backgroundColor: copied ? Theme.of(context).colorScheme.surfaceContainerHigh : null,
-            leadingAccessory: leadingAccessory,
+            leadingAccessory: null,
             onTap: isEnabled ? onTap : null,
             iconPath: iconPath,
             isFirstInSection: isFirstInSection,
             isLastInSection: isLastInSection,
             builder: (context, textStyle, labelStyle) {
-              final labelTextStyle = foregroundColor == null
-                  ? textStyle
-                  : textStyle.copyWith(color: foregroundColor);
+              final labelTextStyle =
+                  foregroundColor == null ? textStyle : textStyle.copyWith(color: foregroundColor);
               final leadingIcon = leadingWidget ??
                   (iconPath != null
                       ? CakeImageWidget(
-                    imageUrl: iconPath!,
-                    width: leadingIconSize ?? 24,
-                    height: leadingIconSize ?? 24,
-                    errorWidget: leadingIconErrorWidget,
-                    colorFilter: iconColor == null
-                        ? null
-                        : ColorFilter.mode(iconColor!, BlendMode.srcIn),
-                  )
+                          imageUrl: iconPath!,
+                          width: leadingIconSize ?? 24,
+                          height: leadingIconSize ?? 24,
+                          errorWidget: leadingIconErrorWidget,
+                          colorFilter: iconColor == null
+                              ? null
+                              : ColorFilter.mode(iconColor!, BlendMode.srcIn),
+                        )
                       : null);
 
               final imageWidget = badgeIconPath != null
                   ? Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  leadingIcon!,
-                  Positioned(
-                    right: -2,
-                    bottom: -2,
-                    child: Container(
-                      width: 16,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        border: Border.all(
-                          color: theme.colorScheme.surfaceContainerHigh,
-                          width: 2,
+                      clipBehavior: Clip.none,
+                      children: [
+                        leadingIcon!,
+                        Positioned(
+                          right: -2,
+                          bottom: -2,
+                          child: Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: theme.colorScheme.surfaceContainerHigh,
+                                width: 2,
+                              ),
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            padding: const EdgeInsets.all(2),
+                            child: CakeImageWidget(
+                              imageUrl: badgeIconPath!,
+                              width: badgeIconSize ?? 12,
+                              height: badgeIconSize ?? 12,
+                              fit: BoxFit.cover,
+                              color: theme.colorScheme.surface,
+                              errorWidget: leadingIconErrorWidget,
+                            ),
+                          ),
                         ),
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      padding: const EdgeInsets.all(2),
-                      child: CakeImageWidget(
-                        imageUrl: badgeIconPath!,
-                        width: badgeIconSize ?? 12,
-                        height: badgeIconSize ?? 12,
-                        fit: BoxFit.cover,
-                        color: theme.colorScheme.surface,
-                        errorWidget: leadingIconErrorWidget,
-                      ),
-                    ),
-                  ),
-                ],
-              )
+                      ],
+                    )
                   : leadingIcon;
               return Semantics(
                 enabled: isEnabled,
@@ -149,23 +152,23 @@ class ListItemRegularRowWidget extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Padding(
-                              padding: EdgeInsets.only(right: leadingAccessory == true ? 12 : 0),
-                              child: SizedBox(
-                                width: 6,
-                                child: leadingAccessory == true
-                                    ? DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(16),
-                                      bottomRight: Radius.circular(16),
+                            leadingAccessory == null
+                                ? const SizedBox(width: 6)
+                                : Padding(
+                                    padding: const EdgeInsets.only(left: 8, right: 10),
+                                    child: SizedBox(
+                                      width: 24,
+                                      child: leadingAccessory!
+                                          ? Align(
+                                              child: Icon(
+                                                Icons.check,
+                                                size: 22,
+                                                color: theme.colorScheme.primary,
+                                              ),
+                                            )
+                                          : null,
                                     ),
-                                    color: Theme.of(context).colorScheme.primary,
                                   ),
-                                )
-                                    : null,
-                              ),
-                            ),
                             Expanded(
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -205,8 +208,9 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                                 Text(
                                                   secondaryLabel!,
                                                   style: textStyle.copyWith(
-                                                      color:
-                                                      Theme.of(context).colorScheme.onSurfaceVariant),
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurfaceVariant),
                                                 )
                                             ],
                                           ),
@@ -215,7 +219,8 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                             subtitle!,
                                             style: subtitleColor == null
                                                 ? labelStyle.copyWith(fontSize: 12)
-                                                : labelStyle.copyWith(fontSize: 12, color: subtitleColor),
+                                                : labelStyle.copyWith(
+                                                    fontSize: 12, color: subtitleColor),
                                           ),
                                       ],
                                     ),
@@ -242,17 +247,18 @@ class ListItemRegularRowWidget extends StatelessWidget {
                                     height: trailingIconSize ?? 18,
                                     width: trailingIconSize ?? 18,
                                     colorFilter: ColorFilter.mode(
-                                        foregroundColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
+                                        foregroundColor ??
+                                            Theme.of(context).colorScheme.onSurfaceVariant,
                                         BlendMode.srcIn),
                                   )
                                 else if (showArrow)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 7.0),
-                                      child: CakeImageWidget(
-                                          imageUrl: "assets/new-ui/arrow_forward.svg",
-                                          height: 14,
-                                          color: theme.colorScheme.onSurfaceVariant),
-                                    )
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 7.0),
+                                    child: CakeImageWidget(
+                                        imageUrl: "assets/new-ui/arrow_forward.svg",
+                                        height: 14,
+                                        color: theme.colorScheme.onSurfaceVariant),
+                                  )
                               ],
                             ),
                           ],

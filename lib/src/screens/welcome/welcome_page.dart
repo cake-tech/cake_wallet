@@ -32,7 +32,7 @@ class WelcomePage extends BasePage {
   Widget trailing(BuildContext context) {
     final Uri _url = Uri.parse("https://docs.cakewallet.com/get-started/setup/");
     return IconButton(
-      icon: const Icon(
+      icon: Icon(
         Icons.info_outline,
         size: 26,
         semanticLabel: S.of(context).help,

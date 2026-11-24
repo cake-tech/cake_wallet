@@ -55,9 +55,7 @@ class WalletEditPage extends BasePage {
                             buildWhen: (p, c) => p.group?.icon != c.group?.icon,
                             builder: (context, state) => WalletIconEditor(
                               icon: state.group?.icon,
-                              cryptoTypes:
-                                  state.group?.wallets.map((w) => w.type).toSet().toList() ??
-                                      const [],
+                              emojiOnly: true,
                               onChanged: (icon) =>
                                   context.read<WalletEditBloc>().add(WalletEditIconChanged(icon)),
                             ),

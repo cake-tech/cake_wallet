@@ -162,9 +162,9 @@ class _TopBarState extends State<TopBar> {
                   child: AnimatedSize(
                     duration: TopBar._transitionDuration,
                     curve: Curves.easeInOut,
-                    alignment: Alignment.center,
+                    alignment: Alignment.centerLeft,
                     child: Stack(
-                      alignment: Alignment.center,
+                      alignment: Alignment.centerLeft,
                       children: [
                         AnimatedOpacity(
                           duration: TopBar._transitionDuration,

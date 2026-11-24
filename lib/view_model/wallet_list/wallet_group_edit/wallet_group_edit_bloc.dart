@@ -1,4 +1,6 @@
 import "package:bloc/bloc.dart";
+import "package:cake_wallet/di.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import "package:cake_wallet/entities/wallet_group.dart";
 import "package:cake_wallet/core/services/wallet_group_service.dart";
 import "package:cake_wallet/view_model/wallet_list/wallet_group_edit/wallet_group_edit_event.dart";
@@ -58,12 +60,14 @@ class WalletEditBloc extends Bloc<WalletEditEvent, WalletEditState> {
     }
 
     try {
-      if (await groupService.isGroupNameTaken(name, excludeGroupKey: state.groupKey)) {
+      if (await getIt
+          .get<WalletDisplayNames>()
+          .isNameTaken(name, exceptGroupId: state.groupKey)) {
         emit(state.copyWith(error: WalletEditError.nameTaken));
         return;
       }
 
-      await groupService.setGroupName(state.groupKey, name); // one UPDATE
+      await groupService.setGroupName(state.groupKey, name);
       emit(state.copyWith(error: null, closeRequested: true));
     } catch (e, s) {
       printV("Rename failed for group ${state.groupKey}: $e\n$s");

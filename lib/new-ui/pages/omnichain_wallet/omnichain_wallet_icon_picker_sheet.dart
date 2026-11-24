@@ -135,9 +135,6 @@ class _OmniChainSelectIconSheetState extends State<OmniChainSelectIconSheet> {
                 colors: colors,
                 selectedIndex: colorIndex,
                 onColorSelected: (index) => setState(() => _selectedColorIndex = index),
-                isToggleable: true,
-                isEnabled: _isBackgroundEnabled,
-                onToggleChanged: (value) => setState(() => _isBackgroundEnabled = value),
               ),
             ),
             Expanded(
