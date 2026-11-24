@@ -30,7 +30,9 @@ String chainNameForCurrency(CryptoCurrency c) {
     return "Lightning";
   }
   final wt = cryptoCurrencyOrTokenToWalletType(c);
-  return wt != null ? walletTypeToString(wt) : (_externalChains[c.network]?.name ?? c.network);
+  return wt != null
+      ? walletTypeToString(wt)
+      : (_externalChains[c.network]?.name ?? c.tag ?? c.fullName ?? c.title);
 }
 
 String? externalChainIconPath(CryptoCurrency c) {
