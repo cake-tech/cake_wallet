@@ -8,6 +8,8 @@ import "package:http/http.dart" as http;
 import "package:http/testing.dart";
 import "package:path/path.dart" as p;
 
+import "testing_network_image_cache.dart";
+
 const _url = "https://example.com/icons/btc.svg";
 const _mb = 1024 * 1024;
 
@@ -17,9 +19,9 @@ void main() {
   late List<Uri> fetched;
 
   NetworkImageCache cacheWith(Future<http.Response> Function(http.Request request) handler) =>
-      NetworkImageCache(
+      TestingNetworkImageCache(
         directoryPath: cacheDir.path,
-        createClient: () => MockClient((request) {
+        client: MockClient((request) {
           fetched.add(request.url);
           return handler(request);
         }),
@@ -113,9 +115,9 @@ void main() {
 
   test("an image without a Content-Length is cut off once it passes 8 MB", () async {
     var sent = 0;
-    final cache = NetworkImageCache(
+    final cache = TestingNetworkImageCache(
       directoryPath: cacheDir.path,
-      createClient: () => MockClient.streaming(
+      client: MockClient.streaming(
         (_, _) async => http.StreamedResponse(
           Stream.periodic(Duration.zero, (_) {
             sent += _mb;

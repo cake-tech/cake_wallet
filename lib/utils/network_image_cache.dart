@@ -7,14 +7,17 @@ import "package:crypto/crypto.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
-import "package:http/http.dart" as http;
+import "package:flutter/foundation.dart";
+// import needed for the Request and Client classes.
+// it's not insecure, it's just type annotation.
+// ...don't use it for anything else though. please.
+import "package:http/http.dart" as very_insecure_http_do_not_use;
 import "package:path/path.dart" as p;
 
 
 class NetworkImageCache {
-  NetworkImageCache({String? directoryPath, http.Client Function()? createClient})
-    : _directoryPath = directoryPath,
-      _createClient = createClient ?? (() => ProxyWrapper().getHttpIOClient());
+  NetworkImageCache({String? directoryPath})
+    : _directoryPath = directoryPath;
 
   static NetworkImageCache instance = NetworkImageCache();
 
@@ -23,8 +26,8 @@ class NetworkImageCache {
   static const maxCacheBytes = 128 * 1024 * 1024;
   static const _fetchTimeout = Duration(seconds: 30);
 
-  final http.Client Function() _createClient;
-
+  @visibleForOverriding
+  very_insecure_http_do_not_use.Client createClient() => ProxyWrapper().getHttpIOClient();
 
   final _downloads = <String, Future<File>>{};
   String? _directoryPath;
@@ -71,7 +74,7 @@ class NetworkImageCache {
   }
 
   Future<Uint8List> _fetch(Uri uri) async {
-    final client = _createClient();
+    final client = createClient();
     try {
       return await _readImage(client, uri).timeout(_fetchTimeout);
     } finally {
@@ -79,8 +82,8 @@ class NetworkImageCache {
     }
   }
 
-  Future<Uint8List> _readImage(http.Client client, Uri uri) async {
-    final response = await client.send(http.Request("GET", uri));
+  Future<Uint8List> _readImage(very_insecure_http_do_not_use.Client client, Uri uri) async {
+    final response = await client.send(very_insecure_http_do_not_use.Request("GET", uri));
     if (response.statusCode != 200) {
       throw HttpException("Image request failed with status ${response.statusCode}", uri: uri);
     }

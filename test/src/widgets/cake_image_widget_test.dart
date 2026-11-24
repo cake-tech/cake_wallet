@@ -13,6 +13,7 @@ import "package:http/testing.dart";
 import "package:path/path.dart" as p;
 
 import "../../utils/semantics_helpers.dart";
+import "../../utils/testing_network_image_cache.dart";
 
 const _assetPath = "assets/images/2fa.png";
 const _svgAssetPath = "assets/images/2fa_warning_dark.svg";
@@ -145,13 +146,14 @@ void main() {
     late Directory root;
     late int fetches;
 
-    void useCache(int status, List<int> body) => NetworkImageCache.instance = NetworkImageCache(
-      directoryPath: root.path,
-      createClient: () => MockClient((_) async {
-        fetches++;
-        return http.Response.bytes(body, status);
-      }),
-    );
+    void useCache(int status, List<int> body) =>
+        NetworkImageCache.instance = TestingNetworkImageCache(
+          directoryPath: root.path,
+          client: MockClient((_) async {
+            fetches++;
+            return http.Response.bytes(body, status);
+          }),
+        );
 
     String cachedPath(String url) => p.join(root.path, NetworkImageCache.fileNameFor(url));
 
