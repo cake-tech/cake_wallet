@@ -171,7 +171,7 @@ abstract class TradeDetailsViewModelBase with Store {
     }
 
     items.add(StandartListItem(
-        title: S.current.trade_details_provider, value: trade.provider.toString()));
+        title: S.current.trade_details_provider, value: trade.provider.title));
 
     final trackUrl = TradeDetailsViewModelBase.getTrackUrl(trade.provider, trade);
     if (trackUrl != null) {
