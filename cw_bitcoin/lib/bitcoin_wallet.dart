@@ -80,6 +80,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     bool? useLightning,
     String? cachedLightningAddress,
+    Set<BitcoinAddressType>? enabledOptionalAddressTypes,
     List<int>? accountIndexes,
   }) : super(
           mnemonic: mnemonic,
@@ -102,7 +103,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
-          accountIndexes: accountIndexes
+          enabledOptionalAddressTypes: enabledOptionalAddressTypes,
+          accountIndexes: accountIndexes,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -140,6 +142,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       isHardwareWallet: walletInfo.isHardwareWallet,
       payjoinManager: payjoinManager,
       lightningWallet: lightningWallet,
+      enabledOptionalAddressTypes: this.enabledOptionalAddressTypes,
     );
 
     if (lightningWallet != null) {
@@ -335,6 +338,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       alwaysScan: snp?.alwaysScan,
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
+      enabledOptionalAddressTypes: snp?.enabledOptionalAddressTypes,
       payjoinBox: payjoinBox,
       accountIndexes: accountIndexes,
     );

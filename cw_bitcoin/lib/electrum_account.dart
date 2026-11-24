@@ -31,17 +31,30 @@ class ElectrumAccounts {
         _masterHd = masterHd,
         _coinType = coinType;
 
-  final List<BitcoinAddressType> _primaryTypes;
   final List<BitcoinAddressType> _extraTypes;
   final Bip32Slip10Secp256k1 _accountHd;
   final Bip32Slip10Secp256k1? _masterHd;
   final int? _coinType;
+  List<BitcoinAddressType> _primaryTypes;
   final Map<int, ElectrumAccount> _byIndex = {};
   final Map<int, AccountHdKeys> _hdByIndex = {};
 
   List<int> get indexes => _byIndex.keys.toList()..sort();
 
   ElectrumAccount? operator [](int index) => _byIndex[index];
+
+  /// Replaces the types the primary (index 0) account supports, e.g. after the user enables or
+  /// disables an optional address type, and rebuilds that account's HD keys to match.
+  void setPrimaryTypes(List<BitcoinAddressType> types) {
+    _primaryTypes = List.unmodifiable(types);
+
+    final primaryExisted = _byIndex.remove(0) != null;
+    _hdByIndex.remove(0);
+
+    if (primaryExisted) {
+      getOrCreate(0);
+    }
+  }
 
   Bip32Slip10Secp256k1? hdFor({
     required int accountIndex,
