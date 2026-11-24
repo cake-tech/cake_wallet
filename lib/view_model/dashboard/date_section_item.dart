@@ -28,6 +28,14 @@ class Last7daysTransactionItem extends SpecificDateSectionItem {
   String get text => S.current.last_7_days;
 }
 
+/// Header over the pending rows pinned above every date bucket.
+class PendingTransactionItem extends SpecificDateSectionItem {
+  PendingTransactionItem(super.date, {required super.key});
+
+  @override
+  String get text => S.current.trade_state_pending;
+}
+
 class TodayTransactionItem extends SpecificDateSectionItem {
   TodayTransactionItem(super.date, {required super.key});
 

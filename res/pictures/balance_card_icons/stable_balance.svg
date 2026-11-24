@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <!-- SKETCH PLACEHOLDER - swap for real design art (tracked on ticket 12) -->
+  <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/>
+  <text x="12" y="16.5" font-size="11" font-weight="700" text-anchor="middle"
+        fill="currentColor" font-family="sans-serif">$</text>
+</svg>

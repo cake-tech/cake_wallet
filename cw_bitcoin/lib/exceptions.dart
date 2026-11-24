@@ -1,5 +1,10 @@
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/exceptions.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
+
+class SparkTokenSendUnavailableException extends CakeException {
+  const SparkTokenSendUnavailableException(super.message);
+}
 
 class BitcoinTransactionWrongBalanceException extends TransactionWrongBalanceException {
   BitcoinTransactionWrongBalanceException({super.amount}) : super(CryptoCurrency.btc);

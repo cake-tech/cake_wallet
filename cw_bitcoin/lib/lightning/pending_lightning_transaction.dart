@@ -1,16 +1,22 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/pending_transaction.dart';
+import "package:cw_bitcoin/lightning/spark_conversion.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/pending_transaction.dart";
 
 class PendingLightningTransaction with PendingTransaction {
   PendingLightningTransaction({
     required this.id,
     required this.amount,
     required this.fee,
-    this.isSendAll = false,
     required this.commitOverride,
+    this.isSendAll = false,
+    this.conversion,
   });
 
   final bool isSendAll;
+
+  /// The Stable Balance conversion the SDK added to fund this send, if the sats balance was short.
+  final StableBalanceSendConversion? conversion;
+
   Future<String> Function() commitOverride;
   final List<void Function()> _listeners = [];
 

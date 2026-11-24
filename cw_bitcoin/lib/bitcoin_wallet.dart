@@ -1,3 +1,4 @@
+import "dart:async";
 import 'dart:convert';
 
 import 'package:cw_core/utils/bip39_seed.dart';
@@ -16,9 +17,11 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/exceptions.dart';
 import 'package:cw_bitcoin/unknown_derivation.dart';
 import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
+import 'package:cw_bitcoin/lightning/default_spark_tokens.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
 import 'package:cw_bitcoin/output_ordering.dart';
@@ -30,12 +33,16 @@ import 'package:cw_bitcoin/psbt/transaction_builder.dart';
 import 'package:cw_bitcoin/psbt/v0_deserialize.dart';
 import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_bitcoin/lightning/conversion_status.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/node.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/output_info.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_bitcoin/lightning/spark_token.dart';
 import 'package:cw_core/sync_status.dart';
 import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/unspent_coin_type.dart';
@@ -44,6 +51,8 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/zpub.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ledger_bitcoin/psbt.dart';
@@ -53,6 +62,27 @@ import 'package:ur/ur.dart';
 import 'package:ur/ur_decoder.dart';
 
 part 'bitcoin_wallet.g.dart';
+
+/// Whether a send should be routed through [LightningWallet] rather than the on-chain
+/// Electrum path. Kept as a static, pure method so the routing decision (which mixes an
+/// explicit coin-type choice, address sniffing, and asset type) is testable without a real
+/// Breez SDK connection.
+class SparkSendRouting {
+  static bool shouldRouteToLightning({
+    required UnspentCoinType coinTypeToSpendFrom,
+    required bool hasLightningWallet,
+    required bool isLightningCompatibleAddress,
+    required bool isSparkToken,
+  }) {
+    if (isSparkToken) {
+      return true;
+    } else if (isLightningCompatibleAddress) {
+      return true;
+    } else {
+      return coinTypeToSpendFrom == UnspentCoinType.lightning && hasLightningWallet;
+    }
+  }
+}
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
@@ -72,6 +102,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     List<BitcoinAddressRecord>? initialAddresses,
     ElectrumBalance? initialBalance,
     ElectrumBalance? initialLightningBalance,
+    List<SparkToken>? initialSparkTokens,
     Map<String, int>? initialRegularAddressIndex,
     Map<String, int>? initialChangeAddressIndex,
     String? passphrase,
@@ -80,6 +111,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     bool? useLightning,
     String? cachedLightningAddress,
+    this.stableBalanceThresholdSats,
+    this.stableBalanceMaxSlippageBps,
     List<int>? accountIndexes,
   }) : super(
           mnemonic: mnemonic,
@@ -102,7 +135,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
-          accountIndexes: accountIndexes
+          accountIndexes: accountIndexes,
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -110,14 +143,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     // String sideDerivationPath = derivationPath.substring(0, derivationPath.length - 1) + "1";
     // final hd = bitcoin.HDWallet.fromSeed(seedBytes, network: networkType);
 
+    _sparkTokens = initialSparkTokens ?? [];
+
     if (mnemonic != null && this.useLightning && LightningWallet.isAvailable) {
       try {
-        lightningWallet = LightningWallet(
+        lightningWallet = _newLightningWallet(
           mnemonic: mnemonic,
           passphrase: passphrase,
           seedBytes: seedBytes,
-          apiKey: secrets.breezApiKey,
-          lnurlDomain: "cake.cash",
           cachedAddress: cachedLightningAddress,
         );
       } catch (e) {
@@ -152,29 +185,192 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     reaction((_) => this.useLightning, (bool useLightning) {
       if (useLightning && LightningWallet.isAvailable) {
         if (mnemonic != null) {
-          lightningWallet = LightningWallet(
-            mnemonic: mnemonic,
-            passphrase: passphrase,
-            seedBytes: seedBytes,
-            apiKey: secrets.breezApiKey,
-            lnurlDomain: "cake.cash",
-            cachedAddress: cachedLightningAddress,
+          final tokens = _withDefaultSparkTokens(_sparkTokens, walletInfo.name);
+
+          _setSparkTokens(tokens);
+
+          unawaited(
+            _saveSparkTokens(tokens).catchError(
+              (Object e) => printV("SparkTokens: failed to save defaults: $e"),
+            ),
           );
+
+          // Reuse the instance walletAddresses holds (it's the one setLightningAddress connects);
+          // a fresh one here would never connect while the old one kept running.
+          lightningWallet = walletAddresses.lightningWallet ??
+              _newLightningWallet(
+                mnemonic: mnemonic,
+                passphrase: passphrase,
+                seedBytes: seedBytes,
+                cachedAddress: cachedLightningAddress,
+              );
           walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
+        // Disconnect rather than just drop it - an abandoned SDK keeps syncing and running its
+        // own Stable Balance conversions.
         lightningWallet?.close();
         lightningWallet = null;
+        walletAddresses.lightningWallet = null;
       }
     });
 
     if (initialLightningBalance != null) {
       balance[CryptoCurrency.btcln] = initialLightningBalance;
     }
+
+    for (final token in _sparkTokens.where((t) => t.enabled)) {
+      balance[token] = ElectrumBalance(
+        confirmed: Money.zero(token),
+        unconfirmed: Money.zero(token),
+        frozen: Money.zero(token),
+      );
+    }
   }
 
   bool get isLightningInitialized => lightningWallet?.isInitialized == true;
+
+  /// Stable Balance's "Convert above" threshold, or null for the SDK default.
+  BigInt? stableBalanceThresholdSats;
+
+  /// Stable Balance's "Max conversion slippage", in basis points, or null for the default.
+  int? stableBalanceMaxSlippageBps;
+
+  @override
+  Map<String, dynamic> toJSONMap() => {
+        ...super.toJSONMap(),
+        'stableBalanceThresholdSats': stableBalanceThresholdSats?.toString(),
+        'stableBalanceMaxSlippageBps': stableBalanceMaxSlippageBps,
+      };
+
+  LightningWallet _newLightningWallet({
+    required String mnemonic,
+    String? passphrase,
+    Uint8List? seedBytes,
+    String? cachedAddress,
+  }) =>
+      LightningWallet(
+        mnemonic: mnemonic,
+        passphrase: passphrase,
+        seedBytes: seedBytes,
+        apiKey: secrets.breezApiKey,
+        lnurlDomain: "cake.cash",
+        cachedAddress: cachedAddress,
+        tokenCurrencyResolver: (id) =>
+            _sparkTokens.firstWhereOrNull((t) => t.tokenIdentifier == id),
+        stableBalanceSettings: () => (
+          tokens: LightningWallet.stableBalanceTokensFrom(_sparkTokens),
+          thresholdSats: stableBalanceThresholdSats,
+          maxSlippageBps: stableBalanceMaxSlippageBps,
+        ),
+      );
+
+  List<SparkToken> _sparkTokens = [];
+
+  List<SparkToken> get sparkTokenCurrencies => _sparkTokens.toList();
+
+  SparkToken? getSparkTokenByIdentifier(String tokenIdentifier) =>
+      _sparkTokens.firstWhereOrNull((t) => t.tokenIdentifier == tokenIdentifier);
+
+  void _upsertCachedSparkToken(SparkToken token) {
+    _sparkTokens.removeWhere((t) => t.tokenIdentifier == token.tokenIdentifier);
+    _sparkTokens.add(token);
+  }
+
+  static List<SparkToken> _withDefaultSparkTokens(List<SparkToken> existing, String walletName) {
+    final merged = [...existing];
+
+    for (final token in DefaultSparkTokens().initialSparkTokens(walletName)) {
+      final current = merged.firstWhereOrNull((t) => t.tokenIdentifier == token.tokenIdentifier);
+      merged.removeWhere((t) => t.tokenIdentifier == token.tokenIdentifier);
+      merged.add(SparkToken.copyWith(token, enabled: current?.enabled ?? token.enabled));
+    }
+
+    return merged;
+  }
+
+  static Future<void> _saveSparkTokens(List<SparkToken> tokens) async {
+    for (final token in tokens) {
+      await token.save();
+    }
+  }
+
+  void _setSparkTokens(List<SparkToken> tokens) {
+    _sparkTokens = tokens;
+
+    for (final token in tokens.where((t) => t.enabled)) {
+      final existingBalance = balance[token];
+      balance.remove(token);
+      balance[token] = existingBalance ??
+          ElectrumBalance(
+            confirmed: Money.zero(token),
+            unconfirmed: Money.zero(token),
+            frozen: Money.zero(token),
+          );
+    }
+  }
+
+  Future<void> addSparkToken(SparkToken token) async {
+    final newToken =
+        SparkToken.copyWith(token, walletName: walletInfo.name, enabled: token.enabled);
+
+    await newToken.save();
+
+    _upsertCachedSparkToken(newToken);
+
+    if (newToken.enabled) {
+      balance[newToken] = balance[newToken] ??
+          ElectrumBalance(
+            confirmed: Money.zero(newToken),
+            unconfirmed: Money.zero(newToken),
+            frozen: Money.zero(newToken),
+          );
+    } else {
+      balance.remove(newToken);
+    }
+  }
+
+  Future<void> deleteSparkToken(SparkToken token) async {
+    await SparkToken.deleteForWallet(walletInfo.name, token.tokenIdentifier);
+
+    _sparkTokens.removeWhere((t) => t.tokenIdentifier == token.tokenIdentifier);
+
+    balance.remove(token);
+  }
+
+  /// Changes Stable Balance's `thresholdSats`/`maxSlippageBps`, which requires a full
+  /// disconnect/reconnect of the Lightning session (see [LightningWallet.reconnectWithStableBalanceSettings]
+  /// for why). Re-subscribes to wallet events afterward, since a reconnect replaces the
+  /// underlying event stream and drops whatever was listening to the old one.
+  Future<bool> reconnectStableBalanceSettings({BigInt? thresholdSats, int? maxSlippageBps}) async {
+    if (lightningWallet == null) {
+      return false;
+    }
+
+    final previousThresholdSats = stableBalanceThresholdSats;
+    final previousMaxSlippageBps = stableBalanceMaxSlippageBps;
+    stableBalanceThresholdSats = thresholdSats;
+    stableBalanceMaxSlippageBps = maxSlippageBps;
+
+    final path = await pathForWalletDir(name: walletInfo.name, type: WalletType.bitcoin);
+    final success = await lightningWallet!.reconnectWithStableBalanceSettings(path);
+
+    if (success) {
+      await subscribeForUpdates();
+    } else {
+      stableBalanceThresholdSats = previousThresholdSats;
+      stableBalanceMaxSlippageBps = previousMaxSlippageBps;
+
+      // The failed reconnect already closed the old session - bring it back with the restored
+      // settings so Lightning / Stable Balance don't stay down until the wallet is reopened.
+      if (await lightningWallet!.init(path)) {
+        await subscribeForUpdates();
+      }
+    }
+
+    return success;
+  }
 
   @override
   bool get hasRescan => true;
@@ -210,7 +406,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         break;
     }
 
-    return BitcoinWallet(
+    final defaultSparkTokens = LightningWallet.isAvailable
+        ? _withDefaultSparkTokens(const [], walletInfo.name)
+        : <SparkToken>[];
+
+    await _saveSparkTokens(defaultSparkTokens);
+
+    final wallet = BitcoinWallet(
       mnemonic: mnemonic,
       passphrase: passphrase ?? "",
       password: password,
@@ -221,6 +423,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
       initialBalance: initialBalance,
+      initialSparkTokens: defaultSparkTokens,
       encryptionFileUtils: encryptionFileUtils,
       seedBytes: seedBytes,
       initialRegularAddressIndex: initialRegularAddressIndex,
@@ -230,6 +433,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       payjoinBox: payjoinBox,
       useLightning: true,
     );
+
+    return wallet;
   }
 
   static Future<BitcoinWallet> open({
@@ -310,10 +515,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       }
     }
 
-    final accountIndexes =
-    (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
+    final storedSparkTokens = await SparkToken.getAllForWallet(name);
 
-    return BitcoinWallet(
+    final lightningEnabled = (snp?.useLightning ?? true) && LightningWallet.isAvailable;
+    final initialSparkTokens = lightningEnabled
+        ? _withDefaultSparkTokens(storedSparkTokens, walletInfo.name)
+        : storedSparkTokens;
+
+    if (lightningEnabled) {
+      await _saveSparkTokens(initialSparkTokens);
+    }
+
+    final accountIndexes =
+        (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
+
+    final wallet = BitcoinWallet(
       mnemonic: mnemonic,
       xpub: keysData.xPub != null ? convertZpubToXpub(keysData.xPub!) : null,
       password: password,
@@ -326,6 +542,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialSilentAddressIndex: snp?.silentAddressIndex ?? 0,
       initialBalance: snp?.balance,
       initialLightningBalance: snp?.lightningBalance,
+      initialSparkTokens: initialSparkTokens,
       encryptionFileUtils: encryptionFileUtils,
       seedBytes: seedBytes,
       initialRegularAddressIndex: snp?.regularAddressIndex,
@@ -335,9 +552,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       alwaysScan: snp?.alwaysScan,
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
+      stableBalanceThresholdSats: snp?.stableBalanceThresholdSats,
+      stableBalanceMaxSlippageBps: snp?.stableBalanceMaxSlippageBps,
       payjoinBox: payjoinBox,
       accountIndexes: accountIndexes,
     );
+
+    return wallet;
   }
 
   @override
@@ -348,10 +569,29 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
+  Future<void> connectToNode({required Node node}) async {
+    // Pull-to-refresh lands here; the SDK only syncs on its own schedule otherwise.
+    unawaited(lightningWallet?.sync());
+    return super.connectToNode(node: node);
+  }
+
+  @override
   Future<ElectrumBalance> fetchBalances() async {
     final balance = await super.fetchBalances();
+    await _fetchLightningBalances();
+
+    return ElectrumBalance(
+      confirmed: balance.confirmed,
+      unconfirmed: balance.unconfirmed,
+      frozen: balance.frozen,
+    );
+  }
+
+  /// The Lightning and Spark token balances only - kept separate from [fetchBalances] so an SDK
+  /// sync can refresh them without an Electrum round trip per address.
+  Future<void> _fetchLightningBalances() async {
     if (!isLightningInitialized || lightningWallet == null) {
-      return balance;
+      return;
     }
 
     try {
@@ -365,11 +605,21 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       printV("Error fetching lightning balance: $e");
     }
 
-    return ElectrumBalance(
-      confirmed: balance.confirmed,
-      unconfirmed: balance.unconfirmed,
-      frozen: balance.frozen ?? Money.zero(currency),
-    );
+    try {
+      final tokenBalances = await lightningWallet!.getTokenBalances();
+
+      for (final token in _sparkTokens.where((t) => t.enabled)) {
+        final tokenBalance = tokenBalances[token.tokenIdentifier];
+
+        balance[token] = ElectrumBalance(
+          confirmed: Money(tokenBalance?.balance ?? BigInt.zero, token),
+          unconfirmed: Money.zero(token),
+          frozen: Money.zero(token),
+        );
+      }
+    } catch (e) {
+      printV("Error fetching Spark token balances: $e");
+    }
   }
 
   @override
@@ -378,7 +628,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     if (isLightningInitialized && lightningWallet != null) {
       lightningWallet!.setEventListener(
         onTransactionEvent: (tx) async {
-          if (transactionHistory.transactions[tx.id]?.isPending != tx.isPending) {
+          final existing = transactionHistory.transactions[tx.id];
+          // A conversion can flip from pending to completed/failed while the underlying
+          // payment's own isPending is already false (e.g. the self-invoice payment settles
+          // immediately, but the conversion itself keeps running) - without also checking this,
+          // the row would stay on "Converting" forever once isPending stops changing.
+          if (existing?.isPending != tx.isPending ||
+              existing?.additionalInfo["conversionStatus"] !=
+                  tx.additionalInfo["conversionStatus"]) {
             transactionHistory.addOne(tx);
             await transactionHistory.save();
             await fetchBalances();
@@ -397,26 +654,123 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           }
         },
         onBalanceChangedEvent: fetchBalances,
+        onSyncedEvent: () async {
+          await _fetchLightningBalances();
+          _fetchLightningTransactions(incrementalOnly: true);
+          await _refreshPendingLightningTransactions();
+        },
       );
     }
 
     return super.subscribeForUpdates();
   }
 
+  /// A stored transaction predates either the conversion from/to ticker tags, or `paymentHash`
+  /// Once re-fetched, a transaction always carries both, so this naturally stops re-triggering.
+  bool _isStaleConversionTag(ElectrumTransactionInfo tx) =>
+      // Token payments and Spark deposits never carry a paymentHash.
+      (tx.additionalInfo["paymentHash"] == null &&
+          tx.additionalInfo["tokenIdentifier"] == null &&
+          tx.additionalInfo["isSparkDeposit"] != true) ||
+      (tx.additionalInfo["conversionStatus"] != null &&
+          tx.additionalInfo["conversionToTicker"] == null);
+
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+    _fetchLightningTransactions();
+    return super.fetchTransactions();
+  }
+
+  /// Re-reads every stored Lightning row that's still pending (or mid-conversion) by id - the
+  /// incremental fetch only returns rows newer than the newest stored one, and the SDK sends no
+  /// event for conversion legs, so nothing else would ever move them past "pending".
+  Future<void> _refreshPendingLightningTransactions() async {
+    final wallet = lightningWallet;
+
+    if (wallet == null) {
+      return;
+    }
+
+    final stale = transactionHistory.transactions.values
+        .where((tx) =>
+            tx.additionalInfo["isLightning"] == true &&
+            tx.additionalInfo["isSparkDeposit"] != true &&
+            (tx.isPending ||
+                ConversionStatusUtils.fromAdditionalInfo(tx.additionalInfo) ==
+                    ConversionStatus.pending))
+        .toList();
+
+    if (stale.isEmpty) {
+      return;
+    }
+
+    final fresh = (await Future.wait(stale.map((tx) => wallet.getTransactionById(tx.id))))
+        .whereType<ElectrumTransactionInfo>()
+        .where((tx) {
+      final stored = transactionHistory.transactions[tx.id];
+      return stored == null ||
+          stored.isPending != tx.isPending ||
+          stored.additionalInfo["conversionStatus"] != tx.additionalInfo["conversionStatus"] ||
+          stored.additionalInfo["conversionFromAmount"] !=
+              tx.additionalInfo["conversionFromAmount"];
+    }).toList();
+
+    if (fresh.isEmpty) {
+      return;
+    }
+
+    transactionHistory.addMany({for (final tx in fresh) tx.id: tx});
+    await transactionHistory.save();
+  }
+
+  /// [incrementalOnly] skips the stale-tag full refetch, so a per-sync caller doesn't reload the
+  /// whole history on every SDK sync.
+  void _fetchLightningTransactions({bool incrementalOnly = false}) {
     if (lightningWallet != null) {
-      final existingTx = transactionHistory.transactions.values
-          .where((e) => (e.additionalInfo["isLightning"] as bool?) == true)
+      final lightningTxs = transactionHistory.transactions.values
+          .where((e) => (e.additionalInfo["isLightning"] as bool?) == true);
+
+      // Newest by date among the rows the BTC query itself returns - not the last one inserted,
+      // which can be a token row or a deposit placeholder dated "now".
+      final existingTx = lightningTxs
+          .where(
+            (e) =>
+                e.additionalInfo["tokenIdentifier"] == null &&
+                e.additionalInfo["isSparkDeposit"] != true,
+          )
+          .sortedBy((e) => e.date)
           .lastOrNull;
 
-      lightningWallet!.getTransactionHistory(fromDate: existingTx?.date).then((lnHistory) async {
+      // A full refetch (ignoring the incremental fromDate) re-fetches these stale entries with
+      // the tags they were missing - this naturally stops re-triggering once every stored
+      // conversion is tagged.
+      final needsFullRefetch = !incrementalOnly && lightningTxs.any(_isStaleConversionTag);
+
+      lightningWallet!
+          .getTransactionHistory(fromDate: needsFullRefetch ? null : existingTx?.date)
+          .then((lnHistory) async {
         transactionHistory.addMany(lnHistory);
         await transactionHistory.save();
       }).onError((_, __) {});
-    }
 
-    return super.fetchTransactions();
+      for (final token in _sparkTokens.where((t) => t.enabled)) {
+        final tokenTxs = transactionHistory.transactions.values
+            .where((e) => e.additionalInfo["tokenIdentifier"] == token.tokenIdentifier);
+        final existingTokenTx = tokenTxs.sortedBy((e) => e.date).lastOrNull;
+        final tokenNeedsFullRefetch = !incrementalOnly && tokenTxs.any(_isStaleConversionTag);
+
+        lightningWallet!
+            .getTokenTransactionHistory(
+          token.tokenIdentifier,
+          token,
+          fromDate: tokenNeedsFullRefetch ? null : existingTokenTx?.date,
+        )
+            .then((tokenHistory) async {
+          transactionHistory.addMany(tokenHistory);
+          await transactionHistory.save();
+        }).onError((_, __) {});
+      }
+    }
   }
 
   LightningWallet? lightningWallet;
@@ -428,6 +782,9 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   @override
   bool get hasLightningSupport => seed != null && LightningWallet.isAvailable;
+
+  @override
+  bool get hasStableBalanceSupport => hasLightningSupport;
 
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
@@ -557,12 +914,29 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         ? credentials.outputs.first.extractedAddress!
         : credentials.outputs.first.address;
 
-    final isLNCompatible = await lightningWallet?.isCompatible(lnAddr);
-    if ((credentials.coinTypeToSpendFrom == UnspentCoinType.lightning && lightningWallet != null) ||
-        isLNCompatible == true) {
+    final currency = credentials.currency;
+    final sparkToken = currency is SparkToken ? currency : null;
+
+    if (sparkToken != null && !isLightningInitialized) {
+      throw SparkTokenSendUnavailableException(
+        "Lightning wallet is not available - cannot send ${sparkToken.title}",
+      );
+    }
+
+    final isLNCompatible = await lightningWallet?.isCompatible(lnAddr) ?? false;
+
+    if (SparkSendRouting.shouldRouteToLightning(
+      coinTypeToSpendFrom: credentials.coinTypeToSpendFrom,
+      hasLightningWallet: lightningWallet != null,
+      isLightningCompatibleAddress: isLNCompatible,
+      isSparkToken: sparkToken != null,
+    )) {
       Money amount;
+
       if (credentials.outputs.first.sendAll) {
-        amount = await lightningWallet!.getBalance();
+        amount = sparkToken != null
+            ? await lightningWallet!.getTokenBalance(sparkToken.tokenIdentifier, sparkToken)
+            : await lightningWallet!.getBalance();
       } else {
         amount = credentials.outputs.first.cryptoAmount;
       }
@@ -571,7 +945,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         lnAddr,
         amount.amount > BigInt.zero ? amount.amount : null,
         credentials.priority,
-        credentials.outputs.first.sendAll,
+        feesIncluded: credentials.outputs.first.sendAll,
+        tokenIdentifier: sparkToken?.tokenIdentifier,
+        tokenCurrency: sparkToken,
+        maxSlippageBps: stableBalanceMaxSlippageBps,
       );
     }
 
