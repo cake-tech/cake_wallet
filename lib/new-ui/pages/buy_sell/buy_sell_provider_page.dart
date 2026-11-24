@@ -162,7 +162,7 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
   ListItem quoteListItem(Quote quote) {
     final fiatAmount = widget.buySellViewModel.fiatAmountForQuote(quote);
     return ListItemRegularRow(
-      keyValue: quote.provider.title+(quote.rampName??""),
+      keyValue: [quote.provider.title, quote.rampId ?? "", quote.paymentType.name].join("|"),
       label: quote.rampName ?? quote.provider.title,
       secondaryLabel: quote.rampName != null ? quote.provider.title : null,
       subtitle: quote.badges.isEmpty ? null : quote.badges.join(" - "),
