@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Wybierz walutę portfela:",
   "choose_wallet_group": "Wybierz grupę portfeli",
   "clear": "Wyczyść",
+  "clear_image_cache": "Wyczyść pamięć podręczną obrazów",
+  "clear_image_cache_confirmation": "Czy na pewno chcesz wyczyścić pamięć podręczną obrazów?",
   "clearnet_link": "Link do Clearnetu",
   "close": "Zamknij",
   "coin_control": "Kontrola monet (opcjonalna)",

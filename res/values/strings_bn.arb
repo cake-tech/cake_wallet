@@ -269,6 +269,8 @@
   "choose_wallet_currency": "অনুগ্রহ করে ওয়ালেটের মুদ্রা বেছে নিন:",
   "choose_wallet_group": "ওয়ালেট গ্রুপ বেছে নিন",
   "clear": "মুছুন",
+  "clear_image_cache": "ছবির ক্যাশে মুছুন",
+  "clear_image_cache_confirmation": "আপনি কি নিশ্চিত যে আপনি ছবির ক্যাশে মুছতে চান?",
   "clearnet_link": "ক্লিয়ারনেট লিংক",
   "close": "বন্ধ করুন",
   "coin_control": "কয়েন নিয়ন্ত্রণ (ঐচ্ছিক)",

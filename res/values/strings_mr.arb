@@ -269,6 +269,8 @@
   "choose_wallet_currency": "कृपया वॉलेट चलन निवडा:",
   "choose_wallet_group": "वॉलेट गट निवडा",
   "clear": "साफ करा",
+  "clear_image_cache": "प्रतिमा कॅशे साफ करा",
+  "clear_image_cache_confirmation": "तुम्हाला खात्री आहे की तुम्ही प्रतिमा कॅशे साफ करू इच्छिता?",
   "clearnet_link": "क्लिअरनेट दुवा",
   "close": "बंद करा",
   "coin_control": "कॉइन कंट्रोल (पर्यायी)",

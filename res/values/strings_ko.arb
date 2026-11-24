@@ -235,6 +235,8 @@
   "choose_wallet_currency": "지갑 통화를 선택해 주세요:",
   "choose_wallet_group": "지갑 그룹 선택",
   "clear": "지우기",
+  "clear_image_cache": "이미지 캐시 지우기",
+  "clear_image_cache_confirmation": "이미지 캐시를 지우시겠습니까?",
   "clearnet_link": "클리어넷 링크",
   "close": "닫기",
   "coin_control": "코인 컨트롤(선택 사항)",

@@ -269,6 +269,8 @@
   "choose_wallet_currency": "कृपया वॉलेट की मुद्रा चुनें:",
   "choose_wallet_group": "वॉलेट समूह चुनें",
   "clear": "साफ़ करें",
+  "clear_image_cache": "इमेज कैश साफ़ करें",
+  "clear_image_cache_confirmation": "क्या आप वाकई इमेज कैश साफ़ करना चाहते हैं?",
   "clearnet_link": "क्लियरनेट लिंक",
   "close": "बंद करें",
   "coin_control": "कॉइन नियंत्रण (वैकल्पिक)",

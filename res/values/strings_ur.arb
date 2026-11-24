@@ -235,6 +235,8 @@
   "choose_wallet_currency": "براہ کرم والیٹ کی کرنسی منتخب کریں:",
   "choose_wallet_group": "والٹ گروپ منتخب کریں",
   "clear": "صاف کریں",
+  "clear_image_cache": "تصویری کیش صاف کریں",
+  "clear_image_cache_confirmation": "کیا آپ واقعی تصویری کیش صاف کرنا چاہتے ہیں؟",
   "clearnet_link": "کلیرنیٹ لنک",
   "close": "بند کریں",
   "coin_control": "کوائن کنٹرول (اختیاری)",

@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Scegli la valuta del wallet:",
   "choose_wallet_group": "Scegli il gruppo di wallet",
   "clear": "Cancella",
+  "clear_image_cache": "Svuota cache immagini",
+  "clear_image_cache_confirmation": "Sei sicuro di voler svuotare la cache delle immagini?",
   "clearnet_link": "Link clearnet",
   "close": "Chiudi",
   "coin_control": "Controllo delle monete (opzionale)",

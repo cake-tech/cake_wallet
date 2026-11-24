@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Lütfen cüzdan para birimini seçin:",
   "choose_wallet_group": "Cüzdan Grubu Seçin",
   "clear": "Temizle",
+  "clear_image_cache": "Görsel önbelleğini temizle",
+  "clear_image_cache_confirmation": "Görsel önbelleğini temizlemek istediğinizden emin misiniz?",
   "clearnet_link": "Clearnet bağlantısı",
   "close": "Kapat",
   "coin_control": "Coin kontrolü (isteğe bağlı)",

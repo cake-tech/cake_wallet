@@ -269,6 +269,8 @@
   "choose_wallet_currency": "Please choose wallet currency:",
   "choose_wallet_group": "Choose Wallet Group",
   "clear": "Clear",
+  "clear_image_cache": "Clear image cache",
+  "clear_image_cache_confirmation": "Are you sure you want to clean the image cache?",
   "clearnet_link": "Clearnet link",
   "close": "Close",
   "coin_control": "Coin Control (optional)",

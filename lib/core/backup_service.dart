@@ -7,6 +7,7 @@ import 'package:cake_wallet/themes/utils/theme_list.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import "package:cake_wallet/utils/network_image_cache.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
@@ -102,6 +103,7 @@ class $BackupService {
     "flutter_assets/isolate_snapshot_data",
     "README.txt",
     ".lock",
+    NetworkImageCache.directoryName,
   ];
 
   Future<void> importBackupV2(Uint8List data, String password) async {

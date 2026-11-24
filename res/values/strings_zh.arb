@@ -235,6 +235,8 @@
   "choose_wallet_currency": "请选择钱包币种：",
   "choose_wallet_group": "选择钱包组",
   "clear": "清除",
+  "clear_image_cache": "清除图片缓存",
+  "clear_image_cache_confirmation": "确定要清除图片缓存吗？",
   "clearnet_link": "明网链接",
   "close": "关闭",
   "coin_control": "币种控制（可选）",

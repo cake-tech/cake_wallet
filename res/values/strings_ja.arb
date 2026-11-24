@@ -235,6 +235,8 @@
   "choose_wallet_currency": "ウォレットの通貨を選択してください：",
   "choose_wallet_group": "ウォレットグループを選択",
   "clear": "クリア",
+  "clear_image_cache": "画像キャッシュをクリア",
+  "clear_image_cache_confirmation": "画像キャッシュをクリアしてもよろしいですか？",
   "clearnet_link": "クリアネットリンク",
   "close": "閉じる",
   "coin_control": "コインコントロール（任意）",
