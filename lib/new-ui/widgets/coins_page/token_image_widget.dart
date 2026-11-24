@@ -77,12 +77,11 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
     if (url.startsWith('assets/')) {
       provider = AssetImage(url);
     } else if (url.startsWith('http')) {
-      try {
-        provider = FileImage(await NetworkImageCache.instance.getFile(url));
-      } catch (e) {
-        printV("TokenImageWidget: failed to load $url: $e");
+      final file = await NetworkImageCache.instance.getFile(url);
+      if (file == null) {
         return _IconShape.clipOnly;
       }
+      provider = FileImage(file);
     } else {
       return _IconShape.clipOnly;
     }

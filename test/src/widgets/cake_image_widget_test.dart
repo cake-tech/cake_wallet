@@ -1,6 +1,5 @@
 import "dart:convert";
 import "dart:io";
-import "dart:typed_data";
 
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/utils/network_image_cache.dart";
@@ -9,6 +8,8 @@ import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:flutter_svg/flutter_svg.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:http/http.dart" as http;
+import "package:http/testing.dart";
 import "package:path/path.dart" as p;
 
 import "../../utils/semantics_helpers.dart";
@@ -144,14 +145,13 @@ void main() {
     late Directory root;
     late int fetches;
 
-    void useCache(Future<Uint8List> Function(Uri uri) fetch) =>
-        NetworkImageCache.instance = NetworkImageCache(
-          directoryPath: root.path,
-          fetch: (uri) {
-            fetches++;
-            return fetch(uri);
-          },
-        );
+    void useCache(int status, List<int> body) => NetworkImageCache.instance = NetworkImageCache(
+      directoryPath: root.path,
+      createClient: () => MockClient((_) async {
+        fetches++;
+        return http.Response.bytes(body, status);
+      }),
+    );
 
     String cachedPath(String url) => p.join(root.path, NetworkImageCache.fileNameFor(url));
 
@@ -168,7 +168,7 @@ void main() {
 
     testWidgets("downloads once, then renders from disk on the first frame", (tester) async {
       const url = "https://example.com/coins/btc.png";
-      useCache((_) async => _png);
+      useCache(200, _png);
 
       await _pump(tester, const CakeImageWidget(imageUrl: url, width: 24, height: 24));
 
@@ -193,9 +193,7 @@ void main() {
 
     testWidgets("an svg url is rendered from its cached file", (tester) async {
       const url = "https://example.com/coins/xmr.svg";
-      useCache(
-        (_) async => utf8.encode('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'),
-      );
+      useCache(200, utf8.encode('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'));
 
       await _pump(tester, const CakeImageWidget(imageUrl: url, width: 24, height: 24));
       await _settle(tester, () => find.byType(SvgPicture).evaluate().isNotEmpty);
@@ -204,9 +202,9 @@ void main() {
       expect(File(cachedPath(url)).existsSync(), isTrue);
     });
 
-    testWidgets("a failed download shows the error placeholder", (tester) async {
+    testWidgets("an error response shows the error placeholder", (tester) async {
       const url = "https://example.com/coins/missing.png";
-      useCache((uri) async => throw HttpException("404", uri: uri));
+      useCache(404, []);
 
       await _pump(tester, const CakeImageWidget(imageUrl: url, width: 24, height: 24));
       await _settle(tester, () => find.byIcon(Icons.error_outline).evaluate().isNotEmpty);

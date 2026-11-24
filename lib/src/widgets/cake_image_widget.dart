@@ -223,15 +223,12 @@ class _CachedNetworkImageState extends State<_CachedNetworkImage> {
       return;
     }
 
-    try {
-      final file = await NetworkImageCache.instance.getFile(url);
-      if (mounted && widget.url == url) {
-        setState(() => _file = file);
-      }
-    } catch (_) {
-      if (mounted && widget.url == url) {
-        setState(() => _failed = true);
-      }
+    final file = await NetworkImageCache.instance.getFile(url);
+    if (mounted && widget.url == url) {
+      setState(() {
+        _file = file;
+        _failed = file == null;
+      });
     }
   }
 
