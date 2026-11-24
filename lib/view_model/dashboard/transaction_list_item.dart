@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/spark_exit_history.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
@@ -55,6 +56,10 @@ class TransactionListItem extends ActionListItem with Keyable {
   }
 
   String get formattedTitle {
+    final sparkExitTitle = SparkExitHistory.titleFor(transaction.additionalInfo);
+    if (sparkExitTitle != null) {
+      return sparkExitTitle;
+    }
 
     if (transaction.additionalInfo['isIronwoodMigration'] == true) {
       return 'Migration';

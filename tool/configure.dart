@@ -306,6 +306,27 @@ abstract class Bitcoin {
   Future<void> setLightningUsername(Object wallet, String username);
   Future<String?> getLightningUsername(Object wallet);
   Future<String?> getLightningInvoice(Object wallet, BigInt amount);
+  String getUnilateralExitDestination(Object wallet);
+  Future<void> mergeLeavesForUnilateralExit(Object wallet);
+  Future<
+      ({
+        bool isRebuild,
+        int recoverableSat,
+        int feeSat,
+        List<({String id, int valueSat, bool isCooperative})> leaves,
+        List<({String id, int valueSat, String reason, String? message})> skipped,
+      })> quoteUnilateralExit(
+    Object wallet, {
+    required String destination,
+    required int feeRate,
+    List<String>? leafIds,
+  });
+  Future<PendingTransaction> createUnilateralExitTransaction(
+    Object wallet, {
+    required String destination,
+    required int feeRate,
+    List<String>? leafIds,
+  });
   String? getBreezSdkError(Object exception);
   Future<Account> getCurrentAccount(Object wallet);
   Money balanceForAccount(Object wallet, int accountIndex);
