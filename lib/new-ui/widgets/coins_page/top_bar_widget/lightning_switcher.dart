@@ -5,21 +5,28 @@ import "package:flutter/services.dart";
 
 const _switcherDuration = Duration(milliseconds: 250);
 const _switcherCurve = Curves.easeOutCubic;
-const _collapsedSegmentWidth = 40.0;
-const _expandedSegmentWidth = 120.0;
-const _switcherPadding = 4.0;
+const _switcherHeight = 32.0;
+const _switcherPadding = 2.0;
+const _segmentIconSize = 24.0;
+const _switcherBorderWidth = 0.5;
+
+const _onChainIconPath = "assets/new-ui/switcher-bitcoin.svg";
+const _lightningIconPath = "assets/new-ui/switcher-lightning.svg";
+
 
 class LightningSwitcher extends StatelessWidget {
-  const LightningSwitcher(
-      {required this.lightningMode, required this.onLightningSwitchPress, super.key});
+  const LightningSwitcher({
+    required this.lightningMode,
+    required this.onLightningSwitchPress,
+    super.key,
+  });
 
   final bool lightningMode;
   final VoidCallback onLightningSwitchPress;
 
   @override
   Widget build(BuildContext context) {
-    const switcherWidth =
-        _expandedSegmentWidth + _collapsedSegmentWidth + _switcherPadding * 2;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
       button: true,
@@ -35,44 +42,52 @@ class LightningSwitcher extends StatelessWidget {
               onLightningSwitchPress();
             },
             child: Container(
-              width: switcherWidth,
-              height: 40,
+              width: double.infinity,
+              height: _switcherHeight,
               padding: const EdgeInsets.all(_switcherPadding),
               decoration: ShapeDecoration(
                 shape: RoundedSuperellipseBorder(
                   borderRadius: BorderRadiusGeometry.circular(900.0),
                 ),
-                color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                color: colorScheme.surfaceContainerLowest,
               ),
               child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  AnimatedPositioned(
+                  AnimatedAlign(
                     duration: _switcherDuration,
                     curve: _switcherCurve,
-                    left: lightningMode ? _collapsedSegmentWidth : 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Container(
-                      width: _expandedSegmentWidth,
-                      decoration: ShapeDecoration(
-                        shape: RoundedSuperellipseBorder(
-                          borderRadius: BorderRadiusGeometry.circular(900.0),
+                    alignment: lightningMode ? Alignment.centerRight : Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      widthFactor: 0.5,
+                      heightFactor: 1,
+                      child: DecoratedBox(
+                        decoration: ShapeDecoration(
+                          shape: RoundedSuperellipseBorder(
+                            borderRadius: BorderRadiusGeometry.circular(900.0),
+                            side: BorderSide(
+                              width: _switcherBorderWidth,
+                              color: colorScheme.surfaceContainerHighest,
+                            ),
+                          ),
+                          color: colorScheme.surfaceContainer,
                         ),
-                        color: Theme.of(context).colorScheme.surface,
                       ),
                     ),
                   ),
                   Row(
                     children: [
-                      _SwitcherSegment(
-                        iconPath: 'assets/new-ui/switcher-bitcoin.svg',
-                        label: 'On-chain',
-                        isSelected: !lightningMode,
+                      Expanded(
+                        child: _SwitcherSegment(
+                          iconPath: _onChainIconPath,
+                          isSelected: !lightningMode,
+                        ),
                       ),
-                      _SwitcherSegment(
-                        iconPath: 'assets/new-ui/switcher-lightning.svg',
-                        label: 'Lightning',
-                        isSelected: lightningMode,
+                      Expanded(
+                        child: _SwitcherSegment(
+                          iconPath: _lightningIconPath,
+                          isSelected: lightningMode,
+                        ),
                       ),
                     ],
                   ),
@@ -87,65 +102,23 @@ class LightningSwitcher extends StatelessWidget {
 }
 
 class _SwitcherSegment extends StatelessWidget {
-  const _SwitcherSegment({
-    required this.iconPath,
-    required this.label,
-    required this.isSelected,
-  });
+  const _SwitcherSegment({required this.iconPath, required this.isSelected});
 
   final String iconPath;
-  final String label;
   final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return AnimatedContainer(
-      duration: _switcherDuration,
-      curve: _switcherCurve,
-      width: isSelected ? _expandedSegmentWidth : _collapsedSegmentWidth,
-      height: 32,
-      child: ClipRect(
-        child: OverflowBox(
-          alignment: Alignment.centerLeft,
-          minWidth: _expandedSegmentWidth,
-          maxWidth: _expandedSegmentWidth,
-          child: Row(
-            children: [
-              SizedBox(
-                width: _collapsedSegmentWidth,
-                child: Center(
-                  child: CakeImageWidget(
-                    imageUrl: iconPath,
-                    width: 28,
-                    height: 28,
-                    colorFilter: ColorFilter.mode(
-                      isSelected ? colorScheme.onSurfaceVariant : colorScheme.primary,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: AnimatedOpacity(
-                  duration: _switcherDuration,
-                  curve: _switcherCurve,
-                  opacity: isSelected ? 1 : 0,
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.clip,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurface,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    return Center(
+      child: CakeImageWidget(
+        imageUrl: iconPath,
+        width: _segmentIconSize,
+        height: _segmentIconSize,
+        colorFilter: ColorFilter.mode(
+          isSelected ? colorScheme.onSurface : colorScheme.onSurfaceVariant,
+          BlendMode.srcIn,
         ),
       ),
     );
