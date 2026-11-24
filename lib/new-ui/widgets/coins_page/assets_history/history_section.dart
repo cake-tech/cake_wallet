@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tra
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/utils/date_formatter.dart';
 import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -120,7 +121,7 @@ class HistorySection extends StatelessWidget {
                               child: HistoryTile(
                                 key: ValueKey("${short ? "home_page" : "history_modal"}_transaction_${index}_key"),
                                 title: item.formattedTitle + transactionType,
-                                date: _formatTransactionDate(item.date, localeName),
+                                date: DateFormatter.formatTransactionDate(item.date, localeName),
                                 amount: item.formattedCryptoAmount,
                                 amountFiat: item.formattedFiatAmount,
                                 hasTokens: item.hasTokens,
@@ -143,7 +144,7 @@ class HistorySection extends StatelessWidget {
                                 from: trade.depositAmount.currency as CryptoCurrency,
                                 to: trade.payoutAmount.currency as CryptoCurrency,
                                 provider: trade.provider,
-                                date: _formatTransactionDate(
+                                date: DateFormatter.formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
                                 amount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
@@ -176,7 +177,8 @@ class HistorySection extends StatelessWidget {
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.orderDetails, arguments: item.order),
                               child: HistoryOrderTile(
-                                date: _formatTransactionDate(item.order.createdAt, localeName),
+                                date: DateFormatter.formatTransactionDate(
+                                    item.order.createdAt, localeName),
                                 amount: item.orderFormattedAmount,
                                 amountFiat: "",
                                 roundedBottom: roundedBottom,
@@ -193,8 +195,8 @@ class HistorySection extends StatelessWidget {
                                 arguments: [item.sessionId, item.transaction],
                               ),
                               child: PayjoinHistoryTile(
-                                  createdAt:
-                                      _formatTransactionDate(session.inProgressSince!, localeName),
+                                  createdAt: DateFormatter.formatTransactionDate(
+                                      session.inProgressSince!, localeName),
                                   amount: dashboardViewModel.appStore.amountParsingProxy
                                       .asDisplayString(Money(session.amount, CryptoCurrency.btc)),
                                   currency: item.transaction?.from ?? "BTC",
@@ -213,7 +215,7 @@ class HistorySection extends StatelessWidget {
                                     arguments: transactionInfo),
                                 child: AnonpayHistoryTile(
                                     provider: transactionInfo.provider,
-                                    createdAt: _formatTransactionDate(
+                                    createdAt: DateFormatter.formatTransactionDate(
                                         transactionInfo.createdAt, localeName),
                                     amount: transactionInfo.fiatAmount?.toString() ??
                                         (transactionInfo.amountTo?.toString() ?? ''),
@@ -243,37 +245,5 @@ class HistorySection extends StatelessWidget {
     } catch (e) {
       return dashboardViewModel.wallet.currency.chainIconPath ?? "";
     }
-  }
-
-  String _formatTransactionDate(DateTime date, String localeName) {
-    final time = DateFormat.Hm(localeName);
-
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final thatDay = DateTime(date.year, date.month, date.day);
-    final daysAgo = today.difference(thatDay).inDays;
-
-    final timeStr = time.format(date);
-
-    if (daysAgo == 0) {
-      return timeStr;
-    }
-
-    if (daysAgo == 1) {
-      return "${S.current.yesterday}, $timeStr";
-    }
-
-    if (daysAgo < 7) {
-      final weekday = DateFormat.EEEE(localeName).format(date);
-      return "$weekday, $timeStr";
-    }
-
-    if (date.year == now.year) {
-      final dayMonth = DateFormat("d MMMM", localeName).format(date);
-      return "$dayMonth, $timeStr";
-    }
-
-    final full = DateFormat("d MMM yyyy", localeName).format(date);
-    return "$full, $timeStr";
   }
 }

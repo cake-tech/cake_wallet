@@ -23,6 +23,8 @@ class BridgeReceivingWalletPage extends StatefulWidget {
 class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
   BridgeViewModel get bridgeViewModel => widget.bridgeViewModel;
 
+  late final _chain = bridgeViewModel.destinationChainInfo;
+
   @override
   void initState() {
     super.initState();
@@ -54,9 +56,7 @@ class _BridgeReceivingWalletPageState extends State<BridgeReceivingWalletPage> {
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Observer(
                     builder: (_) {
-                      final chain = bridgeViewModel.destinationChainInfo;
-
-                      final chainName = chain?.name ?? '';
+                      final chainName = _chain?.name ?? '';
                       final tokenTitle = bridgeViewModel.selectedToken?.title ?? "";
 
                       return Column(

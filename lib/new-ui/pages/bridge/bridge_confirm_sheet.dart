@@ -135,9 +135,9 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                             ),
                             const SizedBox(height: 16),
                             FilledButton(
-                              onPressed: () => bridgeViewModel.loadQuote(),
+                              onPressed: () => Navigator.of(context).maybePop(),
                               child: Text(
-                                S.of(context).try_again,
+                                S.of(context).close,
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 16,
