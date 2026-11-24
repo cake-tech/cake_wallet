@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cake_wallet/entities/exchange_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
@@ -154,7 +152,7 @@ class ConnectionSyncPage extends BasePage {
 
                               _connectionSyncViewModel.setUseMempoolFeeAPI(isEnabled);
                             }),
-                      if (Platform.isAndroid && FeatureFlag.isBackgroundSyncEnabled)
+                      if (FeatureFlag.isBackgroundSyncEnabled)
                         ListItemRegularRow(
                             keyValue: "background_sync",
                             label: S.of(context).background_sync,

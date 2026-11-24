@@ -28,6 +28,7 @@ import 'package:cake_wallet/order/order_provider_description.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/store/dashboard/order_filter_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
+import 'package:cake_wallet/utils/feature_flag.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/zcash/zcash.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -1013,7 +1014,7 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   Future<bool> isBackgroundSyncEnabled() async {
-    if (!Platform.isAndroid) {
+    if (!FeatureFlag.isBackgroundSyncEnabled) {
       return false;
     }
     final resp = await FlutterDaemon().getBackgroundSyncStatus();

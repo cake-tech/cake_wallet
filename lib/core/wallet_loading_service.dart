@@ -76,6 +76,11 @@ class WalletLoadingService {
 
       return wallet;
     } catch (error, stack) {
+      if (isBackground) {
+        printV("Background wallet load failed for $name ($type): ${error.runtimeType}");
+        rethrow;
+      }
+
       String corruptedWalletsSeeds = "Corrupted wallets seeds (if retrievable, empty otherwise):";
 
       if (error is WalletDeprecationException) {
