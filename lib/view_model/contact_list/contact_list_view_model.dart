@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/wallet_contact.dart';
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import 'package:cake_wallet/entities/wallet_list_order_types.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -57,8 +59,10 @@ abstract class ContactListViewModelBase with Store {
 
     try {
       final loadedContacts = <WalletContact>[];
+      final displayNames = getIt.get<WalletDisplayNames>();
       final walletInfos = await WalletInfo.getAll();
       for (final info in walletInfos) {
+        final walletName = displayNames.inFlatList(info);
         final addressInfos = await info.getAddressInfos();
         final addresses = await info.getAddresses();
         if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
@@ -67,7 +71,7 @@ abstract class ContactListViewModelBase with Store {
             final value = addressInfos[key];
             final address = value?.first;
             if (address != null) {
-              final name = _createName(info.name, address.label, key: key);
+              final name = _createName(walletName, address.label, key: key);
               loadedContacts.add(WalletContact(
                 address.address,
                 name,
@@ -82,7 +86,7 @@ abstract class ContactListViewModelBase with Store {
           if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
               .contains(info.type)) {
             final address = info.address;
-            final name = _createName(info.name, "", key: 0);
+            final name = _createName(walletName, "", key: 0);
             loadedContacts.add(WalletContact(
               address,
               name,
@@ -96,7 +100,7 @@ abstract class ContactListViewModelBase with Store {
               if (label.isEmpty) {
                 return;
               }
-              final name = _createName(info.name, label, key: null);
+              final name = _createName(walletName, label, key: null);
               loadedContacts.add(WalletContact(
                 address,
                 name,
@@ -114,7 +118,7 @@ abstract class ContactListViewModelBase with Store {
         } else {
           loadedContacts.add(WalletContact(
             info.address,
-            _createName(info.name, "",
+            _createName(walletName, "",
                 key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
                     ? 0
                     : null),

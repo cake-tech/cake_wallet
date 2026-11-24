@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cw_core/amount/money.dart';
@@ -328,8 +327,9 @@ abstract class NanoWalletBase
 
   @override
   Future<void> save() async {
-    if (!(await WalletKeysFile.hasKeysFile(walletInfo.name, walletInfo.type))) {
+    if (!await WalletKeysFile.hasKeysFile(walletInfo)) {
       await saveKeysFile(_password, _encryptionFileUtils);
+      //TODO(nano): saveKeysFile is not awaited, double check if this is correct
       saveKeysFile(_password, _encryptionFileUtils, true);
     }
 
@@ -395,13 +395,12 @@ abstract class NanoWalletBase
       });
 
   static Future<NanoWallet> open({
-    required String name,
     required String password,
     required WalletInfo walletInfo,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
-    final path = await pathForWallet(name: name, type: walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
+    final path = await walletFilePathOf(walletInfo);
 
     Map<String, dynamic>? data = null;
     try {
@@ -427,8 +426,7 @@ abstract class NanoWalletBase
           mnemonic: isHexSeed ? null : mnemonic, altMnemonic: isHexSeed ? mnemonic : null);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );
@@ -448,12 +446,14 @@ abstract class NanoWalletBase
         derivationInfo.derivationType = DerivationType.bip39;
       }
     }
+    // TODO(nano): save is not awaited here, double check if this is correct
     derivationInfo.save();
 
     return NanoWallet(
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
       password: password,
+      // TODO(nano): hex-seed wallets (restored from a 64/128-char seed) have no mnemonic
       mnemonic: keysData.mnemonic!,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
@@ -546,28 +546,6 @@ abstract class NanoWalletBase
     } catch (_) {
       return false;
     }
-  }
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletPath = await pathForWallet(name: walletInfo.name, type: type);
-    final currentWalletFile = File(currentWalletPath);
-
-    final currentDirPath = await pathForWalletDir(name: walletInfo.name, type: type);
-    final currentTransactionsFile = File('$currentDirPath/$transactionsHistoryFileName');
-
-    // Copies current wallet files into new wallet name's dir and files
-    if (currentWalletFile.existsSync()) {
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-      await currentWalletFile.copy(newWalletPath);
-    }
-    if (currentTransactionsFile.existsSync()) {
-      final newDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentTransactionsFile.copy('$newDirPath/$transactionsHistoryFileName');
-    }
-
-    // Delete old name's dir and files
-    await Directory(currentDirPath).delete(recursive: true);
   }
 
   @override

@@ -243,15 +243,14 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
-    final hasKeysFile = await WalletKeysFile.hasKeysFile(name, walletInfo.type);
+    final hasKeysFile = await WalletKeysFile.hasKeysFile(walletInfo);
 
     ElectrumWalletSnapshot? snp = null;
 
     try {
       snp = await ElectrumWalletSnapshot.load(
         encryptionFileUtils,
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         LitecoinNetwork.mainnet,
       );
@@ -266,8 +265,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           WalletKeysData(mnemonic: snp!.mnemonic, xPub: snp.xpub, passphrase: snp.passphrase);
     } else {
       keysData = await WalletKeysFile.readKeysFile(
-        name,
-        walletInfo.type,
+        walletInfo,
         password,
         encryptionFileUtils,
       );
@@ -491,6 +489,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> initMwebUtxosBox() async {
+    // TODO(wallet-id): MWEB box is keyed by wallet name; move to walletInfo.id (with box migration) before names can repeat.
     final boxName = "${walletInfo.name.replaceAll(" ", "_")}_${MwebUtxo.boxName}";
 
     mwebUtxosBox = await CakeHive.openBox<MwebUtxo>(boxName);

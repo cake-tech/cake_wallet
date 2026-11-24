@@ -12,6 +12,7 @@ class ListItemStyleWrapper extends StatelessWidget {
     this.iconPath,
     this.contentPadding,
     this.height,
+    this.leadingAccessory,
     this.testId,
     this.mergeTestId = true,
   });
@@ -24,6 +25,7 @@ class ListItemStyleWrapper extends StatelessWidget {
   final Color? backgroundColor;
   final Widget Function(BuildContext context, TextStyle textStyle, TextStyle labelStyle) builder;
   final EdgeInsets? contentPadding;
+  final bool? leadingAccessory;
   final String? testId;
   final bool mergeTestId;
 
@@ -54,7 +56,9 @@ class ListItemStyleWrapper extends StatelessWidget {
       borderRadius: radius,
       child: Column(
         children: [
-          (mergeTestId ? TestId.merge : TestId.container)(testId, child: Container(
+          (mergeTestId ? TestId.merge : TestId.container)(
+            testId,
+            child: Container(
               height: height,
               decoration: ShapeDecoration(
                 shape: RoundedSuperellipseBorder(
@@ -63,13 +67,26 @@ class ListItemStyleWrapper extends StatelessWidget {
                 color: backgroundColor ?? theme.colorScheme.surfaceContainer,
               ),
               child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                      onTap: onTap,
-                      child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12, vertical: height == null ? 11 : 0),
-                          child: builder(context, textStyle, labelStyle))))),
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onTap,
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                  focusColor: Colors.transparent,
+                  splashFactory: NoSplash.splashFactory,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      leadingAccessory == true ? 0 : 12,
+                      height == null ? 11 : 0,
+                      12,
+                      height == null ? 11 : 0,
+                    ),
+                    child: builder(context, textStyle, labelStyle),
+                  ),
+                ),
+              ),
+            ),
           ),
           if (iconPath != null && isLastInSection == false)
             Container(

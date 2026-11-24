@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:core';
-import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/encryption_file_utils.dart';
 import 'package:mobx/mobx.dart';
@@ -36,7 +36,7 @@ abstract class NanoTransactionHistoryBase extends TransactionHistoryBase<NanoTra
   @override
   Future<void> save() async {
     try {
-      final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+      final dirPath = await pathForWalletDirOf(walletInfo);
       final path = '$dirPath/$transactionsHistoryFileName';
       final data = json.encode({'transactions': transactions});
       await encryptionFileUtils.write(path: path, password: _password, data: data);
@@ -53,7 +53,9 @@ abstract class NanoTransactionHistoryBase extends TransactionHistoryBase<NanoTra
       this.transactions.addAll(transactions);
 
   Future<Map<String, dynamic>> _read() async {
-    final dirPath = await pathForWalletDir(name: walletInfo.name, type: walletInfo.type);
+
+    final dirPath = await walletDirPathOf(walletInfo);
+
     final path = '$dirPath/$transactionsHistoryFileName';
     final content = await encryptionFileUtils.read(path: path, password: _password);
     if (content.isEmpty) {

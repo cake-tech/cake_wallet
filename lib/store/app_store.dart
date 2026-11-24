@@ -3,6 +3,7 @@ import "dart:async";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/preferences_key.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart";
 import "package:cake_wallet/store/authentication_store.dart";
@@ -37,6 +38,11 @@ abstract class AppStoreBase with Store {
   }
 
   AuthenticationStore authenticationStore;
+
+  String get currentWalletGroupName {
+    final current = wallet;
+    return current == null ? "" : getIt.get<WalletDisplayNames>().groupName(current.walletInfo);
+  }
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>? wallet;

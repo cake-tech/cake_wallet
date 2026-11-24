@@ -1,22 +1,18 @@
-import 'dart:io';
-
-import 'package:bip39/bip39.dart' as bip39;
-import 'package:cw_core/encryption_file_utils.dart';
-import 'package:cw_core/balance.dart';
+import "package:bip39/bip39.dart" as bip39;
+import "package:cw_core/balance.dart";
+import "package:cw_core/encryption_file_utils.dart";
 import "package:cw_core/imported_nft.dart";
-import "package:cw_core/exceptions/cake_exception.dart";
-import 'package:cw_core/pathForWallet.dart';
-import 'package:cw_core/spl_token.dart';
-import 'package:cw_core/transaction_history.dart';
-import 'package:cw_core/transaction_info.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_info.dart';
-import 'package:cw_core/wallet_service.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:cw_solana/solana_mnemonics.dart';
-import 'package:cw_solana/solana_wallet.dart';
-import 'package:cw_solana/solana_wallet_creation_credentials.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:cw_core/spl_token.dart";
+import "package:cw_core/transaction_history.dart";
+import "package:cw_core/transaction_info.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:cw_core/wallet_service.dart";
+import "package:cw_core/wallet_type.dart";
+import "package:cw_solana/solana_mnemonics.dart";
+import "package:cw_solana/solana_wallet.dart";
+import "package:cw_solana/solana_wallet_creation_credentials.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 class SolanaWalletService extends WalletService<
     SolanaNewWalletCredentials,
@@ -52,19 +48,10 @@ class SolanaWalletService extends WalletService<
   WalletType getType() => WalletType.solana;
 
   @override
-  Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: getType())).existsSync();
-
-  @override
-  Future<SolanaWallet> openWallet(String name, String password) async {
-    final walletInfo = await WalletInfo.get(name, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: name, type: getType());
-    }
-
+  Future<SolanaWallet> openWallet(WalletInfo walletInfo, String password) async {
     try {
       final wallet = await SolanaWalletBase.open(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -73,13 +60,13 @@ class SolanaWalletService extends WalletService<
       await wallet.init();
       await wallet.addInitialTokens();
       await wallet.save();
-      saveBackup(name);
+      saveBackup(walletInfo);
       return wallet;
     } catch (_) {
-      await restoreWalletFilesFromBackup(name);
+      await restoreWalletFilesFromBackup(walletInfo);
 
       final wallet = await SolanaWalletBase.open(
-        name: name,
+        name: walletInfo.name,
         password: password,
         walletInfo: walletInfo,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
@@ -92,23 +79,25 @@ class SolanaWalletService extends WalletService<
     }
   }
 
+  // TODO(wallet-id): tokens/NFTs (and Solana sync prefs) are keyed by wallet name; re-key by walletInfo.id.
   @override
-  Future<void> remove(String wallet) async {
-    await File(await pathForWalletDir(name: wallet, type: getType())).delete(recursive: true);
-    final walletInfo = await WalletInfo.get(wallet, getType());
-    if (walletInfo == null) {
-      throw WalletNotFoundException(name: wallet, type: getType());
-    }
-    await WalletInfo.delete(walletInfo);
-    final nameStillUsed = await WalletInfo.get(wallet, getType()) != null;
+  Future<void> remove(WalletInfo walletInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+    final keysToRemove = prefs
+        .getKeys()
+        .where((k) => k.startsWith("solana_last_synced_signature_${walletInfo.name}_"))
+        .toList();
+
+    final walletName = walletInfo.name;
+    await super.remove(walletInfo);
+
+    final nameStillUsed = await WalletInfo.get(walletName, getType()) != null;
     if (!nameStillUsed) {
-      await SPLToken.deleteAllForWallet(wallet);
-      await ImportedNFT.deleteAllForWallet(wallet, chains: const [ImportedNFT.solanaChain]);
+      await SPLToken.deleteAllForWallet(walletName);
+      await ImportedNFT.deleteAllForWallet(walletName, chains: const [ImportedNFT.solanaChain]);
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    for (final key
-        in prefs.getKeys().where((k) => k.startsWith('solana_last_synced_signature_${wallet}_'))) {
+    for (final key in keysToRemove) {
       await prefs.remove(key);
     }
   }
@@ -156,7 +145,7 @@ class SolanaWalletService extends WalletService<
 
   @override
   Future<WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>>
-      restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
+  restoreFromHardwareWallet(SolanaNewWalletCredentials credentials) {
     // TODO: implement restoreFromHardwareWallet
     throw UnimplementedError();
   }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import "package:cake_wallet/core/key_service.dart";
 import 'package:cake_wallet/core/reset_service.dart';
 import 'package:cake_wallet/core/secure_storage.dart';
 import 'package:cake_wallet/core/totp_request_details.dart';
@@ -13,6 +14,7 @@ import 'package:cw_core/db/sqlite.dart';
 import "package:cw_core/keychain_read_status_native.dart";
 import 'package:cw_core/root_dir.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_group_db_entry.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
@@ -42,7 +44,7 @@ class AuthService with Store {
     Routes.setup_2faPage,
     Routes.modify2FAPage,
     Routes.newWallet,
-    Routes.newWalletType,
+    Routes.walletCreationTypeSelectionPage,
     Routes.addressBookAddContact,
     Routes.restoreOptions,
     Routes.securityBackupDuressPin,
@@ -137,7 +139,7 @@ class AuthService with Store {
         walletNames: () async {
           final currentWalletName = sharedPreferences.getString(PreferencesKey.currentWalletName);
           return {
-            for (final walletInfo in await WalletInfo.getAll()) walletInfo.name,
+            for (final walletInfo in await WalletInfo.getAll()) KeyService.passwordKeyOf(walletInfo),
             if (currentWalletName != null && currentWalletName.isNotEmpty) currentWalletName,
           };
         },
@@ -321,7 +323,9 @@ Future<void> _handleDuressLogin(
       await txn.delete(WalletInfoAddressMap.tableName);
       await txn.delete(WalletInfoAddress.tableName);
       await txn.delete(DerivationInfo.tableName);
+      await txn.delete(WalletGroupDbEntry.tableName);
       await txn.delete(WalletInfo.tableName);
+      await txn.delete(WalletGroupDbEntry.tableName);
     });
     printV('[DURESS] SQLite wallet tables wiped');
   } catch (e) {

@@ -1,14 +1,19 @@
 import 'package:cake_wallet/core/new_wallet_arguments.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/new-ui/utils/omnichain_compatibility.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/grouped_wallet_expansion_tile.dart';
+import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import "package:cake_wallet/store/settings_store.dart";
 import 'package:cake_wallet/themes/core/material_base_theme.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import "package:cake_wallet/utils/show_pop_up.dart";
 import 'package:cake_wallet/view_model/wallet_groups_display_view_model.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cw_core/wallet_type.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -70,7 +75,9 @@ class WalletGroupsDisplayBody extends StatelessWidget {
                                     Icon(Icons.account_balance_wallet_outlined, size: 28),
                                 borderRadius: BorderRadius.all(Radius.circular(16)),
                                 title: groupName,
-                                childWallets: group.wallets.map((walletInfo) {
+                                childWallets: group.wallets
+                                    .where((walletInfo) => walletInfo.isReady)
+                                    .map((walletInfo) {
                                   return walletGroupsDisplayViewModel
                                       .convertWalletInfoToWalletListItem(walletInfo);
                                 }).toList(),
@@ -118,7 +125,8 @@ class WalletGroupsDisplayBody extends StatelessWidget {
               builder: (context) {
                 return LoadingPrimaryButton(
                   key: ValueKey("wallet_group_display_page_next_button_key"),
-                  isLoading: walletGroupsDisplayViewModel.isFetchingMnemonic,
+                  isLoading: walletGroupsDisplayViewModel.isFetchingMnemonic ||
+                      walletGroupsDisplayViewModel.isCreatingWallet,
                   onPressed: () {
                     if (walletGroupsDisplayViewModel.hasNoFilteredWallet) {
                       Navigator.of(context).pushNamed(
@@ -149,17 +157,50 @@ class WalletGroupsDisplayBody extends StatelessWidget {
   }
 
   Future<void> onTypeSelected(BuildContext context) async {
-    final mnemonic = await walletGroupsDisplayViewModel.getSelectedWalletMnemonic();
-    if (context.mounted) {
+    final viewModel = walletGroupsDisplayViewModel;
+    final String? mnemonic;
+    try {
+      mnemonic = await viewModel.getSelectedWalletMnemonic();
+    } on GroupNotOmnichainCompatibleException catch (e) {
+      if (context.mounted) showBar<void>(context, e.message);
+      return;
+    }
+    if (!context.mounted) return;
+
+    // No group seed (the wallet gets its own) or a password to type: keep the full page.
+    if (mnemonic == null || SettingsStoreBase.walletPasswordDirectInput) {
       Navigator.of(context).pushNamed(
         Routes.newWallet,
         arguments: NewWalletArguments(
-          type: walletGroupsDisplayViewModel.type,
+          type: viewModel.type,
           mnemonic: mnemonic,
           isChildWallet: true,
+          parentGroupId: mnemonic == null
+              ? null
+              : viewModel.selectedWalletGroup?.groupKey ??
+              viewModel.selectedSingleWallet?.groupId,
         ),
       );
+      return;
     }
+
+    final error = await viewModel.addWalletToSelectedGroup(mnemonic);
+    if (!context.mounted) return;
+
+    if (error == null) {
+      Navigator.of(context).pushNamed(Routes.walletGroupExistingSeedDescriptionPage);
+      return;
+    }
+
+    await showPopUp<void>(
+      context: context,
+      builder: (dialogContext) => AlertWithOneAction(
+        alertTitle: S.of(context).new_wallet,
+        alertContent: error,
+        buttonText: S.of(context).ok,
+        buttonAction: () => Navigator.of(dialogContext).pop(),
+      ),
+    );
   }
 }
 

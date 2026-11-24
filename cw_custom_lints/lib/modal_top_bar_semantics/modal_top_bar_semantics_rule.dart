@@ -64,6 +64,6 @@ class _Visitor extends SimpleAstVisitor<void> {
       return;
     }
 
-    rule.reportAtToken(icon.name, arguments: [iconName, semanticLabelName]);
+    rule.reportAtToken(icon.groupName, arguments: [iconName, semanticLabelName]);
   }
 }

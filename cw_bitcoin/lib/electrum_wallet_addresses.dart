@@ -1181,7 +1181,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     if (lightningWallet == null) return;
 
     try {
-      final path = await pathForWalletDir(name: walletName, type: WalletType.bitcoin);
+      final path = await pathForWalletDirOf(walletInfo);
       final initialized = await lightningWallet!.init(path);
 
       if (!initialized) {

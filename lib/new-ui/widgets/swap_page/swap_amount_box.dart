@@ -1,3 +1,4 @@
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/qr_scanner.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -11,6 +12,7 @@ import "package:cake_wallet/new-ui/widgets/swap_page/refund_address_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_address_selection_modal.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_source_selector.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/utils/decimal_input_formatter.dart";
 import "package:cake_wallet/utils/payment_request.dart";
 import "package:cake_wallet/utils/permission_handler.dart";
@@ -44,6 +46,10 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
   final amountFocusNode = FocusNode();
 
   bool _fiatInputMode = false;
+
+  String _sourceDisplayName(SwapStateWithInputs state) => state.source is InternalSwapSource
+      ? getIt.get<AppStore>().currentWalletGroupName
+      : state.source.displayName;
 
   @override
   void initState() {
@@ -343,7 +349,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                       Text(
                                         widget.isReceiverCard
                                             ? state.payoutAddress?.displayName ?? ""
-                                            : state.source.displayName,
+                                            : _sourceDisplayName(state),
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,

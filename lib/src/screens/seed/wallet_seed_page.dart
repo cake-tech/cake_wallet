@@ -80,7 +80,7 @@ class WalletSeedPage extends BasePage {
                         SizedBox(height: 36),
                         Text(
                           key: ValueKey('wallet_seed_page_wallet_name_text_key'),
-                          walletSeedViewModel.name,
+                          walletSeedViewModel.currentWalletGroupName,
                           style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w600,
@@ -162,7 +162,7 @@ class WalletSeedPage extends BasePage {
       case TargetPlatform.linux:
         final path = await FilePicker.platform.saveFile(
           dialogTitle: "Save seed as",
-          fileName: "${walletSeedViewModel.name}-seed.txt",
+          fileName: "${walletSeedViewModel.currentWalletGroupName}-seed.txt",
           lockParentWindow: true,
         );
         if (path != null) {

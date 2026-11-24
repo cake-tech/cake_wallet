@@ -1,19 +1,23 @@
-import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
-import 'package:cake_wallet/utils/test_id.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart";
+import "package:cake_wallet/utils/test_id.dart";
+import "package:flutter/material.dart";
 
 class ListItemTextFieldWidget extends StatefulWidget {
   const ListItemTextFieldWidget({
-    super.key,
-    required this.keyValue,
-    required this.label,
-    required this.controller,
+    required this.keyValue, required this.label, required this.controller, super.key,
     this.validator,
     this.onChanged,
     this.onFieldSubmitted,
     this.focusNode,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.height = 50,
+    this.border = InputBorder.none,
+    this.focusedBorder = InputBorder.none,
+    this.enabledBorder = InputBorder.none,
+    this.disabledBorder = InputBorder.none,
+    this.suffixIcon,
+    this.suffixIconConstraints,
     this.testId,
   });
 
@@ -26,6 +30,13 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final double height;
+  final InputBorder border;
+  final InputBorder focusedBorder;
+  final InputBorder enabledBorder;
+  final InputBorder disabledBorder;
+  final Widget? suffixIcon;
+  final BoxConstraints? suffixIconConstraints;
   final String? testId;
 
   @override
@@ -34,16 +45,16 @@ class ListItemTextFieldWidget extends StatefulWidget {
 
 class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
   @override
-  Widget build(BuildContext context) {
-    return ListItemStyleWrapper(
+  Widget build(BuildContext context) => ListItemStyleWrapper(
         isFirstInSection: widget.isFirstInSection,
         isLastInSection: widget.isLastInSection,
-        height: 50,
-        builder: (context, textStyle, labelStyle) {
-          return Row(
-            children: [
-              Expanded(
-                child: TestId.container(widget.testId, child: TextFormField(
+        height: widget.height,
+        builder: (context, textStyle, labelStyle) => Row(
+          children: [
+            Expanded(
+              child: TestId.container(
+                widget.testId,
+                child: TextFormField(
                   controller: widget.controller,
                   validator: widget.validator,
                   onChanged: widget.onChanged,
@@ -53,17 +64,19 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
                   decoration: InputDecoration(
                     labelText: widget.label,
                     labelStyle: labelStyle,
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
+                    border: widget.border,
+                    focusedBorder: widget.focusedBorder,
+                    enabledBorder: widget.enabledBorder,
+                    disabledBorder: widget.disabledBorder,
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 7),
+                    suffixIcon: widget.suffixIcon,
+                    suffixIconConstraints: widget.suffixIconConstraints,
                   ),
-                )),
+                ),
               ),
-            ],
-          );
-        });
-  }
+            ),
+          ],
+        ),
+      );
 }

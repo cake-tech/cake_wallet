@@ -66,6 +66,12 @@ class WalletNotFoundException extends WalletOpenException {
   final String name;
 }
 
+class UnsupportedWalletTypeException extends BadWalletTypeException {
+  UnsupportedWalletTypeException(WalletType walletType)
+      : super("${walletTypeToDisplayName(walletType)} is no longer supported",
+      walletType,);
+}
+
 class AccountNotFoundException extends CakeException {
   const AccountNotFoundException(String name)
       : name = name,

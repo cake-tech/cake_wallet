@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
-import 'dart:io';
-import 'dart:isolate';
 
 import 'package:cw_core/account.dart';
 import 'package:cw_core/amount/money.dart';
@@ -26,7 +23,6 @@ import 'package:cw_wownero/api/coins_info.dart';
 import 'package:cw_wownero/api/structs/pending_transaction.dart';
 import 'package:cw_wownero/api/transaction_history.dart' as transaction_history;
 import 'package:cw_wownero/api/wallet.dart' as wownero_wallet;
-import 'package:cw_wownero/api/wallet_manager.dart';
 import 'package:cw_wownero/api/wownero_output.dart';
 import 'package:cw_wownero/exceptions/wownero_transaction_creation_exception.dart';
 import 'package:cw_wownero/exceptions/wownero_transaction_no_inputs_exception.dart';
@@ -256,7 +252,7 @@ abstract class WowneroWalletBase
     } catch (_) {
       // our restore height wasn't correct, so lets see if using the backup works:
       try {
-        await resetCache(name);
+        await resetCache(walletInfo);
         _assertInitialHeight();
       } catch (e) {
         // we still couldn't get a valid height from the backup?!:
@@ -405,76 +401,10 @@ abstract class WowneroWalletBase
     await walletAddresses.updateAddressesInBox();
     await wownero_wallet.store();
     try {
-      await backupWalletFiles(name);
+      await backupWalletFiles(walletInfo);
     } catch (e) {
       printV("¯\\_(ツ)_/¯");
       printV(e);
-    }
-  }
-
-  @override
-  Future<void> renameWalletFiles(String newWalletName) async {
-    final currentWalletDirPath = await pathForWalletDir(name: name, type: type);
-    if (openedWalletsByPath["$currentWalletDirPath/$name"] != null) {
-      // NOTE: this is realistically only required on windows.
-      printV("closing wallet");
-      final wmaddr = wmPtr.address;
-      final waddr = openedWalletsByPath["$currentWalletDirPath/$name"]!.address;
-      await Isolate.run(() {
-        wownero.WalletManager_closeWallet(
-            Pointer.fromAddress(wmaddr), Pointer.fromAddress(waddr), true);
-      });
-      openedWalletsByPath.remove("$currentWalletDirPath/$name");
-      printV("wallet closed");
-    }
-    try {
-      // -- rename the waller folder --
-      final currentWalletDir = Directory(await pathForWalletDir(name: name, type: type));
-      final newWalletDirPath = await pathForWalletDir(name: newWalletName, type: type);
-      await currentWalletDir.rename(newWalletDirPath);
-
-      // -- use new waller folder to rename files with old names still --
-      final renamedWalletPath = newWalletDirPath + '/$name';
-
-      final currentCacheFile = File(renamedWalletPath);
-      final currentKeysFile = File('$renamedWalletPath.keys');
-      final currentAddressListFile = File('$renamedWalletPath.address.txt');
-
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-
-      if (currentCacheFile.existsSync()) {
-        await currentCacheFile.rename(newWalletPath);
-      }
-      if (currentKeysFile.existsSync()) {
-        await currentKeysFile.rename('$newWalletPath.keys');
-      }
-      if (currentAddressListFile.existsSync()) {
-        await currentAddressListFile.rename('$newWalletPath.address.txt');
-      }
-
-      await backupWalletFiles(newWalletName);
-    } catch (e) {
-      final currentWalletPath = await pathForWallet(name: name, type: type);
-
-      final currentCacheFile = File(currentWalletPath);
-      final currentKeysFile = File('$currentWalletPath.keys');
-      final currentAddressListFile = File('$currentWalletPath.address.txt');
-
-      final newWalletPath = await pathForWallet(name: newWalletName, type: type);
-
-      // Copies current wallet files into new wallet name's dir and files
-      if (currentCacheFile.existsSync()) {
-        await currentCacheFile.copy(newWalletPath);
-      }
-      if (currentKeysFile.existsSync()) {
-        await currentKeysFile.copy('$newWalletPath.keys');
-      }
-      if (currentAddressListFile.existsSync()) {
-        await currentAddressListFile.copy('$newWalletPath.address.txt');
-      }
-
-      // Delete old name's dir and files
-      await Directory(currentWalletDirPath).delete(recursive: true);
     }
   }
 

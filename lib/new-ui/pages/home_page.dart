@@ -8,7 +8,10 @@ import "package:cake_wallet/main.dart";
 import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/card_customizer.dart";
 import "package:cake_wallet/new-ui/pages/account_education_page.dart";
+import "package:cake_wallet/new-ui/pages/omnichain_wallet/managing/omnichain_change_network_page.dart";
+import "package:cake_wallet/new-ui/services/omnichain_wallet/omnichain_wallet_service.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/accounts_promo.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/top_bar_widget/lightning_switcher.dart";
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
 import "package:cw_core/sync_status.dart";
 import "package:cake_wallet/new-ui/pages/seed/seed_backup_reminder_page.dart";
@@ -36,6 +39,8 @@ import "package:flutter/material.dart";
 import "package:flutter_mobx/flutter_mobx.dart";
 import "package:mobx/mobx.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
+
+const _lightningSwitcherHorizontalPadding = 20.0;
 
 class NewHomePage extends StatefulWidget {
   const NewHomePage({required this.dashboardViewModel, required this.nftViewModel, super.key});
@@ -134,7 +139,7 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                         return Column(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.start,
-                          spacing: 24.0,
+                          spacing: 24,
                           children: [
                             TopBar(
                               key: ValueKey(widget.dashboardViewModel.wallet.id),
@@ -161,33 +166,42 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                   if (mounted) setState(() {});
                                 });
                               },
+                              openChainSelection: () {
+                                CupertinoScaffold.showCupertinoModalBottomSheet(
+                                  context: context,
+                                  barrierColor: Colors.black.withAlpha(85),
+                                  builder: (context) => FractionallySizedBox(
+                                    child: Material(
+                                      child: OmniChainChangeNetworkPage(
+                                        omniChainWalletCreationService:
+                                            getIt.get<OmniChainWalletCreationService>(),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
+                            if (widget.dashboardViewModel.hasLightning)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: _lightningSwitcherHorizontalPadding,
+                                ),
+                                child: LightningSwitcher(
+                                  lightningMode: _lightningMode,
+                                  onLightningSwitchPress:
+                                      widget.dashboardViewModel.toggleLightningMode,
+                                ),
+                              ),
                             Column(
                               children: [
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  switchInCurve: Curves.easeOut,
-                                  switchOutCurve: Curves.easeOut,
-                                  layoutBuilder: (currentChild, previousChildren) => Stack(
-                                    // the front (selected) card sits at the bottom of the stack box
-                                    alignment: Alignment.bottomCenter,
-                                    children: <Widget>[
-                                      ...previousChildren,
-                                      if (currentChild != null) currentChild,
-                                    ],
-                                  ),
-                                  child: KeyedSubtree(
-                                    key: ValueKey(_lightningMode),
-                                    child: CardsView(
-                                        key: ValueKey(
-                                            "${widget.dashboardViewModel.wallet.name}_${_lightningMode}_${widget.dashboardViewModel.accountListViewModel?.accounts.length ?? 0}_${widget.dashboardViewModel.cardDesigns.length}"),
-                                        onCustomizeTapped: openCardCustomizer,
-                                        dashboardViewModel: widget.dashboardViewModel,
-                                        accountListViewModel:
-                                            widget.dashboardViewModel.accountListViewModel,
-                                        onCompactModeBackgroundCardsTapped: openAccountCustomizer,
-                                        lightningMode: _lightningMode),
-                                  ),
+                                CardsView(
+                                  key: ValueKey(widget.dashboardViewModel.wallet.id),
+                                  onCustomizeTapped: openCardCustomizer,
+                                  dashboardViewModel: widget.dashboardViewModel,
+                                  accountListViewModel:
+                                      widget.dashboardViewModel.accountListViewModel,
+                                  onCompactModeBackgroundCardsTapped: openAccountCustomizer,
+                                  lightningMode: _lightningMode,
                                 ),
                                 Observer(
                                     builder: (_) => AnimatedSize(
@@ -220,12 +234,14 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
                                 ),
                               ],
                             ),
-                            if (AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) &&
+                            if (AccountsPromo.supportsWallet(
+                                    widget.dashboardViewModel.wallet.type) &&
                                 widget.dashboardViewModel.accountListViewModel != null &&
                                 !_lightningMode)
                               AccountsPromo(
                                 settingsStore: widget.dashboardViewModel.settingsStore,
-                                walletName: walletTypeToString(widget.dashboardViewModel.wallet.type),
+                                walletName:
+                                    walletTypeToString(widget.dashboardViewModel.wallet.type),
                                 onTap: _openAccountsFromPromo,
                               ),
                             Column(
@@ -326,7 +342,8 @@ class _NewHomePageState extends State<NewHomePage> with RouteAware {
 
   Future<void> _openAccountsFromPromo() async {
     if (!AccountsPromo.supportsWallet(widget.dashboardViewModel.wallet.type) ||
-        widget.dashboardViewModel.accountListViewModel == null || !_checkReadyToManage()) return;
+        widget.dashboardViewModel.accountListViewModel == null ||
+        !_checkReadyToManage()) return;
 
     await AccountEducationPage(
       settingsStore: widget.dashboardViewModel.settingsStore,

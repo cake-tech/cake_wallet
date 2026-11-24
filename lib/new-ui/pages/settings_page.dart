@@ -314,7 +314,7 @@ class SettingsMainPage extends StatelessWidget {
 
   List<SettingsSectionData> _sections(BuildContext context) => [
         SettingsSectionData(
-          dashboardViewModel.wallet.name,
+          dashboardViewModel.name,
           "assets/new-ui/wallet-setting.svg",
           {
             "wallet_type_settings": [
