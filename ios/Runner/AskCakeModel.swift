@@ -8,6 +8,11 @@ import Flutter
 import FoundationModels
 #endif
 
+#if canImport(Speech)
+import AVFoundation
+import Speech
+#endif
+
 /// Thin, model-agnostic wrapper around Apple's on-device Foundation Models.
 ///
 /// It exposes just two primitives to Dart: free-text generation and generation
@@ -163,6 +168,20 @@ final class AskCakeModel {
                     }
                     DispatchQueue.main.async { result(outcome) }
                 }
+            case "speechStart":
+                AskCakeSpeech.shared.start(
+                    onText: { text, final in
+                        DispatchQueue.main.async { channel.invokeMethod("speechText", arguments: ["text": text, "final": final]) }
+                    },
+                    onEnd: { reason in
+                        DispatchQueue.main.async { channel.invokeMethod("speechEnded", arguments: ["reason": reason as Any]) }
+                    },
+                    completion: { problem in
+                        DispatchQueue.main.async { result(["started": problem == nil, "reason": problem as Any]) }
+                    })
+            case "speechStop":
+                AskCakeSpeech.shared.stop()
+                result(nil)
             case "routerUnload":
                 if #available(iOS 18.0, *) { AskCakeRouterModel.shared.unload() }
                 result(nil)
@@ -512,6 +531,108 @@ final class AskCakeRouterModel {
         return ["ids": generated, "conf": confidence, "fast": isFast]
         #else
         throw AskCakeModel.ModelError(code: "unavailable", message: "Core ML missing")
+        #endif
+    }
+}
+
+/// Voice input for the chat, using the system's speech recognition.
+///
+/// Recognition is required to run on the device: if this phone or language has
+/// no on-device recogniser, voice input is reported as unavailable instead of
+/// sending audio to Apple. Listening stops by itself after a short silence.
+final class AskCakeSpeech {
+    static let shared = AskCakeSpeech()
+
+    #if canImport(Speech)
+    private let engine = AVAudioEngine()
+    private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var task: SFSpeechRecognitionTask?
+    private var silence: Timer?
+    private var onEnd: ((String?) -> Void)?
+    #endif
+
+    func start(onText: @escaping (String, Bool) -> Void, onEnd: @escaping (String?) -> Void,
+               completion: @escaping (String?) -> Void) {
+        #if canImport(Speech)
+        SFSpeechRecognizer.requestAuthorization { status in
+            guard status == .authorized else { return completion("speechDenied") }
+            AVAudioSession.sharedInstance().requestRecordPermission { allowed in
+                guard allowed else { return completion("microphoneDenied") }
+                DispatchQueue.main.async { completion(self.begin(onText: onText, onEnd: onEnd)) }
+            }
+        }
+        #else
+        completion("unsupportedPlatform")
+        #endif
+    }
+
+    #if canImport(Speech)
+    /// Returns nil once listening, or the reason it could not start.
+    private func begin(onText: @escaping (String, Bool) -> Void, onEnd: @escaping (String?) -> Void) -> String? {
+        finish(reason: nil, notify: false)
+        guard let recognizer = SFSpeechRecognizer(locale: Locale.current) ?? SFSpeechRecognizer(locale: Locale(identifier: "en-US")),
+              recognizer.isAvailable else { return "recognizerUnavailable" }
+        guard recognizer.supportsOnDeviceRecognition else { return "onDeviceUnavailable" }
+        do {
+            let session = AVAudioSession.sharedInstance()
+            try session.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+            let request = SFSpeechAudioBufferRecognitionRequest()
+            request.requiresOnDeviceRecognition = true
+            request.shouldReportPartialResults = true
+            self.request = request
+            self.onEnd = onEnd
+            let input = engine.inputNode
+            input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { buffer, _ in
+                request.append(buffer)
+            }
+            engine.prepare()
+            try engine.start()
+            task = recognizer.recognitionTask(with: request) { [weak self] result, error in
+                if let result {
+                    onText(result.bestTranscription.formattedString, result.isFinal)
+                    DispatchQueue.main.async { self?.restartSilenceTimer() }
+                }
+                if error != nil || result?.isFinal == true {
+                    // An error before any words means the recogniser could not run here at all.
+                    let reason = (error != nil && result == nil) ? "recognitionFailed" : nil
+                    DispatchQueue.main.async { self?.finish(reason: reason, notify: true) }
+                }
+            }
+            restartSilenceTimer(after: 6)
+            return nil
+        } catch {
+            finish(reason: nil, notify: false)
+            return "audioFailed"
+        }
+    }
+
+    /// A second and a half without a new word ends the turn (six before the first word).
+    /// The chat sends the message at that point.
+    private func restartSilenceTimer(after seconds: TimeInterval = 1.5) {
+        silence?.invalidate()
+        silence = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false) { [weak self] _ in self?.stop() }
+    }
+
+    private func finish(reason: String?, notify: Bool) {
+        silence?.invalidate(); silence = nil
+        if engine.isRunning { engine.stop(); engine.inputNode.removeTap(onBus: 0) }
+        request?.endAudio(); request = nil
+        task?.cancel(); task = nil
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        let ended = onEnd; onEnd = nil
+        if notify { ended?(reason) }
+    }
+    #endif
+
+    func stop() {
+        #if canImport(Speech)
+        // Let the recogniser deliver what it has: stop feeding audio and wait for its final result.
+        silence?.invalidate(); silence = nil
+        guard engine.isRunning else { return finish(reason: nil, notify: true) }
+        engine.stop(); engine.inputNode.removeTap(onBus: 0)
+        request?.endAudio()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) { [weak self] in self?.finish(reason: nil, notify: true) }
         #endif
     }
 }

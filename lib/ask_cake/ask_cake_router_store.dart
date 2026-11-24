@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// One file of the router model package and the SHA-256 it must have.
@@ -20,14 +21,16 @@ class AskCakeRouterFile {
 /// fetched once, after the user agrees, from [baseUrl] and kept in Application
 /// Support. Every file is checked against a hash compiled into the app before
 /// it is used: the model decides which screen a request opens, so a tampered
-/// copy must never load. A developer copy in Documents/askcake_bench wins over
-/// the downloaded one.
+/// copy must never load. A developer copy in Documents/askcake_bench is used
+/// by debug builds, and by builds that have no download source; a release
+/// build with a source always uses the verified download.
 class AskCakeRouterStore {
   AskCakeRouterStore({String? baseUrl}) : baseUrl = baseUrl ?? _defaultBaseUrl;
 
   /// Folder URL that serves the files of [files] under [version]/[packageName].mlpackage/.
-  /// Empty until a host is chosen; set at build time with --dart-define=ASK_CAKE_ROUTER_URL=...
-  static const _defaultBaseUrl = String.fromEnvironment('ASK_CAKE_ROUTER_URL');
+  /// Can be pointed elsewhere at build time with --dart-define=ASK_CAKE_ROUTER_URL=...
+  static const _defaultBaseUrl =
+      String.fromEnvironment('ASK_CAKE_ROUTER_URL', defaultValue: 'https://assets.cakelabs.com/ask-cake/router/');
 
   static const packageName = 'smollm2-135m-p8';
 
@@ -57,7 +60,8 @@ class AskCakeRouterStore {
   Future<String?> locate() async {
     final documents = await getApplicationDocumentsDirectory();
     final developer = Directory('${documents.path}/askcake_bench/$packageName.mlpackage');
-    if (File('${developer.path}/${files.last.path}').existsSync()) return developer.path;
+    final useDeveloperCopy = kDebugMode || !canDownload;
+    if (useDeveloperCopy && File('${developer.path}/${files.last.path}').existsSync()) return developer.path;
     final downloaded = await _downloaded();
     if (File('${downloaded.path}/.complete').existsSync()) return downloaded.path;
     return null;
@@ -117,6 +121,12 @@ class AskCakeRouterStore {
     } finally {
       client.close(force: true);
     }
+  }
+
+  /// Removes the downloaded model, so the next open downloads it again (test page).
+  Future<void> deleteDownloaded() async {
+    final root = (await _downloaded()).parent;
+    if (root.existsSync()) await root.delete(recursive: true);
   }
 
   Future<String> _hash(File file) async => (await sha256.bind(file.openRead()).first).toString();

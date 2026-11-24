@@ -140,6 +140,15 @@ class AskCakeFixtureTools implements AskCakeToolbox {
   }
 
   @override
+  String activityPatterns(AskCakeRange range) {
+    _record('get_activity_patterns', {'period': _periodId(range)});
+    return askCakePatterns([
+      for (final t in _txs)
+        if (_in(t.$1, range)) DateTime.parse(t.$1)
+    ], range);
+  }
+
+  @override
   String transactions(AskCakeRange range, {String? direction, String? search, int? limit}) {
     _record('get_transactions',
         {'direction': direction, 'period': _periodId(range), 'search': search, 'limit': limit});
@@ -259,6 +268,9 @@ class AskCakeFixtureApp implements AskCakeApp {
   final AskCakeFixtureTools _tools;
 
   static const _needsScreen = {'address_lookups', 'block_explorer_apis', 'background_sync'};
+
+  @override
+  List<AskCakeAccount> accounts() => const [];
 
   @override
   String status() {

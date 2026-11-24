@@ -2,6 +2,10 @@ import 'package:cake_wallet/ask_cake/ask_cake_app_actions.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_demo_data.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
+import 'package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_row.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/cake_pay/src/cards/cake_pay_cards_page.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/csv_export_service.dart';
@@ -9,7 +13,9 @@ import 'package:cake_wallet/ask_cake/ask_cake_engine.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_guards.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_loading.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_router_store.dart';
+import 'package:cake_wallet/ask_cake/ask_cake_rows.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_usage_log.dart';
+import 'package:cake_wallet/ask_cake/ask_cake_voice.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_model.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_router.dart';
@@ -49,11 +55,23 @@ class _Message {
         detail = null,
         sourceUrl = null,
         copyables = const [],
+        dataStart = null,
+        dataEnd = null,
         options = const [];
 
   _Message.assistant(this.text,
-      {this.action, this.detail, this.sourceUrl, this.options = const [], this.copyables = const []})
+      {this.action,
+      this.detail,
+      this.sourceUrl,
+      this.options = const [],
+      this.copyables = const [],
+      this.dataStart,
+      this.dataEnd})
       : fromUser = false;
+
+  /// The stretch of [text] that came from the wallet tools (drawn as cards).
+  final int? dataStart;
+  final int? dataEnd;
 
   /// Reply buttons under a question; cleared once one is tapped or a new message is sent.
   List<AskCakeOption> options;
@@ -122,6 +140,9 @@ class AskCakePage extends StatefulWidget {
   /// Whether each reply shows how it was routed. Testers switch it on from the hidden test page.
   static final showRoutingDetails = ValueNotifier<bool>(kDebugMode);
 
+  /// Preference that records the first-open explainer was shown.
+  static const introSeenKey = 'ask_cake_intro_seen';
+
   const AskCakePage({super.key});
 
   @override
@@ -146,7 +167,6 @@ class _AskCakePageState extends State<AskCakePage> {
   double _progress = 0;
   String? _downloadProblem;
 
-  static const _introSeenKey = 'ask_cake_intro_seen';
 
   /// Runs as the page opens: the language pack starts loading at once when it
   /// is already on the device, and the first-open explainer covers the wait.
@@ -154,7 +174,7 @@ class _AskCakePageState extends State<AskCakePage> {
     final preferences = await SharedPreferences.getInstance();
     await AskCakeUsageLog.load();
     final path = await _store.locate();
-    _introSeen = preferences.getBool(_introSeenKey) ?? false;
+    _introSeen = preferences.getBool(AskCakePage.introSeenKey) ?? false;
     _needsDownload = path == null && _store.canDownload;
     if (!_needsDownload) _beginLoading(path);
     if (!mounted) return;
@@ -216,7 +236,7 @@ class _AskCakePageState extends State<AskCakePage> {
 
   /// The user finished the first-open explainer.
   Future<void> _continueFromWelcome() async {
-    (await SharedPreferences.getInstance()).setBool(_introSeenKey, true);
+    (await SharedPreferences.getInstance()).setBool(AskCakePage.introSeenKey, true);
     _introSeen = true;
     if (_needsDownload) return _download();
     if (mounted) setState(() => _stage = _engineReady ? _Stage.ready : _Stage.loading);
@@ -239,14 +259,68 @@ class _AskCakePageState extends State<AskCakePage> {
   final _scroll = ScrollController();
   AskCakeAvailability? _availability;
   bool _busy = false;
-  bool get _showDetail => AskCakePage.showRoutingDetails.value;
+  bool get _showDetail => !_cleanHeader && AskCakePage.showRoutingDetails.value;
+
+  /// Debug builds made for screen recordings leave the two debug buttons out of the header.
+  static const _cleanHeader = bool.fromEnvironment('ASK_CAKE_CLEAN_HEADER');
 
   static const _suggestions = [
     'What\'s my balance?',
     'How much did I spend last month?',
     'Show my swaps',
-    'Send 0.01 to Alice',
+    'How do I back up my wallet?',
   ];
+
+  /// Voice input: what is heard replaces whatever this turn of listening has
+  /// typed so far, after any text that was already in the box.
+  String _beforeVoice = '';
+
+  /// Set when the message was sent or listening was stopped by hand: late words are then ignored / not auto-sent.
+  bool _voiceDiscard = false;
+  bool _voiceStoppedByHand = false;
+  bool _voiceHeard = false;
+  late final AskCakeVoice _voice = AskCakeVoice(
+    onText: (heard) {
+      if (!mounted || _voiceDiscard) return;
+      if (heard.trim().isNotEmpty) _voiceHeard = true;
+      final text = _beforeVoice.isEmpty ? heard : '$_beforeVoice $heard';
+      _input.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+    },
+    onEnded: () {
+      if (!mounted) return;
+      setState(() {});
+      // The speaker went quiet: what they said is sent, as if they had pressed Send.
+      // Stopping by hand leaves the words in the box to be corrected first.
+      if (!_voice.lastTurnFailed && _voiceHeard && !_voiceDiscard && !_voiceStoppedByHand) {
+        _voiceDiscard = true;
+        _send();
+        return;
+      }
+      if (_voice.lastTurnFailed && !_voice.starting) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Voice input is not available: this device could not recognise speech on its own.')));
+      }
+    },
+  );
+
+  Future<void> _toggleVoice() async {
+    if (_voice.listening) {
+      _voiceStoppedByHand = true;
+      await _voice.stop();
+      if (mounted) setState(() {});
+      return;
+    }
+    _voiceDiscard = false;
+    _voiceStoppedByHand = false;
+    _voiceHeard = false;
+    _beforeVoice = _input.text.trim();
+    final problem = await _voice.start();
+    if (!mounted) return;
+    setState(() {});
+    if (problem != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(problem)));
+    }
+  }
 
   @override
   void initState() {
@@ -267,6 +341,7 @@ class _AskCakePageState extends State<AskCakePage> {
     AskCakePage.showRoutingDetails.removeListener(_refresh);
     if (_engineReady) _engine.then((engine) => engine.reset());
     _router.release();
+    _voice.dispose();
     _input.dispose();
     _scroll.dispose();
     super.dispose();
@@ -290,6 +365,8 @@ class _AskCakePageState extends State<AskCakePage> {
       }
       return;
     }
+    // Recording builds drop the keyboard after each message so the whole answer is on screen.
+    if (_cleanHeader) FocusManager.instance.primaryFocus?.unfocus();
     await _exchange(text, (engine) => engine.ask(text));
   }
 
@@ -328,6 +405,8 @@ class _AskCakePageState extends State<AskCakePage> {
         sourceUrl: reply.sourceUrl,
         options: reply.options,
         copyables: reply.copyables,
+        dataStart: reply.dataStart,
+        dataEnd: reply.dataEnd,
         detail: '${reply.route} · ${(reply.elapsed.inMilliseconds / 1000).toStringAsFixed(1)}s'
             '${reply.routerMs == null ? '' : ' · router ${reply.routerMs} ms'}'
             '${reply.routerConfidence == null ? '' : ' · sure ${(reply.routerConfidence! * 100).round()}%'} · $_routerStatus',
@@ -382,6 +461,10 @@ class _AskCakePageState extends State<AskCakePage> {
         _openModal(_RoutePage(action.route, action.arguments));
       case AskCakeSwitchWalletAction():
         _switchWallet(action.name);
+      case AskCakeSwitchAccountAction():
+        _switchAccount(action);
+      case AskCakeSupportAction():
+        Navigator.of(context).pushNamed(Routes.supportLiveChat);
       case AskCakeOpenPageAction():
         _openPage(action);
     }
@@ -423,9 +506,30 @@ class _AskCakePageState extends State<AskCakePage> {
     );
   }
 
+  /// Another account of the open wallet: the same call the account picker makes.
+  void _switchAccount(AskCakeSwitchAccountAction action) {
+    final wallet = getIt.get<AppStore>().wallet;
+    final account = _app.accounts().where((a) => a.id == action.id).firstOrNull;
+    if (wallet == null || account == null) return _say('I could not find that account any more.');
+    try {
+      if (wallet.type == WalletType.monero) {
+        monero!.setCurrentAccount(wallet, account.id, account.name, account.balance);
+      } else if (wallet.type == WalletType.wownero) {
+        wownero!.setCurrentAccount(wallet, account.id, account.name, account.balance);
+      } else {
+        return _say('This wallet has no accounts to switch between.');
+      }
+      _say('Switched to the ${account.name} account. Ask again and I will answer from it.');
+    } catch (_) {
+      _say('I could not switch accounts. Try from the account picker on the wallet screen.');
+    }
+  }
+
   Future<void> _openPage(AskCakeOpenPageAction action) async {
     final dashboard = getIt.get<DashboardViewModel>();
     switch (action.page) {
+      case 'scanner':
+        await CoinActionRow.scanAndOpen(context, dashboard.wallet.type);
       case 'swap':
         final page = getIt.get<NewSwapPage>(param1: null, param2: _coin(action.from));
         final to = _coin(action.to);
@@ -494,31 +598,22 @@ class _AskCakePageState extends State<AskCakePage> {
           backgroundColor: colors.surface,
           surfaceTintColor: Colors.transparent,
           centerTitle: true,
-          title: Column(
-            children: [
-              // Long-press opens the hidden on-device self-test.
-              GestureDetector(
-                key: const ValueKey('ask_cake_title'),
-                onLongPress: () => Navigator.of(context)
-                    .push(MaterialPageRoute<void>(builder: (_) => const AskCakeSelfTestPage())),
-                child: const Text('Ask Cake', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-              ),
-              Text(
-                'Private · runs on your phone',
-                key: const ValueKey('ask_cake_model_label'),
-                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-              ),
-            ],
+          // Long-press opens the hidden on-device self-test.
+          title: GestureDetector(
+            key: const ValueKey('ask_cake_title'),
+            onLongPress: () =>
+                Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AskCakeSelfTestPage())),
+            child: const Text('Ask Cake', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
           ),
           actions: [
-            if (kDebugMode)
+            if (kDebugMode && !_cleanHeader)
               IconButton(
                 key: const ValueKey('ask_cake_seed_demo_button'),
                 tooltip: 'Seed demo data',
                 icon: const Icon(Icons.science_outlined),
                 onPressed: _seedDemoData,
               ),
-            if (kDebugMode)
+            if (kDebugMode && !_cleanHeader)
               IconButton(
                 key: const ValueKey('ask_cake_detail_toggle'),
                 tooltip: 'Show routing details',
@@ -542,7 +637,7 @@ class _AskCakePageState extends State<AskCakePage> {
                               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                               itemCount: _messages.length + (_busy ? 1 : 0),
                               itemBuilder: (context, index) => index == _messages.length
-                                  ? const _Bubble(text: 'Thinking…', fromUser: false, muted: true)
+                                  ? const AskCakeThinking()
                                   : _MessageView(
                                       message: _messages[index],
                                       showDetail: _showDetail,
@@ -551,7 +646,17 @@ class _AskCakePageState extends State<AskCakePage> {
                                     ),
                             ),
                     ),
-                    _Composer(controller: _input, busy: _busy, onSend: _send),
+                    _Composer(
+                        controller: _input,
+                        busy: _busy,
+                        onSend: ([preset]) {
+                          // Words still on their way from the recogniser must not refill the box.
+                          _voiceDiscard = true;
+                          if (_voice.listening) _voice.stop();
+                          _send(preset);
+                        },
+                        listening: _voice.listening,
+                        onVoice: _toggleVoice),
                   ],
                 ),
         ),
@@ -775,7 +880,24 @@ class _MessageView extends StatelessWidget {
     return Column(
       crossAxisAlignment: message.fromUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        _Bubble(text: message.text, fromUser: message.fromUser),
+        if (message.fromUser)
+          _Bubble(text: message.text, fromUser: true)
+        else
+          // Lists of transactions and swaps are drawn as rows; everything else stays a bubble.
+          for (final block
+              in AskCakeBlock.parse(message.text, dataStart: message.dataStart, dataEnd: message.dataEnd))
+            if (block.rows.isNotEmpty)
+              AskCakeRowsCard(rows: block.rows)
+            else if (block.facts.isNotEmpty)
+              AskCakeFactsCard(facts: block.facts)
+            else if (block.small)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(6, 2, 24, 6),
+                child: Text(block.text,
+                    style: TextStyle(fontSize: 12.5, height: 1.35, color: colors.onSurfaceVariant)),
+              )
+            else
+              _Bubble(text: block.text, fromUser: false),
         if (action != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
@@ -855,11 +977,27 @@ class _MessageView extends StatelessWidget {
 }
 
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.text, required this.fromUser, this.muted = false});
+  const _Bubble({required this.text, required this.fromUser});
+
+  /// The on-device model writes light Markdown. Bold is shown as bold; list
+  /// dashes become bullets; "[Page / Section]" references lose their brackets.
+  static TextSpan _formatted(String text) {
+    final cleaned = text
+        .replaceAllMapped(RegExp(r'^- ', multiLine: true), (_) => '• ')
+        .replaceAllMapped(RegExp(r'\[([^\]\n]{3,80})\](?!\()'), (m) => m.group(1)!);
+    final spans = <TextSpan>[];
+    var index = 0;
+    for (final match in RegExp(r'\*\*(.+?)\*\*').allMatches(cleaned)) {
+      if (match.start > index) spans.add(TextSpan(text: cleaned.substring(index, match.start)));
+      spans.add(TextSpan(text: match.group(1), style: const TextStyle(fontWeight: FontWeight.w600)));
+      index = match.end;
+    }
+    if (index < cleaned.length) spans.add(TextSpan(text: cleaned.substring(index)));
+    return TextSpan(children: spans);
+  }
 
   final String text;
   final bool fromUser;
-  final bool muted;
 
   @override
   Widget build(BuildContext context) {
@@ -874,16 +1012,12 @@ class _Bubble extends StatelessWidget {
           color: fromUser ? colors.primary : colors.surfaceContainer,
           borderRadius: BorderRadius.circular(18),
         ),
-        child: SelectableText(
-          text,
+        child: SelectableText.rich(
+          fromUser ? TextSpan(text: text) : _formatted(text),
           style: TextStyle(
             fontSize: 15,
             height: 1.3,
-            color: fromUser
-                ? colors.onPrimary
-                : muted
-                    ? colors.onSurfaceVariant
-                    : colors.onSurface,
+            color: fromUser ? colors.onPrimary : colors.onSurface,
           ),
         ),
       ),
@@ -950,11 +1084,18 @@ class _Unavailable extends StatelessWidget {
 }
 
 class _Composer extends StatelessWidget {
-  const _Composer({required this.controller, required this.busy, required this.onSend});
+  const _Composer(
+      {required this.controller,
+      required this.busy,
+      required this.onSend,
+      required this.listening,
+      required this.onVoice});
 
   final TextEditingController controller;
   final bool busy;
   final void Function([String?]) onSend;
+  final bool listening;
+  final VoidCallback onVoice;
 
   @override
   Widget build(BuildContext context) {
@@ -972,7 +1113,7 @@ class _Composer extends StatelessWidget {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
               decoration: InputDecoration(
-                hintText: 'Ask about your wallet',
+                hintText: listening ? 'Listening…' : 'Ask about your wallet',
                 filled: true,
                 fillColor: colors.surfaceContainer,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -981,7 +1122,16 @@ class _Composer extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 4),
+          IconButton(
+            key: const ValueKey('ask_cake_voice_button'),
+            tooltip: listening ? 'Stop listening' : 'Speak',
+            onPressed: busy ? null : onVoice,
+            style: listening ? IconButton.styleFrom(backgroundColor: colors.error.withValues(alpha: 0.14)) : null,
+            icon: Icon(listening ? Icons.stop_rounded : Icons.mic_none_rounded,
+                color: listening ? colors.error : colors.onSurfaceVariant),
+          ),
+          const SizedBox(width: 4),
           IconButton.filled(
             key: const ValueKey('ask_cake_send_button'),
             tooltip: 'Send',

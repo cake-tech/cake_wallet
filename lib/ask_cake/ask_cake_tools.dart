@@ -1,12 +1,15 @@
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cw_core/cake_hive.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -41,6 +44,41 @@ String _n(double v, [int digits = 8]) {
   var s = v.toStringAsFixed(digits);
   if (s.contains('.')) s = s.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
   return s;
+}
+
+/// When a set of transactions happened: busiest weekday, part of the day and
+/// month, counted in code from their dates (the phone's own time zone).
+String askCakePatterns(List<DateTime> dates, AskCakeRange range) {
+  if (dates.isEmpty) return 'No transactions for ${range.describe}.';
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const parts = ['Night (midnight to 6am)', 'Morning (6am to noon)', 'Afternoon (noon to 6pm)', 'Evening (6pm to midnight)'];
+  String times(int n) => '$n ${n == 1 ? 'transaction' : 'transactions'}';
+  MapEntry<K, int> top<K>(Iterable<K> keys) {
+    final counts = <K, int>{};
+    for (final key in keys) {
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return counts.entries.reduce((a, b) => b.value > a.value ? b : a);
+  }
+
+  final sorted = [...dates]..sort();
+  final day = top(sorted.map((d) => d.weekday));
+  final part = top(sorted.map((d) => d.hour ~/ 6));
+  final month = top(sorted.map((d) => d.year * 12 + d.month - 1));
+  final span = (sorted.last.year - sorted.first.year) * 12 + sorted.last.month - sorted.first.month + 1;
+  return [
+    'When you use this wallet, ${range.describe} (${times(sorted.length)}):',
+    '- Busiest day of the week: ${days[day.key - 1]} (${times(day.value)})',
+    '- Busiest time of day: ${parts[part.key]} (${times(part.value)})',
+    '- Busiest month: ${months[month.key % 12]} ${month.key ~/ 12} (${times(month.value)})',
+    if (span >= 2)
+      sorted.length >= span
+          ? '- Average: ${_n(sorted.length / span, 1)} a month'
+          : '- Average: ${_n(sorted.length * 12 / span, 1)} a year',
+    '- First transaction: ${_d(sorted.first)}',
+    '- Most recent: ${_d(sorted.last)}',
+  ].join('\n');
 }
 
 /// Something the user must confirm in the regular Cake Wallet UI. Ask Cake
@@ -114,6 +152,53 @@ class AskCakeSwitchWalletAction extends AskCakeAction {
   final String name;
 }
 
+/// Opens the in-app support chat. Nothing is sent to support until the user writes there.
+class AskCakeSupportAction extends AskCakeAction {
+  const AskCakeSupportAction() : super('Chat with support');
+}
+
+/// Switches to another account inside the open wallet (Monero and Wownero).
+class AskCakeSwitchAccountAction extends AskCakeAction {
+  const AskCakeSwitchAccountAction(this.id, this.name) : super('Switch to $name');
+
+  final int id;
+  final String name;
+}
+
+/// One account inside the open wallet.
+class AskCakeAccount {
+  const AskCakeAccount(this.id, this.name, this.balance, {required this.current});
+
+  final int id;
+  final String name;
+
+  /// As the wallet reports it, without the ticker; null when unknown.
+  final String? balance;
+  final bool current;
+}
+
+/// The accounts of [wallet]; empty for wallet types that have none.
+List<AskCakeAccount> askCakeAccounts(WalletBase? wallet) {
+  if (wallet == null) return const [];
+  try {
+    if (wallet.type == WalletType.monero) {
+      final current = monero!.getCurrentAccount(wallet).id;
+      return [
+        for (final a in monero!.getAccountList(wallet).getAll(wallet))
+          AskCakeAccount(a.id, a.label, a.balance, current: a.id == current)
+      ];
+    }
+    if (wallet.type == WalletType.wownero) {
+      final current = wownero!.getCurrentAccount(wallet).id;
+      return [
+        for (final a in wownero!.getAccountList(wallet).getAll(wallet))
+          AskCakeAccount(a.id, a.label, a.balance, current: a.id == current)
+      ];
+    }
+  } catch (_) {}
+  return const [];
+}
+
 class AskCakeToolResult {
   const AskCakeToolResult(this.text, {this.action});
 
@@ -131,6 +216,9 @@ abstract class AskCakeToolbox {
   Future<String> walletOverview();
 
   String activitySummary(AskCakeRange range);
+
+  /// When the user transacts: busiest weekday, time of day and month.
+  String activityPatterns(AskCakeRange range);
 
   String transactions(AskCakeRange range, {String? direction, String? search, int? limit});
 
@@ -199,16 +287,23 @@ class AskCakeTools implements AskCakeToolbox {
         .map((info) => '${info.name} (${walletTypeToDisplayName(info.type)})')
         .toList();
     final price = _price;
+    final accounts = askCakeAccounts(wallet);
+    final account = accounts.where((a) => a.current).firstOrNull;
+    final otherAccounts = accounts.where((a) => !a.current).toList();
+    // One fact per line, so the chat can lay them out as a card.
     return [
-      'Current wallet: ${wallet.name} (${walletTypeToDisplayName(wallet.type)}, $coin).',
-      'Available balance: ${_withFiat(_available())}.',
-      if (pending > 0) 'Pending or unconfirmed: ${_withFiat(pending)}.',
-      if (price != null && price > 0) '$coin price: $_fiat ${price.toStringAsFixed(2)}.',
-      if (price == null || price == 0) 'Fiat price is not available right now.',
+      'Current wallet: ${wallet.name} (${walletTypeToDisplayName(wallet.type)}, $coin)',
+      if (account != null && accounts.length > 1) 'Open account: ${account.name}',
+      'Available balance: ${_withFiat(_available())}',
+      if (pending > 0) 'Pending or unconfirmed: ${_withFiat(pending)}',
+      if (price != null && price > 0) '$coin price: $_fiat ${price.toStringAsFixed(2)}',
+      if (price == null || price == 0) 'Fiat price: not available right now',
+      if (otherAccounts.isNotEmpty)
+        'Other accounts in this wallet: ${otherAccounts.map((a) => a.balance == null ? a.name : '${a.name} (${a.balance} $coin)').join(', ')}',
       others.isEmpty
-          ? 'There are no other wallets on this device.'
-          : 'Other wallets on this device (balances unknown until opened): ${others.join(', ')}.',
-    ].join(' ');
+          ? 'Other wallets: none on this device'
+          : 'Other wallets (open one to see its balance): ${others.join(', ')}',
+    ].join('\n');
   }
 
   Map<String, String> _notes() {
@@ -269,6 +364,10 @@ class AskCakeTools implements AskCakeToolbox {
   }
 
   @override
+  String activityPatterns(AskCakeRange range) =>
+      askCakePatterns([for (final t in _transactions(range)) t.date], range);
+
+  @override
   String transactions(AskCakeRange range, {String? direction, String? search, int? limit}) {
     var txs = _transactions(range);
     if (direction == 'incoming') txs = txs.where((t) => t.incoming).toList();
@@ -286,8 +385,10 @@ class AskCakeTools implements AskCakeToolbox {
     final totalReceived = txs.where((t) => t.incoming).fold<double>(0, (sum, t) => sum + t.amount);
     final shown = txs.take((limit ?? 10).clamp(1, 20)).toList();
     return [
-      '${txs.length} $what for ${range.describe}. Total sent: ${_withFiat(totalSent)}. Total received: ${_withFiat(totalReceived)}.'
-          '${shown.length < txs.length ? ' Showing the newest ${shown.length}:' : ' Newest first:'}',
+      '${txs.length} $what for ${range.describe}'
+          '${shown.length < txs.length ? ', showing the newest ${shown.length}:' : ', newest first:'}',
+      if (direction != 'incoming') 'Total sent: ${_withFiat(totalSent)}',
+      if (direction != 'outgoing') 'Total received: ${_withFiat(totalReceived)}',
       for (final t in shown)
         '- ${_d(t.date)} ${t.incoming ? 'received' : 'sent'} ${_withFiat(t.amount)}'
             '${t.fee > 0 ? ', fee ${_n(t.fee)} $coin' : ''}'

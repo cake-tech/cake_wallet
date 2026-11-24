@@ -129,14 +129,14 @@ class ExtraAction {
     iconPath: "assets/new-ui/navbar/contacts.svg",
   );
 
-  // Demo: on-device assistant (Apple Foundation Models), iOS only.
+  // The on-device assistant. iOS only for now: it runs on Apple's on-device model and Core ML.
   static final askCake = ExtraAction(
     key: const ValueKey("more_actions_ask_cake_button_key"),
     isModal: false,
     applicable: (_) => defaultTargetPlatform == TargetPlatform.iOS,
     destinationBuilder: (_) => const AskCakePage(),
     name: (_) => "Ask Cake",
-    iconPath: "assets/new-ui/navbar/contacts.svg",
+    iconPath: "assets/new-ui/ask_cake_more_actions.svg",
   );
 
   static final all = [buy, sell, depositFromOnChain, withdrawToOnChain, cakePay, contacts, askCake];

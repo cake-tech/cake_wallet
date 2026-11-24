@@ -5,6 +5,7 @@ import 'package:cake_wallet/ask_cake/ask_cake_router.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_router_store.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_usage_log.dart';
 import 'package:cake_wallet/utils/share_util.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/ask_cake/selftest/ask_cake_selftest.dart';
 import 'dart:async';
 
@@ -152,7 +153,7 @@ class _AskCakeSelfTestPageState extends State<AskCakeSelfTestPage> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Runs 150 scripted conversations against a built-in fictional wallet. Your real wallet is not read. '
+              'Runs 185 scripted conversations against a built-in fictional wallet. Your real wallet is not read. '
               'Keep this screen open; it takes several minutes.',
               style: TextStyle(fontSize: 13, height: 1.35, color: colors.onSurfaceVariant),
             ),
@@ -184,6 +185,25 @@ class _AskCakeSelfTestPageState extends State<AskCakeSelfTestPage> {
                 await AskCakeUsageLog.setEnabled(value);
                 if (mounted) setState(() {});
               },
+            ),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                key: const ValueKey('ask_cake_selftest_reset_first_open'),
+                // For testers: see the explainer and the download again, as a new user would.
+                onPressed: _running
+                    ? null
+                    : () async {
+                        await AskCakeRouterStore().deleteDownloaded();
+                        await (await SharedPreferences.getInstance()).remove(AskCakePage.introSeenKey);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                              content: Text('Reset. Close Ask Cake and open it again to see the first-open flow.')));
+                        }
+                      },
+                icon: const Icon(Icons.restart_alt, size: 18),
+                label: const Text('Reset first-open flow'),
+              ),
             ),
             if (_logLines > 0)
               Wrap(

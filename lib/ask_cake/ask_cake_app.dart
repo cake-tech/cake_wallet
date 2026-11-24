@@ -28,6 +28,9 @@ abstract class AskCakeApp {
   /// The name of another wallet on this device that [message] mentions, if exactly one.
   String? walletMentionedIn(String message);
 
+  /// The accounts inside the open wallet (Monero, Wownero); empty when it has none.
+  List<AskCakeAccount> accounts();
+
   /// Receive with a specific address type or over Lightning.
   AskCakeToolResult receive({String? addressType, bool fresh = false, String? amount});
 

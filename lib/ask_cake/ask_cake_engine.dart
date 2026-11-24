@@ -24,7 +24,14 @@ class AskCakeReply {
       this.options = const [],
       this.copyables = const [],
       this.routerMs,
-      this.routerConfidence});
+      this.routerConfidence,
+      this.dataStart,
+      this.dataEnd});
+
+  /// Where in [text] the figures read from the wallet begin and end, when the
+  /// reply has any: the chat lays that stretch out as cards instead of prose.
+  final int? dataStart;
+  final int? dataEnd;
 
   final String text;
   final AskCakeAction? action;
@@ -192,7 +199,9 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
         options: reply.options,
         copyables: reply.copyables,
         routerMs: _routerMs,
-        routerConfidence: _routerConfidence);
+        routerConfidence: _routerConfidence,
+        dataStart: reply.dataStart,
+        dataEnd: reply.dataEnd);
   }
 
   /// The user tapped one of the reply buttons under a question.
@@ -241,6 +250,9 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
   /// Below this the router's choice of an action is wrong more often than right
   /// (measured on the held-out sets), so the user is asked instead.
   static const _confidentEnough = 0.9;
+
+  /// Below this, three of four action guesses on the held-out sets were wrong.
+  static const _worthAsking = 0.7;
 
   /// Slots for the current message: taken from the trained router when it ran,
   /// otherwise extracted by Apple's model in the routing session.
@@ -312,6 +324,29 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
     final pending = _pendingTool;
     _pendingTool = null;
     var answering = pending != null && _looksLikeAnswer(turn);
+    // Two requests are plain enough to recognise by their wording, and the
+    // trained router has no capability for either: the QR scanner, and
+    // questions about when the user transacts.
+    if (!answering) {
+      AskCakeReply? direct;
+      if (AskCakeGuards.isScanRequest(turn)) {
+        direct = const AskCakeReply(
+            'Opening the scanner. Point it at a QR code: a payment request opens Send for you to review, '
+            'and a WalletConnect code starts pairing.',
+            action: AskCakeOpenPageAction('scanner', 'Open scanner'),
+            route: 'scan');
+      } else if (AskCakeGuards.isAboutMyHabits(turn)) {
+        final range = parseRange(turn, _tools.now);
+        direct = await _answer(turn, _tools.activityPatterns(range), 'activity_patterns ${range.label}');
+      }
+      if (direct != null) {
+        _actionTurns
+          ..clear()
+          ..add(turn);
+        _previousWasSetting = false;
+        return direct;
+      }
+    }
     final trained = _trained;
     AskCakeLabel? routed;
     if (trained != null) {
@@ -322,6 +357,18 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
           await trained.route(
               coin: _tools.coin, earlier: earlier, message: turn, pendingTool: answering ? pending : null);
       _routerMs = watch.elapsedMilliseconds;
+      // "Swap to USDT" is an order to open Swap whatever the router made of it;
+      // the coins it names fill any the router left out.
+      final order = forced == null && !answering ? AskCakeGuards.swapOrder(turn) : null;
+      if (order != null) {
+        routed = {
+          if (routed['tool'] == 'swap') ...routed,
+          'tool': 'swap',
+          if (routed['tool'] != 'swap' || routed['from'] == null) 'from': order.from,
+          if (routed['tool'] != 'swap' || routed['to'] == null) 'to': order.to,
+          '_conf': 1.0,
+        }..removeWhere((_, value) => value == null);
+      }
       final confidence = routed['_conf'];
       _routerConfidence = confidence is num ? confidence.toDouble() : null;
       // An action the router is unsure about is offered as a question first.
@@ -332,6 +379,12 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
           _routerConfidence! < _confidentEnough &&
           _actionPhrases.containsKey(unsure) &&
           AskCakeGuards.backstop(turn, unsure as String) == unsure) {
+        // Well below that, the guess is not worth showing: say so instead of asking about it.
+        if (_routerConfidence! < _worthAsking) {
+          return const AskCakeReply(
+              'I\'m not sure what you would like me to do. Could you say it another way?',
+              route: 'unsure');
+        }
         return AskCakeReply('Did you mean: ${_actionPhrases[unsure]}?',
             options: [
               AskCakeOption('Yes', 'confirmTool', payload: {...routed, '_text': turn, '_conf': 1.0}),
@@ -421,6 +474,13 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
       } else if (tool == 'transactions' && RegExp(r'\bswap(s|ped|ping)?\b').hasMatch(turn.toLowerCase())) {
         tool = 'swaps';
         _label = {'tool': tool};
+      } else if ((tool == 'app_help' || tool == 'general_question') &&
+          AskCakeGuards.isProblem(turn) &&
+          !AskCakeGuards.isQuestion(turn) &&
+          RegExp(r'\bmy (last |latest |recent |first )?(swap|trade|exchange)\b').hasMatch(turn.toLowerCase())) {
+        // "my swap is stuck": the user's own swaps and their IDs first, then where to get help.
+        tool = 'swaps';
+        _label = {'tool': tool};
       } else if ((tool == 'app_help' || tool == 'general_question') && AskCakeGuards.isAboutMyActivity(turn)) {
         // Past activity: a swap question goes to the swap history, anything else to transactions.
         tool = RegExp(r'\bswap(s|ped|ping)?\b').hasMatch(turn.toLowerCase()) ? 'swaps' : 'transactions';
@@ -443,6 +503,14 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
 
     final range = parseRange(turn, _tools.now);
 
+    // Figures come from the account that is open. A question that names another
+    // account of this wallet gets that account's balance and a button to switch.
+    const perAccount = {'wallet_overview', 'activity_totals', 'transactions', 'receive', 'send_payment', 'switch_wallet'};
+    if (perAccount.contains(tool)) {
+      final other = _otherAccount(turn, switching: tool == 'switch_wallet');
+      if (other != null) return other;
+    }
+
     switch (tool) {
       case 'wallet_overview':
         return _ownRecord(turn, await _answer(turn, await _tools.walletOverview(), tool));
@@ -461,7 +529,12 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
         final search = _groundedWord(query['search'], turn) ??
             (RegExp(r'\brefund', caseSensitive: false).hasMatch(turn) ? 'refund' : null);
         final direction = parseDirection(turn);
-        final limit = query['limit'] is int && RegExp(r'\d').hasMatch(turn) ? query['limit'] as int : null;
+        // "last 5 transactions": the count is read from the words when the router left it out.
+        final counted = RegExp(r'\b(?:last|latest|recent|newest|past|top)\s+(\d{1,2})\b|\b(\d{1,2})\s+(?:most recent |latest |last |recent )?(?:transactions?|payments?|txs?)\b')
+            .firstMatch(turn.toLowerCase());
+        final limit = query['limit'] is int && RegExp(r'\d').hasMatch(turn)
+            ? query['limit'] as int
+            : int.tryParse(counted?.group(1) ?? counted?.group(2) ?? '');
         return _ownRecord(
             turn,
             await _answer(
@@ -548,6 +621,46 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
     return _understood(label);
   }
 
+  /// A reply about another account of the open wallet, when [turn] names one or asks about all of them.
+  AskCakeReply? _otherAccount(String turn, {bool switching = false}) {
+    final accounts = _app?.accounts() ?? const <AskCakeAccount>[];
+    if (accounts.length < 2) return null;
+    final text = turn.toLowerCase();
+    final current = accounts.where((a) => a.current).firstOrNull;
+    bool named(AskCakeAccount a) {
+      final name = a.name.toLowerCase().replaceFirst(RegExp(r'\s+account$'), '').trim();
+      return name.length >= 3 && RegExp('\\b${RegExp.escape(name)}\\b').hasMatch(text);
+    }
+
+    final coin = _tools.coin;
+    String line(AskCakeAccount a) => '${a.name}: ${a.balance == null ? 'balance unknown' : '${a.balance} $coin'}';
+    final others = accounts.where((a) => !a.current && named(a)).toList();
+    if (others.length == 1 && !(current != null && named(current))) {
+      final account = others.single;
+      final data = line(account);
+      final lead = switching ? 'Ready to switch to your ${account.name} account.' : 'That is about your ${account.name} account.';
+      final tail = switching
+          ? 'It stays in this wallet; only the account changes.'
+          : 'I can only read the account that is open${current == null ? '' : ' (${current.name})'}. '
+              'Switch to ${account.name} and ask again, and I will answer from it.';
+      return AskCakeReply('$lead\n\n$data\n\n$tail',
+          action: AskCakeSwitchAccountAction(account.id, account.name),
+          route: 'other_account ${account.name}',
+          dataStart: lead.length + 2,
+          dataEnd: lead.length + 2 + data.length);
+    }
+    if (!switching &&
+        RegExp(r'\b(other|all( of)? (my|the)|every|each|across) accounts?\b|\baccounts\b').hasMatch(text)) {
+      final lead = 'This wallet has ${accounts.length} accounts.';
+      final data = accounts.map((a) => a.current ? '${line(a)} (open now)' : line(a)).join('\n');
+      const tail = 'Transactions and totals come from the account that is open. '
+          'To ask about another one, say "switch to" and its name.';
+      return AskCakeReply('$lead\n\n$data\n\n$tail',
+          route: 'accounts', dataStart: lead.length + 2, dataEnd: lead.length + 2 + data.length);
+    }
+    return null;
+  }
+
   /// A reply built from the user's own records. Swap IDs in it get copy
   /// buttons, because support asks for them. When the message reports a
   /// problem, the matching help page is linked underneath: the user sees what
@@ -559,7 +672,9 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
     final open = <String>[];
     final finished = <String>[];
     for (final match in RegExp(r'\(([^)]*)\) swap ID: ([^\s)]+)').allMatches(reply.text)) {
-      final id = match.group(2)!;
+      // A sentence can end right after an ID; the full stop is not part of it.
+      final id = match.group(2)!.replaceFirst(RegExp(r'[.,;:!?]+$'), '');
+      if (id.isEmpty) continue;
       if (seen.add(id)) (done.contains(match.group(1)!.toLowerCase()) ? finished : open).add(id);
     }
     final ids = [...open, ...finished].take(3).toList();
@@ -595,10 +710,13 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
               'The swap provider handles the trade itself.';
     }
     return AskCakeReply(text,
-        action: reply.action,
+        // A problem with funds or a swap is what support is for: one tap opens the in-app chat.
+        action: reply.action ?? (AskCakeGuards.mayNeedSupport(turn) ? const AskCakeSupportAction() : null),
         route: problem ? '${reply.route} +help' : reply.route,
         sourceUrl: url,
         options: reply.options,
+        dataStart: reply.dataStart,
+        dataEnd: reply.dataEnd,
         copyables: [for (final id in ids) AskCakeCopyable('Copy swap ID $id', id)]);
   }
 
@@ -627,7 +745,10 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
           // A help question keeps the docs answer and its link either way.
           final unsure = RegExp(r"^\W*(i'?m |i am )?not sure", caseSensitive: false).hasMatch(text);
           if (tool == 'app_help' || !unsure) {
-            return AskCakeReply(text, route: '$tool docs', sourceUrl: hit.url);
+            return AskCakeReply(text,
+                route: '$tool docs',
+                sourceUrl: hit.url,
+                action: AskCakeGuards.mayNeedSupport(turn) ? const AskCakeSupportAction() : null);
           }
           // A general question the docs only loosely touch: answer from general knowledge instead.
         }
@@ -635,7 +756,9 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
             'You are Ask Cake, the assistant inside Cake Wallet. Answer briefly in plain text from general knowledge about cryptocurrency and wallets. '
             'You can also look up the user\'s balance, transactions, spending totals, swaps and contacts, and prepare payments or new contacts for them to confirm.');
         try {
-          return AskCakeReply(await _model.respond(session, turn), route: '$tool general');
+          return AskCakeReply(await _model.respond(session, turn),
+              route: '$tool general',
+              action: AskCakeGuards.mayNeedSupport(turn) ? const AskCakeSupportAction() : null);
         } finally {
           await _model.disposeSession(session);
         }
@@ -666,7 +789,9 @@ Examples: "Add Grace to my contacts" -> add_contact. "save this address as Tom" 
       lead = '';
     }
     if (!leadInIsGrounded(lead, data) || data.contains(lead) || claimsACause(lead, data)) lead = '';
-    return AskCakeReply(lead.isEmpty ? data : '$lead\n\n$data', route: route);
+    final start = lead.isEmpty ? 0 : lead.length + 2;
+    return AskCakeReply(lead.isEmpty ? data : '$lead\n\n$data',
+        route: route, dataStart: start, dataEnd: start + data.length);
   }
 
   /// True when [lead] explains why something happened and DATA does not use

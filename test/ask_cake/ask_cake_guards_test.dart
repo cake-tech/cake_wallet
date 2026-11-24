@@ -1,3 +1,4 @@
+import 'package:cake_wallet/ask_cake/ask_cake_rows.dart';
 import 'package:cake_wallet/ask_cake/ask_cake_engine.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -133,5 +134,85 @@ void main() {
     const data = '- 2026-07-07 150 USDT -> 0.93 XMR via Exolix (failed) swap ID: X1';
     expect(AskCakeEngine.claimsACause('The difference occurred because the swap failed.', data), isTrue);
     expect(AskCakeEngine.claimsACause('Your swap on 2026-07-07 via Exolix failed.', data), isFalse);
+  });
+
+  test('wallet answers split into text, rows and small print', () {
+    const reply = 'Your swap on 2026-07-07 failed.\n\n'
+        '2 swaps for all time, newest first:\n'
+        '- 2026-11-19 0.62 XMR -> 1.1 LTC via Trocador (complete) swap ID: A1\n'
+        '- 2026-07-07 150 USDT -> 0.93 XMR via Exolix (failed) swap ID: A2\n'
+        'Providers used: Trocador x1, Exolix x1. Most used: Trocador.\n'
+        'Failed swaps: 1 (2026-07-07 150 USDT -> 0.93 XMR via Exolix (failed) swap ID: A2)\n\n'
+        'If a swap looks wrong, contact support.';
+    final blocks = AskCakeBlock.parse(reply);
+    expect(blocks.map((b) => b.rows.isNotEmpty ? 'rows' : b.small ? 'small' : 'text').toList(),
+        ['text', 'rows', 'small', 'text']);
+    expect(blocks[1].rows.last.swapId, 'A2');
+    expect(blocks[1].rows.last.status, 'failed');
+    expect(blocks[2].text, contains('Failed swaps: 1'));
+    expect(blocks[2].text, isNot(contains('swap ID')));
+
+    final txs = AskCakeBlock.parse('2 transactions for all time. Newest first:\n'
+        '- 2026-09-26 sent 0.12506239 LTC (USD 4.99), fee 0.002 LTC, note: Coffee beans order\n'
+        '- 2026-09-25 received 0.5 LTC (USD 20.00), pending');
+    expect(txs[1].rows.first.note, 'Coffee beans order');
+    expect(txs[1].rows.first.amount, '0.12506239 LTC');
+    expect(txs[1].rows.first.fiat, 'USD 4.99');
+    expect(txs[1].rows.last.incoming, isTrue);
+    expect(txs[1].rows.last.pending, isTrue);
+    // A reply with no list is one plain bubble.
+    expect(AskCakeBlock.parse('Your balance is 0 LTC.').single.text, 'Your balance is 0 LTC.');
+  });
+
+  test('figures from the wallet become a card, sentences around them stay text', () {
+    const lead = 'You spent 0.5 LTC last month.';
+    const data = 'Summary for last month (2026-10-01 to 2026-10-31):\n'
+        '- Sent (spent): 0.5 LTC (USD 40.00) in 3 transactions\n'
+        '- Net change: +0.3 LTC (USD 24.00) (saved more than spent)\n'
+        '- Largest outgoing (sent): 0.2 LTC on 2026-10-03 (Coffee)';
+    const reply = '$lead\n\n$data\n\nNote: this line is prose and stays prose.';
+    final blocks = AskCakeBlock.parse(reply, dataStart: lead.length + 2, dataEnd: lead.length + 2 + data.length);
+    expect(blocks.map((b) => b.facts.isNotEmpty ? 'facts' : 'text').toList(), ['text', 'text', 'facts', 'text']);
+    final facts = blocks[2].facts;
+    expect(facts[0].label, 'Sent (spent)');
+    expect(facts[0].value, '0.5 LTC');
+    expect(facts[0].detail, 'USD 40.00 · 3 transactions');
+    expect(facts[1].detail, 'USD 24.00 · saved more than spent');
+    expect(facts[2].value, '0.2 LTC on 2026-10-03');
+    expect(facts[2].detail, 'Coffee');
+    // A list of names in brackets is not split up.
+    final wallets = AskCakeFact.parse('Other wallets (open one to see its balance): Savings (Monero), Daily (Bitcoin)')!;
+    expect(wallets.value, 'Savings (Monero), Daily (Bitcoin)');
+    expect(wallets.detail, isNull);
+    // Without a data stretch nothing is treated as a figure.
+    expect(AskCakeBlock.parse('Note: plain help text.').single.facts, isEmpty);
+  });
+
+  test('scanner, habit, support and swap-order wording', () {
+    for (final yes in ['open the scanner', 'scan this QR', 'Scan a QR code for me', 'can you scan this invoice', 'scan']) {
+      expect(AskCakeGuards.isScanRequest(yes), isTrue, reason: yes);
+    }
+    for (final no in ['rescan my wallet', 'turn on silent payments scanning', 'how do I scan a QR code', 'show my QR code']) {
+      expect(AskCakeGuards.isScanRequest(no), isFalse, reason: no);
+    }
+    for (final yes in ['when do I most transact with this wallet', 'what day of the week am I most active', 'what time of day do I usually send']) {
+      expect(AskCakeGuards.isAboutMyHabits(yes), isTrue, reason: yes);
+    }
+    for (final no in ['when did I last pay Bob', 'how much did I spend last month', 'what is the busiest network']) {
+      expect(AskCakeGuards.isAboutMyHabits(no), isFalse, reason: no);
+    }
+    for (final yes in ['what do I do if my swap is stuck', 'my swap is stuck', 'how do I contact support', 'my payment never arrived']) {
+      expect(AskCakeGuards.mayNeedSupport(yes), isTrue, reason: yes);
+    }
+    for (final no in ['how do I back up my wallet', 'show my swaps', 'what is my balance']) {
+      expect(AskCakeGuards.mayNeedSupport(no), isFalse, reason: no);
+    }
+    expect(AskCakeGuards.swapOrder('swap to USDT'), (from: null, to: 'USDT'));
+    expect(AskCakeGuards.swapOrder('Swap Monero to USDT'), (from: 'XMR', to: 'USDT'));
+    expect(AskCakeGuards.swapOrder('convert my litecoin into bitcoin cash'), (from: 'LTC', to: 'BCH'));
+    expect(AskCakeGuards.swapOrder('swap'), (from: null, to: null));
+    expect(AskCakeGuards.swapOrder('show my swaps'), isNull);
+    expect(AskCakeGuards.swapOrder('swap history'), isNull);
+    expect(AskCakeGuards.swapOrder('how do swaps work'), isNull);
   });
 }

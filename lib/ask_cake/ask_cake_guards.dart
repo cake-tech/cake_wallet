@@ -135,6 +135,71 @@ class AskCakeGuards {
           r"(has|have|did|is|was|does|do|wo|ca)n'?t|hasn't|haven't|didn't|isn't|doesn't|won't|can't)\b")
       .hasMatch(text.toLowerCase().replaceAll('’', "'"));
 
+  /// "Open the scanner", "scan this QR": the camera scanner, not a wallet rescan or Silent Payments scanning.
+  static bool isScanRequest(String text) {
+    final t = text.toLowerCase().trim();
+    if (isQuestion(t) || RegExp(r'\b(rescan|silent|blockchain|wallet scan|scanning)\b').hasMatch(t)) return false;
+    return RegExp(r'\bscanner\b|^(please )?scan( (it|this|that|one|something))?[.!]?$|'
+            r'\bscan\b.{0,30}\b(qr|code|barcode|invoice|address|payment|request)\b|\b(qr|code)\b.{0,20}\bscan\b')
+        .hasMatch(t);
+  }
+
+  /// "When do I transact most", "what day am I most active": a question about habits, not one transaction.
+  static bool isAboutMyHabits(String text) {
+    final t = text.toLowerCase().replaceAll('’', "'");
+    return RegExp(r"\b(i|my|me|i'm|am i)\b").hasMatch(t) &&
+        RegExp(r'\b(when|what time|time of day|times?|days?|weekdays?|months?|hours?|how often|how frequently|busiest|patterns?|habits?)\b')
+            .hasMatch(t) &&
+        RegExp(r'\b(most|mostly|usually|typically|normally|generally|tend|often|frequently|busiest|patterns?|habits?|most active)\b')
+            .hasMatch(t) &&
+        RegExp(r'\b(transact\w*|send|spend|receive|pay|use|using|active|activity|busiest|buy|swap|move)\b').hasMatch(t);
+  }
+
+  /// A problem the user may need a person for, or a plain request to reach support.
+  static bool mayNeedSupport(String text) {
+    final t = text.toLowerCase().replaceAll('’', "'");
+    if (RegExp(r'\b(support|customer service|help ?desk|a human|real person|an agent|open a ticket|file a ticket)\b').hasMatch(t)) {
+      return true;
+    }
+    return isProblem(t) &&
+        RegExp(r'\b(swap\w*|trade|exchange\w*|transaction|tx|payment|funds|money|coins?|balance|refund\w*|deposit|'
+                r'withdraw\w*|purchase|order|gift ?card|cake ?pay|sent|received)\b')
+            .hasMatch(t);
+  }
+
+  static const _coinNames = {
+    'bitcoin cash': 'BCH', 'bitcoin': 'BTC', 'btc': 'BTC', 'monero': 'XMR', 'xmr': 'XMR', 'litecoin': 'LTC', //
+    'ltc': 'LTC', 'ethereum': 'ETH', 'ether': 'ETH', 'eth': 'ETH', 'tether': 'USDT', 'usdt': 'USDT', //
+    'usdc': 'USDC', 'dai': 'DAI', 'solana': 'SOL', 'sol': 'SOL', 'tron': 'TRX', 'trx': 'TRX', //
+    'dogecoin': 'DOGE', 'doge': 'DOGE', 'bch': 'BCH', 'zcash': 'ZEC', 'zec': 'ZEC', 'nano': 'XNO', //
+    'xno': 'XNO', 'decred': 'DCR', 'dcr': 'DCR', 'wownero': 'WOW', 'bnb': 'BNB', 'ada': 'ADA', //
+    'cardano': 'ADA', 'xrp': 'XRP', 'ripple': 'XRP', 'pol': 'POL', 'matic': 'POL',
+  };
+
+  /// A direct order to swap ("swap to USDT", "convert my monero into bitcoin"),
+  /// with whichever coins it names. Null when the message is not such an order.
+  static ({String? from, String? to})? swapOrder(String text) {
+    final t = text.toLowerCase().trim();
+    if (!RegExp(r"^(please |can you |could you |i want to |i'd like to |i would like to |let'?s |help me )?(swap|exchange|convert|trade)\b")
+            .hasMatch(t) ||
+        RegExp(r'\b(history|swaps|stuck|failed|status|id)\b').hasMatch(t)) {
+      return null;
+    }
+    String? from;
+    String? to;
+    final names = _coinNames.keys.map(RegExp.escape).join('|');
+    for (final match in RegExp('(\\b(?:to|into|for)\\s+(?:some\\s+)?)?\\b($names)\\b').allMatches(t)) {
+      final ticker = _coinNames[match.group(2)!]!;
+      if (match.group(1) != null) {
+        to ??= ticker;
+      } else {
+        from ??= ticker;
+      }
+    }
+    if (from == to) from = null;
+    return (from: from, to: to);
+  }
+
   static bool isQuestion(String text) {
     final t = text.toLowerCase().trim();
     // "can you send...", "could u turn on..." are orders phrased politely, not questions about the app.

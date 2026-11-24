@@ -448,6 +448,9 @@ class AskCakeAppActions implements AskCakeApp {
   }
 
   @override
+  List<AskCakeAccount> accounts() => askCakeAccounts(_appStore.wallet);
+
+  @override
   AskCakeToolResult receive({String? addressType, bool fresh = false, String? amount}) {
     final wallet = _appStore.wallet;
     if (wallet == null) return const AskCakeToolResult('No wallet is open.');
