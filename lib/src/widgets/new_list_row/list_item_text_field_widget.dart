@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/new_list_row/list_Item_style_wrapper.dart';
+import 'package:cake_wallet/utils/test_id.dart';
 import 'package:flutter/material.dart';
 
 class ListItemTextFieldWidget extends StatefulWidget {
@@ -13,6 +14,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
     this.focusNode,
     this.isFirstInSection = false,
     this.isLastInSection = false,
+    this.testId,
   });
 
   final String keyValue;
@@ -24,6 +26,7 @@ class ListItemTextFieldWidget extends StatefulWidget {
   final FocusNode? focusNode;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final String? testId;
 
   @override
   State<ListItemTextFieldWidget> createState() => _ListItemTextFieldWidgetState();
@@ -40,7 +43,7 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
           return Row(
             children: [
               Expanded(
-                child: TextFormField(
+                child: TestId.container(widget.testId, child: TextFormField(
                   controller: widget.controller,
                   validator: widget.validator,
                   onChanged: widget.onChanged,
@@ -57,7 +60,7 @@ class _ListItemTextFieldWidgetState extends State<ListItemTextFieldWidget> {
                     isDense: true,
                     contentPadding: const EdgeInsets.symmetric(vertical: 7),
                   ),
-                ),
+                )),
               ),
             ],
           );

@@ -5,15 +5,14 @@ import "package:cake_wallet/new-ui/modal_navigator.dart";
 import "package:cake_wallet/new-ui/pages/buy_sell/buy_sell_amount_page.dart";
 import "package:cake_wallet/new-ui/pages/swap_page.dart";
 import "package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
 import "package:cake_wallet/new-ui/widgets/charts_page/chart_header.dart";
 import "package:cake_wallet/new-ui/widgets/coins_page/action_row/coin_action_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/src/screens/buy/buy_sell_page.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/view_model/buy/buy_sell_view_model.dart";
-import "package:cake_wallet/view_model/exchange/exchange_view_model.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -37,6 +36,7 @@ class ChartModal extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalTopBar(
+                  testId: "chart_modal_top_bar",
                   title: "",
                   onLeadingPressed: Navigator.of(context).pop,
                   leadingIcon: const Icon(Icons.close),
@@ -159,7 +159,7 @@ class ChartModal extends StatelessWidget {
   bool get canOpenBuySell => getIt.get<AppStore>().wallet!.balance.containsKey(currency);
 
   CryptoCurrency? get swapCurrency {
-    const excluded = ExchangeViewModelBase.excludedCurrencies;
+    const excluded = SwapCurrencyStore.excludeDepositCurrencies;
     if (!excluded.contains(currency)) {
       return currency;
     }

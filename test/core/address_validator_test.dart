@@ -163,8 +163,10 @@ void main() {
 
       test("validates Algorand stablecoin addresses", () {
         const address = "4H5UNRBJ2Q6JENAXQ6HNTGKLKINP4J4VTQBEPK5F3I6RDICMZBPGNH6KD4";
+        final badChecksum = address.replaceRange(address.length - 1, address.length, "Y");
         final validator = AddressValidator(type: CryptoCurrency.usdcAlgo);
         expect(validator.isValid(address), isTrue);
+        expect(validator.isValid(badChecksum), isFalse);
         expect(validator.isValid(address.replaceRange(0, 1, "0")), isFalse);
         expect(validator.isValid(address.substring(1)), isFalse);
       });
@@ -181,6 +183,7 @@ void main() {
         const bounceable = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
         const nonBounceable = "UQDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff+W72r5gqPuwA";
         const testnet = "0QDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff-W72r5gqPleK";
+        final badChecksum = bounceable.replaceRange(bounceable.length - 1, bounceable.length, "t");
         for (final currency in [
           CryptoCurrency.ton,
           CryptoCurrency.usdtTon,
@@ -189,6 +192,7 @@ void main() {
           final validator = AddressValidator(type: currency);
           expect(validator.isValid(bounceable), isTrue, reason: currency.toString());
           expect(validator.isValid(nonBounceable), isTrue, reason: currency.toString());
+          expect(validator.isValid(badChecksum), isFalse, reason: currency.toString());
           expect(validator.isValid(testnet), isFalse, reason: currency.toString());
           expect(validator.isValid(bounceable.substring(1)), isFalse, reason: currency.toString());
           expect(
@@ -196,6 +200,33 @@ void main() {
             isFalse,
             reason: currency.toString(),
           );
+        }
+      });
+
+      test("validates NEAR named and implicit accounts", () {
+        for (final currency in [CryptoCurrency.near, CryptoCurrency.usdtNear]) {
+          final validator = AddressValidator(type: currency);
+          for (final account in [
+            "aurora.near",
+            "user_1.tg",
+            "a1-b2.c3.near",
+            "98793cd91a3f870fb126f66285808c7e094afcfc4eda8a970f6648cdf0dbd6de",
+            "0x85f17cf997934a597031b2e18a9ab6ebd4b9f6a4",
+          ]) {
+            expect(validator.isValid(account), isTrue, reason: "$currency $account");
+          }
+          for (final account in [
+            "Aurora.near",
+            "a",
+            "aurora..near",
+            "aurora.near.",
+            "-aurora.near",
+            "alice@fiotestnet",
+            "aurora near",
+            "${"a" * 60}.near",
+          ]) {
+            expect(validator.isValid(account), isFalse, reason: "$currency $account");
+          }
         }
       });
 

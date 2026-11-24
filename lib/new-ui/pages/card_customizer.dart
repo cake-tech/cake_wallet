@@ -190,6 +190,7 @@ class _CardCustomizerState extends State<CardCustomizer> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ModalTopBar(
+                        testId: "card_customizer_top_bar",
                         title: _isAccount ? S.of(context).edit_account : S.of(context).edit_card,
                         subtitle: _isAccount ? "#${widget.account!.id + 1}" : null,
                         leadingIcon:

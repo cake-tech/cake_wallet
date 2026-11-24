@@ -146,6 +146,7 @@ class _HiddenAccountsPageState extends State<HiddenAccountsPage> {
   @override
   Widget build(BuildContext context) => ModalPageWrapper(
         topBar: ModalTopBar(
+          testId: "hidden_accounts_page_top_bar",
           title: S.of(context).archived_accounts,
           leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
           leadingSemanticLabel: S.of(context).seed_alert_back,
