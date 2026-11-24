@@ -5,6 +5,8 @@ import 'package:cake_wallet/core/address_resolver/ens/ens_address_provider.dart'
 import 'package:cake_wallet/core/address_resolver/fio/fio_address_provider.dart';
 import 'package:cake_wallet/core/address_resolver/lnurl_pay/lnurl_pay_address_provider.dart';
 import 'package:cake_wallet/core/address_resolver/mastodon/mastodon_address_provider.dart';
+import 'package:cake_wallet/core/address_resolver/namecoin/namecoin_address_provider.dart';
+import 'package:cake_wallet/core/address_resolver/namecoin/namecoin_record.dart';
 import 'package:cake_wallet/core/address_resolver/nostr/nostr_address_provider.dart';
 import 'package:cake_wallet/core/address_resolver/openalias/openalias_address_provider.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
@@ -33,6 +35,7 @@ class AddressResolverService {
     AddressSource.mastodon,
     AddressSource.yatRecord,
     AddressSource.unstoppableDomains,
+    AddressSource.namecoin,
     AddressSource.openAlias,
     AddressSource.ens,
     AddressSource.zcashName,
@@ -52,6 +55,7 @@ class AddressResolverService {
       MastodonAddressProvider(),
       YatAddressProvider(),
       UnstoppableAddressProvider(),
+      NamecoinAddressProvider(),
       OpenaliasAddressProvider(),
       EnsAddressProvider(),
       ZcashNameAddressProvider(),
@@ -70,17 +74,20 @@ class AddressResolverService {
   Future<List<ParsedAddress>> resolve({
     required String query,
     required WalletBase wallet,
-    required CryptoCurrency currency,
+    required CryptoCurrency? currency,
   }) async {
     try {
       final providers = _buildProviders();
-      // return first entry if currency is specified and provider supports it
+      final isNamecoinIdentifier = NamecoinRecord.isNamecoinIdentifier(query);
+      // A null currency requests every address supported by each provider. This is
+      // used by contact creation before the user has selected a currency.
       if (currency != null) {
         for (final provider in providers) {
           final cur = currency.title;
           final src = provider.source.label;
 
           printV('[address resolver service] checking $src - $cur - $query');
+          if (isNamecoinIdentifier && provider.source != AddressSource.namecoin) continue;
           if (!provider.isEnabled(settingsStore)) {
             printV('[address resolver service] ...skipping $src (disabled)');
             continue;
@@ -104,9 +111,9 @@ class AddressResolverService {
 
             if (results.isNotEmpty) {
               final parsedAddress = results.first.parsedAddressByCurrencyMap[currency];
-              final parsedAddressStr =
-                  parsedAddress == null || parsedAddress.isEmpty ? 'N/A' : parsedAddress;
-              printV('[address resolver service] resolved $src - $cur - $parsedAddressStr');
+              if (parsedAddress == null || parsedAddress.isEmpty) continue;
+
+              printV('[address resolver service] resolved $src - $cur - $parsedAddress');
               return [results.first];
             }
           } catch (e) {
@@ -117,11 +124,10 @@ class AddressResolverService {
         return [];
       }
 
-      return []; // TODO: Implement multi-currency resolution if no specific currency is provided.
-
       final tasks = <Future<List<ParsedAddress>>>[];
 
       for (final provider in providers) {
+        if (isNamecoinIdentifier && provider.source != AddressSource.namecoin) continue;
         if (!provider.isEnabled(settingsStore)) continue;
         if (!provider.canHandle(query)) continue;
 
@@ -130,7 +136,10 @@ class AddressResolverService {
             query: query,
             currencies: provider.supportedCurrencies,
             wallet: wallet,
-          ),
+          ).catchError((error) {
+            printV('[address resolver service] Error resolving ${provider.source}: $error');
+            return <ParsedAddress>[];
+          }),
         );
       }
 
