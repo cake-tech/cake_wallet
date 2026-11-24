@@ -112,7 +112,7 @@ class CakePayOrderListCard extends StatelessWidget {
                             children: [
                               _labelBox(
                                 context,
-                                text: 'Create • $create',
+                                text: 'Created • $create',
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                 radius: 8,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
