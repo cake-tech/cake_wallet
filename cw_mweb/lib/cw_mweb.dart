@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import "package:cw_mweb/mweb_exceptions.dart";
@@ -18,6 +19,7 @@ class CwMweb {
   static const TIMEOUT_DURATION = Duration(seconds: 15);
   static Timer? logTimer;
   static String? nodeUriOverride;
+  static Future<void>? _starting;
 
   static Future<void> setNodeUriOverride(String uri) async {
     nodeUriOverride = uri;
@@ -58,13 +60,22 @@ class CwMweb {
     String debugLogPath = "${appDir.path}/logs/debug.log";
     readFileWithTimer(debugLogPath);
 
-    _port = MWebFfi.instance.start(appDir.path, nodeUriOverride ?? ltcNodeUri);
+    final dataDir = appDir.path;
+    final nodeUri = nodeUriOverride ?? ltcNodeUri;
+
+    _port = await Isolate.run(() => MWebFfi.instance.start(dataDir, nodeUri));
     if (_port == null || _port == 0) {
       throw MwebConnectionException("Failed to start server");
     }
     printV("Attempting to connect to server on port: $_port");
 
-    _clientChannel = ClientChannel('127.0.0.1', port: _port!, channelShutdownHandler: () {
+    final offline = nodeUri == "offline";
+    _clientChannel = ClientChannel(
+      offline
+          ? InternetAddress('$dataDir/mwebd.sock', type: InternetAddressType.unix)
+          : '127.0.0.1',
+      port: offline ? 0 : _port!,
+      channelShutdownHandler: () {
       _rpcClient = null;
       printV("Channel is shutting down!");
     },
@@ -79,11 +90,11 @@ class CwMweb {
     for (int i = 0; i < maxRetries; i++) {
       try {
         if (_rpcClient == null) {
-          await _initializeClient();
+          await (_starting ??= _initializeClient().whenComplete(() => _starting = null));
         }
         final status = await _rpcClient!
             .status(StatusRequest(), options: CallOptions(timeout: TIMEOUT_DURATION));
-        if (status.blockTime == 0) {
+        if (status.blockTime == 0 && nodeUriOverride != "offline") {
           throw MwebConnectionException("blockTime shouldn't be 0! (this connection is likely broken)");
         }
         return _rpcClient!;
