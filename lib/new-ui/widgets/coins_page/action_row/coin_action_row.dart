@@ -43,8 +43,7 @@ class CoinActionRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: MediaQuery.sizeOf(context).width * 0.05,
         children: [
-          Expanded(
-            child: CoinActionButton(
+            CoinActionButton(
               key: ValueKey("home_page_send_button_key"),
               icon: CakeImageWidget(
                 imageUrl: "assets/new-ui/send.svg",
@@ -77,9 +76,7 @@ class CoinActionRow extends StatelessWidget {
                   );
               },
             ),
-          ),
-          Expanded(
-            child: CoinActionButton(
+            CoinActionButton(
               key: ValueKey("home_page_receive_button_key"),
               icon: CakeImageWidget(
                 imageUrl: "assets/new-ui/receive.svg",
@@ -100,10 +97,8 @@ class CoinActionRow extends StatelessWidget {
                   );
               },
             ),
-          ),
           if (showSwap)
-            Expanded(
-              child: CoinActionButton(
+              CoinActionButton(
                 key: ValueKey("home_page_swap_button_key"),
                 icon: CakeImageWidget(
                   imageUrl: "assets/new-ui/exchange.svg",
@@ -127,9 +122,7 @@ class CoinActionRow extends StatelessWidget {
                     );
                 },
               ),
-            ),
-          Expanded(
-            child: CoinActionButton(
+            CoinActionButton(
               key: ValueKey("home_page_scan_button_key"),
               icon: CakeImageWidget(
                 imageUrl: "assets/new-ui/scan.svg",
@@ -141,7 +134,6 @@ class CoinActionRow extends StatelessWidget {
               label: S.of(context).scan,
               action: () => _onPressedScan(context),
             ),
-          ),
         ],
       ),
     );
