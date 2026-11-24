@@ -18,6 +18,7 @@ import "package:cake_wallet/tron/tron.dart";
 import "package:cake_wallet/view_model/send/send_view_model.dart";
 import "package:cake_wallet/zano/zano.dart";
 import "package:collection/collection.dart";
+import "package:cw_core/cake_mempool_space.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/transaction_direction.dart";
@@ -459,7 +460,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.bitcoin:
         return isLightning(transactionInfo)
             ? "https://sparkscan.io/tx/${txId}"
-            : 'https://cake.mempool.space/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
+            : '$cakeMempoolSpaceUrl/${wallet.isTestnet ? "testnet/" : ""}tx/${txId}';
       case WalletType.litecoin:
         return bitcoin!.txIsMweb(transactionInfo)
             ? "https://www.mwebexplorer.com/blocks/block/${transactionInfo.height}"

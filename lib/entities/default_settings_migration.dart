@@ -29,6 +29,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cw_core/cake_mempool_space.dart';
 import 'package:cw_core/erc20_token.dart';
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
@@ -48,6 +49,7 @@ const nanoDefaultPowNodeUri = 'rpc.nano.to';
 const solanaDefaultNodeUri = 'solana-mainnet.core.chainstack.com';
 const tronDefaultNodeUri = 'trx.nownodes.io';
 const newCakeWalletBitcoinUri = 'cake.mempool.space:50002';
+const cakeMempoolSpaceBitcoinUri = "$cakeMempoolSpaceHost:50002";
 const wowneroDefaultNodeUri = 'node3.monerodevs.org:34568';
 const zanoDefaultNodeUri = '37.27.100.59:10500';
 const moneroWorldNodeUri = '.moneroworld.com';
@@ -658,6 +660,18 @@ Future<void> defaultSettingsMigration(
             sharedPreferences: sharedPreferences,
             type: WalletType.robinhood,
             currentNodePreferenceKey: PreferencesKey.currentRobinhoodNodeIdKey,
+          );
+          break;
+        case 73:
+          // Only users still on the old Cake default move; custom or other Cake nodes are kept.
+          await _changeDefaultNode(
+            sharedPreferences: sharedPreferences,
+            type: WalletType.bitcoin,
+            newDefaultUri: cakeMempoolSpaceBitcoinUri,
+            currentNodePreferenceKey: PreferencesKey.currentBitcoinElectrumSererIdKey,
+            useSSL: true,
+            trusted: true,
+            oldUri: ['btc-electrum.cakewallet.com', 'electrum.cakewallet.com'],
           );
           break;
         default:
