@@ -88,7 +88,7 @@ jobs:
     needs: build
     # build is report-only, so it "succeeds" even when it fails: run only when it handed over an app.
     if: needs.build.outputs.built == 'true'
-    runs-on: [self-hosted, cake-m5-ultra]
+    runs-on: [self-hosted, cake-m4-qa]
     environment: qa
     # REPORT-ONLY, permanently until Seth says otherwise.
     continue-on-error: true
