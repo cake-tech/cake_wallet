@@ -56,6 +56,8 @@ class HistorySection extends StatelessWidget {
                         childCount: items.length,
                         (context, index) => HistoryRow(
                           dashboardViewModel: dashboardViewModel,
+                          index: index,
+                          short: short,
                           item: items[index],
                           prevItem: index == 0 ? null : items[index - 1],
                           nextItem: index == items.length - 1 ? null : items[index + 1],

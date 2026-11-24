@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:cw_core/db/sqlite_debug.dart";
+import "package:cw_core/db/trade_migration.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -128,7 +129,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       }
 
       if (oldVersion <= 5) {
-        await _createTradeTable(db);
+        await _createOldTradeTable(db);
       }
       if (oldVersion <= 6) {
         await _addColumnIfNotExists(
@@ -207,6 +208,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
         );
       }
       if (oldVersion <= 15) {
+        await migrateTradeTableToNewSchema(db);
         await _createWalletInfoScanCoverageTable(db);
         await _addColumnIfNotExists(
           db,
@@ -316,7 +318,7 @@ CREATE TABLE BalanceCardStyleSettings (
         ''');
       await _createBridgeTransferTable(db);
       await _createNodeTable(db);
-      await _createTradeTable(db);
+      await createTradeTable(db);
       await _createChartsTables(db);
       await _createErc20TokenTable(db);
       await _createSplTokenTable(db);
@@ -346,7 +348,7 @@ CREATE TABLE ChartsAssets (
         """);
 }
 
-Future<void> _createTradeTable(Database db) async {
+Future<void> _createOldTradeTable(Database db) async {
   await db.execute("""
 CREATE TABLE IF NOT EXISTS Trade (
   tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -406,6 +408,37 @@ CREATE TABLE IF NOT EXISTS Trade (
   await db.execute("""
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
 ON Trade (id);
+""");
+}
+
+
+Future<void> createTradeTable(Database db) async {
+  await db.execute("""
+CREATE TABLE Trade (
+    tradeId TEXT PRIMARY KEY NOT NULL,
+    provider INTEGER, 
+    state TEXT,
+    accountIndex INTEGER,
+    depositAmount TEXT,
+    payoutAmount TEXT,
+    fundingAddress TEXT,
+    refundAddress TEXT,
+    payoutAddress TEXT,
+    createdAt INTEGER,
+    expiredAt INTEGER,
+    extraId TEXT,
+    outputTransaction TEXT,
+    walletId TEXT,
+    toAddressExtraId TEXT,
+    password TEXT,
+    providerId TEXT,
+    providerName TEXT,
+    memo TEXT,
+    txId TEXT,
+    isRefund INTEGER,
+    chainId INTEGER,
+    fromWalletAddress TEXT
+);
 """);
 }
 
