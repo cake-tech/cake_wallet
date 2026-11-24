@@ -1,7 +1,5 @@
 import "dart:math";
 
-import "package:auto_size_text/auto_size_text.dart";
-
 import "package:cake_wallet/themes/core/theme_extension.dart";
 import "package:cake_wallet/utils/test_id.dart";
 import "package:flutter/material.dart";
@@ -77,15 +75,11 @@ class CoinActionButton extends StatelessWidget {
                 // screen edge; keep the caption inside the button's width.
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: effectiveSize + 12),
-                  child: AutoSizeText(
+                  child: Text(
                     textAlign: TextAlign.center,
-                    maxLines: 2,
-                    // The "copied" confirmation is one long word in Tamil
-                    // ("நகலெடுக்கப்பட்டது") and cannot wrap, so allow a deep
-                    // shrink and never clip silently.
-                    minFontSize: 6,
+                    maxLines: 1,
+                    softWrap: false,
                     overflow: TextOverflow.ellipsis,
-                    wrapWords: false,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),

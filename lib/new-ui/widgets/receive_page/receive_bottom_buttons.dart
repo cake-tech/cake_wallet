@@ -46,19 +46,15 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
           opacity: targetOpacity,
           curve: Curves.easeOut,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 32),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
-              spacing: 12,
+              spacing: 16,
               children: [
                 // The button itself is the only control: it copies when there
                 // is data to copy, otherwise it opens the payjoin copy modal.
-                // Each control gets an equal share of the row so localized
-                // captions ("தொகையை அமைக்கவும்") wrap inside their button
-                // instead of pushing the row past the screen edge.
-                Expanded(
-                  child: CopyWrapper(
+                  CopyWrapper(
                     data: widget.copyData,
                     controlBuilder: (context, copied, onCopy) => AnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
@@ -79,9 +75,7 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: ModernButton.svg(
+                  ModernButton.svg(
                     testId: "receive_page_set_amount_button_key",
                     size: 60,
                     iconSize: 32,
@@ -89,10 +83,8 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                     onPressed: widget.onAmountButtonPressed,
                     label: S.of(context).set_amount,
                   ),
-                ),
                 if (widget.showLabelButton)
-                  Expanded(
-                    child: ModernButton.svg(
+                    ModernButton.svg(
                       testId: "receive_page_label_button_key",
                       size: 60,
                       iconSize: 32,
@@ -100,10 +92,8 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                       onPressed: widget.onLabelButtonPressed,
                       label: S.of(context).label,
                     ),
-                  ),
                 if (widget.showAccountsButton)
-                  Expanded(
-                    child: ModernButton.svg(
+                    ModernButton.svg(
                       testId: "receive_page_addresses_button_key",
                       size: 60,
                       iconSize: 32,
@@ -111,7 +101,6 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
                       onPressed: widget.onAccountsButtonPressed,
                       label: S.of(context).addresses,
                     ),
-                  ),
               ],
             ),
           ),
