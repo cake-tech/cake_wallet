@@ -1,3 +1,4 @@
+import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/contact_base.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -15,6 +16,7 @@ import "package:cw_core/wallet_info.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
+import "package:cake_wallet/entities/wallet_display_name.dart";
 
 
 class SwapAddressSelectionModal extends StatefulWidget {
@@ -129,16 +131,16 @@ class _SwapAddressSelectionModalState extends State<SwapAddressSelectionModal> {
 
                               if (!widget.isSelectingReceiver) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 6.0),
+                                  padding: const EdgeInsets.symmetric(vertical: 6),
                                   child: TestId.merge("swap_wallet_picker_wallet_${index}_key",
                                       child: WalletRow(
-                                    currencyIconPath: currencyIconPath,
-                                    walletName: item.name,
-                                    onTap: () {
-                                      widget.bloc.add(SourceChanged(InternalSwapSource(item)));
-                                      Navigator.of(context).pop();
-                                    },
-                                  )),
+                                        currencyIconPath: currencyIconPath,
+                                        walletName: getIt.get<WalletDisplayNames>().groupName(item),
+                                        onTap: () {
+                                          widget.bloc.add(SourceChanged(InternalSwapSource(item)));
+                                          Navigator.of(context).pop();
+                                        },
+                                      )),
                                 );
                               }
 
@@ -285,8 +287,7 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
   bool _isExpanded = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(16)),
@@ -314,7 +315,14 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
                       spacing: 12,
                       children: [
                         CakeImageWidget(imageUrl: widget.iconPath, width: 24, height: 24),
-                        Text(widget.wallet.name)
+                        Text(
+                          getIt.get<WalletDisplayNames>().groupName(widget.wallet),
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
                       ],
                     ),
                     widget.accounts != null
@@ -386,5 +394,4 @@ class _SwapAddressSelectionModalRowState extends State<SwapAddressSelectionModal
         ),
       ),
     );
-  }
 }

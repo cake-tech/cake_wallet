@@ -4,6 +4,12 @@ import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 
 class SwapWalletListService {
+  /// Omnichain groups keep placeholder WalletInfos for networks that were never
+  /// created (isReady == false). They have no wallet files, so they must never
+  /// be offered as a swap source or destination.
+  static Future<List<WalletInfo>> _readyWalletsForType(WalletType type) async =>
+      (await WalletInfo.getAllForType(type)).where((wallet) => wallet.isReady).toList();
+
   static Future<List<WalletInfo>> getWallets(CryptoCurrency currency) async {
     final type = cryptoCurrencyOrTokenToWalletType(currency);
 
@@ -11,7 +17,7 @@ class SwapWalletListService {
       return [];
     }
 
-    return WalletInfo.getAllForType(type);
+    return _readyWalletsForType(type);
   }
 
   static Future<List<WalletInfo>> getDepositWallets(CryptoCurrency currency) async {
@@ -21,15 +27,15 @@ class SwapWalletListService {
       return [];
     }
 
-    return (await WalletInfo.getAllForType(type))
-        .where((wallet) => canFundDeposit(wallet, currency))
-        .toList();
+    return (await _readyWalletsForType(
+      type,
+    )).where((wallet) => canFundDeposit(wallet, currency)).toList();
   }
 
   static Future<List<WalletInfoAddressInfo>?> accountAddresses(WalletInfo wallet) async {
     if (wallet.type != WalletType.monero) {
-    // btc has accounts as well but doesn't save addresses per-account
-    // we could work around it but there's a refactor for it right around the corner so i'm not touching wallet code
+      // btc has accounts as well but doesn't save addresses per-account
+      // we could work around it but there's a refactor for it right around the corner so i'm not touching wallet code
       return null;
     }
 
