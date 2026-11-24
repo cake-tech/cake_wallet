@@ -4,4 +4,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
+RUN groupadd -g 10001 builder \
+ && useradd -m -u 10001 -g 10001 -s /bin/bash builder \
+ && mkdir -p /opt/_ \
+ && chown 10001:10001 /opt/_
+
 WORKDIR /w

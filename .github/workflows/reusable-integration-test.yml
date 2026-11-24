@@ -61,6 +61,7 @@ jobs:
       KEY_PASS: test@cake_wallet
       BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
       GITHUB_TOKEN: ${{ github.token }}
+      SIMPLYBS_TOKEN: ${{ secrets.SIMPLYBS_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4

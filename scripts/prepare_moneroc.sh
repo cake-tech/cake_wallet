@@ -13,10 +13,8 @@ else
     cd monero_c
 fi
 
-# NOTE: Make sure to update monero_c prebuilds link in workflow files
-# https://github.com/MrCyjaneK/monero_c/releases/download/v0.18.4.6-RC2/release-bundle.zip
 git fetch -a
-git checkout 33671871de3d51696b66ffb3bd94f744e26974f6
+git checkout c5710d6227ef6e07dfedfb4db82a54eca3a5edb7
 git reset --hard
 git submodule update --init --force --recursive
 

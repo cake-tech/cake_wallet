@@ -28,6 +28,7 @@ jobs:
     env:
       CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
       CW_DOCKER_USE_CLOUD: "true"
+      SIMPLYBS_TOKEN: ${{ secrets.SIMPLYBS_TOKEN }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -53,6 +54,7 @@ jobs:
     env:
       CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
       CW_DOCKER_USE_CLOUD: "true"
+      SIMPLYBS_TOKEN: ${{ secrets.SIMPLYBS_TOKEN }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:

@@ -170,13 +170,22 @@ build() {
     return 0
   fi
   echo "==> building $name${extra}"
-  # Pass the token as a BuildKit secret, not a build-arg. Secret values are
-  # excluded from the layer cache key, so a new GITHUB_TOKEN does not rebuild.
+  # Pass tokens as BuildKit secrets, not build-args. Secret values are
+  # excluded from the layer cache key.
+  if [[ "$name" == "monero" || "$name" == "torch" ]]; then
+    if [[ -z "${SIMPLYBS_TOKEN:-}" ]]; then
+      echo "SIMPLYBS_TOKEN is not set" >&2
+      exit 1
+    fi
+  fi
   local -a secret_args=()
   if [[ -n "${GITHUB_TOKEN:-}" ]]; then
     secret_args+=(--secret id=github_token,env=GITHUB_TOKEN)
   elif [[ -n "${GH_TOKEN:-}" ]]; then
     secret_args+=(--secret id=github_token,env=GH_TOKEN)
+  fi
+  if [[ -n "${SIMPLYBS_TOKEN:-}" ]]; then
+    secret_args+=(--secret id=simplybs_token,env=SIMPLYBS_TOKEN)
   fi
   DOCKER_BUILDKIT=1 docker build \
     ${secret_args[@]+"${secret_args[@]}"} \
@@ -244,9 +253,9 @@ merge_slices() {
 }
 
 base_ver="latest"
-torch_ver="$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.torch $REPO_ROOT/scripts/prepare_torch.sh $REPO_ROOT/scripts/android/build_torch.sh)"
+torch_ver="$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.torch $REPO_ROOT/scripts/prepare_simplybs.sh $REPO_ROOT/scripts/prepare_torch.sh $REPO_ROOT/scripts/android/build_torch.sh)"
 reown_ver=$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.reown $REPO_ROOT/scripts/functions.sh $REPO_ROOT/scripts/prepare_reown.sh $REPO_ROOT/scripts/android/build_reown_deps.sh)
-monero_ver=$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.monero $REPO_ROOT/scripts/prepare_moneroc.sh $REPO_ROOT/scripts/android/build_monero_all.sh)
+monero_ver=$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.monero $REPO_ROOT/scripts/prepare_simplybs.sh $REPO_ROOT/scripts/prepare_moneroc.sh $REPO_ROOT/scripts/android/build_monero_all.sh)
 mwebd_ver=$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.mwebd $REPO_ROOT/pubspec_overrides.yaml $(find $REPO_ROOT/cw_mweb/go -type f | sort))
 zcash_ver=$(tinysha $GIT_CREDENTIAL_HELPER $SCRIPT_DIR/Dockerfile.zcash $REPO_ROOT/scripts/prepare_zcash.sh $REPO_ROOT/scripts/android/build_zcash.sh)
 torch_assembled_extra > /tmp/cw_torch_assembled_extra
