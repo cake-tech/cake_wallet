@@ -568,8 +568,13 @@ class ElectrumClient {
       return;
     }
 
+    if (result is Map) {
+      throw PackageBroadcastException("${result["errors"]}");
+    }
+
+    final id = callId;
     throw PackageBroadcastException(
-      result is Map ? "${result["errors"]}" : getErrorMessage(callId!),
+      id == null ? "Not connected to the server" : getErrorMessage(id),
     );
   }
 

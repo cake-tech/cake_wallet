@@ -472,14 +472,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   // A refresh can add the exit's CPFP change after its coins were frozen, so freeze again.
-  Future<void> _freezeUnilateralExitCoins() async {
-    final exit = await _loadUnilateralExitPlan();
-    if (exit == null) {
-      return;
-    }
+  Future<void> _freezeUnilateralExitCoins() => _serializeUnilateralExit(() async {
+        final exit = await _loadUnilateralExitPlan();
+        if (exit == null) {
+          return;
+        }
 
-    await _setUnilateralExitCoinsFrozen(exit, isFrozen: true);
-  }
+        await _setUnilateralExitCoinsFrozen(exit, isFrozen: true);
+      });
 
   LightningWallet? lightningWallet;
 
@@ -726,6 +726,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   bool _isAdvancingUnilateralExit = false;
+
+  Future<void> _unilateralExitQueue = Future.value();
+
+  Future<T> _serializeUnilateralExit<T>(Future<T> Function() action) {
+    final run = _unilateralExitQueue.then((_) => action());
+    _unilateralExitQueue = run.then((_) {}, onError: (_) {});
+    return run;
+  }
 
   UnilateralExitPlanStore get _unilateralExitPlanStore =>
       UnilateralExitPlanStore(walletId: walletInfo.id);
@@ -1111,6 +1119,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
         if (existing != null) {
           existing.additionalInfo = {...existing.additionalInfo, ...entry.additionalInfo};
+
+          if (entry.state == UnilateralExitStepState.confirmed && existing.isPending) {
+            existing.isPending = false;
+            existing.confirmations = existing.confirmations == 0 ? 1 : existing.confirmations;
+          }
+
           transactionHistory.addOne(existing);
           continue;
         }
@@ -1154,38 +1168,42 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     _isAdvancingUnilateralExit = true;
     try {
-      final exit = await _loadUnilateralExitPlan();
-
-      // An exit that needs rebuilding waits for the user to build it again.
-      if (exit == null || exit.status == UnilateralExitStatus.rebuild) {
-        return;
-      }
-
-      final check = await lightningWallet!.checkUnilateralExit(exit.recovery);
-      final checked = exit.copyWith(recovery: check.recovery);
-
-      switch (check.verdict) {
-        case RecoveryVerdict_Done():
-          await _saveUnilateralExit(checked.copyWith(status: UnilateralExitStatus.complete));
-          await _setUnilateralExitCoinsFrozen(checked, isFrozen: false);
-        case RecoveryVerdict_Redo():
-          await _saveUnilateralExit(checked.copyWith(status: UnilateralExitStatus.rebuild));
-        case RecoveryVerdict_Valid():
-          await _setUnilateralExitCoinsFrozen(checked, isFrozen: true);
-
-          final sent = await UnilateralExitBroadcaster(electrumClient: electrumClient)
-              .broadcastAndRecord(checked);
-
-          await _saveUnilateralExit(sent);
-      }
-
-      await _recordUnilateralExitHistory();
-      await _refreshLightningBalance();
+      await _serializeUnilateralExit(_runUnilateralExitStep);
     } catch (e) {
       printV("unilateral exit: failed to advance: $e");
     } finally {
       _isAdvancingUnilateralExit = false;
     }
+  }
+
+  Future<void> _runUnilateralExitStep() async {
+    final exit = await _loadUnilateralExitPlan();
+
+    // An exit that needs rebuilding waits for the user to build it again.
+    if (exit == null || exit.status == UnilateralExitStatus.rebuild) {
+      return;
+    }
+
+    final check = await lightningWallet!.checkUnilateralExit(exit.recovery);
+    final checked = exit.copyWith(recovery: check.recovery);
+
+    switch (check.verdict) {
+      case RecoveryVerdict_Done():
+        await _saveUnilateralExit(checked.copyWith(status: UnilateralExitStatus.complete));
+        await _setUnilateralExitCoinsFrozen(checked, isFrozen: false);
+      case RecoveryVerdict_Redo():
+        await _saveUnilateralExit(checked.copyWith(status: UnilateralExitStatus.rebuild));
+      case RecoveryVerdict_Valid():
+        await _setUnilateralExitCoinsFrozen(checked, isFrozen: true);
+
+        final sent = await UnilateralExitBroadcaster(electrumClient: electrumClient)
+            .broadcastAndRecord(checked);
+
+        await _saveUnilateralExit(sent);
+    }
+
+    await _recordUnilateralExitHistory();
+    await _refreshLightningBalance();
   }
 
   /// The funding coins and the CPFP change landing back on our addresses pay
