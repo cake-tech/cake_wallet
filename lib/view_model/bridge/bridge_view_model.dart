@@ -652,8 +652,6 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
 
     for (final transfer in activeTransfers) {
       if (transfer.status == 'submitted' || transfer.status == 'confirming') {
-        if (transfer.sourceChainId != sourceChainId) continue;
-
         _pollForConfirmation(transfer, wallet, isSource: true);
       } else if (transfer.status == 'initiated') {
         _pollForConfirmation(transfer, wallet, isSource: false);
@@ -699,6 +697,7 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
     final pollTimeout = isSource ? _pollTimeout : _destinationPollTimeout;
     final walletId = wallet.name;
     final deadline = DateTime.now().add(pollTimeout);
+    var wasOffSourceChain = false;
 
     _pollingCancellers.add(canceller);
 
@@ -712,7 +711,10 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         if (canceller.isCompleted || !_isValidWalletContext(walletId)) return;
 
         if (isSource) {
-          var receipt = await _fetchTransactionReceipt(record, wallet);
+          final isOnSourceChain = sourceChainId == record.sourceChainId;
+          if (!isOnSourceChain) wasOffSourceChain = true;
+
+          var receipt = isOnSourceChain ? await _fetchTransactionReceipt(record, wallet) : null;
           if (receipt == null && await _fetchBridgeTransferStatus(record) != null) receipt = true;
           if (canceller.isCompleted) return;
 
@@ -756,7 +758,10 @@ abstract class BridgeViewModelBase extends WalletChangeListenerViewModel with St
         }
       }
 
-      if (isSource && _isValidWalletContext(walletId)) {
+      if (isSource &&
+          _isValidWalletContext(walletId) &&
+          !wasOffSourceChain &&
+          sourceChainId == record.sourceChainId) {
         await _updateTransferStatus(
           record,
           'failed',
