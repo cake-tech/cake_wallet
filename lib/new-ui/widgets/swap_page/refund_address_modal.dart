@@ -42,6 +42,7 @@ class _RefundAddressModalState extends State<RefundAddressModal> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ModalTopBar(
+            testId: "refund_address_modal_top_bar",
             title: S.of(context).set_refund_address,
             trailingIcon: Icon(Icons.close),
             trailingSemanticLabel: S.of(context).close,

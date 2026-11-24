@@ -918,6 +918,7 @@
   "picker_see_all": "Zobrazit vše",
   "picker_show_less": "Ukázat méně",
   "pin_at_top": "Připnout ${token} nahoru",
+  "pin_digits_entered": "Zadáno ${entered} z ${total} číslic",
   "pin_is_incorrect": "PIN je nesprávný",
   "pin_number": "PIN",
   "placeholder_contacts": "Vaše kontakty se zobrazí zde",

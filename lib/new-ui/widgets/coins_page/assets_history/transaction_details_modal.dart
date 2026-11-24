@@ -12,6 +12,7 @@ import "package:cake_wallet/src/screens/transaction_details/transaction_details_
 import "package:cake_wallet/src/widgets/fee_fetch_progress_indicator.dart";
 import "package:cake_wallet/src/widgets/new_list_row/new_list_section.dart";
 import "package:cake_wallet/utils/address_formatter.dart";
+import "package:cake_wallet/utils/test_id.dart";
 import "package:cake_wallet/view_model/transaction_details_view_model.dart";
 import "package:flutter/cupertino.dart";
 import "package:flutter/material.dart";
@@ -44,6 +45,7 @@ class TransactionDetailsModal extends StatelessWidget {
               child: Column(
                 children: [
                   ModalTopBar(
+                    testId: "transaction_details_modal_top_bar",
                     title: S.of(context).transaction,
                     leadingIcon: const Icon(Icons.close),
                     leadingSemanticLabel: S.of(context).close,
@@ -203,6 +205,7 @@ class _TransactionDetailsItemsSection extends StatelessWidget {
                   final keyValue = ((item.key as ValueKey?)?.value as String?) ?? item.title;
 
                   return ListItemRegularRow(
+                    testId: TestId.fromKey(item.key),
                     copyableText: item.value,
                     showArrow: false,
                     keyValue: keyValue,
