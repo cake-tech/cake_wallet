@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
+import 'package:cw_core/utils/proxy_logger/abstract.dart';
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
@@ -32,6 +33,12 @@ class AskCakeRouterStore {
   static const _defaultBaseUrl =
       String.fromEnvironment('ASK_CAKE_ROUTER_URL', defaultValue: 'https://assets.cakelabs.com/ask-cake/router/');
 
+  /// The same files on an onion service, used while the wallet's Tor is on, so
+  /// the download reaches the files directly instead of through a CDN that may
+  /// turn Tor exits away. Hashes are checked exactly as for [baseUrl].
+  static const _onionBaseUrl = String.fromEnvironment('ASK_CAKE_ROUTER_ONION_URL',
+      defaultValue: 'http://6vlnam7ypu5acwgffryjgclxrdf7jbmuyawbhu6hyidjnzzasgdlk7yd.onion/ask-cake/router/');
+
   static const packageName = 'smollm2-135m-p8';
 
   /// Changes whenever the model does, so an app update fetches the new one.
@@ -48,6 +55,9 @@ class AskCakeRouterStore {
   final String baseUrl;
 
   bool get canDownload => baseUrl.isNotEmpty;
+
+  /// True while the wallet's Tor is on: the download then goes through it and is several times slower.
+  bool get overTor => ProxyWrapper().requestNetwork() == RequestNetwork.tor;
 
   static int get downloadBytes => files.fold(0, (sum, file) => sum + file.bytes);
 
@@ -75,6 +85,8 @@ class AskCakeRouterStore {
     final total = downloadBytes;
     var done = 0;
     final client = ProxyWrapper().getHttpClient();
+    final overTor = this.overTor;
+    if (kDebugMode) debugPrint('ASKCAKE DOWNLOAD overTor=$overTor');
     try {
       for (final file in files) {
         final destination = File('${target.path}/${file.path}');
@@ -85,9 +97,17 @@ class AskCakeRouterStore {
         }
         await destination.parent.create(recursive: true);
         final partial = File('${destination.path}.part');
-        final root = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
-        final request = await client.getUrl(Uri.parse('$root$version/$packageName.mlpackage/${file.path}'));
-        final response = await request.close();
+        final path = '$version/$packageName.mlpackage/${file.path}';
+        var response = await _fetch(client, overTor && _onionBaseUrl.isNotEmpty ? _onionBaseUrl : baseUrl, path);
+        // The onion is a single host: if it cannot be reached, the usual address
+        // is tried, still through Tor because the client itself is.
+        if (response == null || response.statusCode != 200) {
+          if (overTor && _onionBaseUrl.isNotEmpty) {
+            await response?.drain<void>().catchError((_) {});
+            response = await _fetch(client, baseUrl, path);
+          }
+        }
+        if (response == null) throw const AskCakeRouterDownloadException('network');
         if (response.statusCode != 200) {
           throw AskCakeRouterDownloadException('http${response.statusCode}');
         }
@@ -120,6 +140,19 @@ class AskCakeRouterStore {
       throw const AskCakeRouterDownloadException('network');
     } finally {
       client.close(force: true);
+    }
+  }
+
+  /// One file request; null when the host could not be reached at all.
+  Future<HttpClientResponse?> _fetch(HttpClient client, String base, String path) async {
+    final root = base.endsWith('/') ? base : '$base/';
+    try {
+      final request = await client.getUrl(Uri.parse('$root$path'));
+      return await request.close();
+    } on SocketException {
+      return null;
+    } on HttpException {
+      return null;
     }
   }
 

@@ -682,7 +682,8 @@ class _AskCakePageState extends State<AskCakePage> {
           key: const ValueKey('ask_cake_downloading'),
           progress: _progress,
           lines: const ['Fetching the recipe…', 'Measuring the ingredients…', 'Almost out of the oven…'],
-          note: '${(_progress * megabytes).round()} of $megabytes MB · one-time download',
+          note: '${(_progress * megabytes).round()} of $megabytes MB · one-time download'
+              '${_store.overTor ? ' · slower over Tor' : ''}',
         );
       case _Stage.loading:
         return _Waiting(
