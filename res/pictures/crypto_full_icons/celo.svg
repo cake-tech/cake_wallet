@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" fill="none" viewBox="0 0 250 250">
+<circle cx="125" cy="125" r="125" fill="#FCFF52"/>
+<g transform="matrix(0.1 0 0 0.1 0 0)">
+<path fill-rule="evenodd" clip-rule="evenodd" fill="#000" d="M1949.3 546.2H550.7v1407.7h1398.7v-491.4h-232.1c-80 179.3-260.1 304.1-466.2 304.1-284.1 0-514.2-233.6-514.2-517.5 0-284 230.1-515.6 514.2-515.6 210.1 0 390.2 128.9 470.2 312.1h228.1V546.2z"/>
+</g>
+</svg>

@@ -67,6 +67,7 @@ class _StablecoinsPageState extends State<StablecoinsPage> {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "stablecoins_page_top_bar",
               title: S.of(context).picker_section_stablecoins,
               leadingIcon: const Icon(Icons.arrow_back_ios_new),
               leadingSemanticLabel: S.of(context).seed_alert_back,

@@ -7,12 +7,35 @@ import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
 import "package:cw_core/wallet_type.dart";
 
+const _externalChains = {
+  "ALGO": (name: "Algorand", icon: "algorand"),
+  "APT": (name: "Aptos", icon: "aptos"),
+  "ARC": (name: "Arc", icon: "arc"),
+  "AVAXC": (name: "Avalanche", icon: "avax"),
+  "CELO": (name: "Celo", icon: "celo"),
+  "KAIA": (name: "Kaia", icon: "kaia"),
+  "MON": (name: "Monad", icon: "monad"),
+  "NEAR": (name: "NEAR", icon: "near"),
+  "OP": (name: "OP", icon: "optimism"),
+  "PLASMA": (name: "Plasma", icon: "plasma"),
+  "SUI": (name: "Sui", icon: "sui"),
+  "TON": (name: "TON", icon: "ton"),
+  "XLAYER": (name: "X Layer", icon: "xlayer"),
+  "XLM": (name: "Stellar", icon: "stellar"),
+  "XRP": (name: "XRP Ledger", icon: "xrp"),
+};
+
 String chainNameForCurrency(CryptoCurrency c) {
   if (c == CryptoCurrency.btcln) {
     return "Lightning";
   }
   final wt = cryptoCurrencyOrTokenToWalletType(c);
-  return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
+  return wt != null ? walletTypeToString(wt) : (_externalChains[c.network]?.name ?? c.network);
+}
+
+String? externalChainIconPath(CryptoCurrency c) {
+  final icon = _externalChains[c.network]?.icon;
+  return icon == null ? null : "assets/new-ui/crypto_full_icons/$icon.svg";
 }
 
 String assetNameForCurrency(CryptoCurrency c) => c == CryptoCurrency.btcln

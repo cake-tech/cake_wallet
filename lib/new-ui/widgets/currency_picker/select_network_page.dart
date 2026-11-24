@@ -145,8 +145,9 @@ class _NetworkRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final wt = walletType;
-    final networkIconPath =
-        wt != null ? getCryptoCurrencyIconForWalletListItem(wt) : variant.iconPath;
+    final networkIconPath = wt != null
+        ? getCryptoCurrencyIconForWalletListItem(wt)
+        : externalChainIconPath(variant) ?? variant.iconPath;
     final networkName = chainNameForCurrency(variant);
     return MergeSemantics(
       child: Semantics(

@@ -5,6 +5,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/send_page/send_confirm_bottom_widget.dart";
@@ -110,7 +111,7 @@ class SwapTransactionDetails extends StatelessWidget {
           trailingSemanticLabel: S.of(context).close,
           onTrailingPressed: Navigator.of(context).maybePop,
         ),
-        SafeArea(
+        Flexible(child: SingleChildScrollView(child: SafeArea(
           top: false,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -128,6 +129,11 @@ class SwapTransactionDetails extends StatelessWidget {
                         badgeIconPath: _resolveChainBadgePath(state.depositAmount.currency),
                         trailingText: state.depositAmount.cryptoAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
                       ),
+                      ListItemRegularRow(
+                          keyValue: "send network",
+                          label: S.of(context).network,
+                          trailingText: chainNameForCurrency(state.depositAmount.currency),
+                          showArrow: false),
                       if (state is SwapStateWithTransaction)
                         ListItemRegularRow(
                             showArrow: false,
@@ -151,6 +157,11 @@ class SwapTransactionDetails extends StatelessWidget {
                         badgeIconPath: _resolveChainBadgePath(state.payoutAmount.currency),
                         trailingText: state.payoutAmount.cryptoAmount.toStringWithSymbol(fractionalDigits: 8, trimZeros: true),
                       ),
+                      ListItemRegularRow(
+                          keyValue: "receive network",
+                          label: S.of(context).network,
+                          trailingText: chainNameForCurrency(state.payoutAmount.currency),
+                          showArrow: false),
                       ListItemRegularRow(
                           keyValue: "receiver",
                           label: S.of(context).to,
@@ -217,7 +228,7 @@ class SwapTransactionDetails extends StatelessWidget {
               ],
             ),
           ),
-        )
+        )))
       ],
     );
   },
