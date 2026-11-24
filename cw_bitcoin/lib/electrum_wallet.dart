@@ -340,6 +340,8 @@ abstract class ElectrumWalletBase
   SyncStatus syncStatus;
 
   bool _hasCompleteUnspentSet = false;
+  int _unspentsRefreshCount = 0;
+  int _latestCompleteUnspentsRefresh = 0;
   bool _isSyncing = false;
 
   Future<WalletInfoAccount> loadCurrentAccount() async {
@@ -936,6 +938,8 @@ abstract class ElectrumWalletBase
 
       await subscribeForUpdates();
       await checkIfBatchSupported();
+      // update unspents before updating transactions. allows send-before-sync for existing transactions, newer unspents are fetched by the call below
+      unawaited(updateAllUnspents().catchError((Object e) => printV("early unspents refresh: $e")));
       await updateTransactions();
 
       await updateAllUnspents();
@@ -2133,6 +2137,8 @@ abstract class ElectrumWalletBase
   @action
   Future<void> updateAllUnspents() async {
 
+    final refresh = ++_unspentsRefreshCount;
+
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
@@ -2165,6 +2171,10 @@ abstract class ElectrumWalletBase
         ? await _fetchUnspentsBatch(targetAddresses)
         : await _fetchUnspentsRegular(targetAddresses);
 
+    if (refresh < _latestCompleteUnspentsRefresh) {
+      return;
+    }
+
     final failedCount = results.where((result) => result == null).length;
 
     if (failedCount == 0) {
@@ -2173,6 +2183,7 @@ abstract class ElectrumWalletBase
       }
       unspentCoins = updatedUnspentCoins;
       _hasCompleteUnspentSet = true;
+      _latestCompleteUnspentsRefresh = refresh;
     } else {
       if (updatedUnspentCoins.isEmpty) {
         unspentCoins = handleFailedUtxoFetch(

@@ -379,6 +379,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
       printV("START SYNC FUNCS");
       await waitForMwebAddresses();
+      unawaited(updateAllUnspents().catchError((Object e) => printV("early unspents refresh: $e")));
       await processMwebUtxos();
       await updateTransactions();
       await updateUnspent();
@@ -910,7 +911,9 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     // get regular ltc unspents (this resets unspentCoins):
     await super.updateAllUnspents();
     // add the mwebCoins:
-    unspentCoins.addAll(mwebUnspentCoins);
+    unspentCoins
+      ..removeWhere((coin) => coin.bitcoinAddressRecord.type == SegwitAddresType.mweb)
+      ..addAll(mwebUnspentCoins);
   }
 
   @override
