@@ -1,6 +1,8 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/exchange/assets/provider_listing.dart";
+import "package:cw_core/swap_networks.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_api_schema.dart";
@@ -154,7 +156,7 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
 
       if (tokensField.isNotEmpty) {
         final tokens = tokensField.tokens!;
-        final wantSym = _normalizeCakeNativeTokenName(toToUse.title).toUpperCase();
+        final wantSym = _symbolFor(toToUse).toUpperCase();
         final wantAddr = dstToken.toLowerCase();
 
         final match = tokens.firstWhereOrNull((t) {
@@ -196,6 +198,34 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     } on ProviderHttpException {
       return null;
     }
+  }
+
+  @override
+  Future<List<ProviderListing>> fetchListings() async {
+    final chains = {
+      for (final chain in await _getSupportedChains())
+        if (!SwapNetworks.isTestnet(chain.name)) chain.chainId: SwapNetworks.tagFor(chain.name),
+    };
+    if (chains.isEmpty) {
+      throw Exception("Failed to fetch supported chains");
+    }
+
+    return [
+      for (final token in await _api.send(const SwapsXyzTokenListRequest()))
+        if (chains[token.chainId] case final tag? when tag != "SOL" && tag != CryptoCurrency.bnb.tag)
+          ProviderListing(
+            provider: description,
+            tag: tag,
+            ticker: token.symbol,
+            network: token.chainId.toString(),
+            contractAddress: token.isNative == true ? null : token.address,
+            assetId: token.address,
+            decimals: token.decimals,
+            fullName: token.name,
+            iconUrl: token.logo,
+            isNative: token.isNative == true,
+          ),
+    ];
   }
 
   @override
@@ -453,8 +483,9 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
   /// Swaps.xyz counts in the token's on-chain decimals, which aren't always Cake's
   /// (AVAX is 9 in Cake, 18 on the C-chain)
   int _chainDecimals(CryptoCurrency currency, SwapsXyzChain chain) =>
+      assetFor(currency)?.decimals ??
       _tokensCache[chain.chainId]
-          ?.firstWhereOrNull((t) => t.symbol == _normalizeCakeNativeTokenName(currency.title))
+          ?.firstWhereOrNull((t) => t.symbol == _symbolFor(currency))
           ?.decimals ??
       currency.decimals;
 
@@ -577,8 +608,15 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     };
   }
 
+  String _symbolFor(CryptoCurrency currency) =>
+      currency == CryptoCurrency.ton ? "GRAM" : _normalizeCakeNativeTokenName(currency.title);
+
   String _getTokenAddress({required CryptoCurrency currency, required SwapsXyzChain chain}) {
-    final symbol = _normalizeCakeNativeTokenName(currency.title);
+    if (assetFor(currency)?.assetId case final address?) {
+      return address;
+    }
+
+    final symbol = _symbolFor(currency);
     final list = _tokensCache[chain.chainId];
 
     if (list != null && list.isNotEmpty) {
@@ -608,6 +646,13 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
   }
 
   SwapsXyzChain _findChainByCurrency(CryptoCurrency cur, List<SwapsXyzChain> chains) {
+    if (assetFor(cur) case final asset?) {
+      final chain = chains.firstWhereOrNull((c) => c.chainId.toString() == asset.network);
+      if (chain != null) {
+        return chain;
+      }
+    }
+
     final network = _normalizeCakeNetwork(cur.tag ?? cur.title);
     return chains.firstWhere(
       (c) => c.name.toUpperCase() == network,
@@ -624,8 +669,6 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     "SOL" => "SOLANA",
     "CRO" => "CRONOS",
     "ADA" => "CARDANO",
-    "KAS" => "KASPA",
-    "TON" => "TONCOIN",
     "BCH" => "BITCOIN CASH",
     "ARB" => "ARBITRUM",
     _ => network.toUpperCase(),

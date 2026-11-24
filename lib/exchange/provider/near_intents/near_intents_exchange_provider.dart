@@ -1,5 +1,7 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/exchange/assets/provider_listing.dart";
+import "package:cw_core/swap_networks.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/near_intents/near_intents_api_schema.dart";
@@ -27,7 +29,6 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _memoRequiredCurrencies = <CryptoCurrency>[
     CryptoCurrency.xrp,
     CryptoCurrency.xlm,
-    CryptoCurrency.ton,
   ];
 
   /// Use these only for quote/rate testing (dummy data).
@@ -51,11 +52,23 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     "SOL": "11111111111111111111111111111111",
     "XRP": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     "TRX": "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
-    "TON": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
+    "TON": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKZ",
     "XLM": "GBN7JCM6IGGDHMUMSNCOXGFJSIMXAOR6J3S53GSCXJ57YMW2DTRCONUH",
     "ADA": "addr1vyc33hdv5vag52f3d8h0qsngu52vm27x28zkzru333jma9gaxd38v",
     "ZEC": "t1VdfFUbyTT7ZSdeEaHuwB7veGD1NXoUhGS",
+    "NEAR": "0000000000000000000000000000000000000000000000000000000000000000",
+    "OP": "0x1111111111111111111111111111111111111111",
+    "ABS": "0x1111111111111111111111111111111111111111",
+    "BERA": "0x1111111111111111111111111111111111111111",
+    "GNOSIS": "0x1111111111111111111111111111111111111111",
+    "MON": "0x1111111111111111111111111111111111111111",
+    "XPL": "0x1111111111111111111111111111111111111111",
+    "SCROLL": "0x1111111111111111111111111111111111111111",
+    "XLAYER": "0x1111111111111111111111111111111111111111",
   };
+
+  static const _nativeBtcAssetId = "1cs_v1:btc:native:coin";
+  static const _wrappedNearAssetId = "nep141:wrap.near";
 
   String getNearDummyAddress(CryptoCurrency currency) {
     final tag = (currency.tag ?? "").trim().toUpperCase();
@@ -280,9 +293,32 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   String _symbolFor(CryptoCurrency currency) =>
       switch(currency) {
         CryptoCurrency.usdtArb => "USDT0",
+        CryptoCurrency.ton => "GRAM",
+        CryptoCurrency.near => "WNEAR",
         _ => currency.title.toUpperCase()
       };
 
+
+  @override
+  Future<List<ProviderListing>> fetchListings() async => [
+    for (final token in await _getSupportedTokens())
+      if (!token.symbol.toUpperCase().contains("DEPRECATED") &&
+          (token.blockchain != "btc" || token.assetId == _nativeBtcAssetId))
+        ProviderListing(
+          provider: description,
+          tag: SwapNetworks.tagFor(token.blockchain),
+          ticker: token.symbol,
+          network: token.blockchain,
+          symbol: token.assetId == _nativeBtcAssetId ? "BTC" : null,
+          contractAddress: _isNativeToken(token) ? null : token.contractAddress,
+          assetId: token.assetId,
+          decimals: token.decimals,
+          isNative: _isNativeToken(token),
+        ),
+  ];
+
+  bool _isNativeToken(NearIntentsToken token) =>
+      token.assetId == _nativeBtcAssetId || token.assetId == _wrappedNearAssetId;
 
   NearIntentsToken? currencyToNearAssetId(
     CryptoCurrency currency,
@@ -292,6 +328,13 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       return null;
     }
 
+    if (assetFor(currency) case final asset?) {
+      final token = supported.firstWhereOrNull((t) => t.assetId == asset.assetId);
+      if (token != null) {
+        return token;
+      }
+    }
+
     // TODO(malik): check with original integration author if this fix makes sense
     final symbol = _symbolFor(currency);
     final blockchain = _normalizeTagToNearBlockchain(currency.tag ?? currency.title);
@@ -299,7 +342,7 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     // Use the native Bitcoin asset routed through Omni Bridge.
     if (currency == CryptoCurrency.btc) {
       return supported.firstWhereOrNull(
-            (t) => t.assetId == "1cs_v1:btc:native:coin",
+            (t) => t.assetId == _nativeBtcAssetId,
       );
     }
 

@@ -1,6 +1,8 @@
 import "dart:io";
 
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/exchange/assets/provider_listing.dart";
+import "package:cw_core/swap_networks.dart";
 import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/changenow/changenow_api_schema.dart";
@@ -187,8 +189,26 @@ class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
     );
   }
 
+  @override
+  Future<List<ProviderListing>> fetchListings() async => [
+    for (final currency in await _api.send(
+      const ChangeNowCurrenciesRequest(active: true, flow: ChangeNowFlow.standard),
+    ))
+      if (currency.isFiat != true)
+        ProviderListing(
+          provider: description,
+          tag: SwapNetworks.tagFor(currency.network),
+          ticker: currency.ticker,
+          network: currency.network,
+          contractAddress: currency.tokenContract,
+          fullName: currency.name,
+          iconUrl: currency.image,
+        ),
+  ];
+
   String _networkFor(CryptoCurrency currency) =>
-      currency.tag != null ? _normalizeTag(currency.tag!) : _normalizeTitleToNetwork(currency.title);
+      assetFor(currency)?.network ??
+      (currency.tag != null ? _normalizeTag(currency.tag!) : _normalizeTitleToNetwork(currency.title));
 
   String _normalizeTitleToNetwork(String title) => switch (title.toUpperCase()) {
     "XNO" => "nano",
@@ -197,7 +217,12 @@ class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
   };
 
   String _normalizeCurrency(CryptoCurrency currency) =>
-      currency == CryptoCurrency.maticpoly ? "matic" : currency.title;
+      assetFor(currency)?.ticker ??
+      switch (currency) {
+        CryptoCurrency.maticpoly => "matic",
+        CryptoCurrency.usdcEPoly => "maticusdce",
+        _ => currency.title,
+      };
 
   String _normalizeTag(String tag) {
     switch (tag) {

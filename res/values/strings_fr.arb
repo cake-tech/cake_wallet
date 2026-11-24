@@ -666,6 +666,7 @@
   "live_fee_rates": "Taux de frais en temps réel via l'API",
   "load_more": "Charger plus",
   "loading": "Chargement",
+  "loading_currencies": "Chargement des devises...",
   "loading_rates": "Chargement des tarifs...",
   "loading_your_wallet": "Chargement de votre portefeuille",
   "login": "Connexion",

@@ -666,6 +666,7 @@
   "live_fee_rates": "Tarifas de comisión en tiempo real mediante API",
   "load_more": "Cargar más",
   "loading": "Cargando",
+  "loading_currencies": "Cargando monedas...",
   "loading_rates": "Cargando tarifas...",
   "loading_your_wallet": "Cargando tu billetera",
   "login": "Iniciar sesión",

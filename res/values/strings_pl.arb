@@ -666,6 +666,7 @@
   "live_fee_rates": "Bieżące stawki opłat przez API",
   "load_more": "Załaduj więcej",
   "loading": "Ładowanie",
+  "loading_currencies": "Ładowanie walut...",
   "loading_rates": "Ładowanie stawek...",
   "loading_your_wallet": "Ładowanie Twojego portfela",
   "login": "Zaloguj się",

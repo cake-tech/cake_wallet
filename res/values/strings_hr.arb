@@ -666,6 +666,7 @@
   "live_fee_rates": "Stope naknada uživo putem API-ja",
   "load_more": "Učitaj više",
   "loading": "Učitavanje",
+  "loading_currencies": "Učitavanje valuta...",
   "loading_rates": "Učitavanje cijena...",
   "loading_your_wallet": "Učitavanje vašeg novčanika",
   "login": "Prijava",

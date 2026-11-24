@@ -666,6 +666,7 @@
   "live_fee_rates": "Такси в реално време чрез API",
   "load_more": "Зареди още",
   "loading": "Зареждане",
+  "loading_currencies": "Валутите се зареждат...",
   "loading_rates": "Тарифите се зареждат...",
   "loading_your_wallet": "Зареждане на портфейла ви",
   "login": "Вход",

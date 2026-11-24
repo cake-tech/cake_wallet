@@ -348,6 +348,10 @@ WalletType? _cryptoCurrencyToWalletType(CryptoCurrency type) {
   }
 }
 
+// cached becasue CryptoCurrency.fromString is slow (~50ms),
+// and we iterate with it over ~6k elements when building the swap asset picker
+final _walletTypesByTag = <String, WalletType?>{};
+
 WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
   try {
     if (type.tag == CryptoCurrency.bnb.tag) {
@@ -356,7 +360,12 @@ WalletType? cryptoCurrencyOrTokenToWalletType(CryptoCurrency type) {
 
     if (type.tag != null &&
         ![CryptoCurrency.btcln.tag, CryptoCurrency.bnb.tag].contains(type.tag)) {
-      return _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
+      if (_walletTypesByTag.containsKey(type.tag)) {
+        return _walletTypesByTag[type.tag];
+      }
+      _walletTypesByTag[type.tag!] = null;
+      return _walletTypesByTag[type.tag!] =
+          _cryptoCurrencyToWalletType(CryptoCurrency.fromString(type.tag!));
     } else {
       return _cryptoCurrencyToWalletType(type);
     }

@@ -666,6 +666,7 @@
   "live_fee_rates": "API를 통한 실시간 수수료율",
   "load_more": "더 불러오기",
   "loading": "로딩 중",
+  "loading_currencies": "통화 로드 중...",
   "loading_rates": "속도 로드 중...",
   "loading_your_wallet": "지갑을 불러오는 중",
   "login": "로그인",

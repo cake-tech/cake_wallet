@@ -1,4 +1,6 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/exchange/assets/provider_listing.dart";
+import "package:cw_core/swap_networks.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/trocador/trocador_api_schema.dart";
@@ -88,7 +90,7 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
     required bool isFixedRateMode,
   }) async {
     final coins = await _api.send(
-      TrocadorCoinRequest(ticker: _normalizeCurrency(from), name: from.name),
+      TrocadorCoinRequest(ticker: _normalizeCurrency(from), name: assetFor(from)?.assetId ?? from.name),
     );
 
     final coinJson = coins.first;
@@ -269,7 +271,28 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
       );
   }
 
+  @override
+  Future<List<ProviderListing>> fetchListings() async => [
+    for (final coin in await _api.send(const TrocadorCoinsRequest()))
+      ProviderListing(
+        provider: description,
+        tag: SwapNetworks.tagFor(_isMainnet(coin.network) ? coin.ticker : coin.network),
+        ticker: coin.ticker,
+        network: coin.network,
+        assetId: coin.name,
+        fullName: coin.name,
+        iconUrl: coin.image,
+      ),
+  ];
+
+  /// Trocador lists a chain's own coin on "Mainnet"
+  bool _isMainnet(String network) => network.toLowerCase() == "mainnet";
+
   String _networkFor(CryptoCurrency currency) {
+    if (assetFor(currency) case final asset?) {
+      return asset.network;
+    }
+
     switch (currency) {
       case CryptoCurrency.eth:
         return "ERC20";
@@ -289,6 +312,10 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
   }
 
   String _normalizeCurrency(CryptoCurrency currency) {
+    if (assetFor(currency) case final asset?) {
+      return asset.ticker;
+    }
+
     switch (currency) {
       case CryptoCurrency.zec:
         return "zec";
@@ -313,6 +340,8 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
         return "Lightning";
       case "BSC":
         return "BEP20";
+      case "POL":
+        return "MATIC";
       default:
         return tag.toLowerCase();
     }

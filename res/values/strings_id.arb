@@ -666,6 +666,7 @@
   "live_fee_rates": "Tarif biaya real-time melalui API",
   "load_more": "Muat lebih banyak",
   "loading": "Memuat",
+  "loading_currencies": "Memuat mata uang...",
   "loading_rates": "Kecepatan pemuatan...",
   "loading_your_wallet": "Memuat dompet Anda",
   "login": "Masuk",

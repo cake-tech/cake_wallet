@@ -667,6 +667,7 @@
   "live_fee_rates": "Mức phí trực tiếp qua API",
   "load_more": "Tải thêm",
   "loading": "Đang tải",
+  "loading_currencies": "Đang tải tiền tệ...",
   "loading_rates": "Đang tải tốc độ...",
   "loading_your_wallet": "Đang tải ví của bạn",
   "login": "Đăng nhập",

@@ -180,5 +180,11 @@ class TronToken extends CryptoCurrency {
   String get apiString => "trx.$contractAddress";
 
   @override
+  String get assetNetwork => "TRX";
+
+  @override
+  String get assetKey => "$assetNetwork/$contractAddress";
+
+  @override
   String get serialized => "trx^$contractAddress";
 }

@@ -666,6 +666,7 @@
   "live_fee_rates": "Aktuální sazby poplatků přes API",
   "load_more": "Načíst další",
   "loading": "Načítání",
+  "loading_currencies": "Načítání měn...",
   "loading_rates": "Načítání sazeb...",
   "loading_your_wallet": "Načítám vaši peněženku",
   "login": "Přihlásit se",

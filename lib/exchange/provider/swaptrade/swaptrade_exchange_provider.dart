@@ -1,5 +1,7 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
 import "package:cake_wallet/core/utilities.dart";
+import "package:cake_wallet/exchange/assets/provider_listing.dart";
+import "package:cw_core/swap_networks.dart";
 import "package:cake_wallet/exchange/exchange_exceptions.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
@@ -180,7 +182,25 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
     );
   }
 
+  @override
+  Future<List<ProviderListing>> fetchListings() async => [
+    for (final coin in await _fetchCoins())
+      if (coin.enabled != false)
+        for (final network in coin.network)
+          ProviderListing(
+            provider: description,
+            tag: SwapNetworks.tagFor(network),
+            ticker: coin.id,
+            network: network,
+            fullName: coin.name,
+          ),
+  ];
+
   String _normalizeCurrency(CryptoCurrency currency) {
+    if (assetFor(currency) case final asset?) {
+      return asset.ticker.toUpperCase();
+    }
+
     switch (currency) {
       default:
         return currency.title.toUpperCase();
@@ -201,7 +221,7 @@ class SwapTradeExchangeProvider extends ExchangeProvider {
       coins.firstWhereOrNull((c) => c.id.toUpperCase() == _normalizeCurrency(currency));
 
   String _networkFor(CryptoCurrency currency, List<SwapTradeCoin> coins) {
-    final network = currency.network.toUpperCase();
+    final network = (assetFor(currency)?.network ?? currency.network).toUpperCase();
     final supported = _coinFor(currency, coins)?.network.map((n) => n.toUpperCase()) ?? const [];
 
     if (!supported.contains(network)) {

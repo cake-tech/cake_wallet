@@ -76,7 +76,7 @@ import 'package:cake_wallet/new-ui/viewmodels/charts/charts_bloc.dart';
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import 'package:cake_wallet/new-ui/viewmodels/lightning_username/lightning_username_bloc.dart';
-import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/currencies/swap_currency_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
@@ -533,7 +533,8 @@ Future<void> setup({
       SwapAmountFactory(
           fcs: getIt.get<FiatConversionStore>(), appStore: getIt.get<AppStore>()));
 
-  getIt.registerFactory<SwapCurrencyStore>(SwapCurrencyStore.new);
+  getIt.registerLazySingleton<SwapCurrencyCubit>(
+      () => SwapCurrencyCubit(registry: getIt.get<ExchangeProviderRegistry>()));
 
   getIt.registerSingleton<WalletSwitchService>(WalletSwitchService(walletLoadingService: getIt.get<WalletLoadingService>(), appStore: getIt.get<AppStore>()));
 
@@ -556,7 +557,7 @@ Future<void> setup({
         transactionService: getIt.get<TransactionService>(),
         tradeMonitor: getIt.get<TradeMonitor>(),
         walletSwitchService: getIt.get<WalletSwitchService>(),
-        currencyStore: getIt.get<SwapCurrencyStore>(),
+        currencyCubit: getIt.get<SwapCurrencyCubit>(),
         rateCubit: getIt.get<RateCubit>(),
         amountFactory: getIt.get<SwapAmountFactory>(),
         registry: getIt.get<ExchangeProviderRegistry>(),

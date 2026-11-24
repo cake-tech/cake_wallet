@@ -666,6 +666,7 @@
   "live_fee_rates": "معدلات الرسوم المباشرة عبر API",
   "load_more": "تحميل المزيد",
   "loading": "جارٍ التحميل",
+  "loading_currencies": "جارٍ تحميل العملات...",
   "loading_rates": "معدلات التحميل...",
   "loading_your_wallet": "جارٍ تحميل محفظتك",
   "login": "تسجيل الدخول",

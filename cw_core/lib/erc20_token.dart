@@ -195,5 +195,11 @@ class Erc20Token extends CryptoCurrency {
   String get apiString => "evm.$contractAddress";
 
   @override
+  String get assetNetwork => tag ?? "ETH";
+
+  @override
+  String get assetKey => "$assetNetwork/${contractAddress.toLowerCase()}";
+
+  @override
   String get serialized => "evm^$contractAddress^$chainId";
 }

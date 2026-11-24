@@ -666,6 +666,7 @@
   "live_fee_rates": "Mga live na rate ng bayarin sa pamamagitan ng API",
   "load_more": "Mag-load pa",
   "loading": "Naglo-load",
+  "loading_currencies": "Naglo-load ng mga pera...",
   "loading_rates": "Naglo-load ng mga rate...",
   "loading_your_wallet": "Nilo-load ang iyong wallet",
   "login": "Mag-login",

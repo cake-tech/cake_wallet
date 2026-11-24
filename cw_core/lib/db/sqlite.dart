@@ -78,7 +78,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 16,
+    version: 17,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -216,6 +216,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       if(oldVersion <= 15) {
         await migrateTradeTableToNewSchema(db);
       }
+      if (oldVersion <= 16) {
+        await _createSwapAssetTables(db);
+      }
     },
     onCreate: (Database db, int version) async {
       await db.execute('''
@@ -323,8 +326,36 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createSwapAssetTables(db);
     },
   );
+}
+
+Future<void> _createSwapAssetTables(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS ExternalCurrency (
+  ExternalCurrencyId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  assetKey TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  tag TEXT NOT NULL,
+  fullName TEXT,
+  contractAddress TEXT,
+  iconUrl TEXT,
+  groups TEXT NOT NULL DEFAULT '',
+  disabled INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS ProviderAsset (
+  provider INTEGER NOT NULL,
+  assetKey TEXT NOT NULL,
+  ticker TEXT NOT NULL,
+  network TEXT NOT NULL,
+  assetId TEXT,
+  decimals INTEGER,
+  PRIMARY KEY (provider, assetKey)
+);
+""");
 }
 
 Future<void> _createChartsTables(Database db) async {

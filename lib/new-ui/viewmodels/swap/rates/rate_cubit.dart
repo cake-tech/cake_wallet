@@ -7,6 +7,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/utils/exchange_provider_logger.dart";
 import "package:cake_wallet/utils/list_extension.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/external_currency.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:meta/meta.dart";
 
@@ -18,6 +19,12 @@ class RateCubit extends Cubit<RateState> {
         super(const RatesNotLoaded(null));
 
   final ExchangeProviderRegistry _registry;
+
+  /// Providers only know the external currencies from their own asset lists
+  static bool _listsExternalCurrencies(ExchangeProvider provider, RateRequest request) => [
+    request.depositCurrency,
+    request.payoutCurrency,
+  ].every((c) => c is! ExternalCurrency || provider.assetFor(c) != null);
 
   Future<void> fetchRates(
       List<ExchangeProviderDescription> providers,
@@ -37,6 +44,7 @@ class RateCubit extends Cubit<RateState> {
         switch (_registry.getProvider(provider)) {
           TransactionCreationExchangeProvider() ||
           TransactionRegistrationExchangeProvider() when isExternalSend => false,
+          final p when !_listsExternalCurrencies(p, request) => false,
           ExchangeProvider(supportsFixedRate: final s) => request is! FixedRateRequest || s,
         };
 

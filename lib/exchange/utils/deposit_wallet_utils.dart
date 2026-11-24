@@ -1,4 +1,5 @@
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/external_currency.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 
@@ -17,4 +18,5 @@ WalletType? depositWalletType(CryptoCurrency currency) {
 
 // Same rule as ExchangeViewModelBase.useSameWalletAddress: only software wallets send Lightning.
 bool canFundDeposit(WalletInfo wallet, CryptoCurrency currency) =>
-    currency != CryptoCurrency.btcln || wallet.hardwareWalletType == null;
+    currency is! ExternalCurrency &&
+    (currency != CryptoCurrency.btcln || wallet.hardwareWalletType == null);

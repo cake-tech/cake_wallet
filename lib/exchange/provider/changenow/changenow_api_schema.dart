@@ -502,3 +502,63 @@ class ChangeNowTransactionResponse {
   // @JsonKey(name: "repeatedExchangesInfo")
   // final List<ChangeNowRelatedExchangeInfo>? repeatedExchangesInfo;
 }
+
+@JsonSerializable(createToJson: false)
+class ChangeNowCurrency {
+  const ChangeNowCurrency({
+    required this.ticker,
+    required this.network,
+    this.name,
+    this.image,
+    this.tokenContract,
+    this.isFiat,
+  });
+
+  factory ChangeNowCurrency.fromJson(Map<String, dynamic> json) => _$ChangeNowCurrencyFromJson(json);
+
+  @JsonKey(name: "ticker")
+  final String ticker;
+  @JsonKey(name: "network")
+  final String network;
+  @JsonKey(name: "name")
+  final String? name;
+  @JsonKey(name: "image")
+  final String? image;
+  @JsonKey(name: "tokenContract")
+  final String? tokenContract;
+  @JsonKey(name: "isFiat")
+  final bool? isFiat;
+}
+
+@JsonSerializable()
+@StringBoolConverter()
+class ChangeNowCurrenciesRequest extends ApiRequest<List<ChangeNowCurrency>> {
+  const ChangeNowCurrenciesRequest({this.active, this.flow, this.buy, this.sell});
+
+  /// Only the currencies that can be exchanged now
+  @JsonKey(name: "active", includeIfNull: false)
+  final bool? active;
+
+  /// standard by default
+  @JsonKey(name: "flow", includeIfNull: false)
+  final ChangeNowFlow? flow;
+
+  /// Only the currencies that can be bought
+  @JsonKey(name: "buy", includeIfNull: false)
+  final bool? buy;
+
+  /// Only the currencies that can be sold
+  @JsonKey(name: "sell", includeIfNull: false)
+  final bool? sell;
+
+  @override
+  String path() => "/v2/exchange/currencies";
+
+  @override
+  Map<String, dynamic> toJson() => _$ChangeNowCurrenciesRequestToJson(this);
+
+  @override
+  List<ChangeNowCurrency> decode(Object json) => (json as List<dynamic>)
+      .map((item) => ChangeNowCurrency.fromJson(item as Map<String, dynamic>))
+      .toList();
+}

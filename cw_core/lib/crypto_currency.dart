@@ -4,6 +4,7 @@ import 'package:cw_core/currency_groups.dart';
 import 'package:cw_core/enumerable_item.dart';
 import 'package:collection/collection.dart';
 import 'package:cw_core/format_fixed.dart';
+import "package:cw_core/swap_networks.dart";
 
 enum MemoLabelType { destinationTag, memo }
 
@@ -53,6 +54,13 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
   String get apiString => "crypto.$title";
 
   String get network => tag ?? title;
+
+  String get assetNetwork => network;
+
+  String get assetKey =>
+      SwapNetworks.isNativeTicker(assetNetwork, title) ? "$assetNetwork/native" : symbolKey;
+
+  String get symbolKey => "$assetNetwork/symbol:${title.toUpperCase()}";
 
   set enabled(bool value) => this.enabled = value;
 

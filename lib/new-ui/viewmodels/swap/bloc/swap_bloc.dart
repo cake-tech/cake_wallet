@@ -19,7 +19,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/services/transaction_service.dart";
 import "package:cake_wallet/new-ui/services/wallet_switch_service.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_presentation_event.dart";
-import "package:cake_wallet/new-ui/viewmodels/swap/currency_provider.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/currencies/swap_currency_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/provider_registry.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/swap_address_resolver.dart";
@@ -59,7 +59,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     required TradeMonitor tradeMonitor,
     required WalletSwitchService walletSwitchService,
     required this.rateCubit,
-    required this.currencyStore,
+    required this.currencyCubit,
     required SwapAmountFactory amountFactory,
     required ExchangeProviderRegistry registry,
     required AppStore appStore,
@@ -110,7 +110,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
   final ExchangeProviderRegistry _registry;
   final RateCubit rateCubit;
   final SwapAmountFactory _amountFactory;
-  final SwapCurrencyStore currencyStore;
+  final SwapCurrencyCubit currencyCubit;
   final SwapAddressResolver _addressResolver;
   final TradeCreator _creator;
   final FeesHelper _feesHelper;

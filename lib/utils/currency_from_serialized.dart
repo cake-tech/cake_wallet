@@ -3,6 +3,7 @@ import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
+import "package:cw_core/external_currency.dart";
 import "package:cw_core/wallet_type.dart";
 
 Future<Currency> currencyFromSerialized(String serialized) async {
@@ -37,6 +38,8 @@ Future<Currency> currencyFromSerialized(String serialized) async {
         walletType: WalletType.tron,
         address: parts[1],
       ))!;
+    case "ext":
+      return (await ExternalCurrency.getById(int.parse(parts[1])))!;
     default:
       throw ArgumentError("bad serialize string for currency");
   }

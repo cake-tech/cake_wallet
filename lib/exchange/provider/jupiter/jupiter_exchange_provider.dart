@@ -1,4 +1,5 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/exchange/assets/provider_listing.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart";
@@ -77,7 +78,40 @@ class JupiterExchangeProvider extends ExchangeProvider
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.jupiter;
 
+  @override
+  Future<List<ProviderListing>> fetchListings() async => [
+    for (final token in await _api.send(
+      const JupiterTokensByTagRequest(query: JupiterTokenTag.verified),
+    ))
+      ProviderListing(
+        provider: description,
+        tag: CryptoCurrency.sol.title,
+        ticker: token.symbol,
+        network: "solana",
+        contractAddress: token.id == _nativeSolMint ? null : token.id,
+        assetId: token.id,
+        decimals: token.decimals,
+        fullName: token.name,
+        iconUrl: token.icon,
+        isNative: token.id == _nativeSolMint,
+        isStock: token.isStock,
+      ),
+  ];
+
+  BigInt _toChainUnits(Money amount, CryptoCurrency currency) =>
+      switch ((assetFor(currency)?.decimals ?? amount.decimals) - amount.decimals) {
+        final shift when shift >= 0 => amount.amount * BigInt.from(10).pow(shift),
+        final shift => amount.amount ~/ BigInt.from(10).pow(-shift),
+      };
+
+  Money _fromChainUnits(BigInt amount, CryptoCurrency currency) =>
+      Money(amount, currency, assetFor(currency)?.decimals ?? currency.decimals).copyWith(currency: currency);
+
   String _getTokenMint(CryptoCurrency currency) {
+    if (assetFor(currency)?.assetId case final mint?) {
+      return mint;
+    }
+
     if (currency == CryptoCurrency.sol) {
       return _nativeSolMint;
     }
@@ -126,7 +160,7 @@ class JupiterExchangeProvider extends ExchangeProvider
       JupiterOrderRequest(
         inputMint: inputMint,
         outputMint: outputMint,
-        amount: request.depositAmount.amount,
+        amount: _toChainUnits(request.depositAmount, request.depositCurrency),
       ),
     );
     final outAmount = orderData.outAmount;
@@ -135,7 +169,7 @@ class JupiterExchangeProvider extends ExchangeProvider
       provider: description,
       rate: ExchangeRate.fromAmounts(
         request.depositAmount,
-        Money(outAmount, request.payoutCurrency),
+        _fromChainUnits(outAmount, request.payoutCurrency),
       ),
       limits: ExchangeLimits(),
     );
@@ -157,7 +191,7 @@ class JupiterExchangeProvider extends ExchangeProvider
       JupiterOrderRequest(
         inputMint: inputMint,
         outputMint: outputMint,
-        amount: request.depositAmount.amount,
+        amount: _toChainUnits(request.depositAmount, request.depositCurrency),
         taker: request.refundAddress,
         receiver: isInternalTransfer ? null : request.payoutAddress,
         referralFee: _hasReferral ? _referralFee : null,
@@ -183,8 +217,8 @@ class JupiterExchangeProvider extends ExchangeProvider
       routerData: orderData.transaction!,
       routerValue: orderData.requestId,
       fee: Money.fromInt(orderData.totalFee, CryptoCurrency.sol),
-      depositAmount: Money(orderData.inAmount, request.depositCurrency),
-      payoutAmount: Money(orderData.outAmount, request.payoutCurrency),
+      depositAmount: _fromChainUnits(orderData.inAmount, request.depositCurrency),
+      payoutAmount: _fromChainUnits(orderData.outAmount, request.payoutCurrency),
     );
   }
 

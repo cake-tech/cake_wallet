@@ -1,4 +1,5 @@
 import "package:cake_wallet/evm/evm.dart";
+import "package:cake_wallet/new-ui/viewmodels/swap/currencies/swap_currency_cubit.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/currency_groups.dart";
@@ -125,7 +126,8 @@ enum RecentsSource { none, trades, orders }
 class CurrencyPickerArgs {
   const CurrencyPickerArgs({
     this.selected,
-    required this.items,
+    this.items = const [],
+    this.currencyCubit,
     this.showStablesHeader = true,
     this.balanceByAsset,
     this.filterByNetwork,
@@ -139,6 +141,7 @@ class CurrencyPickerArgs {
 
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
+  final SwapCurrencyCubit? currencyCubit;
   final WalletType? filterByNetwork;
   final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
@@ -148,4 +151,18 @@ class CurrencyPickerArgs {
   final bool useSingleNetworkLayout;
   final String? walletName;
   final CurrencyPickerArgs? otherAssets;
+
+  CurrencyPickerArgs withItems(List<CryptoCurrency> items) => CurrencyPickerArgs(
+    selected: selected,
+    items: items,
+    showStablesHeader: showStablesHeader,
+    balanceByAsset: balanceByAsset,
+    filterByNetwork: filterByNetwork,
+    onSelected: onSelected,
+    symbolResolver: symbolResolver,
+    recentsSource: recentsSource,
+    useSingleNetworkLayout: useSingleNetworkLayout,
+    walletName: walletName,
+    otherAssets: otherAssets,
+  );
 }
