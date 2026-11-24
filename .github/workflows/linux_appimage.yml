@@ -1,0 +1,152 @@
+name: Cake Wallet Linux AppImage
+
+# Builds a single-file AppImage for x86_64 Linux and, for tag pushes,
+# attaches it (plus a sha256) to the matching GitHub release.
+#
+# Manual runs: Actions -> "Cake Wallet Linux AppImage" -> Run workflow.
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CW_DOCKER_REGISTRY: ghcr.io/cake-tech/cake_wallet
+  CW_DOCKER_USE_CLOUD: "true"
+
+concurrency:
+  group: linux-appimage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  appimage:
+    runs-on: puzl-ubuntu-latest
+    timeout-minutes: 360
+    container:
+      image: ghcr.io/cake-tech/cake_wallet:debian13-flutter3.41.9-ndkr28-go1.24.1-ruststablenightly
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+    steps:
+      - name: Fix github actions messing up $HOME...
+        run: "echo HOME=/root | sudo tee -a $GITHUB_ENV"
+
+      - uses: actions/checkout@v4
+
+      - name: Docker sock permissions
+        run: sudo chmod 666 /var/run/docker.sock || true
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: configure git
+        run: |
+          git config --global --add safe.directory '*'
+          git config --global user.email "ci@cakewallet.com"
+          git config --global user.name "CakeWallet CI"
+          git config --global --unset-all credential.helper || true
+
+      # Mirrors the secret layout used by pr_test_build_linux.yml. A release
+      # build must use the real keys; the placeholders in
+      # tool/generate_new_secrets.dart would disable buy/swap providers.
+      - name: Add secrets
+        run: |
+          touch cw_bitcoin/lib/.secrets.g.dart
+          touch cw_evm/lib/.secrets.g.dart
+          touch cw_solana/lib/.secrets.g.dart
+          touch cw_core/lib/.secrets.g.dart
+          touch cw_nano/lib/.secrets.g.dart
+          touch cw_tron/lib/.secrets.g.dart
+
+          echo "const polygonScanApiKey = '${{ secrets.POLYGON_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const etherScanApiKey = '${{ secrets.ETHER_SCAN_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const alchemyApiKey = '${{ secrets.ALCHEMY_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const nowNodesApiKey = '${{ secrets.EVM_NOWNODES_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const blinkApiKey = '${{ secrets.BLINK_API_KEY }}';" >> cw_evm/lib/.secrets.g.dart
+          echo "const ankrApiKey = '${{ secrets.ANKR_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const chainStackApiKey = '${{ secrets.CHAIN_STACK_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+          echo "const moralisApiKey = '${{ secrets.MORALIS_API_KEY }}';" >> cw_solana/lib/.secrets.g.dart
+
+          echo "const nano2ApiKey = '${{ secrets.NANO2_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+          echo "const nanoNowNodesApiKey = '${{ secrets.NANO_NOW_NODES_API_KEY }}';" >> cw_nano/lib/.secrets.g.dart
+
+          echo "const tronGridApiKey = '${{ secrets.TRON_GRID_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+          echo "const tronNowNodesApiKey = '${{ secrets.TRON_NOW_NODES_API_KEY }}';" >> cw_tron/lib/.secrets.g.dart
+
+          echo "const breezApiKey = '${{ secrets.BREEZ_API_KEY }}';" >> cw_bitcoin/lib/.secrets.g.dart
+
+          echo "${{ secrets.MAIN_SECRETS_FILE }}" | base64 --decode > lib/.secrets.g.dart
+
+      - name: Extract native dependencies
+        run: ./scripts/linux/docker/build.sh --extract
+
+      - name: Configure application
+        run: |
+          pushd scripts/linux
+            source ./app_env.sh cakewallet
+            ./app_config.sh
+          popd
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Build generated code
+        run: ./model_generator.sh
+
+      - name: Generate localization
+        run: dart run tool/generate_localization.dart
+
+      - name: Compile graphics
+        run: ./compile_graphics.sh
+
+      - name: Build linux
+        run: flutter build linux --release
+
+      - name: Build AppImage
+        run: ./scripts/linux/build_appimage.sh
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: cakewallet-linux-appimage
+          path: |
+            build/linux/x64/release/Cake_Wallet-*.AppImage
+            build/linux/x64/release/Cake_Wallet-*.AppImage.sha256
+          if-no-files-found: error
+
+  release:
+    needs: appimage
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: puzl-ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: cakewallet-linux-appimage
+          path: dist
+
+      - name: Attach AppImage to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" \
+              dist/Cake_Wallet-*.AppImage \
+              dist/Cake_Wallet-*.AppImage.sha256 \
+              --clobber
+          else
+            echo "::warning::No release exists for $GITHUB_REF_NAME; AppImage left as a workflow artifact."
+          fi
