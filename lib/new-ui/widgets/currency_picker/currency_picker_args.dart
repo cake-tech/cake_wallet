@@ -7,12 +7,37 @@ import "package:cw_core/spl_token.dart";
 import "package:cw_core/tron_token.dart";
 import "package:cw_core/wallet_type.dart";
 
+const _externalChains = {
+  "ALGO": (name: "Algorand", icon: "algorand"),
+  "APT": (name: "Aptos", icon: "aptos"),
+  "ARC": (name: "Arc", icon: "arc"),
+  "AVAXC": (name: "Avalanche", icon: "avax"),
+  "CELO": (name: "Celo", icon: "celo"),
+  "KAIA": (name: "Kaia", icon: "kaia"),
+  "MON": (name: "Monad", icon: "monad"),
+  "NEAR": (name: "NEAR", icon: "near"),
+  "OP": (name: "OP", icon: "optimism"),
+  "PLASMA": (name: "Plasma", icon: "plasma"),
+  "SUI": (name: "Sui", icon: "sui"),
+  "TON": (name: "TON", icon: "ton"),
+  "XLAYER": (name: "X Layer", icon: "xlayer"),
+  "XLM": (name: "Stellar", icon: "stellar"),
+  "XRP": (name: "XRP Ledger", icon: "xrp"),
+};
+
 String chainNameForCurrency(CryptoCurrency c) {
   if (c == CryptoCurrency.btcln) {
     return "Lightning";
   }
   final wt = cryptoCurrencyOrTokenToWalletType(c);
-  return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
+  return wt != null
+      ? walletTypeToString(wt)
+      : (_externalChains[c.network]?.name ?? c.tag ?? c.fullName ?? c.title);
+}
+
+String? externalChainIconPath(CryptoCurrency c) {
+  final icon = _externalChains[c.network]?.icon;
+  return icon == null ? null : "assets/new-ui/crypto_full_icons/$icon.svg";
 }
 
 String assetNameForCurrency(CryptoCurrency c) => c == CryptoCurrency.btcln
@@ -31,6 +56,27 @@ bool isTrustedStablecoin(CryptoCurrency c) =>
 
 bool hasBuiltInStablecoinSymbol(CryptoCurrency c) =>
     _stablecoinSymbols.contains(c.title.toUpperCase());
+
+const _popularStablecoinSymbols = ["USDC", "USDT", "DAI", "USDS", "USDE"];
+const _euroStablecoinSymbols = ["DEURO", "EURC"];
+const _stablecoinNames = {"USDC": "USD Coin", "USDT": "Tether"};
+
+String stablecoinNameForCurrency(CryptoCurrency c) =>
+    _stablecoinNames[c.title.toUpperCase()] ?? assetNameForCurrency(c);
+
+({List<CryptoCurrency> popular, List<CryptoCurrency> euro, List<CryptoCurrency> other})
+    groupStablecoins(List<CryptoCurrency> stablecoins) {
+  List<CryptoCurrency> filterBySymbols(List<String> symbols) => [
+        for (final symbol in symbols) ...stablecoins.where((c) => c.title.toUpperCase() == symbol),
+      ];
+  final curated = {..._popularStablecoinSymbols, ..._euroStablecoinSymbols};
+  return (
+    popular: filterBySymbols(_popularStablecoinSymbols),
+    euro: filterBySymbols(_euroStablecoinSymbols),
+    other:
+        stablecoins.where((c) => !curated.contains(c.title.toUpperCase())).toList(growable: false),
+  );
+}
 
 const _kEvmDefaultTokenNatives = <CryptoCurrency>[
   CryptoCurrency.baseEth,
@@ -129,6 +175,7 @@ class CurrencyPickerArgs {
     this.showStablesHeader = true,
     this.balanceByAsset,
     this.filterByNetwork,
+    this.currentNetwork,
     required this.onSelected,
     required this.symbolResolver,
     this.recentsSource = RecentsSource.none,
@@ -140,6 +187,7 @@ class CurrencyPickerArgs {
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
+  final WalletType? currentNetwork;
   final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;

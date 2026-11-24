@@ -1,5 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/widgets/copy_wrapper.dart";
+import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/new_primary_button.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/new-ui/widgets/swap_page/swap_modal_header.dart";
@@ -67,14 +68,16 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                 trailingSemanticLabel: S.of(context).close,
                 onTrailingPressed: Navigator.of(context).pop,
               ),
-              Padding(
+              Flexible(child: SingleChildScrollView(child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   spacing: 24,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: 12,
+                      runSpacing: 8,
                       children: [
                         Text(
                           S.of(context).send_exactly,
@@ -90,6 +93,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                             child: Padding(
                               padding: const EdgeInsets.all(8),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 spacing: 8,
                                 children: [
                                   Text(
@@ -109,7 +113,14 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                                 ],
                               ),
                             )),
-                        Text("${S.of(context).to}:",
+                        Text(
+                          "${S.of(context).network_prefix_on} ${chainNameForCurrency(widget.from)}",
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onSurface,
+                              fontWeight: FontWeight.w500),
+                        ),
+                        Text("${S.of(context).to.toLowerCase()}:",
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Theme.of(context).colorScheme.onSurface,
@@ -249,7 +260,7 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                     const SizedBox()
                   ],
                 ),
-              ),
+              ))),
             ],
           ),
         ),

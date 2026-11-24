@@ -416,10 +416,13 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
 
   void _presentCurrencyPicker() {
     if (widget.bloc.state case final SwapStateWithInputs s) {
+      final walletNetwork =
+          cryptoCurrencyOrTokenToWalletType(widget.bloc.wallet.currency) ?? widget.bloc.wallet.type;
       if (!widget.isReceiverCard) {
         final otherAssets = CurrencyPickerArgs(
           items: widget.bloc.currencyStore.depositCurrencies,
           selected: s.depositAmount.currency,
+          currentNetwork: walletNetwork,
           recentsSource: RecentsSource.trades,
           onSelected: (currency) =>
               widget.bloc.add(DepositCurrencyChanged(currency, selectSource: true)),
@@ -447,6 +450,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         args: CurrencyPickerArgs(
           items: currencies,
           selected: s.payoutAmount.currency,
+          currentNetwork: walletNetwork,
           recentsSource: RecentsSource.trades,
           onSelected: (currency) => widget.bloc.add(PayoutCurrencyChanged(currency)),
           symbolResolver: (curr) => curr.symbol,
