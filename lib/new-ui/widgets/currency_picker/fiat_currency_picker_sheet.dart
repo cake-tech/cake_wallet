@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FiatCurrencyPickerSheet extends StatefulWidget {
   const FiatCurrencyPickerSheet({
@@ -174,6 +175,7 @@ class FiatCurrencyPickerBody extends StatelessWidget {
     final showCryptoSection = cryptoOption != null && selectedCrypto == null;
 
     return ListView(
+      controller: ModalScrollController.of(context),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       children: [
         if (selectedFiat != null || selectedCrypto != null) ...[
