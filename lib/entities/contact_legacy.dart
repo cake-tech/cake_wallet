@@ -1,3 +1,5 @@
+import "dart:math";
+
 import "package:cake_wallet/entities/contact.dart" as sqlite;
 import "package:cw_core/cake_hive.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -25,13 +27,13 @@ Future<void> performContactHiveMigration() async {
 
 // @HiveType(typeId: Contact.typeId)
 class Contact extends HiveObject with Keyable {
-  Contact(
-      {required this.name,
-        required this.address,
-        CryptoCurrency? type,
-        DateTime? lastChange,
-        this.displayName = "",})
-      : lastChange = lastChange ?? DateTime.now() {
+  Contact({
+    required this.name,
+    required this.address,
+    CryptoCurrency? type,
+    DateTime? lastChange,
+    this.displayName = "",
+  }) : lastChange = lastChange ?? DateTime.now() {
     if (type != null) {
       raw = type.raw;
     }
@@ -74,8 +76,16 @@ class Contact extends HiveObject with Keyable {
     if (contacts.isEmpty) return;
 
     await db!.transaction((txn) async {
-      for (var i = 0; i < contacts.length; i++) {
-        final contact = contacts[i];
+      final existing = await txn.query(
+        sqlite.Contact.tableName,
+        columns: ["address", "currencyRaw", "sortOrder"],
+      );
+      final seen = {for (final row in existing) "${row["currencyRaw"]}:${row["address"]}"};
+      var nextOrder =
+          existing.fold<int>(-1, (maxOrder, row) => max(maxOrder, row["sortOrder"] as int)) + 1;
+
+      for (final contact in contacts) {
+        if (!seen.add("${contact.raw}:${contact.address}")) continue;
 
         final json = sqlite.Contact(
           name: contact.name,
@@ -83,10 +93,8 @@ class Contact extends HiveObject with Keyable {
           currencyRaw: contact.raw,
           lastChange: contact.lastChange,
           displayName: contact.displayName,
-          // Box iteration order was the user's custom order — preserve it.
-          sortOrder: i,
-        ).toJson()
-          ..remove(sqlite.Contact.selfIdColumn);
+          sortOrder: nextOrder++,
+        ).toJson()..remove(sqlite.Contact.selfIdColumn);
 
         await txn.insert(sqlite.Contact.tableName, json);
       }
