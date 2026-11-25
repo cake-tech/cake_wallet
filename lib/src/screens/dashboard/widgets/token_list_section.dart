@@ -47,12 +47,21 @@ class TokenListSection extends StatelessWidget {
               ),
             ),
           for (final (index, token) in tokens.indexed)
-            _TokenRow(
+            TokenRow(
               key: ValueKey(viewModel.getTokenAddressBasedOnWallet(token)),
               viewModel: viewModel,
               token: token,
               isFirstInSection: index == 0,
               isLastInSection: index == tokens.length - 1 && onSeeAll == null,
+              onTap: () => Navigator.pushNamed(
+                context,
+                Routes.editToken,
+                arguments: {"homeSettingsViewModel": viewModel, "token": token},
+              ),
+              trailing: StandardSwitch(
+                value: token.enabled,
+                onTapped: () => viewModel.changeTokenAvailability(token, !token.enabled),
+              ),
             ),
           if (onSeeAll != null)
             ListItemRegularRowWidget(
@@ -97,12 +106,16 @@ class FlaggedTokensNote extends StatelessWidget {
   }
 }
 
-class _TokenRow extends StatelessWidget {
-  const _TokenRow({
+class TokenRow extends StatelessWidget {
+  const TokenRow({
     required this.viewModel,
     required this.token,
     required this.isFirstInSection,
     required this.isLastInSection,
+    required this.onTap,
+    required this.trailing,
+    this.iconSize = 32,
+    this.showBalance = true,
     super.key,
   });
 
@@ -110,6 +123,10 @@ class _TokenRow extends StatelessWidget {
   final CryptoCurrency token;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final VoidCallback onTap;
+  final Widget trailing;
+  final double iconSize;
+  final bool showBalance;
 
   @override
   Widget build(BuildContext context) {
@@ -119,18 +136,14 @@ class _TokenRow extends StatelessWidget {
       isFirstInSection: isFirstInSection,
       isLastInSection: isLastInSection,
       iconPath: token.iconPath ?? "",
-      onTap: () => Navigator.pushNamed(
-        context,
-        Routes.editToken,
-        arguments: {"homeSettingsViewModel": viewModel, "token": token},
-      ),
+      onTap: onTap,
       builder: (context, textStyle, labelStyle) => Observer(
         builder: (_) => Row(
           spacing: 12,
           children: [
             TokenImageWidget(
               imageUrl: token.iconPath ?? "",
-              size: 32,
+              size: iconSize,
               errorWidget: Text(
                 token.title.substring(0, min(token.title.length, 2)),
                 style: labelStyle.copyWith(fontSize: 11),
@@ -176,7 +189,7 @@ class _TokenRow extends StatelessWidget {
                     style: labelStyle.copyWith(fontSize: 12, fontWeight: FontWeight.w400),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    child: switch (viewModel.heldBalance(token)) {
+                    child: switch (showBalance ? viewModel.heldBalance(token) : null) {
                       final balance? => MoneyText(balance),
                       null => Text(token.title),
                     },
@@ -184,10 +197,7 @@ class _TokenRow extends StatelessWidget {
                 ],
               ),
             ),
-            StandardSwitch(
-              value: token.enabled,
-              onTapped: () => viewModel.changeTokenAvailability(token, !token.enabled),
-            ),
+            trailing,
           ],
         ),
       ),

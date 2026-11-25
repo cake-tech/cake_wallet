@@ -99,7 +99,8 @@ abstract class HomeSettingsViewModelBase with Store {
   void clearToggledOff() => _toggledOff.clear();
 
   bool isVerified(CryptoCurrency token) =>
-      token is ZanoAsset ? token.isInGlobalWhitelist : _isDefaultToken(token);
+      token != nativeToken &&
+      (token is ZanoAsset ? token.isInGlobalWhitelist : _isDefaultToken(token));
 
   Money? heldBalance(CryptoCurrency token) {
     final balance = _balance(token);

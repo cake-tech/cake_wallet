@@ -1,18 +1,16 @@
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_regular_row.dart';
 import 'package:cake_wallet/entities/new_ui_entities/list_item/list_item_toggle.dart';
-import 'package:cake_wallet/entities/sort_balance_types.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/favorite_token_modal.dart';
+import "package:cake_wallet/src/screens/dashboard/favorite_token_page.dart";
+import "package:cake_wallet/src/screens/dashboard/sort_balance_by_page.dart";
 import "package:cake_wallet/src/screens/dashboard/token_list_page.dart";
 import "package:cake_wallet/src/screens/dashboard/widgets/token_list_section.dart";
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cw_core/crypto_currency.dart';
 import "package:flutter/cupertino.dart";
 import 'package:flutter/material.dart';
@@ -52,9 +50,11 @@ class _HomeSettingsPageBodyState extends State<_HomeSettingsPageBody> {
     super.dispose();
   }
 
+  Future<void> _push(Widget page) =>
+      Navigator.of(context).push(CupertinoPageRoute<void>(builder: (_) => page));
+
   Future<void> _openSeeAll(String title, List<CryptoCurrency> Function() tokens) async {
-    final page = TokenListPage(_homeSettingsViewModel, title: title, tokens: tokens);
-    await Navigator.of(context).push(CupertinoPageRoute<void>(builder: (_) => page));
+    await _push(TokenListPage(_homeSettingsViewModel, title: title, tokens: tokens));
     _homeSettingsViewModel.clearToggledOff();
   }
 
@@ -72,19 +72,7 @@ class _HomeSettingsPageBodyState extends State<_HomeSettingsPageBody> {
                       keyValue: "sort balance by",
                       label: S.of(context).sort_by,
                       trailingText: _homeSettingsViewModel.sortBalanceBy.toString(),
-                      onTap: () {
-                        showPopUp<void>(
-                          context: context,
-                          builder: (context) => Picker(
-                            items: SortBalanceBy.values,
-                            selectedAtIndex:
-                                SortBalanceBy.values.indexOf(_homeSettingsViewModel.sortBalanceBy),
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            onItemSelected: _homeSettingsViewModel.setSortBalanceBy,
-                            isSeparated: false,
-                          ),
-                        );
-                      }),
+                      onTap: () => _push(SortBalanceByPage(_homeSettingsViewModel))),
                   ListItemToggle(
                       keyValue: "show combined",
                       label: S.of(context).show_combined_balance,
@@ -96,15 +84,7 @@ class _HomeSettingsPageBodyState extends State<_HomeSettingsPageBody> {
                         label: S.of(context).favorite_token,
                         trailingText: _homeSettingsViewModel.favoriteToken.title,
                         showArrow: true,
-                        onTap: () async {
-                          final res = await showModalBottomSheet(
-                              context: context,
-                              builder: (context) =>
-                                  FavoriteTokenModal(tokens: _homeSettingsViewModel.enabledTokens));
-                          if (res != null && res is CryptoCurrency) {
-                            _homeSettingsViewModel.setFavoriteToken(res);
-                          }
-                        })
+                        onTap: () => _push(FavoriteTokenPage(_homeSettingsViewModel)))
                 ]
               }),
             ),
