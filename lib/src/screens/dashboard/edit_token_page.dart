@@ -64,6 +64,8 @@ class EditTokenPageBody extends StatefulWidget {
 }
 
 class _EditTokenPageBodyState extends State<EditTokenPageBody> {
+  static const _maxTokenDecimals = 255;
+
   final TextEditingController _contractAddressController = TextEditingController();
   final TextEditingController _tokenNameController = TextEditingController();
   final TextEditingController _tokenSymbolController = TextEditingController();
@@ -519,11 +521,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                 return S.of(context).field_required;
               }
 
-              if (int.tryParse(text!) == null) {
+              final decimals = int.tryParse(text!);
+              if (decimals == null || decimals < 0 || decimals > _maxTokenDecimals) {
                 return S.of(context).invalid_input;
               }
 
-              if (int.tryParse(text) == 0) {
+              if (decimals == 0) {
                 return S.current.decimals_cannot_be_zero;
               }
 

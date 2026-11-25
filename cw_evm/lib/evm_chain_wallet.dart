@@ -426,6 +426,8 @@ abstract class EVMChainWalletBase
     await save();
   }
 
+  static const _maxTokenDecimals = 255;
+
   static const _urlLikeSuspiciousMarkers = [
     't.me',
     '.me',
@@ -1333,7 +1335,7 @@ abstract class EVMChainWalletBase
       }
 
       try {
-        if (token.enabled) {
+        if (token.enabled && token.decimal <= _maxTokenDecimals) {
           balance[token] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, token);
         } else {
           balance.remove(token);
@@ -1435,7 +1437,7 @@ abstract class EVMChainWalletBase
 
     final newToken = createNewErc20TokenObject(token, iconPath);
 
-    if (newToken.enabled) {
+    if (newToken.enabled && newToken.decimal <= _maxTokenDecimals) {
       try {
         balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
       } catch (_) {
