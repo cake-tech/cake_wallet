@@ -3,6 +3,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_list_container.dart';
 import 'package:cake_wallet/new-ui/widgets/currency_picker/fiat_currency_row.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FiatCurrencySearchResults extends StatelessWidget {
   const FiatCurrencySearchResults({
@@ -34,6 +35,7 @@ class FiatCurrencySearchResults extends StatelessWidget {
     }
 
     return ListView(
+      controller: ModalScrollController.of(context),
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       children: [
         CurrencyPickerListContainer(
