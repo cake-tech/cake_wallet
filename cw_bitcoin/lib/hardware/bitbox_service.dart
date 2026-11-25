@@ -14,6 +14,7 @@ import "package:cw_bitcoin/psbt/v0_finalizer.dart";
 import "package:cw_bitcoin/utils.dart";
 import "package:cw_core/hardware/hardware_account_data.dart";
 import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/wallet_info.dart";
 import "package:ledger_bitcoin/psbt.dart";
 
 class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWalletService {
@@ -26,9 +27,11 @@ class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWal
   BitboxBitcoin _getBitcoin() => BitboxBitcoin(manager.ffi, coinType: bitboxCoinType);
 
   @override
-  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
-    final accounts = <HardwareAccountData>[];
+  Future<List<BitcoinHardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
+    final accounts = <BitcoinHardwareAccountData>[];
     final indexRange = List.generate(limit, (i) => i + index);
+
+    final fingerprint = await getMasterFingerprint();
 
     // https://github.com/BitBoxSwiss/bitbox02-api-go/blob/ae070b1d41bf1cf00588fa6f498b4734b5ecd6fc/api/firmware/messages/btc.pb.go#L252
     const keyType = 1; // xPUB
@@ -39,11 +42,13 @@ class BitcoinBitboxService extends HardwareWalletService with BitcoinHardwareWal
       final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
 
       accounts.add(
-        HardwareAccountData(
+        BitcoinHardwareAccountData(
           address: address,
           accountIndex: i,
           derivationPath: derivationPath,
           xpub: xPub,
+          masterFingerprint: fingerprint,
+          hardwareWalletType: HardwareWalletType.bitbox,
         ),
       );
     }

@@ -128,6 +128,17 @@ class _RestoreOptionsBodyState extends State<_RestoreOptionsBody> {
                     description: S.of(context).cold_or_recover_wallet,
                   ),
                 ),
+              if (DeviceInfo.instance.isMobile)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: OptionTile(
+                    key: const ValueKey("restore_options_multisig_key"),
+                    onPressed: () => Navigator.pushNamed(context, Routes.restoreMultiSigWallet),
+                    icon: const Icon(Icons.group_work_outlined, size: 55),
+                    title: S.of(context).multisig_wallet,
+                    description: S.of(context).multisig_wallet_description,
+                  ),
+                ),
             ],
           ),
         ),

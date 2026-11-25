@@ -1,15 +1,15 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
+import "dart:async";
+import "dart:convert";
+import "dart:typed_data";
 
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
-import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/hardware/hardware_account_data.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:ledger_bitcoin/ledger_bitcoin.dart';
-import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart";
+import "package:cw_bitcoin/utils.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:cw_core/wallet_info.dart";
+import "package:ledger_bitcoin/ledger_bitcoin.dart";
+import "package:ledger_flutter_plus/ledger_flutter_plus.dart";
 
 class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWalletService {
   BitcoinLedgerService(this.ledgerConnection)
@@ -23,10 +23,10 @@ class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWal
   }
 
   @override
-  Future<List<HardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
-    final masterFp = await bitcoinLedgerApp.getMasterFingerprint();
+  Future<List<BitcoinHardwareAccountData>> getAvailableAccounts({int index = 0, int limit = 5}) async {
+    final masterFp = await getMasterFingerprint();
 
-    final accounts = <HardwareAccountData>[];
+    final accounts = <BitcoinHardwareAccountData>[];
     final indexRange = List.generate(limit, (i) => i + index);
 
     for (final i in indexRange) {
@@ -36,13 +36,16 @@ class BitcoinLedgerService extends HardwareWalletService with BitcoinHardwareWal
 
       final address = generateP2WPKHAddress(hd: hd, index: 0, network: BitcoinNetwork.mainnet);
 
-      accounts.add(HardwareAccountData(
-        address: address,
-        accountIndex: i,
-        derivationPath: derivationPath,
-        masterFingerprint: masterFp,
-        xpub: xPub,
-      ));
+      accounts.add(
+        BitcoinHardwareAccountData(
+          address: address,
+          accountIndex: i,
+          derivationPath: derivationPath,
+          masterFingerprint: masterFp,
+          xpub: xPub,
+          hardwareWalletType: HardwareWalletType.ledger,
+        ),
+      );
     }
 
     return accounts;

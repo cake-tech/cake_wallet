@@ -4,11 +4,16 @@ import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_creation_credentials.dart';
+import "package:cw_core/balance.dart";
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
+import "package:cw_core/multisig/multisig_wallet_service.dart";
 import 'package:cw_core/payjoin_session.dart';
+import "package:cw_core/transaction_history.dart";
+import "package:cw_core/transaction_info.dart";
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/zpub.dart';
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_bitcoin/bitcoin_wallet.dart';
 import 'package:cw_core/pathForWallet.dart';
@@ -21,7 +26,8 @@ class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinWalletFromKeysCredentials,
-    BitcoinRestoreWalletFromHardware> {
+    BitcoinRestoreWalletFromHardware>
+    implements MultisigWalletService<BitcoinMutiSigWalletCredentials> {
   BitcoinWalletService(this.unspentCoinsInfoSource, this.payjoinSessionSource, this.isDirect);
 
   final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
@@ -208,5 +214,13 @@ class BitcoinWalletService extends WalletService<
     await wallet.save();
     await wallet.init();
     return wallet;
+  }
+
+  @override
+  Future<WalletBase<Balance,
+      TransactionHistoryBase<TransactionInfo>,
+      TransactionInfo>> restoreMultiSigWallet(BitcoinMutiSigWalletCredentials credentials) {
+    // TODO: implement restoreMultiSigWallet
+    throw UnimplementedError();
   }
 }

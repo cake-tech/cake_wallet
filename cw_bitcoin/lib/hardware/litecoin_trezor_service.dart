@@ -1,14 +1,14 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:bitcoin_base/bitcoin_base.dart';
-import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:cw_bitcoin/electrum_wallet.dart';
-import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
-import 'package:cw_bitcoin/psbt/transaction_builder.dart';
-import 'package:cw_bitcoin/utils.dart';
-import 'package:cw_core/hardware/hardware_account_data.dart';
-import 'package:cw_core/hardware/hardware_wallet_service.dart';
-import 'package:trezor_connect/trezor_connect.dart';
+import "package:bitcoin_base/bitcoin_base.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
+import "package:cw_bitcoin/electrum_wallet.dart";
+import "package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart";
+import "package:cw_bitcoin/psbt/transaction_builder.dart";
+import "package:cw_bitcoin/utils.dart";
+import "package:cw_core/hardware/hardware_account_data.dart";
+import "package:cw_core/hardware/hardware_wallet_service.dart";
+import "package:trezor_connect/trezor_connect.dart";
 
 class LitecoinTrezorService extends HardwareWalletService
     with BitcoinHardwareWalletService, LitecoinHardwareWalletService {
@@ -51,13 +51,15 @@ class LitecoinTrezorService extends HardwareWalletService
     required Map<String, PublicKeyWithDerivationPath> publicKeys,
   }) async {
     final readyInputs = inputs
-        .map((input) => TrezorTxInput(
-              prevHash: input.utxo.txHash,
-              prevIndex: input.utxo.vout,
-              amount: input.utxo.value.toInt(),
-              addressPath: Bip32PathParser.parse(input.ownerDerivationPath).toList(),
-              scriptType: "SPENDWITNESS",
-            ))
+        .map(
+          (input) => TrezorTxInput(
+            prevHash: input.utxo.txHash,
+            prevIndex: input.utxo.vout,
+            amount: input.utxo.value.toInt(),
+            addressPath: Bip32PathParser.parse(input.ownerDerivationPath).toList(),
+            scriptType: "SPENDWITNESS",
+          ),
+        )
         .toList();
 
     final readyOutputs = outputs.map((output) {
@@ -76,7 +78,7 @@ class LitecoinTrezorService extends HardwareWalletService
     }).toList();
 
     final signedTx =
-        await connect.signTransaction(coin: 'LTC', inputs: readyInputs, outputs: readyOutputs);
+        await connect.signTransaction(coin: "LTC", inputs: readyInputs, outputs: readyOutputs);
 
     return signedTx!.serializedTx;
   }

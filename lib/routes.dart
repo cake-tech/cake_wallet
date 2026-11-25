@@ -59,6 +59,7 @@ class Routes {
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
+  static const restoreMultiSigWallet = '/restore_multi_sig_wallet';
   static const support = '/support';
   static const supportLiveChat = '/support/live_chat';
   static const supportOtherLinks = '/support/other';

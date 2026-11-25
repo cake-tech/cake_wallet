@@ -1,4 +1,6 @@
-import 'dart:typed_data';
+import "dart:typed_data";
+
+import "package:cw_core/multisig/multisig_config.dart";
 
 class HardwareAccountData {
   HardwareAccountData({
@@ -16,4 +18,6 @@ class HardwareAccountData {
   // Bitcoin Specific
   final Uint8List? masterFingerprint;
   final String? xpub;
+
+  MultisigSigner get multisigSigner => throw UnimplementedError();
 }
