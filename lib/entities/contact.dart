@@ -9,17 +9,18 @@ class Contact with Keyable {
     required this.address,
     this.id = 0,
     CryptoCurrency? type,
-    int? raw,
+    int? currencyRaw,
     DateTime? lastChange,
     this.displayName = "",
     this.sortOrder = 0,
-  })  : raw = raw ?? type?.raw ?? 0,
-        lastChange = lastChange ?? DateTime.now();
+  }) : assert(type != null || currencyRaw != null, "Contact needs a currency"),
+       currencyRaw = currencyRaw ?? type!.raw,
+       lastChange = lastChange ?? DateTime.now();
 
   int id;
   String name;
   String address;
-  int raw;
+  int currencyRaw;
   DateTime lastChange;
   String displayName;
   int sortOrder;
@@ -28,7 +29,7 @@ class Contact with Keyable {
 
   static String get selfIdColumn => "contactId";
 
-  CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);
+  CryptoCurrency get type => CryptoCurrency.deserialize(raw: currencyRaw);
 
   bool get isSaved => id != 0;
 
@@ -36,33 +37,34 @@ class Contact with Keyable {
   dynamic get keyIndex => id;
 
   @override
-  bool operator ==(Object other) => other is Contact && (isSaved ? other.id == id : identical(other, this));
+  bool operator ==(Object other) =>
+      other is Contact && (isSaved ? other.id == id : identical(other, this));
 
   @override
   int get hashCode => id.hashCode;
 
-  void updateCryptoCurrency({required CryptoCurrency currency}) => raw = currency.raw;
+  void updateCryptoCurrency({required CryptoCurrency currency}) => currencyRaw = currency.raw;
 
   Map<String, dynamic> toJson() => {
-        selfIdColumn: id,
-        "name": name,
-        "address": address,
-        "raw": raw,
-        "lastChange": lastChange.millisecondsSinceEpoch,
-        "displayName": displayName,
-        "sortOrder": sortOrder,
-      };
+    selfIdColumn: id,
+    "name": name,
+    "address": address,
+    "currencyRaw": currencyRaw,
+    "lastChange": lastChange.millisecondsSinceEpoch,
+    "displayName": displayName,
+    "sortOrder": sortOrder,
+  };
 
   factory Contact.fromJson(Map<String, dynamic> json) => Contact(
-        id: json[selfIdColumn] as int,
-        name: json["name"] as String? ?? "",
-        address: json["address"] as String? ?? "",
-        raw: json["raw"] as int? ?? 0,
-        lastChange: DateTime.fromMillisecondsSinceEpoch(json["lastChange"] as int? ?? 0),
-        displayName: json["displayName"] as String? ?? "",
-        sortOrder: json["sortOrder"] as int? ?? 0,
-      );
-
+    id: json[selfIdColumn] as int,
+    name: json["name"] as String? ?? "",
+    address: json["address"] as String? ?? "",
+    // NOT NULL without defaults: a missing value is a bug, not XMR / 1970.
+    currencyRaw: json["currencyRaw"] as int,
+    lastChange: DateTime.fromMillisecondsSinceEpoch(json["lastChange"] as int),
+    displayName: json["displayName"] as String? ?? "",
+    sortOrder: json["sortOrder"] as int? ?? 0,
+  );
 
   Future<int> save() async {
     final json = toJson();
@@ -82,8 +84,12 @@ class Contact with Keyable {
     await db!.transaction((txn) async {
       for (var i = 0; i < contacts.length; i++) {
         contacts[i].sortOrder = i;
-        await txn.update(tableName, {"sortOrder": i},
-            where: "$selfIdColumn = ?", whereArgs: [contacts[i].id]);
+        await txn.update(
+          tableName,
+          {"sortOrder": i},
+          where: "$selfIdColumn = ?",
+          whereArgs: [contacts[i].id],
+        );
       }
     });
   }
@@ -99,7 +105,10 @@ class Contact with Keyable {
       whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
       orderBy: orderBy,
     );
-    return List.generate(query.length, (index) => Contact.fromJson(query[index]));
+    return query
+        .map(Contact.fromJson)
+        .where((c) => CryptoCurrency.safeDeserialize(raw: c.currencyRaw) != null)
+        .toList();
   }
 
   static Future<List<Contact>> getAll() => selectList("", []);
@@ -112,5 +121,5 @@ class Contact with Keyable {
   static Future<List<Contact>> getByAddress(String address) => selectList("address = ?", [address]);
 
   static Future<List<Contact>> getByCurrency(CryptoCurrency currency) =>
-      selectList("raw = ?", [currency.raw]);
+      selectList("currencyRaw = ?", [currency.raw]);
 }

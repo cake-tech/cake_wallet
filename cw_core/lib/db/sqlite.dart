@@ -72,7 +72,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 16,
+    version: 17,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -479,8 +479,8 @@ CREATE TABLE IF NOT EXISTS Contact (
   contactId INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL DEFAULT '',
   address TEXT NOT NULL DEFAULT '',
-  raw INTEGER NOT NULL DEFAULT 0,
-  lastChange INTEGER NOT NULL DEFAULT 0,
+  currencyRaw INTEGER NOT NULL,
+  lastChange INTEGER NOT NULL,
   displayName TEXT NOT NULL DEFAULT '',
   sortOrder INTEGER NOT NULL DEFAULT 0
 );

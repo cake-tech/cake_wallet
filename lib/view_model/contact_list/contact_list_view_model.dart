@@ -209,10 +209,8 @@ abstract class ContactListViewModelBase with Store {
     await reorderContacts(contacts.map((e) => e.original).toList());
   }
 
-  Future<void> reorderContacts(List<Contact> contactCopy) async {
-    await Contact.updateOrder(contactCopy);
-    contactService.applyOrder(contactCopy);
-  }
+  Future<void> reorderContacts(List<Contact> contactCopy) =>
+      contactService.reorder(contactCopy);
 
   Future<void> sortGroupByType() async {
     final contactsSourceCopy = contacts.map((e) => e.original).toList();

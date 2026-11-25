@@ -80,7 +80,7 @@ class Contact extends HiveObject with Keyable {
         final json = sqlite.Contact(
           name: contact.name,
           address: contact.address,
-          raw: contact.raw,
+          currencyRaw: contact.raw,
           lastChange: contact.lastChange,
           displayName: contact.displayName,
           // Box iteration order was the user's custom order — preserve it.

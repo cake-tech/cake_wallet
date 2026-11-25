@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import "package:cake_wallet/core/contact_service.dart";
 import 'package:cake_wallet/core/secure_storage.dart';
+import "package:cake_wallet/di.dart";
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/themes/utils/theme_list.dart';
@@ -23,6 +25,7 @@ import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/erc20_token_legacy.dart' show performErc20TokenHiveMigration;
 import 'package:cw_core/spl_token_legacy.dart' show performSplTokenHiveMigration;
 import 'package:cw_core/tron_token_legacy.dart' show performTronTokenHiveMigration;
+import "package:cake_wallet/entities/contact_legacy.dart" show performContactHiveMigration;
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade_legacy.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -93,6 +96,7 @@ class $BackupService {
     await verifyWallets();
     await _importKeychainDumpV1(password, nonce: nonce);
     await importPreferencesDump();
+    getIt.get<ContactService>().invalidate();
   }
 
   // checked with .endsWith - so this should be the last part of the filename
@@ -141,6 +145,7 @@ class $BackupService {
     await importKeychainDumpV2(password);
     await importPreferencesDump();
     await importTransactionDescriptionDump(); // HiveError: Box has already been closed
+    getIt.get<ContactService>().invalidate();
   }
 
   Future<void> verifyWallets() async {
@@ -149,6 +154,7 @@ class $BackupService {
     await performErc20TokenHiveMigration();
     await performSplTokenHiveMigration();
     await performTronTokenHiveMigration();
+    await performContactHiveMigration();
 
     correctWallets = (await WalletInfo.getAll())
         .where((info) => availableWalletTypes.contains(info.type))
