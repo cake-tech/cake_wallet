@@ -74,18 +74,19 @@ class Contact extends HiveObject with Keyable {
     final contacts = box.values.toList();
 
     if (contacts.isEmpty) return;
-
     await db!.transaction((txn) async {
       final existing = await txn.query(
         sqlite.Contact.tableName,
-        columns: ["address", "currencyRaw", "sortOrder"],
+        columns: ["name", "address", "currencyRaw", "sortOrder"],
       );
-      final seen = {for (final row in existing) "${row["currencyRaw"]}:${row["address"]}"};
+      final existingKeys = {
+        for (final row in existing) "${row["currencyRaw"]}:${row["address"]}:${row["name"]}",
+      };
       var nextOrder =
           existing.fold<int>(-1, (maxOrder, row) => max(maxOrder, row["sortOrder"] as int)) + 1;
 
       for (final contact in contacts) {
-        if (!seen.add("${contact.raw}:${contact.address}")) continue;
+        if (existingKeys.contains("${contact.raw}:${contact.address}:${contact.name}")) continue;
 
         final json = sqlite.Contact(
           name: contact.name,
