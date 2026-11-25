@@ -7,6 +7,7 @@ import "package:cw_bitcoin/electrum_wallet_addresses.dart";
 import "package:cw_bitcoin/lightning/lightning_addres_type.dart";
 import "package:cw_bitcoin/payjoin/manager.dart";
 import "package:cw_bitcoin/utils.dart";
+import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -79,6 +80,7 @@ class _NoPayjoin implements PayjoinManager {
 
 ElectrumAccounts _accounts({required Bip32Slip10Secp256k1 legacyAccountHd}) => ElectrumAccounts(
   primaryTypes: [SegwitAddresType.p2wpkh, P2pkhAddressType.p2pkh],
+  currency: CryptoCurrency.btc,
   accountHd: legacyAccountHd,
   masterHd: _master,
   coinType: 0,
