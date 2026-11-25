@@ -21,7 +21,9 @@ class DisplaySettingsPageRobot extends BaseRobot {
   }
 
   Future<void> chooseLanguage(String code) async {
-    await tapByKey("picker_items_index_${code}_button_key");
+    final index = await pickerIndexWhere((item) => item == code);
+
+    await tapByKey("picker_items_index_${index}_button_key");
 
     await settle();
   }

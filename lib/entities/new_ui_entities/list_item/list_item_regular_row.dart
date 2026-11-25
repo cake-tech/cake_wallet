@@ -5,6 +5,7 @@ class ListItemRegularRow extends ListItem {
   const ListItemRegularRow({
     required super.keyValue,
     required super.label,
+    super.testId,
     this.subtitle,
     this.trailingText,
     this.iconPath,

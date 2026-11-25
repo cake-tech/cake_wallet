@@ -65,6 +65,7 @@ class AssetsTopBar extends StatelessWidget {
                   else
                     MergeSemantics(
                       child: Semantics(
+                        identifier: "assets_history_action_button_key",
                         button: true,
                         label: actionButton.semanticsLabel,
                         child: GestureDetector(

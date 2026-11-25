@@ -54,49 +54,53 @@ class _ReceiveBottomButtonsState extends State<ReceiveBottomButtons> {
               children: [
                 // The button itself is the only control: it copies when there
                 // is data to copy, otherwise it opens the payjoin copy modal.
-                CopyWrapper(
-                  data: widget.copyData,
-                  controlBuilder: (context, copied, onCopy) => AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: ModernButton.svg(
-                      key: ValueKey(copied),
-                      size: 60,
-                      iconSize: 32,
-                      svgPath: "assets/new-ui/copy.svg",
-                      onPressed: onCopy ?? widget.onCopyButtonPressed,
-                      label: copied ? S.of(context).copied : S.of(context).copy,
-                      iconColor: copied
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.surfaceContainer,
-                      backgroundColor: copied
-                          ? Theme.of(context).colorScheme.surfaceContainerHighest
-                          : Theme.of(context).colorScheme.primary,
+                  CopyWrapper(
+                    data: widget.copyData,
+                    controlBuilder: (context, copied, onCopy) => AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: ModernButton.svg(
+                        key: ValueKey(copied),
+                        testId: "receive_page_copy_button_key",
+                        size: 60,
+                        iconSize: 32,
+                        svgPath: "assets/new-ui/copy.svg",
+                        onPressed: onCopy ?? widget.onCopyButtonPressed,
+                        label: copied ? S.of(context).copied : S.of(context).copy,
+                        iconColor: copied
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.surfaceContainer,
+                        backgroundColor: copied
+                            ? Theme.of(context).colorScheme.surfaceContainerHighest
+                            : Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                   ),
-                ),
-                ModernButton.svg(
-                  size: 60,
-                  iconSize: 32,
-                  svgPath: "assets/new-ui/set-amount.svg",
-                  onPressed: widget.onAmountButtonPressed,
-                  label: S.of(context).set_amount,
-                ),
+                  ModernButton.svg(
+                    testId: "receive_page_set_amount_button_key",
+                    size: 60,
+                    iconSize: 32,
+                    svgPath: "assets/new-ui/set-amount.svg",
+                    onPressed: widget.onAmountButtonPressed,
+                    label: S.of(context).set_amount,
+                  ),
                 if (widget.showLabelButton)
-                  ModernButton.svg(
-                    size: 60,
-                    iconSize: 32,
-                    svgPath: "assets/new-ui/add-label.svg",
-                    onPressed: widget.onLabelButtonPressed,
-                    label: S.of(context).label,
-                  ),
+                    ModernButton.svg(
+                      testId: "receive_page_label_button_key",
+                      size: 60,
+                      iconSize: 32,
+                      svgPath: "assets/new-ui/add-label.svg",
+                      onPressed: widget.onLabelButtonPressed,
+                      label: S.of(context).label,
+                    ),
                 if (widget.showAccountsButton)
-                  ModernButton.svg(
-                    size: 60,
-                    iconSize: 32,
-                    svgPath: "assets/new-ui/addr-book.svg",
-                    onPressed: widget.onAccountsButtonPressed,
-                    label: S.of(context).addresses,
-                  ),
+                    ModernButton.svg(
+                      testId: "receive_page_addresses_button_key",
+                      size: 60,
+                      iconSize: 32,
+                      svgPath: "assets/new-ui/addr-book.svg",
+                      onPressed: widget.onAccountsButtonPressed,
+                      label: S.of(context).addresses,
+                    ),
               ],
             ),
           ),

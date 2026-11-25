@@ -8,6 +8,13 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/foundation.dart";
 import "package:path/path.dart" as p;
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
+import "package:cw_core/db/sqlite_debug.dart";
+import "package:cw_core/db/trade_migration.dart";
+import "package:cw_core/root_dir.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:flutter/foundation.dart";
+import "package:sqflite_common_ffi/sqflite_ffi.dart";
+import "package:path/path.dart" as p;
 
 Database? db;
 
@@ -71,7 +78,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 15,
+    version: 16,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -128,7 +135,7 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       }
 
       if (oldVersion <= 5) {
-        await _createTradeTable(db);
+        await _createOldTradeTable(db);
       }
       if (oldVersion <= 6) {
         await _addColumnIfNotExists(
@@ -205,6 +212,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
           column: "hidden",
           definition: "BOOLEAN DEFAULT FALSE",
         );
+      }
+      if(oldVersion <= 15) {
+        await migrateTradeTableToNewSchema(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -306,7 +316,7 @@ CREATE TABLE BalanceCardStyleSettings (
         ''');
       await _createBridgeTransferTable(db);
       await _createNodeTable(db);
-      await _createTradeTable(db);
+      await createTradeTable(db);
       await _createChartsTables(db);
       await _createErc20TokenTable(db);
       await _createSplTokenTable(db);
@@ -335,7 +345,7 @@ CREATE TABLE ChartsAssets (
         """);
 }
 
-Future<void> _createTradeTable(Database db) async {
+Future<void> _createOldTradeTable(Database db) async {
   await db.execute("""
 CREATE TABLE IF NOT EXISTS Trade (
   tradeId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -395,6 +405,37 @@ CREATE TABLE IF NOT EXISTS Trade (
   await db.execute("""
 CREATE UNIQUE INDEX IF NOT EXISTS idx_trade_id_unique
 ON Trade (id);
+""");
+}
+
+
+Future<void> createTradeTable(Database db) async {
+  await db.execute("""
+CREATE TABLE Trade (
+    tradeId TEXT PRIMARY KEY NOT NULL,
+    provider INTEGER, 
+    state TEXT,
+    accountIndex INTEGER,
+    depositAmount TEXT,
+    payoutAmount TEXT,
+    fundingAddress TEXT,
+    refundAddress TEXT,
+    payoutAddress TEXT,
+    createdAt INTEGER,
+    expiredAt INTEGER,
+    extraId TEXT,
+    outputTransaction TEXT,
+    walletId TEXT,
+    toAddressExtraId TEXT,
+    password TEXT,
+    providerId TEXT,
+    providerName TEXT,
+    memo TEXT,
+    txId TEXT,
+    isRefund INTEGER,
+    chainId INTEGER,
+    fromWalletAddress TEXT
+);
 """);
 }
 

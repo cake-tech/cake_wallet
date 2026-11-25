@@ -25,6 +25,7 @@ class HistoryModal extends StatelessWidget {
       child: Column(
         children: [
           ModalTopBar(
+            testId: "history_modal_top_bar",
             title: S.of(context).history,
             leadingIcon: Icon(Icons.close),
             leadingSemanticLabel: S.of(context).close,
