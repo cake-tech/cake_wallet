@@ -33,10 +33,13 @@ class ZkoolTx {
 
   DateTime get time {
     final ts = max(_tx.time, _txAccount.time) * 1000;
-    if (ts == 0) {
-      return ZcashHeight.getTimeByBlockHeight(height);
+    if (ts != 0) {
+      return DateTime.fromMillisecondsSinceEpoch(ts);
     }
-    return DateTime.fromMillisecondsSinceEpoch(ts);
+    if (height == 0) {
+      return DateTime.now();
+    }
+    return ZcashHeight.getTimeByBlockHeight(height);
   }
 
   String? get to => _txAccount.outputs.firstOrNull?.address;
@@ -96,7 +99,8 @@ class ZkoolTx {
 
   BigInt get value => _value.abs();
 
-  BigInt get fee => value - _calcValue;
+  BigInt get fee => BigInt.from(_tx.fee);
+
 
   BigInt get _value {
     if (_tx.value != 0) {
@@ -162,10 +166,12 @@ class ZkoolTx {
   Map<String, dynamic> toJson() => {
     "tx": {
       "id": _tx.id,
+      "account": _tx.account,
       "txid": base64.encode(_tx.txid),
       "height": _tx.height,
       "time": _tx.time,
       "value": value.toInt(),
+      
       "tpe": _tx.tpe,
       "zsaValue": _tx.zsaValue,
       "assetDisplay": _tx.assetDisplay,
@@ -205,6 +211,7 @@ class ZkoolTx {
             (final output) => {
               "id": output.id,
               "pool": output.pool,
+              "vout": output.vout,
               "height": output.height,
               "value": output.value.toString(),
               "address": output.address,
@@ -273,10 +280,12 @@ class ZkoolTx {
     return ZkoolTx(
       zkool_account.Tx(
         id: _asInt(txJson["id"]),
+        account: _asInt(txJson["account"] ?? txAccountJson["account"]),
         txid: _txidFromJson(txJson["txid"]),
         height: _asInt(txJson["height"]),
         time: _asInt(txJson["time"]),
         value: _asInt(txJson["value"]),
+        fee: _asInt(txJson["fee"]),
         tpe: txJson["tpe"] == null ? null : _asInt(txJson["tpe"]),
         zsaValue: _asInt(txJson["zsaValue"]),
         assetDisplay: txJson["assetDisplay"] as String? ?? "",
@@ -316,6 +325,7 @@ class ZkoolTx {
           (final a) => zkool_account.TxOutput(
             id: _asInt(a["id"]),
             pool: _asInt(a["pool"]),
+            vout: _asInt(a["vout"]),
             height: _asInt(a["height"]),
             value: BigInt.parse(a["value"].toString()),
             address: a["address"] as String? ?? "",

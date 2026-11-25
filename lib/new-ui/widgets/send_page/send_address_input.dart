@@ -4,6 +4,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/send_page/floating_icon_button.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/permission_handler.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cw_core/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -86,22 +87,28 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                   Expanded(
                     child: Stack(
                       children: [
-                        TextField(
-                          focusNode: widget.focusNode,
-                          autocorrect: false,
-                          enableSuggestions: false,
-                          onSubmitted: (val) => FocusScope.of(context).unfocus(),
-                          onChanged: state.didChange,
-                          onEditingComplete: () {
-                            widget.onEditingComplete();
-                          },
-                          onTapOutside: (_) {
-                            widget.onEditingComplete();
-                          },
-                          controller: widget.addressController,
-                          decoration: InputDecoration(
-                            hintText: widget.hintText ?? S.of(context).search_or_enter,
-                            errorMaxLines: 3,
+                        MergeSemantics(
+                          child: Semantics(
+                            identifier: TestId.fromKey(widget.key),
+                            label: _fieldSemanticsLabel(context),
+                            child: TextField(
+                              focusNode: widget.focusNode,
+                              autocorrect: false,
+                              enableSuggestions: false,
+                              onSubmitted: (val) => FocusScope.of(context).unfocus(),
+                              onChanged: state.didChange,
+                              onEditingComplete: () {
+                                widget.onEditingComplete();
+                              },
+                              onTapOutside: (_) {
+                                widget.onEditingComplete();
+                              },
+                              controller: widget.addressController,
+                              decoration: InputDecoration(
+                                hintText: widget.hintText ?? S.of(context).search_or_enter,
+                                errorMaxLines: 3,
+                              ),
+                            ),
                           ),
                         ),
                         Positioned.fill(
@@ -113,9 +120,13 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                                         widget.addressController.text.isEmpty)
                                     ? 0
                                     : 1,
-                                child: SendAddressOverlay(
-                                  address: widget.addressController.text,
-                                  displayName: widget.displayName,
+                                // Purely visual copy of the field content; announcing it again
+                                // would read the address twice.
+                                child: ExcludeSemantics(
+                                  child: SendAddressOverlay(
+                                    address: widget.addressController.text,
+                                    displayName: widget.displayName,
+                                  ),
                                 )),
                           ),
                         ),
@@ -128,16 +139,20 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
                       SizedBox.shrink(),
                       FloatingIconButton(
                           iconPath: "assets/new-ui/paste.svg",
+                          semanticLabel: S.of(context).paste,
                           onPressed: () async {
                             _pasteAddress(context);
                           }),
                       FloatingIconButton(
                           iconPath: "assets/new-ui/scan.svg",
+                          semanticLabel: S.of(context).scan_qr_code,
                           onPressed: () {
                             _presentQRScanner(context);
                           }),
                       FloatingIconButton(
+                          key: ValueKey("send_page_address_book_button_key"),
                           iconPath: "assets/new-ui/contacts_outlined.svg",
+                          semanticLabel: S.of(context).address_book,
                           onPressed: () {
                             _presetAddressBookPicker(context);
                           }),
@@ -150,15 +165,34 @@ class _NewSendAddressInputState extends State<NewSendAddressInput> {
             if (state.hasError)
               Padding(
                 padding: EdgeInsets.only(top: 6, left: 8),
-                child: Text(
-                  state.errorText!,
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                child: Semantics(
+                  container: true,
+                  liveRegion: true,
+                  label: "${S.of(context).address_or_alias}, ${state.errorText!}",
+                  excludeSemantics: true,
+                  child: Text(
+                    state.errorText!,
+                    style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.error),
+                  ),
                 ),
               )
           ],
         ),
       ),
     );
+  }
+
+  String _fieldSemanticsLabel(BuildContext context) {
+    final label = S.of(context).address_or_alias;
+    final displayName = widget.displayName;
+
+    if (displayName == null ||
+        displayName.isEmpty ||
+        displayName == widget.addressController.text) {
+      return label;
+    }
+
+    return "$label, $displayName";
   }
 
   Future<void> _presentQRScanner(BuildContext context) async {

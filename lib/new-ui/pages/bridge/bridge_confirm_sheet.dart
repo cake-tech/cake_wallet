@@ -66,6 +66,7 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
             Observer(
               builder: (_) {
                 return ModalTopBar(
+                  testId: "bridge_confirm_sheet_top_bar",
                   title: '',
                   leadingWidget: Row(
                     spacing: 8,
@@ -87,6 +88,7 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                     ],
                   ),
                   trailingIcon: const Icon(Icons.close),
+                  trailingSemanticLabel: S.of(context).close,
                   onTrailingPressed: () => Navigator.of(context).maybePop(),
                 );
               },
@@ -217,6 +219,7 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                       bridgeViewModel.executeBridge();
                     },
                     swiperText: S.of(context).swipe_to_bridge,
+                    accessibleNavigationModeButtonText: S.of(context).confirm,
                   );
                 },
               ),

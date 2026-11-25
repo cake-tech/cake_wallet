@@ -13,8 +13,7 @@ class TrocadorProvidersSettings extends StatelessWidget {
   final TrocadorProvidersViewModel trocadorProvidersViewModel;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
@@ -23,8 +22,10 @@ class TrocadorProvidersSettings extends StatelessWidget {
         spacing: 24,
         children: [
           ModalTopBar(
+            testId: "trocador_providers_settings_top_bar",
             title: "Trocador ${S.of(context).providers}",
             leadingIcon: Icon(Icons.arrow_back_ios_new),
+            leadingSemanticLabel: S.of(context).seed_alert_back,
             onLeadingPressed: Navigator.of(context).pop,
           ),
           Expanded(
@@ -109,5 +110,4 @@ class TrocadorProvidersSettings extends StatelessWidget {
         ],
       ),
     );
-  }
 }

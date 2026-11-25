@@ -1,7 +1,10 @@
+import "dart:io";
+
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/di.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/generate_name.dart';
 import 'package:cake_wallet/entities/hash_wallet_identifier.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -91,11 +94,11 @@ abstract class WalletCreationVMBase with Store {
       }
 
       if (hasWalletPassword && (walletPassword?.isEmpty ?? true)) {
-        throw Exception(S.current.wallet_password_is_empty);
+        throw WalletCreationException(S.current.wallet_password_is_empty);
       }
 
       if (hasWalletPassword && walletPassword != repeatedWalletPassword) {
-        throw Exception(S.current.repeated_password_is_incorrect);
+        throw WalletCreationException(S.current.repeated_password_is_incorrect);
       }
 
       await walletCreationService.checkIfExists(name);
@@ -128,7 +131,13 @@ abstract class WalletCreationVMBase with Store {
       );
 
       printV("derivationInfo: ${(await credentials.walletInfo!.getDerivationInfo()).toJson()}");
-      final wallet = await process(credentials);
+      final WalletBase wallet;
+      try {
+        wallet = await process(credentials);
+      } catch (_) {
+        await _removeWalletInfoOfEmptyWalletDir(credentials.walletInfo!, dirPath);
+        rethrow;
+      }
 
       final isNonSeedWallet = isRecovery ? wallet.seed == null : false;
       credentials.walletInfo!.isNonSeedWallet = isNonSeedWallet;
@@ -147,6 +156,23 @@ abstract class WalletCreationVMBase with Store {
         message = e.message;
       }
       state = FailureState(message);
+    }
+  }
+
+  /// A failed [process] can leave the WalletInfo row that the wallet's `init()` saved
+  /// without any wallet file on disk, so the wallet shows up in the list but can never be
+  /// opened. Drop that row when nothing was written to [dirPath]. Anything in the directory
+  /// means the coin got as far as writing its files, and then the row is kept as before.
+  Future<void> _removeWalletInfoOfEmptyWalletDir(WalletInfo walletInfo, String dirPath) async {
+    try {
+      final dir = Directory(dirPath);
+      if (dir.existsSync() && dir.listSync().isNotEmpty) {
+        return;
+      }
+
+      await WalletInfo.delete(walletInfo);
+    } catch (e) {
+      printV("Failed to remove the WalletInfo of the failed wallet creation: $e");
     }
   }
 
@@ -179,6 +205,8 @@ abstract class WalletCreationVMBase with Store {
           );
         }
         return bitcoin!.getElectrumDerivations()[DerivationType.electrum]!.first;
+      case WalletType.decred:
+        return DerivationInfo(derivationType: DerivationType.bip39);
       default:
         return DerivationInfo(derivationType: DerivationType.unknown);
     }

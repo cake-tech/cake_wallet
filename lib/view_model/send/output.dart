@@ -104,12 +104,6 @@ abstract class OutputBase with Store {
 
   String roundedCryptoAmount(int digits) => displayCryptoAmount.withMaxDecimals(digits);
 
-  String roundedFiatAmount(int digits) {
-    if (fiatAmount.split(".").last.length <= digits) return fiatAmount;
-
-    return double.tryParse(fiatAmount.replaceAll(",", ""))?.toStringAsPrecision(digits) ?? '0.0';
-  }
-
   @observable
   String? stealthAddress;
 
@@ -123,6 +117,11 @@ abstract class OutputBase with Store {
       return Money.zero(cryptoCurrencyHandler());
     }
   }
+
+  @computed
+  Money get fiatAmountMoney =>
+      Money.tryParse(fiatAmount.sanitized(), _settingsStore.fiatCurrency, strictParsing: false) ??
+      Money.zero(_settingsStore.fiatCurrency);
 
   @observable
   Money estimatedFee;
@@ -189,12 +188,14 @@ abstract class OutputBase with Store {
         case WalletType.base:
         case WalletType.arbitrum:
         case WalletType.bsc:
+        case WalletType.robinhood:
           final isNative = [
             CryptoCurrency.eth,
             CryptoCurrency.maticpoly,
             CryptoCurrency.baseEth,
             CryptoCurrency.arbEth,
-            CryptoCurrency.bnb
+            CryptoCurrency.bnb,
+            CryptoCurrency.robEth
           ].contains(cryptoCurrencyHandler());
 
           final fee = isNative
@@ -245,7 +246,7 @@ abstract class OutputBase with Store {
 
   WalletType get walletType => _wallet.type;
 
-  final CryptoCurrency Function([CryptoCurrency?]) cryptoCurrencyHandler;
+  final CryptoCurrency Function() cryptoCurrencyHandler;
   final FiatConversionStore _fiatConversationStore;
   final AppStore _appStore;
 
@@ -263,6 +264,7 @@ abstract class OutputBase with Store {
   void updateWallet(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> newWallet) {
     _wallet = newWallet;
+    estimatedFee = Money.zero(cryptoCurrencyHandler());
   }
 
   @action
@@ -337,10 +339,21 @@ abstract class OutputBase with Store {
           ? CryptoCurrency.btc
           : cryptoCurrencyHandler();
 
+      final price = _fiatConversationStore.prices[cryptoCurrency];
+      if (price == null || !price.isFinite || price <= 0) {
+        printV('_updateCryptoAmount: invalid fiat rate $price for $cryptoCurrency');
+        cryptoAmount = '';
+        return;
+      }
+
       final decimals = min(20, cryptoCurrencyHandler().decimals);
-      final crypto = (double.parse(fiatAmount.replaceAll(',', '.')) /
-              _fiatConversationStore.prices[cryptoCurrency]!)
-          .toStringAsFixed(decimals);
+      final rawCrypto = double.parse(fiatAmount.replaceAll(',', '.')) / price;
+      if (!rawCrypto.isFinite) {
+        cryptoAmount = '';
+        return;
+      }
+
+      final crypto = rawCrypto.toStringAsFixed(decimals);
 
       if (cryptoAmount != crypto) cryptoAmount = crypto;
     } catch (e) {

@@ -40,13 +40,11 @@ class EditTokenPage extends BasePage {
       : S.current.add_token;
 
   @override
-  Widget body(BuildContext context) {
-    return EditTokenPageBody(
+  Widget body(BuildContext context) => EditTokenPageBody(
       homeSettingsViewModel: homeSettingsViewModel,
       token: token,
       initialContractAddress: initialContractAddress,
     );
-  }
 }
 
 class EditTokenPageBody extends StatefulWidget {
@@ -83,6 +81,11 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
   bool _disclaimerChecked = false;
   bool isEditingToken = false;
   bool _isTokenVerified = false;
+  bool _isJupiterVerified = false;
+  String? _jupiterVerifiedAddress;
+
+  bool get _isJupiterVerifiedForCurrentAddress =>
+      _isJupiterVerified && _jupiterVerifiedAddress == _contractAddressController.text;
 
   @override
   void initState() {
@@ -129,14 +132,28 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     final isVerified = widget.homeSettingsViewModel.checkIfTokenIsWhitelisted(contractAddress);
 
     if (!mounted) return;
+
     setState(() {
       _isTokenVerified = isVerified;
+    });
+
+    _checkIfTokenIsVerifiedOnJupiter(contractAddress);
+  }
+
+  Future<void> _checkIfTokenIsVerifiedOnJupiter(String contractAddress) async {
+    final isVerified =
+        await widget.homeSettingsViewModel.checkIfTokenIsVerifiedOnJupiter(contractAddress);
+
+    if (!mounted || _contractAddressController.text != contractAddress) return;
+
+    setState(() {
+      _isJupiterVerified = isVerified ?? false;
+      _jupiterVerifiedAddress = contractAddress;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.zero,
@@ -174,8 +191,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
               SizedBox(height: 20),
             ],
             Observer(
-              builder: (context) {
-                return Row(
+              builder: (context) => Row(
                   children: <Widget>[
                     Expanded(
                       child: LoadingPrimaryButton(
@@ -210,14 +226,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             if (isTokenAlreadyAdded) {
                               showPopUp<void>(
                                 context: context,
-                                builder: (dialogContext) {
-                                  return AlertWithOneAction(
+                                builder: (dialogContext) => AlertWithOneAction(
                                     alertTitle: S.current.warning,
                                     alertContent: S.of(context).token_already_exists,
                                     buttonText: S.of(context).ok,
                                     buttonAction: () => Navigator.of(dialogContext).pop(),
-                                  );
-                                },
+                                  ),
                               );
                               return;
                             }
@@ -225,13 +239,15 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             final isWhitelisted = await widget.homeSettingsViewModel
                                 .checkIfTokenIsWhitelisted(_contractAddressController.text);
 
-                            final hasPotentialError = !isWhitelisted &&
+                            final isTrusted = isWhitelisted || _isJupiterVerifiedForCurrentAddress;
+
+                            final hasPotentialError = !isTrusted &&
                                 await widget.homeSettingsViewModel
                                     .checkIfERC20TokenContractAddressIsAPotentialScamAddress(
                                   _contractAddressController.text,
                                 );
 
-                            bool isPotentialScam = hasPotentialError && !isWhitelisted;
+                            bool isPotentialScam = hasPotentialError && !isTrusted;
 
                             // Normalize to catch homoglyph spoofing attacks
                             final tokenSymbol = normalizeHomoglyphs(
@@ -243,7 +259,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             // (e.g. fake ETH on Ethereum, fake SOL on Solana)
                             final nativeSymbol =
                                 widget.homeSettingsViewModel.nativeToken.title.toUpperCase();
-                            if (tokenSymbol == nativeSymbol && !isWhitelisted) {
+                            if (tokenSymbol == nativeSymbol && !isTrusted) {
                               isPotentialScam = true;
                             }
 
@@ -252,7 +268,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                             if (widget.homeSettingsViewModel.checkIfTokenSymbolMatchesDefaultToken(
                                   tokenSymbol,
                                 ) &&
-                                !isWhitelisted) {
+                                !isTrusted) {
                               isPotentialScam = true;
                             }
 
@@ -277,23 +293,20 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               } catch (e) {
                                 showPopUp<void>(
                                   context: context,
-                                  builder: (dialogContext) {
-                                    return AlertWithOneAction(
+                                  builder: (dialogContext) => AlertWithOneAction(
                                       alertTitle: S.current.warning,
                                       alertContent: e.toString(),
                                       buttonText: S.of(context).ok,
                                       buttonAction: () => Navigator.of(dialogContext).pop(),
-                                    );
-                                  },
+                                    ),
                                 );
                               }
                             };
 
-                            if (hasPotentialError && !isWhitelisted) {
+                            if (hasPotentialError && !isTrusted) {
                               showPopUp<void>(
                                 context: context,
-                                builder: (dialogContext) {
-                                  return AlertWithTwoActions(
+                                builder: (dialogContext) => AlertWithTwoActions(
                                     alertTitle: S.current.warning,
                                     alertContent: S.current.contract_warning,
                                     rightButtonText: S.of(context).continue_text,
@@ -303,8 +316,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                                       await actionCall();
                                     },
                                     actionLeftButton: () => Navigator.of(dialogContext).pop(),
-                                  );
-                                },
+                                  ),
                               );
                             } else {
                               try {
@@ -312,14 +324,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                               } catch (e) {
                                 showPopUp<void>(
                                   context: context,
-                                  builder: (dialogContext) {
-                                    return AlertWithOneAction(
+                                  builder: (dialogContext) => AlertWithOneAction(
                                       alertTitle: "Unable to add token",
                                       alertContent: "$e",
                                       buttonText: S.of(context).ok,
                                       buttonAction: () => Navigator.of(context).pop(),
-                                    );
-                                  },
+                                    ),
                                 );
                               }
                               if (mounted) {
@@ -334,14 +344,12 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                       ),
                     ),
                   ],
-                );
-              },
+                ),
             ),
           ],
         ),
       ),
     );
-  }
 
   void _getTokenInfo() async {
     if (_contractAddressController.text.isNotEmpty) {
@@ -377,8 +385,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
     }
   }
 
-  Widget _tokenForm() {
-    return Form(
+  Widget _tokenForm() => Form(
       key: _formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -402,7 +409,7 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                         size: 75,
                       ),
                     ),
-                    if (_isTokenVerified)
+                    if (_isTokenVerified || _isJupiterVerifiedForCurrentAddress)
                       Positioned(
                         bottom: 0,
                         right: 0,
@@ -425,6 +432,16 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
                       ),
                   ],
                 ),
+          if (_isJupiterVerifiedForCurrentAddress) ...[
+            const SizedBox(height: 12),
+            Text(
+              S.of(context).token_verified_on_jupiter,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            ),
+          ],
           SizedBox(height: 25),
           AddressTextField(
             controller: _contractAddressController,
@@ -517,5 +534,4 @@ class _EditTokenPageBodyState extends State<EditTokenPageBody> {
         ],
       ),
     );
-  }
 }

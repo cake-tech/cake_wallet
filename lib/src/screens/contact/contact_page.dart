@@ -73,6 +73,7 @@ class ContactPage extends BasePage {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 BaseTextFormField(
+                  key: ValueKey("contact_page_name_textfield_key"),
                   controller: _nameController,
                   hintText: S.of(context).contact_name,
                   validator: ContactNameValidator(),
@@ -80,9 +81,10 @@ class ContactPage extends BasePage {
                 Padding(
                   padding: EdgeInsets.only(top: 20),
                   child: Container(
-                    child: InkWell(
+                    child: Semantics(identifier: "contact_page_currency_picker_button_key", button: true, label: S.of(context).settings_currency, value: _currencyTypeController.text.trim(), child: InkWell(
+                      key: ValueKey("contact_page_currency_picker_button_key"),
                       onTap: () => _presentCurrencyPicker(context),
-                      child: IgnorePointer(
+                      child: ExcludeSemantics(child: IgnorePointer(
                         child: BaseTextFormField(
                           controller: _currencyTypeController,
                           hintText: S.of(context).settings_currency,
@@ -95,8 +97,8 @@ class ContactPage extends BasePage {
                             ],
                           ),
                         ),
-                      ),
-                    ),
+                      )),
+                    )),
                   ),
                 ),
                 if (contactViewModel.currency != null)
@@ -105,6 +107,7 @@ class ContactPage extends BasePage {
                     child: Observer(
                       builder: (_) {
                         return NewSendAddressInput(
+                          key: ValueKey("contact_page_address_input_key"),
                           focusNode: addressFocusNode,
                           displayName: contactViewModel.displayName,
                           addressController: _addressController,
@@ -138,6 +141,7 @@ class ContactPage extends BasePage {
               Expanded(
                 child: Observer(
                   builder: (_) => PrimaryButton(
+                    key: ValueKey("contact_page_save_button_key"),
                     onPressed: () async {
                       FocusScope.of(context).unfocus();
                       _extractParsedAddress(context);

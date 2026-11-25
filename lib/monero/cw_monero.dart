@@ -134,7 +134,7 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
   @computed
   @override
   MoneroBalance get balance {
-    throw Exception('Unimplemented');
+    throw UnimplementedError();
     // return MoneroBalance();
     //return MoneroBalance(
     //	fullBalance: balance.fullBalance,
@@ -145,6 +145,10 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
 class CWMonero extends Monero {
   @override
   MoneroAccountList getAccountList(Object wallet) => CWMoneroAccountList(wallet);
+
+  @override
+  Money getAccountFullBalance(int accountIndex) =>
+      monero_wallet_api.getFullBalance(accountIndex: accountIndex);
 
   @override
   MoneroSubaddressList getSubaddressList(Object wallet) => CWMoneroSubaddressList(wallet);
@@ -295,6 +299,23 @@ class CWMonero extends Monero {
   }
 
   @override
+  Future<int> getNodeHeight(Object wallet) => (wallet as MoneroWallet).getNodeHeight();
+
+  @override
+  String getLegacySeed(Object wallet, String langName) =>
+      (wallet as MoneroWallet).seedLegacy(langName);
+
+  @override
+  bool isBackgroundSyncRunning(Object wallet) => (wallet as MoneroWallet).isBackgroundSyncRunning;
+
+  @override
+  Future<void> startBackgroundSync(Object wallet) => (wallet as MoneroWallet).startBackgroundSync();
+
+  @override
+  Future<void> stopBackgroundSync(Object wallet, String password) =>
+      (wallet as MoneroWallet).stopBackgroundSync(password);
+
+  @override
   int? getRestoreHeight(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.restoreHeight;
@@ -380,7 +401,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  List<Unspent> getUnspents(Object wallet) {
+  List<MoneroUnspent> getUnspents(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.unspentCoins;
   }
@@ -418,6 +439,12 @@ class CWMonero extends Monero {
   bool needExportOutputs(Object wallet, Money amount) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.needExportOutputs(amount);
+  }
+
+  @override
+  bool hasUnknownKeyImages(Object wallet) {
+    final moneroWallet = wallet as MoneroWallet;
+    return moneroWallet.hasUnknownKeyImages();
   }
 
   @override
@@ -469,4 +496,23 @@ class CWMonero extends Monero {
 
   @override
   Map<String, dynamic> getWalletCacheDebug() => monero_wallet_api.getWalletCacheDebug();
+
+  @override
+  Future<Money> getSendingBalance(WalletBase wallet) async {
+    await updateUnspents(wallet);
+
+    Money total = Money.zero(CryptoCurrency.xmr);
+    Set<String> seen = {};
+    for (final item in getUnspents(wallet)) {
+      if (seen.contains(item.toString())) {
+        continue;
+      }
+      seen.add(item.toString());
+      if (item.isFrozen || !item.isSending || !item.isUnlocked) {
+        continue;
+      }
+      total += Money.fromInt(item.value, CryptoCurrency.xmr);
+    }
+    return total;
+  }
 }

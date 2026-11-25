@@ -256,7 +256,10 @@ class CWBitcoin extends Bitcoin {
   List<BitcoinUnspent> getUnspents(Object wallet,
       {UnspentCoinType coinTypeToSpendFrom = UnspentCoinType.any}) {
     final bitcoinWallet = wallet as ElectrumWallet;
-    return bitcoinWallet.unspentCoins.where((element) {
+
+    final coins = bitcoinWallet.unspentCoinsForCurrentAccount;
+
+    return coins.where((element) {
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return element.bitcoinAddressRecord.type == SegwitAddresType.mweb;
@@ -315,6 +318,12 @@ class CWBitcoin extends Bitcoin {
   bool hasSelectedSilentPayments(Object wallet) {
     final bitcoinWallet = wallet as ElectrumWallet;
     return bitcoinWallet.walletAddresses.addressPageType == SilentPaymentsAddresType.p2sp;
+  }
+
+  @override
+  bool hasSelectedLightning(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return bitcoinWallet.walletAddresses.addressPageType is LightningAddressType;
   }
 
   @override
@@ -396,7 +405,7 @@ class CWBitcoin extends Bitcoin {
       if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
       } else if (dType == DerivationType.bip39) {
-        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
       for (DerivationInfo dInfo in electrum_derivations[dType]!) {
@@ -545,16 +554,16 @@ class CWBitcoin extends Bitcoin {
 
   @override
   HardwareWalletService getBitboxHardwareWalletService(
-      bitbox.BitboxManager manager, bool isBitcoin) {
+      bitbox.BitboxConnection manager, bool isBitcoin) {
     if (isBitcoin) return BitcoinBitboxService(manager);
     return LitecoinBitboxService(manager);
   }
 
   @override
   HardwareWalletService getTrezorHardwareWalletService(
-      trezor.TrezorConnect connect, bool isBitcoin) {
-    if (isBitcoin) return BitcoinTrezorService(connect);
-    return LitecoinTrezorService(connect);
+      trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin) {
+    if (isBitcoin) return BitcoinTrezorService(client!);
+    return LitecoinTrezorService(connect!);
   }
 
   @override
@@ -596,7 +605,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   bool isPayjoinAvailable(Object wallet) =>
-      (wallet is BitcoinWallet) && (wallet as BitcoinWallet).isPayjoinAvailable;
+      (wallet is BitcoinWallet) && wallet.isPayjoinAvailable;
 
   @override
   BitcoinAddressType getOptionToType(ReceivePageOption option) {
@@ -750,8 +759,11 @@ class CWBitcoin extends Bitcoin {
   String? getUnusedSegwitAddress(Object wallet) {
     try {
       final electrumWallet = wallet as ElectrumWallet;
-      final segwitAddress = electrumWallet.walletAddresses.allAddresses
-          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      final walletAddresses = electrumWallet.walletAddresses;
+      final segwitAddress = walletAddresses.allAddresses.firstWhere(
+        (element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh
+          && element.accountIndex == walletAddresses.currentAccountIndex,
+      );
       return segwitAddress.address;
     } catch (_) {
       return null;
@@ -854,7 +866,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   String getNetworkName(Object wallet) {
-    return (wallet as ElectrumWallet).network.value;
+    final electrumWallet = wallet as ElectrumWallet;
+    final name = walletTypeToString(electrumWallet.type);
+    return electrumWallet.isTestnet ? "$name Testnet" : name;
   }
 
   @override
@@ -888,29 +902,62 @@ class CWBitcoin extends Bitcoin {
   @override
   String? getBreezSdkError(Object exception) {
     if (exception is SdkError_SparkError) {
-      return (exception as SdkError_SparkError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_InvalidUuid) {
-      return (exception as SdkError_InvalidUuid).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_InvalidInput) {
-      return (exception as SdkError_InvalidInput).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_NetworkError) {
-      return (exception as SdkError_NetworkError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_StorageError) {
-      return (exception as SdkError_StorageError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_ChainServiceError) {
-      return (exception as SdkError_ChainServiceError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_LnurlError) {
-      return (exception as SdkError_LnurlError).field0.toString();
+      return exception.field0.toString();
     }
     if (exception is SdkError_Generic) {
-      return (exception as SdkError_Generic).field0.toString();
+      return exception.field0.toString();
     }
     return null;
+  }
+
+  @override
+  Money balanceForAccount(Object wallet, int accountIndex) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    final balance = bitcoinWallet.balanceForAccount(accountIndex);
+    return balance.confirmed + balance.unconfirmed;
+  }
+
+  @override
+  Map<int, Object> accountBalancesSnapshot(Object wallet) {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    return Map<int, Object>.of(bitcoinWallet.accountBalances);
+  }
+
+  @override
+  List<TransactionInfo> getCurrentAccountBitcoinTransactions(Object wallet) =>
+      (wallet as ElectrumWallet).currentAccountBitcoinTransactions;
+
+  @override
+  Future<void> setCurrentAccount(Object wallet, int accountIndex) async {
+    final bitcoinWallet = wallet as ElectrumWallet;
+    await bitcoinWallet.setCurrentAccount(accountIndex);
+  }
+
+  @override
+  Future<Account> getCurrentAccount(Object wallet) async {
+    final electrumWallet = wallet as ElectrumWallet;
+    final acc = await electrumWallet.loadCurrentAccount();
+    return Account(
+        id: acc.accountIndex,
+        label: acc.label,
+        balance: electrumWallet.balanceForAccount(acc.accountIndex).confirmed.toString());
   }
 }

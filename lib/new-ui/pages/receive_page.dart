@@ -20,7 +20,6 @@ import "package:cake_wallet/new-ui/widgets/receive_page/receive_qr_code.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_token_display.dart";
 import "package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart";
 import "package:cake_wallet/routes.dart";
-import "package:cake_wallet/src/screens/receive/anonpay_receive_page.dart";
 import "package:cake_wallet/utils/share_util.dart";
 import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cake_wallet/view_model/dashboard/receive_option_view_model.dart";
@@ -64,6 +63,8 @@ class NewReceivePage extends StatefulWidget {
 }
 
 class _NewReceivePageState extends State<NewReceivePage> {
+  late final ReactionDisposer _disposeAddressReaction;
+  late final ReactionDisposer _disposeReceiveOptionReaction;
   bool _largeQrMode = false;
   late WalletAddressListItem? _addressItemWithLabel;
 
@@ -73,6 +74,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.lightningMode) {
+        widget.addressListViewModel.setTokenCurrency(CryptoCurrency.btcln);
         widget.receiveOptionViewModel.selectReceiveOption(
           widget.receiveOptionViewModel.options
                   .firstWhereOrNull((item) => item.value.contains("Lightning")) ??
@@ -89,14 +91,20 @@ class _NewReceivePageState extends State<NewReceivePage> {
       }
     });
 
-    reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
+    _disposeAddressReaction =
+        reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
 
     _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
       (item) =>
           item is WalletAddressListItem && item.address == widget.addressListViewModel.uri.address,
     ) as WalletAddressListItem?;
 
-    reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
+    _disposeReceiveOptionReaction =
+        reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
+      // The infobox depends on the selected address type, so the page has to be
+      // rebuilt when it changes.
+      if (mounted) setState(() {});
+
       if (widget.dashboardViewModel.type == WalletType.bitcoin &&
           bitcoin!.isBitcoinReceivePageOption(option)) {
         widget.addressListViewModel.setAddressType(bitcoin!.getOptionToType(option));
@@ -112,55 +120,22 @@ class _NewReceivePageState extends State<NewReceivePage> {
         return;
       }
 
-      switch (option) {
-        case ReceivePageOption.anonPayInvoice:
-          Navigator.pushNamed(
-            context,
-            Routes.anonPayInvoicePage,
-            arguments: [widget.addressListViewModel.address.address, option],
-          );
-          break;
-        case ReceivePageOption.anonPayDonationLink:
-          final sharedPreferences = getIt.get<SharedPreferences>();
-          final clearnetUrl = sharedPreferences.getString(PreferencesKey.clearnetDonationLink);
-          final onionUrl = sharedPreferences.getString(PreferencesKey.onionDonationLink);
-          final donationWalletName =
-              sharedPreferences.getString(PreferencesKey.donationLinkWalletName);
-
-          if (clearnetUrl != null &&
-              onionUrl != null &&
-              widget.addressListViewModel.wallet.name == donationWalletName) {
-            Navigator.pushNamed(
-              context,
-              Routes.anonPayReceivePage,
-              arguments: AnonPayReceivePageArgs(
-                invoiceInfo: AnonpayDonationLinkInfo(
-                  clearnetUrl: clearnetUrl,
-                  onionUrl: onionUrl,
-                  address: widget.addressListViewModel.address.address,
-                ),
-                qrImage: widget.addressListViewModel.qrImage,
-              ),
-            );
-          } else {
-            Navigator.pushNamed(
-              context,
-              Routes.anonPayInvoicePage,
-              arguments: [widget.addressListViewModel.address.address, option],
-            );
-          }
-          break;
-        default:
-          if ([WalletType.bitcoin, WalletType.litecoin]
-              .contains(widget.addressListViewModel.type)) {
-            widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
-          }
-          if (widget.addressListViewModel.type == WalletType.zcash) {
-            printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
-            widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
-          }
+      if ([WalletType.bitcoin, WalletType.litecoin]
+          .contains(widget.addressListViewModel.type)) {
+        widget.addressListViewModel.setAddressType(bitcoin!.getBitcoinAddressType(option));
+      }
+      if (widget.addressListViewModel.type == WalletType.zcash) {
+        printV("help me i'll kms if that wont work: ${zcash!.getZcashAddressType(option)}");
+        widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _disposeReceiveOptionReaction();
+    _disposeAddressReaction();
+    super.dispose();
   }
 
   @override
@@ -179,6 +154,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
       autoGenerateSubaddressStatus: widget.lightningMode
           ? AutoGenerateSubaddressStatus.disabled
           : widget.dashboardViewModel.settingsStore.autoGenerateSubaddressStatus,
+      addressRotates: _selectedAddressRotates,
     );
 
     return Container(
@@ -199,8 +175,10 @@ class _NewReceivePageState extends State<NewReceivePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ModalTopBar(
+              testId: "receive_page_top_bar",
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: const Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: () {
                 Navigator.of(context, rootNavigator: true).pop();
               },
@@ -217,12 +195,18 @@ class _NewReceivePageState extends State<NewReceivePage> {
                                   .contains("mweb")
                       ? ModernButton(
                           key: ValueKey(_largeQrMode),
+                          testId: _largeQrMode
+                              ? "receive_page_share_button_key"
+                              : "receive_page_rotate_button_key",
                           size: 36,
                           icon: _largeQrMode
                               ? const Icon(Icons.share)
                               : widget.addressListViewModel.isRotatingAddress
                                   ? const CupertinoActivityIndicator()
                                   : const Icon(Icons.refresh),
+                          semanticLabel: _largeQrMode
+                              ? S.of(context).share_address
+                              : S.of(context).rotate_address,
                           onPressed: () {
                             if (_largeQrMode) {
                               ShareUtil.share(
@@ -271,11 +255,24 @@ class _NewReceivePageState extends State<NewReceivePage> {
                   ReceiveAddressWidget(
                     addressListViewModel: widget.addressListViewModel,
                   ),
-                  GestureDetector(
-                    onTap: _showLabelModal,
-                    child: ReceiveLabelWidget(
-                      name: _addressItemWithLabel?.name ?? "",
-                      largeQrMode: _largeQrMode,
+                  // The label chip animates to zero height when there is no
+                  // label (or in large QR mode); keep it out of the semantics
+                  // tree entirely while it is collapsed.
+                  ExcludeSemantics(
+                    excluding: _largeQrMode || !hasLabel,
+                    child: MergeSemantics(
+                      child: Semantics(
+                        identifier: "receive_page_label_chip_key",
+                        button: true,
+                        hint: S.of(context).set_label,
+                        child: GestureDetector(
+                          onTap: _showLabelModal,
+                          child: ReceiveLabelWidget(
+                            name: _addressItemWithLabel?.name ?? "",
+                            largeQrMode: _largeQrMode,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                   Observer(
@@ -289,7 +286,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           : ClipboardData(
                               text: widget.addressListViewModel.displayAmount.isEmpty
                                   ? widget.addressListViewModel.uri.address
-                                  : widget.addressListViewModel.uri.toString(),
+                                  : _copyText(widget.addressListViewModel.uri),
                             ),
                       onCopyButtonPressed: () {
                         if (widget.addressListViewModel.hasPayjoin) {
@@ -350,6 +347,13 @@ class _NewReceivePageState extends State<NewReceivePage> {
     );
   }
 
+  /// Zcash is the only wallet type that also offers static address types, so
+  /// the rotation notice must not be shown for it unless the disposable
+  /// transparent type is the one currently selected.
+  bool get _selectedAddressRotates =>
+      widget.addressListViewModel.type != WalletType.zcash ||
+      zcash!.isRotatingAddressOption(widget.receiveOptionViewModel.selectedReceiveOption);
+
   void _showLabelModal() {
     showMaterialModalBottomSheet(
       context: context,
@@ -360,6 +364,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
       _reloadAddressWithLabel(widget.addressListViewModel.uri);
     });
   }
+
+  /// Lightning invoices are copied without the `lightning:` scheme so they can
+  /// be pasted anywhere; the QR code keeps the scheme for deep links.
+  String _copyText(PaymentURI uri) =>
+      uri is LightningPaymentRequest ? uri.paymentRequest : uri.toString();
 
   void _reloadAddressWithLabel(PaymentURI newAddress) {
     // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later

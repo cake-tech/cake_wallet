@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/pages/bridge/bridge_detail_page.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
 import 'package:cake_wallet/view_model/bridge/bridge_history_view_model.dart';
@@ -23,8 +24,10 @@ class BridgeHistoryPage extends StatelessWidget {
       child: Column(
         children: [
           ModalTopBar(
+            testId: "bridge_history_page_top_bar",
             title: "Bridge history",
             leadingIcon: const Icon(Icons.arrow_back_ios_new, size: 18),
+            leadingSemanticLabel: S.of(context).seed_alert_back,
             onLeadingPressed: () => Navigator.of(context).pop(),
           ),
           Expanded(

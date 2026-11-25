@@ -2,20 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:eth_sig_util/util/utils.dart';
-import 'package:flutter/material.dart';
-import 'package:mobx/mobx.dart';
-import 'package:reown_walletkit/reown_walletkit.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_id.dart";
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_service.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/utils/eth_utils.dart';
@@ -24,6 +18,12 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bott
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_request_sheet.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import "package:cw_core/utils/print_verbose.dart";
+import "package:eth_sig_util/util/utils.dart";
+import "package:flutter/material.dart";
+import "package:mobx/mobx.dart";
+import "package:reown_walletkit/reown_walletkit.dart";
+import "package:shared_preferences/shared_preferences.dart";
 
 import 'bottom_sheet_service.dart';
 import 'chain_service/solana/solana_chain_id.dart';
@@ -42,7 +42,8 @@ abstract class WalletKitServiceBase with Store {
   )   : pairings = ObservableList<PairingInfo>(),
         sessions = ObservableList<SessionData>(),
         auth = ObservableList<PendingSessionAuthRequest>(),
-        isInitialized = false;
+        isInitialized = false,
+        isLoadingConnections = true;
 
   final AppStore appStore;
   final SharedPreferences sharedPreferences;
@@ -53,6 +54,9 @@ abstract class WalletKitServiceBase with Store {
 
   @observable
   bool isInitialized;
+
+  @observable
+  bool isLoadingConnections;
 
   /// The list of requests from the dapp
   @observable
@@ -91,33 +95,23 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.onSessionProposal.subscribe(_onSessionProposal);
     _walletKit.onSessionProposalError.subscribe(_onSessionProposalError);
     _walletKit.onSessionConnect.subscribe(_onSessionConnect);
-    _walletKit.onSessionAuthRequest.subscribe(_onSessionAuthRequest);
+
+    if (isEVMCompatibleChain(appStore.wallet!.type)) {
+      _walletKit.onSessionAuthRequest.subscribe(_onSessionAuthRequest);
+    }
 
     _walletKit.pairings.onSync.subscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.subscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.subscribe(_onPairingDelete);
 
     // Setup our accounts
-    List<ChainKeyModel> chainKeys = walletKeyService.getKeys(appStore.wallet!);
+    final chainKeys = walletKeyService.getKeys(appStore.wallet!);
     for (final chainKey in chainKeys) {
       for (final chainId in chainKey.chains) {
-        if (isEVMCompatibleChain(appStore.wallet!.type)) {
-          // Register account for all EVM chains (chainId is already in eip155:format)
-          _walletKit.registerAccount(
-            chainId: chainId,
-            accountAddress: chainKey.publicKey,
-          );
-        } else {
-          final chainNameSpace = getChainNameSpaceAndIdBasedOnWalletType(
-            appStore.wallet!.type,
-          );
-          if (chainNameSpace == chainId) {
-            _walletKit.registerAccount(
-              chainId: chainId,
-              accountAddress: chainKey.publicKey,
-            );
-          }
-        }
+        _walletKit.registerAccount(
+          chainId: chainId,
+          accountAddress: chainKey.publicKey,
+        );
       }
     }
   }
@@ -144,42 +138,53 @@ abstract class WalletKitServiceBase with Store {
       }
     }
 
-    await _emitEvent();
-
     _refreshPairings();
 
-    sessions.clear();
-    auth.clear();
+    _reloadSessionsForCurrentWallet();
 
-    final newSessions = _walletKit.sessions.getAll();
-    sessions.addAll(newSessions);
+    auth.clear();
 
     final newAuthRequests = _walletKit.sessionAuthRequests.getAll();
     auth.addAll(newAuthRequests);
 
-    if (isEVMCompatibleChain(appStore.wallet!.type)) {
-      for (final cId in EVMChainId.values) {
-        EvmChainServiceImpl(
-          reference: cId,
-          appStore: appStore,
-          wcKeyService: walletKeyService,
-          bottomSheetService: _bottomSheetHandler,
-          walletKit: _walletKit,
-        );
-      }
+    isLoadingConnections = false;
+    for (final cId in EVMChainId.values) {
+      EvmChainServiceImpl(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
     }
 
-    if (appStore.wallet!.type == WalletType.solana) {
-      for (final cId in SolanaChainId.values) {
-        SolanaChainService(
-          reference: cId,
-          appStore: appStore,
-          wcKeyService: walletKeyService,
-          bottomSheetService: _bottomSheetHandler,
-          walletKit: _walletKit,
-        );
-      }
+    for (final cId in SolanaChainId.values) {
+      SolanaChainService(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
     }
+
+    for (final cId in TronChainId.values) {
+      TronChainService(
+        reference: cId,
+        appStore: appStore,
+        wcKeyService: walletKeyService,
+        bottomSheetService: _bottomSheetHandler,
+        walletKit: _walletKit,
+      );
+    }
+
+    unawaited(() async {
+      try {
+        await _emitEvent();
+      } catch (e) {
+        printV("emitEvent failed: $e");
+      }
+    }());
   }
 
   @action
@@ -195,6 +200,10 @@ abstract class WalletKitServiceBase with Store {
     for (var session in engineSessions) {
       final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
       for (var chain in chainKeys) {
+        if (!MethodsUtils.isSessionOwnedByWallet(session, chain.publicKey)) {
+          continue;
+        }
+
         for (var chainID in chain.chains) {
           try {
             final events = NamespaceUtils.getNamespacesEventsForChain(
@@ -228,8 +237,21 @@ abstract class WalletKitServiceBase with Store {
   }
 
   @action
-  FutureOr<void> onDispose() {
-    log('walletKit dispose');
+  void resetConnectionsState() {
+    sessions.clear();
+    auth.clear();
+    pairings.clear();
+
+    isInitialized = false;
+    isLoadingConnections = true;
+  }
+
+  @action
+  Future<void> onDispose() async {
+    log("walletKit dispose");
+
+    resetConnectionsState();
+
     _walletKit.core.removeLogListener(_logListener);
 
     _walletKit.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
@@ -246,11 +268,11 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
 
-    sessions.clear();
-    auth.clear();
-    pairings.clear();
-
-    isInitialized = false;
+    try {
+      await _walletKit.core.relayClient.disconnect().timeout(const Duration(seconds: 3));
+    } catch (e) {
+      printV("walletKit relay disconnect: $e");
+    }
   }
 
   ReownWalletKit get walletKit => _walletKit;
@@ -305,7 +327,7 @@ abstract class WalletKitServiceBase with Store {
             namespaces: NamespaceUtils.regenerateNamespacesWithChains(
               args.params.generatedNamespaces!,
             ),
-            sessionProperties: args.params.sessionProperties,
+            sessionProperties: _sessionPropertiesFor(args.params),
           );
         } on ReownSignError catch (error) {
           MethodsUtils.handleRedirect(
@@ -325,6 +347,15 @@ abstract class WalletKitServiceBase with Store {
         );
       }
     }
+  }
+
+  Map<String, String>? _sessionPropertiesFor(ProposalData proposal) {
+    final namespaceKeys = proposal.generatedNamespaces?.keys ?? const <String>[];
+    if (!namespaceKeys.any((key) => key.split(":").first == "tron")) {
+      return proposal.sessionProperties;
+    }
+
+    return {...?proposal.sessionProperties, "tron_method_version": "v1"};
   }
 
   @action
@@ -534,8 +565,7 @@ abstract class WalletKitServiceBase with Store {
     }
 
     await _removePairingTopicFromLocalStorage(topic);
-    sessions.clear();
-    sessions.addAll(_walletKit.sessions.getAll());
+    _reloadSessionsForCurrentWallet();
     _refreshPairings();
   }
 
@@ -559,8 +589,7 @@ abstract class WalletKitServiceBase with Store {
       printV('disconnectSession: $e');
     }
 
-    sessions.clear();
-    sessions.addAll(_walletKit.sessions.getAll());
+    _reloadSessionsForCurrentWallet();
 
     if (pairingTopic != null &&
         !_walletKit.sessions.getAll().any((s) => s.pairingTopic == pairingTopic)) {
@@ -617,6 +646,24 @@ abstract class WalletKitServiceBase with Store {
     ).toList();
 
     pairings.addAll(filteredPairings);
+  }
+
+  @action
+  void _reloadSessionsForCurrentWallet() {
+    sessions.clear();
+
+    final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
+    if (chainKeys.isEmpty) {
+      return;
+    }
+
+    final walletPublicKey = chainKeys.first.publicKey;
+
+    sessions.addAll(
+      _walletKit.sessions
+          .getAll()
+          .where((session) => MethodsUtils.isSessionOwnedByWallet(session, walletPublicKey)),
+    );
   }
 
   @action

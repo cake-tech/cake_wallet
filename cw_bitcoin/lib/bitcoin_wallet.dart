@@ -1,19 +1,23 @@
 import 'dart:convert';
 
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:blockchain_utils/blockchain_utils.dart';
 import 'package:cw_bitcoin/.secrets.g.dart' as secrets;
 import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
+import "package:cw_bitcoin/bitcoin_receive_page_option.dart";
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cw_bitcoin/bitcoin_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/electrum_derivations.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
 import 'package:cw_bitcoin/electrum_wallet_snapshot.dart';
+import 'package:cw_bitcoin/unknown_derivation.dart';
+import 'package:cw_bitcoin/locktime.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_hardware_wallet_service.dart';
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
 import 'package:cw_bitcoin/hardware/bitcoin_ledger_service.dart';
@@ -28,9 +32,12 @@ import 'package:cw_bitcoin/psbt/v0_finalizer.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
+import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/sync_status.dart';
+import "package:cw_core/receive_page_option.dart";
 import 'package:cw_core/unspent_coin_type.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/utils/print_verbose.dart';
@@ -73,6 +80,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     bool? alwaysScan,
     bool? useLightning,
     String? cachedLightningAddress,
+    List<int>? accountIndexes,
   }) : super(
           mnemonic: mnemonic,
           passphrase: passphrase,
@@ -94,6 +102,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
               networkParam == BitcoinNetwork.testnet ? CryptoCurrency.tbtc : CryptoCurrency.btc,
           alwaysScan: alwaysScan,
           useLightning: useLightning ?? true,
+          accountIndexes: accountIndexes
         ) {
     // in a standard BIP44 wallet, mainHd derivation path = m/84'/0'/0'/0 (account 0, index unspecified here)
     // the sideHd derivation path = m/84'/0'/0'/1 (account 1, index unspecified here)
@@ -124,10 +133,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialSilentAddresses: initialSilentAddresses,
       initialSilentAddressIndex: initialSilentAddressIndex,
-      mainHdByType: mainHdByType,
-      sideHdByType: sideHdByType,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
+      accounts: accounts,
+      currentAccountIndex: currentAccountIndex,
       network: networkParam ?? network,
       masterHd: seedBytes != null ? Bip32Slip10Secp256k1.fromSeed(seedBytes) : null,
       isHardwareWallet: walletInfo.isHardwareWallet,
@@ -153,9 +160,11 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             lnurlDomain: "cake.cash",
             cachedAddress: cachedLightningAddress,
           );
+          walletAddresses.lightningWallet = lightningWallet;
           walletAddresses.setLightningAddress(walletInfo.name);
         }
       } else {
+        lightningWallet?.close();
         lightningWallet = null;
       }
     });
@@ -193,10 +202,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
     switch (derivationInfo.derivationType) {
       case DerivationType.bip39:
-        seedBytes = await bip39.mnemonicToSeed(
-          mnemonic,
-          passphrase: passphrase ?? "",
-        );
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? "");
         break;
       case DerivationType.electrum:
       default:
@@ -274,16 +280,17 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     final derivationInfo = await walletInfo.getDerivationInfo();
 
     // set the default if not present:
-    derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     derivationInfo.derivationType ??= snp?.derivationType ?? DerivationType.electrum;
     if (derivationInfo.derivationType == DerivationType.unknown) {
-      if (snp?.derivationPath == electrum_path || snp?.derivationType == DerivationType.electrum) {
-        derivationInfo.derivationPath = electrum_path;
-        derivationInfo.derivationType = DerivationType.electrum;
-      } else {
-        derivationInfo.derivationPath = segwit_path;
-        derivationInfo.derivationType = DerivationType.bip39;
-      }
+      resolveUnknownDerivation(
+        derivationInfo,
+        walletType: walletInfo.type,
+        mnemonic: keysData.mnemonic,
+        snapshotPath: snp?.derivationPath,
+        snapshotType: snp?.derivationType,
+      );
+    } else {
+      derivationInfo.derivationPath ??= snp?.derivationPath ?? electrum_path;
     }
     await derivationInfo.save();
 
@@ -298,13 +305,13 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
           break;
         case DerivationType.bip39:
         default:
-          seedBytes = await bip39.mnemonicToSeed(
-            mnemonic,
-            passphrase: passphrase ?? '',
-          );
+          seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
           break;
       }
     }
+
+    final accountIndexes =
+    (await walletInfo.getAccounts()).map((account) => account.accountIndex).toList();
 
     return BitcoinWallet(
       mnemonic: mnemonic,
@@ -329,6 +336,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       useLightning: snp?.useLightning,
       cachedLightningAddress: snp?.cachedLightningAddress,
       payjoinBox: payjoinBox,
+      accountIndexes: accountIndexes,
     );
   }
 
@@ -415,12 +423,18 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
 
   late final PayjoinManager payjoinManager;
 
+  @override
+  bool get hasPayjoinSupport => keys.privateKey.isNotEmpty;
+
+  @override
+  bool get hasLightningSupport => seed != null && LightningWallet.isAvailable;
+
   bool get isPayjoinAvailable => unspentCoinsInfo.values
       .where((element) => element.walletId == id && element.isSending && !element.isFrozen)
       .isNotEmpty;
 
   Future<PsbtV2> buildPsbt({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required List<OutputInfo> cwOutputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
@@ -437,24 +451,65 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       final rawTx = await electrumClient.getTransactionHex(hash: utxo.utxo.txHash);
       final publicKeyAndDerivationPath = publicKeys[utxo.ownerDetails.address.pubKeyHash()]!;
 
-      psbtReadyInputs.add(PSBTReadyUtxoWithAddress(
-        utxo: utxo.utxo,
-        rawTx: rawTx,
-        ownerDetails: utxo.ownerDetails,
-        ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
-        ownerMasterFingerprint: masterFingerprint,
-        ownerPublicKey: publicKeyAndDerivationPath.publicKey,
-      ));
+      psbtReadyInputs.add(
+        PSBTReadyUtxoWithAddress(
+          utxo: utxo.utxo,
+          rawTx: rawTx,
+          ownerDetails: utxo.ownerDetails,
+          ownerDerivationPath: publicKeyAndDerivationPath.derivationPath,
+          ownerMasterFingerprint: masterFingerprint,
+          ownerPublicKey: publicKeyAndDerivationPath.publicKey,
+        ),
+      );
     }
 
+    final psbtReadyOutputs = outputs.map((o) {
+      final cwOutput = cwOutputs
+          .where(
+            (e) => [e.address, e.extractedAddress]
+                .map((e) => e?.toLowerCase())
+                .contains(o.address.toAddress().toLowerCase()),
+          )
+          .firstOrNull;
+
+      if (o.isChange && publicKeys.containsKey(o.address.pubKeyHash())) {
+        final changeKey = publicKeys[o.address.pubKeyHash()]!;
+        return PSBTReadyBitcoinOutput(
+          address: o.address,
+          value: o.value,
+          isSilentPayment: o.isSilentPayment,
+          isChange: o.isChange,
+          changeMasterFingerprint: masterFingerprint,
+          changeDerivationPath: changeKey.derivationPath,
+          changePublicKey: changeKey.publicKey,
+          outputInfo: cwOutput,
+        );
+      }
+      return PSBTReadyBitcoinOutput(
+        address: o.address,
+        value: o.value,
+        isSilentPayment: o.isSilentPayment,
+        isChange: o.isChange,
+        outputInfo: cwOutput,
+      );
+    }).toList();
+
+    final locktime = antiFeeSnipingLocktime(
+      chainTip: await getCurrentChainTip(),
+      synced: syncStatus is SyncedSyncStatus,
+    );
+
     return PSBTTransactionBuild(
-            inputs: psbtReadyInputs, outputs: outputs, enableRBF: enableRBF, cwOutputs: cwOutputs)
-        .psbt;
+      inputs: psbtReadyInputs,
+      outputs: psbtReadyOutputs,
+      enableRBF: enableRBF,
+      locktime: locktime,
+    ).psbt;
   }
 
   @override
   Future<BtcTransaction> buildHardwareWalletTransaction({
-    required List<BitcoinBaseOutput> outputs,
+    required List<BitcoinOutput> outputs,
     required BigInt fee,
     required BasedUtxoNetwork network,
     required List<UtxoWithAddress> utxos,
@@ -561,10 +616,12 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return tx;
   }
 
-  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) => unspentCoins
-      .where((e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
-      .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
-      .toList();
+  List<UtxoWithPrivateKey> getUtxoWithPrivateKeys({bool confirmedOnly = false}) =>
+      unspentCoinsForCurrentAccount
+          .where(
+              (e) => e.isSending && !e.isFrozen && (!confirmedOnly || (e.confirmations ?? 0) > 0))
+          .map((unspent) => UtxoWithPrivateKey.fromUnspent(unspent, this))
+          .toList();
 
   Future<void> commitPsbt(String finalizedPsbt) {
     final psbt = PsbtV2()..deserializeV0(base64.decode(finalizedPsbt));
@@ -574,6 +631,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
     return PendingBitcoinTransaction(
       btcTx,
       type,
+      accountIndex: currentAccountIndex,
       electrumClient: electrumClient,
       amount: Money.zero(currency),
       fee: Money.zero(currency),
@@ -606,7 +664,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   Future<void> commitPsbtUR(List<String> urCodes) async {
-    if (urCodes.isEmpty) throw Exception("No QR code got scanned");
+    if (urCodes.isEmpty) throw ScanValueException("No QR code got scanned");
     bool isUr = urCodes.any((str) {
       return str.startsWith("ur:psbt/");
     });
@@ -632,6 +690,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       return PendingBitcoinTransaction(
         btcTx,
         type,
+        accountIndex: currentAccountIndex,
         electrumClient: electrumClient,
         amount: Money.zero(currency),
         fee: Money.zero(currency),
@@ -644,22 +703,26 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    if (walletInfo.isHardwareWallet) {
-      final addressEntry = address != null
-          ? walletAddresses.allAddresses.firstWhere((element) => element.address == address)
-          : null;
-      final index = addressEntry?.index ?? 0;
-      final isChange = addressEntry?.isHidden == true ? 1 : 0;
-      final derivationInfo = await walletInfo.getDerivationInfo();
-      final accountPath = derivationInfo.derivationPath;
-      final derivationPath = accountPath != null ? "$accountPath/$isChange/$index" : null;
+  bool receiveOptionAvailable(ReceivePageOption option) {
+    final isExtraAccount = currentAccountIndex > 0;
 
-      final signature = await hardwareWalletService!
-          .signMessage(message: ascii.encode(message), derivationPath: derivationPath);
-      return base64Encode(signature);
+    if (option == BitcoinReceivePageOption.lightning) {
+      return hasLightningSupport && isLightningInitialized;
     }
 
-    return super.signMessage(message, address: address);
+    if (option == BitcoinReceivePageOption.silent_payments) {
+      // Silent payments are tied to the primary account only
+      return !isExtraAccount && hasSilentPaymentsScanning;
+    }
+
+    // Restrict extra Bitcoin accounts (accountIndex > 0) to the allowed address types
+    if (isExtraAccount && option is BitcoinReceivePageOption) {
+      final addressType = option.toType();
+      if (!EXTRA_ACCOUNT_ADDRESS_TYPES.contains(addressType)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }

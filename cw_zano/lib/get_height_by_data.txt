@@ -1,0 +1,4 @@
+NODE=http://37.27.100.59:10500/json_rpc
+HEIGHT=$(curl -s -X POST $NODE -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":"0","method":"getinfo"}' | python3 -c "import sys,json; print(json.load(sys.stdin)['result']['height'])")
+echo "_Checkpoint($(curl -s -X POST $NODE -H 'Content-Type: application/json' -d '{"jsonrpc":"2.0","id":"0","method":"getblockheaderbyheight","params":{"height":1}}' | python3 -c "import sys,json; print(json.load(sys.stdin)['result']['block_header']['timestamp'])"), 1),"
+for i in $(seq 1 $((HEIGHT/10000))); do echo "_Checkpoint($(curl -s -X POST $NODE -H 'Content-Type: application/json' -d "{\"jsonrpc\":\"2.0\",\"id\":\"0\",\"method\":\"getblockheaderbyheight\",\"params\":{\"height\":${i}0000}}" | python3 -c "import sys,json; print(json.load(sys.stdin)['result']['block_header']['timestamp'])"), ${i}0000),"; done

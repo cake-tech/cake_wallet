@@ -1,3 +1,6 @@
+import "dart:math";
+
+import "package:cw_core/amount/utils.dart";
 import "package:cw_core/crypto_amount_format.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency.dart";
@@ -7,20 +10,36 @@ import "package:cw_core/parse_fixed.dart";
 export "money_local.dart";
 
 class Money implements Comparable<Money> {
-  const Money(this.amount, this.currency);
+  const Money(this.amount, this.currency, [int? overrideDecimals])
+      : _overrideDecimals = overrideDecimals;
 
   factory Money.zero(Currency currency) => Money(BigInt.zero, currency);
 
   factory Money.fromInt(int amount, Currency currency) => Money(BigInt.from(amount), currency);
 
-  /// Parse the [source] and turn it into [Money]
+  /// Parse the [source] and turn it into [Money] trimming trailing 0s
   ///
   /// Throws a [FormatException] if the [source] is not a valid decimal or
   /// not in canonical representation or if it is a decimal when [isBaseUnit]
-  factory Money.parse(source, Currency currency, {bool isBaseUnit = false}) {
+  factory Money.parse(
+    String source,
+    Currency currency, {
+    bool isBaseUnit = false,
+    bool strictParsing = true,
+  }) {
+    if (!isBaseUnit) {
+      source = trimTrailingFractionZeros(source);
+    }
+    final decimals = strictParsing ? currency.decimals : _getActualDecimals(source, currency);
+    final amount = isBaseUnit ? BigInt.parse(source) : parseFixed(source, decimals);
+
+    return Money(amount, currency, decimals);
+  }
+
+  factory Money.safeParse(source, Currency currency, {bool isBaseUnit = false}) {
     final amount = isBaseUnit
         ? BigInt.parse(source.toString())
-        : parseFixed(source.toString(), currency.decimals);
+        : parseFixed(source.toString().withDecimals(currency.decimals), currency.decimals);
 
     return Money(amount, currency);
   }
@@ -29,16 +48,40 @@ class Money implements Comparable<Money> {
   ///
   /// As [parse] except that this method returns `null` if the input is not
   /// valid or if it is a decimal when [isBaseUnit]
-  static Money? tryParse(source, Currency currency, {bool isBaseUnit = false}) {
+  static Money? tryParse(
+    String source,
+    Currency currency, {
+    bool isBaseUnit = false,
+    bool strictParsing = true,
+  }) {
+    try {
+      if (!isBaseUnit) {
+        source = trimTrailingFractionZeros(source);
+      }
+      final decimals = strictParsing ? currency.decimals : _getActualDecimals(source, currency);
+      final amount = isBaseUnit ? BigInt.tryParse(source) : tryParseFixed(source, decimals);
+
+      return amount != null ? Money(amount, currency, decimals) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Money? trySafeParse(source, Currency currency, {bool isBaseUnit = false}) {
     final amount = isBaseUnit
         ? BigInt.tryParse(source.toString())
-        : tryParseFixed(source.toString(), currency.decimals);
+        : tryParseFixed(source.toString().withDecimals(currency.decimals), currency.decimals);
 
     return amount != null ? Money(amount, currency) : null;
   }
 
   final BigInt amount;
   final Currency currency;
+
+  final int? _overrideDecimals;
+
+  /// Returns the amount of decimals of [currency]
+  int get decimals => _overrideDecimals ?? currency.decimals;
 
   /// Returns the sign of this [BigInt] amount.
   /// Returns 0 for zero, -1 for values less than zero and +1 for values
@@ -59,15 +102,25 @@ class Money implements Comparable<Money> {
   int compareTo(Money other) {
     _assertSameCurrency(other);
 
-    return amount.compareTo(other.amount);
+    final aligned = _align(other);
+    return aligned.a.compareTo(aligned.b);
   }
 
   /// Returns `true` if [other] is the same amount of money in
   /// the same currency.
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Money && other.currency == currency && other.amount == amount);
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    if (other is! Money || other.currency != currency) {
+      return false;
+    }
+
+    final aligned = _align(other);
+    return aligned.a == aligned.b;
+  }
 
   /// Returns `true` when this money is less than [other].
   ///
@@ -76,7 +129,8 @@ class Money implements Comparable<Money> {
   bool operator <(Money other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
-    return amount < other.amount;
+    final aligned = _align(other);
+    return aligned.a < aligned.b;
   }
 
   /// Returns `true` when this money is less than or equal to [other].
@@ -86,7 +140,8 @@ class Money implements Comparable<Money> {
   bool operator <=(Money other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
-    return amount <= other.amount;
+    final aligned = _align(other);
+    return aligned.a <= aligned.b;
   }
 
   /// Returns `true` when this money is greater than [other].
@@ -96,7 +151,8 @@ class Money implements Comparable<Money> {
   bool operator >(Money other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
-    return amount > other.amount;
+    final aligned = _align(other);
+    return aligned.a > aligned.b;
   }
 
   /// Returns `true` when this money is greater than or equal to [other].
@@ -106,7 +162,8 @@ class Money implements Comparable<Money> {
   bool operator >=(Money other) {
     _assertSameCurrency(other, "Cannot compare money in different currencies.");
 
-    return amount >= other.amount;
+    final aligned = _align(other);
+    return aligned.a >= aligned.b;
   }
 
   /// Adds the amount of [other] to this amount.
@@ -116,11 +173,12 @@ class Money implements Comparable<Money> {
   Money operator +(Money other) {
     _assertSameCurrency(other);
 
-    return _withAmount(amount + other.amount);
+    final aligned = _align(other);
+    return copyWith(amount: aligned.a + aligned.b, decimals: aligned.decimals);
   }
 
   /// unary minus operator.
-  Money operator -() => _withAmount(-amount);
+  Money operator -() => copyWith(amount: -amount);
 
   /// Subtracts the amount of [other] from this amount.
   ///
@@ -129,21 +187,20 @@ class Money implements Comparable<Money> {
   Money operator -(Money other) {
     _assertSameCurrency(other);
 
-    return _withAmount(amount - other.amount);
+    final aligned = _align(other);
+    return copyWith(amount: aligned.a - aligned.b, decimals: aligned.decimals);
   }
 
   /// Returns [Money] multiplied by [other].
   ///
   /// The result is again [Money].
-  Money operator *(BigInt other) => _withAmount(amount * other);
+  Money operator *(BigInt other) => copyWith(amount: amount * other);
 
   /// Returns [Money] divided by [other].
   ///
   /// The result is again [Money].
   Money operator /(BigInt other) {
-    if (other == BigInt.zero) {
-      throw Exception("Division by zero.");
-    }
+    if (other == BigInt.zero) throw ArgumentError('Division by zero.');
 
     final neg = (amount.isNegative) ^ (other.isNegative);
     final A = amount.abs();
@@ -156,7 +213,7 @@ class Money implements Comparable<Money> {
     final twiceR = r << 1;
     final mag = (twiceR >= B) ? q + BigInt.one : q;
 
-    return _withAmount(neg ? -mag : mag);
+    return copyWith(amount: neg ? -mag : mag);
   }
 
   /// Creates a copy of this [Money] object with optional new values
@@ -164,50 +221,66 @@ class Money implements Comparable<Money> {
   ///
   /// If just [currency] is provided and the decimals missmatch
   /// the amount will be transformed to keep its canonical representation
-  Money copyWith({BigInt? amount, Currency? currency}) {
-    if (currency != null && amount == null && currency.decimals != this.currency.decimals) {
+  Money copyWith({BigInt? amount, Currency? currency, int? decimals}) {
+    if (currency != null &&
+        amount == null &&
+        decimals == null &&
+        currency.decimals != this.decimals) {
       return Money(
-        _transformAmount(this.amount, this.currency.decimals, currency.decimals),
+        _transformAmount(this.amount, this.decimals, currency.decimals),
         currency,
+        currency.decimals,
       );
     }
 
-    return Money(amount ?? this.amount, currency ?? this.currency);
+    return Money(amount ?? this.amount, currency ?? this.currency, decimals ?? this.decimals);
   }
-
-  /// Creates new instance with the same currency and given [amount].
-  Money _withAmount(BigInt amount) => Money(amount, currency);
 
   void _assertSameCurrency(Money other, [String? message]) {
     if (currency != other.currency) {
-      throw ArgumentError(message ?? "Cannot operate with money values in different currencies.");
+      throw ArgumentError(message ??
+          "Cannot operate with money values in different currencies. $currency - ${other.currency}");
     }
   }
 
-  BigInt _transformAmount(BigInt source, int sourceDecimals, int targetDecimals) {
-    if (sourceDecimals == targetDecimals) {
-      return source;
+  static BigInt _transformAmount(BigInt source, int sourceDecimals, int targetDecimals) {
+    final diff = targetDecimals - sourceDecimals;
+
+    return diff == 0
+        ? source
+        : diff > 0
+            ? source * BigInt.from(10).pow(diff)
+            : source ~/ BigInt.from(10).pow(-diff);
+  }
+
+  ({BigInt a, BigInt b, int decimals}) _align(Money other) {
+    final decimals = max(this.decimals, other.decimals);
+    return (
+      a: _transformAmount(amount, this.decimals, decimals),
+      b: _transformAmount(other.amount, other.decimals, decimals),
+      decimals: decimals,
+    );
+  }
+
+  static int _getActualDecimals(String value, Currency currency) {
+    final comps = value.split(".");
+    if (comps.length > 2) {
+      throw FormatException("Money._getActualDecimals: too many decimal points, value, $value");
     }
 
-    if (sourceDecimals > targetDecimals) {
-      return parseFixed(
-        formatFixed(source, sourceDecimals).withMaxDecimals(targetDecimals),
-        targetDecimals,
-      );
-    } else {
-      return parseFixed(formatFixed(source, sourceDecimals), targetDecimals);
-    }
+    return max(comps.length == 2 ? comps[1].length : 0, currency.decimals);
   }
 
   @override
-  int get hashCode => amount.hashCode ^ currency.hashCode;
+  int get hashCode {
+    final value = formatFixed(amount, this.decimals, trimZeros: true);
+    final decimals = _getActualDecimals(value, currency);
 
-  // Added this to reduce the hops we do to convert Money to double
-  // for fiat conversion and display
-  double toDouble() => amount / multiplierOf(currency.decimals);
+    return Object.hash(value, decimals, currency);
+  }
 
   @override
-  String toString() => formatFixed(amount, currency.decimals);
+  String toString() => formatFixed(amount, decimals);
 
   String toStringWithSymbol({
     int? fractionalDigits,
@@ -225,17 +298,40 @@ class Money implements Comparable<Money> {
     return withSymbolPrefix ? "$symbol $amount" : "$amount $symbol";
   }
 
+  /// [meaningfulDecimals]: for non-zero values below 1, show that many digits
+  /// after the leading fraction zeros (e.g. 0.00001234 -> 0.000012 for 2),
+  /// up to 12 fraction digits, when that is more than would be shown otherwise.
+  /// Can't be combined with [useBaseUnit]; with [fractionalDigits] it only ever
+  /// shows more digits than [fractionalDigits] would, never fewer.
   String toStringWithPrecision({
     int? fractionalDigits,
     bool trimZeros = true,
     bool useBaseUnit = false,
-  }) =>
-      formatFixed(
-        amount,
-        useBaseUnit ? 0 : currency.decimals,
-        fractionalDigits: fractionalDigits,
-        trimZeros: trimZeros,
-      );
+    int? meaningfulDecimals,
+  }) {
+    if (meaningfulDecimals != null && useBaseUnit) {
+      throw ArgumentError("meaningfulDecimals can't be used together with useBaseUnit");
+    }
+    if (meaningfulDecimals != null && !isZero) {
+      final digits = amount.abs().toString().length;
+      if (digits <= decimals) {
+        final meaningfulDigits = min(decimals - digits + meaningfulDecimals, 12);
+        if (meaningfulDigits > min(fractionalDigits ?? currency.decimals, currency.decimals)) {
+          return formatFixed(amount, decimals,
+              fractionalDigits: meaningfulDigits, trimZeros: trimZeros);
+        }
+      }
+    }
+
+    return formatFixed(
+      decimals != currency.decimals
+          ? _transformAmount(amount, decimals, currency.decimals)
+          : amount,
+      useBaseUnit ? 0 : currency.decimals,
+      fractionalDigits: fractionalDigits,
+      trimZeros: trimZeros,
+    );
+  }
 
   // To Override the symbol with the ticker of the base unit
   String getSymbol({required bool useBaseUnit}) {
@@ -244,4 +340,9 @@ class Money implements Comparable<Money> {
     }
     return currency.symbol;
   }
+
+  /// new [Money] with absolute value of this instance
+  Money abs() => copyWith(amount: amount.abs());
+
+  String get serialized => "${currency.serialized}:${amount.toString()}";
 }

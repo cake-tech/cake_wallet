@@ -1,11 +1,11 @@
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/utils/proxy_wrapper.dart';
-import 'package:cw_core/utils/print_verbose.dart';
-import 'package:cw_core/wallet_base.dart';
-import 'package:cw_core/wallet_type.dart';
-import 'package:ens_dart/ens_dart.dart';
-import 'package:web3dart/web3dart.dart';
+import "package:cake_wallet/core/address_resolver/ens/ens_universal_resolver.dart";
+import "package:cake_wallet/evm/evm.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/utils/print_verbose.dart";
+import "package:cw_core/utils/proxy_wrapper.dart";
+import "package:cw_core/wallet_base.dart";
+import "package:ens_dart/ens_dart.dart";
+import "package:web3dart/web3dart.dart";
 
 class EnsRecord {
   static Future<String> fetchEnsAddress(
@@ -13,34 +13,23 @@ class EnsRecord {
     CryptoCurrency cur, {
     WalletBase? wallet,
   }) async {
-    Web3Client? _client;
-
-    if (wallet?.type == WalletType.ethereum || wallet?.type == WalletType.polygon) {
-      _client = evm!.getWeb3Client(wallet!);
-    }
-
-    _client ??= Web3Client(
-      'https://ethereum-rpc.publicnode.com',
-      ProxyWrapper().getHttpIOClient(),
-    );
-
-    final ens = Ens(client: _client);
     final coinType = getEnsCoinType(cur);
-
     if (coinType == null) {
-      printV('Unsupported currency for ENS: $cur');
-      return '';
+      printV("Unsupported currency for ENS: $cur");
+      return "";
     }
 
+    final walletClient = wallet?.chainId == 1 ? evm?.getWeb3Client(wallet!) : null;
+    if (walletClient != null) {
+      return EnsUniversalResolver.resolveAddress(walletClient, name, coinType);
+    }
+
+    final httpClient = ProxyWrapper().getHttpIOClient();
     try {
-      if (coinType == CoinType.ETH || coinType == CoinType.MATIC) {
-        return (await ens.withName(name).getAddress()).hex;
-      } else {
-        return await ens.withName(name).getCoinAddress(coinType);
-      }
-    } catch (e) {
-      printV(e);
-      return '';
+      final client = Web3Client("https://ethereum-rpc.publicnode.com", httpClient);
+      return await EnsUniversalResolver.resolveAddress(client, name, coinType);
+    } finally {
+      httpClient.close();
     }
   }
 
@@ -49,7 +38,7 @@ class EnsRecord {
         CryptoCurrency.btc => CoinType.BTC,
         CryptoCurrency.ltc => CoinType.LTC,
         CryptoCurrency.eth => CoinType.ETH,
-        CryptoCurrency.matic => CoinType.MATIC,
+        CryptoCurrency.maticpoly => CoinType.MATIC,
         _ => null,
       };
 }

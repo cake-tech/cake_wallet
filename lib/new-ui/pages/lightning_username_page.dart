@@ -66,8 +66,10 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
                 child: Column(
                   children: [
                     ModalTopBar(
+                      testId: "lightning_username_page_top_bar",
                       title: "Lightning ${S.of(context).username}",
                       leadingIcon: Icon(Icons.arrow_back_ios_new),
+                      leadingSemanticLabel: S.of(context).seed_alert_back,
                       onLeadingPressed: Navigator.of(context).pop,
                     ),
                     Expanded(
@@ -111,6 +113,7 @@ class _LightningUsernamePageState extends State<LightningUsernamePage> {
                             ),
                             SizedBox(),
                             NewPrimaryButton(
+                                key: ValueKey("lightning_username_page_skip_button_key"),
                                 onPressed: () {
                                   Navigator.of(context).popUntil((route) => route.isFirst);
                                 },

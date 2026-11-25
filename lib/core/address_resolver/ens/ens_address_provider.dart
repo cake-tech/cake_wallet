@@ -11,8 +11,7 @@ class EnsAddressProvider extends AddressLookupProvider {
   AddressSource get source => AddressSource.ens;
 
   @override
-  List<CryptoCurrency> get supportedCurrencies =>
-      [CryptoCurrency.xmr, CryptoCurrency.btc, CryptoCurrency.eth];
+  List<CryptoCurrency> get supportedCurrencies => [CryptoCurrency.eth];
 
   @override
   bool isEnabled(SettingsStore settingsStore) => settingsStore.lookupsENS;

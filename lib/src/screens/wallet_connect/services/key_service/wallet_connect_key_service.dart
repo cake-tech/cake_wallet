@@ -1,7 +1,9 @@
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/solana/solana.dart';
+import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_id.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/chain_key_model.dart';
+import "package:cake_wallet/tron/tron.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -18,9 +20,12 @@ class KeyServiceImpl implements WalletConnectKeyService {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return evm!.getPrivateKey(wallet);
       case WalletType.solana:
         return solana!.getPrivateKey(wallet);
+      case WalletType.tron:
+        return wallet.privateKey ?? "";
       default:
         return '';
     }
@@ -33,9 +38,12 @@ class KeyServiceImpl implements WalletConnectKeyService {
       case WalletType.base:
       case WalletType.arbitrum:
       case WalletType.bsc:
+      case WalletType.robinhood:
         return evm!.getPublicKey(wallet);
       case WalletType.solana:
         return solana!.getPublicKey(wallet);
+      case WalletType.tron:
+        return tron!.getAddress(wallet);
       default:
         return '';
     }
@@ -43,30 +51,47 @@ class KeyServiceImpl implements WalletConnectKeyService {
 
   @override
   List<ChainKeyModel> getKeys(WalletBase wallet) {
-    final keys = [
-      ChainKeyModel(
-        chains: [
-          'eip155:1',
-          'eip155:5',
-          'eip155:56',
-          'eip155:137',
-          'eip155:8453',
-          'eip155:42161',
-          'eip155:80001',
-        ],
-        privateKey: _getPrivateKeyForWallet(wallet),
-        publicKey: _getPublicKeyForWallet(wallet),
-      ),
-      ChainKeyModel(
-        chains: [
-          'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // main-net
-          'solana:8E9rvCKLFQia2Y35HXjjpWzj8weVo44K', // test-net
-        ],
-        privateKey: _getPrivateKeyForWallet(wallet),
-        publicKey: _getPublicKeyForWallet(wallet),
-      ),
-    ];
-    return keys;
+    if (isEVMCompatibleChain(wallet.type)) {
+      return [
+        ChainKeyModel(
+          chains: [
+            'eip155:1',
+            'eip155:56',
+            'eip155:137',
+            'eip155:8453',
+            'eip155:42161',
+            "eip155:4663",
+          ],
+          privateKey: _getPrivateKeyForWallet(wallet),
+          publicKey: _getPublicKeyForWallet(wallet),
+        ),
+      ];
+    }
+
+    if (wallet.type == WalletType.solana) {
+      return [
+        ChainKeyModel(
+          chains: [
+            'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // main-net
+            'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // legacy main-net id older dapps still use
+          ],
+          privateKey: _getPrivateKeyForWallet(wallet),
+          publicKey: _getPublicKeyForWallet(wallet),
+        ),
+      ];
+    }
+
+    if (wallet.type == WalletType.tron) {
+      return [
+        ChainKeyModel(
+          chains: [TronChainId.mainnet.chain()],
+          privateKey: _getPrivateKeyForWallet(wallet),
+          publicKey: _getPublicKeyForWallet(wallet),
+        ),
+      ];
+    }
+
+    return [];
   }
 
   @override

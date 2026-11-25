@@ -5,14 +5,20 @@ class NewSimpleCheckbox extends StatelessWidget {
     super.key,
     required this.value,
     required this.onChanged,
+    this.semanticLabel,
   });
 
   final bool value;
   final ValueChanged<bool> onChanged;
+  final String? semanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      container: true,
+      checked: value,
+      label: semanticLabel,
+      child: GestureDetector(
       onTap: () {
         onChanged(!value);
       },
@@ -20,7 +26,9 @@ class NewSimpleCheckbox extends StatelessWidget {
         decoration: BoxDecoration(
           color: value
               ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.surfaceContainerHighest,
+              : Theme.of(context).brightness == Brightness.light
+                  ? Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(80)
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: const BorderRadius.all(Radius.circular(50)),
         ),
         height: 24,
@@ -32,6 +40,7 @@ class NewSimpleCheckbox extends StatelessWidget {
                 size: 20,
               )
             : const SizedBox.shrink(),
+      ),
       ),
     );
   }

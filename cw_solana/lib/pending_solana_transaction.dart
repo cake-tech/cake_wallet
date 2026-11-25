@@ -13,6 +13,7 @@ class PendingSolanaTransaction with PendingTransaction {
     required this.serializedTransaction,
     required this.destinationAddress,
     required this.sendTransaction,
+    this.additionalCost,
   });
 
   @override
@@ -22,19 +23,14 @@ class PendingSolanaTransaction with PendingTransaction {
   final Money fee;
 
   @override
-  String get amountFormatted {
-    String stringifiedAmount = amount.toString();
+  final Money? additionalCost;
 
-    if (stringifiedAmount.toString().length >= 6) {
-      stringifiedAmount = stringifiedAmount.substring(0, 6);
-    }
-
-    return stringifiedAmount;
-  }
+  @override
+  String get amountFormatted => amount.toString();
 
   @override
   Future<void> commit() async {
-    _sig = await sendTransaction();
+    _sig = await sendTransaction() as String?;
   }
 
   @override

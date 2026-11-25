@@ -85,13 +85,10 @@ class HistoryTradeTile extends StatelessWidget {
         spacing: 4,
         children: [
           Text("-", style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-          Text(amount.withMaxDecimals(8),
+          Text(amount,
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500)),
-          if (from?.title != null)
-            Text(from!.title,
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           if (fromChainIcon?.isNotEmpty ?? false)
             CakeImageWidget(
               imageUrl: fromChainIcon,
@@ -109,15 +106,16 @@ class HistoryTradeTile extends StatelessWidget {
             "+",
           ),
           Text(
-            receiveAmount.withMaxDecimals(8),
+            receiveAmount,
             style: TextStyle(fontWeight: FontWeight.w500),
           ),
-          if (to != null)
-            Text(
-              to!.title,
-            ),
           if (toChainIcon?.isNotEmpty ?? false)
-            CakeImageWidget(imageUrl: toChainIcon, width: 12, height: 12)
+            CakeImageWidget(
+              imageUrl: toChainIcon,
+              width: 12,
+              height: 12,
+              color: Theme.of(context).colorScheme.onSurface,
+            )
         ],
       ),
       leadingIcon: _getLeadingStack(context),

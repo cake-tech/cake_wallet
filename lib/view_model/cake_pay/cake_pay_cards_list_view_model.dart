@@ -35,6 +35,7 @@ abstract class CakePayCardsListViewModelBase with Store {
         searchString = '',
         searchMyCardsString = '' {
     checkAuth();
+    checkMaintenance();
     initialization();
   }
 
@@ -78,7 +79,6 @@ abstract class CakePayCardsListViewModelBase with Store {
       };
 
   String searchString;
-  String? username;
   int page;
 
   late Country _initialSelectedCountry;
@@ -86,6 +86,9 @@ abstract class CakePayCardsListViewModelBase with Store {
   late bool _initialDisplayGiftCards;
   late bool _initialDisplayDenominationsCards;
   late bool _initialDisplayCustomValueCards;
+
+  @observable
+  String? username;
 
   @observable
   List<CakePayCard> userCards;
@@ -131,6 +134,9 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   @observable
   ObservableFuture<bool>? authFuture;
+
+  @observable
+  bool? isUnderMaintenance;
 
   @computed
   bool? get isUserAuthenticated =>
@@ -189,11 +195,19 @@ abstract class CakePayCardsListViewModelBase with Store {
 
   @action
   Future<void> checkAuth() async {
-    authFuture = ObservableFuture(cakePayService.isLogged());
+    final logged = await cakePayService.isLogged();
+    username = logged ? await cakePayService.getUserEmail() : null;
+    authFuture = ObservableFuture.value(logged);
+  }
 
-    final logged = await authFuture!;
-    if (logged) {
-      username = await cakePayService.getUserEmail();
+  @action
+  Future<void> checkMaintenance() async {
+    try {
+      isUnderMaintenance =
+          await cakePayService.isUnderMaintenance().timeout(const Duration(seconds: 10));
+    } catch (e) {
+      printV(e);
+      isUnderMaintenance = false;
     }
   }
 

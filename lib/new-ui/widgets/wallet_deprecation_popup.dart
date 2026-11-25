@@ -1,3 +1,4 @@
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/new-ui/widgets/animated_dropdown.dart';
 import 'package:cake_wallet/new-ui/widgets/new_primary_button.dart';
 import 'package:cake_wallet/new-ui/widgets/receive_page/receive_top_bar.dart';
@@ -25,8 +26,10 @@ class WalletDeprecationPopup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalTopBar(
+              testId: "wallet_deprecation_popup_top_bar",
               title: "",
               leadingIcon: Icon(Icons.close),
+              leadingSemanticLabel: S.of(context).close,
               onLeadingPressed: Navigator.of(context).pop,
             ),
             Padding(

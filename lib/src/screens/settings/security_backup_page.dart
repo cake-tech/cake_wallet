@@ -45,6 +45,7 @@ class SecurityBackupPage extends BasePage {
       topBar: ModalTopBar(
           title: "",
           leadingIcon: Icon(Icons.arrow_back_ios_new),
+          leadingSemanticLabel: S.of(context).seed_alert_back,
           onLeadingPressed: () => Navigator.of(context).pop()),
       header: ModalHeader(
           iconPath: "assets/new-ui/settings_row_icons/security.svg",
@@ -60,6 +61,7 @@ class SecurityBackupPage extends BasePage {
                 if (DeviceInfo.instance.isMobile || Platform.isMacOS || Platform.isLinux)
                   ListItemToggle(
                       keyValue: "security_backup_page_allow_biometrics_button_key",
+                      testId: "security_backup_page_allow_biometrics_button_key",
                       label: S.current.settings_allow_biometrical_authentication,
                       value: _securitySettingsViewModel.allowBiometricalAuthentication,
                       onChanged: (bool value) {
@@ -95,6 +97,7 @@ class SecurityBackupPage extends BasePage {
                 if (FeatureFlag.duressPinEnabled)
                   ListItemToggle(
                       keyValue: "security_backup_page_duress_pin_button_key",
+                      testId: "security_backup_page_duress_pin_button_key",
                       label: "Duress PIN",
                       value: _securitySettingsViewModel.enableDuressPin,
                       onChanged: (bool value) {
@@ -128,6 +131,7 @@ class SecurityBackupPage extends BasePage {
                       }),
                 ListItemSelector(
                     keyValue: "security_backup_page_require_pin_after_button_key",
+                    testId: "security_backup_page_require_pin_after_button_key",
                     label: S.current.require_pin_after,
                     options: [_securitySettingsViewModel.pinCodeRequiredDuration.toString()],
                     onTap: () async {
@@ -163,6 +167,7 @@ class SecurityBackupPage extends BasePage {
                 //       }),
                 ListItemRegularRow(
                     keyValue: "security_backup_page_change_pin_button_key",
+                    testId: "security_backup_page_change_pin_button_key",
                     label: S.current.settings_change_pin,
                     onTap: () {
                       _authService.authenticateAction(
@@ -177,6 +182,7 @@ class SecurityBackupPage extends BasePage {
                     }),
                 ListItemRegularRow(
                     keyValue: "security_backup_page_totp_2fa_button_key",
+                    testId: "security_backup_page_totp_2fa_button_key",
                     label: _securitySettingsViewModel.useTotp2FA
                         ? S.current.modify_2fa
                         : S.current.setup_2fa,

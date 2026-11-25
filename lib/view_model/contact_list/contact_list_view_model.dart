@@ -14,6 +14,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:mobx/mobx.dart';
@@ -23,87 +24,116 @@ part 'contact_list_view_model.g.dart';
 class ContactListViewModel = ContactListViewModelBase with _$ContactListViewModel;
 
 abstract class ContactListViewModelBase with Store {
-  ContactListViewModelBase(
-      this.contactService, this._currency, this.settingsStore,)
-      : isAutoGenerateEnabled =
-      settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
+  ContactListViewModelBase(this.contactService, this._currency, this.settingsStore)
+    : isAutoGenerateEnabled =
+          settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     unawaited(_init());
   }
 
   Future<void> _init() async {
-    final walletInfos = await WalletInfo.getAll();
-    for (final info in walletInfos) {
-      final addressInfos = await info.getAddressInfos();
-      final addresses = await info.getAddresses();
-      if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
-          addressInfos.isNotEmpty) {
-        for (var key in addressInfos.keys) {
-          final value = addressInfos[key];
-          final address = value?.first;
-          if (address != null) {
-            final name = _createName(info.name, address.label, key: key);
-            walletContacts.add(WalletContact(
-              address.address,
-              name,
-              getCryptoCurrencyForWalletListItem(
-                info.type,
-              ),
-              walletType: info.type,
-            ));
-          }
-        }
-      } else if (addresses.isNotEmpty == true && addresses.length > 1) {
-        if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
-            .contains(info.type)) {
-          final address = info.address;
-          final name = _createName(info.name, "", key: 0);
-          walletContacts.add(WalletContact(
-            address,
-            name,
-            getCryptoCurrencyForWalletListItem(
-              info.type,
-            ),
-            walletType: info.type,
-          ));
-        } else {
-          addresses.forEach((address, label) {
-            if (label.isEmpty) {
-              return;
-            }
-            final name = _createName(info.name, label, key: null);
-            walletContacts.add(WalletContact(
-              address,
-              name,
-              getCryptoCurrencyForWalletListItem(
-                info.type,
-                isTestnet:
-                    info.network == null ? false : info.network!.toLowerCase().contains("testnet"),
-              ),
-              walletType: info.type,
-            ));
-          });
-        }
-      } else {
-        walletContacts.add(WalletContact(
-          info.address,
-          _createName(info.name, "",
-              key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
-                  ? 0
-                  : null),
-          getCryptoCurrencyForWalletListItem(
-            info.type,
-          ),
-          walletType: info.type,
-        ));
-      }
-    }
-
-
-    // Load contacts from the database
+    // Contacts now come from SQLite through ContactService and are loaded on
+    // demand; there is no Hive box to bind to anymore.
     await contactService.ensureLoaded();
-
+    await loadWalletContacts();
     await setOrderType(settingsStore.contactListOrder);
-    walletContacts = walletContacts.toList(); // rebuild
+  }
+
+  Future<void> _lastWalletContactsLoad = Future.value();
+
+  @action
+  Future<void> loadWalletContacts() async {
+    final waitFor = _lastWalletContactsLoad;
+    final done = Completer<void>();
+    _lastWalletContactsLoad = done.future;
+
+    await waitFor;
+
+    try {
+      final loadedContacts = <WalletContact>[];
+      final walletInfos = await WalletInfo.getAll();
+      for (final info in walletInfos) {
+        final addressInfos = await info.getAddressInfos();
+        final addresses = await info.getAddresses();
+        if ([WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type) &&
+            addressInfos.isNotEmpty) {
+          for (var key in addressInfos.keys) {
+            final value = addressInfos[key];
+            final address = value?.first;
+            if (address != null) {
+              final name = _createName(info.name, address.label, key: key);
+              loadedContacts.add(
+                WalletContact(
+                  address.address,
+                  name,
+                  getCryptoCurrencyForWalletListItem(info.type),
+                  walletType: info.type,
+                ),
+              );
+            }
+          }
+        } else if (addresses.isNotEmpty == true && addresses.length > 1) {
+          if ([
+            WalletType.monero,
+            WalletType.wownero,
+            WalletType.haven,
+            WalletType.decred,
+          ].contains(info.type)) {
+            final address = info.address;
+            final name = _createName(info.name, "", key: 0);
+            loadedContacts.add(
+              WalletContact(
+                address,
+                name,
+                getCryptoCurrencyForWalletListItem(info.type),
+                walletType: info.type,
+              ),
+            );
+          } else {
+            addresses.forEach((address, label) {
+              if (label.isEmpty) {
+                return;
+              }
+              final name = _createName(info.name, label, key: null);
+              loadedContacts.add(
+                WalletContact(
+                  address,
+                  name,
+                  getCryptoCurrencyForWalletListItem(
+                    info.type,
+                    isTestnet: info.network == null
+                        ? false
+                        : info.network!.toLowerCase().contains("testnet"),
+                  ),
+                  walletType: info.type,
+                  label: label,
+                ),
+              );
+            });
+          }
+        } else {
+          loadedContacts.add(
+            WalletContact(
+              info.address,
+              _createName(
+                info.name,
+                "",
+                key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
+                    ? 0
+                    : null,
+              ),
+              getCryptoCurrencyForWalletListItem(info.type),
+              walletType: info.type,
+            ),
+          );
+        }
+      }
+
+      walletContacts = loadedContacts;
+    } catch (e) {
+      printV("loadWalletContacts failed: $e");
+    } finally {
+      done.complete();
+    }
   }
 
   String _createName(String walletName, String label, {int? key = null}) {
@@ -145,9 +175,7 @@ abstract class ContactListViewModelBase with Store {
 
   bool _isValidForCurrency(ContactBase element, bool isWalletContact) {
     if (_currency == null) return true;
-    if (!element.name.contains('Active') &&
-        isWalletContact &&
-        (element.type == CryptoCurrency.btc || element.type == CryptoCurrency.ltc)) return false;
+    if (isWalletContact && element is WalletContact && !element.isPickable) return false;
 
     final currencyMatches = element.type == _currency;
 
@@ -181,7 +209,6 @@ abstract class ContactListViewModelBase with Store {
     await reorderContacts(contacts.map((e) => e.original).toList());
   }
 
-
   Future<void> reorderContacts(List<Contact> contactCopy) async {
     await Contact.updateOrder(contactCopy);
     contactService.applyOrder(contactCopy);
@@ -190,9 +217,11 @@ abstract class ContactListViewModelBase with Store {
   Future<void> sortGroupByType() async {
     final contactsSourceCopy = contacts.map((e) => e.original).toList();
 
-    contactsSourceCopy.sort((a, b) => ascending
-        ? a.type.toString().compareTo(b.type.toString())
-        : b.type.toString().compareTo(a.type.toString()));
+    contactsSourceCopy.sort(
+      (a, b) => ascending
+          ? a.type.toString().compareTo(b.type.toString())
+          : b.type.toString().compareTo(a.type.toString()),
+    );
 
     await reorderContacts(contactsSourceCopy);
   }
@@ -200,8 +229,9 @@ abstract class ContactListViewModelBase with Store {
   Future<void> sortAlphabetically() async {
     final contactsSourceCopy = contacts.map((e) => e.original).toList();
 
-    contactsSourceCopy
-        .sort((a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
+    contactsSourceCopy.sort(
+      (a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name),
+    );
 
     await reorderContacts(contactsSourceCopy);
   }
@@ -209,8 +239,10 @@ abstract class ContactListViewModelBase with Store {
   Future<void> sortByCreationDate() async {
     final contactsSourceCopy = contacts.map((e) => e.original).toList();
 
-    contactsSourceCopy.sort((a, b) =>
-        ascending ? a.lastChange.compareTo(b.lastChange) : b.lastChange.compareTo(a.lastChange));
+    contactsSourceCopy.sort(
+      (a, b) =>
+          ascending ? a.lastChange.compareTo(b.lastChange) : b.lastChange.compareTo(a.lastChange),
+    );
 
     await reorderContacts(contactsSourceCopy);
   }

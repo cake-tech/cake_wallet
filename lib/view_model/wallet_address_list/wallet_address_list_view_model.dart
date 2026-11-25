@@ -1,8 +1,8 @@
 import "dart:core";
 import "dart:developer" as dev;
+import "dart:math";
 
 import "package:cake_wallet/bitcoin/bitcoin.dart";
-import "package:cake_wallet/core/address_resolver/yat/yat_store.dart";
 import "package:cake_wallet/core/amount_parsing_proxy.dart";
 import "package:cake_wallet/core/fiat_conversion_service.dart";
 import "package:cake_wallet/core/wallet_change_listener_view_model.dart";
@@ -46,7 +46,6 @@ class WalletAddressListViewModel = WalletAddressListViewModelBase with _$WalletA
 abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewModel with Store {
   WalletAddressListViewModelBase({
     required super.appStore,
-    required this.yatStore,
     required this.fiatConversionStore,
   })  : _baseItems = <ListItem>[],
         selectedCurrency = appStore.wallet!.currency,
@@ -88,7 +87,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
       );
 
   void setTokenCurrency(Currency curr) {
-    if (curr == wallet.currency || curr == CryptoCurrency.btcln) {
+    if (curr == CryptoCurrency.btcln) {
+      tokenCurrency = null;
+      selectedCurrency = CryptoCurrency.btcln;
+      return;
+    }
+    if (curr == wallet.currency) {
       tokenCurrency = null;
       selectedCurrency = wallet.currency;
       return;
@@ -218,11 +222,13 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
   @computed
   PaymentURI get uri {
     if (tokenCurrency != null && isEVMCompatibleChain(wallet.type)) {
+      final erc20Token = tokenCurrency! as Erc20Token;
       return ERC681URI(
         chainId: wallet.chainId ?? 1,
         address: wallet.walletAddresses.address,
         amount: _amount,
-        contractAddress: (tokenCurrency! as Erc20Token).contractAddress,
+        contractAddress: erc20Token.contractAddress,
+        tokenDecimals: erc20Token.decimal,
       );
     }
     if (tokenCurrency is TronToken && wallet.type == WalletType.tron) {
@@ -557,6 +563,12 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
             "assets/images/usdt_wallet_icon.svg",
             "assets/images/more_tokens.svg",
           ];
+        case 4663:
+          return [
+            "assets/new-ui/crypto_full_icons/robinhood.svg",
+            "assets/images/usdg_icon.png",
+            "assets/images/more_tokens.svg",
+          ];
         default:
           return [
             "assets/new-ui/crypto_full_icons/ethereum.svg",
@@ -614,7 +626,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   @computed
   bool get isLightning =>
-      wallet.type == WalletType.bitcoin && selectedCurrency == CryptoCurrency.btcln;
+      wallet.type == WalletType.bitcoin &&
+      (selectedCurrency == CryptoCurrency.btcln || bitcoin!.hasSelectedLightning(wallet));
 
   @computed
   bool get isZCashTransparent {
@@ -646,7 +659,6 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
 
   List<ListItem> _baseItems;
 
-  final YatStore yatStore;
 
   @action
   void setAddress(WalletAddressListItem address) =>
@@ -760,7 +772,8 @@ abstract class WalletAddressListViewModelBase extends WalletChangeListenerViewMo
     }
 
     try {
-      final crypto = (double.parse(_amount.replaceAll(",", ".")) / fiatRate).toStringAsFixed(8);
+      final crypto = (double.parse(_amount.replaceAll(",", ".")) / fiatRate)
+          .toStringAsFixed(min(cryptoCurrency.decimals, 8));
       if (_amount != crypto) {
         _amount = crypto;
       }

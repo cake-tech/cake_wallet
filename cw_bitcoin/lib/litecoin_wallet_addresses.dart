@@ -25,10 +25,7 @@ class LitecoinWalletAddresses = LitecoinWalletAddressesBase with _$LitecoinWalle
 abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with Store {
   LitecoinWalletAddressesBase(
     WalletInfo walletInfo, {
-    required super.mainHdByType,
-    required super.sideHdByType,
-    required super.legacyMainHd,
-    required super.legacySideHd,
+    required super.accounts,
     required super.network,
     required super.isHardwareWallet,
     required this.mwebHd,
@@ -55,11 +52,13 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
   final String? scanSecretOverride;
   final String? spendPubkeyOverride;
 
-  List<int> get scanSecret => (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
-      ? hex.decode(scanSecretOverride!)
-      : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ?? List.filled(32, 0);
+  late final List<int> scanSecret =
+      (scanSecretOverride != null && scanSecretOverride?.isNotEmpty == true)
+          ? hex.decode(scanSecretOverride!)
+          : mwebHd?.childKey(Bip32KeyIndex(0x80000000)).privateKey.privKey.raw ??
+              List.filled(32, 0);
 
-  List<int> get spendPubkey =>
+  late final List<int> spendPubkey =
       (spendPubkeyOverride != null && spendPubkeyOverride?.isNotEmpty == true)
           ? hex.decode(spendPubkeyOverride!)
           : mwebHd?.childKey(Bip32KeyIndex(0x80000001)).publicKey.pubKey.compressed ??
@@ -148,10 +147,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     BitcoinAddressType? addressType,
   }) {
     if (addressType == SegwitAddresType.mweb) {
-      if (mwebAddrs.length == 0) {
-        return "";
-      }
-      return hd == legacySideHd ? mwebAddrs[0] : mwebAddrs[index + 1];
+      if (mwebAddrs.isEmpty) return "";
+      final isChange = accounts.isLegacyChange(hd);
+      return isChange ? mwebAddrs[0] : mwebAddrs[index + 1];
     }
     return generateP2WPKHAddress(hd: hd, index: index, network: network);
   }
@@ -225,6 +223,30 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses with 
     }
 
     return super.getChangeAddress();
+  }
+
+  // Not every sender can pay MWEB, so offer a regular address instead.
+  @override
+  String get addressForBuy {
+    if (addressPageType != SegwitAddresType.mweb) {
+      return super.addressForBuy;
+    }
+
+    try {
+      return super
+          .allAddresses
+          .firstWhere(
+            (e) =>
+                e.type == SegwitAddresType.p2wpkh &&
+                !e.isHidden &&
+                !e.isUsed &&
+                !e.isLegacyDerivation &&
+                !hiddenAddresses.contains(e.address),
+          )
+          .address;
+    } catch (_) {
+      return super.addressForBuy;
+    }
   }
 
   @override

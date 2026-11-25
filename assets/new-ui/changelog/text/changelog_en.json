@@ -1,22 +1,22 @@
 [
   {
-    "title": "MONERO + TREZOR",
-    "description": "Secure your XMR with hardware wallet support!"
+    "title": "Zcash on Cupcake",
+    "description": "Sign ZEC transactions offline with our air-gapped Cupcake app by scanning QR codes"
   },
   {
-    "title": "NEW WalletConnect UI",
-    "description": "connecting to Web3 dApps made safer and easier"
+    "title": "Easier Swaps",
+    "description": "Swap from any asset without switching wallets first, plus the new WhyNot provider and more coins on Chainflip"
   },
   {
-    "title": "UI improvements",
-    "description": "Added some fresh UI elements just for you"
+    "title": "Tron Upgrades",
+    "description": "Connect your Tron wallet to dApps with WalletConnect, and send USDT and other tokens using rented energy"
   },
   {
-    "title": "Sync enhancements",
-    "description": "Optimized sync for Bitcoin and Litecoin"
+    "title": "Bitcoin Cash on Ledger",
+    "description": "Connect your Ledger to receive and send BCH"
   },
   {
-    "title": "Bug fixes",
-    "description": "Squashed more bugs"
+    "title": "Bug fixes & improvements",
+    "description": "An option to hide the Charts and NFTs tabs, sending without waiting for sync on most wallets, a smoother app and more"
   }
 ]

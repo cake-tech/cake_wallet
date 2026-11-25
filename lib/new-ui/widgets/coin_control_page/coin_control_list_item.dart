@@ -37,7 +37,8 @@ class CoinControlListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MergeSemantics(
+        child: Container(
         height: 70,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surfaceContainer,
@@ -121,7 +122,7 @@ class CoinControlListItem extends StatelessWidget {
               )
             ],
           ),
-        ));
+        )));
   }
 
   Widget _getLeading(BuildContext context) {

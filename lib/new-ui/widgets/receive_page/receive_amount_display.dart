@@ -22,50 +22,54 @@ class ReceiveAmountDisplay extends StatelessWidget {
           curve: Curves.easeOutCubic,
           heightFactor: largeQrMode || walletAddressListViewModel.displayAmount.isEmpty ? 0 : 1,
           alignment: Alignment.topCenter,
-          child: Container(
-            width: double.infinity,
-            child: Row(
-              spacing: 4,
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Theme.of(context).colorScheme.surfaceContainer),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      spacing: 8.0,
-                      children: [
-                        Text(
-                          walletAddressListViewModel.displayAmount,
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        Text(walletAddressListViewModel.cryptoCurrencySymbol,
+          // Amount, currency symbol and fiat equivalent describe one value, so
+          // they are announced as a single node.
+          child: MergeSemantics(
+            child: Container(
+              width: double.infinity,
+              child: Row(
+                spacing: 4,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: Theme.of(context).colorScheme.surfaceContainer),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        spacing: 8.0,
+                        children: [
+                          Text(
+                            walletAddressListViewModel.displayAmount,
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.primary,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w500))
-                      ],
+                                fontWeight: FontWeight.w500),
+                          ),
+                          Text(walletAddressListViewModel.cryptoCurrencySymbol,
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500))
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                if (!walletAddressListViewModel.isFiatDisabled)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      _getFiatAmount(),
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  )
-              ],
+                  if (!walletAddressListViewModel.isFiatDisabled)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        _getFiatAmount(),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    )
+                ],
+              ),
             ),
           ),
         ),

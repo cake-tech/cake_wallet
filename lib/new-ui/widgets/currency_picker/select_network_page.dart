@@ -33,16 +33,21 @@ class SelectNetworkPage extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "select_network_page_top_bar",
               title: S.of(context).select_network_title,
               leadingIcon: const Icon(Icons.arrow_back),
+              leadingSemanticLabel: S.of(context).seed_alert_back,
               onLeadingPressed: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 24),
-            CakeImageWidget(
-              imageUrl: assetIconPath,
-              width: 75,
-              height: 75,
-              fit: BoxFit.cover,
+            // Illustration of the asset named by the title below it.
+            ExcludeSemantics(
+              child: CakeImageWidget(
+                imageUrl: assetIconPath,
+                width: 75,
+                height: 75,
+                fit: BoxFit.cover,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -77,8 +82,12 @@ class SelectNetworkPage extends StatelessWidget {
                           onTap: () {
                             final nav = Navigator.of(context);
                             onSelected(variant);
-                            if (nav.canPop()) nav.pop();
-                            if (nav.canPop()) nav.pop();
+                            if (nav.canPop()) {
+                              nav.pop();
+                            }
+                            if (nav.canPop()) {
+                              nav.pop(variant);
+                            }
                           },
                         ),
                     ],
@@ -106,33 +115,42 @@ class _NetworkRow extends StatelessWidget {
     final networkIconPath =
         wt != null ? getCryptoCurrencyIconForWalletListItem(wt) : variant.iconPath;
     final networkName = chainNameForCurrency(variant);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-        child: Row(
-          children: [
-            CakeImageWidget(
-              imageUrl: networkIconPath,
-              width: 28,
-              height: 28,
-              fit: BoxFit.cover,
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            child: Row(
+              children: [
+                ExcludeSemantics(
+                  child: CakeImageWidget(
+                    imageUrl: networkIconPath,
+                    width: 28,
+                    height: 28,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    networkName,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                  ),
+                ),
+                ExcludeSemantics(
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 20,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                networkName,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ),
-            Icon(
-              Icons.chevron_right,
-              size: 20,
-              color: colors.onSurfaceVariant,
-            ),
-          ],
+          ),
         ),
       ),
     );

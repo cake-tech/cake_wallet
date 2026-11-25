@@ -26,6 +26,16 @@ class _RescanPageState extends State<RescanPage> {
   final TextEditingController _heightController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    widget._rescanViewModel.savedRestoreHeight.then((height) {
+      if (mounted && (height ?? 0) > 0 && _heightController.text.isEmpty) {
+        _heightController.text = '$height';
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget child;
     if (widget._rescanViewModel.wallet.type != WalletType.decred) {
@@ -114,6 +124,7 @@ class _RescanPageState extends State<RescanPage> {
                         ? S.current.silent_payments_scanning
                         : S.current.rescan,
                     leadingIcon: Icon(Icons.arrow_back_ios_new),
+                    leadingSemanticLabel: S.current.seed_alert_back,
                     onLeadingPressed: Navigator.of(context).pop),
                 Expanded(
                     child: Padding(

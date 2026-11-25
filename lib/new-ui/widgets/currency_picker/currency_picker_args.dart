@@ -1,14 +1,23 @@
-import 'package:cake_wallet/evm/evm.dart';
-import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_core/currency_for_wallet_type.dart';
-import 'package:cw_core/currency_groups.dart';
-import 'package:cw_core/wallet_type.dart';
+import "package:cake_wallet/evm/evm.dart";
+import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/currency_for_wallet_type.dart";
+import "package:cw_core/currency_groups.dart";
+import "package:cw_core/erc20_token.dart";
+import "package:cw_core/spl_token.dart";
+import "package:cw_core/tron_token.dart";
+import "package:cw_core/wallet_type.dart";
 
 String chainNameForCurrency(CryptoCurrency c) {
-  if (c == CryptoCurrency.btcln) return 'Lightning';
+  if (c == CryptoCurrency.btcln) {
+    return "Lightning";
+  }
   final wt = cryptoCurrencyOrTokenToWalletType(c);
-  return wt != null ? walletTypeToString(wt) : (c.tag ?? '');
+  return wt != null ? walletTypeToString(wt) : (c.tag ?? "");
 }
+
+String assetNameForCurrency(CryptoCurrency c) => c == CryptoCurrency.btcln
+    ? (CryptoCurrency.btc.fullName ?? CryptoCurrency.btc.title)
+    : (c.fullName ?? c.title);
 
 final Set<String> _stablecoinSymbols = {
   for (final c in CryptoCurrency.all)
@@ -20,6 +29,9 @@ bool isTrustedStablecoin(CryptoCurrency c) =>
         _stablecoinSymbols.contains(c.title.toUpperCase())) &&
     !c.isPotentialScam;
 
+bool hasBuiltInStablecoinSymbol(CryptoCurrency c) =>
+    _stablecoinSymbols.contains(c.title.toUpperCase());
+
 const _kEvmDefaultTokenNatives = <CryptoCurrency>[
   CryptoCurrency.baseEth,
   CryptoCurrency.arbEth,
@@ -27,19 +39,25 @@ const _kEvmDefaultTokenNatives = <CryptoCurrency>[
 ];
 
 void appendEvmDefaultTokens(List<CryptoCurrency> into) {
-  if (evm == null) return;
+  if (evm == null) {
+    return;
+  }
   String keyFor(CryptoCurrency c) {
     final wt = cryptoCurrencyOrTokenToWalletType(c);
-    final chain = wt?.toString() ?? (c.tag ?? '').toUpperCase();
-    return '${c.title.toUpperCase()}|$chain';
+    final chain = wt?.toString() ?? (c.tag ?? "").toUpperCase();
+    return "${c.title.toUpperCase()}|$chain";
   }
 
   final seen = <String>{for (final c in into) keyFor(c)};
   for (final native in _kEvmDefaultTokenNatives) {
     final chainId = getChainIdByCryptoCurrency(native);
-    if (chainId == null) continue;
+    if (chainId == null) {
+      continue;
+    }
     for (final t in evm!.getDefaultTokensByChainId(chainId)) {
-      if (seen.add(keyFor(t))) into.add(t);
+      if (seen.add(keyFor(t))) {
+        into.add(t);
+      }
     }
   }
 }
@@ -52,26 +70,82 @@ class CurrencyPickerBalance {
   final double? fiatValue;
 }
 
+String? _assetAddressKey(CryptoCurrency c) {
+  if (c is Erc20Token) {
+    return c.contractAddress.toLowerCase();
+  }
+  if (c is TronToken) {
+    return c.contractAddress.toLowerCase();
+  }
+  if (c is SPLToken) {
+    return c.mintAddress.toLowerCase();
+  }
+  return null;
+}
+
+CurrencyPickerBalance? balanceForAsset(
+  Map<CryptoCurrency, CurrencyPickerBalance>? balances,
+  CryptoCurrency asset,
+) {
+  if (balances == null || balances.isEmpty) {
+    return null;
+  }
+
+  final direct = balances[asset];
+  if (direct != null) {
+    return direct;
+  }
+
+  final addressKey = _assetAddressKey(asset);
+  if (addressKey != null) {
+    for (final entry in balances.entries) {
+      if (_assetAddressKey(entry.key) == addressKey) {
+        return entry.value;
+      }
+    }
+    return null;
+  }
+
+  final title = asset.title.toUpperCase();
+  final tag = asset.tag?.toUpperCase();
+  CurrencyPickerBalance? byTitle;
+  for (final entry in balances.entries) {
+    if (entry.key.title.toUpperCase() == title && entry.key.tag?.toUpperCase() == tag) {
+      if (byTitle != null) {
+        return null;
+      }
+      byTitle = entry.value;
+    }
+  }
+  return byTitle;
+}
+
 enum RecentsSource { none, trades, orders }
 
 class CurrencyPickerArgs {
   const CurrencyPickerArgs({
     this.selected,
     required this.items,
+    this.showStablesHeader = true,
     this.balanceByAsset,
     this.filterByNetwork,
     required this.onSelected,
     required this.symbolResolver,
     this.recentsSource = RecentsSource.none,
+    this.useSingleNetworkLayout = false,
+    this.walletName,
+    this.otherAssets,
   });
 
   final CryptoCurrency? selected;
   final List<CryptoCurrency> items;
   final WalletType? filterByNetwork;
+  final bool showStablesHeader;
   final void Function(CryptoCurrency) onSelected;
   final String Function(CryptoCurrency) symbolResolver;
   final Map<CryptoCurrency, CurrencyPickerBalance>? balanceByAsset;
   final RecentsSource recentsSource;
-
-  bool get isPreFiltered => filterByNetwork != null;
+  final bool useSingleNetworkLayout;
+  final String? walletName;
+  final CurrencyPickerArgs? otherAssets;
 }

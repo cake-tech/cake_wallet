@@ -67,7 +67,16 @@ extension MaxDecimals on String {
       return [parts.first.withLocalSeperator(locale), ...parts.sublist(1)].join(" ");
     }
 
-    final formater = NumberFormat("#,###", locale);
+    var formater = NumberFormat(
+      "#,###",
+      Intl.verifiedLocale(locale, NumberFormat.localeExists, onFailure: (_) => "en"),
+    );
+
+    // Only the integer part is localised below, so a locale with native digits
+    // (bn, mr, fa, my) would mix scripts inside one amount. Keep it ASCII.
+    if (formater.symbols.ZERO_DIGIT != "0") {
+      formater = NumberFormat("#,###", "en");
+    }
     final parts = replaceAll(",", "").split(".");
     if (parts.first.contains("< 0")) parts.first = "0";
 

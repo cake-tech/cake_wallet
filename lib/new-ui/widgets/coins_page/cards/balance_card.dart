@@ -1,17 +1,10 @@
-import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
-import 'package:cw_core/card_design.dart';
-import 'package:flutter/material.dart';
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
+import "package:cake_wallet/src/widgets/cake_image_widget.dart";
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/card_design.dart";
+import "package:flutter/material.dart";
 
-class BalanceCardAction {
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-  final double? iconSize;
-
-  const BalanceCardAction(
-      {required this.label, required this.icon, required this.onTap, this.iconSize = 16});
-}
 
 class BalanceCard extends StatelessWidget {
   const BalanceCard(
@@ -22,22 +15,23 @@ class BalanceCard extends StatelessWidget {
       this.borderRadius = 20,
       this.selected = false,
       this.accountName = "",
-      this.accountBalance = "",
+      this.accountBalance,
       this.balance = "",
       this.fiatBalance = "",
       this.assetName = "",
       this.fiatCurrencyTitle = "",
       this.designSwitchDuration = const Duration(),
-      this.actions = const [],
       this.capitalizeAssetName = true,
       this.onCustomizeTapped,
       this.accountIndex,
-      this.fiatFirst = false});
+      this.fiatFirst = false,
+      this.excludeAccountName = false});
 
   final double width;
   final double borderRadius;
   final Gradient? gradient;
-  final String accountBalance;
+  final Money? accountBalance;
+  final bool excludeAccountName;
   final String accountName;
   final String balance;
   final String fiatBalance;
@@ -48,7 +42,6 @@ class BalanceCard extends StatelessWidget {
   final String assetName;
   final bool selected;
   final CardDesign design;
-  final List<BalanceCardAction> actions;
   final Duration designSwitchDuration;
   final VoidCallback? onCustomizeTapped;
 
@@ -62,7 +55,7 @@ class BalanceCard extends StatelessWidget {
 
     final leadText = fiatFirst ? S.of(context).wallet_balance : accountName;
 
-    final bool showText = accountBalance.isNotEmpty ||
+    final bool showText = accountBalance != null ||
         leadText.isNotEmpty ||
         balance.isNotEmpty ||
         fiatBalance.isNotEmpty ||
@@ -91,15 +84,18 @@ class BalanceCard extends StatelessWidget {
                 ? ClipRSuperellipse(
                     borderRadius: BorderRadius.circular(borderRadius),
                     key: ValueKey(design.imagePath),
-                    child: CakeImageWidget(
-                      imageUrl: design.imagePath,
-                      width: width,
-                      height: height,
-                      fit: BoxFit.fill,
+                    // Purely decorative card artwork.
+                    child: ExcludeSemantics(
+                      child: CakeImageWidget(
+                        imageUrl: design.imagePath,
+                        width: width,
+                        height: height,
+                        fit: BoxFit.fill,
+                      ),
                     ),
                   )
                 : const SizedBox.shrink(
-                    key: ValueKey('svgFullOff'),
+                    key: ValueKey("svgFullOff"),
                   ),
           ),
           Padding(
@@ -114,7 +110,7 @@ class BalanceCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      if (leadText.isNotEmpty || accountBalance.isNotEmpty)
+                      if (leadText.isNotEmpty || accountBalance != null)
                         Row(
                           mainAxisSize: MainAxisSize.max,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -130,7 +126,7 @@ class BalanceCard extends StatelessWidget {
                                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
                                           fontWeight: FontWeight.w500,
                                           color: design.colors.textColor),
-                                      child: Text("$accountIndex."),
+                                      child: ExcludeSemantics(excluding: excludeAccountName && leadText == accountName, child: Text("$accountIndex.")),
                                     ),
                                   ),
                                 AnimatedDefaultTextStyle(
@@ -139,16 +135,23 @@ class BalanceCard extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                       color: design.colors.textColor
                                           .withAlpha(leadText == accountName ? 255 : 128)),
-                                  child: Text(leadText),
+                                  child: ExcludeSemantics(excluding: excludeAccountName && leadText == accountName, child: Text(leadText)),
                                 ),
                               ],
                             ),
                             AnimatedOpacity(
                               opacity: selected ? 0 : 1,
                               duration: textFadeDuration,
-                              child: Text(
-                                accountBalance,
-                                style: TextStyle(color: design.colors.textColor, fontSize: 14),
+                              // Opacity alone keeps the text readable by screen
+                              // readers, so drop it while it is invisible.
+                              child: ExcludeSemantics(
+                                excluding: selected,
+                                child: MoneyText.optional(
+                                  accountBalance,
+                                  fractionalDigits: accountBalance?.decimals ?? 8,
+                                  showSymbol: false,
+                                  style: TextStyle(color: design.colors.textColor, fontSize: 14),
+                                ),
                               ),
                             ),
                           ],
@@ -156,40 +159,55 @@ class BalanceCard extends StatelessWidget {
                       AnimatedOpacity(
                         opacity: selected ? 1 : 0,
                         duration: textFadeDuration,
-                        child: AnimatedSwitcher(
-                          duration: designSwitchDuration,
-                          layoutBuilder: (currentChild, previousChildren) {
-                            return Stack(
-                              alignment: Alignment.centerLeft,
-                              children: <Widget>[
-                                ...previousChildren,
-                                if (currentChild != null) currentChild,
+                        // Only the selected card's balance is visible, so only it
+                        // may be announced.
+                        child: ExcludeSemantics(
+                          excluding: !selected,
+                          child: Semantics(
+                          container: true,
+                          identifier: fiatFirst ? "balance_card_fiat_balance_key" : "balance_card_crypto_balance_key",
+                          child: AnimatedSwitcher(
+                            duration: designSwitchDuration,
+                            layoutBuilder: (currentChild, previousChildren) {
+                              return Stack(
+                                alignment: Alignment.centerLeft,
+                                children: <Widget>[
+                                  ...previousChildren,
+                                  if (currentChild != null) currentChild,
+                                ],
+                              );
+                            },
+                            child: Row(
+                              key: ValueKey("$balance ${resolvedAssetName.toUpperCase()}"),
+                              spacing: 8.0,
+                              children: [
+                                AnimatedDefaultTextStyle(
+                                  duration: designSwitchDuration,
+                                  style: DefaultTextStyle.of(context).style.copyWith(
+                                      color: design.colors.textColor,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: -0.4),
+                                  child: !fiatFirst && balance.isEmpty
+                                      ? MoneyText.optional(
+                                          accountBalance,
+                                          fractionalDigits: accountBalance?.decimals ?? 8,
+                                          showSymbol: false,
+                                        )
+                                      : Text(fiatFirst ? fiatBalance : balance),
+                                ),
+                                AnimatedDefaultTextStyle(
+                                  duration: designSwitchDuration,
+                                  style: DefaultTextStyle.of(context).style.copyWith(
+                                      color: design.colors.textColorSecondary,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w400,
+                                      letterSpacing: -0.4),
+                                  child: Text(resolvedAssetName),
+                                ),
                               ],
-                            );
-                          },
-                          child: Row(
-                            key: ValueKey("$balance ${resolvedAssetName.toUpperCase()}"),
-                            spacing: 8.0,
-                            children: [
-                              AnimatedDefaultTextStyle(
-                                duration: designSwitchDuration,
-                                style: DefaultTextStyle.of(context).style.copyWith(
-                                    color: design.colors.textColor,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w500,
-                                    letterSpacing: -0.4),
-                                child: Text(fiatFirst ? fiatBalance : balance),
-                              ),
-                              AnimatedDefaultTextStyle(
-                                duration: designSwitchDuration,
-                                style: DefaultTextStyle.of(context).style.copyWith(
-                                    color: design.colors.textColorSecondary,
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w400,
-                                    letterSpacing: -0.4),
-                                child: Text(resolvedAssetName),
-                              ),
-                            ],
+                            ),
+                          ),
                           ),
                         ),
                       ),
@@ -199,13 +217,18 @@ class BalanceCard extends StatelessWidget {
                             fontSize: 15,
                             fontWeight: FontWeight.w400,
                             color: design.colors.textColorSecondary),
+                        child: Semantics(
+                        container: true,
+                        identifier: !selected ? null : fiatFirst ? "balance_card_crypto_balance_key" : "balance_card_fiat_balance_key",
                         child: AnimatedSwitcher(
                           duration: designSwitchDuration,
                           layoutBuilder: (currentChild, previousChildren) {
+                            final currentKey = currentChild?.key;
                             return Stack(
                               alignment: Alignment.centerLeft,
                               children: <Widget>[
-                                ...previousChildren,
+                                for (final child in previousChildren)
+                                  if (child.key != currentKey) child,
                                 if (currentChild != null) currentChild,
                               ],
                             );
@@ -214,6 +237,7 @@ class BalanceCard extends StatelessWidget {
                             key: ValueKey(fiatFirst ? balance : fiatBalance),
                             fiatFirst ? "$assetName $balance" : fiatBalance,
                           ),
+                        ),
                         ),
                       ),
                     ],
@@ -225,34 +249,18 @@ class BalanceCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    AnimatedSwitcher(
-                      duration: designSwitchDuration,
-                      switchInCurve: Curves.easeInOut,
-                      switchOutCurve: Curves.easeInOut,
-                      layoutBuilder: (currentChild, previousChildren) {
-                        return Stack(
-                          alignment: Alignment.centerLeft,
-                          children: <Widget>[
-                            ...previousChildren,
-                            if (currentChild != null) currentChild,
-                          ],
-                        );
-                      },
-                      child: Row(
-                        key: ValueKey(actions.toString()),
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: actions.map(getBalanceCardActionButton).toList(),
-                      ),
-                    ),
+                    const SizedBox.shrink(),
                     AnimatedSwitcher(
                       duration: designSwitchDuration,
                       switchInCurve: Curves.easeInOut,
                       switchOutCurve: Curves.easeInOut,
                       child: design.backgroundType == CardDesignBackgroundTypes.svgIcon
-                          ? _CornerSvgIcon(design: design, iconWidth: iconWidth)
+                          // Purely decorative card artwork.
+                          ? ExcludeSemantics(
+                              child: _CornerSvgIcon(design: design, iconWidth: iconWidth),
+                            )
                           : const SizedBox.shrink(
-                              key: ValueKey('svgIconOff'),
+                              key: ValueKey("svgIconOff"),
                             ),
                     ),
                   ],
@@ -266,18 +274,28 @@ class BalanceCard extends StatelessWidget {
             child: AnimatedOpacity(
               duration: designSwitchDuration,
               opacity: onCustomizeTapped == null ? 0 : 1,
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: onCustomizeTapped,
-                child: Container(
-                  height: 40,
-                  width: 40,
-                  child: Center(
-                    child: CakeImageWidget(
-                      imageUrl: "assets/new-ui/3dots_vertical.svg",
-                      alignment: Alignment.topRight,
-                      colorFilter:
-                          ColorFilter.mode(design.colors.textColorSecondary, BlendMode.srcIn),
+              // Faded out and inert: must not be a focusable phantom control.
+              child: ExcludeSemantics(
+                excluding: onCustomizeTapped == null,
+                child: Semantics(
+                  button: true,
+                  label: S.of(context).wallet_menu,
+                  onTap: onCustomizeTapped,
+                  child: GestureDetector(
+                    excludeFromSemantics: true,
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onCustomizeTapped,
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      child: Center(
+                        child: CakeImageWidget(
+                          imageUrl: "assets/new-ui/3dots_vertical.svg",
+                          alignment: Alignment.topRight,
+                          colorFilter:
+                              ColorFilter.mode(design.colors.textColorSecondary, BlendMode.srcIn),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -289,30 +307,6 @@ class BalanceCard extends StatelessWidget {
     );
   }
 
-  Widget getBalanceCardActionButton(BalanceCardAction action) => GestureDetector(
-        onTap: action.onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: design.colors.backgroundImageColor.withAlpha(75),
-            borderRadius: BorderRadius.circular(10000000),
-          ),
-          margin: const EdgeInsets.only(right: 10),
-          padding: const EdgeInsets.only(left: 10, right: 5, top: 5, bottom: 5),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: Text(
-                  action.label,
-                  style: TextStyle(color: design.colors.textColor, fontSize: 16),
-                ),
-              ),
-              Icon(action.icon, color: design.colors.textColorSecondary, size: action.iconSize),
-            ],
-          ),
-        ),
-      );
 }
 
 class _CornerSvgIcon extends StatelessWidget {

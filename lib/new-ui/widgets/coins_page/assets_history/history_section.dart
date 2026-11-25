@@ -8,6 +8,7 @@ import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tra
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/payjoin_history_tile.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/transaction_details_modal.dart';
 import 'package:cake_wallet/routes.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:cake_wallet/view_model/dashboard/anonpay_transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/date_section_item.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class HistorySection extends StatelessWidget {
   const HistorySection(
@@ -35,6 +37,16 @@ class HistorySection extends StatelessWidget {
   final bool short;
   final bool roundedTopSection;
   final bool detailsAsPage;
+
+  /// A history row is a single button node: every text inside it (direction,
+  /// date, amounts) merges into one label.
+  Widget _historyRow({required VoidCallback onTap, required Widget child}) => MergeSemantics(
+        child: Semantics(
+          identifier: TestId.fromKey(child.key),
+          button: true,
+          child: GestureDetector(onTap: onTap, child: child),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +102,7 @@ class HistorySection extends StatelessWidget {
                             else
                               asset = item.assetOfTransaction;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () {
                                 final page =
                                     getIt.get<TransactionDetailsModal>(param1: transaction);
@@ -98,14 +110,15 @@ class HistorySection extends StatelessWidget {
                                   Navigator.of(context).push(CupertinoPageRoute(
                                       builder: (context) => Material(child: page)));
                                 } else {
-                                  showModalBottomSheet(
-                                      isScrollControlled: true,
+                                  showMaterialModalBottomSheet(
+                                      backgroundColor: Colors.transparent,
                                       context: context,
                                       builder: (context) =>
                                           FractionallySizedBox(heightFactor: 0.9, child: page));
                                 }
                               },
                               child: HistoryTile(
+                                key: ValueKey("${short ? "home_page" : "history_modal"}_transaction_${index}_key"),
                                 title: item.formattedTitle + transactionType,
                                 date: _formatTransactionDate(item.date, localeName),
                                 amount: item.formattedCryptoAmount,
@@ -122,26 +135,24 @@ class HistorySection extends StatelessWidget {
                             );
                           } else if (item is TradeListItem) {
                             final trade = item.trade;
-                            final tradeFrom = trade.from;
-                            final tradeTo = trade.to;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.tradeDetails, arguments: trade),
                               child: HistoryTradeTile(
-                                from: tradeFrom,
-                                to: tradeTo,
+                                from: trade.depositAmount.currency as CryptoCurrency,
+                                to: trade.payoutAmount.currency as CryptoCurrency,
                                 provider: trade.provider,
                                 date: _formatTransactionDate(
                                     item.trade.createdAt ?? DateTime.now(), localeName),
                                 amount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.amountFormatted(),
+                                    : trade.depositAmount.toStringWithSymbol(fractionalDigits: 8),
                                 receiveAmount: dashboardViewModel.balanceDisplayMode ==
                                         BalanceDisplayMode.hiddenBalance
                                     ? "---"
-                                    : trade.receiveAmountFormatted(),
+                                    : trade.payoutAmount.toStringWithSymbol(fractionalDigits: 8),
                                 roundedBottom: roundedBottom,
                                 roundedTop: roundedTop,
                                 bottomSeparator: !roundedBottom,
@@ -161,7 +172,7 @@ class HistorySection extends StatelessWidget {
                                     style: TextStyle(
                                         color: Theme.of(context).colorScheme.onSurfaceVariant)));
                           } else if (item is OrderListItem) {
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context)
                                   .pushNamed(Routes.orderDetails, arguments: item.order),
                               child: HistoryOrderTile(
@@ -176,7 +187,7 @@ class HistorySection extends StatelessWidget {
                           } else if (item is PayjoinTransactionListItem) {
                             final session = item.session;
 
-                            return GestureDetector(
+                            return _historyRow(
                               onTap: () => Navigator.of(context).pushNamed(
                                 Routes.payjoinDetails,
                                 arguments: [item.sessionId, item.transaction],
@@ -196,7 +207,7 @@ class HistorySection extends StatelessWidget {
                           } else if (item is AnonpayTransactionListItem) {
                             final transactionInfo = item.transaction;
 
-                            return GestureDetector(
+                            return _historyRow(
                                 onTap: () => Navigator.of(context).pushNamed(
                                     Routes.anonPayDetailsPage,
                                     arguments: transactionInfo),

@@ -146,6 +146,13 @@ abstract class PaymentViewModelBase with Store {
     await evm!.selectChain(appStore.wallet!, detectedChainId!, node: node);
   }
 
+  void applyManualEvmSelection(AddressDetectionResult detection) {
+    runInAction(() {
+      _lastDetectionResult = detection;
+      detectedWalletType = detection.detectedWalletType;
+    });
+  }
+
   Future<List<WalletInfo>> getWalletsByType(WalletType walletType) async {
     return (await WalletInfo.getAll()).where((wallet) => wallet.type == walletType).toList();
   }
@@ -245,7 +252,8 @@ class PaymentFlowResult {
     if (chainId == null && addressDetectionResult.detectedCurrency != null) {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
-    if (chainId == null) {
+
+    if (chainId == null && isEVMCompatibleChain(wallet.type)) {
       chainId = evm?.getChainIdByWalletType(wallet.type);
     }
 
@@ -267,7 +275,7 @@ class PaymentFlowResult {
     if (chainId == null && addressDetectionResult.detectedCurrency != null) {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
-    if (chainId == null) {
+    if (chainId == null && isEVMCompatibleChain(wallets.first.type)) {
       chainId = evm?.getChainIdByWalletType(wallets.first.type);
     }
 
@@ -289,7 +297,7 @@ class PaymentFlowResult {
     if (chainId == null && addressDetectionResult.detectedCurrency != null) {
       chainId = getChainIdByCryptoCurrency(addressDetectionResult.detectedCurrency!);
     }
-    if (chainId == null) {
+    if (chainId == null && isEVMCompatibleChain(walletType)) {
       chainId = evm?.getChainIdByWalletType(walletType);
     }
 

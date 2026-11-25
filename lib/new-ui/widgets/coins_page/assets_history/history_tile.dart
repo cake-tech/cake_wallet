@@ -100,9 +100,9 @@ class HistoryTile extends StatelessWidget {
         children: [
           Opacity(
             opacity: pending ? 0.5 : 1,
-            child: CakeImageWidget(
+            child: TokenImageWidget(
               imageUrl: asset?.iconPath ?? "",
-              width: 34,
+              size: 34,
             ),
           ),
           Align(
@@ -142,7 +142,8 @@ class HistoryTile extends StatelessWidget {
       date: date,
       amount: amount,
       amountFiat: amountFiat,
-      leadingIcon: _getLeadingIcon(context),
+      // Decorative: `title` already reads out sent/received/pending.
+      leadingIcon: ExcludeSemantics(child: _getLeadingIcon(context)),
       primaryTextColor: _getPrimaryTextColor(),
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,

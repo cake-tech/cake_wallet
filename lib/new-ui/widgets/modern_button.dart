@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -11,6 +12,12 @@ class ModernButton extends StatelessWidget {
   final Color? backgroundColor;
   final double? iconSize;
   final String? label;
+
+  /// Accessible name announced by screen readers. Falls back to [label] (the
+  /// visible caption) when omitted, so one of the two is required. Must be
+  /// localized by the caller.
+  final String? semanticLabel;
+  final String? testId;
   static const iconSvgSizeRatio = 2 / 3;
 
   const ModernButton(
@@ -21,7 +28,9 @@ class ModernButton extends StatelessWidget {
       this.iconSize,
       this.iconColor,
       this.backgroundColor,
-      this.label})
+      this.label,
+      this.semanticLabel,
+      this.testId})
       : svgPath = null;
 
   const ModernButton.svg(
@@ -32,7 +41,9 @@ class ModernButton extends StatelessWidget {
       this.iconSize,
       this.iconColor,
       this.backgroundColor,
-      this.label})
+      this.label,
+      this.semanticLabel,
+      this.testId})
       : icon = null;
 
   @override
@@ -56,31 +67,53 @@ class ModernButton extends StatelessWidget {
             child: icon!,
           );
 
-    return Column(
-      spacing: 8,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: resolvedBackgroundColor,
-            borderRadius: BorderRadius.circular(size),
-          ),
-          width: size,
-          height: size,
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            onPressed: onPressed,
-            icon: resolvedIcon,
-          ),
+    // A single accessibility node for the whole control: the visible caption
+    // duplicates the accessible name, so it is excluded to avoid a second,
+    // detached stop for screen readers.
+    return MergeSemantics(
+      child: Semantics(
+        identifier: testId ?? TestId.fromKey(key),
+        button: true,
+        label: semanticLabel ?? label,
+        child: Column(
+          spacing: 8,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: resolvedBackgroundColor,
+                borderRadius: BorderRadius.circular(size),
+              ),
+              width: size,
+              height: size,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: onPressed,
+                icon: ExcludeSemantics(child: resolvedIcon),
+              ),
+            ),
+            if (label != null && label!.isNotEmpty)
+              ExcludeSemantics(
+                // The caption can be longer than the circle (Tamil
+                // "தொகையை அமைக்கவும்"); bound it to the button width so rows of
+                // buttons cannot overflow the screen.
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: size + 16),
+                  child: Text(
+                    label!,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurface),
+                  ),
+                ),
+              )
+          ],
         ),
-        if (label != null && label!.isNotEmpty)
-          Text(
-            label!,
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-                color: Theme.of(context).colorScheme.onSurface),
-          )
-      ],
+      ),
     );
   }
 }

@@ -25,6 +25,10 @@ class LinkViewModel {
   Uri? currentLink;
   bool readyToOpenPage = false;
 
+  final StreamController<Uri> _incomingPaymentLinksController = StreamController<Uri>.broadcast();
+
+  Stream<Uri> get incomingPaymentLinks => _incomingPaymentLinksController.stream;
+
   bool get _isValidPaymentUri => currentLink?.path.isNotEmpty ?? false;
   bool get isWalletConnectLink => currentLink?.authority == 'wc';
   bool get isNanoGptLink => currentLink?.scheme == 'nano-gpt';
@@ -47,7 +51,7 @@ class LinkViewModel {
         case 'send':
           return Routes.send;
         case 'receive':
-          return Routes.addressPage;
+          return Routes.newReceivePage;
         default:
           return null;
       }
@@ -96,7 +100,10 @@ class LinkViewModel {
     }
 
     if (_isValidPaymentUri) {
-      return {"paymentRequest": PaymentRequest.fromUri(currentLink)};
+      return {
+        "paymentRequest": PaymentRequest.fromUri(currentLink),
+        "rawLink": currentLink.toString(),
+      };
     }
 
     return null;
@@ -132,8 +139,20 @@ class LinkViewModel {
         return;
       }
 
-      // Prevent navigating to the same route again.
+      if (route == Routes.send &&
+          !isQuickActionLink &&
+          currentLink != null &&
+          _incomingPaymentLinksController.hasListener) {
+        final link = currentLink!;
+        currentLink = null;
+        _incomingPaymentLinksController.add(link);
+        return;
+      }
+
+      // Prevent navigating to the same route again and clear the link so a later auth
+      // event cannot refire it.
       if (appStore.currentRouteName == route) {
+        currentLink = null;
         return;
       }
 

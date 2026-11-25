@@ -28,10 +28,12 @@ class _HardwareWalletTrezorParingSheetState extends State<HardwareWalletTrezorPa
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ModalTopBar(
+                testId: "trezor_paring_sheet_top_bar",
                 title: "Paring code",
                 onLeadingPressed: Navigator.of(context).pop,
                 onTrailingPressed: () {},
                 leadingIcon: Icon(Icons.close),
+                leadingSemanticLabel: S.of(context).close,
               ),
               Padding(
                 padding: const EdgeInsets.all(18.0),
