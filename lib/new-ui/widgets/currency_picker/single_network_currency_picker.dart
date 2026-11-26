@@ -11,6 +11,7 @@ import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/material.dart";
+import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
 class SingleNetworkCurrencyPicker extends StatefulWidget {
   const SingleNetworkCurrencyPicker({
@@ -83,6 +84,7 @@ class _SingleNetworkCurrencyPickerState extends State<SingleNetworkCurrencyPicke
       children: [
         (nativeMatches || tokens.isNotEmpty)
             ? ListView(
+                controller: ModalScrollController.of(context),
                 padding: EdgeInsets.fromLTRB(16, 8, 16, footerHeight),
                 children: [
                   if (walletName != null) ...[
