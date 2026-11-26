@@ -243,11 +243,9 @@ abstract class EVMChainWalletBase
 
   Future<void> initErc20Tokens() async {
     final tokens = await Erc20Token.getAllForWallet(walletInfo.name, selectedChainId);
-    runInAction(() {
-      _erc20Tokens
-        ..clear()
-        ..addAll(tokens);
-    });
+    _erc20Tokens
+      ..clear()
+      ..addAll(tokens);
 
     await addInitialTokens();
   }
@@ -261,13 +259,12 @@ abstract class EVMChainWalletBase
     return null;
   }
 
+  @action
   void _upsertCachedToken(Erc20Token token) {
     final lowerAddress = token.contractAddress.toLowerCase();
 
-    runInAction(() {
-      _erc20Tokens.removeWhere((t) => t.contractAddress.toLowerCase() == lowerAddress);
-      _erc20Tokens.add(token);
-    });
+    _erc20Tokens.removeWhere((t) => t.contractAddress.toLowerCase() == lowerAddress);
+    _erc20Tokens.add(token);
   }
 
   String getTransactionHistoryFileName() =>

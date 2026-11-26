@@ -85,6 +85,8 @@ abstract class SolanaWalletBase
 
   Future<void>? _currentRefresh;
 
+  Future<Map<CryptoCurrency, SolanaBalance>>? _heldTokenBalancesInFlight;
+
   final ObservableList<SPLToken> _splTokens = ObservableList<SPLToken>();
 
   @override
@@ -129,11 +131,9 @@ abstract class SolanaWalletBase
 
   Future<void> init() async {
     final tokens = await SPLToken.getAllForWallet(walletInfo.name);
-    runInAction(() {
-      _splTokens
-        ..clear()
-        ..addAll(tokens);
-    });
+    _splTokens
+      ..clear()
+      ..addAll(tokens);
 
     await _checkForExistingScamTokens();
 
@@ -232,6 +232,7 @@ abstract class SolanaWalletBase
       }
 
       _setTransactionUpdateTimer();
+      _heldTokenBalancesInFlight = null;
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
@@ -332,12 +333,20 @@ abstract class SolanaWalletBase
 
   Future<Set<String>> heldTokenMints() => _client.fetchHeldTokenMints(walletAddresses.address);
 
-  Future<Map<CryptoCurrency, SolanaBalance>> heldTokenBalances() async {
+  Future<Map<CryptoCurrency, SolanaBalance>> heldTokenBalances() {
+    final provider = _client.getSolanaProvider;
+    return _heldTokenBalancesInFlight ??= _heldTokenBalances().whenComplete(() {
+      if (identical(provider, _client.getSolanaProvider)) {
+        _heldTokenBalancesInFlight = null;
+      }
+    });
+  }
+
+  Future<Map<CryptoCurrency, SolanaBalance>> _heldTokenBalances() async {
     final amounts = await _client.fetchHeldTokenAmounts(walletAddresses.address);
     return {
       for (final token in _splTokens)
-        if (amounts[token.mintAddress] case final amount?)
-          token: SolanaBalance(Money(amount, token)),
+        token: SolanaBalance(Money(amounts[token.mintAddress] ?? BigInt.zero, token)),
     };
   }
 
@@ -798,11 +807,10 @@ abstract class SolanaWalletBase
     return null;
   }
 
+  @action
   void _upsertCachedToken(SPLToken token) {
-    runInAction(() {
-      _splTokens.removeWhere((t) => t.mintAddress == token.mintAddress);
-      _splTokens.add(token);
-    });
+    _splTokens.removeWhere((t) => t.mintAddress == token.mintAddress);
+    _splTokens.add(token);
   }
 
   Future<void> addInitialTokens() async {

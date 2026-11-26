@@ -21,6 +21,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
 import 'package:cw_core/utils/homoglyph_normalizer.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/wallet_type.dart';
 import "package:cw_core/zano_asset.dart";
 import 'package:mobx/mobx.dart';
@@ -60,6 +61,7 @@ abstract class HomeSettingsViewModelBase with Store {
   Map<String, int> _defaultTokenRanks = {};
   late final ReactionDisposer _walletTokensReaction;
   int _balanceRequestId = 0;
+  WalletBase? _balancesWallet;
 
   @observable
   bool isLoadingTokenBalances = true;
@@ -561,6 +563,10 @@ abstract class HomeSettingsViewModelBase with Store {
 
   @action
   Future<void> _loadTokenBalances() async {
+    if (_balanceViewModel.wallet != _balancesWallet) {
+      _balancesWallet = _balanceViewModel.wallet;
+      _tokenBalances.clear();
+    }
     final requestId = ++_balanceRequestId;
     final missing = tokens.where((token) => _balance(token) == null).toList();
     if (walletType == WalletType.solana && missing.isNotEmpty) {

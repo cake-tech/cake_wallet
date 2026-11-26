@@ -200,11 +200,9 @@ abstract class TronWalletBase
 
   Future<void> initTronTokens() async {
     final tokens = await TronToken.getAllForWallet(walletInfo.name);
-    runInAction(() {
-      _tronTokens
-        ..clear()
-        ..addAll(tokens);
-    });
+    _tronTokens
+      ..clear()
+      ..addAll(tokens);
   }
 
   TronToken? _findCachedToken(String contractAddress) {
@@ -215,11 +213,10 @@ abstract class TronWalletBase
     return null;
   }
 
+  @action
   void _upsertCachedToken(TronToken token) {
-    runInAction(() {
-      _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
-      _tronTokens.add(token);
-    });
+    _tronTokens.removeWhere((t) => t.contractAddress == token.contractAddress);
+    _tronTokens.add(token);
   }
 
   String idFor(String name, WalletType type) => '${walletTypeToString(type).toLowerCase()}_$name';
