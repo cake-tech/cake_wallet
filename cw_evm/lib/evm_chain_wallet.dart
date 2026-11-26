@@ -204,6 +204,7 @@ abstract class EVMChainWalletBase
     balance.clear();
 
     selectedChainId = chainId;
+    balance[currency] = EVMChainERC20Balance(Money.zero(currency));
     _client = EVMChainClientFactory.createClient(selectedChainId);
 
     // Automatically connect to node for the selected chain
@@ -1276,19 +1277,27 @@ abstract class EVMChainWalletBase
       });
 
   Future<void> _updateBalance() async {
-    balance[currency] = await _fetchEVMChainBalance();
+    final chainId = selectedChainId;
+    final nativeCurrency = currency;
+    final nativeBalance = await _fetchEVMChainBalance(nativeCurrency);
+
+    if (chainId != selectedChainId) {
+      return;
+    }
+
+    balance[nativeCurrency] = nativeBalance;
 
     await _fetchErc20Balances();
     await save();
   }
 
-  Future<EVMChainERC20Balance> _fetchEVMChainBalance() async {
+  Future<EVMChainERC20Balance> _fetchEVMChainBalance(CryptoCurrency nativeCurrency) async {
     try {
       final balance = await _client.getBalance(_evmChainPrivateKey.address);
 
-      return EVMChainERC20Balance(Money(balance.getInWei, currency));
+      return EVMChainERC20Balance(Money(balance.getInWei, nativeCurrency));
     } catch (_) {
-      return balance[currency] ?? EVMChainERC20Balance(Money.zero(currency));
+      return balance[nativeCurrency] ?? EVMChainERC20Balance(Money.zero(nativeCurrency));
     }
   }
 
@@ -1306,6 +1315,8 @@ abstract class EVMChainWalletBase
   }
 
   Future<void> _fetchErc20Balances() async {
+    final chainId = selectedChainId;
+
     // First, clean up any tokens in balance map that don't belong to current chain
     // This handles tokens from previous chains that might still be in the balance map
     final tokensInBalance = balance.keys.whereType<Erc20Token>().toList();
@@ -1321,6 +1332,10 @@ abstract class EVMChainWalletBase
     }
 
     for (var token in tokens) {
+      if (chainId != selectedChainId) {
+        return;
+      }
+
       if (!_isTokenMatchingChain(token)) {
         printV('NOTEE!!!: Token ${token.title} is not matching the currency ${currency.title}');
         try {
@@ -1334,7 +1349,16 @@ abstract class EVMChainWalletBase
 
       try {
         if (token.enabled) {
-          balance[token] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, token);
+          final tokenBalance = await _client.fetchERC20Balances(
+            _evmChainPrivateKey.address,
+            token,
+          );
+
+          if (chainId != selectedChainId) {
+            return;
+          }
+
+          balance[token] = tokenBalance;
         } else {
           balance.remove(token);
         }
