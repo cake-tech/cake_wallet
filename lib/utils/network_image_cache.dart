@@ -4,7 +4,6 @@ import "dart:io";
 import "dart:typed_data";
 
 import "package:crypto/crypto.dart";
-import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:cw_core/utils/proxy_wrapper.dart";
 import "package:flutter/foundation.dart";
@@ -13,6 +12,7 @@ import "package:flutter/foundation.dart";
 // ...don't use it for anything else though. please.
 import "package:http/http.dart" as very_insecure_http_do_not_use;
 import "package:path/path.dart" as p;
+import "package:path_provider/path_provider.dart";
 
 
 class NetworkImageCache {
@@ -36,7 +36,7 @@ class NetworkImageCache {
   static String fileNameFor(String url) => sha256.convert(utf8.encode(url)).toString();
 
   Future<String> _path() async =>
-      _directoryPath ??= p.join((await getAppDir()).path, directoryName);
+      _directoryPath ??= p.join((await getApplicationCacheDirectory()).path, directoryName);
 
   File _fileIn(String directoryPath, String url) => File(p.join(directoryPath, fileNameFor(url)));
 
