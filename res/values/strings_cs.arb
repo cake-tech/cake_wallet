@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Vyberte prosím měnu peněženky:",
   "choose_wallet_group": "Vyberte skupinu peněženek",
   "clear": "Vymazat",
+  "clear_image_cache": "Vymazat mezipaměť obrázků",
+  "clear_image_cache_confirmation": "Opravdu chcete vymazat mezipaměť obrázků?",
   "clearnet_link": "Clearnet odkaz",
   "close": "Zavřít",
   "coin_control": "Kontrola mincí (nepovinné)",

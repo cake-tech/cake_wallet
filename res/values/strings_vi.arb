@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Vui lòng chọn loại tiền tệ của ví:",
   "choose_wallet_group": "Chọn nhóm ví",
   "clear": "Xóa",
+  "clear_image_cache": "Xóa bộ nhớ đệm hình ảnh",
+  "clear_image_cache_confirmation": "Bạn có chắc chắn muốn xóa bộ nhớ đệm hình ảnh không?",
   "clearnet_link": "Liên kết clearnet",
   "close": "Đóng",
   "coin_control": "Kiểm soát coin (tùy chọn)",

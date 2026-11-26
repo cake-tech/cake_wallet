@@ -1,3 +1,6 @@
+import "dart:async";
+import "dart:io";
+import "package:cake_wallet/utils/network_image_cache.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -93,35 +96,22 @@ class CakeImageWidget extends StatelessWidget {
         );
       }
     } else {
-      imageWidget = isSvg
-          ? SvgPicture.network(
-              imageUrl!,
-              height: height,
-              width: width,
-              colorFilter: effectiveColorFilter,
-              alignment: alignment ?? Alignment.center,
-              allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
-              fit: fit ?? BoxFit.contain,
-              semanticsLabel: semanticsLabel,
-              excludeFromSemantics: _isDecorative,
-              placeholderBuilder: (_) => _buildLoadingWidget(),
-              errorBuilder: (_, __, ___) => _buildErrorWidget(context),
-            )
-          : Image.network(
-              imageUrl!,
-              height: height,
-              width: width,
-              fit: fit ?? BoxFit.cover,
-              color: color,
-              filterQuality: filterQuality ?? FilterQuality.medium,
-              semanticLabel: semanticsLabel,
-              excludeFromSemantics: _isDecorative,
-              loadingBuilder: (_, Widget child, ImageChunkEvent? progress) {
-                if (progress == null) return child;
-                return _buildLoadingWidget();
-              },
-              errorBuilder: (_, __, ___) => _buildErrorWidget(context),
-            );
+      imageWidget = _CachedNetworkImage(
+        url: imageUrl!,
+        isSvg: isSvg,
+        fit: fit ?? (isSvg ? BoxFit.contain : BoxFit.cover),
+        alignment: alignment ?? Alignment.center,
+        allowDrawingOutsideViewBox: allowDrawingOutsideViewBox ?? false,
+        filterQuality: filterQuality ?? FilterQuality.medium,
+        excludeFromSemantics: _isDecorative,
+        loadingWidget: _buildLoadingWidget(),
+        errorWidget: _buildErrorWidget(context),
+        height: height,
+        width: width,
+        color: color,
+        colorFilter: effectiveColorFilter,
+        semanticsLabel: semanticsLabel,
+      );
     }
 
     return imageWidget;
@@ -168,4 +158,111 @@ class CakeImageWidget extends StatelessWidget {
             child: ExcludeSemantics(child: placeholder),
           );
   }
+}
+
+class _CachedNetworkImage extends StatefulWidget {
+  const _CachedNetworkImage({
+    required this.url,
+    required this.isSvg,
+    required this.fit,
+    required this.alignment,
+    required this.allowDrawingOutsideViewBox,
+    required this.filterQuality,
+    required this.excludeFromSemantics,
+    required this.loadingWidget,
+    required this.errorWidget,
+    this.height,
+    this.width,
+    this.color,
+    this.colorFilter,
+    this.semanticsLabel,
+  });
+
+  final String url;
+  final bool isSvg;
+  final BoxFit fit;
+  final AlignmentGeometry alignment;
+  final bool allowDrawingOutsideViewBox;
+  final FilterQuality filterQuality;
+  final bool excludeFromSemantics;
+  final Widget loadingWidget;
+  final Widget errorWidget;
+  final double? height;
+  final double? width;
+  final Color? color;
+  final ColorFilter? colorFilter;
+  final String? semanticsLabel;
+
+  @override
+  State<_CachedNetworkImage> createState() => _CachedNetworkImageState();
+}
+
+class _CachedNetworkImageState extends State<_CachedNetworkImage> {
+  File? _file;
+  bool _failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _resolve();
+  }
+
+  @override
+  void didUpdateWidget(_CachedNetworkImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.url != widget.url) {
+      _resolve();
+    }
+  }
+
+  Future<void> _resolve() async {
+    final url = widget.url;
+    _failed = false;
+    _file = NetworkImageCache.instance.cachedFileSync(url);
+    if (_file != null) {
+      return;
+    }
+
+    final file = await NetworkImageCache.instance.getFile(url);
+    if (mounted && widget.url == url) {
+      setState(() {
+        _file = file;
+        _failed = file == null;
+      });
+    }
+  }
+
+  Widget _buildDecodeErrorWidget() {
+    unawaited(NetworkImageCache.instance.removeFromCache(widget.url));
+    return widget.errorWidget;
+  }
+
+  @override
+  Widget build(BuildContext context) => switch (_file) {
+        null when _failed => widget.errorWidget,
+        null => widget.loadingWidget,
+        final file when widget.isSvg => SvgPicture.file(
+            file,
+            height: widget.height,
+            width: widget.width,
+            colorFilter: widget.colorFilter,
+            alignment: widget.alignment,
+            allowDrawingOutsideViewBox: widget.allowDrawingOutsideViewBox,
+            fit: widget.fit,
+            semanticsLabel: widget.semanticsLabel,
+            excludeFromSemantics: widget.excludeFromSemantics,
+            errorBuilder: (_, _, _) => _buildDecodeErrorWidget(),
+          ),
+        final file => Image.file(
+            file,
+            height: widget.height,
+            width: widget.width,
+            fit: widget.fit,
+            color: widget.color,
+            filterQuality: widget.filterQuality,
+            semanticLabel: widget.semanticsLabel,
+            excludeFromSemantics: widget.excludeFromSemantics,
+            errorBuilder: (_, _, _) => _buildDecodeErrorWidget(),
+          ),
+      };
 }

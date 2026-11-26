@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Mangyaring piliin ang currency ng wallet:",
   "choose_wallet_group": "Pumili ng Grupo ng Wallet",
   "clear": "I-clear",
+  "clear_image_cache": "I-clear ang cache ng larawan",
+  "clear_image_cache_confirmation": "Sigurado ka bang gusto mong i-clear ang cache ng larawan?",
   "clearnet_link": "Link ng Clearnet",
   "close": "Isara",
   "coin_control": "Kontrol ng coin (opsyonal)",

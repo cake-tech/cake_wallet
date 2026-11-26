@@ -269,6 +269,8 @@
   "choose_wallet_currency": "Bitte wählen Sie die Wallet-Währung:",
   "choose_wallet_group": "Wallet-Gruppe auswählen",
   "clear": "Löschen",
+  "clear_image_cache": "Bild-Cache leeren",
+  "clear_image_cache_confirmation": "Möchten Sie den Bild-Cache wirklich leeren?",
   "clearnet_link": "Clearnet-Link",
   "close": "Schließen",
   "coin_control": "Coin Control (optional)",

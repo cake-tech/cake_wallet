@@ -235,6 +235,8 @@
   "choose_wallet_currency": "ကျေးဇူးပြု၍ ပိုက်ဆံအိတ်၏ ငွေကြေးကို ရွေးချယ်ပါ:",
   "choose_wallet_group": "Wallet အုပ်စုကို ရွေးပါ",
   "clear": "ရှင်းလင်း",
+  "clear_image_cache": "ပုံ ကက်ရှ်ကို ရှင်းလင်းရန်",
+  "clear_image_cache_confirmation": "ပုံ ကက်ရှ်ကို ရှင်းလင်းလိုသည်မှာ သေချာပါသလား။",
   "clearnet_link": "Clearnet လင့်ခ်",
   "close": "ပိတ်ရန်",
   "coin_control": "Coin control (ရွေးချယ်နိုင်သည်)",

@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Будь ласка, виберіть валюту гаманця:",
   "choose_wallet_group": "Виберіть групу гаманців",
   "clear": "Очистити",
+  "clear_image_cache": "Очистити кеш зображень",
+  "clear_image_cache_confirmation": "Ви впевнені, що хочете очистити кеш зображень?",
   "clearnet_link": "Посилання Clearnet",
   "close": "Закрити",
   "coin_control": "Контроль монет (необов’язково)",

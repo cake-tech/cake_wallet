@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Molimo odaberite valutu novčanika:",
   "choose_wallet_group": "Odaberite grupu novčanika",
   "clear": "Očisti",
+  "clear_image_cache": "Očisti predmemoriju slika",
+  "clear_image_cache_confirmation": "Jeste li sigurni da želite očistiti predmemoriju slika?",
   "clearnet_link": "Clearnet poveznica",
   "close": "Zatvori",
   "coin_control": "Kontrola kovanica (nije obavezno)",

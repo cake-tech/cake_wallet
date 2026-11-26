@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Silakan pilih mata uang dompet:",
   "choose_wallet_group": "Pilih Grup Dompet",
   "clear": "Bersihkan",
+  "clear_image_cache": "Bersihkan cache gambar",
+  "clear_image_cache_confirmation": "Apakah Anda yakin ingin membersihkan cache gambar?",
   "clearnet_link": "Tautan Clearnet",
   "close": "Tutup",
   "coin_control": "Kontrol koin (opsional)",

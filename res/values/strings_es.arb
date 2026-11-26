@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Por favor, elige la divisa de la cartera:",
   "choose_wallet_group": "Elegir grupo de billeteras",
   "clear": "Borrar",
+  "clear_image_cache": "Borrar caché de imágenes",
+  "clear_image_cache_confirmation": "¿Seguro que quieres borrar la caché de imágenes?",
   "clearnet_link": "Enlace de Clearnet",
   "close": "Cerrar",
   "coin_control": "Control de monedas (opcional)",

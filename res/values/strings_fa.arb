@@ -235,6 +235,8 @@
   "choose_wallet_currency": "لطفاً ارز کیف پول را انتخاب کنید:",
   "choose_wallet_group": "انتخاب گروه کیف پول",
   "clear": "پاک کردن",
+  "clear_image_cache": "پاک کردن حافظه پنهان تصاویر",
+  "clear_image_cache_confirmation": "آیا مطمئن هستید که می‌خواهید حافظه پنهان تصاویر را پاک کنید؟",
   "clearnet_link": "لینک کلیرنت",
   "close": "بستن",
   "coin_control": "کنترل کوین (اختیاری)",

@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Kies een walletvaluta:",
   "choose_wallet_group": "Kies walletgroep",
   "clear": "Wissen",
+  "clear_image_cache": "Afbeeldingscache wissen",
+  "clear_image_cache_confirmation": "Weet je zeker dat je de afbeeldingscache wilt wissen?",
   "clearnet_link": "Clearnet-link",
   "close": "Sluiten",
   "coin_control": "Coin Control (optioneel)",

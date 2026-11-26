@@ -235,6 +235,8 @@
   "choose_wallet_currency": "يرجى اختيار عملة المحفظة:",
   "choose_wallet_group": "اختر مجموعة المحفظة",
   "clear": "مسح",
+  "clear_image_cache": "مسح ذاكرة التخزين المؤقت للصور",
+  "clear_image_cache_confirmation": "هل أنت متأكد أنك تريد مسح ذاكرة التخزين المؤقت للصور؟",
   "clearnet_link": "رابط الشبكة العادية",
   "close": "إغلاق",
   "coin_control": "التحكم في العملات (اختياري)",

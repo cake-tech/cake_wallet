@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Моля, изберете валута на портфейла:",
   "choose_wallet_group": "Изберете група портфейли",
   "clear": "Изчисти",
+  "clear_image_cache": "Изчисти кеша на изображенията",
+  "clear_image_cache_confirmation": "Сигурни ли сте, че искате да изчистите кеша на изображенията?",
   "clearnet_link": "Clearnet връзка",
   "close": "Затвори",
   "coin_control": "Контрол на монетите (по избор)",

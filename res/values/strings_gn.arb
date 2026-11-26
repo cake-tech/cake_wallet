@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Eiporavo por favor pe moneda pe billetera-pe g̃uarã:",
   "choose_wallet_group": "Eiporavo Billetera Atyrã (Wallet Group)",
   "clear": "Mopotĩ",
+  "clear_image_cache": "Mopotĩ ta'ãnga caché",
+  "clear_image_cache_confirmation": "¿Eñemoañete piko remopotĩse ta'ãnga caché?",
   "clearnet_link": "Joaju clearnet",
   "close": "Mboty",
   "coin_control": "Jehecha moneda (poravokuaá)",

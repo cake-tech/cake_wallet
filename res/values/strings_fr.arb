@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Veuillez choisir la devise du portefeuille :",
   "choose_wallet_group": "Choisir un groupe de portefeuilles",
   "clear": "Effacer",
+  "clear_image_cache": "Vider le cache des images",
+  "clear_image_cache_confirmation": "Êtes-vous sûr de vouloir vider le cache des images ?",
   "clearnet_link": "Lien Clearnet",
   "close": "Fermer",
   "coin_control": "Contrôle des pièces (optionnel)",
