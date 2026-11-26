@@ -1,3 +1,4 @@
+import "package:cake_wallet/generated/i18n.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +12,7 @@ class WCSheetHeader extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return SizedBox(
-      height: 40,
+      height: 48,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -27,14 +28,15 @@ class WCSheetHeader extends StatelessWidget {
               child: Container(
                 width: 40,
                 height: 40,
+                margin: const EdgeInsetsDirectional.fromSTEB(0, 4, 8, 4),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHighest,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.close,
-                  size: 20,
-                  color: colors.onSurface,
+                child: Semantics(
+                  button: true,
+                  label: S.of(context).reject,
+                  child: Icon(Icons.close, size: 20, color: colors.onSurface),
                 ),
               ),
             ),

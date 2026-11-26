@@ -6,6 +6,9 @@ class EvmCalldata {
   }
   EvmCalldata._(this.selector, this.body);
 
+  static final uint160Max = (BigInt.one << 160) - BigInt.one;
+  static final uint256Max = (BigInt.one << 256) - BigInt.one;
+
   final String selector;
   final String body;
 
@@ -15,13 +18,15 @@ class EvmCalldata {
     }
     final normalized = rawData.toLowerCase();
     final hex = normalized.startsWith("0x") ? normalized.substring(2) : normalized;
-    if (hex.length < 8) {
+    if (hex.isEmpty) {
       return null;
     }
-    final selector = hex.substring(0, 8);
-    final body = hex.length > 8 ? hex.substring(8) : "";
-    return EvmCalldata._(selector, body);
+    final selectorEnd = hex.length < 8 ? hex.length : 8;
+    return EvmCalldata._(hex.substring(0, selectorEnd), hex.substring(selectorEnd));
   }
+
+  EvmCalldata? zeroPaddedTo(int words) =>
+      body.length < words * 64 ? EvmCalldata._(selector, body.padRight(words * 64, "0")) : null;
 
   String? wordAt(int index) {
     final start = index * 64;
@@ -36,10 +41,6 @@ class EvmCalldata {
     if (word == null) {
       return null;
     }
-    final prefix = word.substring(0, 24);
-    if (prefix.replaceAll("0", "").isNotEmpty) {
-      return null;
-    }
     return "0x${word.substring(24, 64)}";
   }
 
@@ -49,6 +50,14 @@ class EvmCalldata {
       return null;
     }
     return BigInt.tryParse(word, radix: 16);
+  }
+
+  int? boundedUintAt(int index) {
+    final value = uintAt(index);
+    if (value == null || value > BigInt.from(body.length ~/ 2)) {
+      return null;
+    }
+    return value.toInt();
   }
 
   bool? boolAt(int index) {
@@ -72,124 +81,86 @@ class EvmCalldata {
     return byteCount.toInt() * 2;
   }
 
-  List<int>? dynamicBytesAt(int wordIndex) {
-    final byteStart = _charOffset(uintAt(wordIndex), body.length);
-    if (byteStart == null) {
+  int? _tailStart(int wordIndex) {
+    final start = _charOffset(uintAt(wordIndex), body.length);
+    if (start == null || body.length < start + 64) {
       return null;
     }
-    if (body.length < byteStart + 64) {
+    return start;
+  }
+
+  List<int>? dynamicBytesAt(int wordIndex, {int? lengthBits}) {
+    final lengthStart = _tailStart(wordIndex);
+    if (lengthStart == null) {
       return null;
     }
+    final dataStart = lengthStart + 64;
+    final lengthWord = BigInt.tryParse(body.substring(lengthStart, dataStart), radix: 16);
     final length = _charOffset(
-      BigInt.tryParse(body.substring(byteStart, byteStart + 64), radix: 16),
-      body.length - byteStart - 64,
+      lengthBits == null ? lengthWord : lengthWord?.toUnsigned(lengthBits),
+      body.length - dataStart,
     );
     if (length == null) {
       return null;
     }
-    final dataStart = byteStart + 64;
-    final dataEnd = dataStart + length;
-    if (body.length < dataEnd) {
-      return null;
-    }
-    final out = <int>[];
-    for (var i = dataStart; i < dataEnd; i += 2) {
-      out.add(int.parse(body.substring(i, i + 2), radix: 16));
-    }
-    return out;
+    return [
+      for (var byteStart = dataStart; byteStart < dataStart + length; byteStart += 2)
+        int.parse(body.substring(byteStart, byteStart + 2), radix: 16),
+    ];
   }
 
-  List<String>? addressArrayAt(int wordIndex) {
-    final byteStart = _charOffset(uintAt(wordIndex), body.length);
-    if (byteStart == null) {
-      return null;
-    }
-    if (body.length < byteStart + 64) {
-      return null;
-    }
-    final length = BigInt.tryParse(
-      body.substring(byteStart, byteStart + 64),
-      radix: 16,
-    )?.toInt();
-    if (length == null || length < 0) {
-      return null;
-    }
-    final out = <String>[];
-    var cursor = byteStart + 64;
-    for (var i = 0; i < length; i++) {
-      if (body.length < cursor + 64) {
-        return null;
-      }
-      final word = body.substring(cursor, cursor + 64);
-      final prefix = word.substring(0, 24);
-      if (prefix.replaceAll("0", "").isNotEmpty) {
-        return null;
-      }
-      out.add("0x${word.substring(24, 64)}");
-      cursor += 64;
-    }
-    return out;
-  }
+  List<String>? addressArrayAt(int wordIndex) =>
+      _wordArrayAt(wordIndex)?.map((word) => "0x${word.substring(24)}").toList();
 
   List<BigInt>? uintArrayAt(int wordIndex) {
-    final byteStart = _charOffset(uintAt(wordIndex), body.length);
-    if (byteStart == null) {
+    final words = _wordArrayAt(wordIndex);
+    if (words == null) {
       return null;
     }
-    if (body.length < byteStart + 64) {
+    final values = [for (final word in words) BigInt.tryParse(word, radix: 16)];
+    return values.contains(null) ? null : values.nonNulls.toList();
+  }
+
+  List<String>? _wordArrayAt(int wordIndex) {
+    final lengthStart = _tailStart(wordIndex);
+    if (lengthStart == null) {
       return null;
     }
-    final length = BigInt.tryParse(
-      body.substring(byteStart, byteStart + 64),
-      radix: 16,
-    )?.toInt();
-    if (length == null || length < 0) {
+    final firstWord = lengthStart + 64;
+    final length = BigInt.tryParse(body.substring(lengthStart, firstWord), radix: 16);
+    if (length == null || length < BigInt.zero) {
       return null;
     }
-    final out = <BigInt>[];
-    var cursor = byteStart + 64;
-    for (var i = 0; i < length; i++) {
-      if (body.length < cursor + 64) {
-        return null;
-      }
-      final value = BigInt.tryParse(body.substring(cursor, cursor + 64), radix: 16);
-      if (value == null) {
-        return null;
-      }
-      out.add(value);
-      cursor += 64;
+    if (length > BigInt.from((body.length - firstWord) ~/ 64)) {
+      return null;
     }
-    return out;
+    return [
+      for (var start = firstWord; start < firstWord + length.toInt() * 64; start += 64)
+        body.substring(start, start + 64),
+    ];
   }
 
   EvmCalldata? structAt(int wordIndex) {
-    final start = _charOffset(uintAt(wordIndex), body.length);
-    if (start == null) {
-      return null;
-    }
-    if (body.length < start + 64) {
-      return null;
-    }
-    return EvmCalldata.fromBody(body.substring(start));
+    final start = _tailStart(wordIndex);
+    return start == null ? null : EvmCalldata.fromBody(body.substring(start));
   }
 
-  List<String>? bytesArrayAt(int wordIndex) {
-    final arrStart = _charOffset(uintAt(wordIndex), body.length);
+  List<String>? bytesArrayAt(int wordIndex, {int? lengthBits}) {
+    final arrStart = _tailStart(wordIndex);
     if (arrStart == null) {
       return null;
     }
-    if (body.length < arrStart + 64) {
-      return null;
-    }
-    final count = BigInt.tryParse(body.substring(arrStart, arrStart + 64), radix: 16)?.toInt();
+    final countWord = BigInt.tryParse(body.substring(arrStart, arrStart + 64), radix: 16);
+    final count = (lengthBits == null ? countWord : countWord?.toUnsigned(lengthBits))?.toInt();
     if (count == null || count < 0) {
       return null;
     }
 
     final headStart = arrStart + 64;
     final out = <String>[];
-    for (var i = 0; i < count; i++) {
-      final offWordStart = headStart + i * 64;
+    int totalLength = 0;
+    for (var index = 0; index < count; index++) {
+      final offWordStart = headStart + index * 64;
       if (body.length < offWordStart + 64) {
         return null;
       }
@@ -216,6 +187,10 @@ class EvmCalldata {
       if (body.length < dataEnd) {
         return null;
       }
+      totalLength += elemLen;
+      if (totalLength > body.length) {
+        return null;
+      }
       out.add(body.substring(dataStart, dataEnd));
     }
     return out;
@@ -223,7 +198,7 @@ class EvmCalldata {
 
   static String addressFromBytes(List<int> bytes, int offset) {
     final slice = bytes.sublist(offset, offset + 20);
-    final hex = slice.map((b) => b.toRadixString(16).padLeft(2, "0")).join();
+    final hex = slice.map((byte) => byte.toRadixString(16).padLeft(2, "0")).join();
     return "0x$hex";
   }
 }

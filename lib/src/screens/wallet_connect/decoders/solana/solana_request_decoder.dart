@@ -1,16 +1,18 @@
+import "dart:async";
 import "dart:convert";
+import "dart:math";
 
-import "package:blockchain_utils/base58/base58.dart";
+import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/alt_lookup.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/ata_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/memo_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/sol_instruction_bytes.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/solana_account_fetcher.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/solana_lookup_budget.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/solana_program_ids.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/spl_token_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/spl_token_resolver.dart";
-import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/swap_inference.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/system_program_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
@@ -19,42 +21,44 @@ import "package:cw_core/utils/print_verbose.dart";
 import "package:on_chain/solana/solana.dart";
 
 class SolanaRequestDecoder {
-  SolanaRequestDecoder(AppStore? appStore) : _resolver = SplTokenResolver(appStore) {
-    _fetcher = SolanaAccountFetcher(appStore);
-    _altLookup = AltLookup(_fetcher);
-    _systemDecoder = SystemProgramDecoder(_resolver);
-    _splDecoder = SplTokenDecoder(_resolver, _fetcher);
-    _ataDecoder = AtaDecoder(_resolver);
-    _memoDecoder = MemoDecoder();
-    _swapInference = SwapInferenceEngine(resolver: _resolver, appStore: appStore);
-  }
+  SolanaRequestDecoder(this._appStore);
 
   static const _lamportsPerSignature = 5000;
 
-  final SplTokenResolver _resolver;
-  late final SolanaAccountFetcher _fetcher;
-  late final AltLookup _altLookup;
-  late final SystemProgramDecoder _systemDecoder;
-  late final SplTokenDecoder _splDecoder;
-  late final AtaDecoder _ataDecoder;
-  late final MemoDecoder _memoDecoder;
-  late final SwapInferenceEngine _swapInference;
+  static const _maxTransactionChars = 1644;
 
-  Future<WCDecodedRequest> decodeSignMessage(String messageBase58) async {
-    String decoded;
-    try {
-      final bytes = Base58Decoder.decode(messageBase58);
-      decoded = utf8.decode(bytes, allowMalformed: true);
-    } catch (e) {
-      printV("SolanaRequestDecoder: sign-message decode failed: $e");
-      decoded = messageBase58;
+  static const _lookupBudget = Duration(seconds: 10);
+
+  static const _builtinInstructionComputeUnits = 3000;
+  static const _otherInstructionComputeUnits = 200000;
+  static const _maxComputeUnits = 1400000;
+
+  static const _setUnitLimitTag = 2;
+  static const _setUnitPriceTag = 3;
+
+  static final _highFeeLamports = BigInt.from(50000000);
+
+  final AppStore? _appStore;
+
+  WCDecodedRequest decodeSignMessage(List<int> messageBytes) {
+    if (_isTransactionMessage(messageBytes)) {
+      throw const FormatException("solana_signMessage payload is a transaction message");
     }
-    return WCDecodedRequest(
-      actionTitle: S.current.wc_action_sign_message,
-      rows: [WCDecodedRow(label: S.current.wc_message_label, value: decoded)],
-      hideTo: true,
-      hideValue: true,
-    );
+
+    final text = utf8.decode(messageBytes);
+    if (!BytesUtils.bytesEqual(utf8.encode(text), messageBytes)) {
+      throw const FormatException("solana_signMessage text is not the bytes that get signed");
+    }
+
+    return WCDecodedRequest.signMessage(text);
+  }
+
+  bool _isTransactionMessage(List<int> bytes) {
+    try {
+      return BytesUtils.bytesEqual(VersionedMessage.fromBuffer(bytes).serialize(), bytes);
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<WCDecodedRequest> decodeTransaction(
@@ -68,296 +72,275 @@ class SolanaRequestDecoder {
         actionTitle: S.current.wc_action_sign_transaction,
         warnings: [S.current.wc_warning_decode_failed],
         rawFallback: raw,
-        hideTo: true,
-        hideValue: true,
       );
     }
 
-    final accounts = await _altLookup.resolveAccountKeys(transaction);
+    final decoded = await _withLookups(
+      (lookups) => _decodeTransaction(transaction, walletAddress: walletAddress, lookups: lookups),
+    );
+    return decoded.copyWith(rawFallback: raw);
+  }
+
+  Future<WCDecodedRequest> _withLookups(
+    Future<WCDecodedRequest> Function(_RequestLookups lookups) decode,
+  ) async {
+    final budget = SolanaLookupBudget();
+    final budgetTimer = Timer(_lookupBudget, budget.markSpent);
+    try {
+      return await decode(_RequestLookups(_appStore, budget));
+    } finally {
+      budgetTimer.cancel();
+    }
+  }
+
+  Future<WCDecodedRequest> _decodeTransaction(
+    SolanaTransaction transaction, {
+    required String walletAddress,
+    required _RequestLookups lookups,
+  }) async {
+    final accounts = await AltLookup(lookups.fetcher).resolveAccountKeys(transaction);
     final instructions = transaction.message.compiledInstructions;
-    final feeRow = _feeRow(transaction, accounts);
 
-    final perInstructionRows = <WCDecodedRow>[];
-    final instructionRowStarts = <int>[];
+    final instructionRows = <WCDecodedRow>[];
     final warnings = <String>{};
-    final routerNames = <String>{};
-    String? overallTitle;
+    String? decodedTitle;
+    var shownInstructions = 0;
 
-    for (var i = 0; i < instructions.length; i++) {
-      instructionRowStarts.add(perInstructionRows.length);
-      final compiled = instructions[i];
-      if (compiled.programIdIndex >= accounts.length) {
-        perInstructionRows.add(
-          WCDecodedRow(
-            label: S.current.wc_instruction_n((i + 1).toString()),
-            value: "${S.current.wc_program}: ${S.current.wc_decode_failed}",
-          ),
-        );
-        warnings.add(S.current.wc_warning_unresolved_accounts);
-        continue;
-      }
-      final programId = accounts[compiled.programIdIndex];
-
-      if (SolanaProgramIds.isInternal(programId)) {
+    for (var index = 0; index < instructions.length; index++) {
+      final compiled = instructions[index];
+      final programId = compiled.programIdIndex < accounts.length
+          ? accounts[compiled.programIdIndex]
+          : null;
+      if (programId == SolanaProgramIds.computeBudget) {
         continue;
       }
 
-      final swapName = SolanaProgramIds.swapRouterName(programId);
-      if (swapName != null) {
-        routerNames.add(swapName);
-        perInstructionRows.add(
-          WCDecodedRow(
-            label: S.current.wc_instruction_n((i + 1).toString()),
-            value: "${S.current.wc_program}: $swapName",
-          ),
-        );
-        continue;
-      }
-
-      final hasUnresolvedAccounts = compiled.accounts.any((idx) => idx >= accounts.length);
-      if (hasUnresolvedAccounts) {
+      shownInstructions++;
+      final accountAddresses = [
+        for (final accountIndex in compiled.accounts)
+          accountIndex < accounts.length ? accounts[accountIndex] : null,
+      ];
+      if (programId == null || accountAddresses.contains(null)) {
         warnings.add(S.current.wc_warning_unresolved_accounts);
       }
-      final accountAddresses = compiled.accounts
-          .where((idx) => idx < accounts.length)
-          .map((idx) => accounts[idx])
-          .toList();
 
-      try {
-        SolDecodedInstruction? decoded;
-        if (programId == SolanaProgramIds.systemProgram) {
-          decoded = _systemDecoder.decode(data: compiled.data, accounts: accountAddresses);
-        } else if (SolanaProgramIds.isTokenProgram(programId)) {
-          decoded = await _splDecoder.decode(
-            data: compiled.data,
-            accounts: accountAddresses,
-          );
-        } else if (programId == SolanaProgramIds.associatedTokenProgram) {
-          decoded = await _ataDecoder.decode(
-            data: compiled.data,
-            accounts: accountAddresses,
-          );
-        } else if (SolanaProgramIds.isMemoProgram(programId)) {
-          decoded = _memoDecoder.decode(compiled.data);
-        }
-
-        if (decoded == null) {
-          perInstructionRows.add(
-            WCDecodedRow(
-              label: S.current.wc_instruction_n((i + 1).toString()),
-              value: "${S.current.wc_program}: ${_resolver.shortAddress(programId)}",
-            ),
-          );
-          warnings.add(S.current.wc_warning_unknown_instruction);
-          continue;
-        }
-
-        overallTitle ??= decoded.title;
-        perInstructionRows.add(
-          WCDecodedRow(
-            label: S.current.wc_instruction_n((i + 1).toString()),
-            value: decoded.title,
-          ),
+      if (index == 0 &&
+          programId == SolanaProgramIds.systemProgram &&
+          SolInstructionBytes(compiled.data).u32Le(0) ==
+              SystemProgramDecoder.advanceNonceAccountTag) {
+        warnings.add(S.current.wc_warning_durable_nonce);
+        final authority = accountAddresses.elementAtOrNull(
+          SystemProgramDecoder.nonceAuthorityPosition,
         );
-        perInstructionRows.addAll(decoded.rows);
+        if (authority != walletAddress) {
+          warnings.add(S.current.wc_warning_nonce_authority_not_you);
+        }
+      }
+
+      final decoded = programId == null
+          ? null
+          : await _decodeInstruction(
+              programId,
+              compiled.data,
+              accountAddresses,
+              walletAddress,
+              lookups,
+            );
+      if (decoded != null) {
+        decodedTitle = decoded.title;
         warnings.addAll(decoded.warnings);
-      } catch (e, s) {
-        printV("SolanaRequestDecoder: instruction $i decode failed: $e\n$s");
-        perInstructionRows.add(
-          WCDecodedRow(
-            label: S.current.wc_instruction_n((i + 1).toString()),
-            value: S.current.wc_decode_failed,
-          ),
-        );
-        warnings.add(S.current.wc_warning_decode_failed);
       }
-    }
 
-    final inferredSwap = await _inferSwap(transaction, accounts, walletAddress);
+      if (decoded == null && programId != null) {
+        warnings.add(S.current.wc_warning_unknown_instruction);
+      }
 
-    if (inferredSwap != null) {
-      final outsideSwap = _swapInference.instructionsOutsideSwap(
-        accounts: accounts,
-        instructions: instructions,
-        swap: inferredSwap,
-        signer: walletAddress,
-      );
-      final outsideSwapRows = [
-        for (final i in outsideSwap)
-          ...perInstructionRows.sublist(
-            instructionRowStarts[i],
-            i + 1 < instructionRowStarts.length
-                ? instructionRowStarts[i + 1]
-                : perInstructionRows.length,
-          ),
-      ];
-      final subtitleSource = inferredSwap.routerName ?? routerNames.firstOrNull;
-      final swapRows = <WCDecodedRow>[
+      final program = programId == null
+          ? S.current.wc_decode_failed
+          : SolanaProgramIds.displayName(programId);
+      instructionRows.add(
         WCDecodedRow(
-          label: S.current.wc_swap_from,
-          value: inferredSwap.payAmountFormatted,
-          kind: WCDecodedRowKind.amount,
+          label: S.current.wc_instruction_n((index + 1).toString()),
+          value: decoded?.title ?? "${S.current.wc_program}: $program",
         ),
-        WCDecodedRow(
-          label:
-              inferredSwap.receiveAmountUnknown ? S.current.wc_swap_to : S.current.wc_swap_to_min,
-          value: inferredSwap.receiveAmountFormatted,
-          kind: WCDecodedRowKind.amount,
-        ),
-      ];
-
-      return WCDecodedRequest(
-        actionTitle: S.current.wc_action_swap,
-        actionSubtitle: subtitleSource != null ? S.current.wc_via(subtitleSource) : null,
-        rows: [...swapRows, ...outsideSwapRows, if (feeRow != null) feeRow],
-        detailRows: perInstructionRows,
-        warnings: {
-          if (outsideSwap.isNotEmpty) S.current.wc_warning_swap_extra_transfers,
-          S.current.wc_warning_swap_amounts_estimated,
-          if (inferredSwap.directionInferred) S.current.wc_warning_swap_direction_inferred,
-          if (inferredSwap.unknownTokens) S.current.wc_warning_unknown_token,
-          ...warnings,
-        }.toList(),
-        rawFallback: raw,
-        hideTo: true,
-        hideValue: true,
       );
+      instructionRows.addAll(decoded?.rows ?? const []);
     }
 
-    if (routerNames.isNotEmpty) {
-      final name = routerNames.first;
-      final hasAmounts = perInstructionRows.any((row) => row.kind == WCDecodedRowKind.amount);
-      return WCDecodedRequest(
-        actionTitle: S.current.wc_action_swap,
-        actionSubtitle: S.current.wc_via(name),
-        rows: [...perInstructionRows, if (feeRow != null) feeRow],
-        warnings: {
-          if (hasAmounts) S.current.wc_warning_swap_amounts_estimated,
-          if (!hasAmounts) S.current.wc_warning_swap_amounts_unavailable,
-          ...warnings,
-        }.toList(),
-        rawFallback: raw,
-        hideTo: true,
-        hideValue: true,
-      );
+    final feeLamports = _feeLamports(transaction, accounts);
+    if (feeLamports > _highFeeLamports) {
+      warnings.add(S.current.wc_warning_high_network_fee);
     }
 
+    final onlyTitle = shownInstructions == 1 ? decodedTitle : null;
     return WCDecodedRequest(
-      actionTitle: overallTitle ?? S.current.wc_action_sign_transaction,
-      rows: [...perInstructionRows, if (feeRow != null) feeRow],
+      actionTitle: onlyTitle ?? S.current.wc_action_sign_transaction,
+      rows: [
+        ...instructionRows,
+        ..._otherSignerRows(transaction, accounts, walletAddress),
+        WCDecodedRow(
+          label: S.current.wc_network_fee,
+          value: "~ ${SystemProgramDecoder.formatSol(feeLamports)} SOL",
+          kind: WCDecodedRowKind.amount,
+        ),
+      ],
       warnings: warnings.toList(),
-      rawFallback: raw,
-      hideTo: true,
-      hideValue: true,
     );
   }
 
-  WCDecodedRow? _feeRow(SolanaTransaction transaction, List<String> accounts) {
-    try {
-      BigInt? unitPrice;
-      int? unitLimit;
-      for (final instruction in transaction.message.compiledInstructions) {
-        if (instruction.programIdIndex >= accounts.length) {
-          continue;
-        }
-        if (accounts[instruction.programIdIndex] != SolanaProgramIds.computeBudget) {
-          continue;
-        }
-        final bytes = SolInstructionBytes(instruction.data);
-        final tag = bytes.u8(0);
-        if (tag == 2) {
-          unitLimit = bytes.u32Le(1);
-        }
-        if (tag == 3) {
-          unitPrice = bytes.u64Le(1);
-        }
-      }
-
-      final signatures = transaction.message.header.numRequiredSignatures;
-      var lamports = BigInt.from(signatures * _lamportsPerSignature);
-      if (unitPrice != null && unitLimit != null && unitPrice > BigInt.zero && unitLimit > 0) {
-        final micro = unitPrice * BigInt.from(unitLimit);
-        lamports += (micro + BigInt.from(999999)) ~/ BigInt.from(1000000);
-      }
-
-      return WCDecodedRow(
-        label: S.current.wc_network_fee,
-        value: "~ ${_resolver.formatSol(lamports)} SOL",
-        kind: WCDecodedRowKind.amount,
-      );
-    } catch (e) {
-      printV("SolanaRequestDecoder: fee estimate failed: $e");
-      return null;
-    }
-  }
-
-  Future<SwapInference?> _inferSwap(
+  List<WCDecodedRow> _otherSignerRows(
     SolanaTransaction transaction,
     List<String> accounts,
     String walletAddress,
+  ) => [
+    for (final signer in accounts.take(transaction.message.header.numRequiredSignatures))
+      if (signer != walletAddress)
+        WCDecodedRow(
+          label: S.current.wc_other_signers,
+          value: signer,
+          kind: WCDecodedRowKind.address,
+        ),
+  ];
+
+  Future<SolDecodedInstruction?> _decodeInstruction(
+    String programId,
+    List<int> data,
+    List<String?> accounts,
+    String walletAddress,
+    _RequestLookups lookups,
   ) async {
     try {
-      return await _swapInference.infer(
-        accounts: accounts,
-        instructions: transaction.message.compiledInstructions,
-        signer: walletAddress,
-      );
+      if (programId == SolanaProgramIds.systemProgram) {
+        return const SystemProgramDecoder().decode(data: data, accounts: accounts);
+      }
+
+      if (SolanaProgramIds.isTokenProgram(programId)) {
+        return await SplTokenDecoder(
+          lookups.resolver,
+          lookups.fetcher,
+        ).decode(data: data, accounts: accounts, wallet: walletAddress);
+      }
+
+      if (programId == SolanaProgramIds.associatedTokenProgram) {
+        return await AtaDecoder(
+          lookups.resolver,
+        ).decode(data: data, accounts: accounts, wallet: walletAddress);
+      }
+
+      if (SolanaProgramIds.isMemoProgram(programId)) {
+        return MemoDecoder().decode(data);
+      }
     } catch (e, s) {
-      printV("SolanaRequestDecoder: swap inference failed: $e\n$s");
-      return null;
+      printV("SolanaRequestDecoder: $programId instruction decode failed: $e\n$s");
     }
+    return null;
+  }
+
+  BigInt _feeLamports(SolanaTransaction transaction, List<String> accounts) {
+    var unitPrice = BigInt.zero;
+    int? unitLimit;
+    var defaultUnitLimit = 0;
+    var signatures = transaction.message.header.numRequiredSignatures;
+    for (final instruction in transaction.message.compiledInstructions) {
+      final programId = instruction.programIdIndex < accounts.length
+          ? accounts[instruction.programIdIndex]
+          : null;
+      final isBuiltin =
+          programId == SolanaProgramIds.systemProgram ||
+          programId == SolanaProgramIds.computeBudget;
+      defaultUnitLimit += isBuiltin
+          ? _builtinInstructionComputeUnits
+          : _otherInstructionComputeUnits;
+
+      final bytes = SolInstructionBytes(instruction.data);
+      if (programId != null && SolanaProgramIds.isSignatureVerifier(programId)) {
+        signatures += bytes.u8(0) ?? 0;
+      }
+
+      if (programId != SolanaProgramIds.computeBudget) {
+        continue;
+      }
+      final tag = bytes.u8(0);
+      if (tag == _setUnitLimitTag) {
+        unitLimit = bytes.u32Le(1);
+      }
+      if (tag == _setUnitPriceTag) {
+        unitPrice = bytes.u64Le(1) ?? unitPrice;
+      }
+    }
+
+    final chargedUnits = min(unitLimit ?? defaultUnitLimit, _maxComputeUnits);
+    final microLamports = unitPrice * BigInt.from(chargedUnits);
+    return BigInt.from(signatures * _lamportsPerSignature) +
+        (microLamports + BigInt.from(999999)) ~/ BigInt.from(1000000);
   }
 
   Future<WCDecodedRequest> decodeAllTransactions(
     Map<String, dynamic> params, {
     required String walletAddress,
-  }) async {
+  }) {
     final raw = const JsonEncoder.withIndent("  ").convert(params);
-    final transactions = (params["transactions"] as List?)?.cast<String>() ?? const [];
-    if (transactions.isEmpty) {
+
+    return _withLookups((lookups) async {
+      final transactions = transactionsFromParams(params);
+      final rows = <WCDecodedRow>[];
+      final warnings = <String>{};
+      for (final (index, transaction) in transactions.indexed) {
+        final decoded = await _decodeTransaction(
+          transaction,
+          walletAddress: walletAddress,
+          lookups: lookups,
+        );
+        final label = S.current.wc_transaction_n((index + 1).toString());
+        rows.add(WCDecodedRow(label: label, value: decoded.actionTitle));
+        rows.addAll(decoded.rows);
+        warnings.addAll(decoded.warnings);
+      }
+
       return WCDecodedRequest(
         actionTitle: S.current.wc_action_sign_all_transactions,
-        warnings: [S.current.wc_warning_decode_failed],
+        actionSubtitle: S.current.wc_transactions_count(transactions.length.toString()),
+        rows: rows,
+        warnings: warnings.toList(),
         rawFallback: raw,
-        hideTo: true,
-        hideValue: true,
+      );
+    });
+  }
+
+  List<SolanaTransaction> transactionsFromParams(Map<String, dynamic> params) {
+    final entries = (params["transactions"] as List?)?.cast<String>() ?? const [];
+    final parsed = [
+      for (final entry in entries) transactionFromParams({"transaction": entry}),
+    ];
+    if (parsed.contains(null)) {
+      throw const FormatException(
+        "solana_signAllTransactions carries a transaction that does not parse",
       );
     }
 
-    final rows = <WCDecodedRow>[];
-    final detailRows = <WCDecodedRow>[];
-    final warnings = <String>{};
-    for (var i = 0; i < transactions.length; i++) {
-      final decoded = await decodeTransaction(
-        {"transaction": transactions[i]},
-        walletAddress: walletAddress,
-      );
-      final label = S.current.wc_transaction_n((i + 1).toString());
-      rows.add(WCDecodedRow(label: label, value: decoded.actionTitle));
-      rows.addAll(decoded.rows);
-      warnings.addAll(decoded.warnings);
-      if (decoded.detailRows.isNotEmpty) {
-        detailRows.add(WCDecodedRow(label: label, value: decoded.actionTitle));
-        detailRows.addAll(decoded.detailRows);
-      }
-    }
-    return WCDecodedRequest(
-      actionTitle: S.current.wc_action_sign_all_transactions,
-      actionSubtitle: S.current.wc_transactions_count(transactions.length.toString()),
-      rows: rows,
-      detailRows: detailRows,
-      warnings: warnings.toList(),
-      rawFallback: raw,
-      hideTo: true,
-      hideValue: true,
-    );
+    return parsed.nonNulls.toList();
   }
 
   SolanaTransaction? transactionFromParams(Map<String, dynamic> params) {
     try {
       if (params.containsKey("transaction")) {
         final transactionStr = params["transaction"] as String;
-        return SolanaTransaction.deserialize(base64.decode(transactionStr));
+        if (transactionStr.length > _maxTransactionChars) {
+          printV("SolanaRequestDecoder: transaction is longer than $_maxTransactionChars chars");
+          return null;
+        }
+
+        final received = base64.decode(transactionStr);
+        final transaction = SolanaTransaction.deserialize(received);
+        final message = transaction.serializeMessage();
+        final messageStart = 1 + received.first * 64;
+        if (received.length != messageStart + message.length ||
+            !BytesUtils.bytesEqual(received.sublist(messageStart), message)) {
+          printV("SolanaRequestDecoder: transaction is not in the encoding the wallet signs");
+          return null;
+        }
+
+        return transaction;
       }
       if (params.containsKey("feePayer") && params.containsKey("instructions")) {
         final feePayer = params["feePayer"].toString();
@@ -380,13 +363,13 @@ class SolanaRequestDecoder {
 
   TransactionInstruction _instructionFromJson(Map<String, dynamic> json) {
     final programId = json["programId"] as String;
-    final data = (json["data"] as List).map((e) => e as int).toList();
-    final keys = (json["keys"] as List).map((k) {
-      final m = k as Map<String, dynamic>;
+    final data = (json["data"] as List).map((byte) => byte as int).toList();
+    final keys = (json["keys"] as List).map((key) {
+      final meta = key as Map<String, dynamic>;
       return AccountMeta(
-        publicKey: SolAddress(m["pubkey"] as String),
-        isWritable: m["isWritable"] as bool,
-        isSigner: m["isSigner"] as bool,
+        publicKey: SolAddress(meta["pubkey"] as String),
+        isWritable: meta["isWritable"] as bool,
+        isSigner: meta["isSigner"] as bool,
       );
     }).toList();
     return TransactionInstruction.fromBytes(
@@ -395,4 +378,13 @@ class SolanaRequestDecoder {
       keys: keys,
     );
   }
+}
+
+class _RequestLookups {
+  _RequestLookups(AppStore? appStore, SolanaLookupBudget budget)
+    : resolver = SplTokenResolver(appStore, budget),
+      fetcher = SolanaAccountFetcher(appStore, budget);
+
+  final SplTokenResolver resolver;
+  final SolanaAccountFetcher fetcher;
 }

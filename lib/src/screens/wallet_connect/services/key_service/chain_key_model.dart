@@ -2,12 +2,10 @@ import 'dart:convert';
 
 class ChainKeyModel {
   final List<String> chains;
-  final String privateKey;
   final String publicKey;
 
   ChainKeyModel({
     required this.chains,
-    required this.privateKey,
     required this.publicKey,
   });
 
@@ -20,14 +18,12 @@ class ChainKeyModel {
 
   Map<String, dynamic> toJson() => {
         'chains': chains,
-        'privateKey': privateKey,
-        'publicKey': privateKey,
+        "publicKey": publicKey,
       };
 
   factory ChainKeyModel.fromJson(Map<String, dynamic> json) {
     return ChainKeyModel(
       chains: (json['chains'] as List).map((e) => '$e').toList(),
-      privateKey: json['privateKey'] as String,
       publicKey: json['publicKey'] as String,
     );
   }

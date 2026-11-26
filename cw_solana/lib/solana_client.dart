@@ -199,6 +199,8 @@ class SolanaWalletClient {
     }
   }
 
+  static const _accountDataSlice = RPCDataSliceConfig(offset: 0, length: 8249);
+
   Future<List<List<int>?>?> getAccountsData(List<String> addresses) async {
     if (addresses.isEmpty) {
       return const [];
@@ -214,6 +216,7 @@ class SolanaWalletClient {
             SolanaRPCGetAccountInfo(
               account: SolAddress(address),
               encoding: SolanaRPCEncoding.base64,
+              dataSlice: _accountDataSlice,
             ),
           ),
         ),
@@ -1339,11 +1342,11 @@ class SolanaWalletClient {
       }
 
       return SPLToken(
-        name: name as String,
-        mint: symbol as String,
-        symbol: filteredTokenSymbol as String,
+        name: name,
+        mint: symbol,
+        symbol: filteredTokenSymbol,
         mintAddress: mintAddress,
-        iconPath: iconPath as String?,
+        iconPath: iconPath,
         decimal: decimals,
       );
     } catch (e, s) {

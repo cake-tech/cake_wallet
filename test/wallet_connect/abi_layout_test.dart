@@ -4,10 +4,13 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/dex_router_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/erc20_token_resolver.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_calldata.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_selectors.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/permit2_decoder.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:web3dart/crypto.dart";
 import "package:web3dart/web3dart.dart";
+
+import "stubs.dart";
 
 void main() {
   setUpAll(() => S.current = const S());
@@ -17,6 +20,10 @@ void main() {
   final owner = EthereumAddress.fromHex("0x1e65377828BFCB975c22c33fef51f5bf021dB613");
   final spender = EthereumAddress.fromHex("0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45");
 
+  String selectorFor(String signature) => keccak256(
+    Uint8List.fromList(signature.codeUnits),
+  ).take(4).map((b) => b.toRadixString(16).padLeft(2, "0")).join();
+
   String encodeCall(String selector, TupleType args, List<dynamic> values) {
     final sink = LengthTrackingByteSink();
     args.encode(values, sink);
@@ -24,27 +31,16 @@ void main() {
   }
 
   Uint8List v3Path(List<EthereumAddress> tokens) => Uint8List.fromList([
-        for (var i = 0; i < tokens.length; i++) ...[
-          if (i > 0) ...[0x00, 0x0b, 0xb8],
-          ...tokens[i].addressBytes,
-        ],
-      ]);
-
-  final dai = EthereumAddress.fromHex("0x6B175474E89094C44Da98b954EedeAC495271d0F");
-  const pathParams = TupleType([
-    DynamicBytes(),
-    AddressType(),
-    UintType(),
-    UintType(),
-    UintType(),
+    for (var i = 0; i < tokens.length; i++) ...[
+      if (i > 0) ...[0x00, 0x0b, 0xb8],
+      ...tokens[i].addressBytes,
+    ],
   ]);
 
-  test("the selectors we branch on are the signatures we decode for", () {
-    String selectorOf(String signature) => keccak256(Uint8List.fromList(signature.codeUnits))
-        .take(4)
-        .map((b) => b.toRadixString(16).padLeft(2, "0"))
-        .join();
+  final dai = EthereumAddress.fromHex("0x6B175474E89094C44Da98b954EedeAC495271d0F");
+  const pathParams = TupleType([DynamicBytes(), AddressType(), UintType(), UintType(), UintType()]);
 
+  test("the selectors we branch on are the signatures we decode for", () {
     const v3Single =
         "exactInputSingle((address,address,uint24,address,uint256,uint256,uint256,uint160))";
     const router02Single =
@@ -52,10 +48,40 @@ void main() {
     const permitSingle = "permit(address,((address,uint160,uint48,uint48),address,uint256),bytes)";
     const permitBatch = "permit(address,((address,uint160,uint48,uint48)[],address,uint256),bytes)";
 
-    expect(selectorOf(v3Single), "414bf389");
-    expect(selectorOf(router02Single), "04e45aaf");
-    expect(selectorOf(permitSingle), "2b67b570");
-    expect(selectorOf(permitBatch), "2a2d80d1");
+    expect(EvmSelectors.uniV3ExactInputSingle, selectorFor(v3Single));
+    expect(EvmSelectors.uniV3Router02ExactInputSingle, selectorFor(router02Single));
+    expect(EvmSelectors.permit2Permit, selectorFor(permitSingle));
+    expect(EvmSelectors.permit2PermitBatch, selectorFor(permitBatch));
+  });
+
+  test("the swap router payment selectors are the keccak of their signatures", () {
+    const signatures = {
+      EvmSelectors.routerUnwrapWeth9: "unwrapWETH9(uint256,address)",
+      EvmSelectors.routerUnwrapWeth9ToSender: "unwrapWETH9(uint256)",
+      EvmSelectors.routerUnwrapWeth9WithFee: "unwrapWETH9WithFee(uint256,address,uint256,address)",
+      EvmSelectors.routerUnwrapWeth9WithFeeToSender: "unwrapWETH9WithFee(uint256,uint256,address)",
+      EvmSelectors.routerSweepToken: "sweepToken(address,uint256,address)",
+      EvmSelectors.routerSweepTokenToSender: "sweepToken(address,uint256)",
+      EvmSelectors.routerSweepTokenWithFee:
+          "sweepTokenWithFee(address,uint256,address,uint256,address)",
+      EvmSelectors.routerSweepTokenWithFeeToSender:
+          "sweepTokenWithFee(address,uint256,uint256,address)",
+      EvmSelectors.routerRefundEth: "refundETH()",
+      EvmSelectors.uniV2Router02SwapExactTokensForTokens:
+          "swapExactTokensForTokens(uint256,uint256,address[],address)",
+      EvmSelectors.uniV2Router02SwapTokensForExactTokens:
+          "swapTokensForExactTokens(uint256,uint256,address[],address)",
+      EvmSelectors.routerSelfPermit: "selfPermit(address,uint256,uint256,uint8,bytes32,bytes32)",
+      EvmSelectors.routerSelfPermitIfNecessary:
+          "selfPermitIfNecessary(address,uint256,uint256,uint8,bytes32,bytes32)",
+      EvmSelectors.routerSelfPermitAllowed:
+          "selfPermitAllowed(address,uint256,uint256,uint8,bytes32,bytes32)",
+      EvmSelectors.routerSelfPermitAllowedIfNecessary:
+          "selfPermitAllowedIfNecessary(address,uint256,uint256,uint8,bytes32,bytes32)",
+    };
+    for (final entry in signatures.entries) {
+      expect(entry.key, selectorFor(entry.value), reason: entry.value);
+    }
   });
 
   test("exactInputSingle reads the real amounts out of spec-encoded calldata", () async {
@@ -82,7 +108,6 @@ void main() {
       ],
     ]);
 
-    // No leading offset: the first word is the token, not 0x20.
     expect(data.substring(10, 74), "000000000000000000000000${weth.hex.substring(2)}");
 
     final decoded = await DexRouterDecoder(Erc20TokenResolver(null)).decode(
@@ -94,8 +119,8 @@ void main() {
       chainId: 1,
     );
 
-    expect(decoded!.rows[0].value, startsWith("10000000000000000"));
-    expect(decoded.rows[1].value, startsWith("25000000"));
+    expect(rowValue(decoded!.rows, S.current.wc_swap_from), startsWith("10000000000000000 "));
+    expect(rowValue(decoded.rows, S.current.wc_swap_to_min), startsWith("25000000 "));
     expect(
       decoded.rows.firstWhere((r) => r.label == S.current.wc_recipient).value,
       S.current.wc_recipient_you,
@@ -165,29 +190,28 @@ void main() {
       ],
     );
 
-    // The signature is the only dynamic argument, so its offset sits after the
-    // inline struct at word 7, not at word 2 where the amount lives.
     expect(data.substring(10 + 2 * 64, 74 + 2 * 64), "0" * 24 + "f" * 40);
     expect(BigInt.parse(data.substring(10 + 7 * 64, 74 + 7 * 64), radix: 16), BigInt.from(0x100));
 
-    final decoded = await Permit2Decoder(Erc20TokenResolver(null))
-        .decode(calldata: EvmCalldata.parse(data)!, contractAddress: "0xpermit2");
+    final decoded = await Permit2Decoder(Erc20TokenResolver(null)).decode(
+      calldata: EvmCalldata.parse(data)!,
+      contractAddress: EvmSelectors.permit2Address,
+      chainId: 1,
+    );
 
     expect(
-      decoded!.rows
-          .any((r) => r.value.toLowerCase().contains(spender.hex.substring(2).toLowerCase())),
+      decoded!.rows.any(
+        (r) => r.value.toLowerCase().contains(spender.hex.substring(2).toLowerCase()),
+      ),
       isTrue,
       reason: "the real spender must reach the sheet",
     );
     expect(decoded.warnings, contains(S.current.wc_warning_unlimited_approval));
   });
 
-  // Golden vectors: calldata copied verbatim from mainnet, so they hold even if
-  // the encoder above and our decoder were wrong in the same way.
   test("golden vector: real SwapRouter exactInputSingle from mainnet", () async {
-    // tx 0x0c021ee6e05ea32575c8f0cbf2f5595a75ce233badfe83053b4791ae23699b38
-    // USDT -> WETH, 500 fee tier, 1128.058998 USDT in, 0.452194608349763456 WETH min out.
-    const data = "0x414bf389"
+    const data =
+        "0x414bf389"
         "000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7"
         "000000000000000000000000c02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
         "00000000000000000000000000000000000000000000000000000000000001f4"
@@ -206,8 +230,8 @@ void main() {
       chainId: 1,
     );
 
-    expect(decoded!.rows[0].value, startsWith("1128058998"));
-    expect(decoded.rows[1].value, startsWith("452194608349763456"));
+    expect(rowValue(decoded!.rows, S.current.wc_swap_from), startsWith("1128058998 "));
+    expect(rowValue(decoded.rows, S.current.wc_swap_to_min), startsWith("452194608349763456 "));
     expect(
       decoded.rows.firstWhere((r) => r.label == S.current.wc_recipient).value,
       S.current.wc_recipient_you,
@@ -215,9 +239,8 @@ void main() {
   });
 
   test("golden vector: real SwapRouter02 exactInputSingle from mainnet", () async {
-    // tx 0x228ab514c389a6aef2cf17f31ad2c08699f9b5db4eddac055673dd884f2eb75e
-    // Seven words, no deadline: 185.479563 USDT in, 164.992022 out.
-    const data = "0x04e45aaf"
+    const data =
+        "0x04e45aaf"
         "000000000000000000000000dac17f958d2ee523a2206206994597c13d831ec7"
         "000000000000000000000000100acd9fcd8e0ff80a6595b66fdabe93184aa100"
         "0000000000000000000000000000000000000000000000000000000000000064"
@@ -235,8 +258,8 @@ void main() {
       chainId: 1,
     );
 
-    expect(decoded!.rows[0].value, startsWith("185479563"));
-    expect(decoded.rows[1].value, startsWith("164992022"));
+    expect(rowValue(decoded!.rows, S.current.wc_swap_from), startsWith("185479563 "));
+    expect(rowValue(decoded.rows, S.current.wc_swap_to_min), startsWith("164992022 "));
   });
 
   test("exactInput multi-hop reads the first and last token of the path", () async {
@@ -259,10 +282,8 @@ void main() {
       chainId: 1,
     );
 
-    expect(decoded!.rows[0].label, S.current.wc_swap_from);
-    expect(decoded.rows[0].value, "10000000000000000 0xc02a…6cc2");
-    expect(decoded.rows[1].label, S.current.wc_swap_to_min);
-    expect(decoded.rows[1].value, "24000000000000000000 0x6b17…1d0f");
+    expect(rowValue(decoded!.rows, S.current.wc_swap_from), "10000000000000000 0xc02a…6cc2");
+    expect(rowValue(decoded.rows, S.current.wc_swap_to_min), "24000000000000000000 0x6b17…1d0f");
   });
 
   test("exactOutput multi-hop reads its path from the output end", () async {
@@ -285,16 +306,13 @@ void main() {
       chainId: 1,
     );
 
-    expect(decoded!.rows[0].label, S.current.wc_swap_from_max);
-    expect(decoded.rows[0].value, "10000000000000000 0xc02a…6cc2");
-    expect(decoded.rows[1].label, S.current.wc_swap_to);
-    expect(decoded.rows[1].value, "24000000000000000000 0x6b17…1d0f");
+    expect(rowValue(decoded!.rows, S.current.wc_swap_from_max), "10000000000000000 0xc02a…6cc2");
+    expect(rowValue(decoded.rows, S.current.wc_swap_to), "24000000000000000000 0x6b17…1d0f");
   });
 
   test("golden vector: real SwapRouter02 exactInput from mainnet", () async {
-    // tx 0x437630364156c5e84fa98d34659947bce8f4d9f253c2711e5392c635a1d56f51, inside multicall.
-    // A circular route, so it pins the amounts and recipient, not the token direction.
-    const data = "0xb858183f"
+    const data =
+        "0xb858183f"
         "0000000000000000000000000000000000000000000000000000000000000020"
         "0000000000000000000000000000000000000000000000000000000000000080"
         "000000000000000000000000b84aa1eea10cf3347ef95f13ac5e09e40bdd3f03"
@@ -314,8 +332,8 @@ void main() {
       chainId: 1,
     );
 
-    expect(decoded!.rows[0].value, startsWith("3159009627416659000000 "));
-    expect(decoded.rows[1].value, startsWith("3064239338594159230000 "));
+    expect(rowValue(decoded!.rows, S.current.wc_swap_from), startsWith("3159009627416659000000 "));
+    expect(rowValue(decoded.rows, S.current.wc_swap_to_min), startsWith("3064239338594159230000 "));
     expect(
       decoded.rows.firstWhere((r) => r.label == S.current.wc_recipient).value,
       S.current.wc_recipient_you,

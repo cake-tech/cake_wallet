@@ -12,9 +12,8 @@ void main() {
     S.current = const S();
   });
 
-  final resolver = StubErc20Resolver(const {});
-  final erc721 = Erc721Decoder(resolver);
-  final erc1155 = Erc1155Decoder(resolver);
+  const erc721 = Erc721Decoder();
+  const erc1155 = Erc1155Decoder();
 
   const collection = "0x1111111111111111111111111111111111111111";
   const from = "0x2222222222222222222222222222222222222222";
@@ -29,12 +28,13 @@ void main() {
         calldata: call("42842e0e", wordAddr(from) + wordAddr(to) + wordInt(1234)),
         contractAddress: collection,
       );
-      expect(decoded, isNotNull);
       expect(decoded!.actionTitle, S.current.wc_action_nft_transfer);
       expect(decoded.actionSubtitle, "0x1111…1111");
-      expect(decoded.rows.first.value, "#1234");
-      expect(decoded.rows.any((r) => r.value == from), isTrue);
-      expect(decoded.rows.any((r) => r.value == to), isTrue);
+      expect(rowLines(decoded.rows), [
+        row(S.current.wc_token_id, "#1234"),
+        row(S.current.from, from),
+        row(S.current.to, to),
+      ]);
     });
 
     test("safeTransferFrom with data payload decodes the same fields", () {
@@ -42,7 +42,11 @@ void main() {
         calldata: call("b88d4fde", wordAddr(from) + wordAddr(to) + wordInt(7)),
         contractAddress: collection,
       );
-      expect(decoded!.rows.first.value, "#7");
+      expect(rowLines(decoded!.rows), [
+        row(S.current.wc_token_id, "#7"),
+        row(S.current.from, from),
+        row(S.current.to, to),
+      ]);
     });
 
     test("setApprovalForAll warns when granting", () {
@@ -51,8 +55,8 @@ void main() {
         contractAddress: collection,
       );
       expect(decoded!.actionTitle, S.current.wc_action_set_approval_for_all);
-      expect(decoded.warnings, contains(S.current.wc_warning_set_approval_for_all));
-      expect(decoded.rows.single.value, operator);
+      expect(decoded.warnings, [S.current.wc_warning_set_approval_for_all]);
+      expect(rowLines(decoded.rows), [row(S.current.wc_operator, operator)]);
     });
 
     test("setApprovalForAll revoking has no warning", () {
@@ -61,15 +65,18 @@ void main() {
         contractAddress: collection,
       );
       expect(decoded!.actionTitle, S.current.wc_action_revoke_approval_for_all);
+      expect(rowLines(decoded.rows), [row(S.current.wc_operator, operator)]);
       expect(decoded.warnings, isEmpty);
     });
 
-    test("a non-boolean approval word is rejected rather than guessed", () {
+    test("any non-zero approval word grants, as collections built before Solidity 0.8 read it", () {
       final decoded = erc721.decode(
         calldata: call("a22cb465", wordAddr(operator) + wordInt(2)),
         contractAddress: collection,
       );
-      expect(decoded, isNull);
+      expect(decoded!.actionTitle, S.current.wc_action_set_approval_for_all);
+      expect(decoded.rows.single.value, operator);
+      expect(decoded.warnings, [S.current.wc_warning_set_approval_for_all]);
     });
 
     test("unrelated selector returns null", () {
@@ -78,65 +85,129 @@ void main() {
         isNull,
       );
     });
+
+    test("a setApprovalForAll cut short still names the operator it approves, and warns", () {
+      final body = wordAddr(operator) + wordInt(0x0100);
+      final decoded = erc721.decode(
+        calldata: call("a22cb465", body.substring(0, body.length - 2)),
+        contractAddress: collection,
+      );
+      expect(decoded!.actionTitle, S.current.wc_action_set_approval_for_all);
+      expect(rowLines(decoded.rows), [row(S.current.wc_operator, operator)]);
+      expect(decoded.warnings, [
+        S.current.wc_warning_set_approval_for_all,
+        S.current.wc_warning_decode_failed,
+      ]);
+    });
+
+    test("a transfer cut short shows the token id an old collection reads", () {
+      final body = wordAddr(from) + wordAddr(to) + wordInt(0x1234);
+      for (final selector in ["42842e0e", "b88d4fde"]) {
+        final decoded = erc721.decode(
+          calldata: call(selector, body.substring(0, body.length - 2)),
+          contractAddress: collection,
+        );
+        expect(rowLines(decoded!.rows), [
+          row(S.current.wc_token_id, "#${0x1200}"),
+          row(S.current.from, from),
+          row(S.current.to, to),
+        ], reason: selector);
+        expect(decoded.warnings, [S.current.wc_warning_decode_failed], reason: selector);
+      }
+    });
   });
 
   group("ERC-1155", () {
     test("safeTransferFrom shows id and amount", () {
       final decoded = erc1155.decode(
-        calldata: call(
-          "f242432a",
-          wordAddr(from) + wordAddr(to) + wordInt(9) + wordInt(3),
-        ),
+        calldata: call("f242432a", wordAddr(from) + wordAddr(to) + wordInt(9) + wordInt(3)),
         contractAddress: collection,
       );
       expect(decoded!.actionTitle, S.current.wc_action_nft_transfer);
-      expect(decoded.rows.first.value, "#9");
-      expect(decoded.rows.any((r) => r.value == "3"), isTrue);
+      expect(rowLines(decoded.rows), [
+        row(S.current.wc_token_id, "#9"),
+        row(S.current.wc_amount, "3"),
+        row(S.current.from, from),
+        row(S.current.to, to),
+      ]);
     });
 
     test("safeBatchTransferFrom pairs every id with its amount", () {
-      final body = wordAddr(from) +
+      final body =
+          wordAddr(from) +
           wordAddr(to) +
           wordInt(0xa0) +
           wordInt(0x100) +
           wordInt(0x160) +
           uintArrayBody([BigInt.one, BigInt.two]) +
           uintArrayBody([BigInt.from(5), BigInt.from(6)]);
-      final decoded = erc1155.decode(
-        calldata: call("2eb2c2d6", body),
-        contractAddress: collection,
-      );
+      final decoded = erc1155.decode(calldata: call("2eb2c2d6", body), contractAddress: collection);
       expect(decoded!.actionTitle, S.current.wc_action_nft_batch_transfer);
-      expect(decoded.rows.first.label, S.current.wc_token_id);
-      expect(decoded.rows.first.value, "#1 ×5, #2 ×6");
+      expect(rowLines(decoded.rows), [
+        row(S.current.wc_token_id, "#1 ×5"),
+        row(S.current.wc_token_id, "#2 ×6"),
+        row(S.current.from, from),
+        row(S.current.to, to),
+      ]);
     });
 
-    test("a long batch is truncated with a remainder count", () {
+    test("a long batch lists every id with its amount", () {
       final ids = List.generate(9, (i) => BigInt.from(i + 1));
-      final amounts = List.generate(9, (i) => BigInt.one);
-      final body = wordAddr(from) +
+      final amounts = List.generate(9, (i) => BigInt.from(100 + i));
+      final body =
+          wordAddr(from) +
           wordAddr(to) +
           wordInt(0xa0) +
           wordInt(0x1e0) +
           wordInt(0x320) +
           uintArrayBody(ids) +
           uintArrayBody(amounts);
-      final decoded = erc1155.decode(
-        calldata: call("2eb2c2d6", body),
-        contractAddress: collection,
-      );
-      expect(decoded!.rows.first.value, contains(S.current.wc_plus_n_more("3")));
-      expect(decoded.rows.first.value, startsWith("#1 ×1"));
+      final decoded = erc1155.decode(calldata: call("2eb2c2d6", body), contractAddress: collection);
+      expect(rowLines(decoded!.rows), [
+        for (var index = 0; index < 9; index++)
+          row(S.current.wc_token_id, "#${index + 1} ×${100 + index}"),
+        row(S.current.from, from),
+        row(S.current.to, to),
+      ]);
+      expect(decoded.warnings, isEmpty);
     });
 
-    test("a batch with unreadable arrays still shows the parties", () {
+    test("a batch with unreadable arrays shows the parties and warns", () {
       final decoded = erc1155.decode(
         calldata: call("2eb2c2d6", wordAddr(from) + wordAddr(to)),
         contractAddress: collection,
       );
-      expect(decoded, isNotNull);
-      expect(decoded!.rows.any((r) => r.label == S.current.wc_token_id), isFalse);
-      expect(decoded.rows.any((r) => r.value == to), isTrue);
+      expect(rowLines(decoded!.rows), [row(S.current.from, from), row(S.current.to, to)]);
+      expect(decoded.warnings, [S.current.wc_warning_decode_failed]);
+    });
+
+    test("a batch naming more ids than amounts warns, the collection reverts it", () {
+      final body =
+          wordAddr(from) +
+          wordAddr(to) +
+          wordInt(0xa0) +
+          wordInt(0x100) +
+          wordInt(0x140) +
+          uintArrayBody([BigInt.one, BigInt.two]) +
+          uintArrayBody([BigInt.from(5)]);
+      final decoded = erc1155.decode(calldata: call("2eb2c2d6", body), contractAddress: collection);
+      expect(rowLines(decoded!.rows), [row(S.current.from, from), row(S.current.to, to)]);
+      expect(decoded.warnings, [S.current.wc_warning_decode_failed]);
+    });
+
+    test("a single transfer cut short shows the amount an old collection reads", () {
+      final body = wordAddr(from) + wordAddr(to) + wordInt(9) + wordInt(0x0301);
+      final decoded = erc1155.decode(
+        calldata: call("f242432a", body.substring(0, body.length - 2)),
+        contractAddress: collection,
+      );
+      expect(rowLines(decoded!.rows), [
+        row(S.current.wc_token_id, "#9"),
+        row(S.current.wc_amount, "${0x0300}"),
+        row(S.current.from, from),
+        row(S.current.to, to),
+      ]);
+      expect(decoded.warnings, [S.current.wc_warning_decode_failed]);
     });
   });
 }

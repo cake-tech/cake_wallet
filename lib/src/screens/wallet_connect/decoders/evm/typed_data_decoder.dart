@@ -2,16 +2,19 @@ import "dart:convert";
 
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/erc20_token_resolver.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_calldata.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_selectors.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/universal_router_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
-import "package:cw_core/utils/print_verbose.dart";
+import "package:eth_sig_util/eth_sig_util.dart";
+import "package:eth_sig_util/model/typed_data.dart";
 
 class TypedDataDecoder {
   TypedDataDecoder(this.tokenResolver);
 
   final Erc20TokenResolver tokenResolver;
 
-  // UniswapX reactors, read from live orders on api.uniswap.org.
   static const _uniswapXReactors = {
     "0x00000011f84b9aa48e5f8aa8b9897600006289be",
     "0x00000006021a6bce796be7ba509bbba71e956e37",
@@ -20,6 +23,12 @@ class TypedDataDecoder {
     "0xe80bf394d190851e215d5f67b67f8f5a52783f1e",
     "0xb274d5f4b833b61b340b654d600a864fb604a87c",
     "0x000000008a8330b5d1f43a62bf4c673a49f27ba0",
+    "0x0000000015757c461808ea25eb309638b62681cf",
+    "0x00000000bab6e234db8ad638b6a6395b7c499bc4",
+    "0x00000000a55e50c71b70db3c8b58749cd1e18eb2",
+    "0x000000007a1c8e570011eedf86a2a35593013cba",
+    "0x000000001ec5656dcdb24d90dfa42742738de729",
+    "0x1bd1aadc9e230626c44a139d7e70d842749351eb",
   };
 
   static const _timestampFieldNames = {
@@ -31,216 +40,427 @@ class TypedDataDecoder {
     "expirationtime",
     "validuntil",
     "validafter",
+    "validbefore",
   };
 
-  Future<WCDecodedRequest> decode(dynamic raw, {String? walletAddress}) async {
-    final legacy = _decodeLegacyV1(raw);
-    if (legacy != null) {
-      return legacy;
+  static const _riskPrimaryTypes = {
+    "Permit",
+    "PermitSingle",
+    "PermitBatch",
+    "PermitTransferFrom",
+    "PermitBatchTransferFrom",
+    "PermitWitnessTransferFrom",
+    "Order",
+    "OrderComponents",
+    "BulkOrder",
+    "TransferWithAuthorization",
+    "ReceiveWithAuthorization",
+    "MetaTransaction",
+    "HyperliquidTransaction:UsdSend",
+    "HyperliquidTransaction:SpotSend",
+    "HyperliquidTransaction:SendAsset",
+    "HyperliquidTransaction:Withdraw",
+    "HyperliquidTransaction:SendMultiSig",
+    "HyperliquidTransaction:ConvertToMultiSigUser",
+  };
+
+  static const _maxListedTokens = 16;
+
+  static const _maxGenericRows = 200;
+
+  static const _maxNestingDepth = 32;
+
+  static const _maxIntegerLength = 80;
+
+  static const _eip2612Permit =
+      "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)";
+  static const _daiPermit =
+      "Permit(address holder,address spender,uint256 nonce,uint256 expiry,bool allowed)";
+
+  static const _permitDetails =
+      "PermitDetails(address token,uint160 amount,uint48 expiration,uint48 nonce)";
+  static const _permitSingle =
+      "PermitSingle(PermitDetails details,address spender,uint256 sigDeadline)$_permitDetails";
+  static const _permitBatch =
+      "PermitBatch(PermitDetails[] details,address spender,uint256 sigDeadline)$_permitDetails";
+  static const _tokenPermissions = "TokenPermissions(address token,uint256 amount)";
+  static const _permitTransferFrom =
+      "PermitTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,"
+      "uint256 deadline)$_tokenPermissions";
+  static const _permitBatchTransferFrom =
+      "PermitBatchTransferFrom(TokenPermissions[] permitted,address spender,uint256 nonce,"
+      "uint256 deadline)$_tokenPermissions";
+  static const _permitWitnessTransferFrom =
+      "PermitWitnessTransferFrom(TokenPermissions permitted,address spender,uint256 nonce,"
+      "uint256 deadline,";
+
+  static const _orderInfo =
+      "OrderInfo(address reactor,address swapper,uint256 nonce,uint256 deadline,"
+      "address additionalValidationContract,bytes additionalValidationData)";
+  static const _dutchOutput =
+      "DutchOutput(address token,uint256 startAmount,uint256 endAmount,address recipient)";
+  static const _exclusiveDutchOrder =
+      "${_permitWitnessTransferFrom}ExclusiveDutchOrder witness)$_dutchOutput"
+      "ExclusiveDutchOrder(OrderInfo info,uint256 decayStartTime,uint256 decayEndTime,"
+      "address exclusiveFiller,uint256 exclusivityOverrideBps,address inputToken,"
+      "uint256 inputStartAmount,uint256 inputEndAmount,DutchOutput[] outputs)"
+      "$_orderInfo$_tokenPermissions";
+  static const _v2DutchOrder =
+      "${_permitWitnessTransferFrom}V2DutchOrder witness)$_dutchOutput$_orderInfo$_tokenPermissions"
+      "V2DutchOrder(OrderInfo info,address cosigner,address baseInputToken,"
+      "uint256 baseInputStartAmount,uint256 baseInputEndAmount,DutchOutput[] baseOutputs)";
+  static const _v3DutchOrder =
+      "${_permitWitnessTransferFrom}V3DutchOrder witness)"
+      "NonlinearDutchDecay(uint256 relativeBlocks,int256[] relativeAmounts)"
+      "$_orderInfo$_tokenPermissions"
+      "V3DutchInput(address token,uint256 startAmount,NonlinearDutchDecay curve,"
+      "uint256 maxAmount,uint256 adjustmentPerGweiBaseFee)"
+      "V3DutchOrder(OrderInfo info,address cosigner,uint256 startingBaseFee,"
+      "V3DutchInput baseInput,V3DutchOutput[] baseOutputs)"
+      "V3DutchOutput(address token,uint256 startAmount,NonlinearDutchDecay curve,"
+      "address recipient,uint256 minAmount,uint256 adjustmentPerGweiBaseFee)";
+  static const _priorityOrder =
+      "${_permitWitnessTransferFrom}PriorityOrder witness)$_orderInfo"
+      "PriorityInput(address token,uint256 amount,uint256 mpsPerPriorityFeeWei)"
+      "PriorityOrder(OrderInfo info,address cosigner,uint256 auctionStartBlock,"
+      "uint256 baselinePriorityFeeWei,PriorityInput input,PriorityOutput[] outputs)"
+      "PriorityOutput(address token,uint256 amount,uint256 mpsPerPriorityFeeWei,"
+      "address recipient)$_tokenPermissions";
+  static const _uniswapXOrders = {
+    _exclusiveDutchOrder: _UniswapXOrder(outputsField: "outputs", lowestAmountField: "endAmount"),
+    _v2DutchOrder: _UniswapXOrder(outputsField: "baseOutputs", lowestAmountField: "endAmount"),
+    _v3DutchOrder: _UniswapXOrder(outputsField: "baseOutputs", lowestAmountField: "minAmount"),
+    _priorityOrder: _UniswapXOrder(outputsField: "outputs", lowestAmountField: "amount"),
+  };
+
+  static const _domainFieldTypes = {
+    "name": "string",
+    "version": "string",
+    "chainId": "uint256",
+    "verifyingContract": "address",
+    "salt": "bytes32",
+  };
+
+  static final _fixedBytesLengths = {
+    for (int length = 1; length <= 32; length++) "bytes$length": length,
+  };
+  static final _uintBits = {
+    "uint": 256,
+    for (int bits = 8; bits <= 256; bits += 8) "uint$bits": bits,
+  };
+  static final _intBits = {"int": 256, for (int bits = 8; bits <= 256; bits += 8) "int$bits": bits};
+  static final _atomicTypes = {
+    "bool",
+    "string",
+    "address",
+    "bytes",
+    ..._fixedBytesLengths.keys,
+    ..._uintBits.keys,
+    ..._intBits.keys,
+  };
+
+  static final _structName = RegExp(r"^\w+(:\w+)?$");
+  static final _fieldName = RegExp(r"^[\w$]+$");
+  static final _typeName = RegExp(r"^(\w+)(\[\d*\])*$");
+  static final _address = RegExp(r"^0x[0-9a-fA-F]{40}$");
+  static final _hexBytes = RegExp(r"^0x([0-9a-fA-F]{2})*$");
+  static final _hexInteger = RegExp(r"^0x[0-9a-fA-F]+$");
+  static final _decimal = RegExp(r"^-?[0-9]+$");
+
+  static void validate(String data, TypedDataVersion version) {
+    try {
+      final payload = jsonDecode(data);
+      if (version == TypedDataVersion.V1) {
+        _legacyEntries(payload);
+      } else {
+        final typedData = _parseTypedData(payload);
+        final hashedType = TypedDataUtil.encodeType(typedData.primaryType, {
+          for (final struct in typedData.types.entries)
+            struct.key: [
+              for (final field in struct.value.entries)
+                TypedDataField(name: field.key, type: field.value),
+            ],
+        });
+        if (hashedType != typedData.typeString) {
+          throw const FormatException("The primary type is not hashed as it is declared");
+        }
+      }
+
+      TypedDataUtil.hashMessage(jsonData: data, version: version);
+    } on FormatException {
+      rethrow;
+    } catch (e) {
+      throw FormatException("Typed data cannot be signed: $e");
+    }
+  }
+
+  static int? domainChainId(String data) {
+    final payload = jsonDecode(data);
+    if (payload is List) {
+      return null;
     }
 
-    final parsed = _parsePayload(raw);
-    if (parsed == null) {
-      return WCDecodedRequest(
-        actionTitle: S.current.wc_action_sign_typed_data,
-        warnings: [S.current.wc_warning_typed_data_invalid],
-        rawFallback: raw is String ? raw : raw?.toString(),
+    return _signedChainId(_parseTypedData(payload).domain);
+  }
+
+  static int? _signedChainId(Map<String, dynamic> domain) {
+    final chainId = domain["chainId"];
+    if (chainId != null) {
+      return _integer(chainId).toInt();
+    }
+
+    final salt = domain["salt"];
+    final saltNumber = salt == null ? BigInt.zero : _integer(salt);
+    return saltNumber > BigInt.zero && saltNumber.isValidInt ? saltNumber.toInt() : null;
+  }
+
+  Future<WCDecodedRequest> decode(
+    String data, {
+    required String walletAddress,
+    required int? chainId,
+    required String nativeSymbol,
+  }) async {
+    final payload = jsonDecode(data);
+    if (payload is List) {
+      return _decodeLegacyV1(payload);
+    }
+
+    final typedData = _parseTypedData(payload);
+    final semantic = await _decodeSemantics(
+      typedData,
+      walletAddress: walletAddress,
+      chainId: chainId,
+      nativeSymbol: nativeSymbol,
+    );
+    return semantic ?? _decodeGeneric(typedData);
+  }
+
+  Future<WCDecodedRequest?> _decodeSemantics(
+    _TypedData typedData, {
+    required String walletAddress,
+    required int? chainId,
+    required String nativeSymbol,
+  }) async {
+    final typeString = typedData.typeString;
+    final message = typedData.message;
+    final verifyingContract = typedData.domain["verifyingContract"] as String?;
+    if (verifyingContract == null) {
+      return null;
+    }
+
+    if (typeString == _eip2612Permit) {
+      return _buildTokenPermit(
+        typedData,
+        title: S.current.wc_action_permit,
+        tokenAddress: verifyingContract,
+        amount: _integer(message["value"]),
+        validUntil: tokenResolver.formatExpiry(_integer(message["deadline"])),
+        chainId: chainId,
       );
     }
 
-    final domain = (parsed["domain"] as Map?)?.cast<String, dynamic>() ?? const {};
-    final primaryType = parsed["primaryType"]?.toString() ?? "";
-    final types = (parsed["types"] as Map?)?.cast<String, dynamic>() ?? const {};
-    final message = (parsed["message"] as Map?)?.cast<String, dynamic>() ?? const {};
-    final rawFallback = const JsonEncoder.withIndent("  ").convert(parsed);
-
-    final semantic = await _decodePermitSemantics(
-      primaryType: primaryType,
-      domain: domain,
-      message: message,
-      rawFallback: rawFallback,
-      walletAddress: walletAddress,
-    );
-    if (semantic != null) {
-      return semantic;
+    if (typeString == _daiPermit) {
+      final isAllowed = message["allowed"] as bool;
+      final expiry = _integer(message["expiry"]);
+      final isRevoke = !isAllowed && tokenResolver.isKnown(verifyingContract, chainId: chainId);
+      return _buildTokenPermit(
+        typedData,
+        title: isRevoke ? S.current.wc_action_revoke_approval : S.current.wc_action_permit,
+        tokenAddress: verifyingContract,
+        amount: isAllowed ? EvmCalldata.uint256Max : BigInt.zero,
+        validUntil: expiry == BigInt.zero ? S.current.wc_never : tokenResolver.formatExpiry(expiry),
+        chainId: chainId,
+      );
     }
 
-    final rows = <WCDecodedRow>[];
-    _addDomainRows(rows, domain, primaryType);
-    rows.addAll(_flattenMessage(message, types, primaryType, prefix: ""));
+    if (verifyingContract.toLowerCase() != EvmSelectors.permit2Address) {
+      return null;
+    }
 
-    final isPermit = primaryType.toLowerCase().contains("permit");
-    return WCDecodedRequest(
-      actionTitle: isPermit ? S.current.wc_action_permit : S.current.wc_action_sign_typed_data,
-      actionSubtitle: primaryType.isEmpty ? null : primaryType,
-      rows: rows,
-      warnings: isPermit ? [S.current.wc_warning_permit_review] : const [],
-      hideTo: true,
-      hideValue: true,
-      rawFallback: rawFallback,
+    if (typeString == _permitSingle || typeString == _permitBatch) {
+      return _buildPermit2(
+        typedData,
+        permissions: message["details"],
+        deadline: _integer(message["sigDeadline"]),
+        chainId: chainId,
+      );
+    }
+
+    if (typeString == _permitTransferFrom || typeString == _permitBatchTransferFrom) {
+      return _buildPermit2(
+        typedData,
+        permissions: message["permitted"],
+        deadline: _integer(message["deadline"]),
+        chainId: chainId,
+      );
+    }
+
+    final order = _uniswapXOrders[typeString];
+    if (order == null) {
+      return null;
+    }
+
+    return _buildUniswapXOrder(
+      typedData,
+      order,
+      walletAddress: walletAddress,
+      chainId: chainId,
+      nativeSymbol: nativeSymbol,
     );
   }
 
-  void _addDomainRows(
-    List<WCDecodedRow> rows,
-    Map<String, dynamic> domain,
-    String primaryType,
-  ) {
-    final domainName = domain["name"]?.toString();
-    if (domainName != null && domainName.isNotEmpty) {
-      rows.add(WCDecodedRow(label: S.current.wc_domain, value: domainName));
+  Future<WCDecodedRequest> _buildTokenPermit(
+    _TypedData typedData, {
+    required String title,
+    required String tokenAddress,
+    required BigInt amount,
+    required String validUntil,
+    required int? chainId,
+  }) async => WCDecodedRequest(
+    actionTitle: title,
+    actionSubtitle: typedData.domain["name"] as String?,
+    rows: [
+      ...await _tokenAmountRows(tokenAddress, amount),
+      WCDecodedRow(
+        label: S.current.wc_approved_spender,
+        value: typedData.message["spender"] as String,
+        kind: WCDecodedRowKind.address,
+      ),
+      WCDecodedRow(label: S.current.wc_signature_valid_until, value: validUntil),
+      ..._signingContextRows(typedData.domain, includeContract: false),
+    ],
+    warnings: [
+      S.current.wc_warning_permit_review,
+      if (tokenResolver.isUnlimitedAmount(amount)) S.current.wc_warning_unlimited_approval,
+      if (!tokenResolver.isKnown(tokenAddress, chainId: chainId))
+        S.current.wc_warning_unknown_token,
+    ],
+    rawFallback: typedData.signedJson,
+  );
+
+  Future<WCDecodedRequest?> _buildPermit2(
+    _TypedData typedData, {
+    required dynamic permissions,
+    required BigInt deadline,
+    required int? chainId,
+  }) async {
+    final tokens = [
+      if (permissions is List) ...permissions else permissions,
+    ].cast<Map<String, dynamic>>();
+    if (tokens.length > _maxListedTokens) {
+      return null;
     }
-    final chainId = domain["chainId"]?.toString();
-    if (chainId != null && chainId.isNotEmpty) {
-      rows.add(WCDecodedRow(label: S.current.chain_id, value: chainId));
-    }
-    final verifyingContract = domain["verifyingContract"]?.toString();
-    if (verifyingContract != null && verifyingContract.isNotEmpty) {
-      rows.add(
+
+    final tokenRows = await Future.wait(
+      tokens.map((token) async {
+        final expiration = token["expiration"];
+        return [
+          ...await _tokenAmountRows(token["token"] as String, _integer(token["amount"])),
+          if (expiration != null)
+            WCDecodedRow(
+              label: S.current.wc_expiration,
+              value: tokenResolver.formatExpiry(_integer(expiration)),
+            ),
+        ];
+      }),
+    );
+
+    return WCDecodedRequest(
+      actionTitle: S.current.wc_action_permit2,
+      actionSubtitle: "Permit2",
+      rows: [
+        ...tokenRows.expand((rows) => rows),
         WCDecodedRow(
-          label: S.current.wc_verifying_contract,
-          value: verifyingContract,
+          label: S.current.wc_approved_spender,
+          value: typedData.message["spender"] as String,
           kind: WCDecodedRowKind.address,
         ),
-      );
-    }
-    if (primaryType.isNotEmpty) {
-      rows.add(WCDecodedRow(label: S.current.wc_primary_type, value: primaryType));
-    }
+        WCDecodedRow(
+          label: S.current.wc_signature_valid_until,
+          value: tokenResolver.formatExpiry(deadline),
+        ),
+        ..._signingContextRows(typedData.domain),
+      ],
+      warnings: [
+        S.current.wc_warning_permit_review,
+        if (tokens.any((token) => tokenResolver.isUnlimitedAmount(_integer(token["amount"]))))
+          S.current.wc_warning_unlimited_approval,
+        if (tokens.any(
+          (token) => !tokenResolver.isKnown(token["token"] as String, chainId: chainId),
+        ))
+          S.current.wc_warning_unknown_token,
+      ],
+      rawFallback: typedData.signedJson,
+    );
   }
 
-  Future<WCDecodedRequest?> _decodePermitSemantics({
-    required String primaryType,
-    required Map<String, dynamic> domain,
-    required Map<String, dynamic> message,
-    required String rawFallback,
-    String? walletAddress,
+  Future<WCDecodedRequest?> _buildUniswapXOrder(
+    _TypedData typedData,
+    _UniswapXOrder order, {
+    required String walletAddress,
+    required int? chainId,
+    required String nativeSymbol,
   }) async {
-    final type = primaryType.toLowerCase();
-
-    if (type == "permitsingle") {
-      final details = (message["details"] as Map?)?.cast<String, dynamic>();
-      if (details == null) {
-        return null;
-      }
-      return _buildPermit2(
-        detailsList: [details],
-        domain: domain,
-        spender: message["spender"]?.toString(),
-        sigDeadline: _toBigInt(message["sigDeadline"]),
-        rawFallback: rawFallback,
-      );
-    }
-
-    if (type == "permitbatch") {
-      final rawList = message["details"];
-      if (rawList is! List) {
-        return null;
-      }
-      final detailsList = rawList
-          .whereType<Map<dynamic, dynamic>>()
-          .map((e) => e.cast<String, dynamic>())
-          .toList(growable: false);
-      if (detailsList.isEmpty) {
-        return null;
-      }
-      return _buildPermit2(
-        detailsList: detailsList,
-        domain: domain,
-        spender: message["spender"]?.toString(),
-        sigDeadline: _toBigInt(message["sigDeadline"]),
-        rawFallback: rawFallback,
-      );
-    }
-
-    if (type == "permit" && message.containsKey("value") && message.containsKey("spender")) {
-      return _buildEip2612(domain: domain, message: message, rawFallback: rawFallback);
-    }
-
-    if (type == "permitwitnesstransferfrom") {
-      return _buildWitnessOrder(
-        domain: domain,
-        message: message,
-        rawFallback: rawFallback,
-        walletAddress: walletAddress,
-      );
-    }
-
-    return null;
-  }
-
-  Future<WCDecodedRequest?> _buildWitnessOrder({
-    required Map<String, dynamic> domain,
-    required Map<String, dynamic> message,
-    required String rawFallback,
-    required String? walletAddress,
-  }) async {
-    final permitted = message["permitted"];
-    final witness = message["witness"];
-    if (permitted is! Map || witness is! Map) {
+    final message = typedData.message;
+    final permitted = message["permitted"] as Map<String, dynamic>;
+    final witness = message["witness"] as Map<String, dynamic>;
+    final info = witness["info"] as Map<String, dynamic>;
+    final reactor = (info["reactor"] as String).toLowerCase();
+    final outputs = (witness[order.outputsField] as List<dynamic>).cast<Map<String, dynamic>>();
+    if (!_uniswapXReactors.contains(reactor) ||
+        (message["spender"] as String).toLowerCase() != reactor ||
+        outputs.isEmpty ||
+        outputs.length > _maxListedTokens) {
       return null;
     }
 
-    final info = witness["info"];
-    final reactor = info is Map ? info["reactor"]?.toString().toLowerCase() : null;
-    final spender = message["spender"]?.toString();
-    if (reactor == null ||
-        !_uniswapXReactors.contains(reactor) ||
-        spender?.toLowerCase() != reactor) {
-      return null;
-    }
-
-    final payToken = permitted["token"]?.toString();
-    final rawOutputs = witness["baseOutputs"] ?? witness["outputs"];
-    if (payToken == null || payToken.isEmpty || rawOutputs is! List) {
-      return null;
-    }
-
-    final outputs = rawOutputs.whereType<Map<dynamic, dynamic>>().toList(growable: false);
-    if (outputs.isEmpty || outputs.length > 16) {
-      return null;
-    }
-
+    final payToken = permitted["token"] as String;
+    final payAmount = _integer(permitted["amount"]);
     final tokenAddresses = {
       payToken.toLowerCase(),
-      for (final output in outputs) output["token"]?.toString().toLowerCase() ?? "",
-    }..remove("");
+      for (final output in outputs) (output["token"] as String).toLowerCase(),
+    }..remove(SwapPlan.nativeToken);
     final resolved = Map.fromIterables(
       tokenAddresses,
       await Future.wait(tokenAddresses.map(tokenResolver.resolve)),
     );
-    String describe(String tokenAddress, BigInt? amount) {
+
+    List<WCDecodedRow> amountRows(String label, String tokenAddress, BigInt amount) {
       final token = resolved[tokenAddress.toLowerCase()];
-      final symbol = tokenResolver.symbolOrShort(token, tokenAddress);
-      if (amount == null) {
-        return "${S.current.wc_decode_failed} $symbol";
-      }
-      return "${tokenResolver.formatAmount(amount, token)} $symbol";
+      return [
+        WCDecodedRow(label: label, value: tokenResolver.amountText(amount, token, tokenAddress)),
+        WCDecodedRow(
+          label: S.current.wc_token,
+          value: tokenAddress,
+          kind: WCDecodedRowKind.address,
+        ),
+      ];
     }
 
-    final payAmount = _toBigInt(permitted["amount"]);
-    bool unreadableAmount = payAmount == null;
+    List<WCDecodedRow> outputRows(String label, String tokenAddress, BigInt amount) {
+      if (tokenAddress.toLowerCase() != SwapPlan.nativeToken) {
+        return amountRows(label, tokenAddress, amount);
+      }
+
+      return [
+        WCDecodedRow(
+          label: label,
+          value: "${tokenResolver.formatNativeAmount(amount)} $nativeSymbol",
+        ),
+      ];
+    }
 
     final walletOutputs = <WCDecodedRow>[];
     final otherOutputs = <WCDecodedRow>[];
     for (final output in outputs) {
-      final token = output["token"]?.toString();
-      final recipient = output["recipient"]?.toString();
-      if (token == null || token.isEmpty || recipient == null || recipient.isEmpty) {
-        return null;
-      }
+      final token = output["token"] as String;
+      final recipient = output["recipient"] as String;
+      final lowestAmount = _integer(output[order.lowestAmountField]);
 
-      final minAmount = _toBigInt(output["minAmount"] ?? output["endAmount"] ?? output["amount"]);
-      unreadableAmount = unreadableAmount || minAmount == null;
-
-      if (walletAddress != null && recipient.toLowerCase() == walletAddress.toLowerCase()) {
-        walletOutputs.add(
-          WCDecodedRow(label: S.current.wc_swap_to_min, value: describe(token, minAmount)),
-        );
+      if (recipient.toLowerCase() == walletAddress.toLowerCase()) {
+        walletOutputs.addAll(outputRows(S.current.wc_swap_to_min, token, lowestAmount));
       } else {
-        otherOutputs.add(
-          WCDecodedRow(label: S.current.wc_amount, value: describe(token, minAmount)),
-        );
+        otherOutputs.addAll(outputRows(S.current.wc_amount, token, lowestAmount));
         otherOutputs.add(
           WCDecodedRow(
             label: S.current.wc_recipient,
@@ -251,20 +471,17 @@ class TypedDataDecoder {
       }
     }
 
-    final deadline = _toBigInt(message["deadline"]);
-
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_swap,
       actionSubtitle: S.current.wc_via("UniswapX"),
       rows: [
-        WCDecodedRow(label: S.current.wc_swap_from_max, value: describe(payToken, payAmount)),
+        ...amountRows(S.current.wc_swap_from_max, payToken, payAmount),
         ...walletOutputs,
         ...otherOutputs,
-        if (deadline != null)
-          WCDecodedRow(
-            label: S.current.wc_signature_valid_until,
-            value: tokenResolver.formatTimestamp(deadline),
-          ),
+        WCDecodedRow(
+          label: S.current.wc_signature_valid_until,
+          value: tokenResolver.formatExpiry(_integer(message["deadline"])),
+        ),
       ],
       detailRows: [
         WCDecodedRow(
@@ -272,443 +489,423 @@ class TypedDataDecoder {
           value: reactor,
           kind: WCDecodedRowKind.address,
         ),
-        ..._signingContextRows(domain),
+        ..._signingContextRows(typedData.domain),
       ],
       warnings: [
         S.current.wc_warning_permit_review,
-        if (payAmount != null && tokenResolver.isUnlimitedAmount(payAmount))
-          S.current.wc_warning_unlimited_approval,
-        if (unreadableAmount) S.current.wc_warning_typed_data_invalid,
+        if (tokenResolver.isUnlimitedAmount(payAmount)) S.current.wc_warning_unlimited_approval,
+        if (walletOutputs.isEmpty) S.current.wc_warning_recipient_not_you,
+        if (tokenAddresses.any((address) => !tokenResolver.isKnown(address, chainId: chainId)))
+          S.current.wc_warning_unknown_token,
       ],
-      hideTo: true,
-      hideValue: true,
-      rawFallback: rawFallback,
+      rawFallback: typedData.signedJson,
     );
+  }
+
+  WCDecodedRequest _decodeGeneric(_TypedData typedData) {
+    final primaryType = typedData.primaryType;
+    final domainName = typedData.domain["name"] as String?;
+    final isPermit = primaryType.toLowerCase().contains("permit");
+    final isAuthorization = primaryType.endsWith("Authorization");
+    final fieldRows = <WCDecodedRow>[];
+    _flatten(primaryType, typedData.message, typedData.types, fieldRows, name: "", label: "");
+    final hiddenRows =
+        _rowCount(primaryType, typedData.message, typedData.types) - fieldRows.length;
+    return WCDecodedRequest(
+      actionTitle: isPermit ? S.current.wc_action_permit : S.current.wc_action_sign_typed_data,
+      actionSubtitle: primaryType,
+      rows: [
+        if (domainName != null && domainName.isNotEmpty)
+          WCDecodedRow(label: S.current.wc_domain, value: domainName),
+        ..._signingContextRows(typedData.domain),
+        WCDecodedRow(label: S.current.wc_primary_type, value: primaryType),
+        ...fieldRows,
+        if (hiddenRows > 0)
+          WCDecodedRow(label: "…", value: S.current.wc_more_rows(hiddenRows.toString())),
+      ],
+      warnings: [
+        if (isPermit || isAuthorization) S.current.wc_warning_permit_review,
+        if (_riskPrimaryTypes.contains(primaryType)) S.current.wc_warning_typed_data_unrecognized,
+      ],
+      rawFallback: typedData.signedJson,
+    );
+  }
+
+  WCDecodedRequest _decodeLegacyV1(List<dynamic> payload) => WCDecodedRequest(
+    actionTitle: S.current.wc_action_sign_typed_data,
+    rows: [
+      for (final entry in _legacyEntries(payload))
+        _leafRow(
+          entry["type"] as String,
+          entry["value"],
+          name: entry["name"] as String,
+          label: entry["name"] as String,
+        ),
+    ],
+    rawFallback: const JsonEncoder.withIndent("  ").convert(payload),
+  );
+
+  Future<List<WCDecodedRow>> _tokenAmountRows(String tokenAddress, BigInt amount) async {
+    final token = await tokenResolver.resolve(tokenAddress);
+    final symbol = tokenResolver.symbolOrShort(token, tokenAddress);
+    return [
+      WCDecodedRow(label: S.current.wc_token, value: tokenResolver.displayName(token, symbol)),
+      WCDecodedRow(
+        label: S.current.wc_contract,
+        value: tokenAddress,
+        kind: WCDecodedRowKind.address,
+      ),
+      WCDecodedRow(
+        label: S.current.wc_amount,
+        value: tokenResolver.amountText(amount, token, tokenAddress),
+        kind: WCDecodedRowKind.amount,
+      ),
+    ];
   }
 
   List<WCDecodedRow> _signingContextRows(
     Map<String, dynamic> domain, {
     bool includeContract = true,
   }) {
-    final rows = <WCDecodedRow>[];
-    final chainId = domain["chainId"]?.toString();
-    if (chainId != null && chainId.isNotEmpty) {
-      rows.add(WCDecodedRow(label: S.current.chain_id, value: chainId));
-    }
-    final verifyingContract = domain["verifyingContract"]?.toString();
-    if (includeContract && verifyingContract != null && verifyingContract.isNotEmpty) {
-      rows.add(
+    final chainId = _signedChainId(domain);
+    final salt = domain["salt"] as String?;
+    final isSaltChainId = chainId != null && domain["chainId"] == null;
+    final verifyingContract = domain["verifyingContract"] as String?;
+    return [
+      if (chainId != null) WCDecodedRow(label: S.current.chain_id, value: chainId.toString()),
+      if (salt != null && !isSaltChainId) WCDecodedRow(label: "salt", value: salt),
+      if (includeContract && verifyingContract != null)
         WCDecodedRow(
           label: S.current.wc_verifying_contract,
           value: verifyingContract,
           kind: WCDecodedRowKind.address,
         ),
-      );
-    }
-    return rows;
+    ];
   }
 
-  Future<WCDecodedRequest> _buildPermit2({
-    required List<Map<String, dynamic>> detailsList,
-    required Map<String, dynamic> domain,
-    required String? spender,
-    required BigInt? sigDeadline,
-    required String rawFallback,
-  }) async {
-    final rows = <WCDecodedRow>[];
-    bool unreadableAmount = false;
-
-    for (final details in detailsList) {
-      final tokenAddress = details["token"]?.toString();
-      final amount = _toBigInt(details["amount"]);
-      final expiration = _toBigInt(details["expiration"]);
-
-      if (tokenAddress != null && tokenAddress.isNotEmpty) {
-        final token = await tokenResolver.resolve(tokenAddress);
-        final symbol = tokenResolver.symbolOrShort(token, tokenAddress);
-        rows.add(
-          WCDecodedRow(
-            label: S.current.wc_token,
-            value: tokenResolver.displayName(token, symbol),
-          ),
-        );
-        if (amount != null) {
-          final amountStr = tokenResolver.formatAmount(amount, token);
-          rows.add(
-            WCDecodedRow(
-              label: S.current.wc_amount,
-              value: "$amountStr $symbol",
-              kind: WCDecodedRowKind.amount,
-            ),
-          );
-        }
-      } else if (amount != null) {
-        rows.add(
-          WCDecodedRow(
-            label: S.current.wc_amount,
-            value: amount.toString(),
-            kind: WCDecodedRowKind.amount,
-          ),
-        );
-      }
-
-      // A JSON number past int range parses as a double, which _toBigInt can't read back.
-      if (amount == null && details["amount"] != null) {
-        unreadableAmount = true;
-        rows.add(
-          WCDecodedRow(
-            label: S.current.wc_amount,
-            value: S.current.wc_decode_failed,
-            kind: WCDecodedRowKind.amount,
-          ),
-        );
-      }
-
-      if (expiration != null) {
-        rows.add(
-          WCDecodedRow(
-            label: S.current.wc_expiration,
-            value: tokenResolver.formatTimestamp(expiration),
-          ),
-        );
-      }
-    }
-
-    if (spender != null && spender.isNotEmpty) {
-      rows.add(
-        WCDecodedRow(
-          label: S.current.wc_approved_spender,
-          value: spender,
-          kind: WCDecodedRowKind.address,
-        ),
-      );
-    }
-    if (sigDeadline != null) {
-      rows.add(
-        WCDecodedRow(
-          label: S.current.wc_signature_valid_until,
-          value: tokenResolver.formatTimestamp(sigDeadline),
-        ),
-      );
-    }
-    rows.addAll(_signingContextRows(domain));
-
-    final unlimited = detailsList.any((d) {
-      final a = _toBigInt(d["amount"]);
-      return a != null && tokenResolver.isUnlimitedAmount(a);
-    });
-
-    return WCDecodedRequest(
-      actionTitle: S.current.wc_action_permit2,
-      actionSubtitle: "Permit2",
-      rows: rows,
-      warnings: [
-        S.current.wc_warning_permit_review,
-        if (unlimited) S.current.wc_warning_unlimited_approval,
-        if (unreadableAmount) S.current.wc_warning_typed_data_invalid,
-      ],
-      hideTo: true,
-      hideValue: true,
-      rawFallback: rawFallback,
-    );
-  }
-
-  Future<WCDecodedRequest> _buildEip2612({
-    required Map<String, dynamic> domain,
-    required Map<String, dynamic> message,
-    required String rawFallback,
-  }) async {
-    final rows = <WCDecodedRow>[];
-    final tokenAddress = domain["verifyingContract"]?.toString();
-    final amount = _toBigInt(message["value"]);
-    final spender = message["spender"]?.toString();
-    final deadline = _toBigInt(message["deadline"]);
-
-    if (tokenAddress != null && tokenAddress.isNotEmpty) {
-      final token = await tokenResolver.resolve(tokenAddress);
-      final symbol = tokenResolver.symbolOrShort(token, tokenAddress);
-      rows.add(
-        WCDecodedRow(
-          label: S.current.wc_token,
-          value: tokenResolver.displayName(token, symbol),
-        ),
-      );
-      if (amount != null) {
-        final amountStr = tokenResolver.formatAmount(amount, token);
-        rows.add(
-          WCDecodedRow(
-            label: S.current.wc_amount,
-            value: "$amountStr $symbol",
-            kind: WCDecodedRowKind.amount,
-          ),
-        );
-      }
-    } else if (amount != null) {
-      rows.add(
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: amount.toString(),
-          kind: WCDecodedRowKind.amount,
-        ),
-      );
-    }
-
-    final unreadableAmount = amount == null && message["value"] != null;
-    if (unreadableAmount) {
-      rows.add(
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: S.current.wc_decode_failed,
-          kind: WCDecodedRowKind.amount,
-        ),
-      );
-    }
-
-    if (spender != null && spender.isNotEmpty) {
-      rows.add(
-        WCDecodedRow(
-          label: S.current.wc_approved_spender,
-          value: spender,
-          kind: WCDecodedRowKind.address,
-        ),
-      );
-    }
-    if (deadline != null) {
-      rows.add(
-        WCDecodedRow(
-          label: S.current.wc_signature_valid_until,
-          value: tokenResolver.formatTimestamp(deadline),
-        ),
-      );
-    }
-    rows.addAll(_signingContextRows(domain, includeContract: false));
-
-    final unlimited = amount != null && tokenResolver.isUnlimitedAmount(amount);
-    return WCDecodedRequest(
-      actionTitle: S.current.wc_action_permit,
-      actionSubtitle: domain["name"]?.toString(),
-      rows: rows,
-      warnings: [
-        S.current.wc_warning_permit_review,
-        if (unlimited) S.current.wc_warning_unlimited_approval,
-        if (unreadableAmount) S.current.wc_warning_typed_data_invalid,
-      ],
-      hideTo: true,
-      hideValue: true,
-      rawFallback: rawFallback,
-    );
-  }
-
-  WCDecodedRequest? _decodeLegacyV1(dynamic raw) {
-    List<dynamic>? entries;
-    if (raw is List && raw.isNotEmpty && raw.first is Map) {
-      entries = raw;
-    } else if (raw is String) {
-      try {
-        final decoded = jsonDecode(raw);
-        if (decoded is List && decoded.isNotEmpty && decoded.first is Map) {
-          entries = decoded;
-        }
-      } catch (_) {
-        return null;
-      }
-    }
-    if (entries == null) {
-      return null;
-    }
-
-    final rows = <WCDecodedRow>[];
-    for (final entry in entries) {
-      if (entry is! Map) {
-        return null;
-      }
-      final name = entry["name"]?.toString();
-      final value = entry["value"];
-      if (name == null || name.isEmpty) {
-        return null;
-      }
-      rows.add(
-        WCDecodedRow(
-          label: name,
-          value: _formatLeaf(name, value),
-          kind: _looksLikeAddress(entry["type"]?.toString() ?? "", value)
-              ? WCDecodedRowKind.address
-              : WCDecodedRowKind.text,
-        ),
-      );
-    }
-
-    return WCDecodedRequest(
-      actionTitle: S.current.wc_action_sign_typed_data,
-      rows: rows,
-      hideTo: true,
-      hideValue: true,
-      rawFallback: const JsonEncoder.withIndent("  ").convert(entries),
-    );
-  }
-
-  Map<String, dynamic>? _parsePayload(dynamic raw) {
-    try {
-      if (raw is Map) {
-        return raw.cast<String, dynamic>();
-      }
-      if (raw is String) {
-        final decoded = jsonDecode(raw);
-        if (decoded is Map) {
-          return decoded.cast<String, dynamic>();
-        }
-      }
-      if (raw is List && raw.length >= 2 && raw[1] is String) {
-        final decoded = jsonDecode(raw[1] as String);
-        if (decoded is Map) {
-          return decoded.cast<String, dynamic>();
-        }
-      }
-    } catch (e) {
-      printV("TypedDataDecoder: failed to parse payload: $e");
-    }
-    return null;
-  }
-
-  List<WCDecodedRow> _flattenMessage(
-    Map<String, dynamic> message,
-    Map<String, dynamic> types,
-    String typeName, {
-    required String prefix,
+  void _flatten(
+    String type,
+    dynamic value,
+    Map<String, Map<String, String>> types,
+    List<WCDecodedRow> rows, {
+    required String name,
+    required String label,
   }) {
-    final out = <WCDecodedRow>[];
-    final fields = (types[typeName] as List?)?.cast<Map<String, dynamic>>() ?? const [];
-
-    if (fields.isEmpty) {
-      for (final entry in message.entries) {
-        out.add(
-          WCDecodedRow(
-            label: prefix.isEmpty ? entry.key : "$prefix.${entry.key}",
-            value: _formatLeaf(entry.key, entry.value),
-          ),
-        );
-      }
-      return out;
-    }
-
-    for (final field in fields) {
-      final name = field["name"]?.toString() ?? "";
-      final fieldType = field["type"]?.toString() ?? "";
-      final value = message[name];
-      if (value == null) {
-        continue;
-      }
-      final label = prefix.isEmpty ? name : "$prefix.$name";
-
-      if (types.containsKey(fieldType) && value is Map) {
-        out.addAll(
-          _flattenMessage(
-            value.cast<String, dynamic>(),
-            types,
-            fieldType,
-            prefix: label,
-          ),
-        );
-      } else if (fieldType.endsWith("]") && value is List) {
-        out.add(WCDecodedRow(label: label, value: "[${value.length}]"));
-        for (var i = 0; i < value.length; i++) {
-          final item = value[i];
-          if (item is Map) {
-            final innerType = fieldType.substring(0, fieldType.lastIndexOf("["));
-            if (types.containsKey(innerType)) {
-              out.addAll(
-                _flattenMessage(
-                  item.cast<String, dynamic>(),
-                  types,
-                  innerType,
-                  prefix: "$label[$i]",
-                ),
-              );
-              continue;
-            }
-          }
-          out.add(WCDecodedRow(label: "$label[$i]", value: _formatLeaf(name, item)));
+    final fields = types[type];
+    if (fields != null && value is Map<String, dynamic>) {
+      for (final field in fields.entries) {
+        if (rows.length == _maxGenericRows) {
+          return;
         }
-      } else {
-        out.add(
-          WCDecodedRow(
-            label: label,
-            value: _formatLeaf(name, value),
-            kind: _looksLikeAddress(fieldType, value)
-                ? WCDecodedRowKind.address
-                : WCDecodedRowKind.text,
-          ),
+
+        _flatten(
+          field.value,
+          value[field.key],
+          types,
+          rows,
+          name: field.key,
+          label: label.isEmpty ? field.key : "$label.${field.key}",
         );
       }
+      return;
     }
-    return out;
+
+    if (value is List) {
+      final elementType = type.substring(0, type.lastIndexOf("["));
+      rows.add(WCDecodedRow(label: label, value: "[${value.length}]"));
+      for (int index = 0; index < value.length && rows.length < _maxGenericRows; index++) {
+        _flatten(elementType, value[index], types, rows, name: name, label: "$label[$index]");
+      }
+      return;
+    }
+
+    rows.add(_leafRow(type, value, name: name, label: label));
   }
 
-  String _formatLeaf(String fieldName, dynamic value) {
-    if (_timestampFieldNames.contains(fieldName.toLowerCase())) {
-      final ts = _toBigInt(value);
-      if (ts != null) {
-        final formatted = tokenResolver.formatTimestamp(ts);
-        if (formatted != ts.toString()) {
-          return formatted;
+  static int _rowCount(String type, dynamic value, Map<String, Map<String, String>> types) {
+    final fields = types[type];
+    if (fields != null && value is Map<String, dynamic>) {
+      int count = 0;
+      for (final field in fields.entries) {
+        count += _rowCount(field.value, value[field.key], types);
+      }
+      return count;
+    }
+
+    if (value is List) {
+      final elementType = type.substring(0, type.lastIndexOf("["));
+      int count = 1;
+      for (final element in value) {
+        count += _rowCount(elementType, element, types);
+      }
+      return count;
+    }
+
+    return 1;
+  }
+
+  WCDecodedRow _leafRow(String type, dynamic value, {required String name, required String label}) {
+    final isTimestamp =
+        _uintBits.containsKey(type) && _timestampFieldNames.contains(name.toLowerCase());
+    final isAddress =
+        type == "address" || (value is String && value.length == 42 && value.startsWith("0x"));
+    return WCDecodedRow(
+      label: label,
+      value: isTimestamp ? tokenResolver.formatTimestamp(_integer(value)) : value.toString(),
+      kind: isAddress ? WCDecodedRowKind.address : WCDecodedRowKind.text,
+    );
+  }
+
+  static List<Map<String, dynamic>> _legacyEntries(dynamic payload) {
+    if (payload is! List || payload.isEmpty) {
+      throw const FormatException("Legacy typed data is not a list of entries");
+    }
+
+    final entries = <Map<String, dynamic>>[];
+    for (final entry in payload) {
+      if (entry is! Map<String, dynamic> || entry["name"] is! String || entry["type"] is! String) {
+        throw const FormatException("A legacy typed data entry has no name or no type");
+      }
+
+      if (!_fitsAtomicType(entry["type"] as String, entry["value"])) {
+        throw FormatException("A legacy value does not fit its type ${entry["type"]}");
+      }
+
+      entries.add(entry);
+    }
+    return entries;
+  }
+
+  static _TypedData _parseTypedData(dynamic payload) {
+    if (payload is! Map<String, dynamic>) {
+      throw const FormatException("Typed data is not an object");
+    }
+
+    final primaryType = payload["primaryType"];
+    final types = _structTypes(payload["types"]);
+    final domainFields = types["EIP712Domain"];
+    final messageFields = types[primaryType];
+    if (primaryType is! String || primaryType == "EIP712Domain" || messageFields == null) {
+      throw const FormatException("The primary type is not a declared struct");
+    }
+
+    if (domainFields == null ||
+        domainFields.entries.any((field) => _domainFieldTypes[field.key] != field.value)) {
+      throw const FormatException("EIP712Domain is not declared or has a non-standard field");
+    }
+
+    final domain = _declaredStruct(domainFields, payload["domain"], types, 0);
+    final chainId = domain["chainId"];
+    if (chainId != null && !_integer(chainId).isValidInt) {
+      throw const FormatException("The domain chain id is too large");
+    }
+
+    return _TypedData(
+      types: types,
+      primaryType: primaryType,
+      domain: domain,
+      message: _declaredStruct(messageFields, payload["message"], types, 0),
+    );
+  }
+
+  static Map<String, Map<String, String>> _structTypes(dynamic declaredTypes) {
+    if (declaredTypes is! Map<String, dynamic>) {
+      throw const FormatException("Typed data has no types");
+    }
+
+    final types = <String, Map<String, String>>{};
+    for (final struct in declaredTypes.entries) {
+      final declaredFields = struct.value;
+      if (declaredFields is! List || !_structName.hasMatch(struct.key)) {
+        throw FormatException("${struct.key} is not a valid struct type");
+      }
+
+      final fields = <String, String>{};
+      for (final field in declaredFields) {
+        if (field is! Map<String, dynamic>) {
+          throw FormatException("${struct.key} has a field that is not an object");
         }
+
+        final name = field["name"];
+        final type = field["type"];
+        if (name is! String ||
+            type is! String ||
+            !_fieldName.hasMatch(name) ||
+            fields.containsKey(name)) {
+          throw FormatException("${struct.key} has a malformed or repeated field");
+        }
+
+        fields[name] = type;
+      }
+      types[struct.key] = fields;
+    }
+
+    for (final type in types.values.expand((fields) => fields.values)) {
+      final baseType = _typeName.firstMatch(type)?.group(1);
+      if (!types.containsKey(baseType) && !_atomicTypes.contains(baseType)) {
+        throw FormatException("$type is not a declared or atomic type");
       }
     }
-    return _stringifyValue(value);
+    return types;
   }
 
-  bool _looksLikeAddress(String fieldType, dynamic value) {
-    if (fieldType == "address") {
-      return true;
+  static Map<String, dynamic> _declaredStruct(
+    Map<String, String> fields,
+    dynamic value,
+    Map<String, Map<String, String>> types,
+    int depth,
+  ) {
+    if (value is! Map<String, dynamic>) {
+      throw const FormatException("A struct value is not an object");
     }
-    if (value is String && value.length == 42 && value.startsWith("0x")) {
-      return true;
-    }
-    return false;
+
+    return {
+      for (final field in fields.entries)
+        field.key: _declaredValue(field.value, value[field.key], types, depth + 1),
+    };
   }
 
-  String _stringifyValue(dynamic value) {
+  static dynamic _declaredValue(
+    String type,
+    dynamic value,
+    Map<String, Map<String, String>> types,
+    int depth,
+  ) {
     if (value == null) {
-      return "";
+      throw FormatException("A declared $type field has no value");
     }
-    if (value is Map || value is List) {
-      try {
-        return jsonEncode(value);
-      } catch (_) {
-        return value.toString();
+
+    if (depth > _maxNestingDepth) {
+      throw const FormatException("Typed data is nested too deeply");
+    }
+
+    if (type.endsWith("]")) {
+      final sizeStart = type.lastIndexOf("[") + 1;
+      final size = int.tryParse(type.substring(sizeStart, type.length - 1));
+      if (value is! List || (size != null && value.length != size)) {
+        throw FormatException("A value does not fit its declared type $type");
       }
+
+      final elementType = type.substring(0, sizeStart - 1);
+      return [for (final element in value) _declaredValue(elementType, element, types, depth + 1)];
     }
-    return value.toString();
+
+    final fields = types[type];
+    if (fields != null) {
+      return _declaredStruct(fields, value, types, depth);
+    }
+
+    if (!_fitsAtomicType(type, value)) {
+      throw FormatException("A value does not fit its declared type $type");
+    }
+    return value;
   }
 
-  BigInt? _toBigInt(dynamic value) {
-    final parsed = _parseBigInt(value);
-    if (parsed == null || parsed.isNegative) {
-      return null;
+  static bool _fitsAtomicType(String type, dynamic value) {
+    if (type == "bool") {
+      return value is bool;
     }
-    return parsed;
+
+    if (type == "string") {
+      return value is String;
+    }
+
+    if (type == "address") {
+      return value is String && _address.hasMatch(value);
+    }
+
+    if (type == "bytes") {
+      return value is String && _hexBytes.hasMatch(value);
+    }
+
+    final byteLength = _fixedBytesLengths[type];
+    if (byteLength != null) {
+      return value is String && _hexBytes.hasMatch(value) && value.length == 2 + byteLength * 2;
+    }
+
+    final uintBits = _uintBits[type];
+    if (uintBits != null) {
+      final number = _integer(value);
+      return !number.isNegative && number.bitLength <= uintBits;
+    }
+
+    final intBits = _intBits[type];
+    return intBits != null && _integer(value).bitLength < intBits;
   }
 
-  BigInt? _parseBigInt(dynamic value) {
-    if (value == null) {
-      return null;
-    }
+  static BigInt _integer(dynamic value) {
     if (value is int) {
       return BigInt.from(value);
     }
-    if (value is BigInt) {
-      return value;
-    }
-    if (value is String) {
-      final s = value.trim();
-      if (s.isEmpty) {
-        return null;
+
+    if (value is String && value.length <= _maxIntegerLength) {
+      if (_decimal.hasMatch(value)) {
+        return BigInt.parse(value);
       }
-      if (s.toLowerCase().startsWith("0x")) {
-        return BigInt.tryParse(s.substring(2), radix: 16);
+
+      if (_hexInteger.hasMatch(value)) {
+        return BigInt.parse(value.substring(2), radix: 16);
       }
-      return BigInt.tryParse(s);
     }
-    return null;
+
+    throw const FormatException("A value is not an integer");
   }
+}
+
+class _TypedData {
+  const _TypedData({
+    required this.types,
+    required this.primaryType,
+    required this.domain,
+    required this.message,
+  });
+
+  final Map<String, Map<String, String>> types;
+  final String primaryType;
+  final Map<String, dynamic> domain;
+  final Map<String, dynamic> message;
+
+  String get typeString {
+    final referenced = <String, Map<String, String>>{};
+    _addReferencedStructs(primaryType, referenced);
+
+    final dependencies = referenced.entries.skip(1).toList()
+      ..sort((first, second) => first.key.compareTo(second.key));
+    return [...referenced.entries.take(1), ...dependencies].map((struct) {
+      final fields = struct.value.entries.map((field) => "${field.value} ${field.key}");
+      return "${struct.key}(${fields.join(",")})";
+    }).join();
+  }
+
+  String get signedJson => const JsonEncoder.withIndent("  ").convert({
+    "types": {
+      for (final struct in types.entries)
+        struct.key: [
+          for (final field in struct.value.entries) {"name": field.key, "type": field.value},
+        ],
+    },
+    "primaryType": primaryType,
+    "domain": domain,
+    "message": message,
+  });
+
+  void _addReferencedStructs(String type, Map<String, Map<String, String>> referenced) {
+    final structName = type.split("[").first;
+    final fields = types[structName];
+    if (fields == null || referenced.containsKey(structName)) {
+      return;
+    }
+
+    referenced[structName] = fields;
+    for (final fieldType in fields.values) {
+      _addReferencedStructs(fieldType, referenced);
+    }
+  }
+}
+
+class _UniswapXOrder {
+  const _UniswapXOrder({required this.outputsField, required this.lowestAmountField});
+
+  final String outputsField;
+  final String lowestAmountField;
 }

@@ -51,8 +51,8 @@ class WCConnectionRequestSheet extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         WCSheetHeader(title: S.of(context).wc_connect_request_title),
-        const SizedBox(height: 24),
-        Expanded(
+        const SizedBox(height: 16),
+        Flexible(
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -71,24 +71,24 @@ class WCConnectionRequestSheet extends StatelessWidget {
                 WCWalletCard(walletName: walletName, address: address),
                 const SizedBox(height: 24),
                 WCPermissionsCard(permissions: permissions),
+                const SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ConfirmSwiper(
+                    swiperText: S.of(context).wc_swipe_to_approve,
+                    accessibleNavigationModeButtonText: S.of(context).wc_action_approve,
+                    onConfirmed: () {
+                      if (Navigator.canPop(context)) {
+                        Navigator.of(context).pop(WCBottomSheetResult.one);
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 24),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: ConfirmSwiper(
-            swiperText: S.of(context).wc_swipe_to_approve,
-            accessibleNavigationModeButtonText: S.of(context).wc_action_approve,
-            onConfirmed: () {
-              if (Navigator.canPop(context)) {
-                Navigator.of(context).pop(WCBottomSheetResult.one);
-              }
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
       ],
     );
   }

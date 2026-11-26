@@ -4,7 +4,7 @@ import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/solana_ac
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/spl_token_resolver.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/system_program_decoder.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
-import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/format_fixed.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:on_chain/solana/solana.dart";
 
@@ -16,14 +16,38 @@ class SplTokenDecoder {
 
   static final _u64Max = (BigInt.one << 64) - BigInt.one;
 
-  Future<CryptoCurrency?> _tokenForAccount(String tokenAccount) async {
+  static const _authorityTypes = [
+    "MintTokens",
+    "FreezeAccount",
+    "AccountOwner",
+    "CloseAccount",
+    "TransferFeeConfig",
+    "WithheldWithdraw",
+    "CloseMint",
+    "InterestRate",
+    "PermanentDelegate",
+    "ConfidentialTransferMint",
+    "TransferHookProgramId",
+    "ConfidentialTransferFeeConfig",
+    "MetadataPointer",
+    "GroupPointer",
+    "GroupMemberPointer",
+    "ScaledUiAmount",
+    "Pause",
+    "PermissionedBurn",
+  ];
+
+  Future<String?> _mintForAccount(String? tokenAccount) async {
+    if (tokenAccount == null) {
+      return null;
+    }
+
     try {
-      final data = await accountFetcher.fetchAccountData(tokenAccount);
+      final data = (await accountFetcher.fetchAccountsData([tokenAccount]))?.firstOrNull;
       if (data == null || data.length < 32) {
         return null;
       }
-      final mint = SolAddress.uncheckBytes(data.sublist(0, 32)).address;
-      return resolver.resolve(mint);
+      return SolAddress.uncheckBytes(data.sublist(0, 32)).address;
     } catch (e) {
       printV("SplTokenDecoder: mint lookup failed for $tokenAccount: $e");
       return null;
@@ -32,7 +56,8 @@ class SplTokenDecoder {
 
   Future<SolDecodedInstruction?> decode({
     required List<int> data,
-    required List<String> accounts,
+    required List<String?> accounts,
+    required String wallet,
   }) async {
     final bytes = SolInstructionBytes(data);
     final tag = bytes.u8(0);
@@ -51,254 +76,226 @@ class SplTokenDecoder {
         return _decodeApproveChecked(bytes, accounts);
       case 5:
         return _decodeRevoke(accounts);
+      case 6:
+        return _decodeSetAuthority(bytes, accounts);
       case 7:
         return _decodeMintTo(bytes, accounts);
       case 8:
         return _decodeBurn(bytes, accounts);
       case 9:
-        return _decodeCloseAccount(accounts);
+        return _decodeCloseAccount(accounts, wallet);
+      case 17:
+        return _decodeSyncNative(accounts);
     }
     return null;
   }
 
+  Future<SolDecodedInstruction> _tokenInstruction({
+    required String title,
+    required String? mint,
+    required BigInt amount,
+    List<WCDecodedRow> accountRows = const [],
+    int? carriedDecimals,
+    bool hasMintAccount = true,
+    List<String> warnings = const [],
+  }) async {
+    final token = mint != null && (carriedDecimals == null || resolver.isKnown(mint))
+        ? await resolver.resolve(mint)
+        : null;
+    final decimals = carriedDecimals ?? token?.decimals;
+    final amountText = decimals == null ? amount.toString() : formatFixed(amount, decimals);
+
+    return SolDecodedInstruction(
+      title: title,
+      rows: [
+        if (mint != null || hasMintAccount) SolDecodedInstruction.tokenRow(resolver, token, mint),
+        WCDecodedRow(
+          label: S.current.wc_amount,
+          value: mint == null ? amountText : "$amountText ${resolver.symbolFor(token, mint)}",
+          kind: WCDecodedRowKind.amount,
+        ),
+        ...accountRows,
+      ],
+      warnings: [
+        if (decimals == null) S.current.wc_warning_raw_token_amount,
+        if (mint != null && !resolver.isKnown(mint)) S.current.wc_warning_unknown_token,
+        ...warnings,
+      ],
+    );
+  }
+
   Future<SolDecodedInstruction?> _decodeTransfer(
     SolInstructionBytes bytes,
-    List<String> accounts,
+    List<String?> accounts,
   ) async {
     final amount = bytes.u64Le(1);
     if (amount == null || accounts.length < 3) {
       return null;
     }
 
-    final token = await _tokenForAccount(accounts[0]);
-    final symbol = token == null ? null : resolver.symbolFor(token, "");
-    final decimals = resolver.decimalsFor(token);
-
-    return SolDecodedInstruction(
+    return _tokenInstruction(
       title: S.current.wc_action_transfer,
-      rows: [
-        if (symbol != null) WCDecodedRow(label: S.current.wc_token, value: symbol),
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: decimals == null
-              ? amount.toString()
-              : "${resolver.formatAmount(amount, decimals)} $symbol",
-          kind: WCDecodedRowKind.amount,
-        ),
-        WCDecodedRow(
-          label: S.current.from,
-          value: accounts[0],
-          kind: WCDecodedRowKind.address,
-        ),
-        WCDecodedRow(
-          label: S.current.to,
-          value: accounts[1],
-          kind: WCDecodedRowKind.address,
-        ),
+      mint: await _mintForAccount(accounts[0]),
+      hasMintAccount: false,
+      amount: amount,
+      accountRows: [
+        SolDecodedInstruction.accountRow(S.current.from, accounts[0]),
+        SolDecodedInstruction.accountRow(S.current.to, accounts[1]),
       ],
-      warnings: [if (token == null) S.current.wc_warning_raw_token_amount],
     );
   }
 
   Future<SolDecodedInstruction?> _decodeTransferChecked(
     SolInstructionBytes bytes,
-    List<String> accounts,
+    List<String?> accounts,
   ) async {
     final amount = bytes.u64Le(1);
     final decimals = bytes.u8(9);
     if (amount == null || decimals == null || accounts.length < 4) {
       return null;
     }
-    final mint = accounts[1];
-    final token = await resolver.resolve(mint);
-    final tokenDecimals = resolver.decimalsFor(token) ?? decimals;
-    final amountStr = resolver.formatAmount(amount, tokenDecimals);
-    final symbol = resolver.symbolFor(token, mint);
-    return SolDecodedInstruction(
+
+    return _tokenInstruction(
       title: S.current.wc_action_transfer,
-      rows: [
-        WCDecodedRow(label: S.current.wc_token, value: symbol),
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: "$amountStr $symbol",
-          kind: WCDecodedRowKind.amount,
-        ),
-        WCDecodedRow(
-          label: S.current.from,
-          value: accounts[0],
-          kind: WCDecodedRowKind.address,
-        ),
-        WCDecodedRow(
-          label: S.current.to,
-          value: accounts[2],
-          kind: WCDecodedRowKind.address,
-        ),
+      mint: accounts[1],
+      amount: amount,
+      carriedDecimals: decimals,
+      accountRows: [
+        SolDecodedInstruction.accountRow(S.current.from, accounts[0]),
+        SolDecodedInstruction.accountRow(S.current.to, accounts[2]),
       ],
-      warnings: [if (token == null) S.current.wc_warning_unknown_token],
     );
   }
 
   Future<SolDecodedInstruction?> _decodeApprove(
     SolInstructionBytes bytes,
-    List<String> accounts,
+    List<String?> accounts,
   ) async {
     final amount = bytes.u64Le(1);
     if (amount == null || accounts.length < 3) {
       return null;
     }
 
-    final token = await _tokenForAccount(accounts[0]);
-    final symbol = token == null ? null : resolver.symbolFor(token, "");
-    final decimals = resolver.decimalsFor(token);
-
-    return SolDecodedInstruction(
+    return _tokenInstruction(
       title: S.current.wc_action_approve,
-      rows: [
-        if (symbol != null) WCDecodedRow(label: S.current.wc_token, value: symbol),
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: decimals == null
-              ? amount.toString()
-              : "${resolver.formatAmount(amount, decimals)} $symbol",
-          kind: WCDecodedRowKind.amount,
-        ),
-        WCDecodedRow(
-          label: S.current.wc_spender,
-          value: accounts[1],
-          kind: WCDecodedRowKind.address,
-        ),
+      mint: await _mintForAccount(accounts[0]),
+      hasMintAccount: false,
+      amount: amount,
+      accountRows: [
+        SolDecodedInstruction.accountRow(S.current.wc_token_account, accounts[0]),
+        SolDecodedInstruction.accountRow(S.current.wc_approved_spender, accounts[1]),
       ],
-      warnings: [
-        if (token == null) S.current.wc_warning_raw_token_amount,
-        if (amount == _u64Max) S.current.wc_warning_unlimited_approval,
-      ],
+      warnings: [if (amount == _u64Max) S.current.wc_warning_unlimited_approval],
     );
   }
 
   Future<SolDecodedInstruction?> _decodeApproveChecked(
     SolInstructionBytes bytes,
-    List<String> accounts,
+    List<String?> accounts,
   ) async {
     final amount = bytes.u64Le(1);
     final decimals = bytes.u8(9);
     if (amount == null || decimals == null || accounts.length < 4) {
       return null;
     }
-    final mint = accounts[1];
-    final token = await resolver.resolve(mint);
-    final tokenDecimals = resolver.decimalsFor(token) ?? decimals;
-    final amountStr = resolver.formatAmount(amount, tokenDecimals);
-    final symbol = resolver.symbolFor(token, mint);
-    return SolDecodedInstruction(
+
+    return _tokenInstruction(
       title: S.current.wc_action_approve,
-      rows: [
-        WCDecodedRow(label: S.current.wc_token, value: symbol),
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: "$amountStr $symbol",
-          kind: WCDecodedRowKind.amount,
-        ),
-        WCDecodedRow(
-          label: S.current.wc_spender,
-          value: accounts[2],
-          kind: WCDecodedRowKind.address,
-        ),
+      mint: accounts[1],
+      amount: amount,
+      carriedDecimals: decimals,
+      accountRows: [
+        SolDecodedInstruction.accountRow(S.current.wc_token_account, accounts[0]),
+        SolDecodedInstruction.accountRow(S.current.wc_approved_spender, accounts[2]),
       ],
-      warnings: [
-        if (token == null) S.current.wc_warning_unknown_token,
-        if (amount == _u64Max) S.current.wc_warning_unlimited_approval,
-      ],
+      warnings: [if (amount == _u64Max) S.current.wc_warning_unlimited_approval],
     );
   }
 
-  SolDecodedInstruction _decodeRevoke(List<String> accounts) => SolDecodedInstruction(
-        title: S.current.wc_action_revoke_approval,
-        rows: [
-          if (accounts.isNotEmpty)
-            WCDecodedRow(
-              label: S.current.wc_token_account,
-              value: accounts.first,
-              kind: WCDecodedRowKind.address,
-            ),
-        ],
-      );
+  SolDecodedInstruction _decodeRevoke(List<String?> accounts) => SolDecodedInstruction(
+    title: S.current.wc_action_revoke_approval,
+    rows: [
+      if (accounts.isNotEmpty)
+        SolDecodedInstruction.accountRow(S.current.wc_token_account, accounts.first),
+    ],
+  );
+
+  SolDecodedInstruction? _decodeSetAuthority(SolInstructionBytes bytes, List<String?> accounts) {
+    final authorityType = bytes.u8(1);
+    final newAuthorityFlag = bytes.u8(2);
+    final newAuthority = newAuthorityFlag == 1 ? bytes.address(3) : null;
+    if (authorityType == null || accounts.isEmpty) {
+      return null;
+    }
+
+    if (newAuthorityFlag != 0 && newAuthority == null) {
+      return null;
+    }
+
+    return SolDecodedInstruction(
+      title: S.current.wc_action_set_authority,
+      rows: [
+        SolDecodedInstruction.accountRow(S.current.account, accounts[0]),
+        WCDecodedRow(
+          label: S.current.type,
+          value: _authorityTypes.elementAtOrNull(authorityType) ?? authorityType.toString(),
+        ),
+        if (newAuthority == null)
+          WCDecodedRow(label: S.current.wc_new_authority, value: S.current.settings_none)
+        else
+          SolDecodedInstruction.accountRow(S.current.wc_new_authority, newAuthority),
+      ],
+      warnings: [S.current.wc_warning_authority_change],
+    );
+  }
 
   Future<SolDecodedInstruction?> _decodeMintTo(
     SolInstructionBytes bytes,
-    List<String> accounts,
+    List<String?> accounts,
   ) async {
     final amount = bytes.u64Le(1);
     if (amount == null || accounts.length < 3) {
       return null;
     }
-    final mint = accounts[0];
-    final token = await resolver.resolve(mint);
-    final decimals = resolver.decimalsFor(token);
-    final amountStr =
-        decimals == null ? amount.toString() : resolver.formatAmount(amount, decimals);
-    final symbol = resolver.symbolFor(token, mint);
-    return SolDecodedInstruction(
+
+    return _tokenInstruction(
       title: S.current.wc_action_mint,
-      rows: [
-        WCDecodedRow(label: S.current.wc_token, value: symbol),
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: "$amountStr $symbol",
-          kind: WCDecodedRowKind.amount,
-        ),
-        WCDecodedRow(
-          label: S.current.to,
-          value: accounts[1],
-          kind: WCDecodedRowKind.address,
-        ),
-      ],
-      warnings: [if (decimals == null) S.current.wc_warning_raw_token_amount],
+      mint: accounts[0],
+      amount: amount,
+      accountRows: [SolDecodedInstruction.accountRow(S.current.to, accounts[1])],
     );
   }
 
   Future<SolDecodedInstruction?> _decodeBurn(
     SolInstructionBytes bytes,
-    List<String> accounts,
+    List<String?> accounts,
   ) async {
     final amount = bytes.u64Le(1);
     if (amount == null || accounts.length < 3) {
       return null;
     }
-    final mint = accounts[1];
-    final token = await resolver.resolve(mint);
-    final decimals = resolver.decimalsFor(token);
-    final amountStr =
-        decimals == null ? amount.toString() : resolver.formatAmount(amount, decimals);
-    final symbol = resolver.symbolFor(token, mint);
-    return SolDecodedInstruction(
-      title: S.current.wc_action_burn,
-      rows: [
-        WCDecodedRow(label: S.current.wc_token, value: symbol),
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: "$amountStr $symbol",
-          kind: WCDecodedRowKind.amount,
-        ),
-      ],
-      warnings: [if (decimals == null) S.current.wc_warning_raw_token_amount],
-    );
+
+    return _tokenInstruction(title: S.current.wc_action_burn, mint: accounts[1], amount: amount);
   }
 
-  SolDecodedInstruction _decodeCloseAccount(List<String> accounts) => SolDecodedInstruction(
+  SolDecodedInstruction _decodeSyncNative(List<String?> accounts) => SolDecodedInstruction(
+    title: S.current.wc_action_wrap("SOL"),
+    rows: [
+      if (accounts.isNotEmpty)
+        SolDecodedInstruction.accountRow(S.current.wc_token_account, accounts.first),
+    ],
+  );
+
+  SolDecodedInstruction _decodeCloseAccount(List<String?> accounts, String wallet) =>
+      SolDecodedInstruction(
         title: S.current.wc_action_close_token_account,
         rows: [
           if (accounts.isNotEmpty)
-            WCDecodedRow(
-              label: S.current.wc_token_account,
-              value: accounts.first,
-              kind: WCDecodedRowKind.address,
-            ),
-          if (accounts.length >= 2)
-            WCDecodedRow(
-              label: S.current.to,
-              value: accounts[1],
-              kind: WCDecodedRowKind.address,
-            ),
+            SolDecodedInstruction.accountRow(S.current.wc_token_account, accounts.first),
+          if (accounts.length >= 2) SolDecodedInstruction.accountRow(S.current.to, accounts[1]),
+        ],
+        warnings: [
+          if (accounts.length >= 2 && accounts[1] != wallet) S.current.wc_warning_recipient_not_you,
         ],
       );
 }

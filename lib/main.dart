@@ -31,6 +31,7 @@ import 'package:cake_wallet/reactions/bootstrap.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
+import "package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -429,6 +430,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           tradeMonitor: tradeMonitor,
           nodeSwitchingService: nodeSwitchingService,
           trezorConnect: getIt<TrezorConnect>(),
+          bottomSheetService: getIt<BottomSheetService>(),
           child: ThemeProvider(
             themeStore: appStore.themeStore,
             materialAppBuilder: (context, theme, darkTheme, themeMode) => MaterialApp(

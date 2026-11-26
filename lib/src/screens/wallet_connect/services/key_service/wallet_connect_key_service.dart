@@ -10,10 +10,13 @@ import 'package:cw_core/wallet_type.dart';
 abstract class WalletConnectKeyService {
   List<ChainKeyModel> getKeys(WalletBase wallet);
   List<ChainKeyModel> getKeysForChain(WalletBase wallet);
+
+  String getPrivateKey(WalletBase wallet);
 }
 
 class KeyServiceImpl implements WalletConnectKeyService {
-  static String _getPrivateKeyForWallet(WalletBase wallet) {
+  @override
+  String getPrivateKey(WalletBase wallet) {
     switch (wallet.type) {
       case WalletType.ethereum:
       case WalletType.polygon:
@@ -62,7 +65,6 @@ class KeyServiceImpl implements WalletConnectKeyService {
             'eip155:42161',
             "eip155:4663",
           ],
-          privateKey: _getPrivateKeyForWallet(wallet),
           publicKey: _getPublicKeyForWallet(wallet),
         ),
       ];
@@ -75,7 +77,6 @@ class KeyServiceImpl implements WalletConnectKeyService {
             'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // main-net
             'solana:4sGjMW1sUnHzSxGspuhpqLDx6wiyjNtZ', // legacy main-net id older dapps still use
           ],
-          privateKey: _getPrivateKeyForWallet(wallet),
           publicKey: _getPublicKeyForWallet(wallet),
         ),
       ];
@@ -85,7 +86,6 @@ class KeyServiceImpl implements WalletConnectKeyService {
       return [
         ChainKeyModel(
           chains: [TronChainId.mainnet.chain()],
-          privateKey: _getPrivateKeyForWallet(wallet),
           publicKey: _getPublicKeyForWallet(wallet),
         ),
       ];

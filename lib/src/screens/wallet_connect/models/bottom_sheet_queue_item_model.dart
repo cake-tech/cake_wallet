@@ -7,6 +7,7 @@ class BottomSheetQueueItemModel {
   final bool isModalDismissible;
   final Completer<dynamic> completer;
   final int closeAfter;
+  bool isPresented = false;
 
   BottomSheetQueueItemModel({
     required this.widget,

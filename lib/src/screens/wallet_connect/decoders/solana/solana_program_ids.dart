@@ -10,6 +10,10 @@ class SolanaProgramIds {
 
   static const computeBudget = "ComputeBudget111111111111111111111111111111";
 
+  static const ed25519SigVerify = "Ed25519SigVerify111111111111111111111111111";
+  static const keccakSecp256k1 = "KeccakSecp256k11111111111111111111111111111";
+  static const secp256r1SigVerify = "Secp256r1SigVerify1111111111111111111111111";
+
   static const wrappedSolMint = "So11111111111111111111111111111111111111112";
 
   static const jupiterV6 = "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4";
@@ -34,36 +38,27 @@ class SolanaProgramIds {
 
   static bool isMemoProgram(String programId) => programId == memoV1 || programId == memoV2;
 
-  static String? swapRouterName(String programId) {
-    switch (programId) {
-      case jupiterV6:
-      case jupiterV4:
-      case jupiterLimitOrderV2:
-      case jupiterDca:
-        return "Jupiter";
-      case raydiumAmmV4:
-      case raydiumCpmm:
-      case raydiumClmm:
-        return "Raydium";
-      case orcaWhirlpool:
-        return "Orca";
-      case meteoraDlmm:
-        return "Meteora";
-      case phoenixV1:
-        return "Phoenix";
-      case splTokenSwap:
-        return "SPL Token Swap";
-      default:
-        return null;
-    }
+  static const _routerNames = {
+    jupiterV6: "Jupiter",
+    jupiterV4: "Jupiter",
+    jupiterLimitOrderV2: "Jupiter",
+    jupiterDca: "Jupiter",
+    raydiumAmmV4: "Raydium",
+    raydiumCpmm: "Raydium",
+    raydiumClmm: "Raydium",
+    orcaWhirlpool: "Orca",
+    meteoraDlmm: "Meteora",
+    phoenixV1: "Phoenix",
+    splTokenSwap: "SPL Token Swap",
+  };
+
+  static String displayName(String programId) {
+    final routerName = _routerNames[programId];
+    return routerName == null ? programId : "$routerName ($programId)";
   }
 
-  static bool isInternal(String programId) => programId == computeBudget;
-
-  static bool isPlumbing(String programId) =>
-      programId == systemProgram ||
-      isTokenProgram(programId) ||
-      programId == associatedTokenProgram ||
-      isMemoProgram(programId) ||
-      programId == computeBudget;
+  static bool isSignatureVerifier(String programId) =>
+      programId == ed25519SigVerify ||
+      programId == keccakSecp256k1 ||
+      programId == secp256r1SigVerify;
 }

@@ -1,15 +1,15 @@
-import "package:cake_wallet/di.dart";
-import "package:cake_wallet/generated/i18n.dart";
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
-import "package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart";
-import "package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart";
-import "package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart";
-import "package:cake_wallet/store/app_store.dart";
-import "package:cake_wallet/themes/core/custom_theme_colors.dart";
+import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
+import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart';
+import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import "package:cw_core/utils/print_verbose.dart";
-import "package:flutter/material.dart";
-import "package:reown_walletkit/reown_walletkit.dart";
+import 'package:flutter/material.dart';
+import 'package:reown_walletkit/reown_walletkit.dart';
 
 class MethodsUtils {
   static ReownWalletKit get walletKit => getIt.get<WalletKitService>().walletKit;
@@ -34,63 +34,121 @@ class MethodsUtils {
   }
 
   static const _transactionMethods = {
-    "eth_sendTransaction",
-    "eth_signTransaction",
-    "solana_signTransaction",
-    "solana_signAllTransactions",
-    "solana_signAndSendTransaction",
+    'eth_sendTransaction',
+    'eth_signTransaction',
+    'solana_signTransaction',
+    'solana_signAllTransactions',
+    'solana_signAndSendTransaction',
     "tron_signTransaction",
     "wallet_switchEthereumChain",
     "wallet_addEthereumChain",
   };
 
-  static SessionRequest? pendingRequestFor(String topic, String method, String chainId) {
+  static JsonRpcError get userRejectedError {
+    final error = Errors.getSdkError(Errors.USER_REJECTED);
+
+    return JsonRpcError(code: error.code, message: error.message);
+  }
+
+  static final _handedOut = Expando<bool>();
+
+  static SessionRequest? pendingRequestFor(
+    String topic,
+    String method,
+    String chainId,
+    dynamic parameters,
+  ) {
     final matches = walletKit.pendingRequests.getAll().where(
           (r) => r.topic == topic && r.method == method && r.chainId == chainId,
         );
-    return matches.isEmpty ? null : matches.last;
+    for (final request in matches) {
+      if (identical(request.params, parameters) && _handedOut[request] == null) {
+        _handedOut[request] = true;
+        return request;
+      }
+    }
+
+    return null;
   }
 
-  static Future<void> respondForTopic(String topic, JsonRpcResponse<dynamic> response) async {
+  static Future<void> respondUnauthorized(String topic, int requestId) async {
+    try {
+      await walletKit.respondSessionRequest(
+        topic: topic,
+        response: JsonRpcResponse(
+          id: requestId,
+          jsonrpc: "2.0",
+          error: const JsonRpcError(
+            code: 4100,
+            message: "The requested account has not been authorized by the user.",
+          ),
+        ),
+      );
+    } catch (e) {
+      printV("respondUnauthorized failed: $e");
+    }
+  }
+
+  static Future<bool> isRequestStillPending(String topic, int requestId) async {
+    final id = requestId.toString();
+
+    return walletKit.sessions.has(topic) &&
+        !await walletKit.core.expirer.checkAndExpire(topic) &&
+        walletKit.pendingRequests.has(id) &&
+        !await walletKit.core.expirer.checkAndExpire(id);
+  }
+
+  static Future<void> respondForTopic(
+    String topic,
+    JsonRpcResponse<dynamic> response, {
+    bool isUserDecision = true,
+    bool isBroadcast = false,
+  }) async {
     final session = walletKit.sessions.get(topic);
     try {
       await walletKit.respondSessionRequest(topic: topic, response: response);
-      if (session == null) {
-        return;
+    } catch (e) {
+      printV("respondForTopic could not reply: $e");
+      if (response.error == null) {
+        goBackModal(
+          title: isBroadcast ? S.current.transaction_sent : S.current.error,
+          message: isBroadcast ? null : S.current.please_try_again_later,
+          success: isBroadcast,
+        );
       }
-      handleRedirect(
-        topic,
-        session.peer.metadata.redirect,
-        response.error?.message,
-        response.error == null,
-      );
-    } on ReownSignError catch (error) {
-      if (session == null) {
-        return;
-      }
-      handleRedirect(topic, session.peer.metadata.redirect, error.message);
+      return;
     }
+
+    if (!isUserDecision || session == null) {
+      return;
+    }
+
+    final redirect = session.peer.metadata.redirect;
+    if (response.error?.code == userRejectedError.code) {
+      openApp(topic, redirect);
+      return;
+    }
+
+    handleRedirect(topic, redirect, response.error?.message, response.error == null);
   }
 
   static Future<bool> requestApproval(
     WCDecodedRequest decoded, {
     required String topic,
     required String transportType,
-    String? title,
     String? method,
     String? chainId,
     String? address,
     List<WCDecodedRow> extraRows = const [],
     VerifyContext? verifyContext,
-    int? signAllCount,
   }) async {
     final appStore = getIt.get<AppStore>();
     final session = walletKit.sessions.get(topic);
     final dAppMetadata = session?.peer.metadata;
 
     final isTransaction = method != null && _transactionMethods.contains(method);
-    final resolvedTitle = title ??
-        (isTransaction ? S.current.wc_approve_request_title : S.current.wc_signing_request_title);
+    final resolvedTitle =
+        isTransaction ? S.current.wc_approve_request_title : S.current.wc_signing_request_title;
     final swipeLabel = isTransaction ? S.current.wc_swipe_to_approve : S.current.wc_swipe_to_sign;
 
     final infoRows = <WCDecodedRow>[
@@ -106,16 +164,15 @@ class MethodsUtils {
           widget: WCSigningRequestSheet(
             title: resolvedTitle,
             swipeLabel: swipeLabel,
-            dappName: dAppMetadata?.name ?? "",
+            dappName: dAppMetadata?.name ?? '',
             dappIconUrl:
                 (dAppMetadata?.icons.isNotEmpty ?? false) ? dAppMetadata!.icons.first : null,
             dappSubtitle: dAppMetadata?.url ?? method ?? "",
             decoded: decoded,
             infoRows: infoRows,
-            walletName: appStore.wallet?.name ?? "",
-            address: address ?? "",
+            walletName: appStore.wallet?.name ?? '',
+            address: address ?? '',
             verifyContext: verifyContext,
-            signAllCount: signAllCount,
           ),
         ) as WCBottomSheetResult?) ??
         WCBottomSheetResult.reject;
@@ -129,11 +186,11 @@ class MethodsUtils {
     String? error,
     bool success = false,
   ]) {
-    printV("handleRedirect topic: $topic, redirect: $redirect, error: $error");
+    debugPrint('handleRedirect topic: $topic, redirect: $redirect, error: $error');
     openApp(
       topic,
       redirect,
-      onFail: (e) => goBackModal(
+      onFail: () => goBackModal(
         title: success ? S.current.success : S.current.error,
         message: error,
         success: success,
@@ -141,11 +198,11 @@ class MethodsUtils {
     );
   }
 
-  static Future<void> openApp(
+  static void openApp(
     String topic,
     Redirect? redirect, {
     int delay = 100,
-    Function(ReownSignError? error)? onFail,
+    void Function()? onFail,
   }) async {
     await Future.delayed(Duration(milliseconds: delay));
     try {
@@ -153,17 +210,19 @@ class MethodsUtils {
         topic: topic,
         redirect: redirect,
       );
-    } on ReownSignError catch (e) {
-      onFail?.call(e);
+    } catch (e) {
+      printV("openApp could not open the dApp: $e");
+      onFail?.call();
     }
   }
 
-  static Future<void> goBackModal({
+  static void goBackModal({
     String? title,
     String? message,
     bool success = true,
   }) async {
     await bottomSheetService.queueBottomSheet(
+      isModalDismissible: !success,
       closeAfter: success ? 3 : 0,
       widget: GoBackModalWidget(
         isSuccess: success,
@@ -187,34 +246,36 @@ class GoBackModalWidget extends StatelessWidget {
   final String? message;
 
   @override
-  Widget build(BuildContext context) => Container(
-        color: Theme.of(context).colorScheme.surface,
-        height: 280,
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Icon(
-              isSuccess ? Icons.check_circle_sharp : Icons.error_outline_sharp,
-              color: isSuccess
-                  ? CustomThemeColors.syncGreen
-                  : Theme.of(context).colorScheme.errorContainer,
-              size: 80,
-            ),
-            Text(
-              title ?? S.current.connected,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            Text(
-              message ?? S.current.youCanGoBackToYourDapp,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 16,
-                  ),
-            ),
-          ],
-        ),
-      );
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      height: 280.0,
+      width: double.infinity,
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          Icon(
+            isSuccess ? Icons.check_circle_sharp : Icons.error_outline_sharp,
+            color: isSuccess
+                ? CustomThemeColors.syncGreen
+                : Theme.of(context).colorScheme.errorContainer,
+            size: 80.0,
+          ),
+          Text(
+            title ?? S.current.connected,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          Text(
+            message ?? S.current.youCanGoBackToYourDapp,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 16.0,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
 }

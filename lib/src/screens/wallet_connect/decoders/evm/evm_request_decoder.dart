@@ -10,24 +10,27 @@ import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/permit2_deco
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 import "package:cake_wallet/store/app_store.dart";
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 
 class EvmRequestDecoder {
-  EvmRequestDecoder(AppStore? appStore) : _resolver = Erc20TokenResolver(appStore) {
-    _erc20 = Erc20Decoder(_resolver);
-    _erc721 = Erc721Decoder(_resolver);
-    _erc1155 = Erc1155Decoder(_resolver);
-    _router = DexRouterDecoder(_resolver);
-    _permit2 = Permit2Decoder(_resolver);
-  }
+  EvmRequestDecoder(AppStore? appStore, {FiatConversionStore? fiatConversionStore})
+    : this._(Erc20TokenResolver(appStore, fiatConversionStore: fiatConversionStore));
 
-  final Erc20TokenResolver _resolver;
-  late final Erc20Decoder _erc20;
-  late final Erc721Decoder _erc721;
-  late final Erc1155Decoder _erc1155;
-  late final DexRouterDecoder _router;
-  late final Permit2Decoder _permit2;
+  EvmRequestDecoder._(this.tokenResolver)
+    : _erc20 = Erc20Decoder(tokenResolver),
+      _router = DexRouterDecoder(tokenResolver),
+      _permit2 = Permit2Decoder(tokenResolver);
 
-  Erc20TokenResolver get tokenResolver => _resolver;
+  final Erc20TokenResolver tokenResolver;
+  final Erc20Decoder _erc20;
+  final DexRouterDecoder _router;
+  final Permit2Decoder _permit2;
+
+  static const _erc721 = Erc721Decoder();
+  static const _erc1155 = Erc1155Decoder();
+
+  static const _maxStepsWithLookups = 12;
+  late final _withoutLookups = EvmRequestDecoder(null);
 
   static const _multicallSelectors = {
     EvmSelectors.multicall,
@@ -48,14 +51,26 @@ class EvmRequestDecoder {
       return _decodeNativeTransfer(toAddress, nativeSymbol, valueWei);
     }
 
-    final known =
-        await _decodeKnownCall(calldata, toAddress, fromAddress, nativeSymbol, valueWei, chainId);
+    final known = await _decodeKnownCall(
+      calldata,
+      toAddress,
+      fromAddress,
+      nativeSymbol,
+      valueWei,
+      chainId,
+    );
     if (known != null) {
       return known;
     }
 
-    final multicall =
-        await _decodeMulticall(calldata, toAddress, fromAddress, nativeSymbol, valueWei, chainId);
+    final multicall = await _decodeMulticall(
+      calldata,
+      toAddress,
+      fromAddress,
+      nativeSymbol,
+      valueWei,
+      chainId,
+    );
     if (multicall != null) {
       return multicall;
     }
@@ -71,6 +86,23 @@ class EvmRequestDecoder {
     BigInt valueWei,
     int? chainId,
   ) async {
+    if (toAddress == null) {
+      return null;
+    }
+
+    final routerResult = await _router.decode(
+      calldata: calldata,
+      nativeSymbol: nativeSymbol,
+      routerAddress: toAddress,
+      walletAddress: fromAddress,
+      valueWei: valueWei,
+      chainId: chainId,
+    );
+    final paysContract = valueWei > BigInt.zero && calldata.selector != EvmSelectors.wethDeposit;
+    if (routerResult != null || paysContract) {
+      return routerResult;
+    }
+
     final erc20Result = await _erc20.decode(
       calldata: calldata,
       contractAddress: toAddress,
@@ -91,19 +123,7 @@ class EvmRequestDecoder {
       return erc1155Result;
     }
 
-    final routerResult = await _router.decode(
-      calldata: calldata,
-      nativeSymbol: nativeSymbol,
-      routerAddress: toAddress,
-      walletAddress: fromAddress,
-      valueWei: valueWei,
-      chainId: chainId,
-    );
-    if (routerResult != null) {
-      return routerResult;
-    }
-
-    return _permit2.decode(calldata: calldata, contractAddress: toAddress);
+    return _permit2.decode(calldata: calldata, contractAddress: toAddress, chainId: chainId);
   }
 
   Future<WCDecodedRequest?> _decodeMulticall(
@@ -119,94 +139,145 @@ class EvmRequestDecoder {
     }
 
     final hasPrefixWord = calldata.selector != EvmSelectors.multicall;
-    final deadline =
-        calldata.selector == EvmSelectors.multicallWithDeadline ? calldata.uintAt(0) : null;
     final inners = calldata.bytesArrayAt(hasPrefixWord ? 1 : 0);
     if (inners == null || inners.isEmpty) {
       return null;
     }
 
-    final decodedInners = <WCDecodedRequest?>[];
-    for (final innerHex in inners) {
-      final innerCalldata = EvmCalldata.parse(innerHex);
-      if (innerCalldata == null) {
-        decodedInners.add(null);
-        continue;
-      }
-      decodedInners.add(
-        await _decodeKnownCall(
-          innerCalldata,
-          toAddress,
-          fromAddress,
-          nativeSymbol,
-          valueWei,
-          chainId,
-        ),
-      );
-    }
-
-    final primary = decodedInners.firstWhere((d) => d != null, orElse: () => null);
-    final deadlineRow = deadline == null
+    final calls = inners.map(EvmCalldata.parse).toList();
+    final routerCalls = calls.nonNulls.toList();
+    final onlyCall = calls.length == 1 ? calls.single : null;
+    WCDecodedRequest? decoded = onlyCall == null
         ? null
-        : WCDecodedRow(label: S.current.wc_deadline, value: _resolver.formatTimestamp(deadline));
-
-    if (inners.length == 1 && primary != null) {
-      return primary.copyWith(rows: [...primary.rows, if (deadlineRow != null) deadlineRow]);
+        : await _decodeKnownCall(onlyCall, toAddress, fromAddress, nativeSymbol, valueWei, chainId);
+    if (routerCalls.length == calls.length) {
+      decoded ??= await _router.decodeMulticall(
+        calls: routerCalls,
+        nativeSymbol: nativeSymbol,
+        routerAddress: toAddress,
+        walletAddress: fromAddress,
+        valueWei: valueWei,
+        chainId: chainId,
+      );
     }
+    decoded ??= await _listMulticallSteps(
+      calldata,
+      calls,
+      contractAddress: toAddress,
+      walletAddress: fromAddress,
+      nativeSymbol: nativeSymbol,
+      valueWei: valueWei,
+      chainId: chainId,
+    );
 
-    final detailRows = <WCDecodedRow>[];
-    final innerWarnings = <String>{};
-    bool anyUnknown = false;
-    for (var i = 0; i < inners.length; i++) {
-      final decoded = decodedInners[i];
-      if (decoded == null) {
-        final innerCalldata = EvmCalldata.parse(inners[i]);
-        detailRows.add(
-          WCDecodedRow(
-            label: S.current.wc_step_n((i + 1).toString()),
-            value: innerCalldata == null
-                ? S.current.wc_decode_failed
-                : EvmSelectors.humanNameFor(innerCalldata.selector),
-          ),
-        );
-        anyUnknown = true;
-        continue;
-      }
-      detailRows.add(
+    final deadline = calldata.selector == EvmSelectors.multicallWithDeadline
+        ? calldata.uintAt(0)
+        : null;
+    if (deadline == null) {
+      return decoded;
+    }
+    return decoded.copyWith(
+      rows: [
+        ...decoded.rows,
+        WCDecodedRow(label: S.current.wc_deadline, value: tokenResolver.formatExpiry(deadline)),
+      ],
+    );
+  }
+
+  Future<WCDecodedRequest> _listMulticallSteps(
+    EvmCalldata calldata,
+    List<EvmCalldata?> calls, {
+    required String? contractAddress,
+    required String? walletAddress,
+    required String nativeSymbol,
+    required BigInt valueWei,
+    required int? chainId,
+  }) async {
+    final steps = await Future.wait([
+      for (final (index, call) in calls.indexed)
+        (index < _maxStepsWithLookups ? this : _withoutLookups)._decodeStep(
+          call,
+          contractAddress: contractAddress,
+          walletAddress: walletAddress,
+          nativeSymbol: nativeSymbol,
+          chainId: chainId,
+        ),
+    ]);
+
+    final unknown = _unknownCall(calldata, contractAddress, nativeSymbol, valueWei);
+    final rows = [...unknown.rows];
+    final stepWarnings = <String>{};
+    var decodedCount = 0;
+    for (var index = 0; index < calls.length; index++) {
+      final call = calls[index];
+      final step = steps[index];
+      final unreadName = call == null
+          ? S.current.wc_decode_failed
+          : EvmSelectors.humanNameFor(call.selector);
+      rows.add(
         WCDecodedRow(
-          label: S.current.wc_step_n((i + 1).toString()),
-          value: decoded.actionTitle,
+          label: S.current.wc_step_n((index + 1).toString()),
+          value: step?.actionTitle ?? unreadName,
         ),
       );
-      detailRows.addAll(decoded.rows);
-      innerWarnings.addAll(decoded.warnings);
+      if (step != null) {
+        rows.addAll(step.rows);
+        stepWarnings.addAll(step.warnings);
+        decodedCount++;
+      }
     }
 
-    if (primary == null) {
-      final unknown = _unknownCall(calldata, toAddress, nativeSymbol, valueWei);
-      return unknown.copyWith(
-        rows: [...unknown.rows, if (deadlineRow != null) deadlineRow],
-        detailRows: detailRows,
-      );
-    }
-
-    return primary.copyWith(
-      rows: [...primary.rows, if (deadlineRow != null) deadlineRow],
-      detailRows: [...primary.detailRows, ...detailRows],
+    final isListed =
+        contractAddress != null &&
+        DexRouter.values.any(
+          (router) => EvmSelectors.isKnownRouter(router, chainId, contractAddress),
+        );
+    return unknown.copyWith(
+      rows: rows,
       warnings: {
-        ...primary.warnings,
-        if (anyUnknown) S.current.wc_warning_unknown_contract,
-        ...innerWarnings,
+        if (decodedCount > 1) S.current.wc_warning_swap_extra_transfers,
+        if (decodedCount < calls.length) S.current.wc_warning_decode_failed,
+        if (!isListed) S.current.wc_warning_unknown_contract,
+        ...stepWarnings,
       }.toList(),
     );
   }
 
-  WCDecodedRequest _decodeNativeTransfer(
-    String? toAddress,
-    String nativeSymbol,
-    BigInt valueWei,
-  ) {
-    final amountStr = _resolver.formatNativeAmount(valueWei);
+  Future<WCDecodedRequest?> _decodeStep(
+    EvmCalldata? call, {
+    required String? contractAddress,
+    required String? walletAddress,
+    required String nativeSymbol,
+    required int? chainId,
+  }) async {
+    if (call == null) {
+      return null;
+    }
+    final known = await _decodeKnownCall(
+      call,
+      contractAddress,
+      walletAddress,
+      nativeSymbol,
+      BigInt.zero,
+      chainId,
+    );
+    if (known != null) {
+      return known;
+    }
+
+    final payment = await _router.decodeMulticall(
+      calls: [call],
+      nativeSymbol: nativeSymbol,
+      routerAddress: contractAddress,
+      walletAddress: walletAddress,
+      valueWei: BigInt.zero,
+      chainId: chainId,
+    );
+    return payment?.copyWith(actionTitle: EvmSelectors.humanNameFor(call.selector));
+  }
+
+  WCDecodedRequest _decodeNativeTransfer(String? toAddress, String nativeSymbol, BigInt valueWei) {
+    final amountStr = tokenResolver.formatNativeAmount(valueWei);
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_send,
       rows: [
@@ -216,14 +287,9 @@ class EvmRequestDecoder {
           kind: WCDecodedRowKind.amount,
         ),
         if (toAddress != null)
-          WCDecodedRow(
-            label: S.current.to,
-            value: toAddress,
-            kind: WCDecodedRowKind.address,
-          ),
+          WCDecodedRow(label: S.current.to, value: toAddress, kind: WCDecodedRowKind.address),
       ],
-      hideTo: true,
-      hideValue: true,
+      isValueShown: true,
     );
   }
 
@@ -234,7 +300,7 @@ class EvmRequestDecoder {
     BigInt valueWei,
   ) {
     final humanName = EvmSelectors.humanNameFor(calldata.selector);
-    final amountStr = _resolver.formatNativeAmount(valueWei);
+    final amountStr = tokenResolver.formatNativeAmount(valueWei);
 
     return WCDecodedRequest(
       actionTitle: S.current.wc_contract_call,
@@ -254,8 +320,7 @@ class EvmRequestDecoder {
           ),
       ],
       warnings: [S.current.wc_warning_unknown_contract],
-      hideTo: true,
-      hideValue: true,
+      isValueShown: true,
     );
   }
 }

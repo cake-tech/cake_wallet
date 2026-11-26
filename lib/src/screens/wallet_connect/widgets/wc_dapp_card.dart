@@ -1,4 +1,5 @@
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/src/screens/wallet_connect/widgets/wc_warning_row.dart";
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,8 @@ class WCDappCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isOriginMismatch = verifyContext?.validation.invalid ?? false;
+    final shownSubtitle = isOriginMismatch ? verifyContext!.origin : subtitle;
 
     return Container(
       width: double.infinity,
@@ -70,17 +73,20 @@ class WCDappCard extends StatelessWidget {
                   color: colors.onSurface,
                 ),
           ),
-          if (subtitle.trim().isNotEmpty) ...[
+          if (shownSubtitle.trim().isNotEmpty) ...[
             const SizedBox(height: 10),
             Text(
-              subtitle,
+              shownSubtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
             ),
           ],
-          if (_shouldShowBadge()) ...[
+          if (isOriginMismatch) ...[
+            const SizedBox(height: 10),
+            WCWarningRow(message: S.of(context).wc_warning_origin_mismatch),
+          ] else if (_shouldShowBadge()) ...[
             const SizedBox(height: 10),
             _VerifyBadge(verifyContext: verifyContext!),
           ],

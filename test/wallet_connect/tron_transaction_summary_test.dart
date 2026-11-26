@@ -234,6 +234,98 @@ void main() {
     });
   });
 
+  group("warnings", () {
+    final unlimitedFloor = BigInt.one << 200;
+
+    TronTransactionSummary summaryOfUnheldToken(String selector, TronAddress to, BigInt amount) =>
+        TronTransactionSummary.of(
+          rawOf(
+            TriggerSmartContract(
+              ownerAddress: owner,
+              contractAddress: usdtContract,
+              data: trc20Call(selector, to, amount),
+            ),
+          ),
+          const {},
+        );
+
+    test("an approve of 2^200 or more reads as unlimited and warns", () {
+      for (final amount in [unlimitedFloor, BigInt.one << 255, maxUint256]) {
+        final summary = summaryOfCall(approveSelector, spender, amount);
+
+        expect(hasRow(summary, S.current.value, "${S.current.wc_unlimited} USDT"), isTrue);
+        expect(summary.warnings, [S.current.wc_warning_unlimited_approval]);
+      }
+    });
+
+    test("an approve one unit under 2^200 keeps its amount and carries no warning", () {
+      final summary = summaryOfCall(approveSelector, spender, unlimitedFloor - BigInt.one);
+
+      expect(
+        hasRow(
+          summary,
+          S.current.value,
+          "1606938044258990275541962092341162602522202993782792835.301375 USDT",
+        ),
+        isTrue,
+      );
+      expect(summary.warnings, isEmpty);
+    });
+
+    test("a transfer is never called unlimited, whatever its size", () {
+      final summary = summaryOfCall(transferSelector, recipient, BigInt.one << 255);
+
+      expect(summary.rows.any((row) => row.value.contains(S.current.wc_unlimited)), isFalse);
+      expect(summary.warnings, isEmpty);
+    });
+
+    test("a token the wallet does not hold warns on a transfer and on an approve", () {
+      final transfer = summaryOfUnheldToken(transferSelector, recipient, BigInt.from(5000000));
+      final approve = summaryOfUnheldToken(approveSelector, spender, maxUint256);
+
+      expect(transfer.warnings, [S.current.wc_warning_unknown_token]);
+      expect(approve.warnings, [
+        S.current.wc_warning_unlimited_approval,
+        S.current.wc_warning_unknown_token,
+      ]);
+    });
+
+    test("a call that is not decoded warns about the contract", () {
+      final transferFrom = TronTransactionSummary.of(
+        rawOf(
+          TriggerSmartContract(
+            ownerAddress: owner,
+            contractAddress: usdtContract,
+            data: BytesUtils.fromHexString("23b872dd${"00" * 96}"),
+          ),
+        ),
+        walletTokens,
+      );
+      final payable = summaryOfCall(
+        transferSelector,
+        recipient,
+        BigInt.from(5000000),
+        callValue: BigInt.from(1500000),
+      );
+
+      expect(transferFrom.warnings, [S.current.wc_warning_unknown_contract]);
+      expect(payable.warnings, [S.current.wc_warning_unknown_contract]);
+    });
+
+    test("a plain token or TRX send carries no warning", () {
+      final token = summaryOfCall(transferSelector, recipient, BigInt.from(5000000));
+      final trx = TronTransactionSummary.of(
+        rawOf(
+          TransferContract(ownerAddress: owner, toAddress: recipient, amount: BigInt.from(1500000)),
+        ),
+        walletTokens,
+      );
+
+      expect(token.warnings, isEmpty);
+      expect(trx.warnings, isEmpty);
+    });
+  });
+
   group("fee limit", () {
     test("a contract call without a fee limit shows the zero the node reads", () {
       final summary = summaryOfCall(transferSelector, recipient, BigInt.from(5000000));

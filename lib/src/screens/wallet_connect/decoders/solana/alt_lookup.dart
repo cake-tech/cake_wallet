@@ -7,51 +7,40 @@ class AltLookup {
 
   final SolanaAccountFetcher fetcher;
 
+  static const _maxTableBytes = 56 + 256 * 32;
+
   Future<List<String>> resolveAccountKeys(SolanaTransaction transaction) async {
     final message = transaction.message;
-    final statics = message.accountKeys.map((a) => a.address).toList();
+    final statics = message.accountKeys.map((key) => key.address).toList();
     if (message is! MessageV0 || message.addressTableLookups.isEmpty) {
       return statics;
     }
 
     try {
       final lookups = message.addressTableLookups;
-      final tableData =
-          await fetcher.fetchAccountsData(lookups.map((l) => l.accountKey.address).toList());
+      final tableData = await fetcher.fetchAccountsData(
+        lookups.map((lookup) => lookup.accountKey.address).toList(),
+      );
       if (tableData == null || tableData.length != lookups.length) {
         return statics;
       }
 
       final tables = <AddressLookupTableAccount>[];
-      for (var i = 0; i < lookups.length; i++) {
-        final data = tableData[i];
-        if (data == null) {
+      for (final (index, lookup) in lookups.indexed) {
+        final data = tableData[index];
+        if (data == null || data.length > _maxTableBytes) {
           return statics;
         }
         tables.add(
-          AddressLookupTableAccount.fromBuffer(
-            accountKey: lookups[i].accountKey,
-            accountData: data,
-          ),
+          AddressLookupTableAccount.fromBuffer(accountKey: lookup.accountKey, accountData: data),
         );
       }
-      return combinedKeys(message, tables) ?? statics;
+
+      final keys = message.getAccounts(addressLookupTableAccounts: tables);
+      return [for (var index = 0; index < keys.length; index++) keys.byIndex(index)!.address];
     } catch (e) {
       printV("AltLookup: lookup table resolution failed: $e");
       return statics;
-    }
-  }
-
-  static List<String>? combinedKeys(
-    MessageV0 message,
-    List<AddressLookupTableAccount> tables,
-  ) {
-    try {
-      final keys = message.getAccounts(addressLookupTableAccounts: tables);
-      return [for (var i = 0; i < keys.length; i++) keys.byIndex(i)!.address];
-    } catch (e) {
-      printV("AltLookup: combining account keys failed: $e");
-      return null;
     }
   }
 }

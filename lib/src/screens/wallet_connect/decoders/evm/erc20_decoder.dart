@@ -10,7 +10,16 @@ class Erc20Decoder {
 
   final Erc20TokenResolver tokenResolver;
 
-  static const _permit2Address = "0x000000000022d473030f116ddee9f6b43ac78ba3";
+  static const _argumentWords = {
+    EvmSelectors.erc20Approve: 2,
+    EvmSelectors.erc20Transfer: 2,
+    EvmSelectors.erc20TransferFrom: 3,
+    EvmSelectors.erc20IncreaseAllowance: 2,
+    EvmSelectors.erc20IncreaseApproval: 2,
+    EvmSelectors.erc20DecreaseAllowance: 2,
+    EvmSelectors.erc20DecreaseApproval: 2,
+    EvmSelectors.wethWithdraw: 1,
+  };
 
   Future<WCDecodedRequest?> decode({
     required EvmCalldata calldata,
@@ -18,25 +27,33 @@ class Erc20Decoder {
     required String nativeSymbol,
     required int? chainId,
   }) async {
+    final padded = calldata.zeroPaddedTo(_argumentWords[calldata.selector] ?? 0);
+    final decoded = await _decodeCall(padded ?? calldata, contractAddress, nativeSymbol, chainId);
+    if (decoded == null || padded == null) {
+      return decoded;
+    }
+    return decoded.copyWith(warnings: [...decoded.warnings, S.current.wc_warning_decode_failed]);
+  }
+
+  Future<WCDecodedRequest?> _decodeCall(
+    EvmCalldata calldata,
+    String? contractAddress,
+    String nativeSymbol,
+    int? chainId,
+  ) async {
     switch (calldata.selector) {
       case EvmSelectors.erc20Approve:
-        return _decodeApprove(calldata, contractAddress);
+        return _decodeApprove(calldata, contractAddress, chainId);
       case EvmSelectors.erc20Transfer:
-        return _decodeTransfer(calldata, contractAddress);
+        return _decodeTransfer(calldata, contractAddress, chainId);
       case EvmSelectors.erc20TransferFrom:
-        return _decodeTransferFrom(calldata, contractAddress);
+        return _decodeTransferFrom(calldata, contractAddress, chainId);
       case EvmSelectors.erc20IncreaseAllowance:
-        return _decodeAllowanceDelta(
-          calldata,
-          contractAddress,
-          S.current.wc_action_increase_allowance,
-        );
+      case EvmSelectors.erc20IncreaseApproval:
+        return _decodeAllowanceDelta(calldata, contractAddress, chainId, isIncrease: true);
       case EvmSelectors.erc20DecreaseAllowance:
-        return _decodeAllowanceDelta(
-          calldata,
-          contractAddress,
-          S.current.wc_action_decrease_allowance,
-        );
+      case EvmSelectors.erc20DecreaseApproval:
+        return _decodeAllowanceDelta(calldata, contractAddress, chainId, isIncrease: false);
       case EvmSelectors.wethDeposit:
         return _decodeWethWrap(contractAddress, nativeSymbol, chainId);
       case EvmSelectors.wethWithdraw:
@@ -48,6 +65,7 @@ class Erc20Decoder {
   Future<WCDecodedRequest?> _decodeApprove(
     EvmCalldata calldata,
     String? contractAddress,
+    int? chainId,
   ) async {
     final spender = calldata.addressAt(0);
     final rawAmount = calldata.uintAt(1);
@@ -56,28 +74,26 @@ class Erc20Decoder {
     }
 
     final token = await tokenResolver.resolve(contractAddress);
-    final amountStr = tokenResolver.formatAmount(rawAmount, token);
-    final symbol = tokenResolver.symbolOrShort(token, contractAddress);
+    final isKnown = tokenResolver.isKnown(contractAddress, chainId: chainId);
     final isUnlimited = tokenResolver.isUnlimitedAmount(rawAmount);
-    final isRevoke = rawAmount == BigInt.zero;
-    final isPermit2Spender = spender.toLowerCase() == _permit2Address;
+    final isRevoke = rawAmount == BigInt.zero && isKnown;
+    final isPermit2Spender = spender.toLowerCase() == EvmSelectors.permit2Address;
 
     return WCDecodedRequest(
       actionTitle: isRevoke ? S.current.wc_action_revoke_approval : S.current.wc_action_approve,
       actionSubtitle: isPermit2Spender ? "Permit2" : null,
       rows: [
-        WCDecodedRow(
-          label: S.current.wc_token,
-          value: tokenResolver.displayName(token, symbol),
-        ),
+        ...tokenResolver.tokenRows(token, contractAddress, isKnown: isKnown),
         if (!isRevoke)
           WCDecodedRow(
-            label: S.current.wc_amount,
-            value: "$amountStr $symbol",
+            label: isKnown
+                ? S.current.wc_amount
+                : "${S.current.wc_amount} / ${S.current.wc_token_id}",
+            value: tokenResolver.amountText(rawAmount, token, contractAddress),
             kind: WCDecodedRowKind.amount,
           ),
         WCDecodedRow(
-          label: S.current.wc_spender,
+          label: S.current.wc_approved_spender,
           value: spender,
           kind: WCDecodedRowKind.address,
         ),
@@ -85,15 +101,15 @@ class Erc20Decoder {
       warnings: [
         if (isUnlimited) S.current.wc_warning_unlimited_approval,
         if (isPermit2Spender && !isRevoke) S.current.wc_warning_permit2_approval,
-        if (token == null) S.current.wc_warning_unknown_token,
+        if (!isKnown) S.current.wc_warning_unknown_token,
       ],
-      hideTo: true,
     );
   }
 
   Future<WCDecodedRequest?> _decodeTransfer(
     EvmCalldata calldata,
     String? contractAddress,
+    int? chainId,
   ) async {
     final recipient = calldata.addressAt(0);
     final rawAmount = calldata.uintAt(1);
@@ -102,83 +118,66 @@ class Erc20Decoder {
     }
 
     final token = await tokenResolver.resolve(contractAddress);
-    final amountStr = tokenResolver.formatAmount(rawAmount, token);
-    final symbol = tokenResolver.symbolOrShort(token, contractAddress);
-
-    final fiat = token == null ? null : tokenResolver.fiatFor(token, amountStr);
+    final isKnown = tokenResolver.isKnown(contractAddress, chainId: chainId);
+    final hasFiatValue = token != null && !tokenResolver.isUnlimitedAmount(rawAmount);
 
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_transfer,
       rows: [
-        WCDecodedRow(
-          label: S.current.wc_token,
-          value: tokenResolver.displayName(token, symbol),
-        ),
+        ...tokenResolver.tokenRows(token, contractAddress, isKnown: isKnown),
         WCDecodedRow(
           label: S.current.wc_amount,
-          value: "$amountStr $symbol",
+          value: tokenResolver.amountText(rawAmount, token, contractAddress),
           kind: WCDecodedRowKind.amount,
-          fiatValue: fiat,
+          fiatValue: hasFiatValue
+              ? tokenResolver.fiatFor(token, tokenResolver.formatAmount(rawAmount, token))
+              : null,
         ),
-        WCDecodedRow(
-          label: S.current.to,
-          value: recipient,
-          kind: WCDecodedRowKind.address,
-        ),
+        WCDecodedRow(label: S.current.to, value: recipient, kind: WCDecodedRowKind.address),
       ],
-      warnings: [if (token == null) S.current.wc_warning_unknown_token],
-      hideTo: true,
+      warnings: [if (!isKnown) S.current.wc_warning_unknown_token],
     );
   }
 
   Future<WCDecodedRequest?> _decodeTransferFrom(
     EvmCalldata calldata,
     String? contractAddress,
+    int? chainId,
   ) async {
-    final fromAddr = calldata.addressAt(0);
-    final toAddr = calldata.addressAt(1);
+    final sender = calldata.addressAt(0);
+    final recipient = calldata.addressAt(1);
     final rawAmount = calldata.uintAt(2);
-    if (fromAddr == null || toAddr == null || rawAmount == null || contractAddress == null) {
+    if (sender == null || recipient == null || rawAmount == null || contractAddress == null) {
       return null;
     }
 
     final token = await tokenResolver.resolve(contractAddress);
-    final amountStr = tokenResolver.formatAmount(rawAmount, token);
-    final symbol = tokenResolver.symbolOrShort(token, contractAddress);
+    final isKnown = tokenResolver.isKnown(contractAddress, chainId: chainId);
 
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_transfer,
       rows: [
+        ...tokenResolver.tokenRows(token, contractAddress, isKnown: isKnown),
         WCDecodedRow(
-          label: S.current.wc_token,
-          value: tokenResolver.displayName(token, symbol),
-        ),
-        WCDecodedRow(
-          label: S.current.wc_amount,
-          value: "$amountStr $symbol",
+          label: isKnown
+              ? S.current.wc_amount
+              : "${S.current.wc_amount} / ${S.current.wc_token_id}",
+          value: tokenResolver.amountText(rawAmount, token, contractAddress),
           kind: WCDecodedRowKind.amount,
         ),
-        WCDecodedRow(
-          label: S.current.from,
-          value: fromAddr,
-          kind: WCDecodedRowKind.address,
-        ),
-        WCDecodedRow(
-          label: S.current.to,
-          value: toAddr,
-          kind: WCDecodedRowKind.address,
-        ),
+        WCDecodedRow(label: S.current.from, value: sender, kind: WCDecodedRowKind.address),
+        WCDecodedRow(label: S.current.to, value: recipient, kind: WCDecodedRowKind.address),
       ],
-      warnings: [if (token == null) S.current.wc_warning_unknown_token],
-      hideTo: true,
+      warnings: [if (!isKnown) S.current.wc_warning_unknown_token],
     );
   }
 
   Future<WCDecodedRequest?> _decodeAllowanceDelta(
     EvmCalldata calldata,
     String? contractAddress,
-    String actionTitle,
-  ) async {
+    int? chainId, {
+    required bool isIncrease,
+  }) async {
     final spender = calldata.addressAt(0);
     final delta = calldata.uintAt(1);
     if (spender == null || delta == null || contractAddress == null) {
@@ -186,32 +185,30 @@ class Erc20Decoder {
     }
 
     final token = await tokenResolver.resolve(contractAddress);
-    final amountStr = tokenResolver.formatAmount(delta, token);
-    final symbol = tokenResolver.symbolOrShort(token, contractAddress);
+    final isKnown = tokenResolver.isKnown(contractAddress, chainId: chainId);
 
     return WCDecodedRequest(
-      actionTitle: actionTitle,
+      actionTitle: isIncrease
+          ? S.current.wc_increase_allowance
+          : S.current.wc_action_decrease_allowance,
       rows: [
-        WCDecodedRow(
-          label: S.current.wc_token,
-          value: tokenResolver.displayName(token, symbol),
-        ),
+        ...tokenResolver.tokenRows(token, contractAddress, isKnown: isKnown),
         WCDecodedRow(
           label: S.current.wc_amount,
-          value: "$amountStr $symbol",
+          value: tokenResolver.amountText(delta, token, contractAddress),
           kind: WCDecodedRowKind.amount,
         ),
         WCDecodedRow(
-          label: S.current.wc_spender,
+          label: S.current.wc_approved_spender,
           value: spender,
           kind: WCDecodedRowKind.address,
         ),
       ],
       warnings: [
-        if (tokenResolver.isUnlimitedAmount(delta)) S.current.wc_warning_unlimited_approval,
-        if (token == null) S.current.wc_warning_unknown_token,
+        if (isIncrease && tokenResolver.isUnlimitedAmount(delta))
+          S.current.wc_warning_unlimited_approval,
+        if (!isKnown) S.current.wc_warning_unknown_token,
       ],
-      hideTo: true,
     );
   }
 
@@ -228,9 +225,10 @@ class Erc20Decoder {
     }
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_wrap(nativeSymbol),
-      actionSubtitle: tokenResolver.shortAddress(contractAddress),
-      rows: const [],
-      hideTo: false,
+      actionSubtitle: shortAddress(contractAddress),
+      rows: [
+        WCDecodedRow(label: S.current.to, value: contractAddress, kind: WCDecodedRowKind.address),
+      ],
     );
   }
 
@@ -251,19 +249,16 @@ class Erc20Decoder {
       return null;
     }
 
-    final amountStr = tokenResolver.formatNativeAmount(rawAmount);
-
     return WCDecodedRequest(
       actionTitle: S.current.wc_action_unwrap(nativeSymbol),
-      actionSubtitle: tokenResolver.shortAddress(contractAddress),
+      actionSubtitle: shortAddress(contractAddress),
       rows: [
         WCDecodedRow(
           label: S.current.wc_amount,
-          value: "$amountStr $nativeSymbol",
+          value: "${tokenResolver.formatNativeAmount(rawAmount)} $nativeSymbol",
           kind: WCDecodedRowKind.amount,
         ),
       ],
-      hideTo: true,
     );
   }
 }

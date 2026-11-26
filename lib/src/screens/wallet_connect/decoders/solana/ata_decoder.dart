@@ -1,7 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/spl_token_resolver.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/system_program_decoder.dart";
-import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 
 class AtaDecoder {
   AtaDecoder(this.resolver);
@@ -12,36 +11,28 @@ class AtaDecoder {
 
   Future<SolDecodedInstruction?> decode({
     required List<int> data,
-    required List<String> accounts,
+    required List<String?> accounts,
+    required String wallet,
   }) async {
     if (accounts.length < 4 || (data.isNotEmpty && !_createTags.contains(data.first))) {
       return null;
     }
 
     final isIdempotent = data.isNotEmpty && data.first == 1;
-    final owner = accounts[2];
     final mint = accounts[3];
-    final tokenAccount = accounts[1];
-
-    final token = await resolver.resolve(mint);
-    final symbol = resolver.symbolFor(token, mint);
+    final token = mint != null && resolver.isKnown(mint) ? await resolver.resolve(mint) : null;
 
     return SolDecodedInstruction(
       title: isIdempotent
           ? S.current.wc_action_create_token_account_idempotent
           : S.current.wc_action_create_token_account,
       rows: [
-        WCDecodedRow(label: S.current.wc_token, value: symbol),
-        WCDecodedRow(
-          label: S.current.wc_owner,
-          value: owner,
-          kind: WCDecodedRowKind.address,
-        ),
-        WCDecodedRow(
-          label: S.current.wc_token_account,
-          value: tokenAccount,
-          kind: WCDecodedRowKind.address,
-        ),
+        SolDecodedInstruction.tokenRow(resolver, token, mint),
+        SolDecodedInstruction.accountRow(S.current.wc_owner, accounts[2]),
+        SolDecodedInstruction.accountRow(S.current.wc_token_account, accounts[1]),
+      ],
+      warnings: [
+        if (accounts[0] == wallet && accounts[2] != wallet) S.current.wc_warning_recipient_not_you,
       ],
     );
   }

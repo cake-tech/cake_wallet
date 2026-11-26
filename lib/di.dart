@@ -773,6 +773,7 @@ Future<void> setup({
       getIt.get<WalletConnectKeyService>(),
       appStore,
       getIt.get<SharedPreferences>(),
+      getIt.get<FiatConversionStore>(),
     );
     walletKitService.create();
     return walletKitService;

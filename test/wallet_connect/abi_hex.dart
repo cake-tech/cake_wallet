@@ -1,4 +1,9 @@
-// Builders for hand-assembled ABI calldata used by the decoder tests.
+import "dart:convert";
+
+import "package:hashlib/hashlib.dart";
+
+String selectorOf(String signature) =>
+    keccak256.convert(utf8.encode(signature)).hex().substring(0, 8);
 
 String word(BigInt value) => value.toRadixString(16).padLeft(64, "0");
 
@@ -31,11 +36,11 @@ String bytesArrayBody(List<String> elements) {
 }
 
 List<int> u32Le(int value) => [
-      value & 0xff,
-      (value >> 8) & 0xff,
-      (value >> 16) & 0xff,
-      (value >> 24) & 0xff,
-    ];
+  value & 0xff,
+  (value >> 8) & 0xff,
+  (value >> 16) & 0xff,
+  (value >> 24) & 0xff,
+];
 
 List<int> u64Le(BigInt value) {
   final out = <int>[];

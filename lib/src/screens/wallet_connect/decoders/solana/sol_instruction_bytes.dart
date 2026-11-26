@@ -1,3 +1,5 @@
+import "package:on_chain/solana/solana.dart";
+
 class SolInstructionBytes {
   SolInstructionBytes(this.bytes);
 
@@ -25,9 +27,16 @@ class SolInstructionBytes {
       return null;
     }
     var value = BigInt.zero;
-    for (var i = 7; i >= 0; i--) {
-      value = (value << 8) | BigInt.from(bytes[offset + i]);
+    for (var byteIndex = 7; byteIndex >= 0; byteIndex--) {
+      value = (value << 8) | BigInt.from(bytes[offset + byteIndex]);
     }
     return value;
+  }
+
+  String? address(int offset) {
+    if (offset + 32 > bytes.length) {
+      return null;
+    }
+    return SolAddress.uncheckBytes(bytes.sublist(offset, offset + 32)).address;
   }
 }

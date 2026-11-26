@@ -4,7 +4,6 @@ import "dart:convert";
 import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
-import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 import "package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart";
 import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_id.dart";
 import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_supported_methods.dart";
@@ -67,7 +66,12 @@ class TronChainService {
   String getChainId() => reference.chain();
 
   Future<void> tronSignMessage(String topic, dynamic parameters) async {
-    final pRequest = _pendingRequest(topic, TronSupportedMethods.tronSignMessage.name);
+    final pRequest = MethodsUtils.pendingRequestFor(
+      topic,
+      TronSupportedMethods.tronSignMessage.name,
+      getChainId(),
+      parameters,
+    );
     if (pRequest == null) {
       return;
     }
@@ -87,12 +91,7 @@ class TronChainService {
     var response = JsonRpcResponse(id: pRequest.id, jsonrpc: "2.0");
 
     final isApproved = await MethodsUtils.requestApproval(
-      WCDecodedRequest(
-        actionTitle: S.current.wc_action_sign_message,
-        rows: [WCDecodedRow(label: S.current.wc_message_label, value: message)],
-        hideTo: true,
-        hideValue: true,
-      ),
+      WCDecodedRequest.signMessage(message),
       method: pRequest.method,
       chainId: pRequest.chainId,
       address: _walletAddress(),
@@ -101,8 +100,12 @@ class TronChainService {
       verifyContext: pRequest.verifyContext,
     );
 
-    if (isApproved && !_isRequestAuthorized(topic, requestAddress: params["address"]?.toString())) {
-      await _rejectUnauthorizedRequest(topic, pRequest.id);
+    if (isApproved &&
+        !await _isRequestStillValid(
+          topic,
+          pRequest.id,
+          requestAddress: params["address"]?.toString(),
+        )) {
       return;
     }
 
@@ -116,14 +119,19 @@ class TronChainService {
         response = response.copyWith(error: _malformedRequestError());
       }
     } else {
-      response = response.copyWith(error: _userRejectedError());
+      response = response.copyWith(error: MethodsUtils.userRejectedError);
     }
 
-    await _handleResponseForTopic(topic, response);
+    await MethodsUtils.respondForTopic(topic, response);
   }
 
   Future<void> tronSignTransaction(String topic, dynamic parameters) async {
-    final pRequest = _pendingRequest(topic, TronSupportedMethods.tronSignTransaction.name);
+    final pRequest = MethodsUtils.pendingRequestFor(
+      topic,
+      TronSupportedMethods.tronSignTransaction.name,
+      getChainId(),
+      parameters,
+    );
     if (pRequest == null) {
       return;
     }
@@ -144,14 +152,13 @@ class TronChainService {
     final TronTransactionSummary summary;
     try {
       rawTransaction = _parseRawTransaction(transaction);
-      summary = TronTransactionSummary.of(rawTransaction, _walletTokensByContract());
+      summary = TronTransactionSummary.of(rawTransaction, _knownTokensByContract());
+      printV("tronSignTransaction request ${pRequest.id} for ${rawTransaction.txID}");
     } catch (e, s) {
       printV("tronSignTransaction could not decode the transaction: $e\n$s");
       await _respondMalformedRequest(topic, pRequest.id);
       return;
     }
-
-    printV("tronSignTransaction request ${pRequest.id} for ${rawTransaction.txID}");
 
     final ownerAddress = summary.ownerAddress;
     if (ownerAddress == null) {
@@ -167,14 +174,10 @@ class TronChainService {
     final contractType = rawTransaction.contract.first.type;
     if (!_signableContractTypes.contains(contractType)) {
       printV("tronSignTransaction refused ${contractType.name}");
-      final error = Errors.getSdkError(Errors.UNSUPPORTED_METHODS, context: contractType.name);
-      await _handleResponseForTopic(
+      await _refuse(
         topic,
-        JsonRpcResponse(
-          id: pRequest.id,
-          jsonrpc: "2.0",
-          error: JsonRpcError(code: error.code, message: error.message),
-        ),
+        pRequest.id,
+        Errors.getSdkError(Errors.UNSUPPORTED_METHODS, context: contractType.name),
       );
       return;
     }
@@ -185,8 +188,7 @@ class TronChainService {
       WCDecodedRequest(
         actionTitle: summary.title,
         rows: [...summary.rows, ...summary.extraRows],
-        hideTo: true,
-        hideValue: true,
+        warnings: summary.warnings,
       ),
       method: pRequest.method,
       chainId: pRequest.chainId,
@@ -196,8 +198,8 @@ class TronChainService {
       verifyContext: pRequest.verifyContext,
     );
 
-    if (isApproved && !_isRequestAuthorized(topic, requestAddress: ownerAddress)) {
-      await _rejectUnauthorizedRequest(topic, pRequest.id);
+    if (isApproved &&
+        !await _isRequestStillValid(topic, pRequest.id, requestAddress: ownerAddress)) {
       return;
     }
 
@@ -227,10 +229,10 @@ class TronChainService {
         response = response.copyWith(error: _malformedRequestError());
       }
     } else {
-      response = response.copyWith(error: _userRejectedError());
+      response = response.copyWith(error: MethodsUtils.userRejectedError);
     }
 
-    await _handleResponseForTopic(topic, response);
+    await MethodsUtils.respondForTopic(topic, response);
   }
 
   Map<String, dynamic>? _paramsOf(dynamic parameters) =>
@@ -284,18 +286,18 @@ class TronChainService {
     return rawTransaction;
   }
 
-  Map<String, CryptoCurrency> _walletTokensByContract() {
+  Map<String, CryptoCurrency> _knownTokensByContract() {
     final wallet = appStore.wallet!;
 
     return {
-      for (final token in tron!.getTronTokenCurrencies(wallet)) tron!.getTokenAddress(token): token,
+      for (final token in tron!.getDefaultTronTokens()) tron!.getTokenAddress(token): token,
+      for (final token in tron!.getTronTokenCurrencies(wallet))
+        if (token.enabled && !token.isPotentialScam) tron!.getTokenAddress(token): token,
     };
   }
 
   TronPrivateKey _tronPrivateKey() {
-    final keys = wcKeyService.getKeysForChain(appStore.wallet!);
-
-    return TronPrivateKey(keys.first.privateKey);
+    return TronPrivateKey(wcKeyService.getPrivateKey(appStore.wallet!));
   }
 
   String _walletAddress() => wcKeyService.getKeysForChain(appStore.wallet!).first.publicKey;
@@ -306,27 +308,43 @@ class TronChainService {
     return JsonRpcError(code: error.code, message: error.message);
   }
 
-  JsonRpcError _userRejectedError() {
-    final error = Errors.getSdkError(Errors.USER_REJECTED);
-
-    return JsonRpcError(code: error.code, message: error.message);
-  }
-
-  Future<void> _respondMalformedRequest(String topic, int requestId) => _handleResponseForTopic(
+  Future<void> _respondMalformedRequest(String topic, int requestId) => _refuse(
         topic,
-        JsonRpcResponse(
-          id: requestId,
-          jsonrpc: "2.0",
-          error: _malformedRequestError(),
-        ),
+        requestId,
+        Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS),
+        message: S.current.wc_request_malformed,
       );
 
-  SessionRequest? _pendingRequest(String topic, String method) {
-    final matches = walletKit.pendingRequests
-        .getAll()
-        .where((request) => request.topic == topic && request.method == method);
+  Future<void> _refuse(
+    String topic,
+    int requestId,
+    ReownCoreError error, {
+    String? message,
+  }) async {
+    _showMessage(message ?? error.message);
+    await MethodsUtils.respondForTopic(
+      topic,
+      JsonRpcResponse(
+        id: requestId,
+        jsonrpc: "2.0",
+        error: JsonRpcError(code: error.code, message: error.message),
+      ),
+      isUserDecision: false,
+    );
+  }
 
-    return matches.isEmpty ? null : matches.last;
+  Future<bool> _isRequestStillValid(String topic, int requestId, {String? requestAddress}) async {
+    if (!await MethodsUtils.isRequestStillPending(topic, requestId)) {
+      _showMessage(S.current.wc_request_expired);
+      return false;
+    }
+
+    if (!_isRequestAuthorized(topic, requestAddress: requestAddress)) {
+      await _rejectUnauthorizedRequest(topic, requestId);
+      return false;
+    }
+
+    return true;
   }
 
   bool _isRequestAuthorized(String topic, {String? requestAddress}) {
@@ -366,55 +384,17 @@ class TronChainService {
     }
   }
 
-  Future<void> _rejectUnauthorizedRequest(String topic, int requestId) async {
+  void _showMessage(String message) {
     unawaited(
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(
-          message: S.current.wc_request_for_different_wallet,
-        ),
+        widget: BottomSheetMessageDisplayWidget(message: message),
       ),
     );
-
-    try {
-      await walletKit.respondSessionRequest(
-        topic: topic,
-        response: JsonRpcResponse(
-          id: requestId,
-          jsonrpc: "2.0",
-          error: const JsonRpcError(
-            code: 4100,
-            message: "The requested account has not been authorized by the user.",
-          ),
-        ),
-      );
-    } catch (e) {
-      printV("rejectUnauthorizedRequest: $e");
-    }
   }
 
-  Future<void> _handleResponseForTopic(String topic, JsonRpcResponse<dynamic> response) async {
-    final session = walletKit.sessions.get(topic);
-
-    try {
-      await walletKit.respondSessionRequest(topic: topic, response: response);
-
-      if (session == null) {
-        return;
-      }
-
-      MethodsUtils.handleRedirect(
-        topic,
-        session.peer.metadata.redirect,
-        response.error?.message,
-        response.error == null,
-      );
-    } on ReownSignError catch (error) {
-      if (session == null) {
-        return;
-      }
-
-      MethodsUtils.handleRedirect(topic, session.peer.metadata.redirect, error.message);
-    }
+  Future<void> _rejectUnauthorizedRequest(String topic, int requestId) async {
+    _showMessage(S.current.wc_request_for_different_wallet);
+    await MethodsUtils.respondUnauthorized(topic, requestId);
   }
 }

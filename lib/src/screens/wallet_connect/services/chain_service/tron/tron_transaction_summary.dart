@@ -12,6 +12,7 @@ class TronTransactionSummary {
     required this.title,
     required this.rows,
     required this.extraRows,
+    required this.warnings,
     required this.ownerAddress,
   });
 
@@ -32,6 +33,7 @@ class TronTransactionSummary {
     String title;
     final rows = <WCDecodedRow>[];
     final extraRows = <WCDecodedRow>[];
+    final warnings = <String>[];
     String? ownerAddress;
     String? callData;
 
@@ -63,8 +65,17 @@ class TronTransactionSummary {
         rows.add(_addressRow(S.current.from, ownerAddress));
         final counterparty = call.isApprove ? S.current.wc_approved_address : S.current.to;
         rows.add(_addressRow(counterparty, call.address));
+
+        if (call.isApprove && call.amount >= _unlimitedAllowance) {
+          warnings.add(S.current.wc_warning_unlimited_approval);
+        }
+
+        if (token == null) {
+          warnings.add(S.current.wc_warning_unknown_token);
+        }
       } else {
         title = S.current.wc_contract_call;
+        warnings.add(S.current.wc_warning_unknown_contract);
         rows.add(_addressRow(S.current.from, ownerAddress));
         rows.add(_addressRow(S.current.to, contractAddress));
         callData = BytesUtils.toHexString(value.data ?? const [], prefix: "0x");
@@ -120,6 +131,7 @@ class TronTransactionSummary {
       title: title,
       rows: rows,
       extraRows: extraRows,
+      warnings: warnings,
       ownerAddress: ownerAddress,
     );
   }
@@ -127,6 +139,7 @@ class TronTransactionSummary {
   final String title;
   final List<WCDecodedRow> rows;
   final List<WCDecodedRow> extraRows;
+  final List<String> warnings;
 
   final String? ownerAddress;
 
@@ -136,7 +149,7 @@ class TronTransactionSummary {
   static WCDecodedRow _addressRow(String label, String address) =>
       WCDecodedRow(label: label, value: address, kind: WCDecodedRowKind.address);
 
-  static final _unlimitedAllowance = (BigInt.one << 256) - BigInt.one;
+  static final _unlimitedAllowance = BigInt.one << 200;
 
   static const _sunFields = {"frozen_balance", "unfreeze_balance", "balance"};
 
@@ -156,7 +169,7 @@ class TronTransactionSummary {
   static String _trx(BigInt sun) => Money(sun, CryptoCurrency.trx).toStringWithSymbol();
 
   static String _tokenAmount(BigInt amount, CryptoCurrency? token, bool isAllowance) {
-    if (isAllowance && amount == _unlimitedAllowance) {
+    if (isAllowance && amount >= _unlimitedAllowance) {
       return token == null ? S.current.wc_unlimited : "${S.current.wc_unlimited} ${token.title}";
     }
 

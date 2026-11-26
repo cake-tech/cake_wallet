@@ -1,27 +1,41 @@
-import "package:cake_wallet/di.dart";
 import "package:cake_wallet/entities/calculate_fiat_amount.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_calldata.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/evm/evm_selectors.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/erc20_token.dart";
+import "package:cw_core/format_fixed.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:intl/intl.dart";
 
 class Erc20TokenResolver {
-  Erc20TokenResolver(this.appStore);
+  Erc20TokenResolver(this.appStore, {this.fiatConversionStore});
 
   final AppStore? appStore;
+  final FiatConversionStore? fiatConversionStore;
 
-  static final BigInt _uint160Max = (BigInt.one << 160) - BigInt.one;
+  static final _maxTimestampSeconds = BigInt.from(253402300799);
 
-  static final BigInt _maxTimestampSeconds = BigInt.from(253402300799);
+  static const _maxDecimals = 77;
+
+  static const _maxNameLength = 64;
 
   bool isUnlimitedAmount(BigInt amount) =>
-      amount == _uint160Max || amount >= BigInt.from(2).pow(200);
+      amount == EvmCalldata.uint160Max || amount >= BigInt.two.pow(200);
 
   Future<Erc20Token?> resolve(String contractAddress) async {
+    final token = await _lookUp(contractAddress);
+    if (token == null || token.decimal < 0 || token.decimal > _maxDecimals) {
+      return null;
+    }
+    return token;
+  }
+
+  Future<Erc20Token?> _lookUp(String contractAddress) async {
     final wallet = appStore?.wallet;
     if (wallet == null || evm == null) {
       return null;
@@ -50,6 +64,41 @@ class Erc20TokenResolver {
     }
   }
 
+  bool isKnown(String contractAddress, {required int? chainId}) {
+    final target = contractAddress.toLowerCase();
+    if (EvmSelectors.isWrappedNative(chainId, target)) {
+      return true;
+    }
+
+    final wallet = appStore?.wallet;
+    if (wallet == null || evm == null) {
+      return false;
+    }
+
+    try {
+      final isDefault =
+          chainId != null &&
+          evm!
+              .getDefaultTokensByChainId(chainId)
+              .any((token) => token.contractAddress.toLowerCase() == target);
+      if (isDefault) {
+        return true;
+      }
+
+      return evm!
+          .getERC20Currencies(wallet)
+          .any(
+            (token) =>
+                token.contractAddress.toLowerCase() == target &&
+                token.enabled &&
+                !token.isPotentialScam,
+          );
+    } catch (e) {
+      printV("Erc20TokenResolver: known-token check failed for $contractAddress: $e");
+      return false;
+    }
+  }
+
   String formatAmount(BigInt rawAmount, Erc20Token? token) {
     if (isUnlimitedAmount(rawAmount)) {
       return S.current.wc_unlimited;
@@ -57,31 +106,35 @@ class Erc20TokenResolver {
     if (token == null) {
       return rawAmount.toString();
     }
-    return formatUnits(rawAmount, token.decimal);
+    return formatFixed(rawAmount, token.decimal);
   }
 
-  String formatNativeAmount(BigInt wei) => formatUnits(wei, 18);
+  String formatNativeAmount(BigInt wei) => formatFixed(wei, 18);
 
-  String formatUnits(BigInt rawAmount, int decimals) {
-    if (decimals <= 0) {
-      return rawAmount.toString();
-    }
+  List<WCDecodedRow> tokenRows(
+    Erc20Token? token,
+    String contractAddress, {
+    required bool isKnown,
+  }) => [
+    if (token != null)
+      WCDecodedRow(
+        label: S.current.wc_token,
+        value: displayName(token, symbolOrShort(token, contractAddress)),
+      ),
+    if (token == null || !isKnown)
+      WCDecodedRow(
+        label: S.current.wc_token,
+        value: contractAddress,
+        kind: WCDecodedRowKind.address,
+      ),
+  ];
 
-    final divisor = BigInt.from(10).pow(decimals);
-    final whole = rawAmount ~/ divisor;
-    final remainder = rawAmount % divisor;
-    if (remainder == BigInt.zero) {
-      return whole.toString();
-    }
-
-    final fractional = remainder.toString().padLeft(decimals, "0");
-    final trimmed = fractional.replaceFirst(RegExp(r"0+$"), "");
-    return trimmed.isEmpty ? whole.toString() : "$whole.$trimmed";
-  }
+  String amountText(BigInt rawAmount, Erc20Token? token, String contractAddress) =>
+      "${formatAmount(rawAmount, token)} ${symbolOrShort(token, contractAddress)}";
 
   String displayName(Erc20Token? token, String symbol) {
     if (token != null && token.name.isNotEmpty) {
-      return "${token.name} ($symbol)";
+      return "${_capped(token.name)} ($symbol)";
     }
     return symbol;
   }
@@ -90,12 +143,8 @@ class Erc20TokenResolver {
     if (appStore == null) {
       return null;
     }
-    if (cryptoAmount.isEmpty || cryptoAmount == S.current.wc_unlimited) {
-      return null;
-    }
     try {
-      final fiatStore = getIt.get<FiatConversionStore>();
-      final price = fiatStore.prices[currency];
+      final price = fiatConversionStore?.prices[currency];
       if (price == null || price <= 0) {
         return null;
       }
@@ -113,30 +162,27 @@ class Erc20TokenResolver {
 
   String symbolOrShort(Erc20Token? token, String contractAddress) {
     if (token != null && token.symbol.isNotEmpty) {
-      return token.symbol.toUpperCase();
+      return _capped(token.symbol.toUpperCase());
     }
     return shortAddress(contractAddress);
   }
 
-  String shortAddress(String address) {
-    if (address.length <= 10) {
-      return address;
+  String _capped(String text) {
+    final characters = text.runes;
+    if (characters.length <= _maxNameLength) {
+      return text;
     }
-    return "${address.substring(0, 6)}…${address.substring(address.length - 4)}";
+    return "${String.fromCharCodes(characters.take(_maxNameLength))}…";
   }
 
-  String formatTimestamp(BigInt? seconds) {
-    if (seconds == null) {
-      return "";
-    }
+  String formatExpiry(BigInt seconds) =>
+      seconds > _maxTimestampSeconds ? S.current.wc_never : formatTimestamp(seconds);
+
+  String formatTimestamp(BigInt seconds) {
     if (seconds <= BigInt.zero || seconds > _maxTimestampSeconds) {
       return seconds.toString();
     }
-    try {
-      final dt = DateTime.fromMillisecondsSinceEpoch(seconds.toInt() * 1000);
-      return DateFormat.yMMMd().add_Hm().format(dt);
-    } catch (_) {
-      return seconds.toString();
-    }
+    final date = DateTime.fromMillisecondsSinceEpoch(seconds.toInt() * 1000);
+    return DateFormat.yMMMd().add_Hm().format(date);
   }
 }
