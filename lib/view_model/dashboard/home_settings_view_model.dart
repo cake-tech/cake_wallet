@@ -77,6 +77,9 @@ abstract class HomeSettingsViewModelBase with Store {
     final other = <CryptoCurrency>[];
 
     for (final token in tokens) {
+      if (isLoadingTokenBalances && _balance(token) == null) {
+        continue;
+      }
       if (heldBalance(token) != null) {
         holdings.add(token);
       } else if (_isDefaultToken(token)) {
@@ -569,6 +572,7 @@ abstract class HomeSettingsViewModelBase with Store {
     }
     final requestId = ++_balanceRequestId;
     final missing = tokens.where((token) => _balance(token) == null).toList();
+    isLoadingTokenBalances = missing.isNotEmpty;
     if (walletType == WalletType.solana && missing.isNotEmpty) {
       Map<CryptoCurrency, Balance>? held;
       try {
@@ -585,7 +589,6 @@ abstract class HomeSettingsViewModelBase with Store {
       // No per-token fallback: it hits the same rate-limited RPC
       missing.clear();
     }
-    isLoadingTokenBalances = missing.isNotEmpty;
     for (final batch in missing.slices(5)) {
       final balances = await Future.wait(batch.map(_fetchTokenBalance));
       if (requestId != _balanceRequestId) {
