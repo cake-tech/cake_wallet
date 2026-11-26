@@ -11,6 +11,7 @@ import 'package:cake_wallet/reactions/wallet_utils.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/setup_2fa/setup_2fa_enter_code_page.dart';
+import "package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/utils/device_info.dart';
@@ -38,6 +39,7 @@ class Root extends StatefulWidget {
     required this.trezorConnect,
     this.initialQuickAction,
     required this.quickActionsStream,
+    required this.bottomSheetService,
   }) : super(key: key);
 
   final AuthenticationStore authenticationStore;
@@ -51,6 +53,7 @@ class Root extends StatefulWidget {
   final TrezorConnect trezorConnect;
   final String? initialQuickAction;
   final Stream<Uri?> quickActionsStream;
+  final BottomSheetService bottomSheetService;
 
   @override
   RootState createState() => RootState();
@@ -68,6 +71,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   bool _isInactive;
   bool _postFrameCallback;
   bool _requestAuth;
+  bool _isUnlockRouteOpen = false;
 
   StreamSubscription<Uri?>? stream;
   ReactionDisposer? _walletReactionDisposer;
@@ -173,6 +177,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             _requestAuth = false;
             _setInactive(true);
           });
+          _updateBottomSheetHold();
         }
 
         if (widget.appStore.wallet?.type == WalletType.bitcoin) {
@@ -191,6 +196,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                 _setInactive(false);
               }
             });
+            _updateBottomSheetHold();
           }
         });
         if (widget.appStore.wallet?.type == WalletType.bitcoin &&
@@ -256,8 +262,10 @@ class RootState extends State<Root> with WidgetsBindingObserver {
     // this does NOT trigger when the app is started from the "closed" state!
     if (_isInactive && !_postFrameCallback && _requestAuth) {
       _postFrameCallback = true;
+      _isUnlockRouteOpen = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.navigatorKey.currentState?.pushNamed(
+        bool isTotpPageNext = false;
+        final unlockRoute = widget.navigatorKey.currentState?.pushNamed(
           Routes.unlock,
           arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
             if (!isAuthenticatedSuccessfully) {
@@ -267,6 +275,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             final shouldUseTotp2FAToAccessWallets =
                 widget.appStore.settingsStore.shouldRequireTOTP2FAForAccessingWallet;
             if (useTotp && shouldUseTotp2FAToAccessWallets) {
+              isTotpPageNext = true;
               _reset();
               auth.close(
                 route: Routes.totpAuthCodePage,
@@ -277,10 +286,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
                       return;
                     }
                     _reset();
-                    totpAuth.close(
-                      route: widget.linkViewModel.getRouteToGo(),
-                      arguments: widget.linkViewModel.getRouteArgs(),
-                    );
+                    totpAuth
+                        .close(
+                          route: widget.linkViewModel.getRouteToGo(),
+                          arguments: widget.linkViewModel.getRouteArgs(),
+                        )
+                        .whenComplete(_onUnlockRouteClosed);
                     widget.linkViewModel.currentLink = null;
                   },
                   isForSetup: false,
@@ -297,6 +308,11 @@ class RootState extends State<Root> with WidgetsBindingObserver {
             }
           },
         );
+        unlockRoute?.then((_) {
+          if (!isTotpPageNext) {
+            _onUnlockRouteClosed();
+          }
+        });
       });
     }
 
@@ -326,6 +342,15 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void _setInactive(bool value) {
     _isInactive = value;
     _isInactiveController.add(value);
+  }
+
+  void _onUnlockRouteClosed() {
+    _isUnlockRouteOpen = false;
+    _updateBottomSheetHold();
+  }
+
+  void _updateBottomSheetHold() {
+    widget.bottomSheetService.isOnHold.value = _isInactive || _isUnlockRouteOpen;
   }
 
   void waitForWalletInstance(BuildContext context) {

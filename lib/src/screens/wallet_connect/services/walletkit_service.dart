@@ -6,6 +6,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/eth/evm_chain_service.dart';
 import "package:cake_wallet/src/screens/wallet_connect/services/chain_service/tron/tron_chain_id.dart";
@@ -18,6 +19,7 @@ import 'package:cake_wallet/src/screens/wallet_connect/widgets/bottom_sheet/bott
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_connection_request_sheet.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cw_core/utils/print_verbose.dart";
 import "package:eth_sig_util/util/utils.dart";
 import "package:flutter/material.dart";
@@ -39,6 +41,7 @@ abstract class WalletKitServiceBase with Store {
     this.walletKeyService,
     this.appStore,
     this.sharedPreferences,
+    this.fiatConversionStore,
   )   : pairings = ObservableList<PairingInfo>(),
         sessions = ObservableList<SessionData>(),
         auth = ObservableList<PendingSessionAuthRequest>(),
@@ -47,8 +50,11 @@ abstract class WalletKitServiceBase with Store {
 
   final AppStore appStore;
   final SharedPreferences sharedPreferences;
+  final FiatConversionStore fiatConversionStore;
   final BottomSheetService _bottomSheetHandler;
   final WalletConnectKeyService walletKeyService;
+
+  Timer? _proposalTimeout;
 
   late ReownWalletKit _walletKit;
 
@@ -155,6 +161,7 @@ abstract class WalletKitServiceBase with Store {
         wcKeyService: walletKeyService,
         bottomSheetService: _bottomSheetHandler,
         walletKit: _walletKit,
+        fiatConversionStore: fiatConversionStore,
       );
     }
 
@@ -252,6 +259,8 @@ abstract class WalletKitServiceBase with Store {
 
     resetConnectionsState();
 
+    _proposalTimeout?.cancel();
+
     _walletKit.core.removeLogListener(_logListener);
 
     _walletKit.core.pairing.onPairingInvalid.unsubscribe(_onPairingInvalid);
@@ -267,6 +276,15 @@ abstract class WalletKitServiceBase with Store {
     _walletKit.pairings.onSync.unsubscribe(_onPairingsSync);
     _walletKit.core.pairing.onPairingDelete.unsubscribe(_onPairingDelete);
     _walletKit.core.pairing.onPairingExpire.unsubscribe(_onPairingDelete);
+
+    WidgetsBinding.instance.removeObserver(_walletKit);
+    _walletKit.core.heartbeat.stop();
+
+    try {
+      await _walletKit.core.connectivity.dispose();
+    } catch (e) {
+      printV("walletKit connectivity dispose: $e");
+    }
 
     try {
       await _walletKit.core.relayClient.disconnect().timeout(const Duration(seconds: 3));
@@ -306,6 +324,8 @@ abstract class WalletKitServiceBase with Store {
   @action
   Future<void> _onSessionProposal(SessionProposalEvent? args) async {
     debugPrint('_onSessionProposal ${jsonEncode(args?.params)}');
+
+    _proposalTimeout?.cancel();
 
     if (args != null) {
       final proposer = args.params.proposer;
@@ -362,6 +382,8 @@ abstract class WalletKitServiceBase with Store {
   Future<void> _onSessionProposalError(SessionProposalErrorEvent? args) async {
     debugPrint('_onSessionProposalError $args');
 
+    _proposalTimeout?.cancel();
+
     if (args != null) {
       String errorMessage = args.error.message;
       if (args.error.code == 5100) {
@@ -380,6 +402,8 @@ abstract class WalletKitServiceBase with Store {
 
   @action
   Future<void> _onSessionConnect(SessionConnect? args) async {
+    _proposalTimeout?.cancel();
+
     if (args != null) {
       final session = jsonEncode(args.session.toJson());
 
@@ -434,6 +458,8 @@ abstract class WalletKitServiceBase with Store {
   }
 
   Future<void> _onSessionAuthRequest(SessionAuthRequest? args) async {
+    _proposalTimeout?.cancel();
+
     if (args != null) {
       final SessionAuthPayload authPayload = args.authPayload;
       final jsonPyaload = jsonEncode(authPayload.toJson());
@@ -480,7 +506,7 @@ abstract class WalletKitServiceBase with Store {
               dappName: requesterMetadata.name,
               dappIconUrl: requesterIcon,
               dappSubtitle: requesterMetadata.url,
-              message: combinedMessageBody,
+              decoded: WCDecodedRequest.signMessage(combinedMessageBody),
               walletName: appStore.wallet?.name ?? '',
               address: addressForAuth,
               verifyContext: args.verifyContext,
@@ -490,8 +516,11 @@ abstract class WalletKitServiceBase with Store {
           WCBottomSheetResult.reject;
 
       if (result != WCBottomSheetResult.reject) {
-        final chainKeys = walletKeyService.getKeysForChain(appStore.wallet!);
-        final privateKey = '0x${chainKeys.first.privateKey}';
+        if (!await _isAuthRequestStillValid(args.id, addressForAuth)) {
+          return;
+        }
+
+        final privateKey = "0x${walletKeyService.getPrivateKey(appStore.wallet!)}";
         final credentials = EthPrivateKey.fromHex(privateKey);
         final messageToSign = formattedMessages.length;
         final count = (result == WCBottomSheetResult.one) ? 1 : messageToSign;
@@ -550,6 +579,48 @@ abstract class WalletKitServiceBase with Store {
     }
   }
 
+  Future<bool> _isAuthRequestStillValid(int requestId, String address) async {
+    final pending = _walletKit.sessionAuthRequests.get(requestId.toString());
+    final nowInSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    if (pending == null || pending.expiryTimestamp < nowInSeconds) {
+      _showMessage(S.current.wc_request_expired);
+      return false;
+    }
+
+    final wallet = appStore.wallet;
+    if (wallet != null) {
+      final keys = walletKeyService.getKeysForChain(wallet);
+      if (keys.isNotEmpty && MethodsUtils.isSameAccount(keys.first.publicKey, address)) {
+        return true;
+      }
+    }
+
+    _showMessage(S.current.wc_request_for_different_wallet);
+
+    try {
+      await _walletKit.rejectSessionAuthenticate(
+        id: requestId,
+        reason: const ReownSignError(
+          code: 4100,
+          message: "The requested account has not been authorized by the user.",
+        ),
+      );
+    } catch (e) {
+      printV("_isAuthRequestStillValid reject failed: $e");
+    }
+
+    return false;
+  }
+
+  void _showMessage(String message) {
+    unawaited(
+      _bottomSheetHandler.queueBottomSheet(
+        isModalDismissible: true,
+        widget: BottomSheetMessageDisplayWidget(message: message),
+      ),
+    );
+  }
+
   @action
   Future<void> deletePairing({required String topic}) async {
     final topicSessions = sessions.where((element) => element.pairingTopic == topic).toList();
@@ -605,19 +676,64 @@ abstract class WalletKitServiceBase with Store {
   @action
   Future<void> pairWithUri(Uri uri) async {
     try {
+      if (!_isPairingUriUsable(uri)) {
+        _showPairingFailed();
+        return;
+      }
+
+      _awaitProposal();
+
       debugPrint('pairWithUri - Pairing with URI: $uri');
       await _walletKit.pair(uri: uri);
     } on ReownSignError catch (e) {
+      _proposalTimeout?.cancel();
       _bottomSheetHandler.queueBottomSheet(
         isModalDismissible: true,
         widget: BottomSheetMessageDisplayWidget(message: e.message),
       );
-    } catch (e) {
-      _bottomSheetHandler.queueBottomSheet(
-        isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(message: e.toString()),
-      );
+    } catch (e, s) {
+      printV("pairWithUri failed: $e\n$s");
+      _showPairingFailed();
     }
+  }
+
+  static final _symKeyFormat = RegExp(r"^[0-9a-fA-F]{64}$");
+
+  bool _isPairingUriUsable(Uri uri) {
+    if (uri.path.split("@").first.isEmpty) {
+      return false;
+    }
+
+    if (!_symKeyFormat.hasMatch(uri.queryParameters["symKey"] ?? "")) {
+      return false;
+    }
+
+    if ((uri.queryParameters["relay-protocol"] ?? "").isEmpty) {
+      return false;
+    }
+
+    final expiry = int.tryParse(uri.queryParameters["expiryTimestamp"] ?? "");
+    if (expiry != null && expiry < DateTime.now().millisecondsSinceEpoch ~/ 1000) {
+      return false;
+    }
+
+    return true;
+  }
+
+  void _awaitProposal() {
+    _proposalTimeout?.cancel();
+    _proposalTimeout = Timer(const Duration(seconds: 20), _showPairingFailed);
+  }
+
+  void _showPairingFailed() {
+    _proposalTimeout?.cancel();
+    _proposalTimeout = null;
+    _bottomSheetHandler.queueBottomSheet(
+      isModalDismissible: true,
+      widget: BottomSheetMessageDisplayWidget(
+        message: S.current.wc_connection_link_failed,
+      ),
+    );
   }
 
   @action

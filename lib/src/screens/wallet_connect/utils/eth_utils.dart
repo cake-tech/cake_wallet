@@ -3,57 +3,104 @@ import 'dart:convert';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
 import 'package:convert/convert.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:flutter/foundation.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 class EthUtils {
   static String getUtf8Message(String maybeHex) {
     if (maybeHex.startsWith('0x')) {
-      final List<int> decoded = hex.decode(
-        maybeHex.substring(2),
-      );
-      return utf8.decode(decoded);
+      try {
+        return utf8.decode(hex.decode(maybeHex.substring(2)));
+      } catch (e) {
+        printV("getUtf8Message: payload is not utf8 text, showing it as hex: $e");
+      }
     }
 
     return maybeHex;
   }
 
-  static String? getAddressFromSessionRequest(SessionRequest request) {
-    try {
-      final paramsList = List<String?>.from((request.params as List));
-      if (request.method == 'personal_sign') {
-        // for `personal_sign` first value in params has to be always the message
-        paramsList.removeAt(0);
+  static Uint8List getMessageBytes(String maybeHex) {
+    if (maybeHex.startsWith("0x")) {
+      try {
+        return Uint8List.fromList(hex.decode(maybeHex.substring(2)));
+      } catch (e) {
+        printV("getMessageBytes: 0x payload is not hex, signing it as text: $e");
       }
+    }
+    return Uint8List.fromList(utf8.encode(maybeHex));
+  }
 
-      return paramsList.firstWhere((p) {
-        try {
-          EthereumAddress.fromHex(p ?? '');
-          return true;
-        } catch (e) {
-          return false;
-        }
+  static bool hasConflictingCalldata(Map<String, dynamic> transaction) {
+    final Object? data = transaction["data"];
+    final Object? input = transaction["input"];
+    return data != null && input != null && _calldataHex(data) != _calldataHex(input);
+  }
+
+  static String _calldataHex(Object value) => value.toString().toLowerCase().replaceFirst("0x", "");
+
+  static const _quantityFields = [
+    "value",
+    "gas",
+    "maxGas",
+    "gasPrice",
+    "maxFeePerGas",
+    "maxPriorityFeePerGas",
+    "nonce",
+  ];
+
+  static final _hexQuantity = RegExp(r"^0x[0-9a-fA-F]+$");
+
+  static bool hasMalformedQuantity(Map<String, dynamic> transaction) =>
+      _quantityFields.any((field) {
+        final Object? quantity = transaction[field];
+        return quantity != null && !(quantity is String && _hexQuantity.hasMatch(quantity));
       });
+
+  static String? stringifyTypedData(dynamic payload) {
+    if (payload is String) {
+      return payload;
+    }
+    if (payload == null) {
+      return null;
+    }
+    try {
+      return jsonEncode(payload);
     } catch (e) {
-      debugPrint(e.toString());
+      printV("stringifyTypedData: payload cannot be encoded: $e");
       return null;
     }
   }
 
-  static dynamic getDataFromSessionRequest(SessionRequest request) {
-    try {
-      final paramsList = List.from((request.params as List));
-      if (request.method == 'personal_sign') {
-        return paramsList.first;
-      }
-      return paramsList.firstWhere((p) {
-        final address = getAddressFromSessionRequest(request);
-        return p != address;
-      });
-    } catch (e) {
-      debugPrint('getDataFromSessionRequest $e');
+  static String? getAddressFromSessionRequest(SessionRequest request) {
+    final params = request.params;
+    if (params is! List) {
       return null;
     }
+
+    final position = _addressPosition(request.method, params);
+    return position < params.length ? _toAddress(params[position]) : null;
+  }
+
+  static dynamic getDataFromSessionRequest(SessionRequest request) {
+    final params = request.params;
+    if (params is! List) {
+      return null;
+    }
+
+    final position = 1 - _addressPosition(request.method, params);
+    return position < params.length ? params[position] : null;
+  }
+
+  static int _addressPosition(String method, List<dynamic> params) {
+    final standard = method == "personal_sign" ? 1 : 0;
+    final other = 1 - standard;
+    final isReversed =
+        params.length >= 2 &&
+        _toAddress(params[standard]) == null &&
+        _toAddress(params[other]) != null;
+
+    return isReversed ? other : standard;
   }
 
   static Map<String, dynamic>? getTransactionFromSessionRequest(
@@ -85,4 +132,9 @@ class EthUtils {
       return JsonRpcResponse.fromJson(data);
     }
   }
+
+  static final _addressFormat = RegExp(r"^0x[0-9a-fA-F]{40}$");
+
+  static String? _toAddress(dynamic value) =>
+      value is String && _addressFormat.hasMatch(value) ? value.toLowerCase() : null;
 }

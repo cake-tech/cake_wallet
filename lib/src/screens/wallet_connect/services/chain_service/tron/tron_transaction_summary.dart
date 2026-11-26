@@ -2,15 +2,17 @@ import "dart:convert";
 
 import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cake_wallet/generated/i18n.dart";
-import "package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:on_chain/tron/tron.dart";
 
 class TronTransactionSummary {
   const TronTransactionSummary({
-    required this.text,
+    required this.title,
     required this.rows,
+    required this.extraRows,
+    required this.warnings,
     required this.ownerAddress,
   });
 
@@ -28,16 +30,19 @@ class TronTransactionSummary {
       throw ArgumentError("contract type tag does not match the contract");
     }
 
-    final lines = <String>[];
-    final rows = <WCConnectionModel>[];
+    String title;
+    final rows = <WCDecodedRow>[];
+    final extraRows = <WCDecodedRow>[];
+    final warnings = <String>[];
     String? ownerAddress;
     String? callData;
 
     if (value is TransferContract) {
       ownerAddress = value.ownerAddress.toAddress();
-      lines.add("${S.current.value}: ${_trx(value.amount)}");
-      lines.add("${S.current.from}: $ownerAddress");
-      lines.add("${S.current.to}: ${value.toAddress.toAddress()}");
+      title = S.current.send;
+      rows.add(_amountRow(_trx(value.amount)));
+      rows.add(_addressRow(S.current.from, ownerAddress));
+      rows.add(_addressRow(S.current.to, value.toAddress.toAddress()));
     } else if (value is TriggerSmartContract) {
       ownerAddress = value.ownerAddress.toAddress();
       final contractAddress = value.contractAddress.toAddress();
@@ -49,74 +54,102 @@ class TronTransactionSummary {
           : _Trc20Call.tryDecode(value.data);
 
       if (call != null) {
-        final String operation;
         if (call.isIncrease) {
-          operation = S.current.wc_increase_allowance;
+          title = S.current.wc_increase_allowance;
         } else if (call.isApprove) {
-          operation = S.current.approve_tokens;
+          title = S.current.approve_tokens;
         } else {
-          operation = S.current.send;
+          title = S.current.send;
         }
-        lines.add(operation);
-        lines.add("${S.current.value}: ${_tokenAmount(call.amount, token, call.isApprove)}");
-        lines.add("${S.current.from}: $ownerAddress");
+        rows.add(_amountRow(_tokenAmount(call.amount, token, call.isApprove)));
+        rows.add(_addressRow(S.current.from, ownerAddress));
         final counterparty = call.isApprove ? S.current.wc_approved_address : S.current.to;
-        lines.add("$counterparty: ${call.address}");
+        rows.add(_addressRow(counterparty, call.address));
+
+        if (call.isApprove && call.amount >= _unlimitedAllowance) {
+          warnings.add(S.current.wc_warning_unlimited_approval);
+        }
+
+        if (token == null) {
+          warnings.add(S.current.wc_warning_unknown_token);
+        }
       } else {
-        lines.add("${S.current.from}: $ownerAddress");
-        lines.add("${S.current.to}: $contractAddress");
+        title = S.current.wc_contract_call;
+        warnings.add(S.current.wc_warning_unknown_contract);
+        rows.add(_addressRow(S.current.from, ownerAddress));
+        rows.add(_addressRow(S.current.to, contractAddress));
         callData = BytesUtils.toHexString(value.data ?? const [], prefix: "0x");
       }
 
       if (callValue > BigInt.zero) {
-        lines.add("${S.current.value}: ${_trx(callValue)}");
+        rows.add(_amountRow(_trx(callValue)));
       }
 
       if (callTokenValue > BigInt.zero) {
         final tokenAmount = S.current.wc_raw_amount(callTokenValue.toString());
-        lines.add("${S.current.token}: TRC10 ${value.tokenId ?? ""}, $tokenAmount");
+        rows.add(
+          WCDecodedRow(label: S.current.token, value: "TRC10 ${value.tokenId ?? ""}, $tokenAmount"),
+        );
       }
 
       if (token != null) {
-        rows.add(WCConnectionModel(title: S.current.token, text: token.title));
+        extraRows.add(WCDecodedRow(label: S.current.token, value: token.title));
       }
-      rows.add(WCConnectionModel(title: S.current.contract_address, text: contractAddress));
+      extraRows.add(_addressRow(S.current.contract_address, contractAddress));
     } else {
       final json = value.toJson()..removeWhere((_, field) => field == null);
       ownerAddress = json["owner_address"]?.toString();
-      lines.add("${S.current.transaction}: ${contract.type.name}");
-      lines.add(_prettyJson.convert(_withTrxAmounts(json)));
+      title = contract.type.name;
+      for (final entry in _withTrxAmounts(json).entries) {
+        final field = entry.value;
+        rows.add(
+          WCDecodedRow(
+            label: entry.key,
+            value: field is Map || field is List ? _prettyJson.convert(field) : field.toString(),
+          ),
+        );
+      }
     }
     final feeLimit =
         rawTransaction.feeLimit ?? (value is TriggerSmartContract ? BigInt.zero : null);
     if (feeLimit != null) {
-      rows.add(WCConnectionModel(title: S.current.wc_max_network_fee, text: _trx(feeLimit)));
+      extraRows.add(WCDecodedRow(label: S.current.wc_max_network_fee, value: _trx(feeLimit)));
     }
 
     final memo = rawTransaction.data;
     if (memo != null && memo.isNotEmpty) {
-      rows.add(
-        WCConnectionModel(title: S.current.memo, text: utf8.decode(memo, allowMalformed: true)),
+      extraRows.add(
+        WCDecodedRow(label: S.current.memo, value: utf8.decode(memo, allowMalformed: true)),
       );
     }
 
     if (callData != null) {
-      rows.add(WCConnectionModel(title: S.current.wc_call_data, text: callData));
+      extraRows.add(WCDecodedRow(label: S.current.wc_call_data, value: callData));
     }
 
     return TronTransactionSummary(
-      text: lines.join("\n"),
+      title: title,
       rows: rows,
+      extraRows: extraRows,
+      warnings: warnings,
       ownerAddress: ownerAddress,
     );
   }
 
-  final String text;
-  final List<WCConnectionModel> rows;
+  final String title;
+  final List<WCDecodedRow> rows;
+  final List<WCDecodedRow> extraRows;
+  final List<String> warnings;
 
   final String? ownerAddress;
 
-  static final _unlimitedAllowance = (BigInt.one << 256) - BigInt.one;
+  static WCDecodedRow _amountRow(String amount) =>
+      WCDecodedRow(label: S.current.value, value: amount, kind: WCDecodedRowKind.amount);
+
+  static WCDecodedRow _addressRow(String label, String address) =>
+      WCDecodedRow(label: label, value: address, kind: WCDecodedRowKind.address);
+
+  static final _unlimitedAllowance = BigInt.one << 200;
 
   static const _sunFields = {"frozen_balance", "unfreeze_balance", "balance"};
 
@@ -136,7 +169,7 @@ class TronTransactionSummary {
   static String _trx(BigInt sun) => Money(sun, CryptoCurrency.trx).toStringWithSymbol();
 
   static String _tokenAmount(BigInt amount, CryptoCurrency? token, bool isAllowance) {
-    if (isAllowance && amount == _unlimitedAllowance) {
+    if (isAllowance && amount >= _unlimitedAllowance) {
       return token == null ? S.current.wc_unlimited : "${S.current.wc_unlimited} ${token.title}";
     }
 

@@ -105,6 +105,12 @@ TronTransactionSummary summaryOfCall(
       walletTokens,
     );
 
+bool hasRow(TronTransactionSummary summary, String label, String value) =>
+    summary.rows.any((row) => row.label == label && row.value == value);
+
+bool hasLabel(TronTransactionSummary summary, String label) =>
+    summary.rows.any((row) => row.label == label);
+
 void main() {
   setUpAll(() => S.current = const S());
 
@@ -112,20 +118,20 @@ void main() {
     test("a transfer names the operation and labels the counterparty as the recipient", () {
       final summary = summaryOfCall(transferSelector, recipient, BigInt.from(5000000));
 
-      expect(summary.text.split("\n").first, S.current.send);
-      expect(summary.text, contains("${S.current.value}: 5 USDT"));
-      expect(summary.text, contains("${S.current.to}: ${recipient.toAddress()}"));
-      expect(summary.text, isNot(contains(S.current.wc_approved_address)));
+      expect(summary.title, S.current.send);
+      expect(hasRow(summary, S.current.value, "5 USDT"), isTrue);
+      expect(hasRow(summary, S.current.to, recipient.toAddress()), isTrue);
+      expect(hasLabel(summary, S.current.wc_approved_address), isFalse);
       expect(summary.ownerAddress, owner.toAddress());
     });
 
     test("an approve names the operation and labels the counterparty as the spender", () {
       final summary = summaryOfCall(approveSelector, spender, maxUint256);
 
-      expect(summary.text.split("\n").first, S.current.approve_tokens);
-      expect(summary.text, contains("${S.current.wc_approved_address}: ${spender.toAddress()}"));
-      expect(summary.text, isNot(contains("${S.current.to}: ")));
-      expect(summary.text, contains(S.current.wc_unlimited));
+      expect(summary.title, S.current.approve_tokens);
+      expect(hasRow(summary, S.current.wc_approved_address, spender.toAddress()), isTrue);
+      expect(hasLabel(summary, S.current.to), isFalse);
+      expect(summary.rows.any((row) => row.value.contains(S.current.wc_unlimited)), isTrue);
     });
 
     test("USDT's increaseApproval names itself as an increase", () {
@@ -140,21 +146,17 @@ void main() {
         walletTokens,
       );
 
-      expect(summary.text.split("\n").first, S.current.wc_increase_allowance);
-      expect(summary.text, isNot(contains(S.current.approve_tokens)));
-      expect(summary.text, contains("${S.current.value}: ${S.current.wc_unlimited} USDT"));
-      expect(
-        summary.text,
-        contains("${S.current.wc_approved_address}: ${sunIoSpender.toAddress()}"),
-      );
-      expect(summary.rows.any((row) => row.title == S.current.wc_call_data), isFalse);
+      expect(summary.title, S.current.wc_increase_allowance);
+      expect(hasRow(summary, S.current.value, "${S.current.wc_unlimited} USDT"), isTrue);
+      expect(hasRow(summary, S.current.wc_approved_address, sunIoSpender.toAddress()), isTrue);
+      expect(summary.extraRows.any((row) => row.label == S.current.wc_call_data), isFalse);
     });
 
     test("an allowance below the sentinel keeps its exact amount", () {
       final summary = summaryOfCall(approveSelector, spender, BigInt.from(5000000));
 
-      expect(summary.text, contains("${S.current.value}: 5 USDT"));
-      expect(summary.text, isNot(contains(S.current.wc_unlimited)));
+      expect(hasRow(summary, S.current.value, "5 USDT"), isTrue);
+      expect(summary.rows.any((row) => row.value.contains(S.current.wc_unlimited)), isFalse);
     });
 
     test("call data that is not a clean 68 byte TRC20 call is never decoded", () {
@@ -174,8 +176,8 @@ void main() {
           walletTokens,
         );
 
-        expect(summary.rows.last.title, S.current.wc_call_data);
-        expect(summary.text, isNot(contains(recipient.toAddress())));
+        expect(summary.extraRows.last.label, S.current.wc_call_data);
+        expect(summary.rows.any((row) => row.value == recipient.toAddress()), isFalse);
       }
     });
 
@@ -187,10 +189,10 @@ void main() {
         callValue: BigInt.from(1500000),
       );
 
-      expect("${S.current.value}:".allMatches(summary.text).length, 1);
-      expect(summary.text, contains("${S.current.value}: 1.5 TRX"));
-      expect(summary.rows.last.title, S.current.wc_call_data);
-      expect(summary.text, isNot(contains(S.current.send)));
+      expect(summary.rows.where((row) => row.label == S.current.value).length, 1);
+      expect(hasRow(summary, S.current.value, "1.5 TRX"), isTrue);
+      expect(summary.extraRows.last.label, S.current.wc_call_data);
+      expect(summary.title, isNot(S.current.send));
     });
 
     test("call data is the last row, below every amount and the fee cap", () {
@@ -200,17 +202,18 @@ void main() {
         BigInt.from(5000000),
         callValue: BigInt.from(1500000),
       );
-      final titles = summary.rows.map((row) => row.title).toList();
+      final labels = summary.extraRows.map((row) => row.label).toList();
 
-      expect(summary.text, isNot(contains("0xa9059cbb")));
-      expect(summary.text.split("\n").last, "${S.current.value}: 1.5 TRX");
-      expect(titles, [
+      expect(summary.rows.any((row) => row.value.contains("0xa9059cbb")), isFalse);
+      expect(summary.rows.last.label, S.current.value);
+      expect(summary.rows.last.value, "1.5 TRX");
+      expect(labels, [
         S.current.token,
         S.current.contract_address,
         S.current.wc_max_network_fee,
         S.current.wc_call_data,
       ]);
-      expect(summary.rows.last.text, startsWith("0xa9059cbb"));
+      expect(summary.extraRows.last.value, startsWith("0xa9059cbb"));
     });
 
     test("a type tag that names a different contract is refused", () {
@@ -231,12 +234,105 @@ void main() {
     });
   });
 
+  group("warnings", () {
+    final unlimitedFloor = BigInt.one << 200;
+
+    TronTransactionSummary summaryOfUnheldToken(String selector, TronAddress to, BigInt amount) =>
+        TronTransactionSummary.of(
+          rawOf(
+            TriggerSmartContract(
+              ownerAddress: owner,
+              contractAddress: usdtContract,
+              data: trc20Call(selector, to, amount),
+            ),
+          ),
+          const {},
+        );
+
+    test("an approve of 2^200 or more reads as unlimited and warns", () {
+      for (final amount in [unlimitedFloor, BigInt.one << 255, maxUint256]) {
+        final summary = summaryOfCall(approveSelector, spender, amount);
+
+        expect(hasRow(summary, S.current.value, "${S.current.wc_unlimited} USDT"), isTrue);
+        expect(summary.warnings, [S.current.wc_warning_unlimited_approval]);
+      }
+    });
+
+    test("an approve one unit under 2^200 keeps its amount and carries no warning", () {
+      final summary = summaryOfCall(approveSelector, spender, unlimitedFloor - BigInt.one);
+
+      expect(
+        hasRow(
+          summary,
+          S.current.value,
+          "1606938044258990275541962092341162602522202993782792835.301375 USDT",
+        ),
+        isTrue,
+      );
+      expect(summary.warnings, isEmpty);
+    });
+
+    test("a transfer is never called unlimited, whatever its size", () {
+      final summary = summaryOfCall(transferSelector, recipient, BigInt.one << 255);
+
+      expect(summary.rows.any((row) => row.value.contains(S.current.wc_unlimited)), isFalse);
+      expect(summary.warnings, isEmpty);
+    });
+
+    test("a token the wallet does not hold warns on a transfer and on an approve", () {
+      final transfer = summaryOfUnheldToken(transferSelector, recipient, BigInt.from(5000000));
+      final approve = summaryOfUnheldToken(approveSelector, spender, maxUint256);
+
+      expect(transfer.warnings, [S.current.wc_warning_unknown_token]);
+      expect(approve.warnings, [
+        S.current.wc_warning_unlimited_approval,
+        S.current.wc_warning_unknown_token,
+      ]);
+    });
+
+    test("a call that is not decoded warns about the contract", () {
+      final transferFrom = TronTransactionSummary.of(
+        rawOf(
+          TriggerSmartContract(
+            ownerAddress: owner,
+            contractAddress: usdtContract,
+            data: BytesUtils.fromHexString("23b872dd${"00" * 96}"),
+          ),
+        ),
+        walletTokens,
+      );
+      final payable = summaryOfCall(
+        transferSelector,
+        recipient,
+        BigInt.from(5000000),
+        callValue: BigInt.from(1500000),
+      );
+
+      expect(transferFrom.warnings, [S.current.wc_warning_unknown_contract]);
+      expect(payable.warnings, [S.current.wc_warning_unknown_contract]);
+    });
+
+    test("a plain token or TRX send carries no warning", () {
+      final token = summaryOfCall(transferSelector, recipient, BigInt.from(5000000));
+      final trx = TronTransactionSummary.of(
+        rawOf(
+          TransferContract(ownerAddress: owner, toAddress: recipient, amount: BigInt.from(1500000)),
+        ),
+        walletTokens,
+      );
+
+      expect(token.warnings, isEmpty);
+      expect(trx.warnings, isEmpty);
+    });
+  });
+
   group("fee limit", () {
     test("a contract call without a fee limit shows the zero the node reads", () {
       final summary = summaryOfCall(transferSelector, recipient, BigInt.from(5000000));
 
       expect(
-        summary.rows.any((row) => row.title == S.current.wc_max_network_fee && row.text == "0 TRX"),
+        summary.extraRows
+            .any((row) => row.label == S.current.wc_max_network_fee && row.value == "0 TRX"),
         isTrue,
       );
     });
@@ -253,8 +349,8 @@ void main() {
         walletTokens,
       );
 
-      expect(summary.text, contains("${S.current.value}: 1.5 TRX"));
-      expect(summary.rows.any((row) => row.title == S.current.wc_max_network_fee), isFalse);
+      expect(hasRow(summary, S.current.value, "1.5 TRX"), isTrue);
+      expect(summary.extraRows.any((row) => row.label == S.current.wc_max_network_fee), isFalse);
     });
   });
 

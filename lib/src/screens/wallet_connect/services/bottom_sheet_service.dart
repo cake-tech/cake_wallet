@@ -8,6 +8,8 @@ enum WCBottomSheetResult { reject, one, all }
 abstract class BottomSheetService {
   abstract final ValueNotifier<BottomSheetQueueItemModel?> currentSheet;
 
+  abstract final ValueNotifier<bool> isOnHold;
+
   Future<dynamic> queueBottomSheet({
     required Widget widget,
     bool isModalDismissible = false,
@@ -22,6 +24,9 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
   @override
   final ValueNotifier<BottomSheetQueueItemModel?> currentSheet = ValueNotifier(null);
+
+  @override
+  final ValueNotifier<bool> isOnHold = ValueNotifier(false);
 
   @override
   Future<dynamic> queueBottomSheet({

@@ -199,6 +199,35 @@ class SolanaWalletClient {
     }
   }
 
+  static const _accountDataSlice = RPCDataSliceConfig(offset: 0, length: 8249);
+
+  Future<List<List<int>?>?> getAccountsData(List<String> addresses) async {
+    if (addresses.isEmpty) {
+      return const [];
+    }
+    if (_provider == null) {
+      return null;
+    }
+
+    try {
+      final accounts = await Future.wait(
+        addresses.map(
+          (address) => _provider!.request(
+            SolanaRPCGetAccountInfo(
+              account: SolAddress(address),
+              encoding: SolanaRPCEncoding.base64,
+              dataSlice: _accountDataSlice,
+            ),
+          ),
+        ),
+      );
+      return accounts.map<List<int>?>((account) => account?.toBytesData()).toList();
+    } catch (e) {
+      printV("Error fetching solana accounts data: $e");
+      return null;
+    }
+  }
+
   Future<Money> getFeeForMessage(String message, Commitment commitment) async {
     try {
       final feeForMessage = await _provider!.request(
@@ -1294,10 +1323,10 @@ class SolanaWalletClient {
 
       final decodedResponse = jsonDecode(response.body) as Map<String, dynamic>;
 
-      final symbol = decodedResponse['symbol'] ?? '';
-      final name = decodedResponse['name'] ?? '';
+      final symbol = decodedResponse["symbol"] as String? ?? "";
+      final name = decodedResponse["name"] as String? ?? "";
       final rawDecimals = decodedResponse["decimals"];
-      final iconPath = decodedResponse['logo'] ?? '';
+      final iconPath = decodedResponse["logo"] as String? ?? "";
 
       final filteredTokenSymbol = symbol.replaceFirst(RegExp('^\\\$'), '').replaceAll('\u0000', '');
 
@@ -1313,11 +1342,11 @@ class SolanaWalletClient {
       }
 
       return SPLToken(
-        name: name as String,
-        mint: symbol as String,
-        symbol: filteredTokenSymbol as String,
+        name: name,
+        mint: symbol,
+        symbol: filteredTokenSymbol,
         mintAddress: mintAddress,
-        iconPath: iconPath as String?,
+        iconPath: iconPath,
         decimal: decimals,
       );
     } catch (e, s) {

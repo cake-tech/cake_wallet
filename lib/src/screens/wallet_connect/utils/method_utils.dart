@@ -1,12 +1,13 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_row.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/wc_connection_model.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/walletkit_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_message_card.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/widgets/wc_signing_request_sheet.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import "package:cw_core/utils/print_verbose.dart";
 import 'package:flutter/material.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
@@ -39,52 +40,125 @@ class MethodsUtils {
     'solana_signAllTransactions',
     'solana_signAndSendTransaction',
     "tron_signTransaction",
+    "wallet_switchEthereumChain",
+    "wallet_addEthereumChain",
   };
 
+  static JsonRpcError get userRejectedError {
+    final error = Errors.getSdkError(Errors.USER_REJECTED);
+
+    return JsonRpcError(code: error.code, message: error.message);
+  }
+
+  static final _handedOut = Expando<bool>();
+
+  static SessionRequest? pendingRequestFor(
+    String topic,
+    String method,
+    String chainId,
+    dynamic parameters,
+  ) {
+    final matches = walletKit.pendingRequests.getAll().where(
+          (r) => r.topic == topic && r.method == method && r.chainId == chainId,
+        );
+    for (final request in matches) {
+      if (identical(request.params, parameters) && _handedOut[request] == null) {
+        _handedOut[request] = true;
+        return request;
+      }
+    }
+
+    return null;
+  }
+
+  static Future<void> respondUnauthorized(String topic, int requestId) async {
+    try {
+      await walletKit.respondSessionRequest(
+        topic: topic,
+        response: JsonRpcResponse(
+          id: requestId,
+          jsonrpc: "2.0",
+          error: const JsonRpcError(
+            code: 4100,
+            message: "The requested account has not been authorized by the user.",
+          ),
+        ),
+      );
+    } catch (e) {
+      printV("respondUnauthorized failed: $e");
+    }
+  }
+
+  static Future<bool> isRequestStillPending(String topic, int requestId) async {
+    final id = requestId.toString();
+
+    return walletKit.sessions.has(topic) &&
+        !await walletKit.core.expirer.checkAndExpire(topic) &&
+        walletKit.pendingRequests.has(id) &&
+        !await walletKit.core.expirer.checkAndExpire(id);
+  }
+
+  static Future<void> respondForTopic(
+    String topic,
+    JsonRpcResponse<dynamic> response, {
+    bool isUserDecision = true,
+    bool isBroadcast = false,
+  }) async {
+    final session = walletKit.sessions.get(topic);
+    try {
+      await walletKit.respondSessionRequest(topic: topic, response: response);
+    } catch (e) {
+      printV("respondForTopic could not reply: $e");
+      if (response.error == null) {
+        goBackModal(
+          title: isBroadcast ? S.current.transaction_sent : S.current.error,
+          message: isBroadcast ? null : S.current.please_try_again_later,
+          success: isBroadcast,
+        );
+      }
+      return;
+    }
+
+    if (!isUserDecision || session == null) {
+      return;
+    }
+
+    final redirect = session.peer.metadata.redirect;
+    if (response.error?.code == userRejectedError.code) {
+      openApp(topic, redirect);
+      return;
+    }
+
+    handleRedirect(topic, redirect, response.error?.message, response.error == null);
+  }
+
   static Future<bool> requestApproval(
-    String text, {
-    String? title,
+    WCDecodedRequest decoded, {
+    required String topic,
+    required String transportType,
     String? method,
     String? chainId,
     String? address,
-    String? topic,
-    required String transportType,
-    List<WCConnectionModel> extraModels = const [],
+    List<WCDecodedRow> extraRows = const [],
     VerifyContext? verifyContext,
   }) async {
     final appStore = getIt.get<AppStore>();
-    SessionData? session;
-    if (topic != null) {
-      session = walletKit.sessions.get(topic);
-    } else {
-      final pending = walletKit.pendingRequests.getAll();
-      session = pending.isNotEmpty ? walletKit.sessions.get(pending.last.topic) : null;
-    }
+    final session = walletKit.sessions.get(topic);
     final dAppMetadata = session?.peer.metadata;
 
     final isTransaction = method != null && _transactionMethods.contains(method);
-    final resolvedTitle = title ??
-        (isTransaction ? S.current.wc_approve_request_title : S.current.wc_signing_request_title);
+    final resolvedTitle =
+        isTransaction ? S.current.wc_approve_request_title : S.current.wc_signing_request_title;
     final swipeLabel = isTransaction ? S.current.wc_swipe_to_approve : S.current.wc_swipe_to_sign;
 
-    final extraRows = <WCMessageRow>[];
-    if (method != null && method.isNotEmpty) {
-      extraRows.add(WCMessageRow(label: S.current.method, value: method));
-    }
-    if (chainId != null && chainId.isNotEmpty) {
-      extraRows.add(WCMessageRow(label: S.current.chain_id, value: chainId));
-    }
-    if (transportType.isNotEmpty) {
-      extraRows.add(WCMessageRow(
-        label: S.current.transport_type,
-        value: transportType.toUpperCase(),
-      ));
-    }
-    for (final model in extraModels) {
-      if (model.title == null) continue;
-      final value = model.elements?.join(', ') ?? model.text ?? '';
-      extraRows.add(WCMessageRow(label: model.title!, value: value));
-    }
+    final infoRows = <WCDecodedRow>[
+      if (method != null && method.isNotEmpty) WCDecodedRow(label: S.current.method, value: method),
+      if (chainId != null && chainId.isNotEmpty)
+        WCDecodedRow(label: S.current.chain_id, value: chainId),
+      if (transportType.isNotEmpty)
+        WCDecodedRow(label: S.current.transport_type, value: transportType.toUpperCase()),
+      ...extraRows,
+    ];
 
     final WCBottomSheetResult result = (await bottomSheetService.queueBottomSheet(
           widget: WCSigningRequestSheet(
@@ -93,12 +167,12 @@ class MethodsUtils {
             dappName: dAppMetadata?.name ?? '',
             dappIconUrl:
                 (dAppMetadata?.icons.isNotEmpty ?? false) ? dAppMetadata!.icons.first : null,
-            dappSubtitle: method ?? dAppMetadata?.url ?? '',
-            message: text,
+            dappSubtitle: dAppMetadata?.url ?? method ?? "",
+            decoded: decoded,
+            infoRows: infoRows,
             walletName: appStore.wallet?.name ?? '',
             address: address ?? '',
             verifyContext: verifyContext,
-            extraRows: extraRows,
           ),
         ) as WCBottomSheetResult?) ??
         WCBottomSheetResult.reject;
@@ -116,7 +190,7 @@ class MethodsUtils {
     openApp(
       topic,
       redirect,
-      onFail: (e) => goBackModal(
+      onFail: () => goBackModal(
         title: success ? S.current.success : S.current.error,
         message: error,
         success: success,
@@ -128,7 +202,7 @@ class MethodsUtils {
     String topic,
     Redirect? redirect, {
     int delay = 100,
-    Function(ReownSignError? error)? onFail,
+    void Function()? onFail,
   }) async {
     await Future.delayed(Duration(milliseconds: delay));
     try {
@@ -136,8 +210,9 @@ class MethodsUtils {
         topic: topic,
         redirect: redirect,
       );
-    } on ReownSignError catch (e) {
-      onFail?.call(e);
+    } catch (e) {
+      printV("openApp could not open the dApp: $e");
+      onFail?.call();
     }
   }
 
@@ -147,6 +222,7 @@ class MethodsUtils {
     bool success = true,
   }) async {
     await bottomSheetService.queueBottomSheet(
+      isModalDismissible: !success,
       closeAfter: success ? 3 : 0,
       widget: GoBackModalWidget(
         isSuccess: success,

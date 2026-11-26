@@ -10,6 +10,8 @@ import 'package:on_chain/solana/solana.dart';
 import 'package:reown_walletkit/reown_walletkit.dart';
 
 import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/solana/solana_request_decoder.dart";
+import "package:cake_wallet/src/screens/wallet_connect/decoders/wc_decoded_request.dart";
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/chain_service/solana/solana_chain_id.dart';
 import 'package:cake_wallet/src/screens/wallet_connect/services/key_service/wallet_connect_key_service.dart';
@@ -30,7 +32,7 @@ class SolanaChainService {
     required this.walletKit,
     required this.wcKeyService,
     required this.reference,
-  }) {
+  }) : decoder = SolanaRequestDecoder(appStore) {
     for (var handler in solanaRequestHandlers.entries) {
       walletKit.registerRequestHandler(
         chainId: getChainId(),
@@ -45,317 +47,288 @@ class SolanaChainService {
   final ReownWalletKit walletKit;
   final WalletConnectKeyService wcKeyService;
   final SolanaChainId reference;
+  final SolanaRequestDecoder decoder;
 
   String getChainId() => reference.chain();
+
+  static const _maxSignMessageLength = 10000;
+
+  static const _maxTransactions = 100;
+
+  static final _malformed = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
+
+  static const _unauthorized = JsonRpcError(
+    code: 4100,
+    message: "The requested account has not been authorized by the user.",
+  );
 
   Future<void> solanaSignMessage(String topic, dynamic parameters) async {
     debugPrint('solanaSignMessage request: $parameters');
 
-    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignMessage.name);
+    final pRequest = MethodsUtils.pendingRequestFor(
+      topic,
+      SolanaSupportedMethods.solSignMessage.name,
+      getChainId(),
+      parameters,
+    );
     if (pRequest == null) {
       return;
     }
 
-    if (!_isRequestAuthorized(topic)) {
-      await _rejectUnauthorizedRequest(topic, pRequest.id);
+    if (!await _authorizeRequest(topic, pRequest.id)) {
       return;
     }
 
-    var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
-
+    final List<int> messageBytes;
+    final WCDecodedRequest decoded;
     try {
       final params = parameters as Map<String, dynamic>;
-      final message = params['message'].toString();
-
-      final privateKey = _getSolanaPrivateKey();
-
-      // it's sent as base58 encoded from the dapp
-      final base58Decoded = base58.decode(message);
-      final decodedMessage = utf8.decode(base58Decoded);
-
-      final isApproved = await MethodsUtils.requestApproval(
-        decodedMessage,
-        method: pRequest.method,
-        chainId: pRequest.chainId,
-        address: privateKey.publicKey().toAddress().address,
-        topic: topic,
-        transportType: pRequest.transportType.name,
-      );
-
-      if (isApproved) {
-        final signedBytes = await privateKey.sign(base58Decoded);
-
-        final signature = blockchain_utils.Base58Encoder.encode(signedBytes);
-
-        response = response.copyWith(result: {'signature': signature});
-      } else {
-        final error = Errors.getSdkError(Errors.USER_REJECTED);
-        response = response.copyWith(
-          error: JsonRpcError(code: error.code, message: error.message),
-        );
+      if (_namesAnotherAccount(params, _walletAddress())) {
+        await _refuseAsForAnotherWallet(topic, pRequest.id);
+        return;
       }
-    } catch (e) {
-      debugPrint('solanaSignMessage error $e');
-      final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
 
-      response = response.copyWith(
-        error: JsonRpcError(code: error.code, message: error.message),
-      );
+      final message = params['message'].toString();
+      if (message.length > _maxSignMessageLength) {
+        throw const FormatException("solana_signMessage payload is too long");
+      }
+
+      messageBytes = base58.decode(message);
+      decoded = decoder.decodeSignMessage(messageBytes);
+    } catch (e) {
+      printV("solanaSignMessage refused: $e");
+      await _refuse(topic, pRequest.id);
+      return;
     }
 
-    _handleResponseForTopic(topic, response);
+    await _approveAndSign(pRequest, decoded, _walletAddress(), (privateKey) {
+      final signedBytes = privateKey.sign(messageBytes);
+      final signature = blockchain_utils.Base58Encoder.encode(signedBytes);
+      return {"signature": signature};
+    });
   }
 
   Future<void> solanaSignTransaction(String topic, dynamic parameters) async {
     debugPrint('solanaSignTransaction: ${jsonEncode(parameters)}');
 
-    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignTransaction.name);
+    final pRequest = MethodsUtils.pendingRequestFor(
+      topic,
+      SolanaSupportedMethods.solSignTransaction.name,
+      getChainId(),
+      parameters,
+    );
     if (pRequest == null) {
       return;
     }
 
-    if (!_isRequestAuthorized(topic)) {
-      await _rejectUnauthorizedRequest(topic, pRequest.id);
+    if (!await _authorizeRequest(topic, pRequest.id)) {
       return;
     }
 
-    var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
-
+    final walletAddress = _walletAddress();
+    final List<int> messageBytes;
+    final WCDecodedRequest decoded;
     try {
       final params = parameters as Map<String, dynamic>;
-      final privateKey = _getSolanaPrivateKey();
-
-      final beautifiedTrx = const JsonEncoder.withIndent('  ').convert(params);
-
-      SolanaTransaction unSignedTransaction;
-      if (params.containsKey('transaction')) {
-        final transaction = params['transaction'] as String;
-        final transactionBytes = base64.decode(transaction);
-        unSignedTransaction = SolanaTransaction.deserialize(transactionBytes);
-      } else {
-        final feePayer = params['feePayer'].toString();
-        final recentBlockHash = params['recentBlockhash'].toString();
-        final instructionsList = params['instructions'] as List<dynamic>;
-
-        final instructions = instructionsList.map((json) {
-          return (json as Map<String, dynamic>).toInstruction();
-        }).toList();
-
-        unSignedTransaction = SolanaTransaction(
-          payerKey: SolAddress(feePayer),
-          instructions: instructions,
-          recentBlockhash: SolAddress(recentBlockHash),
-        );
+      final unSignedTransaction = decoder.transactionFromParams(params);
+      if (unSignedTransaction == null) {
+        await _refuse(topic, pRequest.id);
+        return;
       }
 
-      final isApproved = await MethodsUtils.requestApproval(
-        beautifiedTrx,
-        method: pRequest.method,
-        chainId: pRequest.chainId,
-        address: privateKey.publicKey().toAddress().address,
-        topic: topic,
-        transportType: pRequest.transportType.name,
-      );
-
-      if (isApproved) {
-        final signedTx = await privateKey.sign(unSignedTransaction.serializeMessage());
-
-        final signature = Base58Encoder.encode(signedTx.toList(growable: false));
-
-        response = response.copyWith(result: {'signature': signature});
-      } else {
-        final error = Errors.getSdkError(Errors.USER_REJECTED);
-        response = response.copyWith(
-          error: JsonRpcError(code: error.code, message: error.message),
-        );
+      if (_namesAnotherAccount(params, walletAddress) ||
+          !_isSigner(unSignedTransaction, walletAddress)) {
+        await _refuseAsForAnotherWallet(topic, pRequest.id);
+        return;
       }
+
+      messageBytes = unSignedTransaction.serializeMessage();
+      decoded = await decoder.decodeTransaction(params, walletAddress: walletAddress);
     } catch (e, s) {
-      debugPrint('solanaSignTransaction error $e, $s');
-      final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
-
-      response = response.copyWith(
-        error: JsonRpcError(code: error.code, message: error.message),
-      );
+      printV("solanaSignTransaction refused: $e, $s");
+      await _refuse(topic, pRequest.id);
+      return;
     }
 
-    _handleResponseForTopic(topic, response);
+    await _approveAndSign(pRequest, decoded, walletAddress, (privateKey) {
+      final signedTx = privateKey.sign(messageBytes);
+      final signature = Base58Encoder.encode(signedTx.toList(growable: false));
+      return {"signature": signature};
+    });
   }
 
   Future<void> solanaSignAllTransaction(String topic, dynamic parameters) async {
     debugPrint('solanaSignAllTransaction: ${jsonEncode(parameters)}');
 
-    final pRequest = _pendingRequest(topic, SolanaSupportedMethods.solSignAllTransaction.name);
+    final pRequest = MethodsUtils.pendingRequestFor(
+      topic,
+      SolanaSupportedMethods.solSignAllTransaction.name,
+      getChainId(),
+      parameters,
+    );
     if (pRequest == null) {
       return;
     }
 
-    if (!_isRequestAuthorized(topic)) {
-      await _rejectUnauthorizedRequest(topic, pRequest.id);
+    if (!await _authorizeRequest(topic, pRequest.id)) {
       return;
     }
 
-    var response = JsonRpcResponse(id: pRequest.id, jsonrpc: '2.0');
-
+    final walletAddress = _walletAddress();
+    final List<SolanaTransaction> transactions;
+    final WCDecodedRequest decoded;
     try {
       final params = parameters as Map<String, dynamic>;
-      final beautifiedTrx = const JsonEncoder.withIndent('  ').convert(params);
-
-      final privateKey = _getSolanaPrivateKey();
-
-      final isApproved = await MethodsUtils.requestApproval(
-        beautifiedTrx,
-        method: pRequest.method,
-        chainId: pRequest.chainId,
-        address: privateKey.publicKey().toAddress().address,
-        topic: topic,
-        transportType: pRequest.transportType.name,
-      );
-
-      if (isApproved) {
-        if (params.containsKey('transactions')) {
-          final transactions =
-              List<String>.from(params['transactions'] as List<dynamic>);
-
-          List<String> signedTransactions = [];
-          for (var transaction in transactions) {
-            final transactionBytes = base64.decode(transaction);
-
-            final unsignedTx = SolanaTransaction.deserialize(transactionBytes);
-
-            final serializedTx = await privateKey.sign(unsignedTx.serializeMessage());
-
-            unsignedTx.addSignature(privateKey.publicKey().toAddress(), serializedTx);
-
-            final reEncodedTx = unsignedTx.serializeString(
-              encoding: TransactionSerializeEncoding.base64,
-            );
-
-            signedTransactions.add(reEncodedTx);
-          }
-
-          response = response.copyWith(result: {'transactions': signedTransactions});
-        }
-      } else {
-        final error = Errors.getSdkError(Errors.USER_REJECTED);
-        response = response.copyWith(
-          error: JsonRpcError(code: error.code, message: error.message),
-        );
+      final entries = params["transactions"] as List? ?? const [];
+      if (entries.isEmpty) {
+        await _refuse(topic, pRequest.id);
+        return;
       }
-    } catch (e, s) {
-      debugPrint('solanaSignAllTransactions error $e, $s');
-      final error = Errors.getSdkError(Errors.MALFORMED_REQUEST_PARAMS);
 
-      response = response.copyWith(
-        error: JsonRpcError(code: error.code, message: error.message),
-      );
+      if (entries.length > _maxTransactions) {
+        await _refuse(
+          topic,
+          pRequest.id,
+          message: S.current.wc_too_many_transactions(_maxTransactions.toString()),
+        );
+        return;
+      }
+
+      transactions = decoder.transactionsFromParams(params);
+      if (!transactions.every((transaction) => _isSigner(transaction, walletAddress))) {
+        await _refuseAsForAnotherWallet(topic, pRequest.id);
+        return;
+      }
+
+      decoded = await decoder.decodeAllTransactions(params, walletAddress: walletAddress);
+    } catch (e, s) {
+      printV("solanaSignAllTransactions refused: $e, $s");
+      await _refuse(topic, pRequest.id);
+      return;
     }
 
-    _handleResponseForTopic(topic, response);
+    await _approveAndSign(pRequest, decoded, walletAddress, (privateKey) {
+      final List<String> signedTransactions = [];
+      for (final transaction in transactions) {
+        final signature = privateKey.sign(transaction.serializeMessage());
+        transaction.addSignature(privateKey.publicKey().toAddress(), signature);
+        signedTransactions.add(
+          transaction.serializeString(encoding: TransactionSerializeEncoding.base64),
+        );
+      }
+      return {"transactions": signedTransactions};
+    });
   }
 
   SolanaPrivateKey _getSolanaPrivateKey() {
-    final keys = wcKeyService.getKeysForChain(appStore.wallet!);
-
-    return SolanaPrivateKey.fromSeedHex(keys[0].privateKey);
+    return SolanaPrivateKey.fromSeedHex(wcKeyService.getPrivateKey(appStore.wallet!));
   }
 
-  SessionRequest? _pendingRequest(String topic, String method) {
-    final matches = walletKit.pendingRequests
-        .getAll()
-        .where((request) => request.topic == topic && request.method == method);
+  Future<void> _approveAndSign(
+    SessionRequest request,
+    WCDecodedRequest decoded,
+    String walletAddress,
+    Map<String, dynamic> Function(SolanaPrivateKey privateKey) sign,
+  ) async {
+    final topic = request.topic;
+    var response = JsonRpcResponse(id: request.id, jsonrpc: "2.0");
 
-    return matches.isEmpty ? null : matches.last;
+    final isApproved = await MethodsUtils.requestApproval(
+      decoded,
+      topic: topic,
+      method: request.method,
+      chainId: request.chainId,
+      address: walletAddress,
+      transportType: request.transportType.name,
+      verifyContext: request.verifyContext,
+    );
+
+    if (isApproved && !await _isRequestStillValid(topic, request.id)) {
+      return;
+    }
+
+    if (isApproved) {
+      try {
+        response = response.copyWith(result: sign(_getSolanaPrivateKey()));
+      } catch (e) {
+        printV("${request.method}: signing failed (${e.runtimeType})");
+        response = response.copyWith(
+          error: JsonRpcError(code: _malformed.code, message: _malformed.message),
+        );
+      }
+    } else {
+      response = response.copyWith(error: MethodsUtils.userRejectedError);
+    }
+
+    await MethodsUtils.respondForTopic(topic, response);
   }
 
-  bool _isRequestAuthorized(String topic) {
+  bool _namesAnotherAccount(Map<String, dynamic> params, String walletAddress) {
+    final pubkey = params["pubkey"];
+
+    return pubkey != null && pubkey != walletAddress;
+  }
+
+  bool _isSigner(SolanaTransaction transaction, String walletAddress) =>
+      transaction.signers.any((signer) => signer.address == walletAddress);
+
+  Future<void> _refuseAsForAnotherWallet(String topic, int requestId) => _refuse(
+    topic,
+    requestId,
+    message: S.current.wc_request_for_different_wallet,
+    error: _unauthorized,
+  );
+
+  Future<void> _refuse(String topic, int requestId, {String? message, JsonRpcError? error}) async {
+    _showMessage(message ?? S.current.wc_request_malformed);
+    await MethodsUtils.respondForTopic(
+      topic,
+      JsonRpcResponse(
+        id: requestId,
+        jsonrpc: "2.0",
+        error: error ?? JsonRpcError(code: _malformed.code, message: _malformed.message),
+      ),
+      isUserDecision: false,
+    );
+  }
+
+  Future<bool> _isRequestStillValid(String topic, int requestId) async {
+    if (!await MethodsUtils.isRequestStillPending(topic, requestId)) {
+      _showMessage(S.current.wc_request_expired);
+      return false;
+    }
+
+    return _authorizeRequest(topic, requestId);
+  }
+
+  Future<bool> _authorizeRequest(String topic, int requestId) async {
     final wallet = appStore.wallet;
-    if (wallet == null) {
-      return false;
+    if (wallet != null) {
+      final keys = wcKeyService.getKeysForChain(wallet);
+      if (keys.isNotEmpty &&
+          keys.first.chains.contains(getChainId()) &&
+          MethodsUtils.isSessionOwnedByWallet(
+            walletKit.sessions.get(topic),
+            keys.first.publicKey,
+          )) {
+        return true;
+      }
     }
 
-    final keys = wcKeyService.getKeysForChain(wallet);
-    if (keys.isEmpty) {
-      return false;
-    }
+    _showMessage(S.current.wc_request_for_different_wallet);
+    await MethodsUtils.respondUnauthorized(topic, requestId);
 
-    // Requests can arrive on chains the open wallet has no account on; don't sign those.
-    if (!keys.first.chains.contains(getChainId())) {
-      return false;
-    }
-
-    return MethodsUtils.isSessionOwnedByWallet(walletKit.sessions.get(topic), keys.first.publicKey);
+    return false;
   }
 
-  Future<void> _rejectUnauthorizedRequest(String topic, int requestId) async {
+  void _showMessage(String message) {
     unawaited(
       bottomSheetService.queueBottomSheet(
         isModalDismissible: true,
-        widget: BottomSheetMessageDisplayWidget(
-          message: S.current.wc_request_for_different_wallet,
-        ),
+        widget: BottomSheetMessageDisplayWidget(message: message),
       ),
     );
-
-    try {
-      await walletKit.respondSessionRequest(
-        topic: topic,
-        response: JsonRpcResponse(
-          id: requestId,
-          jsonrpc: "2.0",
-          error: const JsonRpcError(
-            code: 4100,
-            message: "The requested account has not been authorized by the user.",
-          ),
-        ),
-      );
-    } catch (e) {
-      printV("rejectUnauthorizedRequest: $e");
-    }
   }
 
-  void _handleResponseForTopic(String topic, JsonRpcResponse<dynamic> response) async {
-    final session = walletKit.sessions.get(topic);
-
-    try {
-      await walletKit.respondSessionRequest(topic: topic, response: response);
-
-      MethodsUtils.handleRedirect(
-        topic,
-        session!.peer.metadata.redirect,
-        response.error?.message,
-        response.error == null,
-      );
-    } on ReownSignError catch (error) {
-      MethodsUtils.handleRedirect(
-        topic,
-        session!.peer.metadata.redirect,
-        error.message,
-      );
-    }
-  }
-}
-
-extension on Map<String, dynamic> {
-  TransactionInstruction toInstruction() {
-    final programId = this['programId'] as String;
-
-    final data = (this['data'] as List).map((e) => e as int).toList();
-    // final data58 = base58.encode(Uint8List.fromList(data));
-    // final dataBytes = ByteArray.fromBase58(data58);
-
-    final keys = this['keys'] as List;
-    return TransactionInstruction.fromBytes(
-      programId: SolAddress(programId),
-      instructionBytes: data,
-      keys: keys.map((k) {
-        final kParams = (k as Map<String, dynamic>);
-        return AccountMeta(
-          publicKey:
-              SolanaPublicKey.fromBytes(base58.decode(kParams['pubkey'] as String)).toAddress(),
-          isWritable: kParams['isWritable'] as bool,
-          isSigner: kParams['isSigner'] as bool,
-        );
-      }).toList(),
-    );
-  }
+  String _walletAddress() => wcKeyService.getKeysForChain(appStore.wallet!).first.publicKey;
 }

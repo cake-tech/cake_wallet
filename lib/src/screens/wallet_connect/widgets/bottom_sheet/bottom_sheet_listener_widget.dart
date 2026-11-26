@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/screens/wallet_connect/services/bottom_sheet_service.dart';
-import 'package:cake_wallet/src/screens/wallet_connect/models/bottom_sheet_queue_item_model.dart';
 import 'package:flutter/material.dart';
 
 class BottomSheetListener extends StatefulWidget {
@@ -21,20 +20,24 @@ class BottomSheetListenerState extends State<BottomSheetListener> {
   void initState() {
     super.initState();
     widget.bottomSheetService.currentSheet.addListener(_showBottomSheet);
+    widget.bottomSheetService.isOnHold.addListener(_showBottomSheet);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _showBottomSheet());
   }
 
   @override
   void dispose() {
     widget.bottomSheetService.currentSheet.removeListener(_showBottomSheet);
+    widget.bottomSheetService.isOnHold.removeListener(_showBottomSheet);
     super.dispose();
   }
 
   Future<void> _showBottomSheet() async {
-    if (!mounted) {
+    if (!mounted || widget.bottomSheetService.isOnHold.value) {
       return;
     }
-    if (widget.bottomSheetService.currentSheet.value != null) {
-      BottomSheetQueueItemModel item = widget.bottomSheetService.currentSheet.value!;
+    final item = widget.bottomSheetService.currentSheet.value;
+    if (item != null && !item.isPresented) {
+      item.isPresented = true;
       try {
         final value = await showModalBottomSheet(
           context: context,
