@@ -190,7 +190,6 @@ class CWBitcoin extends Bitcoin {
   }
 
   @override
-  @computed
   List<ElectrumSubAddress> getAddressRecords(Object wallet, Set<String> addresses) {
     final electrumWallet = wallet as ElectrumWallet;
     return electrumWallet.walletAddresses.allAddresses

@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 
 /// Reassembles a stream of raw socket bytes into complete newline-delimited
 /// JSON-RPC messages, buffering any partial trailing bytes across calls.
@@ -12,40 +14,68 @@ import 'dart:convert';
 class ElectrumLineReader {
   static const int _lineFeed = 0x0A;
 
-  final List<int> _buffer = <int>[];
+  // A byte buffer rather than a List<int>: a List stores every byte in a
+  // pointer-sized slot, so a large batch response would cost 8x its size.
+  Uint8List _buffer = Uint8List(0);
+  int _length = 0;
+
+  // Bytes before this offset were already scanned and hold no newline, so the
+  // next feed resumes here instead of rescanning the whole partial line.
+  int _scanFrom = 0;
 
   /// Feeds newly received bytes and returns every complete line (decoded as
   /// UTF-8, without the trailing newline) found so far. Any trailing partial
   /// line is kept buffered for the next call.
   List<String> feed(List<int> bytes) {
-    _buffer.addAll(bytes);
+    _append(bytes);
 
-    final newlines = <String>[];
-    var previousNewlineStart = 0;
-    for (var i = 0; i < _buffer.length; i++) {
-      if (_buffer[i] == _lineFeed) {
-        // Decode only the bytes between the previous newline and this one -
-        // each is a self-contained message, so decoding line-by-line (rather
-        // than the whole buffer at once) avoids re-decoding already-emitted
-        // bytes on every `feed` call. Skip zero-length lines (i == start).
-        if (i > previousNewlineStart) {
-          newlines.add(utf8.decode(_buffer.sublist(previousNewlineStart, i)));
-        }
-
-        previousNewlineStart = i + 1;
+    final lines = <String>[];
+    var lineStart = 0;
+    for (var i = _scanFrom; i < _length; i++) {
+      if (_buffer[i] != _lineFeed) {
+        continue;
       }
+
+      // Skip zero-length lines (i == lineStart). Malformed bytes are replaced
+      // rather than thrown, so one bad line can't leave the buffer wedged and
+      // throwing on every later feed.
+      if (i > lineStart) {
+        lines.add(
+          utf8.decode(
+            Uint8List.sublistView(_buffer, lineStart, i),
+            allowMalformed: true,
+          ),
+        );
+      }
+
+      lineStart = i + 1;
     }
 
-    // Drop everything up to and including the last newline found; whatever
-    // remains is a partial line and must stay buffered for the next `feed`
-    // call. `start` is only 0 when no newline was found this call, in which
-    // case there's nothing complete to remove yet.
-    if (previousNewlineStart > 0) {
-      _buffer.removeRange(0, previousNewlineStart);
+    // Drop everything up to and including the last newline; what remains is a
+    // partial line, all of it already scanned.
+    if (lineStart > 0) {
+      _buffer.setRange(0, _length - lineStart, _buffer, lineStart);
+      _length -= lineStart;
     }
+    _scanFrom = _length;
 
-    return newlines;
+    return lines;
   }
 
-  void reset() => _buffer.clear();
+  void reset() {
+    _length = 0;
+    _scanFrom = 0;
+  }
+
+  void _append(List<int> bytes) {
+    final needed = _length + bytes.length;
+    if (needed > _buffer.length) {
+      final grown = Uint8List(max(needed, _buffer.length * 2));
+      grown.setRange(0, _length, _buffer);
+      _buffer = grown;
+    }
+
+    _buffer.setRange(_length, needed, bytes);
+    _length = needed;
+  }
 }

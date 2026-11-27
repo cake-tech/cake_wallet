@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_i
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/widgets/textfield_list_row.dart';
-import 'package:cake_wallet/src/widgets/fee_fetch_progress_indicator.dart';
 import 'package:cake_wallet/src/widgets/list_row.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/utils/address_formatter.dart';
@@ -31,13 +30,13 @@ class TransactionDetailsPage extends BasePage {
   final TransactionDetailsViewModel transactionDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) => Column(
+  Widget body(BuildContext context) {
+    return Column(
         children: [
           Expanded(
-            child: Observer(
-              builder: (context) => SectionStandardList(
+            child: SectionStandardList(
                 sectionCount: 1,
-                itemCounter: (_) => transactionDetailsViewModel.items.length,
+                itemCounter: (int _) => transactionDetailsViewModel.items.length,
                 itemBuilder: (__, index) {
                   final item = transactionDetailsViewModel.items[index];
 
@@ -53,27 +52,9 @@ class TransactionDetailsPage extends BasePage {
                       );
                     }
 
-                    final isLoadingFee = (item.key as ValueKey?)?.value ==
-                            "standard_list_item_transaction_details_fee_key" &&
-                        transactionDetailsViewModel.isFetchingFee;
-                    if (isLoadingFee) {
-                      // Nested Observer: feeFetchResolvedInputs/feeFetchTotalInputs
-                      // change on every fee-fetch progress tick - reading them here
-                      // instead of in the outer Observer keeps those ticks from
-                      // re-running itemBuilder for every row on every chunk.
-                      addressTextWidget = Observer(
-                        builder: (_) => FeeFetchProgressIndicator(
-                          resolved: transactionDetailsViewModel.feeFetchResolvedInputs,
-                          total: transactionDetailsViewModel.feeFetchTotalInputs,
-                        ),
-                      );
-                    }
-
-                    return GestureDetector(
+                return GestureDetector(
                       key: item.key,
-                      onTap: isLoadingFee
-                          ? null
-                          : () {
+                      onTap: () {
                               final textToCopy = item.title.toLowerCase() ==
                                       S.of(context).transaction_details_transaction_id.toLowerCase()
                                   ? item.value.replaceAll(RegExp(r'_(incoming|outgoing)$'), '')
@@ -117,15 +98,14 @@ class TransactionDetailsPage extends BasePage {
                 },
               ),
             ),
-          ),
-          Observer(
+        Observer(
             builder: (_) {
               if (transactionDetailsViewModel.canReplaceByFee) {
                 return Padding(
                   padding: const EdgeInsets.all(24),
                   child: SelectButton(
                     text: S.of(context).bump_fee,
-                    onTap: () {
+                    onTap: () async {
                       Navigator.of(context).pushNamed(
                         Routes.bumpFeePage,
                         arguments: [
@@ -143,6 +123,7 @@ class TransactionDetailsPage extends BasePage {
           ),
         ],
       );
+  }
 
   Widget getFormattedAddress({
     required BuildContext context,

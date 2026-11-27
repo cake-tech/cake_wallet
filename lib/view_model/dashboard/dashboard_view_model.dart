@@ -522,7 +522,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   int _transactionsWatchValue() {
-    final txs = appStore.wallet!.transactionHistory.transactions.values;
+    final history = appStore.wallet!.transactionHistory;
+    final txs = history.transactions.values;
     final length = txs.length;
     if (length == 0) {
       return 0;
@@ -533,16 +534,22 @@ abstract class DashboardViewModelBase with Store {
       return length * (pendingCount + 1);
     }
 
-    int fingerprint = length;
-    for (final tx in txs) {
-      fingerprint = fingerprint ^
-          tx.confirmations.hashCode ^
-          tx.isPending.hashCode ^
-          tx.fee.hashCode ^
-          tx.amount.amount.hashCode ^
-          tx.direction.hashCode;
-    }
-    return fingerprint;
+    return Object.hash(
+      length,
+      Object.hashAll(
+        txs.map(
+          (tx) => Object.hash(
+            tx.id,
+            tx.confirmations,
+            tx.isPending,
+            tx.fee,
+            tx.amount.amount,
+            tx.direction,
+            history.revisionOfStoredObject(tx),
+          ),
+        ),
+      ),
+    );
   }
 
   void _transactionDisposerCallback(int _) async {
@@ -558,7 +565,8 @@ abstract class DashboardViewModelBase with Store {
               ? wow.wownero!.getCurrentAccount(wallet).id
               : null;
 
-      final allTxs = appStore.wallet!.transactionHistory.transactions.values;
+      final history = appStore.wallet!.transactionHistory;
+      final allTxs = history.transactions.values;
       final List<TransactionInfo> relevantTxs;
 
       if (wallet.type == WalletType.monero) {
@@ -583,8 +591,10 @@ abstract class DashboardViewModelBase with Store {
         int confirmations,
         bool isPending,
         Money? fee,
+        Money amount,
+        int revision,
       ) =>
-          "${txHash}_${direction}_${confirmations}_${isPending}_$fee";
+          "${txHash}_${direction}_${confirmations}_${isPending}_${fee}_${amount}_$revision";
 
       final existingKeys = transactions
           .map(
@@ -594,6 +604,8 @@ abstract class DashboardViewModelBase with Store {
               item.transaction.confirmations,
               item.transaction.isPending,
               item.transaction.fee,
+              item.transaction.amount,
+              history.revisionOfStoredObject(item.transaction),
             ),
           )
           .toSet();
@@ -607,6 +619,8 @@ abstract class DashboardViewModelBase with Store {
                 tx.confirmations,
                 tx.isPending,
                 tx.fee,
+                tx.amount,
+                history.revisionOfStoredObject(tx),
               ),
             ),
           )
@@ -618,15 +632,10 @@ abstract class DashboardViewModelBase with Store {
               ))
           .toList();
 
-      // Keyed by hash alone (not hash+direction): a tx's direction/amount can
-      // be reclassified between resolution passes (e.g. a payjoin receive
-      // that initially looks like a partial outgoing send before all owned
-      // inputs are resolved), and a stale row for the old direction must not
-      // survive alongside the corrected one.
-      final newHashes = newTransactions.map((item) => item.transaction.txHash).toSet();
+      final newIds = newTransactions.map((item) => item.transaction.id).toSet();
 
       transactions.removeWhere(
-        (item) => newHashes.contains(item.transaction.txHash),
+        (item) => newIds.contains(item.transaction.id),
       );
 
       transactions.addAll(newTransactions);

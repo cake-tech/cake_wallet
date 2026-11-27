@@ -96,6 +96,29 @@ void main() {
       expect(reader.feed(utf8.encode('{"id":"2"}\n')), ['{"id":"2"}']);
     });
 
+    test("a line with invalid UTF-8 is replaced, not thrown, and later lines still arrive", () {
+      final reader = ElectrumLineReader();
+
+      final bad = reader.feed([0x7b, 0xff, 0xfe, 0x7d, 0x0a]);
+      expect(bad, hasLength(1));
+
+      expect(reader.feed(utf8.encode('{"id":"3"}\n')), ['{"id":"3"}']);
+    });
+
+    test("a partial line split across many feeds is reassembled exactly once", () {
+      final reader = ElectrumLineReader();
+      final payload = "x" * 100000;
+      final bytes = utf8.encode('$payload\n');
+
+      final lines = <String>[];
+      for (var i = 0; i < bytes.length; i += 4096) {
+        final end = min(i + 4096, bytes.length);
+        lines.addAll(reader.feed(bytes.sublist(i, end)));
+      }
+
+      expect(lines, [payload]);
+    });
+
     test(
         "never splits a multi-byte UTF-8 codepoint even when the chunk "
         "boundary lands mid-character", () {

@@ -23,7 +23,11 @@ Future<Map<String, BtcTransaction>> parseTransactions(
     return {};
   }
 
-  final (parsed, failed) = await Isolate.run(() => _parseTransactionsSync(hexByTxId));
+  const inlineParseHexChars = 64 * 1024;
+  final totalHexChars = hexByTxId.values.fold<int>(0, (sum, hex) => sum + hex.length);
+  final (parsed, failed) = totalHexChars <= inlineParseHexChars
+      ? _parseTransactionsSync(hexByTxId)
+      : await Isolate.run(() => _parseTransactionsSync(hexByTxId));
 
   // for (final txId in failed) {
   //   printV('parseTransactions: BtcTransaction.fromRaw failed for '

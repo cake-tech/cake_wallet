@@ -348,6 +348,7 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -362,7 +363,6 @@ import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/account.dart' as monero_account;
-import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';

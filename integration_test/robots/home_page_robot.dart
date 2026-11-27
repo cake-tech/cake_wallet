@@ -154,7 +154,14 @@ class HomePageRobot extends BaseRobot {
     return modal.transactionDetailsViewModel.transactionInfo.id;
   }
 
-  void hasTransactionIdRow() {
+  Future<void> hasTransactionIdRow() async {
+    await tester.tap(find.byKey(const ValueKey("advanced info")));
+    await settle();
+
+    await pumpUntilFound(
+      find.byKey(const ValueKey("standard_list_item_transaction_details_id_key")),
+    );
+
     expect(
       find.byKey(const ValueKey("standard_list_item_transaction_details_id_key")),
       findsOneWidget,

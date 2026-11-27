@@ -1,7 +1,19 @@
-import 'package:cw_core/amount/money.dart';
-import 'package:cw_core/format_amount.dart';
-import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/keyable.dart';
+import "package:cw_core/amount/money.dart";
+import "package:cw_core/format_amount.dart";
+import "package:cw_core/keyable.dart";
+import "package:cw_core/transaction_direction.dart";
+
+/// How far a transaction has got toward a final record.
+enum TransactionResolutionState {
+  /// Direction and amount are not final yet.
+  pending,
+
+  /// The amount is final, but a fee or foreign inputs are still being resolved.
+  amountFinal,
+
+  /// Nothing is left to resolve.
+  settled,
+}
 
 abstract class TransactionInfo extends Object with Keyable {
   late String id;
@@ -29,8 +41,17 @@ abstract class TransactionInfo extends Object with Keyable {
   /// that don't track it (everything but Electrum).
   bool? get inputsOwnershipFullyResolved => null;
 
+  TransactionResolutionState get resolutionState {
+    if (_isAmountPendingFromFlags) {
+      return TransactionResolutionState.pending;
+    }
+
+    return TransactionResolutionState.settled;
+  }
+
   /// Whether the displayed amount (and direction) may still change.
-  ///
+  bool get isAmountPending => resolutionState == TransactionResolutionState.pending;
+
   /// The amount is computed from the inputs this wallet owns, and ownership is
   /// resolved input by input, so it can grow until every input is resolved.
   /// This also covers a tx still classified as incoming only because an
@@ -39,14 +60,16 @@ abstract class TransactionInfo extends Object with Keyable {
   ///
   /// Always false for wallets other than Electrum, which never set the
   /// `additionalInfo` flags read here.
-  bool get isAmountPending {
+  ///
+  /// Kept apart so an override of [resolutionState] can call super without recursing.
+  bool get _isAmountPendingFromFlags {
     // Checked first: every input being resolved guarantees the amount is
     // exact, safe since this tx will never be re-fetched to change it.
     if (inputsOwnershipFullyResolved == true) {
       return false;
     }
 
-    final isWalletDisplayAmountExact = additionalInfo['isWalletDisplayAmountExact'] as bool?;
+    final isWalletDisplayAmountExact = additionalInfo["isWalletDisplayAmountExact"] as bool?;
 
     // Amount depends only on our own inputs, so it can be final before
     // foreign inputs resolve.
@@ -59,6 +82,6 @@ abstract class TransactionInfo extends Object with Keyable {
   }
 
   String? _fiatAmount;
-  String fiatAmount() => _fiatAmount ?? '';
+  String fiatAmount() => _fiatAmount ?? "";
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }

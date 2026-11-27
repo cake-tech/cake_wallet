@@ -6,3 +6,6 @@ output: 'lib/generated_bindings.g.dart'
 headers:
   entry-points:
     - 'android/src/main/jniLibs/arm64-v8a/libmweb.h'
+compiler-opts:
+  - '-I/usr/lib/clang/22/include'
+

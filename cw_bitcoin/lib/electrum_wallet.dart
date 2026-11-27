@@ -6,6 +6,7 @@ import 'dart:math' show Random, min;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
 import "package:cw_bitcoin/electrum_account.dart";
+import 'package:cw_bitcoin/raw_transaction.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
@@ -421,6 +422,32 @@ abstract class ElectrumWalletBase
     }
     return result;
   }
+
+  // Only for classifying transactions: received Silent Payment outputs are
+  // ours, but stay out of addressesSet, which isMine and sending rely on.
+  Set<String> get classificationAddressesSet => {
+        for (final addr in walletAddresses.allAddresses)
+          if (addr.type != SegwitAddresType.mweb) addr.address,
+        ..._receivedSilentPaymentOutputs.map((addr) => addr.address),
+      };
+
+  Map<int, Set<String>> get classificationAddressesSetByAccount {
+    final result = <int, Set<String>>{};
+    for (final addr in walletAddresses.allAddresses) {
+      if (addr.type == SegwitAddresType.mweb) {
+        continue;
+      }
+
+      (result[addr.accountIndex] ??= <String>{}).add(addr.address);
+    }
+    for (final addr in _receivedSilentPaymentOutputs) {
+      (result[addr.accountIndex] ??= <String>{}).add(addr.address);
+    }
+    return result;
+  }
+
+  Iterable<BaseBitcoinAddressRecord> get _receivedSilentPaymentOutputs =>
+      walletAddresses.silentAddresses.where((addr) => addr.type == SegwitAddresType.p2tr);
 
   Set<String> get addressesSet => walletAddresses.allAddresses
       .where((element) => element.type != SegwitAddresType.mweb)
@@ -2419,7 +2446,7 @@ abstract class ElectrumWalletBase
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash, forceResolveInputs: false);
-      if (_parseRawTransaction(bundle.hex)?.txId != tx.txHash) return null;
+      if (parseRawTransaction(bundle.hex)?.txId != tx.txHash) return null;
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2430,7 +2457,7 @@ abstract class ElectrumWalletBase
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
     final bundle = await getTransactionExpanded(hash: txId, forceResolveInputs: true);
-    if (_parseRawTransaction(bundle.hex)?.txId != txId) {
+    if (parseRawTransaction(bundle.hex)?.txId != txId) {
       throw RbfException("Transaction does not match $txId");
     }
     final outputs = bundle.originalTransaction.outputs;
@@ -2455,7 +2482,7 @@ abstract class ElectrumWalletBase
     for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
-      if (inputTransaction == null || _parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
+      if (inputTransaction == null || parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
         throw RbfException("Missing input transaction for fee calculation");
       }
       final vout = input.txIndex;
@@ -2474,7 +2501,7 @@ abstract class ElectrumWalletBase
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
       final bundle = await getTransactionExpanded(hash: hash, forceResolveInputs: true);
-      if (_parseRawTransaction(bundle.hex)?.txId != hash) {
+      if (parseRawTransaction(bundle.hex)?.txId != hash) {
         throw RbfException("Transaction does not match $hash");
       }
 
@@ -2490,7 +2517,7 @@ abstract class ElectrumWalletBase
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
         if (inputTransaction == null ||
-            _parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
+            parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
           throw RbfException("Missing input transaction for replace-by-fee");
         }
         final vout = input.txIndex;
@@ -2873,8 +2900,8 @@ abstract class ElectrumWalletBase
       // the wallet isn't Isolate-transferable (sockets, timers).
       final type = walletInfo.type;
       final net = network;
-      final addresses = addressesSet;
-      final addressesByAccount = addressesSetByAccount;
+      final addresses = classificationAddressesSet;
+      final addressesByAccount = classificationAddressesSetByAccount;
 
       final args = ({hash: bundle}, type, net, addresses, addressesByAccount, {hash: height});
       // An ordinary tx builds faster inline than an isolate spawn costs.
@@ -3452,13 +3479,9 @@ abstract class ElectrumWalletBase
         ? ElectrumWalletAddressesBase.defaultChangeAddressesCount
         : ElectrumWalletAddressesBase.defaultReceiveAddressesCount;
 
-    // Repeats until a pass finds nothing new; one pass per sync would reach only
-    // a single chunk beyond the first gap, delaying those addresses a full sync.
-    //
-    // Terminates: each pass adds >= `gap` addresses, so the branch always grows,
-    // and we only continue while its end is within gapLimit of the highest used
-    // address. With no new used address that fails after two passes; a used one
-    // needs real server history (finite). A failed fetch leaves it unused.
+    // A safety re-check: discoverAddressesBatch already walks on while it finds
+    // used addresses, so after a normal pass the check below fails and the loop
+    // ends. Each pass grows the branch, so it can't spin without server history.
     while (true) {
       final highestUsedIndex = _highestUsedIndex(currentBranch);
       final shouldDiscover =
@@ -3522,23 +3545,68 @@ abstract class ElectrumWalletBase
     return -1;
   }
 
+  // Every batch request goes through these two, so the batch gate lives here.
+  // A node that failed the batch probe may drop the connection or stall on a
+  // JSON-RPC array, so it gets one request per transaction instead. A failed
+  // one is left out, as a failed batch entry is.
   Future<Map<String, Map<String, dynamic>>> _getTransactionVerboseBatch(
     List<String> hashes, {
     int timeoutMs = transactionBatchTimeoutMs,
   }) =>
-      electrumClient.getBatchTransactionVerbose(
-        hashes,
-        timeout: timeoutMs,
+      _fetchBatchOrEach<Map<String, dynamic>>(
+        hashes: hashes,
+        useBatch: shouldUseBatchFetching,
+        batch: (batchHashes) => electrumClient.getBatchTransactionVerbose(
+          batchHashes,
+          timeout: timeoutMs,
+        ),
+        single: (hash) => electrumClient.getTransactionVerbose(hash: hash),
+        timeout: Duration(milliseconds: timeoutMs),
       );
 
   Future<Map<String, String?>> _getTransactionHexBatch(
     List<String> hashes, {
     int timeoutMs = transactionBatchTimeoutMs,
   }) =>
-      electrumClient.getBatchTransactionHex(
-        hashes,
-        timeout: timeoutMs,
+      _fetchBatchOrEach<String?>(
+        hashes: hashes,
+        useBatch: shouldUseBatchFetching,
+        batch: (batchHashes) => electrumClient.getBatchTransactionHex(
+          batchHashes,
+          timeout: timeoutMs,
+        ),
+        single: (hash) => electrumClient.getTransactionHex(hash: hash),
+        timeout: Duration(milliseconds: timeoutMs),
       );
+
+  // Nodes that reject batches get one request per hash; a failed hash is left out.
+  Future<Map<String, T>> _fetchBatchOrEach<T>({
+    required List<String> hashes,
+    required bool useBatch,
+    required Future<Map<String, T>> Function(List<String>) batch,
+    required Future<T> Function(String hash) single,
+    required Duration timeout,
+  }) async {
+    if (hashes.isEmpty) {
+      return <String, T>{};
+    }
+    if (useBatch) {
+      return batch(hashes);
+    }
+
+    final resultByHash = <String, T>{};
+    // Hashes run in parallel so one stalled hash can't hold up the rest.
+    await Future.wait(
+      hashes.map((hash) async {
+        try {
+          resultByHash[hash] = await single(hash).timeout(timeout);
+        } catch (e) {
+          printV('single fetch of $hash failed: $e');
+        }
+      }),
+    );
+    return resultByHash;
+  }
 
   Future<Map<String, List<Map<String, dynamic>>>> _getHistoryBatch(List<String> scriptHashes) {
     return electrumClient.getBatchHistory(
@@ -3604,7 +3672,7 @@ abstract class ElectrumWalletBase
     required Map<String, int?>? heightsByHash,
     bool forceResolveInputs = false,
   }) async {
-    final addressesByAccount = addressesSetByAccount;
+    final addressesByAccount = classificationAddressesSetByAccount;
 
     for (var i = 0; i < txIds.length; i += transactionChunkSize) {
       final end =
@@ -3621,7 +3689,7 @@ abstract class ElectrumWalletBase
       // the wallet isn't Isolate-transferable.
       final walletType = walletInfo.type;
       final walletNetwork = network;
-      final ownAddresses = addressesSet;
+      final ownAddresses = classificationAddressesSet;
       final ownAddressesByAccount = addressesByAccount;
       final infosByHash = await buildElectrumTransactionInfosInIsolate(
         (
@@ -3764,8 +3832,10 @@ abstract class ElectrumWalletBase
       // The normal sync fetch never resolves parent txs - deferred to the
       // background resolution pass - except the first parent of a HogEx
       // candidate, which HogEx detection needs.
+      // A coinbase input has no parent to fetch (see isCoinbaseTxId).
       if (!forceResolveInputs) {
-        inputTxIdsByHash[txId] = ElectrumTransactionInfo.isHogExCandidate(original)
+        inputTxIdsByHash[txId] = ElectrumTransactionInfo.isHogExCandidate(original) &&
+                !isCoinbaseTxId(original.inputs.first.txId)
             ? [original.inputs.first.txId]
             : const <String>[];
         continue;
@@ -3773,7 +3843,9 @@ abstract class ElectrumWalletBase
 
       final inputTxIds = <String>[];
       for (final vin in original.inputs) {
-        inputTxIds.add(vin.txId);
+        if (!isCoinbaseTxId(vin.txId)) {
+          inputTxIds.add(vin.txId);
+        }
       }
 
       inputTxIdsByHash[txId] = inputTxIds;
@@ -3959,7 +4031,6 @@ abstract class ElectrumWalletBase
 
       await fetchTransactions();
       walletAddresses.updateReceiveAddresses();
-      _isTransactionUpdating = false;
 
       // Both are background finalization passes that must never block sync -
       // dispatched independently so a slow/stuck recheck can't delay the
@@ -5215,56 +5286,9 @@ class PublicKeyWithDerivationPath {
   final String publicKey;
 }
 
-({String txId, List<List<List<int>>> witnesses})? _parseRawTransaction(String? hex) {
-  try {
-    final raw = BytesUtils.fromHexString(hex!);
-    final isSegwit = raw[4] == 0 && raw[5] == 1;
-    var cursor = isSegwit ? 6 : 4;
-    final bodyStart = cursor;
-    int readVarint() {
-      final value = IntUtils.decodeVarint(raw.sublist(cursor, min(cursor + 9, raw.length)));
-      cursor += value.item2;
-      return value.item1;
-    }
-
-    final inputCount = readVarint();
-    for (var i = 0; i < inputCount; i++) {
-      cursor += 36;
-      final scriptLength = readVarint();
-      cursor += scriptLength + 4;
-    }
-    final outputCount = readVarint();
-    for (var i = 0; i < outputCount; i++) {
-      cursor += 8;
-      final scriptLength = readVarint();
-      cursor += scriptLength;
-    }
-    final body = raw.sublist(bodyStart, cursor);
-
-    final witnesses = <List<List<int>>>[];
-    for (var i = 0; isSegwit && i < inputCount; i++) {
-      final stack = <List<int>>[];
-      final itemCount = readVarint();
-      for (var j = 0; j < itemCount; j++) {
-        final length = readVarint();
-        stack.add(raw.sublist(cursor, cursor + length));
-        cursor += length;
-      }
-      witnesses.add(stack);
-    }
-    if (cursor + 4 != raw.length) return null;
-
-    final hash =
-        QuickCrypto.sha256DoubleHash([...raw.sublist(0, 4), ...body, ...raw.sublist(cursor)]);
-    return (txId: BytesUtils.toHexString(hash.reversed.toList()), witnesses: witnesses);
-  } catch (_) {
-    return null;
-  }
-}
-
 bool _isSignedByOwnKey(ElectrumTransactionBundle bundle, List<UtxoWithAddress> utxos) {
   final tx = bundle.originalTransaction;
-  final witnesses = _parseRawTransaction(bundle.hex)?.witnesses;
+  final witnesses = parseRawTransaction(bundle.hex)?.witnesses;
   if (witnesses == null) return false;
 
   final scriptPubKeys = utxos.map((utxo) => utxo.ownerDetails.address.toScriptPubKey()).toList();

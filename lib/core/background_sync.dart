@@ -208,8 +208,16 @@ class BackgroundSync {
               "w: ${wallet.name}, tx: ${tx.date} is before $lastTriggerDate (lastTriggerString: $lastTriggerString) (k: ${keys.length})");
           continue;
         }
-        await sharedPreferences.setString(PreferencesKey.backgroundSyncLastTrigger(wallet.name),
-            tx.date.add(Duration(minutes: 1)).toIso8601String());
+
+        if (tx.isAmountPending) {
+          continue;
+        }
+
+        await sharedPreferences.setString(
+          PreferencesKey.backgroundSyncLastTrigger(wallet.name),
+          tx.date.add(Duration(minutes: 1)).toIso8601String(),
+        );
+
         final action = tx.additionalInfo['isAutoShield'] == true
             ? "Autoshield"
             : tx.direction == TransactionDirection.incoming

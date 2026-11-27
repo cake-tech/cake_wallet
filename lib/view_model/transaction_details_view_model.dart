@@ -133,11 +133,20 @@ class TxDetailRowDefinition {
       title: S.current.transaction_details_fee,
       valueGetter: (vm) =>
           vm.transactionInfo.fee != null ? vm.feeAmount : S.current.loading_three_dots,
-      applicable: (vm) =>
-          vm.wallet.type != WalletType.nano &&
-          vm.transactionInfo.direction != TransactionDirection.incoming &&
+      applicable: (vm) {
+        if (vm.wallet.type == WalletType.nano) {
+          return false;
+        }
+
+        final hasFee = (vm.transactionInfo.fee?.toStringWithSymbol() ?? "").isNotEmpty;
+        if (!electrumWalletTypes.contains(vm.wallet.type)) {
+          return hasFee;
+        }
+
+        return vm.transactionInfo.direction != TransactionDirection.incoming &&
           !vm.hasForeignInputs &&
-          ((vm.transactionInfo.fee?.toStringWithSymbol() ?? "").isNotEmpty || vm.isFetchingFee),
+          (hasFee || vm.isFetchingFee);
+      },
     ),
     TxDetailRowDefinition(
       keyString: "standard_list_item_transaction_details_advanced_fee_key",

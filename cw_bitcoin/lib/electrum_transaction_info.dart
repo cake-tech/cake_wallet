@@ -14,6 +14,12 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
+/// The txid a coinbase input carries in place of a previous transaction id.
+/// Such an input spends no output, so there is no parent transaction to fetch.
+const coinbaseInputTxId = "0000000000000000000000000000000000000000000000000000000000000000";
+
+bool isCoinbaseTxId(String txId) => txId == coinbaseInputTxId;
+
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
       {required this.ins, required this.confirmations, this.time, this.hex, this.insHex});
@@ -186,6 +192,12 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     for (var i = 0; i < totalInputCount; i++) {
       final input = bundle.originalTransaction.inputs[i];
+      // A coinbase input spends no wallet output and has no parent to fetch,
+      // so it is known not to be ours and is left out of the resolved count.
+      if (isCoinbaseTxId(input.txId)) {
+        continue;
+      }
+
       final spentOutput = spentOutputAt(bundle.originalTransaction, bundle.ins, i);
 
       // Ownership is derivable directly from the input's own scriptSig/witness
@@ -403,9 +415,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
         'ownedOutputs': ownedOutputs,
         'isWalletDisplayAmountExact': isWalletDisplayAmountExact,
         'totalInputCount': totalInputCount,
-        // Size of the wallet address set this was classified against; see
-        // ElectrumTransactionResolver.needsAddressRecheck. Overwritten by the
-        // caller when [addresses] is only a per-account subset.
+        // A coinbase tx has no fee to resolve; see needsResolution.
+        'isCoinbase': bundle.originalTransaction.inputs.any((i) => isCoinbaseTxId(i.txId)),
+        // Size of the address set this was classified against; see
+        // ElectrumTransactionResolver.needsAddressRecheck.
         'addressSetSizeKey': addresses.length,
       },
       confirmations: bundle.confirmations,
@@ -454,10 +467,27 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   final WalletType type;
 
-  /// Whether this transaction still needs any resolution work - either
-  /// input resolution (ownership/direction/amount, see [inputsOwnershipFullyResolved])
-  /// or fee resolution (fee for an already-settled receive).
-  bool get needsResolution => !inputsOwnershipFullyResolved || fee == null;
+  /// Whether this transaction still needs any resolution work, see [resolutionState].
+  bool get needsResolution => resolutionState != TransactionResolutionState.settled;
+
+  /// Pending while the amount isn't final, amountFinal while ownership or the fee is still missing.
+  @override
+  TransactionResolutionState get resolutionState {
+    if (super.resolutionState == TransactionResolutionState.pending) {
+      return TransactionResolutionState.pending;
+    }
+
+    // A coinbase has no fee to fetch, so a missing fee alone doesn't hold it up.
+    final hasWorkLeft = !inputsOwnershipFullyResolved || (fee == null && !isCoinbase);
+    if (hasWorkLeft) {
+      return TransactionResolutionState.amountFinal;
+    }
+
+    return TransactionResolutionState.settled;
+  }
+
+  /// Whether this tx is a coinbase payout, which has no fee to compute.
+  bool get isCoinbase => additionalInfo["isCoinbase"] == true;
 
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
     return ElectrumTransactionInfo(info.type,

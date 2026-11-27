@@ -107,12 +107,15 @@ class _TransactionDetailsHeader extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            transactionDetailsViewModel.formattedTitle +
+        (transactionDetailsViewModel.isAmountPending
+                ? S.of(context).transaction
+                : transactionDetailsViewModel.formattedTitle) +
                 transactionDetailsViewModel.formattedStatus,
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
           ),
           _TransactionDetailsAmount(transactionDetailsViewModel: transactionDetailsViewModel),
-          if (transactionDetailsViewModel.transactionFiatAmount.isNotEmpty)
+          if (!transactionDetailsViewModel.isAmountPending &&
+          transactionDetailsViewModel.transactionFiatAmount.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(

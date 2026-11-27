@@ -463,4 +463,28 @@ void main() {
       expect(columns[3], '0');
     });
   });
+
+  group('buildCsvContent – pending transactions', () {
+    TransactionListItem pendingItem(String id, {Money? fee}) {
+      final tx = _FakeTransactionInfo(id: id)..additionalInfo['isWalletDisplayAmountExact'] = false;
+      tx.fee = fee;
+      return TransactionListItem(
+        transaction: tx,
+        balanceViewModel: _FakeBalanceViewModel(),
+        appStore: _FakeAppStore(),
+        key: ValueKey(id),
+      );
+    }
+
+    test('a transaction whose amount is pending throws instead of exporting it', () {
+      expect(() => service.buildCsvContent([pendingItem('tx1')]), throwsStateError);
+    });
+
+    test('a settled transaction next to a pending one still throws, so nothing is written', () {
+      expect(
+        () => service.buildCsvContent([txItem('tx1'), pendingItem('tx2')]),
+        throwsStateError,
+      );
+    });
+  });
 }

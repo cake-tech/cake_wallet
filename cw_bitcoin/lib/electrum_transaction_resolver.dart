@@ -4,6 +4,7 @@ import "package:bitcoin_base/bitcoin_base.dart";
 
 import "package:cw_bitcoin/electrum_transaction_info.dart";
 import "package:cw_bitcoin/electrum_transaction_isolate.dart";
+import "package:cw_bitcoin/raw_transaction.dart";
 import "package:cw_bitcoin/electrum_wallet.dart";
 import "package:cw_bitcoin/input_ownership.dart";
 import "package:cw_core/get_height_by_date.dart";
@@ -19,22 +20,64 @@ import "package:mobx/mobx.dart";
 /// One instance per wallet, created once in [ElectrumWalletBase]'s
 /// constructor.
 class ElectrumTransactionResolver {
-  ElectrumTransactionResolver(this._wallet);
+  ElectrumTransactionResolver(
+    this._wallet, {
+    int rawTxHexCacheCapChars = defaultRawTxHexCacheCapChars,
+  }) : _rawTxHexCacheCapChars = rawTxHexCacheCapChars;
+
+  /// 32M hex characters, which is 16 MB of raw bytes.
+  static const int defaultRawTxHexCacheCapChars = 32 * 1024 * 1024;
 
   final ElectrumWalletBase _wallet;
 
-  /// In-memory-only cache of raw tx hex keyed by txid, used solely
-  /// to avoid re-fetching a parent (prevout) transaction more than once.
-  /// Temporary: once a transaction's fee/ownership is resolved, nothing
-  /// ever needs its inputs' raw hex again, so keeping it around on disk
-  /// would only grow the wallet file forever for no benefit.
   final Map<String, String> _rawTxHexCache = {};
+
+  int _rawTxHexCacheChars = 0;
+
+  /// Upper bound on [_rawTxHexCacheChars]. A history of large transactions
+  /// would otherwise keep every tx's own hex in memory indefinitely.
+  final int _rawTxHexCacheCapChars;
+
+  /// Drops the cached hex of [parentTxids] once the transaction that spends
+  /// them is resolved. Only that transaction's build needed them; a later
+  /// rebuild that does need one fetches it again.
+  void _dropParentsOf(Iterable<String> parentTxids) {
+    for (final txid in parentTxids) {
+      _removeRawTxHex(txid);
+    }
+  }
+
+  void _removeRawTxHex(String txid) {
+    final removed = _rawTxHexCache.remove(txid);
+    if (removed != null) {
+      _rawTxHexCacheChars -= removed.length;
+    }
+  }
+
+  /// Inserts [hex] as the newest entry, evicting the oldest entries until it
+  /// fits. A hex larger than the whole cap is not kept at all.
+  void _putRawTxHex(String txid, String hex) {
+    _removeRawTxHex(txid);
+    if (hex.length > _rawTxHexCacheCapChars) {
+      return;
+    }
+
+    while (_rawTxHexCacheChars + hex.length > _rawTxHexCacheCapChars) {
+      _removeRawTxHex(_rawTxHexCache.keys.first);
+    }
+
+    _rawTxHexCache[txid] = hex;
+    _rawTxHexCacheChars += hex.length;
+  }
 
   String? cachedRawTxHex(String txid) => _rawTxHexCache[txid];
 
+  /// Caches [hex] only when it really is the transaction [txid]. The cache
+  /// outlives a node switch, so one node's wrong data would otherwise be
+  /// reused for every later rebuild.
   void cacheRawTxHex(String txid, String hex) {
-    if (hex.isNotEmpty) {
-      _rawTxHexCache[txid] = hex;
+    if (hex.isNotEmpty && parseRawTransaction(hex)?.txId == txid) {
+      _putRawTxHex(txid, hex);
     }
   }
 
@@ -225,6 +268,12 @@ class ElectrumTransactionResolver {
       _finishAttempt(txId);
     }
 
+    // Not after stop(): the wallet may already be closed by then, and a
+    // resolution that was still in flight would otherwise write to it.
+    if (_stopped) {
+      return;
+    }
+
     try {
       await _maybePersistHistory(force: true);
     } catch (e, stacktrace) {
@@ -349,11 +398,46 @@ class ElectrumTransactionResolver {
   List<String> _buildPendingQueue() =>
       buildPendingQueue(_wallet.transactionHistory.transactions.values);
 
+  /// Whether [tx]'s amount and ownership can be re-derived from on-chain data
+  /// and the Electrum address set. Scanned Silent Payment receives (their
+  /// outputs are not in that set), Lightning and Spark deposit records, and
+  /// Litecoin MWEB records (keyed by output id, not txid) can't, so a rebuild
+  /// would overwrite the values they were stored with.
+  @visibleForTesting
+  static bool isRebuildable(ElectrumTransactionInfo tx) =>
+      !tx.isReceivedSilentPayment && !tx.isLightning && !_isMwebRecord(tx);
+
+  // An MWEB record's id is its output id, which it lists as its own output.
+  static bool _isMwebRecord(ElectrumTransactionInfo tx) =>
+      tx.outputAddresses?.contains(tx.id) ?? false;
+
+  /// Copies into [rebuilt] every field of [existing] that the chain cannot
+  /// re-derive, then returns it. The fee is left to the caller.
+  @visibleForTesting
+  static ElectrumTransactionInfo mergeResolved(
+    ElectrumTransactionInfo existing,
+    ElectrumTransactionInfo rebuilt,
+  ) {
+    rebuilt.id = existing.id;
+    rebuilt.date = existing.date;
+    rebuilt.isPending = existing.isPending;
+    rebuilt.isReplaced = existing.isReplaced ?? false;
+    rebuilt.to = existing.to;
+    rebuilt.from = existing.from;
+    rebuilt.unspents = existing.unspents;
+    rebuilt.isReceivedSilentPayment = existing.isReceivedSilentPayment;
+    // Parents may not be resolved yet, so the build can fail to find the
+    // owning account; don't drop one found earlier.
+    rebuilt.accountIndex ??= existing.accountIndex;
+    rebuilt.additionalInfo = {...existing.additionalInfo, ...rebuilt.additionalInfo};
+    return rebuilt;
+  }
+
   /// Orders txs needing resolution: fully-resolved-inputs first, then oldest
   /// first. Ties on both are broken by id so the order is deterministic.
   @visibleForTesting
   static List<String> buildPendingQueue(Iterable<ElectrumTransactionInfo> transactions) {
-    final candidates = transactions.where((tx) => tx.needsResolution).toList()
+    final candidates = transactions.where((tx) => tx.needsResolution && isRebuildable(tx)).toList()
       ..sort((a, b) {
         if (a.inputsOwnershipFullyResolved != b.inputsOwnershipFullyResolved) {
           return a.inputsOwnershipFullyResolved ? -1 : 1;
@@ -371,7 +455,8 @@ class ElectrumTransactionResolver {
   /// interruption (e.g. [stop]) loses no completed work.
   Future<ElectrumTransactionInfo?> _resolveTransactionDetails(String txId) async {
     final existingTxInfo = _wallet.transactionHistory.transactions[txId];
-    if (existingTxInfo != null && !existingTxInfo.needsResolution) {
+    if (existingTxInfo != null &&
+        (!existingTxInfo.needsResolution || !isRebuildable(existingTxInfo))) {
       return existingTxInfo;
     }
 
@@ -404,8 +489,10 @@ class ElectrumTransactionResolver {
       }
     }
 
-    final totalInputs = targetOriginal.inputs.length;
-    final allInputTxids = targetOriginal.inputs.map((v) => v.txId).toSet();
+    // A coinbase input has no parent to fetch, so it is neither counted nor fetched.
+    final parentInputs = targetOriginal.inputs.where((v) => !isCoinbaseTxId(v.txId)).toList();
+    final totalInputs = parentInputs.length;
+    final allInputTxids = parentInputs.map((v) => v.txId).toSet();
 
     final alreadyParsed = _parsedParentsOfPausedTransaction.remove(txId) ?? {};
     final cachedVerbose = <String, Map<String, dynamic>>{};
@@ -426,8 +513,8 @@ class ElectrumTransactionResolver {
 
     final walletType = _wallet.walletInfo.type;
     final walletNetwork = _wallet.network;
-    final ownAddresses = _wallet.addressesSet;
-    final ownAddressesByAccount = _wallet.addressesSetByAccount;
+    final ownAddresses = _wallet.classificationAddressesSet;
+    final ownAddressesByAccount = _wallet.classificationAddressesSetByAccount;
 
     // Depends only on the tx and the address set, not on which parents are
     // fetched, so it's derived once and reused by every rebuild below. Only
@@ -463,18 +550,11 @@ class ElectrumTransactionResolver {
       }
       info.id = txId;
 
-      if (existingTxInfo != null) {
-        info.date = existingTxInfo.date;
-        info.isPending = existingTxInfo.isPending;
-        info.isReplaced = existingTxInfo.isReplaced ?? false;
-        info.to = existingTxInfo.to;
-        info.from = existingTxInfo.from;
-        info.unspents = existingTxInfo.unspents;
-        info.isReceivedSilentPayment = existingTxInfo.isReceivedSilentPayment;
-        // Parents may not be resolved yet, so the build can fail to find the
-        // owning account; don't drop one found earlier.
-        info.accountIndex ??= existingTxInfo.accountIndex;
-        info.additionalInfo = {...existingTxInfo.additionalInfo, ...info.additionalInfo};
+      // Read at write time: a long resolution may have seen the record change
+      // (e.g. a sync update) since [existingTxInfo] was captured at its start.
+      final current = _wallet.transactionHistory.transactions[txId] ?? existingTxInfo;
+      if (current != null) {
+        mergeResolved(current, info);
       }
 
       _wallet.transactionHistory.addOne(info);
@@ -482,8 +562,7 @@ class ElectrumTransactionResolver {
     }
 
     void reportProgress() {
-      final resolved =
-          targetOriginal.inputs.where((v) => parsedInputTxById.containsKey(v.txId)).length;
+      final resolved = parentInputs.where((v) => parsedInputTxById.containsKey(v.txId)).length;
       _reportProgress(txId, resolved, totalInputs);
     }
 
@@ -492,6 +571,7 @@ class ElectrumTransactionResolver {
     if (uncachedInputTxids.isEmpty) {
       final result = buildTransactionAndAddToHistory();
       _consecutiveFailures.remove(txId);
+      _dropParentsOf(allInputTxids);
       await _maybePersistHistory();
       return result;
     }
@@ -547,6 +627,7 @@ class ElectrumTransactionResolver {
       _consecutiveFailures[txId] = (_consecutiveFailures[txId] ?? 0) + 1;
     } else {
       _consecutiveFailures.remove(txId);
+      _dropParentsOf(allInputTxids);
     }
 
     return latestResolvedInfo;
@@ -576,8 +657,8 @@ class ElectrumTransactionResolver {
   /// own, from its own parents, with a single forced refetch.
   Future<ElectrumTransactionInfo?> refreshIfStale(String txId) async {
     final tx = _wallet.transactionHistory.transactions[txId];
-    if (tx == null) {
-      return null;
+    if (tx == null || !isRebuildable(tx)) {
+      return tx;
     }
 
     if (tx.needsResolution) {
@@ -590,8 +671,8 @@ class ElectrumTransactionResolver {
     // compare with that account's current set rather than the whole wallet's.
     final accountIndex = tx.accountIndex;
     final currentSize = accountIndex != null
-        ? (_wallet.addressesSetByAccount[accountIndex]?.length ?? 0)
-        : _wallet.addressesSet.length;
+        ? (_wallet.classificationAddressesSetByAccount[accountIndex]?.length ?? 0)
+        : _wallet.classificationAddressesSet.length;
     if (recordedSize != null && recordedSize >= currentSize) {
       return tx;
     }
@@ -669,14 +750,34 @@ class ElectrumTransactionResolver {
   /// it in the same address history again, so nothing is lost on failure.
   /// Txs persisted before the address set size was recorded are also covered
   /// by [needsAddressRecheck].
+  ///
+  /// A call made while a pass is running returns at once. Txs flagged during
+  /// that pass stay in [_staleTxIds] for the next call, which the next sync
+  /// makes.
   Future<void> recheckStaleTransactions() async {
+    if (_isRechecking) {
+      return;
+    }
+
+    _isRechecking = true;
+    try {
+      await _recheckStale();
+    } finally {
+      _isRechecking = false;
+    }
+  }
+
+  bool _isRechecking = false;
+
+  Future<void> _recheckStale() async {
     final flagged = Set<String>.of(_staleTxIds);
     _staleTxIds.clear();
 
-    final addresses = _wallet.addressesSet;
+    final addresses = _wallet.classificationAddressesSet;
     final transactions = _wallet.transactionHistory.transactions;
     final candidates = transactions.values.where(
       (tx) =>
+          isRebuildable(tx) &&
           !_unsettledTxIds.contains(tx.id) &&
           (flagged.contains(tx.id) ||
               (tx.additionalInfo["addressSetSizeKey"] == null &&
@@ -703,16 +804,32 @@ class ElectrumTransactionResolver {
       }
     }
 
-    await _recheckChunked(needsInputResolution, forceResolveInputs: true);
+    _recheckChangedHistory = false;
+    await _recheckChunked(
+      needsInputResolution,
+      forceResolveInputs: true,
+      persistAtEnd: false,
+    );
 
     // The rest try the non-force refetch first (no parent fetch
     // needed); only inputs genuinely ambiguous by witness/scriptSig alone
     // escalate to a forced parent fetch.
-    final stillAmbiguous = await _recheckChunked(cheapCandidates, forceResolveInputs: false);
+    final stillAmbiguous = await _recheckChunked(
+      cheapCandidates,
+      forceResolveInputs: false,
+      persistAtEnd: false,
+    );
     if (stillAmbiguous.isNotEmpty) {
-      await _recheckChunked(stillAmbiguous, forceResolveInputs: true);
+      await _recheckChunked(stillAmbiguous, forceResolveInputs: true, persistAtEnd: false);
+    }
+
+    // One forced save for the whole pass instead of one per _recheckChunked call.
+    if (_recheckChangedHistory) {
+      await _maybePersistHistory(force: true);
     }
   }
+
+  bool _recheckChangedHistory = false;
 
   /// Whether [tx] was classified against a smaller address set than
   /// [addresses], so any input or output of it may now belong to the wallet.
@@ -721,6 +838,10 @@ class ElectrumTransactionResolver {
   /// a heuristic over their saved ownership data.
   @visibleForTesting
   static bool needsAddressRecheck(ElectrumTransactionInfo tx, Set<String> addresses) {
+    if (!isRebuildable(tx)) {
+      return false;
+    }
+
     final recordedSize = tx.additionalInfo["addressSetSizeKey"] as int?;
 
     if (recordedSize != null) {
@@ -766,13 +887,18 @@ class ElectrumTransactionResolver {
   Future<List<ElectrumTransactionInfo>> _recheckChunked(
     List<ElectrumTransactionInfo> candidates, {
     required bool forceResolveInputs,
+    bool persistAtEnd = true,
   }) async {
+    // A rebuild would overwrite what these records were stored with, so they
+    // are never refetched, whichever caller passed them in.
+    final rebuildable = candidates.where(isRebuildable).toList();
     final transactionsStillAmbiguous = <ElectrumTransactionInfo>[];
+    var anyUpdated = false;
 
-    for (var i = 0; i < candidates.length; i += _recheckChunkSize) {
+    for (var i = 0; i < rebuildable.length; i += _recheckChunkSize) {
       final end =
-          (i + _recheckChunkSize < candidates.length) ? i + _recheckChunkSize : candidates.length;
-      final chunk = candidates.sublist(i, end);
+          (i + _recheckChunkSize < rebuildable.length) ? i + _recheckChunkSize : rebuildable.length;
+      final chunk = rebuildable.sublist(i, end);
 
       final hashes = chunk.map((tx) => tx.id).toList();
       final heightsByHash = {for (final tx in chunk) tx.id: tx.height};
@@ -784,13 +910,17 @@ class ElectrumTransactionResolver {
       );
 
       var updated = false;
-      for (final tx in chunk) {
-        final refetched = refetchedByHash[tx.id];
+      for (final captured in chunk) {
+        final refetched = refetchedByHash[captured.id];
         if (refetched == null) {
           // Couldn't refetch: let the next sync flag it again.
-          _flaggedPairs.remove(tx.id);
+          _flaggedPairs.remove(captured.id);
           continue;
         }
+
+        // The record may have changed since this pass captured it, so the
+        // checks and the write-back below use the one in history now.
+        final tx = _wallet.transactionHistory.transactions[captured.id] ?? captured;
 
         // Never let this pass regress a transaction from resolved back to
         // unresolved.
@@ -833,23 +963,24 @@ class ElectrumTransactionResolver {
           continue;
         }
 
-        refetched.id = tx.id;
-        refetched.date = tx.date;
-        refetched.isPending = tx.isPending;
-        refetched.isReplaced = tx.isReplaced ?? false;
-        refetched.to = tx.to;
-        refetched.from = tx.from;
-        refetched.unspents = tx.unspents;
-        refetched.isReceivedSilentPayment = tx.isReceivedSilentPayment;
-        refetched.accountIndex ??= tx.accountIndex;
-        refetched.additionalInfo = {...tx.additionalInfo, ...refetched.additionalInfo};
+        mergeResolved(tx, refetched);
 
         _wallet.transactionHistory.addOne(refetched);
         updated = true;
       }
 
       if (updated) {
-        await _wallet.transactionHistory.save();
+        anyUpdated = true;
+        await _maybePersistHistory();
+      }
+    }
+
+    // A throttled save may have skipped the last chunk's changes; this makes
+    // the whole pass durable, unless the caller saves once for several passes.
+    if (anyUpdated) {
+      _recheckChangedHistory = true;
+      if (persistAtEnd) {
+        await _maybePersistHistory(force: true);
       }
     }
 

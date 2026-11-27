@@ -37,7 +37,8 @@ class TransactionAdvancedInfoModal extends StatelessWidget {
                   controller: ModalScrollController.of(context),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Column(
+                    child: Observer(
+                  builder: (_) => Column(
                       spacing: 12,
                       children: [
                         _TransactionAdvancedInfoItemsSection(
@@ -48,7 +49,8 @@ class TransactionAdvancedInfoModal extends StatelessWidget {
                             transactionDetailsViewModel: transactionDetailsViewModel,
                           ),
                       ],
-                    ),
+                  ),
+                ),
                   ),
                 ),
               ),
