@@ -1031,7 +1031,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> implemen
       final fullName = item.fullName!.toLowerCase();
       final existing = acc[fullName];
 
-      // Mainnet ETH and the L2 ETHs share the "Ethereum" full name, 
+      // Mainnet ETH and the L2 ETHs share the "Ethereum" full name,
       // so we make the untagged coin keeps the name
       if (existing == null || existing.tag != null) {
         acc[fullName] = item;

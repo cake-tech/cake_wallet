@@ -110,6 +110,13 @@ enum ExchangeProviderDescription implements EnumerableItem<int> {
     image: "assets/new-ui/trade_providers/jupiter.svg",
     supportsMemoOrDestinationTag: false,
     isCentralized: false,
+  ),
+  flashnet(
+    title: "Flashnet",
+    raw: 17,
+    supportsMemoOrDestinationTag: false,
+    image: "assets/new-ui/trade_providers/flashnet.svg",
+    isCentralized: false
   );
 
   const ExchangeProviderDescription({

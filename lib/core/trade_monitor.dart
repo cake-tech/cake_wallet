@@ -17,6 +17,7 @@ import 'package:cake_wallet/exchange/provider/trocador/trocador_exchange_provide
 import 'package:cake_wallet/exchange/provider/whynot/whynot_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/xoswap/xoswap_exchange_provider.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cake_wallet/exchange/provider/flashnet/flashnet_exchange_provider.dart";
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,6 +51,7 @@ class TradeMonitor {
             .nearIntents => NearIntentsExchangeProvider(),
             .swapsXyz =>
             SwapsXyzExchangeProvider(settingsStore: appStore.settingsStore),
+            .flashnet => FlashnetExchangeProvider(),
             .xmrto ||
             .morphToken || .sideShift ||
             .simpleSwap || .all ||

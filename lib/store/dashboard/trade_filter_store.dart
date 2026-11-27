@@ -25,7 +25,8 @@ abstract class TradeFilterStoreBase with Store {
         displaySwapTrade = true,
         displaySwapXyz = true,
         displayNearIntents = true,
-        displayJupiter = true;
+        displayJupiter = true,
+        displayFlashnet = true;
 
   @observable
   bool displayXMRTO;
@@ -74,6 +75,9 @@ abstract class TradeFilterStoreBase with Store {
   @observable
   bool displayJupiter;
 
+  @observable
+  bool displayFlashnet;
+
   @computed
   int get enabledProvidersCount => [
         displayChangeNow,
@@ -89,7 +93,8 @@ abstract class TradeFilterStoreBase with Store {
         displaySwapTrade,
         displaySwapXyz,
         displayNearIntents,
-        displayJupiter
+        displayJupiter,
+        displayFlashnet
       ].where((item) => item).length;
 
   @computed
@@ -107,7 +112,8 @@ abstract class TradeFilterStoreBase with Store {
       displaySwapTrade &&
       displaySwapXyz &&
       displayNearIntents &&
-      displayJupiter;
+      displayJupiter &&
+      displayFlashnet;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -160,6 +166,9 @@ abstract class TradeFilterStoreBase with Store {
       case ExchangeProviderDescription.jupiter:
         displayJupiter = !displayJupiter;
         break;
+      case ExchangeProviderDescription.flashnet:
+        displayFlashnet = !displayFlashnet;
+        break;
       case ExchangeProviderDescription.all:
         if (displayAllTrades) {
           displayChangeNow = false;
@@ -178,6 +187,7 @@ abstract class TradeFilterStoreBase with Store {
           displaySwapXyz = false;
           displayNearIntents = false;
           displayJupiter = false;
+          displayFlashnet = false;
         } else {
           displayChangeNow = true;
           displaySideShift = true;
@@ -195,6 +205,7 @@ abstract class TradeFilterStoreBase with Store {
           displaySwapXyz = true;
           displayNearIntents = true;
           displayJupiter = true;
+          displayFlashnet = true;
         }
         break;
     }
@@ -234,7 +245,8 @@ abstract class TradeFilterStoreBase with Store {
                 (displaySwapXyz && item.trade.provider == ExchangeProviderDescription.swapsXyz) ||
                 (displayNearIntents &&
                     item.trade.provider == ExchangeProviderDescription.nearIntents) ||
-                (displayJupiter && item.trade.provider == ExchangeProviderDescription.jupiter))
+                (displayJupiter && item.trade.provider == ExchangeProviderDescription.jupiter) ||
+                (displayFlashnet && item.trade.provider == ExchangeProviderDescription.flashnet))
             .toList()
         : _trades;
   }

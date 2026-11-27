@@ -3,11 +3,12 @@ import "package:http/http.dart";
 
 /// One http call a provider made, so a test can assert what actually went out.
 class MockRequest {
-  const MockRequest({required this.method, required this.uri, this.body});
+  const MockRequest({required this.method, required this.uri, this.body, this.headers = const {}});
 
   final String method;
   final Uri uri;
   final String? body;
+  final Map<String, String> headers;
 
   String get path => uri.path;
 
@@ -66,7 +67,7 @@ abstract class MockProxyWrapper implements ProxyWrapper {
     int? portOverride,
     Uri? clearnetUri,
     Uri? onionUri,
-  }) => _answer("GET", clearnetUri ?? onionUri, null);
+  }) => _answer("GET", clearnetUri ?? onionUri, null, headers);
 
   @override
   Future<Response> post({
@@ -77,7 +78,7 @@ abstract class MockProxyWrapper implements ProxyWrapper {
     String? body,
     bool allowMitmMoneroBypassSSLCheck = false,
     bool preferIPv6 = false,
-  }) => _answer("POST", clearnetUri ?? onionUri, body);
+  }) => _answer("POST", clearnetUri ?? onionUri, body, headers);
 
   @override
   Future<Response> put({
@@ -86,7 +87,7 @@ abstract class MockProxyWrapper implements ProxyWrapper {
     Uri? clearnetUri,
     Uri? onionUri,
     String? body,
-  }) => _answer("PUT", clearnetUri ?? onionUri, body);
+  }) => _answer("PUT", clearnetUri ?? onionUri, body, headers);
 
   @override
   Future<Response> delete({
@@ -94,14 +95,19 @@ abstract class MockProxyWrapper implements ProxyWrapper {
     int? portOverride,
     Uri? clearnetUri,
     Uri? onionUri,
-  }) => _answer("DELETE", clearnetUri ?? onionUri, null);
+  }) => _answer("DELETE", clearnetUri ?? onionUri, null, headers);
 
-  Future<Response> _answer(String method, Uri? uri, String? body) async {
+  Future<Response> _answer(
+    String method,
+    Uri? uri,
+    String? body,
+    Map<String, String>? headers,
+  ) async {
     if (uri == null) {
       throw ArgumentError("$runtimeType was called without a uri");
     }
 
-    final request = MockRequest(method: method, uri: uri, body: body);
+    final request = MockRequest(method: method, uri: uri, body: body, headers: headers ?? const {});
     requests.add(request);
 
     final response = route(request);

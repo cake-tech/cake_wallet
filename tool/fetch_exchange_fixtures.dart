@@ -83,9 +83,12 @@ class Fixture {
 }
 
 class Options {
-  Options({required this.out});
+  Options({required this.out, this.only = const {}});
 
   final String out;
+
+  /// providers to fetch, everything when empty
+  final Set<String> only;
 
   /// filled in during the run by the create fixtures
   final Map<String, String> ids = {};
@@ -639,6 +642,69 @@ List<Fixture> _whyNot() => [
 
 
 
+// ---------------------------------------------------------------------------
+// flashnet - https://orchestration.flashnet.xyz, bearer client key (fnp_). /submit is never
+// called here, it turns a quote into an order and needs a real deposit tx anyway. that also
+// means there is no order to fetch a status for, so status is only fetched for an id that
+// does not exist
+// ---------------------------------------------------------------------------
+
+Map<String, String> _flashnetHeaders() =>
+    {"Authorization": 'Bearer ${_requireKey('flashnetClientKey', secrets.flashnetClientKey)}'};
+
+const _flashnetOrchestration = "https://orchestration.flashnet.xyz/v1/orchestration";
+
+// btc on bitcoin into usdc on solana, one of the few routes that takes both exact_in and
+// exact_out (and fixed delivery)
+const _flashnetRoute = "sourceChain=bitcoin&sourceAsset=BTC&destinationChain=solana&destinationAsset=USDC";
+
+List<Fixture> _flashnet() => [
+      Fixture("flashnet", "limits", (_) => _get(
+          "$_flashnetOrchestration/limits?$_flashnetRoute")),
+      Fixture("flashnet", "estimate", (_) => _get(
+          "$_flashnetOrchestration/estimate?$_flashnetRoute"
+          "&amount=100000&amountMode=exact_in&slippageBps=50&affiliateId=cake_wallet",
+          headers: _flashnetHeaders())),
+      Fixture("flashnet", "estimate_exact_out", (_) => _get(
+          "$_flashnetOrchestration/estimate?$_flashnetRoute"
+          "&amount=100000000&amountMode=exact_out&slippageBps=50&affiliateId=cake_wallet",
+          headers: _flashnetHeaders())),
+      // fixed delivery is an exact_in only thing, which is why fixed rate swaps go out as a plain
+      // exact_out
+      Fixture("flashnet", "estimate_exact_out_fixed_delivery", (_) => _get(
+          "$_flashnetOrchestration/estimate?$_flashnetRoute"
+          "&amount=100000000&amountMode=exact_out&deliveryMode=fixed",
+          headers: _flashnetHeaders()), expectSuccess: false),
+      Fixture("flashnet", "estimate_bad_request", (_) => _get(
+          "$_flashnetOrchestration/estimate?sourceChain=bitcoin&sourceAsset=BTC"
+          "&destinationChain=solana&destinationAsset=NOPE&amount=100000",
+          headers: _flashnetHeaders()), expectSuccess: false),
+      // the read token a public client key needs for status is bound to an order, so a lookup
+      // without one is refused before the id is even looked at
+      Fixture("flashnet", "status_read_token_required", (_) => _get(
+          "$_flashnetOrchestration/status?id=no-such-order",
+          headers: _flashnetHeaders()), expectSuccess: false),
+      Fixture("flashnet", "quote", (_) => _postJson(
+          "$_flashnetOrchestration/quote",
+          {
+            "sourceChain": "bitcoin",
+            "sourceAsset": "BTC",
+            "destinationChain": "solana",
+            "destinationAsset": "USDC",
+            "amount": "100000",
+            "amountMode": "exact_in",
+            "recipientAddress": _solAddress,
+            "slippageBps": 50,
+            "affiliateId": "cake_wallet",
+          },
+          headers: {
+            ..._flashnetHeaders(),
+            "X-Idempotency-Key": "fixture-${DateTime.now().microsecondsSinceEpoch}",
+          }), createsOrder: true, publishId: (body) => _pick(body, ["quoteId"])),
+    ];
+
+
+
 List<Fixture> _allFixtures() => [
       ..._chainflip(),
       ..._changeNow(),
@@ -651,10 +717,12 @@ List<Fixture> _allFixtures() => [
       ..._jupiter(),
       ..._nearIntents(),
       ..._swapsXyz(),
+      ..._flashnet(),
     ];
 
 Options _parseArgs(List<String> args) {
   var out = _defaultOut;
+  final only = <String>{};
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -668,11 +736,14 @@ Options _parseArgs(List<String> args) {
     switch (arg) {
       case "--out":
         out = next();
+      case "--only":
+        only.add(next());
       case "--help":
       case "-h":
         stdout.writeln(
           "usage: dart run tool/fetch_exchange_fixtures.dart\n"
-          "  --out DIR  where to write (default $_defaultOut)\n",
+          "  --out DIR        where to write (default $_defaultOut)\n"
+          "  --only PROVIDER  fetch just this provider's fixtures, repeatable (e.g. flashnet)\n",
         );
         exit(0);
       default:
@@ -680,13 +751,15 @@ Options _parseArgs(List<String> args) {
     }
   }
 
-  return Options(out: out);
+  return Options(out: out, only: only);
 }
 
 Future<void> main(List<String> args) async {
   final options = _parseArgs(args);
 
-  final all = _allFixtures();
+  final all = _allFixtures()
+      .where((f) => options.only.isEmpty || options.only.contains(f.provider))
+      .toList();
   // creates first, so their ids are on hand for the fixtures that look a trade up
   final fixtures = [...all.where((f) => !f.needsId), ...all.where((f) => f.needsId)];
 

@@ -5,8 +5,9 @@ import 'package:cake_wallet/exchange/provider/chainflip/chainflip_exchange_provi
 import 'package:cake_wallet/exchange/provider/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/exolix/exolix_exchange_provider.dart';
+import "package:cake_wallet/exchange/provider/flashnet/flashnet_exchange_provider.dart";
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
-import 'package:cake_wallet/exchange/provider/near_intents/near_intents_exchange_provider.dart';
+import "package:cake_wallet/exchange/provider/near_intents/near_intents_exchange_provider.dart";
 import 'package:cake_wallet/exchange/provider/swapsxyz/swapsxyz_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/swaptrade/swaptrade_exchange_provider.dart';
 import 'package:cake_wallet/exchange/provider/stealthex/stealthex_exchange_provider.dart';
@@ -73,6 +74,8 @@ abstract class TradeDetailsViewModelBase with Store {
       case ExchangeProviderDescription.nearIntents:
         _provider = NearIntentsExchangeProvider();
         break;
+      case .flashnet:
+        _provider = FlashnetExchangeProvider();
       case ExchangeProviderDescription.xmrto:
       case ExchangeProviderDescription.morphToken:
       case ExchangeProviderDescription.sideShift:
@@ -106,6 +109,9 @@ abstract class TradeDetailsViewModelBase with Store {
             .swapsXyz => 'https://scan.swaps.xyz/transactions/${trade.id}',
             .jupiter => 'https://solscan.io/tx/${trade.txId}',
             .nearIntents => 'https://explorer.near-intents.org/transactions/${trade.id}',
+            .flashnet => trade.providerId == null // (it's null on external swaps since they have no provider id)
+                ? null
+                : "https://orchestra.flashnet.xyz/explorer/${trade.providerId}",
             .xmrto || .morphToken || .all => null
       };
 

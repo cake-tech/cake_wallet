@@ -35,8 +35,8 @@ class RateCubit extends Cubit<RateState> {
 
     bool supportedForSwap(ExchangeProviderDescription provider) =>
         switch (_registry.getProvider(provider)) {
-          TransactionCreationExchangeProvider() ||
-          TransactionRegistrationExchangeProvider() when isExternalSend => false,
+          TransactionCreationExchangeProvider() when isExternalSend => false,
+          final TransactionRegistrationExchangeProvider p when isExternalSend => p.supportsExternalSend,
           ExchangeProvider(supportsFixedRate: final s) => request is! FixedRateRequest || s,
         };
 

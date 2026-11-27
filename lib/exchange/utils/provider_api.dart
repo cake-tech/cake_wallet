@@ -69,16 +69,17 @@ class ProviderApi {
 
   Future<Res> send<Res>(
     ApiRequest<Res> request, {
+    Map<String, String> headers = const {},
     Exception? Function(ProviderHttpException error)? mapError,
   }) async {
     final response = switch (request.method) {
       HttpMethod.get => await _proxy.get(
         clearnetUri: await _getUri(request.path(), request.toJson()),
-        headers: headers,
+        headers: {...this.headers, ...headers},
       ),
       HttpMethod.post => await _proxy.post(
         clearnetUri: await _getUri(request.path(), null),
-        headers: {...headers, "Content-Type": "application/json"},
+        headers: {...this.headers, ...headers, "Content-Type": "application/json"},
         body: json.encode(request.toJson()),
       ),
     };

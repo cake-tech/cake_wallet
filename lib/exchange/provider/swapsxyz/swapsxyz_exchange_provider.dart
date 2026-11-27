@@ -76,6 +76,9 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     ),
   ];
 
+  @override
+  bool get supportsExternalSend => false;
+
   static const _transferSig = "0xa9059cbb";
   static const _swapAndExecuteSig = "0x9be111d1";
 

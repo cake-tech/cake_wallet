@@ -9,6 +9,7 @@ import "fakes.dart";
 import "mocks/chainflip_mock.dart";
 import "mocks/changenow_mock.dart";
 import "mocks/exolix_mock.dart";
+import "mocks/flashnet_mock.dart";
 import "mocks/jupiter_mock.dart";
 import "mocks/near_intents_mock.dart";
 import "mocks/stealthex_mock.dart";
@@ -31,6 +32,8 @@ void main() {
     chainflipScenario(),
     changeNowScenario(),
     exolixScenario(),
+    flashnetScenario(),
+    flashnetFixedScenario(),
     jupiterScenario(),
     nearIntentsScenario(),
     stealthExScenario(),
