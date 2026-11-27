@@ -933,6 +933,7 @@ import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart';
 import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
 import 'package:cw_core/amount/money.dart';
+import "package:cw_core/balance.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -1056,6 +1057,7 @@ abstract class Solana {
   });
   Future<SolanaNFTMetadata?> getNFTOnChainMetadata(WalletBase wallet, String mintAddress);
   Future<Set<String>> getHeldTokenMints(WalletBase wallet);
+  Future<Map<CryptoCurrency, Balance>> getHeldTokenBalances(WalletBase wallet);
 
   TransactionInfo getTransactionInfo({
     required String id,

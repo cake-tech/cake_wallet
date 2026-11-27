@@ -85,7 +85,9 @@ abstract class SolanaWalletBase
 
   Future<void>? _currentRefresh;
 
-  List<SPLToken> _splTokens = [];
+  Future<Map<CryptoCurrency, SolanaBalance>>? _heldTokenBalancesInFlight;
+
+  final ObservableList<SPLToken> _splTokens = ObservableList<SPLToken>();
 
   @override
   WalletAddresses walletAddresses;
@@ -128,7 +130,10 @@ abstract class SolanaWalletBase
       );
 
   Future<void> init() async {
-    _splTokens = await SPLToken.getAllForWallet(walletInfo.name);
+    final tokens = await SPLToken.getAllForWallet(walletInfo.name);
+    _splTokens
+      ..clear()
+      ..addAll(tokens);
 
     await _checkForExistingScamTokens();
 
@@ -227,6 +232,7 @@ abstract class SolanaWalletBase
       }
 
       _setTransactionUpdateTimer();
+      _heldTokenBalancesInFlight = null;
 
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
@@ -326,6 +332,23 @@ abstract class SolanaWalletBase
   }
 
   Future<Set<String>> heldTokenMints() => _client.fetchHeldTokenMints(walletAddresses.address);
+
+  Future<Map<CryptoCurrency, SolanaBalance>> heldTokenBalances() {
+    final provider = _client.getSolanaProvider;
+    return _heldTokenBalancesInFlight ??= _heldTokenBalances().whenComplete(() {
+      if (identical(provider, _client.getSolanaProvider)) {
+        _heldTokenBalancesInFlight = null;
+      }
+    });
+  }
+
+  Future<Map<CryptoCurrency, SolanaBalance>> _heldTokenBalances() async {
+    final amounts = await _client.fetchHeldTokenAmounts(walletAddresses.address);
+    return {
+      for (final token in _splTokens)
+        token: SolanaBalance(Money(amounts[token.mintAddress] ?? BigInt.zero, token)),
+    };
+  }
 
   Future<PendingTransaction> sendNFT({
     required String mintAddress,
@@ -784,6 +807,7 @@ abstract class SolanaWalletBase
     return null;
   }
 
+  @action
   void _upsertCachedToken(SPLToken token) {
     _splTokens.removeWhere((t) => t.mintAddress == token.mintAddress);
     _splTokens.add(token);

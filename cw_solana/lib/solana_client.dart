@@ -139,7 +139,10 @@ class SolanaWalletClient {
     return withheld;
   }
 
-  Future<Set<String>> fetchHeldTokenMints(String walletAddress) async {
+  Future<Set<String>> fetchHeldTokenMints(String walletAddress) async =>
+      (await fetchHeldTokenAmounts(walletAddress)).keys.toSet();
+
+  Future<Map<String, BigInt>> fetchHeldTokenAmounts(String walletAddress) async {
     final owner = SolAddress(walletAddress);
 
     final responses = await Future.wait([
@@ -161,11 +164,17 @@ class SolanaWalletClient {
       ),
     ]);
 
-    return {
-      for (final accounts in responses)
-        for (final account in accounts)
-          if (account.tokenAccount.amount > BigInt.zero) account.tokenAccount.mint.address,
-    };
+    final amounts = <String, BigInt>{};
+    for (final accounts in responses) {
+      for (final account in accounts) {
+        final amount = account.tokenAccount.amount;
+        if (amount > BigInt.zero) {
+          final mint = account.tokenAccount.mint.address;
+          amounts[mint] = (amounts[mint] ?? BigInt.zero) + amount;
+        }
+      }
+    }
+    return amounts;
   }
 
   Future<SolanaBalance?> getSplTokenBalance(SPLToken token, String walletAddress,

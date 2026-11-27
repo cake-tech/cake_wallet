@@ -428,6 +428,10 @@ class CWSolana extends Solana {
       (wallet as SolanaWallet).heldTokenMints();
 
   @override
+  Future<Map<CryptoCurrency, Balance>> getHeldTokenBalances(WalletBase wallet) =>
+      (wallet as SolanaWallet).heldTokenBalances();
+
+  @override
   Future<void> discoverAndAddWalletTokens(WalletBase wallet) async {
     if (wallet is! SolanaWallet) return;
 
