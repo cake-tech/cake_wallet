@@ -115,6 +115,7 @@ abstract class ElectrumWalletBase
 
     reaction((_) => syncStatus, _syncStatusReaction);
     sharedPrefs.complete(SharedPreferences.getInstance());
+    unawaited(_loadCachedFeeRates());
 
     final isElectrumDerivation = derivationInfo.derivationType == DerivationType.electrum;
     accounts = ElectrumAccounts(
@@ -339,6 +340,8 @@ abstract class ElectrumWalletBase
   SyncStatus syncStatus;
 
   bool _hasCompleteUnspentSet = false;
+  int _unspentsRefreshCount = 0;
+  int _latestCompleteUnspentsRefresh = 0;
   bool _isSyncing = false;
 
   Future<WalletInfoAccount> loadCurrentAccount() async {
@@ -900,6 +903,10 @@ abstract class ElectrumWalletBase
 
       syncStatus = SyncronizingSyncStatus();
 
+      unawaited(updateFeeRates());
+      _updateFeeRateTimer ??=
+          Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
+
       if (hasSilentPaymentsScanning) {
         silentPaymentsScanningActive = alwaysScan ?? false;
         await _setInitialHeight();
@@ -931,6 +938,8 @@ abstract class ElectrumWalletBase
 
       await subscribeForUpdates();
       await checkIfBatchSupported();
+      // update unspents before updating transactions. allows send-before-sync for existing transactions, newer unspents are fetched by the call below
+      unawaited(updateAllUnspents().catchError((Object e) => printV("early unspents refresh: $e")));
       await updateTransactions();
 
       await updateAllUnspents();
@@ -952,11 +961,6 @@ abstract class ElectrumWalletBase
         syncStatus = SyncedSyncStatus();
       }
 
-      await updateFeeRates();
-
-      _updateFeeRateTimer ??=
-          Timer.periodic(const Duration(minutes: 1), (timer) async => await updateFeeRates());
-
       unawaited(resolveQueuedTransactionDetails());
     } catch (e, stacktrace) {
       final syncEnd = DateTime.now();
@@ -977,6 +981,30 @@ abstract class ElectrumWalletBase
 
   static bool _isValidFeeRates(List<int> feeRates) =>
       feeRates.length == 3 && feeRates.every((rate) => rate > 0);
+
+  String get _feeRatesCacheKey => "electrum_fee_rates_${type.name}_${network.value}";
+
+  Future<void> _loadCachedFeeRates() async {
+    final cached = (await sharedPrefs.future)
+        .getStringList(_feeRatesCacheKey)
+        ?.map((rate) => int.tryParse(rate) ?? 0)
+        .toList();
+
+    if (cached != null && _isValidFeeRates(cached) && !_isValidFeeRates(_feeRates)) {
+      _feeRates = cached;
+    }
+  }
+
+  Future<bool> _trySetFeeRates(List<int> feeRates) async {
+    if (!_isValidFeeRates(feeRates)) {
+      return false;
+    }
+
+    _feeRates = feeRates;
+    await (await sharedPrefs.future)
+        .setStringList(_feeRatesCacheKey, feeRates.map((rate) => rate.toString()).toList());
+    return true;
+  }
 
   @action
   Future<void> updateFeeRates() async {
@@ -1000,17 +1028,19 @@ abstract class ElectrumWalletBase
         while (fastFee <= mediumFee) {
           fastFee++;
         }
-        _feeRates = [slowFee, mediumFee, fastFee];
-        return;
+        if (await _trySetFeeRates([slowFee, mediumFee, fastFee])) {
+          return;
+        }
       } catch (e) {
         printV(e);
       }
     }
 
-    final feeRates = await electrumClient.feeRates(network: network);
-    if (_isValidFeeRates(feeRates)) {
-      _feeRates = feeRates;
-    } else if (isTestnet) {
+    if (await _trySetFeeRates(await electrumClient.feeRates(network: network))) {
+      return;
+    }
+
+    if (isTestnet && !_isValidFeeRates(_feeRates)) {
       _feeRates = [1, 1, 1];
     }
   }
@@ -1763,6 +1793,11 @@ abstract class ElectrumWalletBase
         }
       }
 
+      if (transactionCredentials.feeRate == null &&
+          feeRate(transactionCredentials.priority!) <= 0) {
+        await updateFeeRates();
+      }
+
       final feeRateInt = transactionCredentials.feeRate != null
           ? transactionCredentials.feeRate!
           : feeRate(transactionCredentials.priority!);
@@ -2102,6 +2137,8 @@ abstract class ElectrumWalletBase
   @action
   Future<void> updateAllUnspents() async {
 
+    final refresh = ++_unspentsRefreshCount;
+
     List<BitcoinUnspent> updatedUnspentCoins = [];
 
     final previousUnspentCoins = List<BitcoinUnspent>.from(unspentCoins.where((utxo) =>
@@ -2134,6 +2171,10 @@ abstract class ElectrumWalletBase
         ? await _fetchUnspentsBatch(targetAddresses)
         : await _fetchUnspentsRegular(targetAddresses);
 
+    if (refresh < _latestCompleteUnspentsRefresh) {
+      return;
+    }
+
     final failedCount = results.where((result) => result == null).length;
 
     if (failedCount == 0) {
@@ -2142,6 +2183,7 @@ abstract class ElectrumWalletBase
       }
       unspentCoins = updatedUnspentCoins;
       _hasCompleteUnspentSet = true;
+      _latestCompleteUnspentsRefresh = refresh;
     } else {
       if (updatedUnspentCoins.isEmpty) {
         unspentCoins = handleFailedUtxoFetch(

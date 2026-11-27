@@ -389,24 +389,20 @@ class ElectrumClient {
 
     final unspentMap = <String, List<Map<String, dynamic>>>{};
 
+    // prevents clearing unspents on an incomplete/broken fetch
+    if (batchResults.length != scriptHashes.length) {
+      return unspentMap;
+    }
+
     for (int i = 0; i < scriptHashes.length; i++) {
-      final sh = scriptHashes[i];
-
-      if (i >= batchResults.length) {
-        unspentMap[sh] = const [];
-        continue;
-      }
-
       final result = batchResults[i];
 
       if (result is List) {
-        unspentMap[sh] = result
+        unspentMap[scriptHashes[i]] = result
             .whereType<Map<dynamic, dynamic>>()
             .map((m) => m.map((k, v) => MapEntry(k.toString(), v)))
             .cast<Map<String, dynamic>>()
             .toList();
-      } else {
-        unspentMap[sh] = const [];
       }
     }
 
@@ -530,7 +526,9 @@ class ElectrumClient {
     // Timeout Logic
     Timer(Duration(milliseconds: timeout), () {
       if (!completer.isCompleted) {
-        _tasks.remove(internalBatchKey);
+        if (identical(_tasks[internalBatchKey]?.completer, completer)) {
+          _tasks.remove(internalBatchKey);
+        }
         completer.completeError(RequestFailedTimeoutException("BATCH_$method", batchBaseId));
       }
     });
@@ -753,6 +751,20 @@ class ElectrumClient {
   }
 
   void _resetInternalStateCompletely() {
+    _tasks.forEach((id, task) {
+      final completer = task.completer;
+      if (completer == null || completer.isCompleted) {
+        return;
+      }
+
+      if (id.startsWith("batch_")) {
+        completer.completeError(
+            RequestFailedTimeoutException(id, int.tryParse(id.substring("batch_".length)) ?? 0));
+      } else {
+        completer.complete(null);
+      }
+    });
+
     _id = 0;
     _tasks.clear();
     _errors.clear();
