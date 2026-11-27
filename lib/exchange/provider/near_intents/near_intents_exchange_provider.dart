@@ -3,6 +3,7 @@ import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
 import "package:cake_wallet/exchange/provider/near_intents/near_intents_api_schema.dart";
+import "package:cake_wallet/exchange/provider/near_intents_status.dart";
 import "package:cake_wallet/exchange/rate_request.dart";
 import "package:cake_wallet/exchange/trade.dart";
 import "package:cake_wallet/exchange/trade_request.dart";
@@ -178,14 +179,19 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       refundAddress: request.refundAddress,
       depositAmount: Money.safeParse(quote.amountInFormatted, request.depositCurrency),
       payoutAmount: Money.safeParse(quote.amountOutFormatted, request.payoutCurrency),
-      memo: quote.depositMemo,
-      extraId: quote.depositMemo,
+      memo: nearIntentsDepositMemo(quote.depositMemo),
+      extraId: nearIntentsDepositMemo(quote.depositMemo),
     );
   }
 
   @override
   Future<Trade> updateTrade(Trade trade)  async {
-    final data = await _api.send(NearIntentsStatusRequest(depositAddress: trade.id));
+    final data = await _api.send(
+      NearIntentsStatusRequest(
+        depositAddress: trade.id,
+        depositMemo: trade.extraId ?? trade.memo,
+      ),
+    );
 
     final quoteResponse = data.quoteResponse;
     final quoteRequest = quoteResponse.quoteRequest;

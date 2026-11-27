@@ -1,5 +1,6 @@
 // spec reference: https://1click.chaindefuser.com/docs/v0/openapi.yaml
 
+import "package:cake_wallet/exchange/provider/near_intents_status.dart";
 import "package:cake_wallet/exchange/trade_state.dart";
 import "package:cake_wallet/exchange/utils/provider_api.dart";
 import "package:json_annotation/json_annotation.dart";
@@ -480,16 +481,32 @@ class NearIntentsSwapDetails {
 
 @JsonSerializable(createFactory: false)
 class NearIntentsStatusRequest extends ApiRequest<NearIntentsStatusResponse> {
-  const NearIntentsStatusRequest({required this.depositAddress});
+  const NearIntentsStatusRequest({
+    required this.depositAddress,
+    this.depositMemo,
+  });
 
   @JsonKey(name: "depositAddress")
   final String depositAddress;
+
+  /// Sent only for a shared deposit address. A blank memo is not a tag.
+  @JsonKey(name: "depositMemo")
+  final String? depositMemo;
 
   @override
   String path() => "/v0/status";
 
   @override
-  Map<String, dynamic> toJson() => _$NearIntentsStatusRequestToJson(this);
+  Map<String, dynamic> toJson() {
+    final json = _$NearIntentsStatusRequestToJson(this);
+    final memo = nearIntentsDepositMemo(json['depositMemo'] as String?);
+    if (memo == null) {
+      json.remove('depositMemo');
+    } else {
+      json['depositMemo'] = memo;
+    }
+    return json;
+  }
 
   @override
   NearIntentsStatusResponse decode(Object json) =>
