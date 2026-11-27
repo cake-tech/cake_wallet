@@ -269,6 +269,7 @@ abstract class WalletCreationVMBase with Store {
       case WalletType.nano:
         return nanoUtil!.getDerivationsFromMnemonic(
           mnemonic: restoreWallet.mnemonicSeed!,
+          passphrase: restoreWallet.passphrase,
           node: node,
         );
       default:

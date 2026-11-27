@@ -127,7 +127,7 @@ abstract class NanoWalletBase
       if (_derivationType == DerivationType.nano) {
         _hexSeed = bip39.mnemonicToEntropy(_mnemonic).toUpperCase();
       } else {
-        _hexSeed = await NanoMnemomics.hdMnemonicToSeed(_mnemonic);
+        _hexSeed = await NanoMnemomics.hdMnemonicToSeed(_mnemonic, passphrase: passphrase ?? "");
       }
     }
 
@@ -455,6 +455,7 @@ abstract class NanoWalletBase
       derivationInfo: derivationInfo,
       password: password,
       mnemonic: keysData.mnemonic!,
+      passphrase: keysData.passphrase,
       initialBalance: balance,
       encryptionFileUtils: encryptionFileUtils,
     );

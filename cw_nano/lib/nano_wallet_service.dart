@@ -52,6 +52,7 @@ class NanoWalletService extends WalletService<
       derivationInfo: derivationInfo,
       mnemonic: mnemonic,
       password: credentials.password!,
+      passphrase: credentials.passphrase,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.init();
@@ -173,6 +174,7 @@ class NanoWalletService extends WalletService<
     final wallet = await NanoWallet(
       password: credentials.password!,
       mnemonic: credentials.mnemonic,
+      passphrase: credentials.passphrase,
       walletInfo: credentials.walletInfo!,
       derivationInfo: derivationInfo,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
