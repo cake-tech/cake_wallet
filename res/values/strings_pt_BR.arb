@@ -661,6 +661,7 @@
   "live_fee_rates": "Taxas de rede em tempo real via API",
   "load_more": "Carregar mais",
   "loading": "Carregando",
+  "loading_currencies": "Carregando moedas...",
   "loading_rates": "Carregando taxas...",
   "loading_your_wallet": "Carregando sua carteira",
   "login": "Entrar",

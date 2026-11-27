@@ -1,4 +1,6 @@
 import "package:cake_wallet/.secrets.g.dart" as secrets;
+import "package:cake_wallet/exchange/assets/provider_listing.dart";
+import "package:cw_core/swap_networks.dart";
 import "package:cake_wallet/exchange/exchange_provider_description.dart";
 import "package:cake_wallet/exchange/provider/chainflip/chainflip_api_schema.dart";
 import "package:cake_wallet/exchange/provider/exchange_provider.dart";
@@ -52,6 +54,20 @@ class ChainflipExchangeProvider extends LimitsCacheExchangeProvider {
 
   @override
   ExchangeProviderDescription get description => ExchangeProviderDescription.chainflip;
+
+  @override
+  Future<List<ProviderListing>> fetchListings() async => [
+    for (final asset in (await _api.send(const ChainflipAssetsRequest())).assets)
+      if (asset.enabled)
+        ProviderListing(
+          provider: description,
+          tag: SwapNetworks.tagFor(asset.id.tag ?? asset.id.title),
+          ticker: asset.ticker,
+          network: asset.network.name,
+          contractAddress: asset.contractAddress,
+          decimals: asset.decimals,
+        ),
+  ];
 
   @override
   Future<ExchangeLimits> fetchLimits({

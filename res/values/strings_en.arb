@@ -722,6 +722,7 @@
   "live_fee_rates": "Live fee rates via API",
   "load_more": "Load more",
   "loading": "Loading",
+  "loading_currencies": "Loading currencies...",
   "loading_rates": "Loading rates...",
   "loading_your_wallet": "Loading your wallet",
   "login": "Login",

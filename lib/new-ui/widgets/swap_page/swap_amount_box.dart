@@ -223,10 +223,12 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  CakeImageWidget(
-                                    imageUrl: amount.currency.iconPath ?? "",
-                                    width: 28,
-                                    height: 28,
+                                  ClipOval(
+                                    child: CakeImageWidget(
+                                      imageUrl: amount.currency.iconPath ?? "",
+                                      width: 28,
+                                      height: 28,
+                                    ),
                                   ),
                                   const SizedBox(width: 10),
                                   Text(amount.currency.symbol, textAlign: TextAlign.center),
@@ -418,7 +420,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     if (widget.bloc.state case final SwapStateWithInputs s) {
       if (!widget.isReceiverCard) {
         final otherAssets = CurrencyPickerArgs(
-          items: widget.bloc.currencyStore.depositCurrencies,
+          currencyCubit: widget.bloc.currencyCubit,
           selected: s.depositAmount.currency,
           recentsSource: RecentsSource.trades,
           onSelected: (currency) =>
@@ -434,7 +436,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
         return;
       }
 
-      final currencies = widget.bloc.currencyStore.receiveCurrencies
+      final currencies = widget.bloc.currencyCubit.currencies
           .where(
             (c) => widget.network == null || cryptoCurrencyOrTokenToWalletType(c) == widget.network,
           )
@@ -445,7 +447,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       CurrencyPickerSheet.show(
         context: context,
         args: CurrencyPickerArgs(
-          items: currencies,
+          currencyCubit: widget.bloc.currencyCubit,
+          filterByNetwork: widget.network,
           selected: s.payoutAmount.currency,
           recentsSource: RecentsSource.trades,
           onSelected: (currency) => widget.bloc.add(PayoutCurrencyChanged(currency)),

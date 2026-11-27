@@ -59,7 +59,7 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     "EOS": "eosio",
     "XLM": "stellar",
     "BASE": "basemainnet",
-    "ARB": "arbitrum",
+    "ARB": "ethereumarbone",
   };
 
   static const supportedTags = [
@@ -100,11 +100,11 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       }
 
       final assets = await _api.send(
-        XOSwapAssetsRequest(networks: normalizedNetwork, query: currency.title),
+        XOSwapAssetsRequest(networks: normalizedNetwork, query: _symbolFor(currency)),
       );
 
       final asset = assets.firstWhereOrNull(
-        (asset) => removeNonAlphanumeric(asset.symbol.toString()) == currency.title,
+        (asset) => removeNonAlphanumeric(asset.symbol.toString()) == _symbolFor(currency),
       );
 
       return asset?.id;
@@ -113,6 +113,12 @@ class XOSwapExchangeProvider extends ExchangeProvider {
       return null;
     }
   }
+
+  String _symbolFor(CryptoCurrency currency) => switch (currency) {
+    CryptoCurrency.arbEth => "ARBETH",
+    CryptoCurrency.maticpoly => "MATIC",
+    _ => currency.title,
+  };
 
   String removeNonAlphanumeric(String str) =>
       str.toUpperCase().replaceAll(RegExp(r"[^A-Z0-9]"), "");

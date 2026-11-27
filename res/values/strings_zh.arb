@@ -668,6 +668,7 @@
   "live_fee_rates": "通过 API 获取实时手续费费率",
   "load_more": "加载更多",
   "loading": "加载中",
+  "loading_currencies": "正在加载货币...",
   "loading_rates": "加载率...",
   "loading_your_wallet": "正在加载您的钱包",
   "login": "登录",

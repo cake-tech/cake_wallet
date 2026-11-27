@@ -395,3 +395,62 @@ class JupiterExecuteResponse {
   @JsonKey(name: "swapEvents")
   final List<JupiterSwapEvent>? swapEvents;
 }
+
+enum JupiterTokenTag {
+  @JsonValue("verified")
+  verified,
+  @JsonValue("lst")
+  lst,
+  @JsonValue("stocks")
+  stocks,
+}
+
+@JsonSerializable()
+class JupiterTokensByTagRequest extends ApiRequest<List<JupiterToken>> {
+  const JupiterTokensByTagRequest({required this.query});
+
+  /// Every token with the tag, there's no paging
+  @JsonKey(name: "query")
+  final JupiterTokenTag query;
+
+  @override
+  String path() => "/tokens/v2/tag";
+
+  @override
+  Map<String, dynamic> toJson() => _$JupiterTokensByTagRequestToJson(this);
+
+  @override
+  List<JupiterToken> decode(Object json) => (json as List<dynamic>)
+      .map((item) => JupiterToken.fromJson(item as Map<String, dynamic>))
+      .toList();
+}
+
+@JsonSerializable(createToJson: false)
+class JupiterToken {
+  const JupiterToken({
+    required this.id,
+    required this.symbol,
+    required this.decimals,
+    this.name,
+    this.icon,
+    required this.tags,
+  });
+
+  factory JupiterToken.fromJson(Map<String, dynamic> json) => _$JupiterTokenFromJson(json);
+
+  /// The mint address
+  @JsonKey(name: "id")
+  final String id;
+  @JsonKey(name: "symbol")
+  final String symbol;
+  @JsonKey(name: "decimals")
+  final int decimals;
+  @JsonKey(name: "name")
+  final String? name;
+  @JsonKey(name: "icon")
+  final String? icon;
+  @JsonKey(name: "tags", defaultValue: [])
+  final List<String> tags;
+
+  bool get isStock => tags.contains("stocks") || tags.contains("xstocks");
+}

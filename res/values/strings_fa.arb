@@ -668,6 +668,7 @@
   "live_fee_rates": "نرخ‌های لحظه‌ای کارمزد از طریق API",
   "load_more": "بیشتر بارگذاری کنید",
   "loading": "در حال بارگذاری",
+  "loading_currencies": "در حال بارگیری ارزها...",
   "loading_rates": "نرخ بارگیری...",
   "loading_your_wallet": "در حال بارگذاری کیف پول شما",
   "login": "ورود",

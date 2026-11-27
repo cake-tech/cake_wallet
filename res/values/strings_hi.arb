@@ -709,6 +709,7 @@
   "live_fee_rates": "API के माध्यम से लाइव शुल्क दरें",
   "load_more": "और लोड करें",
   "loading": "लोड हो रहा है",
+  "loading_currencies": "मुद्राएँ लोड हो रही हैं...",
   "loading_rates": "दरें लोड हो रही हैं...",
   "loading_your_wallet": "आपका वॉलेट लोड हो रहा है",
   "login": "लॉग इन",

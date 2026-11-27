@@ -1,22 +1,26 @@
 import "package:cake_wallet/exchange/utils/deposit_wallet_utils.dart";
 import "package:cw_core/crypto_currency.dart";
+import "package:cw_core/external_currency.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter_test/flutter_test.dart";
 
 void main() {
-  WalletInfo bitcoinWallet({HardwareWalletType? hardwareWalletType}) => WalletInfo.external(
-        id: "id",
-        name: "wallet",
-        type: WalletType.bitcoin,
-        isRecovery: false,
-        restoreHeight: 0,
-        date: DateTime(2026),
-        dirPath: "",
-        path: "",
-        address: "",
-        hardwareWalletType: hardwareWalletType,
-      );
+  WalletInfo bitcoinWallet({
+    HardwareWalletType? hardwareWalletType,
+    WalletType type = WalletType.bitcoin,
+  }) => WalletInfo.external(
+    id: "id",
+    name: "wallet",
+    type: type,
+    isRecovery: false,
+    restoreHeight: 0,
+    date: DateTime(2026),
+    dirPath: "",
+    path: "",
+    address: "",
+    hardwareWalletType: hardwareWalletType,
+  );
 
   group("depositWalletType", () {
     test("is null for a chain without wallets, so no source wallets are offered", () {
@@ -40,6 +44,17 @@ void main() {
         isFalse,
       );
       expect(canFundDeposit(bitcoinWallet(), CryptoCurrency.btcln), isTrue);
+    });
+
+    test("keeps every wallet out of external currency deposits", () {
+      final pepe = ExternalCurrency(
+        id: 1,
+        assetKey: "ETH/0x6982508145454ce325ddbe47a25d4ec3d2311933",
+        title: "PEPE",
+        tag: "ETH",
+      );
+      expect(depositWalletType(pepe), WalletType.ethereum);
+      expect(canFundDeposit(bitcoinWallet(type: WalletType.ethereum), pepe), isFalse);
     });
 
     test("allows hardware wallets for on-chain deposits", () {

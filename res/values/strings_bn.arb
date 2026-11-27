@@ -709,6 +709,7 @@
   "live_fee_rates": "এপিআই-এর মাধ্যমে লাইভ ফি হার",
   "load_more": "আরও লোড করুন",
   "loading": "লোড হচ্ছে",
+  "loading_currencies": "মুদ্রা লোড হচ্ছে...",
   "loading_rates": "রেট লোড হচ্ছে...",
   "loading_your_wallet": "আপনার ওয়ালেট লোড হচ্ছে",
   "login": "লগইন",

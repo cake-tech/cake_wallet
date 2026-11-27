@@ -46,6 +46,8 @@ class ExchangeProviderRegistry {
 
   ExchangeProvider getProvider(ExchangeProviderDescription description) => _providers[description]!;
 
+  List<ExchangeProviderDescription> get registeredProviders => _providers.keys.toList();
+
   Future<void> updateProviders(List<ExchangeProviderDescription> newProviders) async {
       final providerSettings = json.decode(_sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}")
       as Map<String, dynamic>;

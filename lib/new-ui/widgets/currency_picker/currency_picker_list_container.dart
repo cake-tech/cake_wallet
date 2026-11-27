@@ -7,26 +7,48 @@ class CurrencyPickerListContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     final children = <Widget>[];
     for (var i = 0; i < rows.length; i++) {
       children.add(rows[i]);
       if (i != rows.length - 1) {
-        children.add(Divider(
-          height: 1,
-          thickness: 1,
-          color: colors.surfaceContainerHigh,
-          indent: 52,
-          endIndent: 12,
-        ));
+        children.add(_divider(context));
       }
     }
     return Container(
-      decoration: BoxDecoration(
-        color: colors.surfaceContainer,
-        borderRadius: BorderRadius.circular(18),
-      ),
+      decoration: _decoration(context),
       child: Column(mainAxisSize: MainAxisSize.min, children: children),
     );
   }
 }
+
+/// A [CurrencyPickerListContainer] whose rows are only built once they scroll into view, for
+/// lists as long as the providers' assets
+class CurrencyPickerSliverList extends StatelessWidget {
+  const CurrencyPickerSliverList({required this.itemCount, required this.itemBuilder, super.key});
+
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+
+  @override
+  Widget build(BuildContext context) => DecoratedSliver(
+    decoration: _decoration(context),
+    sliver: SliverList.separated(
+      itemCount: itemCount,
+      itemBuilder: itemBuilder,
+      separatorBuilder: (context, _) => _divider(context),
+    ),
+  );
+}
+
+BoxDecoration _decoration(BuildContext context) => BoxDecoration(
+  color: Theme.of(context).colorScheme.surfaceContainer,
+  borderRadius: BorderRadius.circular(18),
+);
+
+Widget _divider(BuildContext context) => Divider(
+  height: 1,
+  thickness: 1,
+  color: Theme.of(context).colorScheme.surfaceContainerHigh,
+  indent: 52,
+  endIndent: 12,
+);

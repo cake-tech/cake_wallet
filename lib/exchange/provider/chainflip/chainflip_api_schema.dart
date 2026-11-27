@@ -365,6 +365,8 @@ enum ChainflipNetwork {
   tron,
   @JsonValue("Assethub")
   assethub,
+  @JsonValue("Bsc")
+  bsc,
   unknown,
 }
 

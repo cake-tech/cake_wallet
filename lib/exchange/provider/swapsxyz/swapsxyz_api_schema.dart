@@ -197,6 +197,55 @@ class SwapsXyzChainListRequest extends ApiRequest<List<SwapsXyzChain>> {
       .toList();
 }
 
+class SwapsXyzTokenListRequest extends ApiRequest<List<SwapsXyzListedToken>> {
+  const SwapsXyzTokenListRequest();
+
+  @override
+  String path() => "/api/getTokenList";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  /// The tokens come grouped by chain id: `{"1": {"tokens": [...]}}`
+  @override
+  List<SwapsXyzListedToken> decode(Object json) => [
+    for (final chain in (json as Map<String, dynamic>).values)
+      for (final token in (chain as Map<String, dynamic>)["tokens"] as List<dynamic>)
+        SwapsXyzListedToken.fromJson(token as Map<String, dynamic>),
+  ];
+}
+
+@JsonSerializable(createToJson: false)
+class SwapsXyzListedToken {
+  const SwapsXyzListedToken({
+    required this.chainId,
+    required this.address,
+    required this.symbol,
+    required this.decimals,
+    this.name,
+    this.logo,
+    this.isNative,
+  });
+
+  factory SwapsXyzListedToken.fromJson(Map<String, dynamic> json) =>
+      _$SwapsXyzListedTokenFromJson(json);
+
+  @JsonKey(name: "chainId")
+  final int chainId;
+  @JsonKey(name: "address")
+  final String address;
+  @JsonKey(name: "symbol")
+  final String symbol;
+  @JsonKey(name: "decimals")
+  final int decimals;
+  @JsonKey(name: "name")
+  final String? name;
+  @JsonKey(name: "logo")
+  final String? logo;
+  @JsonKey(name: "isNative")
+  final bool? isNative;
+}
+
 @JsonSerializable(createToJson: false)
 class SwapsXyzChain {
   const SwapsXyzChain({required this.chainId, required this.name, required this.vmId});

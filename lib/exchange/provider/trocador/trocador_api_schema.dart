@@ -77,6 +77,21 @@ class TrocadorCoinRequest extends ApiRequest<List<TrocadorCoin>> {
       .toList();
 }
 
+class TrocadorCoinsRequest extends ApiRequest<List<TrocadorCoin>> {
+  const TrocadorCoinsRequest();
+
+  @override
+  String path() => "/coins";
+
+  @override
+  Map<String, dynamic> toJson() => const {};
+
+  @override
+  List<TrocadorCoin> decode(Object json) => (json as List<dynamic>)
+      .map((item) => TrocadorCoin.fromJson(item as Map<String, dynamic>))
+      .toList();
+}
+
 @JsonSerializable(createToJson: false)
 @TrocadorBoolConverter()
 class TrocadorCoin {

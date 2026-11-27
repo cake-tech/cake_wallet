@@ -14,6 +14,7 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import 'package:cw_core/currency_groups.dart';
+import 'package:cw_core/external_currency.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +36,18 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   bool get _isSearching => _searchController.text.trim().isNotEmpty;
 
-  late final List<WalletType> _networks = _computeNetworks();
+  late List<CryptoCurrency> _items = _filterItems();
+  late List<WalletType> _networks = _computeNetworks();
+
+  List<CryptoCurrency> _filterItems() => switch (widget.args.filterByNetwork) {
+    final network? =>
+      widget.args.items.where((c) => cryptoCurrencyOrTokenToWalletType(c) == network).toList(),
+    null => widget.args.items,
+  };
 
   List<WalletType> _computeNetworks() {
     final counts = <WalletType, int>{};
-    for (final currency in widget.args.items) {
+    for (final currency in _items) {
       final walletType = cryptoCurrencyOrTokenToWalletType(currency);
       if (walletType == null) continue;
       counts[walletType] = (counts[walletType] ?? 0) + 1;
@@ -58,6 +66,16 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   }
 
   @override
+  void didUpdateWidget(covariant MultiNetworkCurrencyPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.args.items, widget.args.items) ||
+        oldWidget.args.filterByNetwork != widget.args.filterByNetwork) {
+      _items = _filterItems();
+      _networks = _computeNetworks();
+    }
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -67,7 +85,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
     try {
       final recents = await PickerRecentsLoader.load(
         source: widget.args.recentsSource,
-        visibleItems: widget.args.items,
+        visibleItems: _items,
       );
       if (!mounted) return;
       setState(() {
@@ -88,14 +106,14 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
 
   List<CryptoCurrency> get _visibleItems {
     final query = _searchController.text.trim();
-    return widget.args.items
+    return _items
         .where(_hasSupportedChain)
         .where((c) => currencyMatchesQuery(c, query) && _matchesNetwork(c))
         .toList(growable: false);
   }
 
   bool _hasSupportedChain(CryptoCurrency c) {
-    if (c.tag == null) return true;
+    if (c.tag == null || c is ExternalCurrency) return true;
     return cryptoCurrencyOrTokenToWalletType(c) != null;
   }
 
@@ -105,7 +123,7 @@ class _MultiNetworkCurrencyPickerState extends State<MultiNetworkCurrencyPicker>
   }
 
   void _onStablecoinPillTapped(CryptoCurrency tapped) {
-    var variants = widget.args.items
+    var variants = _items
         .where((c) =>
             isTrustedStablecoin(c) &&
             c.title.toUpperCase() == tapped.title.toUpperCase() &&
@@ -251,7 +269,7 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
         .where((c) =>
             !widget.natives.contains(c) &&
             cryptoCurrencyOrTokenToWalletType(c) == null &&
-            c.tag == null &&
+            (c.tag == null || (c is ExternalCurrency && c.isNative)) &&
             !c.groups.contains(CurrencyGroups.stablecoin) &&
             !c.groups.contains(CurrencyGroups.tokenizedStock))
         .toList();
@@ -299,27 +317,27 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
     if (isSearching) {
       return NotificationListener<ScrollNotification>(
         onNotification: (_) => true,
-        child: ListView(
+        child: CustomScrollView(
           controller: _scrollController,
           primary: false,
           physics: const ClampingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(16, 8, 16, widget.footerHeight),
-          children: [
-            CurrencyPickerListContainer(
-              rows: [
-                for (final item in items)
-                  CurrencyPickerRow(
-                    currency: item,
-                    isSelected: selected != null && selected == item,
-                    chainPillLabel: _chainPillLabelFor(item),
-                    chainBadgePath: _chainBadgePathFor(item),
-                    trailing: _SymbolTrailing(
-                      currency: item,
-                      symbolResolver: symbolResolver,
-                    ),
-                    onTap: () => onSelect(item),
+          slivers: [
+            SliverPadding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, widget.footerHeight),
+              sliver: CurrencyPickerSliverList(
+                itemCount: items.length,
+                itemBuilder: (_, index) => CurrencyPickerRow(
+                  currency: items[index],
+                  isSelected: selected != null && selected == items[index],
+                  chainPillLabel: _chainPillLabelFor(items[index]),
+                  chainBadgePath: _chainBadgePathFor(items[index]),
+                  trailing: _SymbolTrailing(
+                    currency: items[index],
+                    symbolResolver: symbolResolver,
                   ),
-              ],
+                  onTap: () => onSelect(items[index]),
+                ),
+              ),
             ),
           ],
         ),
@@ -360,122 +378,126 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
 
     return NotificationListener<ScrollNotification>(
       onNotification: (_) => true,
-      child: ListView(
+      child: CustomScrollView(
         controller: _scrollController,
         primary: false,
         physics: const ClampingScrollPhysics(),
-        padding: EdgeInsets.fromLTRB(16, 8, 16, widget.footerHeight),
-        children: [
-          if (recentsLoaded && visibleRecents.isNotEmpty)
-            _PickerSection(
-              title: S.of(context).picker_section_recents,
-              child: _RecentsRow(
-                items: visibleRecents,
-                selected: section == _SelSection.recents ? selected : null,
-                symbolResolver: symbolResolver,
-                onTap: onSelect,
-              ),
-            ),
-          if (stablecoins.isNotEmpty && widget.showStablesHeader)
-            _PickerSection(
-              title: S.of(context).picker_section_stablecoins,
-              child: PillGrid(
-                items: stablecoins,
-                selected: section == _SelSection.stablecoins ? selected : null,
-                onTap: onStablecoinTap,
-                symbolResolver: symbolResolver,
-              ),
-            ),
-          if (cryptocurrencies.isNotEmpty)
-            _PickerSection(
-              title: S.of(context).picker_section_cryptocurrencies,
-              child: CurrencyPickerListContainer(
-                rows: [
-                  for (final item in cryptocurrencies)
-                    CurrencyPickerRow(
-                      currency: item,
-                      isSelected: section == _SelSection.cryptocurrencies && selected == item,
-                      chainPillLabel: _chainPillLabelFor(item),
-                      chainBadgePath: _chainBadgePathFor(item),
-                      trailing: _SymbolTrailing(
-                        currency: item,
+        slivers: [
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, widget.footerHeight),
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                if (recentsLoaded && visibleRecents.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _PickerSection(
+                      title: S.of(context).picker_section_recents,
+                      child: _RecentsRow(
+                        items: visibleRecents,
+                        selected: section == _SelSection.recents ? selected : null,
+                        symbolResolver: symbolResolver,
+                        onTap: onSelect,
+                      ),
+                    ),
+                  ),
+                if (stablecoins.isNotEmpty && widget.showStablesHeader)
+                  SliverToBoxAdapter(
+                    child: _PickerSection(
+                      title: S.of(context).picker_section_stablecoins,
+                      child: PillGrid(
+                        items: stablecoins,
+                        selected: section == _SelSection.stablecoins ? selected : null,
+                        onTap: onStablecoinTap,
                         symbolResolver: symbolResolver,
                       ),
-                      onTap: () => onSelect(item),
                     ),
-                ],
-              ),
-            ),
-          if (moreCryptos.isNotEmpty)
-            _PickerSection(
-              title: S.of(context).picker_section_more_cryptocurrencies,
-              child: CurrencyPickerListContainer(
-                rows: [
-                  for (final item in moreCryptosVisible)
-                    CurrencyPickerRow(
-                      currency: item,
-                      isSelected: section == _SelSection.moreCryptocurrencies && selected == item,
+                  ),
+                if (cryptocurrencies.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _PickerSection(
+                      title: S.of(context).picker_section_cryptocurrencies,
+                      child: CurrencyPickerListContainer(
+                        rows: [
+                          for (final item in cryptocurrencies)
+                            CurrencyPickerRow(
+                              currency: item,
+                              isSelected:
+                                  section == _SelSection.cryptocurrencies && selected == item,
+                              chainPillLabel: _chainPillLabelFor(item),
+                              chainBadgePath: _chainBadgePathFor(item),
+                              trailing: _SymbolTrailing(
+                                currency: item,
+                                symbolResolver: symbolResolver,
+                              ),
+                              onTap: () => onSelect(item),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                if (moreCryptos.isNotEmpty)
+                  _SliverPickerSection(
+                    title: S.of(context).picker_section_more_cryptocurrencies,
+                    itemCount:
+                        moreCryptosVisible.length + (moreCryptos.length > _previewCount ? 1 : 0),
+                    itemBuilder: (_, index) => index < moreCryptosVisible.length
+                        ? CurrencyPickerRow(
+                            currency: moreCryptosVisible[index],
+                            isSelected: section == _SelSection.moreCryptocurrencies &&
+                                selected == moreCryptosVisible[index],
+                            trailing: _SymbolTrailing(
+                              currency: moreCryptosVisible[index],
+                              symbolResolver: symbolResolver,
+                            ),
+                            onTap: () => onSelect(moreCryptosVisible[index]),
+                          )
+                        : _SeeAllRow(
+                            expanded: _moreCryptosSectionExpanded,
+                            onTap: () => setState(
+                                () => _moreCryptosSectionExpanded = !_moreCryptosSectionExpanded),
+                          ),
+                  ),
+                if (xstocks.isNotEmpty)
+                  _SliverPickerSection(
+                    title: S.of(context).picker_section_tokenized_stocks,
+                    itemCount: xstocksVisible.length + (xstocks.length > _previewCount ? 1 : 0),
+                    itemBuilder: (_, index) => index < xstocksVisible.length
+                        ? CurrencyPickerRow(
+                            currency: xstocksVisible[index],
+                            isSelected:
+                                section == _SelSection.xstocks && selected == xstocksVisible[index],
+                            trailing: _SymbolTrailing(
+                              currency: xstocksVisible[index],
+                              symbolResolver: symbolResolver,
+                            ),
+                            onTap: () => onSelect(xstocksVisible[index]),
+                            chainPillLabel: _chainPillLabelFor(xstocksVisible[index]),
+                            chainBadgePath: _chainBadgePathFor(xstocksVisible[index]),
+                          )
+                        : _SeeAllRow(
+                            expanded: _xstocksSectionExpanded,
+                            onTap: () =>
+                                setState(() => _xstocksSectionExpanded = !_xstocksSectionExpanded),
+                          ),
+                  ),
+                if (allAssets.isNotEmpty)
+                  _SliverPickerSection(
+                    title: S.of(context).picker_section_all_assets,
+                    itemCount: allAssets.length,
+                    itemBuilder: (_, index) => CurrencyPickerRow(
+                      currency: allAssets[index],
+                      isSelected: section == _SelSection.allAssets && selected == allAssets[index],
+                      chainPillLabel: _chainPillLabelFor(allAssets[index]),
+                      chainBadgePath: _chainBadgePathFor(allAssets[index]),
                       trailing: _SymbolTrailing(
-                        currency: item,
+                        currency: allAssets[index],
                         symbolResolver: symbolResolver,
                       ),
-                      onTap: () => onSelect(item),
+                      onTap: () => onSelect(allAssets[index]),
                     ),
-                  if (moreCryptos.length > _previewCount)
-                    _SeeAllRow(
-                      expanded: _moreCryptosSectionExpanded,
-                      onTap: () => setState(
-                          () => _moreCryptosSectionExpanded = !_moreCryptosSectionExpanded),
-                    ),
-                ],
-              ),
+                  ),
+              ],
             ),
-          if (xstocks.isNotEmpty)
-            _PickerSection(
-              title: S.of(context).picker_section_tokenized_stocks,
-              child: CurrencyPickerListContainer(
-                rows: [
-                  for (final item in xstocksVisible)
-                    CurrencyPickerRow(
-                      currency: item,
-                      isSelected: section == _SelSection.xstocks && selected == item,
-                      trailing: _SymbolTrailing(
-                        currency: item,
-                        symbolResolver: symbolResolver,
-                      ),
-                      onTap: () => onSelect(item),
-                      chainPillLabel: _chainPillLabelFor(item),
-                      chainBadgePath: _chainBadgePathFor(item),
-                    ),
-                  if (xstocks.length > _previewCount)
-                    _SeeAllRow(
-                      expanded: _xstocksSectionExpanded,
-                      onTap: () =>
-                          setState(() => _xstocksSectionExpanded = !_xstocksSectionExpanded),
-                    ),
-                ],
-              ),
-            ),
-          if (allAssets.isNotEmpty)
-            _PickerSection(
-              title: S.of(context).picker_section_all_assets,
-              child: CurrencyPickerListContainer(
-                rows: [
-                  for (final item in allAssets)
-                    CurrencyPickerRow(
-                      currency: item,
-                      isSelected: section == _SelSection.allAssets && selected == item,
-                      chainPillLabel: _chainPillLabelFor(item),
-                      chainBadgePath: _chainBadgePathFor(item),
-                      trailing: _SymbolTrailing(
-                        currency: item,
-                        symbolResolver: symbolResolver,
-                      ),
-                      onTap: () => onSelect(item),
-                    ),
-                ],
-              ),
-            ),
+          ),
         ],
       ),
     );
@@ -485,7 +507,9 @@ class _MultiNetworkPickerBodyState extends State<_MultiNetworkPickerBody> {
     if (c == CryptoCurrency.btcln) return _shortChainLabel(c);
     if (_isL2NativeEth(c)) return _shortChainLabel(c);
     if (widget.natives.contains(c)) return null;
-    if (cryptoCurrencyOrTokenToWalletType(c) == null) return null;
+    if (cryptoCurrencyOrTokenToWalletType(c) == null) {
+      return c is ExternalCurrency && c.tag != c.title ? c.tag : null;
+    }
     return _shortChainLabel(c);
   }
 
@@ -543,6 +567,27 @@ class _PickerSection extends StatelessWidget {
       ],
     );
   }
+}
+
+class _SliverPickerSection extends StatelessWidget {
+  const _SliverPickerSection({
+    required this.title,
+    required this.itemCount,
+    required this.itemBuilder,
+  });
+
+  final String title;
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+
+  @override
+  Widget build(BuildContext context) => SliverMainAxisGroup(
+    slivers: [
+      SliverToBoxAdapter(child: PickerSectionHeader(title: title)),
+      CurrencyPickerSliverList(itemCount: itemCount, itemBuilder: itemBuilder),
+      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+    ],
+  );
 }
 
 class _SymbolTrailing extends StatelessWidget {
