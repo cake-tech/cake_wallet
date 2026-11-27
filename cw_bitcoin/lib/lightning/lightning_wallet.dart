@@ -7,6 +7,7 @@ import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import "package:cw_bitcoin/exceptions.dart";
 import 'package:cw_bitcoin/lightning/pending_lightning_transaction.dart';
+import "package:cw_bitcoin/lightning/utils.dart";
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency.dart';
@@ -75,8 +76,9 @@ class LightningWallet {
         if (!logFile.existsSync()) {
           logFile.createSync(recursive: true);
         }
+        final line = redactPaymentComments(logEntry.line);
         logFile.writeAsStringSync(
-          "${DateTime.now().toUtc().toIso8601String()} [${logEntry.level}] ${logEntry.line}\n",
+          "${DateTime.now().toUtc().toIso8601String()} [${logEntry.level}] $line\n",
           mode: FileMode.append,
         );
       } catch (e) {
@@ -229,8 +231,9 @@ class LightningWallet {
     String address,
     BigInt? amountSats,
     BitcoinTransactionPriority? priority,
-    bool feesIncluded,
-  ) async {
+    bool feesIncluded, {
+    String? comment,
+  }) async {
     final inputType = await sdk.parse(input: address);
 
     final feePolicy = feesIncluded ? FeePolicy.feesIncluded : FeePolicy.feesExcluded;
@@ -284,22 +287,19 @@ class LightningWallet {
     } else if (inputType is InputType_LightningAddress || inputType is InputType_LnurlPay) {
       const optionalValidateSuccessActionUrl = true;
 
-      PrepareLnurlPayRequest request;
-      if (inputType is InputType_LightningAddress) {
-        request = PrepareLnurlPayRequest(
-          amount: amountSats!,
-          payRequest: inputType.field0.payRequest,
-          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
-          feePolicy: feePolicy,
-        );
-      } else {
-        request = PrepareLnurlPayRequest(
-          amount: amountSats!,
-          payRequest: (inputType as InputType_LnurlPay).field0,
-          validateSuccessActionUrl: optionalValidateSuccessActionUrl,
-          feePolicy: feePolicy,
-        );
-      }
+      final payRequest = inputType is InputType_LightningAddress
+          ? inputType.field0.payRequest
+          : (inputType as InputType_LnurlPay).field0;
+
+      ensureCommentAccepted(comment, payRequest.commentAllowed);
+
+      final request = PrepareLnurlPayRequest(
+        amount: amountSats!,
+        payRequest: payRequest,
+        comment: comment,
+        validateSuccessActionUrl: optionalValidateSuccessActionUrl,
+        feePolicy: feePolicy,
+      );
 
       final prepareResponse = await sdk.prepareLnurlPay(request: request);
 
@@ -499,6 +499,8 @@ class LightningWallet {
       preimage = details.htlcDetails.preimage;
     }
 
+    final memo = lightningPaymentMemo(payment);
+
     return ElectrumTransactionInfo(
       WalletType.bitcoin,
       id: payment.id,
@@ -511,6 +513,7 @@ class LightningWallet {
       additionalInfo: {
         "isLightning": true,
         if (preimage != null) "preimage": preimage,
+        if (memo != null && memo.isNotEmpty) "memo": memo,
       },
     );
   }

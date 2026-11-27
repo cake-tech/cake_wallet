@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Lorsque vous effectuez un dépôt sur Lightning, vous échangez votre Bitcoin on-chain de ce portefeuille vers votre compte Lightning.",
   "lightning_deposit_disclaimer": "Le nouveau solde Lightning ne sera pas disponible tant que la transaction Bitcoin ne sera pas entièrement confirmée.",
   "lightning_external_disclaimer": "Ne fermez pas cette page avant d'avoir envoyé les fonds, sinon le dépôt ne pourra pas être effectué.",
+  "lightning_memo_not_accepted": "Le destinataire n'accepte pas de mémo",
+  "lightning_memo_too_long": "Le destinataire accepte les mémos jusqu'à ${limit} caractères",
   "lightning_mode": "Mode éclair",
   "lightning_username_desc": "Recevez facilement des paiements Lightning grâce à un nom d’utilisateur Lightning, en choisissant un nom personnalisé ou en utilisant un nom généré aléatoirement ci-dessous.",
   "lightning_username_desc_completed": "Vous pouvez utiliser ce nom d'utilisateur pour recevoir des paiements depuis n'importe quel portefeuille Lightning.",

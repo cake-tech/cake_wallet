@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Quando depositi su Lightning, stai scambiando i tuoi Bitcoin on-chain da questo wallet al tuo account Lightning.",
   "lightning_deposit_disclaimer": "Il nuovo saldo Lightning non sarà disponibile finché la transazione Bitcoin non sarà completamente confermata.",
   "lightning_external_disclaimer": "Non chiudere questa pagina finché non invii i fondi, altrimenti il deposito non andrà a buon fine.",
+  "lightning_memo_not_accepted": "Il destinatario non accetta un memo",
+  "lightning_memo_too_long": "Il destinatario accetta memo fino a ${limit} caratteri",
   "lightning_mode": "Modalità lampo",
   "lightning_username_desc": "Ricevi facilmente pagamenti Lightning con un nome utente Lightning scegliendo un nome personalizzato o utilizzandone uno generato casualmente qui sotto.",
   "lightning_username_desc_completed": "Puoi usare questo nome utente per ricevere pagamenti da qualsiasi wallet Lightning.",

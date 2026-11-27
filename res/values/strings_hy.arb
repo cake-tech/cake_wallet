@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Երբ դուք մուտքագրում եք Lightning, դուք փոխանակում եք այս դրամապանակի ձեր on-chain Bitcoin-ը ձեր Lightning հաշվին։",
   "lightning_deposit_disclaimer": "Lightning-ի նոր մնացորդը հասանելի չի լինի, քանի դեռ Bitcoin գործարքը ամբողջությամբ չի հաստատվել։",
   "lightning_external_disclaimer": "Մի փակեք այս էջը, մինչև չուղարկեք միջոցները, հակառակ դեպքում դեպոզիտը չի կատարվի։",
+  "lightning_memo_not_accepted": "Ստացողը մեմո չի ընդունում",
+  "lightning_memo_too_long": "Ստացողն ընդունում է մինչև ${limit} նիշի մեմո",
   "lightning_mode": "Կայծակնային ռեժիմ",
   "lightning_username_desc": "Հեշտությամբ ստացեք Lightning վճարումներ Lightning օգտվողի անունով՝ ընտրելով հատուկ անուն կամ օգտագործելով ստորև պատահականորեն ստեղծվածը։",
   "lightning_username_desc_completed": "Դուք կարող եք օգտագործել այս օգտվողի անունը՝ ցանկացած Lightning դրամապանակից վճարումներ ստանալու համար։",

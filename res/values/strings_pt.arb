@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Ao depositar no Lightning, você está trocando o seu Bitcoin on-chain desta carteira pela sua conta Lightning.",
   "lightning_deposit_disclaimer": "O novo saldo da Lightning não estará disponível até que a transação de Bitcoin seja totalmente confirmada.",
   "lightning_external_disclaimer": "Não feche esta página até enviar os fundos; caso contrário, o depósito não será concluído.",
+  "lightning_memo_not_accepted": "O destinatário não aceita um memo",
+  "lightning_memo_too_long": "O destinatário aceita memos com até ${limit} caracteres",
   "lightning_mode": "Modo relâmpago",
   "lightning_username_desc": "Receba pagamentos Lightning facilmente com um nome de usuário Lightning, escolhendo um nome personalizado ou usando um nome gerado aleatoriamente abaixo.",
   "lightning_username_desc_completed": "Você pode usar este nome de usuário para receber pagamentos de qualquer carteira Lightning.",

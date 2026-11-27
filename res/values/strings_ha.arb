@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Lokacin da ka saka kuɗi zuwa Lightning, kana musanya Bitcoin ɗinka na on-chain daga wannan walat zuwa asusun Lightning ɗinka.",
   "lightning_deposit_disclaimer": "Sabon ma'aunin Lightning ba zai kasance a samuwa ba har sai an tabbatar da ma'amalar Bitcoin gaba ɗaya.",
   "lightning_external_disclaimer": "Kada ku rufe wannan shafin har sai kun aika da kuɗin, in ba haka ba ajiya ba zai ci gaba ba.",
+  "lightning_memo_not_accepted": "Mai karɓa baya karɓar memo",
+  "lightning_memo_too_long": "Mai karɓa yana karɓar memos har zuwa ${limit} haruffa",
   "lightning_mode": "Yanayin walƙiya",
   "lightning_username_desc": "Karɓi biyan kuɗin Lightning cikin sauƙi ta amfani da sunan mai amfani na Lightning, ta hanyar zaɓar suna na musamman ko amfani da wanda aka ƙirƙira bazuwar a ƙasa.",
   "lightning_username_desc_completed": "Kuna iya amfani da wannan sunan mai amfani don karɓar biyan kuɗi daga kowace walat ta Lightning.",

@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Saat Anda melakukan deposit ke Lightning, Anda menukar Bitcoin on-chain Anda dari dompet ini ke akun Lightning Anda.",
   "lightning_deposit_disclaimer": "Saldo Lightning baru tidak akan tersedia sampai transaksi Bitcoin terkonfirmasi sepenuhnya.",
   "lightning_external_disclaimer": "Jangan tutup halaman ini sampai Anda mengirim dana, jika tidak setoran tidak akan diproses.",
+  "lightning_memo_not_accepted": "Penerima tidak menerima memo",
+  "lightning_memo_too_long": "Penerima menerima memo hingga ${limit} karakter",
   "lightning_mode": "Modus petir",
   "lightning_username_desc": "Terima pembayaran Lightning dengan mudah menggunakan nama pengguna Lightning dengan memilih nama khusus atau menggunakan nama yang dibuat secara acak di bawah ini.",
   "lightning_username_desc_completed": "Anda dapat menggunakan nama pengguna ini untuk menerima pembayaran dari dompet Lightning apa pun.",

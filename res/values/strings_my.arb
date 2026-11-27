@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Lightning သို့ အပ်နှံသည့်အခါ၊ ဤပိုက်ဆံအိတ်ရှိ သင်၏ on-chain Bitcoin ကို သင်၏ Lightning အကောင့်သို့ လဲလှယ်နေခြင်းဖြစ်သည်။",
   "lightning_deposit_disclaimer": "Bitcoin အရောင်းအဝယ်ကို အပြည့်အဝ အတည်ပြုပြီးမချင်း Lightning လက်ကျန်အသစ်ကို မရနိုင်ပါ။",
   "lightning_external_disclaimer": "ရန်ပုံငွေကို မပို့မချင်း ဤစာမျက်နှာကို မပိတ်ပါနှင့်။ မဟုတ်ပါက အပ်ငွေ လုပ်ငန်းစဉ် ဆက်လက်မလုပ်ဆောင်နိုင်ပါ။",
+  "lightning_memo_not_accepted": "လက်ခံသူသည် memo ကို လက်မခံပါ။",
+  "lightning_memo_too_long": "လက်ခံသူက ${limit} စာလုံးအထိ memo ကို လက်ခံသည်။",
   "lightning_mode": "မိုးကြိုးမုဒ်",
   "lightning_username_desc": "စိတ်ကြိုက်အမည်ကို ရွေးချယ်ခြင်းဖြင့် သို့မဟုတ် အောက်တွင် ကျပန်းထုတ်ပေးထားသော အမည်ကို အသုံးပြုခြင်းဖြင့် Lightning အသုံးပြုသူအမည်ဖြင့် Lightning ငွေပေးချေမှုများကို လွယ်ကူစွာ လက်ခံရယူနိုင်ပါသည်။",
   "lightning_username_desc_completed": "မည်သည့် Lightning wallet မဆိုမှ ငွေပေးချေမှုများကို လက်ခံရန် ဤအသုံးပြုသူအမည်ကို အသုံးပြုနိုင်ပါသည်။",

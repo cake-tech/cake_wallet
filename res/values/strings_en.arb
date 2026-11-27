@@ -692,6 +692,8 @@
   "lightning_deposit_explainer_headline": "Transfer Bitcoin to Lightning Network",
   "lightning_explainer_subtitle": "Fast, cheap and without leaving Cake Wallet",
   "lightning_external_disclaimer": "Don't close this page until you send the funds, or else the deposit won't proceed.",
+  "lightning_memo_not_accepted": "The recipient doesn't accept a memo",
+  "lightning_memo_too_long": "The recipient accepts memos up to ${limit} characters",
   "lightning_mode": "Lightning mode",
   "lightning_username_desc": "Easily receive Lightning payments with a Lightning username by choosing a custom name or using a randomly generated one below.",
   "lightning_username_desc_completed": "You can use this username to receive payments from any Lightning wallet.",

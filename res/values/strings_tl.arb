@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "Kapag nagdeposito ka sa Lightning, ipinagpapalit mo ang iyong on-chain na Bitcoin mula sa wallet na ito papunta sa iyong Lightning account.",
   "lightning_deposit_disclaimer": "Hindi magiging available ang bagong balanse sa Lightning hangga't hindi pa ganap na nakukumpirma ang transaksyon sa Bitcoin.",
   "lightning_external_disclaimer": "Huwag isara ang pahinang ito hanggang sa maipadala mo ang mga pondo; kung hindi, hindi magpapatuloy ang pagdeposito.",
+  "lightning_memo_not_accepted": "Ang tatanggap ay hindi tumatanggap ng memo",
+  "lightning_memo_too_long": "Ang tatanggap ay tumatanggap ng mga memo na hanggang ${limit} character",
   "lightning_mode": "Lightning mode",
   "lightning_username_desc": "Madaling makatanggap ng mga pagbabayad sa Lightning gamit ang isang Lightning username sa pamamagitan ng pagpili ng custom na pangalan o paggamit ng random na nabuo sa ibaba.",
   "lightning_username_desc_completed": "Maaari mong gamitin ang username na ito para makatanggap ng mga bayad mula sa anumang Lightning wallet.",

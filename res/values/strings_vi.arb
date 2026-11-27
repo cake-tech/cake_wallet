@@ -641,6 +641,8 @@
   "lightning_deposit_desc": "Khi bạn nạp vào Lightning, bạn sẽ hoán đổi Bitcoin on-chain từ ví này sang tài khoản Lightning của mình.",
   "lightning_deposit_disclaimer": "Số dư Lightning mới sẽ không khả dụng cho đến khi giao dịch Bitcoin được xác nhận hoàn tất.",
   "lightning_external_disclaimer": "Đừng đóng trang này cho đến khi bạn gửi tiền, nếu không giao dịch nạp sẽ không được thực hiện.",
+  "lightning_memo_not_accepted": "Người nhận không chấp nhận ghi chú",
+  "lightning_memo_too_long": "Người nhận chấp nhận ghi chú tối đa ${limit} ký tự",
   "lightning_mode": "Chế độ sét",
   "lightning_username_desc": "Dễ dàng nhận thanh toán Lightning bằng tên người dùng Lightning bằng cách chọn một tên tùy chỉnh hoặc sử dụng tên được tạo ngẫu nhiên bên dưới.",
   "lightning_username_desc_completed": "Bạn có thể sử dụng tên người dùng này để nhận thanh toán từ bất kỳ ví Lightning nào.",

@@ -640,6 +640,8 @@
   "lightning_deposit_desc": "جب آپ Lightning میں ڈپازٹ کرتے ہیں تو آپ اس والٹ میں موجود اپنے آن چین Bitcoin کو اپنے Lightning اکاؤنٹ میں منتقل کرنے کے لیے سوئپ کر رہے ہوتے ہیں۔",
   "lightning_deposit_disclaimer": "نیا Lightning بیلنس اس وقت تک دستیاب نہیں ہوگا جب تک Bitcoin ٹرانزیکشن کی مکمل تصدیق نہ ہو جائے۔",
   "lightning_external_disclaimer": "فنڈز بھیجنے تک اس صفحے کو بند نہ کریں، ورنہ ڈپازٹ مکمل نہیں ہوگا۔",
+  "lightning_memo_not_accepted": "وصول کنندہ میمو قبول نہیں کرتا ہے۔",
+  "lightning_memo_too_long": "وصول کنندہ ${limit} حروف تک میمو قبول کرتا ہے۔",
   "lightning_mode": "بجلی کا موڈ",
   "lightning_username_desc": "اپنا حسبِ منشا نام منتخب کر کے یا نیچے دیے گئے بے ترتیب طور پر تیار کردہ نام میں سے کوئی استعمال کر کے Lightning صارف نام کے ذریعے Lightning ادائیگیاں آسانی سے وصول کریں۔",
   "lightning_username_desc_completed": "آپ اس صارف نام کو کسی بھی Lightning والیٹ سے ادائیگیاں وصول کرنے کے لیے استعمال کر سکتے ہیں۔",
