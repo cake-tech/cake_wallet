@@ -44,6 +44,27 @@ void main() {
     });
   });
 
+  group("SwapsXyzTokenListResponse", () {
+    test("parses every token in token_list", () {
+      final raw = fixtureMap("swapsxyz", "token_list");
+      final rawTokens = raw["tokens"] as List<dynamic>;
+      final tokens = SwapsXyzTokenListResponse.fromJson(raw).tokens;
+
+      expect(tokens, hasLength(rawTokens.length));
+
+      for (var i = 0; i < rawTokens.length; i++) {
+        final rawToken = rawTokens[i] as Map<String, dynamic>;
+
+        expect(tokens[i].chainId, rawToken["chainId"]);
+        expect(tokens[i].address, rawToken["address"]);
+        expect(tokens[i].name, rawToken["name"]);
+        expect(tokens[i].symbol, rawToken["symbol"]);
+        expect(tokens[i].decimals, rawToken["decimals"]);
+        expect(tokens[i].isNative, rawToken["isNative"]);
+      }
+    });
+  });
+
   group("SwapsXyzPathsResponse", () {
     test("parses paths field by field", () {
       final raw = fixtureMap("swapsxyz", "paths");

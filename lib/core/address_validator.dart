@@ -1,4 +1,6 @@
 import 'package:bitcoin_base/bitcoin_base.dart';
+import "package:blockchain_utils/blockchain_utils.dart"
+    show AlgoAddrDecoder, BlockchainUtilsException, TonAddressUtils;
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/solana/solana.dart';
@@ -15,7 +17,8 @@ class AddressValidator extends TextValidator {
     required CryptoCurrency type,
     bool isTestnet = false,
     String? network,
-  }) : super(
+  }) : _type = type,
+       super(
           errorMessage: S.current.error_text_address,
           useAdditionalValidation: [CryptoCurrency.btc, CryptoCurrency.ltc].contains(type)
               ? (String txt) {
@@ -39,6 +42,29 @@ class AddressValidator extends TextValidator {
           pattern: getPattern(type, isTestnet: isTestnet, network: network),
           length: getLength(type),
         );
+
+  final CryptoCurrency _type;
+
+  @override
+  bool isValid(String? value) {
+    if (value == null || !super.isValid(value)) {
+      return false;
+    }
+
+    try {
+      switch (_type) {
+        case CryptoCurrency.ton:
+        case CryptoCurrency.usdtTon:
+        case CryptoCurrency.usdeTon:
+          TonAddressUtils.fromFriendlyAddress(value);
+        case CryptoCurrency.usdcAlgo:
+          AlgoAddrDecoder().decodeAddr(value);
+      }
+      return true;
+    } on BlockchainUtilsException {
+      return false;
+    }
+  }
 
   static const List<CryptoCurrency> reliableValidateCurrencies = [
     CryptoCurrency.xmr,
@@ -114,6 +140,27 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.baseEth:
       case CryptoCurrency.arbEth:
       case CryptoCurrency.robEth:
+      case CryptoCurrency.usdeEth:
+      case CryptoCurrency.usdsEth:
+      case CryptoCurrency.usd1Bsc:
+      case CryptoCurrency.usd1Eth:
+      case CryptoCurrency.usdgEth:
+      case CryptoCurrency.pyusdEth:
+      case CryptoCurrency.rlusdEth:
+      case CryptoCurrency.usddEth:
+      case CryptoCurrency.eurcEth:
+      case CryptoCurrency.eurcBase:
+      case CryptoCurrency.usdtPlasma:
+      case CryptoCurrency.usdtAvax:
+      case CryptoCurrency.usdtOp:
+      case CryptoCurrency.usdtKaia:
+      case CryptoCurrency.usdtXlayer:
+      case CryptoCurrency.usdtCelo:
+      case CryptoCurrency.usdtMon:
+      case CryptoCurrency.usdcArc:
+      case CryptoCurrency.usdcAvax:
+      case CryptoCurrency.usdcMon:
+      case CryptoCurrency.usdcOp:
       case CryptoCurrency.mana:
       case CryptoCurrency.matic:
       case CryptoCurrency.maticpoly:
@@ -144,6 +191,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.shib:
         pattern = '0x[0-9a-zA-Z]+';
       case CryptoCurrency.xrp:
+      case CryptoCurrency.rlusdXrp:
         pattern = '[0-9a-zA-Z]{34}|[0-9a-zA-Z]{33}|X[0-9a-zA-Z]{46}';
       case CryptoCurrency.xhv:
         pattern = 'hvx|hvi|hvs[0-9a-zA-Z]+';
@@ -163,7 +211,10 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.usdt:
       case CryptoCurrency.usdterc20:
       case CryptoCurrency.xlm:
+      case CryptoCurrency.usdcXlm:
       case CryptoCurrency.trx:
+      case CryptoCurrency.usd1Trx:
+      case CryptoCurrency.usddTrx:
       case CryptoCurrency.dai:
       case CryptoCurrency.dash:
       case CryptoCurrency.eos:
@@ -184,7 +235,19 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.rvn:
         pattern = '[Rr]([1-9a-km-zA-HJ-NP-Z]){33}';
       case CryptoCurrency.near:
-        pattern = '[0-9a-f]{64}';
+      case CryptoCurrency.usdtNear:
+        pattern = r"^(?=[a-z\d._-]{2,64}$)(?:(?:[a-z\d]+[-_])*[a-z\d]+\.)*(?:[a-z\d]+[-_])*[a-z\d]+$";
+      case CryptoCurrency.usdtApt:
+      case CryptoCurrency.usdcApt:
+      case CryptoCurrency.usd1Apt:
+      case CryptoCurrency.usdcSui:
+        pattern = "0x[0-9a-fA-F]{64}";
+      case CryptoCurrency.usdcAlgo:
+        pattern = "[A-Z2-7]{58}";
+      case CryptoCurrency.ton:
+      case CryptoCurrency.usdtTon:
+      case CryptoCurrency.usdeTon:
+        pattern = "[EU][0-9A-Za-z+/_-]{47}";
       case CryptoCurrency.rune:
         pattern = 'thor1[0-9a-z]{38}';
       case CryptoCurrency.scrt:
@@ -273,6 +336,27 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.baseEth:
       case CryptoCurrency.arbEth:
       case CryptoCurrency.robEth:
+      case CryptoCurrency.usdeEth:
+      case CryptoCurrency.usdsEth:
+      case CryptoCurrency.usd1Bsc:
+      case CryptoCurrency.usd1Eth:
+      case CryptoCurrency.usdgEth:
+      case CryptoCurrency.pyusdEth:
+      case CryptoCurrency.rlusdEth:
+      case CryptoCurrency.usddEth:
+      case CryptoCurrency.eurcEth:
+      case CryptoCurrency.eurcBase:
+      case CryptoCurrency.usdtPlasma:
+      case CryptoCurrency.usdtAvax:
+      case CryptoCurrency.usdtOp:
+      case CryptoCurrency.usdtKaia:
+      case CryptoCurrency.usdtXlayer:
+      case CryptoCurrency.usdtCelo:
+      case CryptoCurrency.usdtMon:
+      case CryptoCurrency.usdcArc:
+      case CryptoCurrency.usdcAvax:
+      case CryptoCurrency.usdcMon:
+      case CryptoCurrency.usdcOp:
         return [42];
       case CryptoCurrency.bch:
         return [42, 54, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35];
@@ -287,16 +371,26 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.sol:
       case CryptoCurrency.usdtSol:
       case CryptoCurrency.usdcsol:
+      case CryptoCurrency.usdeSol:
+      case CryptoCurrency.usdsSol:
+      case CryptoCurrency.usd1Sol:
+      case CryptoCurrency.usdgSol:
+      case CryptoCurrency.pyusdSol:
+      case CryptoCurrency.eurcSol:
         return [32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44];
       case CryptoCurrency.trx:
         return [34];
       case CryptoCurrency.usdt:
         return [34];
       case CryptoCurrency.usdttrc20:
+      case CryptoCurrency.usd1Trx:
+      case CryptoCurrency.usddTrx:
         return [34];
       case CryptoCurrency.xlm:
+      case CryptoCurrency.usdcXlm:
         return [56];
       case CryptoCurrency.xrp:
+      case CryptoCurrency.rlusdXrp:
         return null;
       case CryptoCurrency.xhv:
       case CryptoCurrency.xag:
@@ -338,8 +432,17 @@ class AddressValidator extends TextValidator {
         return [43];
       case CryptoCurrency.scrt:
         return [45];
-      case CryptoCurrency.near:
-        return [64];
+      case CryptoCurrency.usdtApt:
+      case CryptoCurrency.usdcApt:
+      case CryptoCurrency.usd1Apt:
+      case CryptoCurrency.usdcSui:
+        return [66];
+      case CryptoCurrency.usdcAlgo:
+        return [58];
+      case CryptoCurrency.ton:
+      case CryptoCurrency.usdtTon:
+      case CryptoCurrency.usdeTon:
+        return [48];
       case CryptoCurrency.btcln:
       case CryptoCurrency.kaspa:
       case CryptoCurrency.zano:

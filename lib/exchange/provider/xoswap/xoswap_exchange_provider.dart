@@ -60,7 +60,23 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     "XLM": "stellar",
     "BASE": "basemainnet",
     "ARB": "arbitrum",
+    "TON": "ton",
+    "AVAXC": "avalanchec",
+    "OP": "optimism",
+    "MON": "evm0x8f",
+    "ARC": "arc",
+    "SUI": "sui",
+    "ALGO": "algorand",
   };
+
+  static const _assetSymbols = <CryptoCurrency, String>{
+    CryptoCurrency.usdtOp: "USD₮0",
+    CryptoCurrency.usdtMon: "USD₮0",
+    CryptoCurrency.usdcArc: "USDC.arc",
+  };
+
+  // Pin Circle's USDC as XOSwap also lists Tinyman's USDC on Algorand
+  static const _assetIndexes = <CryptoCurrency, String>{CryptoCurrency.usdcAlgo: "31566704"};
 
   static const supportedTags = [
     "POL",
@@ -93,19 +109,31 @@ class XOSwapExchangeProvider extends ExchangeProvider {
     if (currency.tag == null) {
       return currency.title;
     }
+    // XOSwap lists other USDD contracts under this symbol
+    if (currency.title.toUpperCase() == "USDD" && ["TRX", "ETH"].contains(currency.tag)) {
+      return null;
+    }
     try {
       final normalizedNetwork = _networks[currency.tag];
       if (normalizedNetwork == null) {
         return null;
       }
 
+      final assetSymbol = _assetSymbols[currency];
+      final assetIndex = _assetIndexes[currency];
       final assets = await _api.send(
-        XOSwapAssetsRequest(networks: normalizedNetwork, query: currency.title),
+        XOSwapAssetsRequest(networks: normalizedNetwork, query: assetSymbol ?? currency.title),
       );
 
-      final asset = assets.firstWhereOrNull(
-        (asset) => removeNonAlphanumeric(asset.symbol.toString()) == currency.title,
-      );
+      final asset = assets.firstWhereOrNull((asset) {
+        if (assetIndex != null) {
+          return asset.meta?["assetIndex"] == assetIndex;
+        }
+        if (assetSymbol != null) {
+          return asset.symbol == assetSymbol;
+        }
+        return removeNonAlphanumeric(asset.symbol.toString()) == currency.title;
+      });
 
       return asset?.id;
     } catch (e) {

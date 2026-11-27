@@ -39,6 +39,10 @@ class WhyNotExchangeProvider extends ExchangeProvider {
     required CryptoCurrency to,
     required bool isFixedRateMode,
   }) async {
+    if (_isExcluded(from) || _isExcluded(to)) {
+      throw Exception("Not supported by WhyNot");
+    }
+
     final params = WhyNotInfoRequest(
       float: !isFixedRateMode,
       from: from.symbol,
@@ -59,6 +63,9 @@ class WhyNotExchangeProvider extends ExchangeProvider {
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
+      throw Exception("Not supported by WhyNot");
+    }
 
     final params = WhyNotInfoRequest(
       float: request is FloatingRateRequest,
@@ -93,6 +100,10 @@ class WhyNotExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
+    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
+      throw Exception("Not supported by WhyNot");
+    }
+
     final networkFrom = _getNetworkType(request.depositCurrency);
     final networkTo = _getNetworkType(request.payoutCurrency);
 
@@ -227,6 +238,13 @@ class WhyNotExchangeProvider extends ExchangeProvider {
     return WhyNotInfoResponse.fromJson(json.decode(response.body) as Map<String, dynamic>);
   }
 
+  // WhyNot lists legacy USDT on OP and other USDD contracts on ETH and TRX
+  bool _isExcluded(CryptoCurrency currency) {
+    final title = currency.title.toUpperCase();
+    return (title == "USDT" && currency.tag == "OP") ||
+        (title == "USDD" && ["TRX", "ETH"].contains(currency.tag));
+  }
+
   String? _getNetworkType(CryptoCurrency currency) {
     if (currency.tag != null && currency.tag!.isNotEmpty) {
       switch (currency.tag!) {
@@ -238,6 +256,8 @@ class WhyNotExchangeProvider extends ExchangeProvider {
           return "BEP20";
         case "ARB":
           return "ARBITRUM";
+        case "OP":
+          return "OPTIMISM";
         default:
           return currency.tag!;
       }

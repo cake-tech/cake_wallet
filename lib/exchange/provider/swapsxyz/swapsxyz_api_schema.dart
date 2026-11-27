@@ -197,6 +197,35 @@ class SwapsXyzChainListRequest extends ApiRequest<List<SwapsXyzChain>> {
       .toList();
 }
 
+@JsonSerializable()
+class SwapsXyzTokenListRequest extends ApiRequest<SwapsXyzTokenListResponse> {
+  const SwapsXyzTokenListRequest({required this.chainId});
+
+  @JsonKey(name: "chainId")
+  final String chainId;
+
+  @override
+  String path() => "/api/getTokenList";
+
+  @override
+  Map<String, dynamic> toJson() => _$SwapsXyzTokenListRequestToJson(this);
+
+  @override
+  SwapsXyzTokenListResponse decode(Object json) =>
+      SwapsXyzTokenListResponse.fromJson(json as Map<String, dynamic>);
+}
+
+@JsonSerializable(createToJson: false)
+class SwapsXyzTokenListResponse {
+  const SwapsXyzTokenListResponse({required this.tokens});
+
+  factory SwapsXyzTokenListResponse.fromJson(Map<String, dynamic> json) =>
+      _$SwapsXyzTokenListResponseFromJson(json);
+
+  @JsonKey(name: "tokens")
+  final List<SwapsXyzTokenInfo> tokens;
+}
+
 @JsonSerializable(createToJson: false)
 class SwapsXyzChain {
   const SwapsXyzChain({required this.chainId, required this.name, required this.vmId});

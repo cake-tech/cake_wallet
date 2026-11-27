@@ -182,7 +182,9 @@ class _SwapSendExternalModalState extends State<SwapSendExternalModal> {
                               spacing: 8,
                               children: [
                                 Text(
-                                  S.of(context).destination_tag,
+                                  widget.from.memoLabelType == MemoLabelType.destinationTag
+                                      ? S.of(context).destination_tag
+                                      : S.of(context).memo,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       fontSize: 14,

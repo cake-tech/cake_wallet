@@ -101,6 +101,10 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
 
   @override
   Future<ProviderRate> fetchRate(RateRequest request) async {
+    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
+      throw Exception("Not supported by Trocador");
+    }
+
     final (rate, quotes) = await _getQuotes(request);
     _lastQuotes = (request: request, rate: rate, quotes: quotes, fetchedAt: DateTime.now());
 
@@ -120,6 +124,10 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
 
   @override
   Future<Trade> createTrade({required TradeRequest request}) async {
+    if (_isExcluded(request.depositCurrency) || _isExcluded(request.payoutCurrency)) {
+      throw Exception("Not supported by Trocador");
+    }
+
     final (rate, quotes) =
         _takeLastQuotes(request.rateRequest) ?? await _getQuotes(request.rateRequest);
 
@@ -269,6 +277,13 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
       );
   }
 
+  // partners may pay out bridged USDT.e (NEAR), legacy USDT (OP) or another USDD (ETH)
+  bool _isExcluded(CryptoCurrency currency) {
+    final title = currency.title.toUpperCase();
+    return (title == "USDT" && (currency.tag == "NEAR" || currency.tag == "OP")) ||
+        (title == "USDD" && currency.tag == "ETH");
+  }
+
   String _networkFor(CryptoCurrency currency) {
     switch (currency) {
       case CryptoCurrency.eth:
@@ -283,6 +298,8 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
         return "Mainnet";
       case CryptoCurrency.arb:
         return "Mainnet";
+      case CryptoCurrency.usdcOp:
+        return "Optimism";
       default:
         return currency.tag != null ? _normalizeTag(currency.tag!) : "Mainnet";
     }
@@ -294,8 +311,12 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
         return "zec";
       case CryptoCurrency.usdcEPoly:
         return "usdce";
+      case CryptoCurrency.usdcApt:
+        return "usdcapt";
       default:
-        return currency.title.toLowerCase();
+        final ticker = currency.title.toLowerCase();
+        // Trocador's /coin lookup is case-sensitive
+        return ticker == "usds" || ticker == "eurc" ? ticker.toUpperCase() : ticker;
     }
   }
 
@@ -313,6 +334,8 @@ class TrocadorExchangeProvider extends LimitsCacheExchangeProvider {
         return "Lightning";
       case "BSC":
         return "BEP20";
+      case "APT":
+        return "APTOS";
       default:
         return tag.toLowerCase();
     }

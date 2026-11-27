@@ -13,6 +13,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -76,6 +77,21 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     ),
   ];
 
+  static const _evmNatives = [
+    CryptoCurrency.eth,
+    CryptoCurrency.maticpoly,
+    CryptoCurrency.baseEth,
+    CryptoCurrency.arbEth,
+    CryptoCurrency.avaxc,
+  ];
+
+  // Swaps.xyz lists these as "USD₮0" or beside a bridged/legacy "USDC"/"USDT"
+  static const _pinnedAddresses = <CryptoCurrency, String>{
+    CryptoCurrency.usdcOp: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+    CryptoCurrency.usdtOp: "0x01bFF41798a0BcF287b996046Ca68b395DbC1071",
+    CryptoCurrency.usdtPlasma: "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb",
+  };
+
   static const _transferSig = "0xa9059cbb";
   static const _swapAndExecuteSig = "0x9be111d1";
 
@@ -91,6 +107,7 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
 
   static final _supportedChainList = <SwapsXyzChain>[];
   final Map<int, List<TokenPathInfo>> _tokensCache = {};
+  final Set<int> _tokenListChainIds = {};
 
   @override
   bool get supportsFixedRate => false;
@@ -245,8 +262,8 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     }
 
     final decimals = request is FixedRateRequest
-        ? _chainDecimals(request.payoutCurrency, dstChain)
-        : _chainDecimals(request.depositCurrency, srcChain);
+        ? _chainDecimals(request.payoutCurrency, dstChain, dstToken)
+        : _chainDecimals(request.depositCurrency, srcChain, srcToken);
 
     final data = await _api.send(
       SwapsXyzQuoteRequest(
@@ -313,8 +330,8 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
         ? request.payoutAmount
         : request.depositAmount;
     final decimals = request.isFixedRate
-        ? _chainDecimals(request.payoutCurrency, dstChain)
-        : _chainDecimals(request.depositCurrency, srcChain);
+        ? _chainDecimals(request.payoutCurrency, dstChain, dstToken)
+        : _chainDecimals(request.depositCurrency, srcChain, srcToken);
 
     final data = await _api.send(
       SwapsXyzActionRequest(
@@ -452,9 +469,13 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
 
   /// Swaps.xyz counts in the token's on-chain decimals, which aren't always Cake's
   /// (AVAX is 9 in Cake, 18 on the C-chain)
-  int _chainDecimals(CryptoCurrency currency, SwapsXyzChain chain) =>
+  int _chainDecimals(CryptoCurrency currency, SwapsXyzChain chain, String token) =>
       _tokensCache[chain.chainId]
-          ?.firstWhereOrNull((t) => t.symbol == _normalizeCakeNativeTokenName(currency.title))
+          ?.firstWhereOrNull(
+            (t) =>
+                (t.address ?? "0x0000000000000000000000000000000000000000").toLowerCase() ==
+                token.toLowerCase(),
+          )
           ?.decimals ??
       currency.decimals;
 
@@ -493,28 +514,23 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     required CryptoCurrency from,
     required CryptoCurrency to,
   }) async {
-    final needSrc =
-        !_tokensCache.containsKey(fromChain.chainId) ||
-        (_tokensCache[fromChain.chainId]?.isEmpty ?? true);
-
-    final needDst =
-        !_tokensCache.containsKey(toChain.chainId) ||
-        (_tokensCache[toChain.chainId]?.isEmpty ?? true);
-
-    if (!needSrc && !needDst) {
-      return;
-    }
-
-    if (needSrc) {
-      await _fetchAndCacheTokens(srcChainId: fromChain.chainId);
-    }
-    if (needDst) {
-      await _fetchAndCacheTokens(srcChainId: toChain.chainId);
+    for (final chainId in {fromChain.chainId, toChain.chainId}) {
+      if (!_tokenListChainIds.contains(chainId)) {
+        await _fetchAndCacheTokens(srcChainId: chainId);
+      }
     }
   }
 
-  // call getPaths and merge tokens into cache keyed by the chainId
   Future<void> _fetchAndCacheTokens({required int srcChainId}) async {
+    // getPaths can answer "all" for EVM chains without token addresses
+    try {
+      final response = await _api.send(SwapsXyzTokenListRequest(chainId: srcChainId.toString()));
+      _mergeCache(srcChainId, response.tokens.map(TokenPathInfo.fromTokenInfo).toList());
+      _tokenListChainIds.add(srcChainId);
+    } catch (e) {
+      printV("getTokenList failed: $e");
+    }
+
     final SwapsXyzPathsResponse body;
     try {
       body = await _api.send(
@@ -545,23 +561,26 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     }
   }
 
-  // Merge by symbol, prefer entries that have a non-empty address/decimals
+  // Keep distinct decimal representations of a token, such as native and ERC20 USDC on Arc.
   void _mergeCache(int chainId, List<TokenPathInfo> incoming) {
     final existing = _tokensCache[chainId] ?? const <TokenPathInfo>[];
-    final bySymbol = <String, TokenPathInfo>{for (final t in existing) t.symbol: t};
+    final bySymbol = <(String, int?), TokenPathInfo>{
+      for (final t in existing) (t.symbol, t.decimals): t,
+    };
 
     for (final t in incoming) {
-      final cur = bySymbol[t.symbol];
+      final key = (t.symbol, t.decimals);
+      final cur = bySymbol[key];
       if (cur == null) {
-        bySymbol[t.symbol] = t;
+        bySymbol[key] = t;
       } else {
-        // If incoming has a real address/decimals, prefer it
+        // If incoming has a real address, prefer it
         final hasBetterAddr =
             (t.address != null && t.address!.isNotEmpty) &&
             (cur.address == null || cur.address!.isEmpty);
-        final hasBetterDec = (t.decimals != null) && (cur.decimals == null);
-        if (hasBetterAddr || hasBetterDec) {
-          bySymbol[t.symbol] = t;
+        if (hasBetterAddr) {
+          bySymbol.remove(key);
+          bySymbol[key] = t;
         }
       }
     }
@@ -578,11 +597,31 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
   }
 
   String _getTokenAddress({required CryptoCurrency currency, required SwapsXyzChain chain}) {
+    // Polygon also lists POL as an ERC-20, which needs an approval
+    if (_evmNatives.contains(currency)) {
+      return "0x0000000000000000000000000000000000000000";
+    }
+
+    final knownContract = TokenUtilities.findErc20TokenForSwap(currency)?.contractAddress ??
+        TokenUtilities.findTronTokenContract(currency);
+    if (knownContract != null) {
+      return knownContract;
+    }
+
+    final pinnedAddress = _pinnedAddresses[currency];
+    if (pinnedAddress != null) {
+      return pinnedAddress;
+    }
+
     final symbol = _normalizeCakeNativeTokenName(currency.title);
     final list = _tokensCache[chain.chainId];
 
     if (list != null && list.isNotEmpty) {
-      for (final t in list) {
+      final decimalsFirst = [
+        ...list.where((t) => t.decimals == currency.decimals),
+        ...list.where((t) => t.decimals != currency.decimals),
+      ];
+      for (final t in decimalsFirst) {
         if (t.symbol == symbol && t.address != null && t.address!.isNotEmpty) {
           return t.address!;
         } else if (t.symbol == symbol && (t.address == null)) {
@@ -625,7 +664,7 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     "CRO" => "CRONOS",
     "ADA" => "CARDANO",
     "KAS" => "KASPA",
-    "TON" => "TONCOIN",
+    "OP" => "OPTIMISM",
     "BCH" => "BITCOIN CASH",
     "ARB" => "ARBITRUM",
     _ => network.toUpperCase(),
@@ -911,6 +950,15 @@ class TokenPathInfo {
     minAmount: token.minAmount,
     maxAmount: token.maxAmount,
   );
+
+  factory TokenPathInfo.fromTokenInfo(SwapsXyzTokenInfo token) => TokenPathInfo(
+    symbol: token.symbol.toUpperCase(),
+    address: token.address,
+    decimals: token.decimals,
+    minAmount: null,
+    maxAmount: null,
+  );
+
   final String symbol;
   final String? address;
   final int? decimals;

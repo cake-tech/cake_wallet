@@ -15,8 +15,16 @@ class SwapCurrencyStore {
     _injectUserEthTokensIntoCurrencyLists();
   }
 
-  static const excludeDepositCurrencies = [CryptoCurrency.btt];
-  static const excludeReceiveCurrencies = [CryptoCurrency.btt];
+  static const excludeDepositCurrencies = [
+    CryptoCurrency.btt,
+    CryptoCurrency.usdt,
+    CryptoCurrency.avaxc,
+  ];
+  static const excludeReceiveCurrencies = [
+    CryptoCurrency.btt,
+    CryptoCurrency.usdt,
+    CryptoCurrency.avaxc,
+  ];
 
   final List<CryptoCurrency> receiveCurrencies;
   final List<CryptoCurrency> depositCurrencies;

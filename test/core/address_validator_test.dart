@@ -116,6 +116,120 @@ void main() {
             isFalse); // Missing 0x prefix
       });
 
+      test("validates new stablecoins on EVM networks", () {
+        const address = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+        for (final currency in [
+          CryptoCurrency.usdsEth,
+          CryptoCurrency.usd1Bsc,
+          CryptoCurrency.eurcBase,
+          CryptoCurrency.usdtPlasma,
+          CryptoCurrency.usddEth,
+        ]) {
+          final validator = AddressValidator(type: currency);
+          expect(validator.isValid(address), isTrue, reason: currency.toString());
+          expect(
+            validator.isValid(address.replaceRange(0, 2, "zz")),
+            isFalse,
+            reason: currency.toString(),
+          );
+          expect(
+            validator.isValid(address.substring(0, address.length - 1)),
+            isFalse,
+            reason: currency.toString(),
+          );
+        }
+      });
+
+      test("validates Aptos and Sui stablecoin addresses", () {
+        const aptosAddress = "0xeeff357ea5c1a4e7bc11b2b17ff2dc2dcca69750bfef1e1ebcaccf8c8018175b";
+        const suiAddress = "0xbc33e6e4818f9f2ef77d020b35c24be738213e64d9e58839ee7b4222029610de";
+        for (final currency in [
+          CryptoCurrency.usdtApt,
+          CryptoCurrency.usdcApt,
+          CryptoCurrency.usd1Apt,
+          CryptoCurrency.usdcSui,
+        ]) {
+          final address = currency == CryptoCurrency.usdcSui ? suiAddress : aptosAddress;
+          final validator = AddressValidator(type: currency);
+          expect(validator.isValid(address), isTrue, reason: currency.toString());
+          expect(
+            validator.isValid(address.replaceRange(2, 3, "g")),
+            isFalse,
+            reason: currency.toString(),
+          );
+          expect(validator.isValid(address.substring(1)), isFalse, reason: currency.toString());
+        }
+      });
+
+      test("validates Algorand stablecoin addresses", () {
+        const address = "4H5UNRBJ2Q6JENAXQ6HNTGKLKINP4J4VTQBEPK5F3I6RDICMZBPGNH6KD4";
+        final badChecksum = address.replaceRange(address.length - 1, address.length, "Y");
+        final validator = AddressValidator(type: CryptoCurrency.usdcAlgo);
+        expect(validator.isValid(address), isTrue);
+        expect(validator.isValid(badChecksum), isFalse);
+        expect(validator.isValid(address.replaceRange(0, 1, "0")), isFalse);
+        expect(validator.isValid(address.substring(1)), isFalse);
+      });
+
+      test("validates Stellar stablecoin addresses", () {
+        const address = "GDJ4JZXZELZD737NVFORH4PSSQDWFDZTKW3AIDKHYQG23ZXBPDGGQBJK";
+        final validator = AddressValidator(type: CryptoCurrency.usdcXlm);
+        expect(validator.isValid(address), isTrue);
+        expect(validator.isValid(address.replaceRange(0, 1, "_")), isFalse);
+        expect(validator.isValid(address.substring(1)), isFalse);
+      });
+
+      test("validates TON addresses", () {
+        const bounceable = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
+        const nonBounceable = "UQDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff+W72r5gqPuwA";
+        const testnet = "0QDKbjIcfM6ezt8KjKJJLshZJJSqX7XOA4ff-W72r5gqPleK";
+        final badChecksum = bounceable.replaceRange(bounceable.length - 1, bounceable.length, "t");
+        for (final currency in [
+          CryptoCurrency.ton,
+          CryptoCurrency.usdtTon,
+          CryptoCurrency.usdeTon,
+        ]) {
+          final validator = AddressValidator(type: currency);
+          expect(validator.isValid(bounceable), isTrue, reason: currency.toString());
+          expect(validator.isValid(nonBounceable), isTrue, reason: currency.toString());
+          expect(validator.isValid(badChecksum), isFalse, reason: currency.toString());
+          expect(validator.isValid(testnet), isFalse, reason: currency.toString());
+          expect(validator.isValid(bounceable.substring(1)), isFalse, reason: currency.toString());
+          expect(
+            validator.isValid("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"),
+            isFalse,
+            reason: currency.toString(),
+          );
+        }
+      });
+
+      test("validates NEAR named and implicit accounts", () {
+        for (final currency in [CryptoCurrency.near, CryptoCurrency.usdtNear]) {
+          final validator = AddressValidator(type: currency);
+          for (final account in [
+            "aurora.near",
+            "user_1.tg",
+            "a1-b2.c3.near",
+            "98793cd91a3f870fb126f66285808c7e094afcfc4eda8a970f6648cdf0dbd6de",
+            "0x85f17cf997934a597031b2e18a9ab6ebd4b9f6a4",
+          ]) {
+            expect(validator.isValid(account), isTrue, reason: "$currency $account");
+          }
+          for (final account in [
+            "Aurora.near",
+            "a",
+            "aurora..near",
+            "aurora.near.",
+            "-aurora.near",
+            "alice@fiotestnet",
+            "aurora near",
+            "${"a" * 60}.near",
+          ]) {
+            expect(validator.isValid(account), isFalse, reason: "$currency $account");
+          }
+        }
+      });
+
       test('validates valid Monero address', () {
         final validator = AddressValidator(type: CryptoCurrency.xmr);
         expect(

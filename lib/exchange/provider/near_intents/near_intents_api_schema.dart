@@ -480,10 +480,12 @@ class NearIntentsSwapDetails {
 
 @JsonSerializable(createFactory: false)
 class NearIntentsStatusRequest extends ApiRequest<NearIntentsStatusResponse> {
-  const NearIntentsStatusRequest({required this.depositAddress});
+  const NearIntentsStatusRequest({required this.depositAddress, this.depositMemo});
 
   @JsonKey(name: "depositAddress")
   final String depositAddress;
+  @JsonKey(name: "depositMemo", includeIfNull: false)
+  final String? depositMemo;
 
   @override
   String path() => "/v0/status";

@@ -187,8 +187,13 @@ class ChangeNowExchangeProvider extends LimitsCacheExchangeProvider {
     );
   }
 
-  String _networkFor(CryptoCurrency currency) =>
-      currency.tag != null ? _normalizeTag(currency.tag!) : _normalizeTitleToNetwork(currency.title);
+  String _networkFor(CryptoCurrency currency) => switch (currency) {
+    CryptoCurrency.usdtAvax || CryptoCurrency.usdcAvax => "avaxc",
+    _ =>
+      currency.tag != null
+          ? _normalizeTag(currency.tag!)
+          : _normalizeTitleToNetwork(currency.title),
+  };
 
   String _normalizeTitleToNetwork(String title) => switch (title.toUpperCase()) {
     "XNO" => "nano",

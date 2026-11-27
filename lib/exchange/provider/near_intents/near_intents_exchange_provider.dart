@@ -25,9 +25,8 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
   static const _appFeeRecipientNearIntents = secrets.nearIntentsAppFeeRecipient;
 
   static const _memoRequiredCurrencies = <CryptoCurrency>[
-    CryptoCurrency.xrp,
     CryptoCurrency.xlm,
-    CryptoCurrency.ton,
+    CryptoCurrency.usdcXlm,
   ];
 
   /// Use these only for quote/rate testing (dummy data).
@@ -46,13 +45,21 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     "ARB": "0x1111111111111111111111111111111111111111",
     "BASE": "0x1111111111111111111111111111111111111111",
     "ROB": "0x1111111111111111111111111111111111111111",
+    "PLASMA": "0x1111111111111111111111111111111111111111",
+    "OP": "0x1111111111111111111111111111111111111111",
+    "MON": "0x1111111111111111111111111111111111111111",
+    "XLAYER": "0x1111111111111111111111111111111111111111",
 
     // Others
-    "SOL": "11111111111111111111111111111111",
+    "SOL": "1nc1nerator11111111111111111111111111111111",
     "XRP": "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
     "TRX": "T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb",
-    "TON": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c",
-    "XLM": "GBN7JCM6IGGDHMUMSNCOXGFJSIMXAOR6J3S53GSCXJ57YMW2DTRCONUH",
+    "TON": "UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJKZ",
+    "APT": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "SUI": "0x1111111111111111111111111111111111111111111111111111111111111111",
+    "NEAR": "1111111111111111111111111111111111111111111111111111111111111111",
+    // Must hold a USDC trustline; NEAR checks it even for dry quotes
+    "XLM": "GDJ4JZXZELZD737NVFORH4PSSQDWFDZTKW3AIDKHYQG23ZXBPDGGQBJK",
     "ADA": "addr1vyc33hdv5vag52f3d8h0qsngu52vm27x28zkzru333jma9gaxd38v",
     "ZEC": "t1VdfFUbyTT7ZSdeEaHuwB7veGD1NXoUhGS",
   };
@@ -167,9 +174,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
     final quote = quoteResp.quote;
 
+    final depositMemo = quote.depositMemo;
     return Trade(
-      id: quote.depositAddress!,
-      // Using deposit address as trade ID
+      id: depositMemo != null && depositMemo.isNotEmpty
+          ? "${quote.depositAddress!}?${Uri(queryParameters: {"depositMemo": depositMemo}).query}"
+          : quote.depositAddress!,
       provider: description,
       state: TradeState.created,
       createdAt: DateTime.now(),
@@ -185,7 +194,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> updateTrade(Trade trade)  async {
-    final data = await _api.send(NearIntentsStatusRequest(depositAddress: trade.id));
+    final depositMemo = trade.memo;
+    final data = await _api.send(NearIntentsStatusRequest(
+      depositAddress: trade.id.split("?").first,
+      depositMemo: depositMemo != null && depositMemo.isNotEmpty ? depositMemo : null,
+    ));
 
     final quoteResponse = data.quoteResponse;
     final quoteRequest = quoteResponse.quoteRequest;
@@ -274,12 +287,18 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
     "ROB" => "hood",
     "ADA" => "cardano",
     "XLM" => "stellar",
+    "APT" => "aptos",
+    "MON" => "monad",
     _ => tag.toLowerCase(),
   };
 
   String _symbolFor(CryptoCurrency currency) =>
       switch(currency) {
-        CryptoCurrency.usdtArb => "USDT0",
+        CryptoCurrency.usdtArb ||
+        CryptoCurrency.usdtPlasma ||
+        CryptoCurrency.usdtOp ||
+        CryptoCurrency.usdtMon ||
+        CryptoCurrency.usdtXlayer => "USDT0",
         _ => currency.title.toUpperCase()
       };
 
@@ -301,6 +320,11 @@ class NearIntentsExchangeProvider extends ExchangeProvider {
       return supported.firstWhereOrNull(
             (t) => t.assetId == "1cs_v1:btc:native:coin",
       );
+    }
+
+    // Pin Tether's USDT as NEAR also lists another
+    if (currency.tag == "NEAR" && currency.title == "USDT") {
+      return supported.firstWhereOrNull((t) => t.assetId == "nep141:usdt.tether-token.near");
     }
 
     // Native asset (no contract)

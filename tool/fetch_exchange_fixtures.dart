@@ -431,6 +431,10 @@ Map<String, String> _swapsXyzHeaders() =>
 
 List<Fixture> _swapsXyz() => [
       Fixture("swapsxyz", "chain_list", (_) => _get("https://api-v2.swaps.xyz/api/getChainList", headers: _swapsXyzHeaders())),
+      Fixture("swapsxyz", "token_list", (_) => _get(
+          "https://api-v2.swaps.xyz/api/getTokenList?chainId=10",
+          headers: _swapsXyzHeaders(),
+        )),
       Fixture("swapsxyz", "paths", (_) => _get(
           "https://api-v2.swaps.xyz/api/getPaths"
           "?srcChainId=1&srcToken=$_nativeEvmToken&dstChainId=137",
