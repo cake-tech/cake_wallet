@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Jọ̀wọ́, yan owó wallet:",
   "choose_wallet_group": "Yan Ẹgbẹ Wallet",
   "clear": "Pa",
+  "clear_image_cache": "Pa ibi ipamọ awọn aworan",
+  "clear_image_cache_confirmation": "Ṣe o da ọ loju pe o fẹ pa ibi ipamọ awọn aworan rẹ?",
   "clearnet_link": "Ọ̀nà asopọ Clearnet",
   "close": "Pa",
   "coin_control": "Ìṣàkóso ẹyọ (àṣàyàn)",

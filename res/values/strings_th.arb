@@ -235,6 +235,8 @@
   "choose_wallet_currency": "โปรดเลือกสกุลเงินของวอลเล็ต:",
   "choose_wallet_group": "เลือกกลุ่มวอลเล็ต",
   "clear": "ล้าง",
+  "clear_image_cache": "ล้างแคชรูปภาพ",
+  "clear_image_cache_confirmation": "คุณแน่ใจหรือไม่ว่าต้องการล้างแคชรูปภาพ?",
   "clearnet_link": "ลิงก์ Clearnet",
   "close": "ปิด",
   "coin_control": "การควบคุมเหรียญ (ไม่บังคับ)",

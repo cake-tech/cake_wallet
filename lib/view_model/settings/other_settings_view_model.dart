@@ -4,6 +4,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/priority_for_wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/network_image_cache.dart';
 import 'package:cake_wallet/utils/package_info.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:collection/collection.dart';
@@ -29,6 +30,7 @@ abstract class OtherSettingsViewModelBase with Store {
         currentVersion = '' {
     PackageInfo.fromPlatform()
         .then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
+    loadImageCacheSize();
 
     final priority = _settingsStore.getPriority(_wallet.type, chainId: _wallet.chainId);
     final priorities = priorityForWalletType(_wallet.type);
@@ -169,6 +171,23 @@ abstract class OtherSettingsViewModelBase with Store {
   @action
   void setShowCiBuildOverlay(bool value) => _settingsStore.showCiBuildOverlay = value;
 
+  @observable
+  int? imageCacheSize;
+
+  @computed
+  String? get imageCacheSizeText =>
+      imageCacheSize == null ? null : _formatByteSize(imageCacheSize!);
+
+  @action
+  Future<void> loadImageCacheSize() async =>
+      imageCacheSize = await NetworkImageCache.instance.size();
+
+  @action
+  Future<void> clearImageCache() async {
+    await NetworkImageCache.instance.clear();
+    await loadImageCacheSize();
+  }
+
   int? get customPriorityItemIndex {
     final priorities = priorityForWalletType(walletType);
     final customItem = priorities
@@ -202,4 +221,16 @@ abstract class OtherSettingsViewModelBase with Store {
     if (await logFile.exists()) return logFile;
     return null;
   }
+
+  String _formatByteSize(int bytes) {
+    const units = ["B", "KB", "MB", "GB"];
+    var size = bytes.toDouble();
+    var unit = 0;
+    while (size >= 1024 && unit < units.length - 1) {
+      size /= 1024;
+      unit++;
+    }
+    return unit == 0 ? "$bytes B" : "${size.toStringAsFixed(1)} ${units[unit]}";
+  }
+
 }

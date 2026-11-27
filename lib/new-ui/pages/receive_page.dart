@@ -286,7 +286,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           : ClipboardData(
                               text: widget.addressListViewModel.displayAmount.isEmpty
                                   ? widget.addressListViewModel.uri.address
-                                  : widget.addressListViewModel.uri.toString(),
+                                  : _copyText(widget.addressListViewModel.uri),
                             ),
                       onCopyButtonPressed: () {
                         if (widget.addressListViewModel.hasPayjoin) {
@@ -364,6 +364,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
       _reloadAddressWithLabel(widget.addressListViewModel.uri);
     });
   }
+
+  /// Lightning invoices are copied without the `lightning:` scheme so they can
+  /// be pasted anywhere; the QR code keeps the scheme for deep links.
+  String _copyText(PaymentURI uri) =>
+      uri is LightningPaymentRequest ? uri.paymentRequest : uri.toString();
 
   void _reloadAddressWithLabel(PaymentURI newAddress) {
     // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later

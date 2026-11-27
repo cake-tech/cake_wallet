@@ -463,6 +463,10 @@ class LightningPaymentRequest extends PaymentURI {
   final String lnURL;
   final String? bolt11Invoice;
 
+  /// The bare invoice (or LNURL) without the `lightning:` scheme, for copying
+  /// as plain text. [toString] keeps the scheme so QR codes still deep link.
+  String get paymentRequest => bolt11Invoice ?? lnURL;
+
   @override
-  String toString() => "lightning:${bolt11Invoice ?? lnURL}";
+  String toString() => "lightning:$paymentRequest";
 }

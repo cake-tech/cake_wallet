@@ -912,7 +912,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   String getNetworkName(Object wallet) {
-    return (wallet as ElectrumWallet).network.value;
+    final electrumWallet = wallet as ElectrumWallet;
+    final name = walletTypeToString(electrumWallet.type);
+    return electrumWallet.isTestnet ? "$name Testnet" : name;
   }
 
   @override

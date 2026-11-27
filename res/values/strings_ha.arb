@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Da fatan za a zaɓi kuɗin walat:",
   "choose_wallet_group": "Zaɓi rukunin walat",
   "clear": "Share",
+  "clear_image_cache": "Share ma'ajiyar hotuna",
+  "clear_image_cache_confirmation": "Shin ka tabbata kana so ka share ma'ajiyar hotuna?",
   "clearnet_link": "Hanyar haɗin Clearnet",
   "close": "Rufe",
   "coin_control": "Sarrafa tsabar kuɗi (na zaɓi)",

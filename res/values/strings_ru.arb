@@ -235,6 +235,8 @@
   "choose_wallet_currency": "Пожалуйста, выберите валюту кошелька:",
   "choose_wallet_group": "Выберите группу кошельков",
   "clear": "Очистить",
+  "clear_image_cache": "Очистить кэш изображений",
+  "clear_image_cache_confirmation": "Вы уверены, что хотите очистить кэш изображений?",
   "clearnet_link": "Ссылка Clearnet",
   "close": "Закрыть",
   "coin_control": "Контроль монет (необязательно)",
