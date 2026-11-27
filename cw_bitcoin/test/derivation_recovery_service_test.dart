@@ -1,6 +1,11 @@
 // The derivation recovery flow: which chains it searches, how it finds keys and used addresses,
-// and a full scan + sweep on a real LitecoinWallet against a fake chain.
+// and full scans + sweeps on real Litecoin and Bitcoin wallets against a fake chain.
+// A scan derives thousands of keys, which takes longer than the default 30 seconds.
+@Timeout(Duration(minutes: 3))
+library;
+
 import "dart:io";
+import "dart:math";
 import "dart:typed_data";
 
 import "package:bip39/bip39.dart" as bip39;
@@ -9,6 +14,7 @@ import "package:blockchain_utils/blockchain_utils.dart";
 import "package:cw_bitcoin/bitcoin_address_record.dart";
 import "package:cw_bitcoin/bitcoin_mnemonic.dart" as electrum_mnemonic;
 import "package:cw_bitcoin/bitcoin_unspent.dart";
+import "package:cw_bitcoin/bitcoin_wallet.dart";
 import "package:cw_bitcoin/derivation_recovery/derivation_recovery_service.dart";
 import "package:cw_bitcoin/derivation_recovery/recovery_derivations.dart";
 import "package:cw_bitcoin/derivation_recovery/recovery_scanner.dart";
@@ -19,6 +25,7 @@ import "package:cw_core/cake_hive.dart";
 import "package:cw_core/db/sqlite.dart";
 import "package:cw_core/encryption_file_utils.dart";
 import "package:cw_core/mweb_utxo.dart";
+import "package:cw_core/payjoin_session.dart";
 import "package:cw_core/unspent_coins_info.dart";
 import "package:cw_core/wallet_info.dart";
 import "package:cw_core/wallet_type.dart";
@@ -76,15 +83,34 @@ String _txHash(String digit) => digit * 64;
 Bip32Slip10Secp256k1 _hd(List<int> seed, String path) =>
     Bip32Slip10Secp256k1.fromSeed(seed).derivePath(path) as Bip32Slip10Secp256k1;
 
-BitcoinAddressRecord _record(Bip32Slip10Secp256k1 hd, int index, {required bool isHidden}) =>
+BitcoinAddressRecord _record(
+  Bip32Slip10Secp256k1 hd,
+  int index, {
+  required bool isHidden,
+  BasedUtxoNetwork network = _ltc,
+}) =>
     BitcoinAddressRecord(
-      generateP2WPKHAddress(hd: hd, index: index, network: _ltc),
+      generateP2WPKHAddress(hd: hd, index: index, network: network),
       index: index,
       isHidden: isHidden,
       isHiddenChecked: true,
       type: SegwitAddresType.p2wpkh,
-      network: _ltc,
+      network: network,
     );
+
+// A fixed Electrum segwit phrase (no platform RNG in tests) that fails the BIP39 checksum.
+String _electrumOnlyMnemonic() {
+  final random = Random(7);
+  while (true) {
+    final bytes = Uint8List.fromList(List.generate(33, (_) => random.nextInt(256)));
+    electrum_mnemonic.maskBytes(bytes, 264);
+    final mnemonic = electrum_mnemonic.encode(bytes);
+    if (electrum_mnemonic.prefixMatches(mnemonic, [electrum_mnemonic.segwit]).first &&
+        !bip39.validateMnemonic(mnemonic)) {
+      return mnemonic;
+    }
+  }
+}
 
 var _walletCount = 0;
 
@@ -119,6 +145,39 @@ Future<LitecoinWallet> _initLitecoinWallet(
   return wallet;
 }
 
+Future<BitcoinWallet> _initElectrumBitcoinWallet(
+  String mnemonic,
+  List<int> seed, {
+  List<BitcoinAddressRecord>? initialAddresses,
+}) async {
+  final name = "derivation_recovery_test_${_walletCount++}";
+  final wallet = BitcoinWallet(
+    password: "password",
+    walletInfo: WalletInfo.external(
+      id: name,
+      name: name,
+      type: WalletType.bitcoin,
+      isRecovery: true,
+      restoreHeight: 0,
+      date: DateTime(2026),
+      dirPath: "",
+      path: "",
+      address: "",
+    ),
+    derivationInfo: DerivationInfo(derivationType: DerivationType.electrum, derivationPath: "m/0'"),
+    unspentCoinsInfo: await CakeHive.openBox<UnspentCoinsInfo>("${name}_unspent"),
+    payjoinBox: await CakeHive.openBox<PayjoinSession>("${name}_payjoin"),
+    encryptionFileUtils: encryptionFileUtilsFor(false),
+    seedBytes: Uint8List.fromList(seed),
+    mnemonic: mnemonic,
+    passphrase: "",
+    initialAddresses: initialAddresses,
+    useLightning: false,
+  );
+  await wallet.init();
+  return wallet;
+}
+
 void main() {
   late Directory tempDir;
   late List<int> bip39Seed;
@@ -138,6 +197,9 @@ void main() {
     }
     if (!CakeHive.isAdapterRegistered(MwebUtxo.typeId)) {
       CakeHive.registerAdapter(MwebUtxoAdapter());
+    }
+    if (!CakeHive.isAdapterRegistered(PayjoinSession.typeId)) {
+      CakeHive.registerAdapter(PayjoinSessionAdapter());
     }
 
     sqfliteFfiInit();
@@ -334,6 +396,56 @@ void main() {
         addressByTxHash[transaction.inputs[i].txId],
       );
     }
+  });
+
+  test(
+      "an Electrum seed restored as Electrum: sweeps the change left on its BIP39 stretch's "
+      "m/0/17 (the 2026-11 Bitcoin case)", () async {
+    final mnemonic = _electrumOnlyMnemonic();
+    final electrumSeed = await electrum_mnemonic.mnemonicToSeedBytes(mnemonic);
+    final bip39Seed = bip39.mnemonicToSeed(mnemonic);
+
+    // The restore only knows the Electrum wallet, which still holds a small coin of its own.
+    final ownChange = _record(_hd(electrumSeed, "m/0'/1"), 29, isHidden: true, network: _btc);
+    final wallet =
+        await _initElectrumBitcoinWallet(mnemonic, electrumSeed, initialAddresses: [ownChange]);
+    final ownRecord =
+        wallet.walletAddresses.allAddresses.firstWhere((a) => a.address == ownChange.address);
+    wallet.unspentCoins
+      ..clear()
+      ..add(BitcoinUnspent(ownRecord, _txHash("6"), 1175, 0));
+
+    // Before the restore, the app had moved the wallet to the phrase's BIP39 stretch with an empty
+    // path: it received on m/84'/0'/0'/0/84, spent that, and left the change on the root's m/0/17.
+    final spentReceive =
+        generateP2WPKHAddress(hd: _hd(bip39Seed, "m/84'/0'/0'/0"), index: 84, network: _btc);
+    final change = generateP2WPKHAddress(hd: _hd(bip39Seed, "m/0"), index: 17, network: _btc);
+    final source = _FakeChain(_btc, {
+      spentReceive: const [],
+      change: [_unspent("7", 242016)],
+      ownChange.address: [_unspent("6", 1175)],
+    });
+
+    final service = DerivationRecoveryService(wallet, source: source);
+    final result = await service.scan();
+
+    final coin = result.coins.single;
+    expect(coin.address, change);
+    expect(coin.value, 242016);
+    expect("${coin.chain}", "bip39 m/0");
+    expect(coin.index, 17);
+    expect(coin.isWalletCoin, isFalse);
+    expect(result.unrecoverableCoins, isEmpty);
+
+    final pending = await service.createSweepTransaction(result, feeRate: 2);
+    expect(pending.amount.amount + pending.fee.amount, BigInt.from(242016));
+
+    final transaction = BtcTransaction.fromRaw(pending.hex);
+    expect(transaction.inputs.single.txId, _txHash("7"));
+    final publicKey = ECPublic.fromHex(transaction.witnesses.single.stack.last);
+    expect(publicKey.toP2wpkhAddress().toAddress(_btc), change);
+    final destination = transaction.outputs.single.scriptPubKey.toAddress(network: _btc);
+    expect(wallet.walletAddresses.allAddresses.map((a) => a.address), contains(destination));
   });
 
   test("a wallet coin whose key the search can't find is reported, not swept", () async {
