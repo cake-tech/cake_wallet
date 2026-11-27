@@ -156,7 +156,8 @@ class _HomeSettingsPageBodyState extends State<_HomeSettingsPageBody> {
                   }
 
                   final sections = _homeSettingsViewModel.tokenSections;
-                  final visiblePopular = _homeSettingsViewModel.visiblePopular(sections.popular);
+                  final visiblePopular = _homeSettingsViewModel.visibleSection(sections.popular);
+                  final visibleOther = _homeSettingsViewModel.visibleSection(sections.other);
                   final hasHiddenFlaggedHoldings =
                       sections.holdings.any((token) => token.isPotentialScam && !token.enabled);
 
@@ -188,8 +189,8 @@ class _HomeSettingsPageBodyState extends State<_HomeSettingsPageBody> {
                         TokenListSection(
                           viewModel: _homeSettingsViewModel,
                           title: S.of(context).other_assets,
-                          tokens: sections.other.take(3).toList(),
-                          onSeeAll: sections.other.length > 3
+                          tokens: visibleOther,
+                          onSeeAll: sections.other.length > visibleOther.length
                               ? () => _openSeeAll(
                                     S.of(context).other_assets,
                                     () => _homeSettingsViewModel.tokenSections.other,

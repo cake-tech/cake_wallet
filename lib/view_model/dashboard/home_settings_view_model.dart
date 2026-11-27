@@ -92,11 +92,11 @@ abstract class HomeSettingsViewModelBase with Store {
     return (holdings: holdings, popular: popular, other: other);
   }
 
-  List<CryptoCurrency> visiblePopular(List<CryptoCurrency> popular) {
+  List<CryptoCurrency> visibleSection(List<CryptoCurrency> section) {
     bool isOn(CryptoCurrency token) => token.enabled || _toggledOff.contains(token);
-    var topUp = 3 - popular.where(isOn).length;
+    var topUp = 3 - section.where(isOn).length;
     return [
-      for (final token in popular)
+      for (final token in section)
         if (isOn(token) || topUp-- > 0) token,
     ];
   }
