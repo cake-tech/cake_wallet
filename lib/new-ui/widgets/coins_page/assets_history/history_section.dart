@@ -96,6 +96,9 @@ class HistorySection extends StatelessWidget {
                               return Container();
                             }
 
+                            final noteTitle =
+                                item.noteTitle(dashboardViewModel.historyNote(transaction));
+
                             CryptoCurrency? asset;
                             if (transaction.additionalInfo["isLightning"] == true)
                               asset = CryptoCurrency.btcln;
@@ -119,9 +122,13 @@ class HistorySection extends StatelessWidget {
                               },
                               child: HistoryTile(
                                 key: ValueKey("${short ? "home_page" : "history_modal"}_transaction_${index}_key"),
-                                title: item.formattedTitle + transactionType,
+                                title: noteTitle.isEmpty
+                                    ? item.formattedTitle + transactionType
+                                    : noteTitle,
+                                titleIsNote: noteTitle.isNotEmpty,
                                 date: _formatTransactionDate(item.date, localeName),
                                 amount: item.formattedCryptoAmount,
+                                signedAmount: item.hasSignedAmount,
                                 amountFiat: item.formattedFiatAmount,
                                 hasTokens: item.hasTokens,
                                 chainIconPath: _getChainIconPath(),

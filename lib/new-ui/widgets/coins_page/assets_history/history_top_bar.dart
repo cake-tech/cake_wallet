@@ -25,10 +25,20 @@ class HistoryTopBar extends StatelessWidget {
               padding: const EdgeInsets.only(left: 16, right: 16, top: 20),
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(18),
-                        bottom: roundedBottom ? Radius.circular(18) : Radius.zero),
-                    color: Theme.of(context).colorScheme.surfaceContainer),
+                  borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(18),
+                      bottom: roundedBottom ? Radius.circular(18) : Radius.zero),
+                  color: Theme.of(context).colorScheme.surfaceContainer,
+                  // Covers the faint antialiased line where the first row meets this bar.
+                  boxShadow: roundedBottom
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Theme.of(context).colorScheme.surfaceContainer,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                ),
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     vertical: 4,

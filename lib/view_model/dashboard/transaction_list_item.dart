@@ -43,15 +43,38 @@ class TransactionListItem extends ActionListItem with Keyable {
       balanceViewModel.wallet.type == WalletType.solana ||
       balanceViewModel.wallet.type == WalletType.tron;
 
+  bool get hasSignedAmount =>
+      displayMode != BalanceDisplayMode.hiddenBalance &&
+      transaction.isReplaced != true &&
+      !transaction.amount.isZero;
+
   String get formattedCryptoAmount {
     if (displayMode == BalanceDisplayMode.hiddenBalance) return '---';
-    if (balanceViewModel.wallet.type == WalletType.bitcoin) {
-      return _appStore.amountParsingProxy
-          .asDisplayStringWithSymbol(transaction.amount)
-          .withLocalSeperator(_appStore.settingsStore.languageCode);
+
+    final amount = balanceViewModel.wallet.type == WalletType.bitcoin
+        ? _appStore.amountParsingProxy
+            .asDisplayStringWithSymbol(transaction.amount)
+            .withLocalSeperator(_appStore.settingsStore.languageCode)
+        : transaction.amount.toStringWithSymbol(fractionalDigits: 8);
+
+    if (!hasSignedAmount) {
+      return amount;
     }
 
-    return transaction.amount.toStringWithSymbol(fractionalDigits: 8);
+    return transaction.direction == TransactionDirection.incoming ? "+$amount" : "-$amount";
+  }
+
+  static final _whitespace = RegExp(r"\s+");
+
+  String noteTitle(String note) {
+    if (displayMode == BalanceDisplayMode.hiddenBalance ||
+        transaction.isPending ||
+        transaction.additionalInfo["isIronwoodMigration"] == true ||
+        transaction.additionalInfo["isAutoShield"] == true) {
+      return "";
+    }
+
+    return note.replaceAll(_whitespace, " ").trim();
   }
 
   String get formattedTitle {

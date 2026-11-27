@@ -1,6 +1,7 @@
 import 'package:cake_wallet/new-ui/widgets/coins_page/assets_history/history_tile_base.dart';
 import 'package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/themes/core/theme_extension.dart";
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ class HistoryTile extends StatelessWidget {
   const HistoryTile({
     super.key,
     required this.title,
+    required this.titleIsNote,
     required this.date,
     required this.amount,
     required this.amountFiat,
@@ -19,13 +21,16 @@ class HistoryTile extends StatelessWidget {
     required this.pending,
     required this.bottomSeparator,
     required this.hasTokens,
+    required this.signedAmount,
     this.chainIconPath,
     this.asset,
   });
 
   final String title;
+  final bool titleIsNote;
   final String date;
   final String amount;
+  final bool signedAmount;
   final String amountFiat;
   final bool roundedTop;
   final bool roundedBottom;
@@ -60,9 +65,12 @@ class HistoryTile extends StatelessWidget {
     }
   }
 
-  Color? _getPrimaryTextColor() {}
+  Color? _getPrimaryTextColor(BuildContext context) =>
+      signedAmount && direction == TransactionDirection.incoming
+          ? context.customColors.receivedAmountColor
+          : null;
 
-  Widget _getLeadingIcon(BuildContext context) {
+  Widget _getLeadingIcon(BuildContext context, Color directionColor) {
     if (asset == CryptoCurrency.btcln) {
       return Stack(
         children: [
@@ -83,11 +91,7 @@ class HistoryTile extends StatelessWidget {
                 imageUrl: _getDirectionIconToken(),
                 height: 14,
                 width: 14,
-                colorFilter: ColorFilter.mode(
-                    direction == TransactionDirection.outgoing
-                        ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
-                        : Colors.green,
-                    BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(directionColor, BlendMode.srcIn),
               ),
             ),
           )
@@ -128,23 +132,25 @@ class HistoryTile extends StatelessWidget {
 
     return CakeImageWidget(
         imageUrl: _getDirectionIcon(),
-        colorFilter: ColorFilter.mode(
-            direction == TransactionDirection.outgoing
-                ? Theme.of(context).colorScheme.inverseSurface.withAlpha(175)
-                : Colors.green,
-            BlendMode.srcIn));
+        colorFilter: ColorFilter.mode(directionColor, BlendMode.srcIn));
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final directionColor = direction == TransactionDirection.outgoing
+        ? colorScheme.inverseSurface.withAlpha(175)
+        : context.customColors.receivedIconColor;
+
     return HistoryTileBase(
       title: title,
+      titleFontWeight: titleIsNote ? FontWeight.w600 : null,
       date: date,
       amount: amount,
       amountFiat: amountFiat,
-      // Decorative: `title` already reads out sent/received/pending.
-      leadingIcon: ExcludeSemantics(child: _getLeadingIcon(context)),
-      primaryTextColor: _getPrimaryTextColor(),
+      // Decorative: the title or the amount's +/- already reads out the direction.
+      leadingIcon: ExcludeSemantics(child: _getLeadingIcon(context, directionColor)),
+      primaryTextColor: _getPrimaryTextColor(context),
       roundedTop: roundedTop,
       roundedBottom: roundedBottom,
       bottomSeparator: bottomSeparator,

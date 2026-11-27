@@ -25,4 +25,10 @@ class DarkThemeCustomColors extends CustomThemeColors {
 
   @override
   Color get toggleColorOffState => const Color(0xFF3A4F88);
+
+  @override
+  Color get receivedAmountColor => const Color(0xFF55CD74);
+
+  @override
+  Color get receivedIconColor => const Color(0xFF4CAF50);
 }
