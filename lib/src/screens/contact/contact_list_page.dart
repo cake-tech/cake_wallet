@@ -54,6 +54,7 @@ class ContactListPage extends BasePage implements PageOpenListener {
           color: Theme.of(context).colorScheme.surfaceContainer,
         ),
         child: Semantics(
+          identifier: "contact_list_page_add_contact_button_key",
           label: S.of(context).add_contact,
           button: true,
           child: Stack(
@@ -213,7 +214,7 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
             return generateRaw(context, contact);
           } else {
             final activeContact = groupContacts.firstWhere(
-              (contact) => contact.name.contains('Active'),
+              (contact) => contact is WalletContact && contact.isActive,
               orElse: () => groupContacts[0],
             );
 

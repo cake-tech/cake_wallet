@@ -134,7 +134,7 @@ import 'package:bitbox_flutter/bitbox_flutter.dart' as bitbox;
 import 'package:trezor_connect/trezor_connect.dart' as trezor;
 import 'package:trezor_flutter/trezor_flutter.dart' as trezor;
 import 'package:blockchain_utils/blockchain_utils.dart';
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:collection/collection.dart';
 """;
   const bitcoinCWHeaders = """
@@ -316,7 +316,7 @@ abstract class Bitcoin {
   int getMaxCustomFeeRate(Object wallet);
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection, bool isBitcoin);
-  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager, bool isBitcoin);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxConnection manager, bool isBitcoin);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect? connect, trezor.TrezorClient? client, bool isBitcoin);
   List<Output> updateOutputs(PendingTransaction pendingTransaction, List<Output> outputs);
   bool txIsReceivedSilentPayment(TransactionInfo txInfo);
@@ -394,6 +394,7 @@ import "package:cw_core/hardware/hardware_wallet_service.dart";
 import 'package:polyseed/polyseed.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_core/account.dart' as monero_account;
+import "package:cw_core/wallet_base.dart";
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
@@ -539,6 +540,7 @@ WalletCredentials createMoneroNewWalletCredentials({required String name, requir
   bool isBackgroundSyncRunning(Object wallet);
   Future<void> startBackgroundSync(Object wallet);
   Future<void> stopBackgroundSync(Object wallet, String password);
+  Future<Money> getSendingBalance(WalletBase wallet);
 }
 
 abstract class MoneroSubaddressList {
@@ -769,7 +771,9 @@ import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
 import 'package:hive/hive.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 """;
   const bitcoinCashCWHeaders = """
 import 'package:cw_bitcoin_cash/cw_bitcoin_cash.dart';
@@ -796,6 +800,8 @@ abstract class BitcoinCash {
   List<TransactionPriority> getTransactionPriorities();
 
   TransactionPriority getBitcoinCashTransactionPrioritySlow();
+
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
 }
   """;
 
@@ -961,7 +967,8 @@ Future<void> generateSolana(bool hasImplementation) async {
   final outputFile = File(solanaOutputPath);
   const solanaCommonHeaders = """
 import 'package:cake_wallet/view_model/send/output.dart';
-import 'package:cake_wallet/exchange/provider/jupiter_exchange_provider.dart';
+import 'package:cake_wallet/exchange/provider/jupiter/jupiter_api_schema.dart';
+import 'package:cake_wallet/exchange/provider/jupiter/jupiter_exchange_provider.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/output_info.dart';
@@ -989,6 +996,8 @@ import 'package:cw_solana/pending_solana_transaction.dart';
 import 'package:cw_solana/solana_transaction_credentials.dart';
 import 'package:cw_solana/solana_wallet_creation_credentials.dart';
 import 'package:cw_solana/default_spl_tokens.dart';
+import 'package:cw_solana/solana_client.dart' show SolanaWalletClient;
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
@@ -1063,6 +1072,8 @@ abstract class Solana {
     Duration initialDelay = const Duration(seconds: 1),
     int maxRetries = 5,
   });
+
+  Future<bool?> getTransactionResult(String signature);
 
   // Updates balances for specific tokens by mint addresses
   // Also updates native SOL balance
@@ -1617,7 +1628,7 @@ abstract class EVM {
   // Hardware wallet methods
   Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
   HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
-  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxManager manager);
+  HardwareWalletService getBitboxHardwareWalletService(bitbox.BitboxConnection manager);
   HardwareWalletService getTrezorHardwareWalletService(trezor.TrezorConnect connect);
   
   // Utility methods
@@ -1795,15 +1806,35 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/receive_page_option.dart';
 import 'package:cw_core/wallet_addresses.dart';
+import 'package:cw_core/hardware/hardware_wallet_service.dart';
+import 'package:cw_core/pending_transaction.dart';
+import 'package:cw_core/exceptions/cake_exception.dart';
+import 'package:ledger_flutter_plus/ledger_flutter_plus.dart' as ledger;
 
 """;
   const zcashCWHeaders = """
 import 'package:cw_zcash/cw_zcash.dart';
+import 'package:cw_zcash/src/hardware/zcash_hardware_wallet_service.dart';
+import 'package:cw_zcash/src/hardware/zcash_ledger_service.dart';
 import 'package:cw_zcash/src/zcash_wallet_addresses.dart';
 
 """;
   const zcashCwPart = "part 'cw_zcash.dart';";
   const zcashContent = """
+class ZcashAccountQr {
+  const ZcashAccountQr({required this.ufvk, required this.index, this.name});
+
+  final String ufvk;
+  final int index;
+  final String? name;
+}
+
+class ZcashAccountsQr {
+  const ZcashAccountsQr(this.accounts);
+
+  final List<ZcashAccountQr> accounts;
+}
+
 abstract class Zcash {
   List<String> getZcashWordList(String language);
   WalletService createZcashWalletService(bool isDirect);
@@ -1822,7 +1853,18 @@ abstract class Zcash {
       required int? height,
       int network = 0});
   WalletCredentials createZcashRestoreWalletFromPrivateKey(
-      {required String name, required String privateKey, required String password, required int height});
+      {required String name,
+      required String privateKey,
+      required String password,
+      required int height,
+      int accountIndex = 0,
+      HardwareWalletType? hardwareWalletType});
+  WalletCredentials createZcashHardwareWalletCredentials({
+    required String name,
+    required HardwareWalletService hardwareWalletService,
+    required int? height,
+    int accountIndex = 0,
+  });
   String getAddress(WalletBase wallet);
   String getPrivateKey(WalletBase wallet);
   String getPublicKey(WalletBase wallet);
@@ -1841,9 +1883,8 @@ abstract class Zcash {
     required int feeRate,
   });
 
-  int formatterZcashParseAmount(String amount);
-  double formatterZcashAmountToDouble({TransactionInfo? transaction, BigInt? amount});
-  String formatterZcashAmountToString({required int amount});
+  Future<void> setHardwareWalletService(WalletBase wallet, HardwareWalletService service);
+  HardwareWalletService getLedgerHardwareWalletService(ledger.LedgerConnection connection);
 
   List<WalletInfoAddressInfo> getAddressInfos(Object wallet);
 
@@ -1863,6 +1904,9 @@ abstract class Zcash {
   Future<void> rescanInternalChange(WalletBase wallet);
   bool ironwoodActive(WalletAddresses walletAddresses);
   bool hasOrchardMigratableBalance(WalletBase wallet);
+  Future<void> commitZcashPcztUR(Object wallet, String ur);
+  ZcashAccountsQr? decodeZcashAccountsQr(String code);
+  Future<PendingTransaction?> createShieldingTransaction(WalletBase wallet);
 }
   """;
 

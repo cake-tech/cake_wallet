@@ -38,7 +38,6 @@ class ChainIcon extends StatelessWidget {
                   color: showSyncedMessage ? Color(0xFFFF12A439) : Color(0xFFFFB84E),
                   strokeWidth: 2,
                   semanticsLabel: S.of(context).synchronizing,
-                  semanticsValue: "${(progress * 100).round()}%",
                 ),
               ),
             ),

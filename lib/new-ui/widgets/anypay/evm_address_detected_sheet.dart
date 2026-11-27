@@ -35,6 +35,7 @@ class EvmAddressDetectedSheet extends StatelessWidget {
         child: Column(
           children: [
             ModalTopBar(
+              testId: "evm_address_detected_sheet_top_bar",
               title: "",
               trailingIcon: const Icon(Icons.close),
               onTrailingPressed: () => Navigator.of(context).maybePop(),

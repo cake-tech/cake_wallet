@@ -76,6 +76,7 @@ class NewListSections extends StatelessWidget {
           'Please provide a TextEditingController for this key.');
 
       return ListItemTextFieldWidget(
+        testId: item.testId,
         keyValue: item.keyValue,
         label: item.label,
         controller: controllers[item.keyValue]!,
@@ -90,6 +91,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemRegularRow) {
       return ListItemRegularRowWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
@@ -105,6 +107,7 @@ class NewListSections extends StatelessWidget {
         isLastInSection: isLast,
         showArrow: item.showArrow,
         truncateTrailingText: item.truncateTrailingText,
+        truncateLabel: item.truncateLabel,
         foregroundColor: item.foregroundColor,
         copyableText: item.copyableText,
         trailingIconSize: item.trailingIconSize,
@@ -119,12 +122,14 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemToggle) {
       return ListItemToggleWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         subtitle: item.subtitle,
         leadingEndWidget: item.leadingEndWidget,
         iconPath: item.iconPath,
+        iconColor: item.iconColor,
         value: item.value,
         onChanged: item.onChanged,
         isFirstInSection: isFirst,
@@ -134,6 +139,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemCheckbox) {
       return ListItemCheckboxWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
@@ -151,6 +157,7 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemDropdown) {
       return ListItemDropdownWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
@@ -163,10 +170,12 @@ class NewListSections extends StatelessWidget {
 
     if (item is ListItemSelector) {
       return ListItemSelectorWidget(
+        testId: item.testId,
         key: ValueKey(item.keyValue),
         keyValue: item.keyValue,
         label: item.label,
         options: item.options,
+        optionImagePath: item.optionImagePath,
         onTap: item.onTap,
         selectedIndex: 0,
         isFirstInSection: isFirst,

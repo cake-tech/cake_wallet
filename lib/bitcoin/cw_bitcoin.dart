@@ -405,7 +405,7 @@ class CWBitcoin extends Bitcoin {
       if (dType == DerivationType.electrum) {
         seedBytes = await mnemonicToSeedBytes(mnemonic, passphrase: passphrase ?? "");
       } else if (dType == DerivationType.bip39) {
-        seedBytes = bip39.mnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
+        seedBytes = bip39MnemonicToSeed(mnemonic, passphrase: passphrase ?? '');
       }
 
       for (DerivationInfo dInfo in electrum_derivations[dType]!) {
@@ -554,7 +554,7 @@ class CWBitcoin extends Bitcoin {
 
   @override
   HardwareWalletService getBitboxHardwareWalletService(
-      bitbox.BitboxManager manager, bool isBitcoin) {
+      bitbox.BitboxConnection manager, bool isBitcoin) {
     if (isBitcoin) return BitcoinBitboxService(manager);
     return LitecoinBitboxService(manager);
   }
@@ -759,8 +759,11 @@ class CWBitcoin extends Bitcoin {
   String? getUnusedSegwitAddress(Object wallet) {
     try {
       final electrumWallet = wallet as ElectrumWallet;
-      final segwitAddress = electrumWallet.walletAddresses.allAddresses
-          .firstWhere((element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh);
+      final walletAddresses = electrumWallet.walletAddresses;
+      final segwitAddress = walletAddresses.allAddresses.firstWhere(
+        (element) => !element.isUsed && element.type == SegwitAddresType.p2wpkh
+          && element.accountIndex == walletAddresses.currentAccountIndex,
+      );
       return segwitAddress.address;
     } catch (_) {
       return null;
@@ -863,7 +866,9 @@ class CWBitcoin extends Bitcoin {
 
   @override
   String getNetworkName(Object wallet) {
-    return (wallet as ElectrumWallet).network.value;
+    final electrumWallet = wallet as ElectrumWallet;
+    final name = walletTypeToString(electrumWallet.type);
+    return electrumWallet.isTestnet ? "$name Testnet" : name;
   }
 
   @override

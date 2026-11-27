@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:bip32/bip32.dart' as bip32;
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cw_core/utils/bip39_seed.dart';
 import 'package:cw_core/amount/money.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/encryption_file_utils.dart';
@@ -425,6 +425,8 @@ abstract class EVMChainWalletBase
 
     await save();
   }
+
+  static const _maxTokenDecimals = 255;
 
   static const _urlLikeSuspiciousMarkers = [
     't.me',
@@ -1333,7 +1335,7 @@ abstract class EVMChainWalletBase
       }
 
       try {
-        if (token.enabled) {
+        if (token.enabled && token.decimal <= _maxTokenDecimals) {
           balance[token] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, token);
         } else {
           balance.remove(token);
@@ -1392,7 +1394,7 @@ abstract class EVMChainWalletBase
       return EthPrivateKey.fromHex(privateKey);
     }
 
-    final seed = bip39.mnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
+    final seed = bip39MnemonicToSeed(mnemonic!, passphrase: passphrase ?? '');
 
     final root = bip32.BIP32.fromSeed(seed);
 
@@ -1435,8 +1437,12 @@ abstract class EVMChainWalletBase
 
     final newToken = createNewErc20TokenObject(token, iconPath);
 
-    if (newToken.enabled) {
-      balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
+    if (newToken.enabled && newToken.decimal <= _maxTokenDecimals) {
+      try {
+        balance[newToken] = await _client.fetchERC20Balances(_evmChainPrivateKey.address, newToken);
+      } catch (_) {
+        balance[newToken] = EVMChainERC20Balance(Money.zero(newToken));
+      }
 
       await newToken.save();
     } else {

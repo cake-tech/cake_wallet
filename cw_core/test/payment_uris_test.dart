@@ -2,6 +2,31 @@ import "package:cw_core/payment_uris.dart";
 import "package:flutter_test/flutter_test.dart";
 
 void main() {
+  group("LightningPaymentRequest", () {
+    const address = "satoshi@cake.cash";
+    const lnUrl = "lnurl1dp68gurn8ghj7example";
+    const invoice = "lnbc10u1pjexampleinvoice";
+
+    test("toString keeps the lightning scheme for the bolt11 invoice", () {
+      final uri = LightningPaymentRequest(
+        address: address,
+        amount: "0.00001",
+        lnURL: lnUrl,
+        bolt11Invoice: invoice,
+      );
+
+      expect(uri.toString(), "lightning:$invoice");
+      expect(uri.paymentRequest, invoice);
+    });
+
+    test("falls back to the lnurl when there is no invoice", () {
+      final uri = LightningPaymentRequest(address: address, amount: "", lnURL: lnUrl);
+
+      expect(uri.toString(), "lightning:$lnUrl");
+      expect(uri.paymentRequest, lnUrl);
+    });
+  });
+
   group("TronURI", () {
     const address = "TNPeeaaFB7K9cmo4uQpcU32zGK8G1NYqeL";
     const contract = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";

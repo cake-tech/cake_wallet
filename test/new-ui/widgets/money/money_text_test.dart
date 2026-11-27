@@ -1,5 +1,7 @@
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/generated/i18n.dart";
+import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_text.dart";
 import "package:cw_core/amount/money.dart";
@@ -56,6 +58,8 @@ Future<FakeMoneySettingsCubit> _pump(
   addTearDown(cubit.close);
   await tester.pumpWidget(
     MaterialApp(
+      localizationsDelegates: localizationDelegates,
+      supportedLocales: S.delegate.supportedLocales,
       home: BlocProvider<MoneySettingsCubit>.value(
         value: cubit,
         child: Scaffold(body: Center(child: child)),

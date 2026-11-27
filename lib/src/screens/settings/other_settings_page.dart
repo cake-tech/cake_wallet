@@ -13,6 +13,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dev/moneroc_cache_debug.dart';
 import "package:cake_wallet/src/widgets/alert_with_one_action.dart";
+import "package:cake_wallet/src/widgets/alert_with_two_actions.dart";
 import 'package:cake_wallet/src/widgets/new_list_row/new_list_section.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/feature_flag.dart';
@@ -168,6 +169,15 @@ class OtherSettingsPage extends BasePage {
                 label: S.of(context).export_payjoin_logs,
                 onTap: () => onExportPJLog(context)),
           ],
+        "image_cache": [
+          ListItemRegularRow(
+            keyValue: "clear_image_cache",
+            label: S.of(context).clear_image_cache,
+            trailingText: _otherSettingsViewModel.imageCacheSizeText,
+            showArrow: false,
+            onTap: () => onClearImageCache(context),
+          ),
+        ],
         "dev": FeatureFlag.hasDevOptions == false
             ? []
             : [
@@ -255,6 +265,24 @@ class OtherSettingsPage extends BasePage {
               ]
       })),
     );
+  }
+
+  Future<void> onClearImageCache(BuildContext context) async {
+    final confirmed = await showPopUp<bool>(
+      context: context,
+      builder: (dialogContext) => AlertWithTwoActions(
+        alertTitle: S.of(context).clear_image_cache,
+        alertContent: S.of(context).clear_image_cache_confirmation,
+        leftButtonText: S.of(context).cancel,
+        rightButtonText: S.of(context).clear,
+        actionLeftButton: () => Navigator.of(dialogContext).pop(false),
+        actionRightButton: () => Navigator.of(dialogContext).pop(true),
+      ),
+    );
+
+    if (confirmed == true) {
+      await _otherSettingsViewModel.clearImageCache();
+    }
   }
 
   Future<void> onExportLNLog(BuildContext context) async {
