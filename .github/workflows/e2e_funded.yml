@@ -1,0 +1,224 @@
+name: E2E funded (Android)
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number whose Android build to test"
+        type: string
+        default: ""
+      build_run:
+        description: "pr_test_build run id to test instead (empty = the PR's newest build with an x86_64 APK)"
+        type: string
+        default: ""
+      spend:
+        description: "broadcast the allowlisted self-sends (off = stop at the confirm screen)"
+        type: boolean
+        default: false
+      grep:
+        description: "only tests whose title matches this regular expression (empty = the five core send tests)"
+        type: string
+        default: ""
+      qa_ref:
+        description: "cake-qa git ref to test (empty = that repo's default branch)"
+        type: string
+        default: ""
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: write
+
+env:
+  PR: ${{ github.event.pull_request.number || inputs.pr }}
+  MARKER: "<!-- qa-e2e-funded -->"
+
+jobs:
+  resolve:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.label.name == 'e2e-funded' && github.event.pull_request.head.repo.fork == false)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      run_id: ${{ steps.resolve.outputs.run_id }}
+      artifact: ${{ steps.resolve.outputs.artifact }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      R: ${{ github.repository }}
+    steps:
+      - name: Take the label off so adding it again starts another run
+        if: github.event_name == 'pull_request_target'
+        run: gh api -X DELETE "repos/$R/issues/$PR/labels/e2e-funded" >/dev/null || true
+
+      - name: Find the build to test
+        id: resolve
+        env:
+          RUN_ID: ${{ inputs.build_run }}
+        run: |
+          set -euo pipefail
+          apk() { gh api "repos/$R/actions/runs/$1/artifacts" --jq '[.artifacts[] | select(.expired == false) | .name | select(. == "android apk" or endswith("_x86.apk"))][0] // empty'; }
+          if [ -z "$RUN_ID" ]; then
+            [ -n "$PR" ] || { echo "no PR number or build run was given" > reason; exit 1; }
+            SHA=$(gh api "repos/$R/pulls/$PR" --jq .head.sha)
+            for id in $(gh api "repos/$R/actions/workflows/pr_test_build_android.yml/runs?head_sha=$SHA&per_page=10" --jq '.workflow_runs[].id'); do
+              if [ -n "$(apk "$id")" ]; then RUN_ID=$id; break; fi
+            done
+            [ -n "$RUN_ID" ] || { echo "the Android build for ${SHA:0:7} has not produced an x86_64 APK yet; add the label again once \"Cake Wallet Android\" has built" > reason; exit 1; }
+          fi
+          ART=$(apk "$RUN_ID")
+          [ -n "$ART" ] || { echo "build run $RUN_ID has no x86_64 APK artifact" > reason; exit 1; }
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "artifact=$ART" >> "$GITHUB_OUTPUT"
+
+      - name: Say why nothing ran
+        if: failure() && env.PR != ''
+        run: |
+          gh pr comment "$PR" -R "$R" --body "$MARKER
+          #### QA e2e funded: not started
+
+          $(cat reason 2>/dev/null || echo 'could not look up the build') ([run]($GITHUB_SERVER_URL/$R/actions/runs/$GITHUB_RUN_ID))"
+
+  e2e:
+    needs: resolve
+    runs-on: ubuntu-latest
+    environment: e2e-funded
+    concurrency:
+      group: e2e-funded
+      cancel-in-progress: false
+    timeout-minutes: 350
+    env:
+      SPEND: ${{ github.event_name == 'pull_request_target' || inputs.spend }}
+    steps:
+      - name: Checkout the QA project
+        uses: actions/checkout@v4
+        with:
+          repository: cake-tech/cake-qa
+          ref: ${{ inputs.qa_ref || 'main' }}
+          path: cake-qa
+          ssh-key: ${{ secrets.QA_DEPLOY_KEY }}
+          persist-credentials: false
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "26"
+          cache: npm
+          cache-dependency-path: cake-qa/package-lock.json
+
+      - name: Install the QA project
+        working-directory: cake-qa
+        run: npm ci
+
+      - name: Download the build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ needs.resolve.outputs.run_id }}
+          ARTIFACT: ${{ needs.resolve.outputs.artifact }}
+        run: |
+          gh run download "$RUN_ID" -n "$ARTIFACT" -D apk -R "$GITHUB_REPOSITORY"
+          [ -f apk/app-x86_64-release.apk ] || mv "$(ls apk/*_x86.apk | head -n 1)" apk/app-x86_64-release.apk
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Boot the emulator and run the funded tests
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          GLM_BASE_URL: https://llm.cakewallet.com/v1
+          GLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          E2E_SECRET_SEED_BTC: ${{ secrets.E2E_SECRET_SEED_BTC }}
+          E2E_SECRET_SEED_ZEC: ${{ secrets.E2E_SECRET_SEED_ZEC }}
+          E2E_SECRET_SEED_LTC: ${{ secrets.E2E_SECRET_SEED_LTC }}
+          E2E_SECRET_SEED_XMR: ${{ secrets.E2E_SECRET_SEED_XMR }}
+          CW_DEVICE: emulator-5554
+          SHADOW_BUILD: ${{ format('run-{0}', needs.resolve.outputs.run_id) }}
+          GREP: "${{ inputs.grep || 'funded: (history order|multi-recipient|MWEB peg-in|transparent balance|POL and USDT)' }}"
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          emulator-boot-timeout: 1200
+          cores: 4
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -read-only -memory 4096 -no-snapshot-save
+          disable-animations: false
+          script: |
+            i=0; until adb shell settings get global window_animation_scale >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 60 ]; then break; fi; sleep 10; done
+            adb shell settings put global window_animation_scale 0 || true
+            adb shell settings put global transition_animation_scale 0 || true
+            adb shell settings put global animator_duration_scale 0 || true
+            adb install -r apk/app-x86_64-release.apk
+            nohup node cake-qa/tools/glm-proxy.mjs > "$RUNNER_TEMP/glm-proxy.log" 2>&1 &
+            sleep 2
+            adb kill-server; adb start-server; i=0; until adb shell true >/dev/null 2>&1; do i=$((i+1)); if [ "$i" -ge 30 ]; then break; fi; sleep 2; done
+            CW_PACKAGE=$(adb shell pm list packages | tr -d '\r' | sed -n 's/^package://p' | grep -m1 'com\.cakewallet\.test'); [ -n "$CW_PACKAGE" ] || exit 1; cd cake-qa && CW_PACKAGE="$CW_PACKAGE" node node_modules/.bin/e2e run --target pixel tests/shadow/funds.e2e.ts --reporter list,junit,markdown --grep "$GREP"
+
+      - name: Redact seed-like word runs from the results
+        id: redact
+        if: always()
+        run: node cake-qa/tools/qa/redact.mjs cake-qa/.e2e
+
+      - name: Upload results
+        if: always() && steps.redact.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-funded-results
+          path: |
+            cake-qa/.e2e/junit.xml
+            cake-qa/.e2e/summary.md
+          if-no-files-found: warn
+
+      - name: Encrypt the agent trace and screenshots
+        if: always() && steps.redact.outcome == 'success'
+        working-directory: cake-qa/.e2e
+        env:
+          QA_ARTIFACT_PASSPHRASE: ${{ secrets.QA_ARTIFACT_PASSPHRASE }}
+        run: |
+          [ -n "$QA_ARTIFACT_PASSPHRASE" ] || exit 0
+          FILES=$(ls -d report.json artifacts 2>/dev/null || true)
+          [ -n "$FILES" ] || exit 0
+          tar czf - $FILES | openssl enc -aes-256-cbc -pbkdf2 -salt -pass env:QA_ARTIFACT_PASSPHRASE -out "$RUNNER_TEMP/e2e-funded-trace.tgz.enc"
+
+      - name: Upload the encrypted trace
+        if: always() && steps.redact.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-funded-trace
+          path: ${{ runner.temp }}/e2e-funded-trace.tgz.enc
+          if-no-files-found: ignore
+
+      - name: PR comment with the result and each failure's reason
+        if: ${{ !cancelled() && env.PR != '' }}
+        uses: actions/github-script@v7
+        env:
+          RUN_ID: ${{ needs.resolve.outputs.run_id }}
+        with:
+          script: |
+            const fs = require('fs');
+            const read = (f) => { try { return fs.readFileSync(f, 'utf8'); } catch { return ''; } };
+            const plain = (s) => s.replace(/&#10;/g, '\n').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+            const kind = (m) =>
+              /MODEL_PROVIDER|model provider|Service Unavailable/i.test(m) ? 'model provider unavailable, not the app'
+              : /insufficient|not enough|balance is above 0/i.test(m) ? 'wallet not synced or underfunded'
+              : /TIMEOUT|timed out/i.test(m) ? 'timed out'
+              : /shadow check\(s\) failed/.test(m) ? 'checks failed'
+              : 'error';
+            const failures = [...read('cake-qa/.e2e/junit.xml').matchAll(/<testcase\b[^>]*\bname="([^"]*)"[^>]*>\s*<(?:failure|error)\b([^>]*)>/g)]
+              .map(([, name, attrs]) => [plain(name), plain(attrs.match(/\bmessage="([^"]*)"/)?.[1] ?? ''), plain(attrs)])
+              .map(([name, message, attrs]) => `- **${name}** (${kind(attrs)})\n  \`\`\`\n  ${message.slice(0, 600).replace(/\n/g, '\n  ')}\n  \`\`\``);
+            const counts = read('cake-qa/.e2e/summary.md').split('\n').slice(0, 2).join('\n') || '_the run produced no summary; the job log has the reason_';
+            const run = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const body = [
+              process.env.MARKER,
+              `#### QA e2e funded (${process.env.SPEND === 'true' ? 'self-sends broadcast' : 'dry run, nothing broadcast'})`,
+              counts,
+              failures.length ? `Failed:\n${failures.join('\n')}` : '',
+              `[Run](${run}) against build run ${process.env.RUN_ID}. Add the \`e2e-funded\` label again to re-run.`,
+            ].filter(Boolean).join('\n\n');
+            await github.rest.issues.createComment({ ...context.repo, issue_number: Number(process.env.PR), body });
