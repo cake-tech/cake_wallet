@@ -17,7 +17,7 @@ void main() {
 
   ElectrumTransactionInfo coinbasePayout() {
     final tx = BtcTransaction(
-      inputs: [TxInput(txId: coinbaseInputTxId, txIndex: 0xffffffff)],
+      inputs: [TxInput(txId: "00" * 32, txIndex: 0xffffffff)],
       outputs: [
         TxOutput(
           amount: BigInt.from(payout),

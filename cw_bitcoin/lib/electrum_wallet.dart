@@ -6,7 +6,6 @@ import 'dart:math' show Random, min;
 import 'package:bitcoin_base/bitcoin_base.dart';
 import "package:cw_bitcoin/bitcoin_wallet_addresses.dart";
 import "package:cw_bitcoin/electrum_account.dart";
-import 'package:cw_bitcoin/raw_transaction.dart';
 import 'package:cw_bitcoin/lightning/lightning_addres_type.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_bitcoin/lightning/lightning_wallet.dart';
@@ -2446,7 +2445,7 @@ abstract class ElectrumWalletBase
   Future<String?> canReplaceByFee(ElectrumTransactionInfo tx) async {
     try {
       final bundle = await getTransactionExpanded(hash: tx.txHash, forceResolveInputs: false);
-      if (parseRawTransaction(bundle.hex)?.txId != tx.txHash) return null;
+      if (bundle.originalTransaction.txId() != tx.txHash) return null;
       _updateInputsAndOutputs(tx, bundle);
       if (bundle.confirmations > 0) return null;
       return bundle.originalTransaction.canReplaceByFee ? bundle.originalTransaction.toHex() : null;
@@ -2457,7 +2456,7 @@ abstract class ElectrumWalletBase
 
   Future<bool> isChangeSufficientForFee(String txId, int newFee) async {
     final bundle = await getTransactionExpanded(hash: txId, forceResolveInputs: true);
-    if (parseRawTransaction(bundle.hex)?.txId != txId) {
+    if (bundle.originalTransaction.txId() != txId) {
       throw RbfException("Transaction does not match $txId");
     }
     final outputs = bundle.originalTransaction.outputs;
@@ -2482,7 +2481,7 @@ abstract class ElectrumWalletBase
     for (int i = 0; i < bundle.originalTransaction.inputs.length; i++) {
       final input = bundle.originalTransaction.inputs[i];
       final inputTransaction = bundle.ins[i];
-      if (inputTransaction == null || parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
+      if (inputTransaction == null || inputTransaction.txId() != input.txId) {
         throw RbfException("Missing input transaction for fee calculation");
       }
       final vout = input.txIndex;
@@ -2501,7 +2500,7 @@ abstract class ElectrumWalletBase
   Future<PendingBitcoinTransaction> replaceByFee(String hash, int newFee) async {
     try {
       final bundle = await getTransactionExpanded(hash: hash, forceResolveInputs: true);
-      if (parseRawTransaction(bundle.hex)?.txId != hash) {
+      if (bundle.originalTransaction.txId() != hash) {
         throw RbfException("Transaction does not match $hash");
       }
 
@@ -2516,8 +2515,7 @@ abstract class ElectrumWalletBase
       for (var i = 0; i < bundle.originalTransaction.inputs.length; i++) {
         final input = bundle.originalTransaction.inputs[i];
         final inputTransaction = bundle.ins[i];
-        if (inputTransaction == null ||
-            parseRawTransaction(bundle.insHex?[i])?.txId != input.txId) {
+        if (inputTransaction == null || inputTransaction.txId() != input.txId) {
           throw RbfException("Missing input transaction for replace-by-fee");
         }
         final vout = input.txIndex;
@@ -5288,8 +5286,9 @@ class PublicKeyWithDerivationPath {
 
 bool _isSignedByOwnKey(ElectrumTransactionBundle bundle, List<UtxoWithAddress> utxos) {
   final tx = bundle.originalTransaction;
-  final witnesses = parseRawTransaction(bundle.hex)?.witnesses;
-  if (witnesses == null) return false;
+  final witnesses = tx.witnesses
+      .map((witness) => witness.stack.map(BytesUtils.fromHexString).toList())
+      .toList();
 
   final scriptPubKeys = utxos.map((utxo) => utxo.ownerDetails.address.toScriptPubKey()).toList();
   final amounts = utxos.map((utxo) => utxo.utxo.value).toList();

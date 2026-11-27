@@ -1,6 +1,6 @@
+import "package:bitcoin_base/bitcoin_base.dart";
 import "package:cw_bitcoin/electrum_transaction_resolver.dart";
 import "package:cw_bitcoin/electrum_wallet.dart";
-import "package:cw_bitcoin/raw_transaction.dart";
 import "package:flutter_test/flutter_test.dart";
 
 import "raw_tx_hex.dart";
@@ -24,7 +24,7 @@ void main() {
     inputs: [RawInput(txid: "aa" * 32)],
     outputs: [RawOutput(amount: 50000, scriptPubKey: outScript)],
   );
-  final realTxid = parseRawTransaction(realHex)!.txId;
+  final realTxid = BtcTransaction.fromRaw(realHex).txId();
 
   final otherHex = rawTxHex(
     inputs: [RawInput(txid: "cc" * 32)],

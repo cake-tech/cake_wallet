@@ -88,7 +88,7 @@ dependency_overrides:
   bitcoin_base:
     git:
       url: https://github.com/cake-tech/bitcoin_base
-      ref: 5474b8fa75f5eb521f02c1dfc93b32979539a351
+      ref: 4e0ab92e6df56b78b17eb2395c95cc3743738e5a
   bloc:
     git:
       url: https://github.com/felangel/bloc

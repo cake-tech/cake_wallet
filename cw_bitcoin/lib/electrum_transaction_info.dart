@@ -14,11 +14,8 @@ import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:hex/hex.dart';
 
-/// The txid a coinbase input carries in place of a previous transaction id.
-/// Such an input spends no output, so there is no parent transaction to fetch.
-const coinbaseInputTxId = "0000000000000000000000000000000000000000000000000000000000000000";
-
-bool isCoinbaseTxId(String txId) => txId == coinbaseInputTxId;
+bool isCoinbaseTxId(String txId) =>
+    txId == "0000000000000000000000000000000000000000000000000000000000000000";
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction,
@@ -192,8 +189,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     for (var i = 0; i < totalInputCount; i++) {
       final input = bundle.originalTransaction.inputs[i];
-      // A coinbase input spends no wallet output and has no parent to fetch,
-      // so it is known not to be ours and is left out of the resolved count.
       if (isCoinbaseTxId(input.txId)) {
         continue;
       }
@@ -211,7 +206,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
       // Input tx not yet fetched to check the spent output against - fall back to
       // whatever the local scriptSig/witness check above could tell us.
-
       if (spentOutput == null) {
         unresolvedInputTxids.add(input.txId);
 
@@ -324,9 +318,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
       // never overcount.
       final ownedOutputsTotal = ownedOutputs.fold<int>(0, (sum, o) => sum + (o['amount'] as int));
       final rawDisplayAmount = ownedInputTotal - ownedOutputsTotal;
+
       // Every owned input's value is known (not just its ownership), so
       // ownedInputTotal can no longer be an undercount.
       final ownedInputsFullyResolved = ownedInputs.length == ownedInputCount;
+
       if (rawDisplayAmount < 0 && ownedInputsFullyResolved) {
         // We contributed input(s) but were credited with more value than we
         // put in - e.g. the receiver side of a payjoin, where the receiver
@@ -368,6 +364,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
     // Pure receive, confirmed purely from local input data with nothing
     // ambiguous - no input amounts are needed for the display amount here.
     final allInputsConfirmedNotOurs = ownedInputCount == 0 && !txHasAnyUnknownInput;
+
     // Full self-ownership send (no foreign inputs at all) - the co-spend
     // formula's dependency on "this wallet's own inputs" covers every input.
     final allInputsOwned = ownedInputCount == totalInputCount;
@@ -458,7 +455,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
       isReceivedSilentPayment: data['isReceivedSilentPayment'] as bool? ?? false,
       // Records written before this field existed have no ownership flag. On
       // the old model a missing input tx was stored as fee == null, so that
-      // is the legacy "missing data" marker: only those re-queue.
+      // is the legacy "missing data" marker: only those re-queue for resolution.
+      // Avoids all txs showing up as "Loading..." on app update
       inputsOwnershipFullyResolved:
           data['inputsOwnershipFullyResolved'] as bool? ?? (data['fee'] != null),
       additionalInfo: additionalInfo,
@@ -467,10 +465,8 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
   final WalletType type;
 
-  /// Whether this transaction still needs any resolution work, see [resolutionState].
   bool get needsResolution => resolutionState != TransactionResolutionState.settled;
 
-  /// Pending while the amount isn't final, amountFinal while ownership or the fee is still missing.
   @override
   TransactionResolutionState get resolutionState {
     if (super.resolutionState == TransactionResolutionState.pending) {
@@ -478,7 +474,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
     }
 
     // A coinbase has no fee to fetch, so a missing fee alone doesn't hold it up.
-    final hasWorkLeft = !inputsOwnershipFullyResolved || (fee == null && !isCoinbase);
+    final needsFee = fee == null && !isCoinbase;
+    final hasWorkLeft = !inputsOwnershipFullyResolved || needsFee;
+
     if (hasWorkLeft) {
       return TransactionResolutionState.amountFinal;
     }
@@ -486,7 +484,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
     return TransactionResolutionState.settled;
   }
 
-  /// Whether this tx is a coinbase payout, which has no fee to compute.
   bool get isCoinbase => additionalInfo["isCoinbase"] == true;
 
   ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {

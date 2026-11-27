@@ -4,7 +4,6 @@ import "package:bitcoin_base/bitcoin_base.dart";
 
 import "package:cw_bitcoin/electrum_transaction_info.dart";
 import "package:cw_bitcoin/electrum_transaction_isolate.dart";
-import "package:cw_bitcoin/raw_transaction.dart";
 import "package:cw_bitcoin/electrum_wallet.dart";
 import "package:cw_bitcoin/input_ownership.dart";
 import "package:cw_core/get_height_by_date.dart";
@@ -76,8 +75,16 @@ class ElectrumTransactionResolver {
   /// outlives a node switch, so one node's wrong data would otherwise be
   /// reused for every later rebuild.
   void cacheRawTxHex(String txid, String hex) {
-    if (hex.isNotEmpty && parseRawTransaction(hex)?.txId == txid) {
-      _putRawTxHex(txid, hex);
+    if (hex.isEmpty) {
+      return;
+    }
+
+    try {
+      if (BtcTransaction.fromRaw(hex).txId() == txid) {
+        _putRawTxHex(txid, hex);
+      }
+    } catch (_) {
+      // Not a well-formed transaction, so it isn't cached.
     }
   }
 

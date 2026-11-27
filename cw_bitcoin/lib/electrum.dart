@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
-import 'package:cw_bitcoin/electrum_line_reader.dart';
 import "package:cw_bitcoin/electrum_wallet_exceptions.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/utils/proxy_socket/abstract.dart';
@@ -108,7 +107,8 @@ class ElectrumClient {
       return;
     }
 
-    // Local to this connection attempt
+    // Local to this connection attempt, so a half-read line from a dropped connection can't
+    // corrupt the next.
     final electrumLineReader = ElectrumLineReader();
     socket = newSocket;
 

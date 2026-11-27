@@ -1,7 +1,7 @@
+import "package:bitcoin_base/bitcoin_base.dart";
 import "package:cw_bitcoin/electrum_transaction_info.dart";
 import "package:cw_bitcoin/electrum_transaction_resolver.dart";
 import "package:cw_bitcoin/electrum_wallet.dart";
-import "package:cw_bitcoin/raw_transaction.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/currency_for_wallet_type.dart";
 import "package:cw_core/transaction_direction.dart";
@@ -36,7 +36,7 @@ void main() {
 
   group("raw tx hex cache cap", () {
     final hexes = [for (var n = 1; n <= 5; n++) hexSpending(n)];
-    final txids = [for (final hex in hexes) parseRawTransaction(hex)!.txId];
+    final txids = [for (final hex in hexes) BtcTransaction.fromRaw(hex).txId()];
     final hexLength = hexes.first.length;
 
     test("the hexes used here are all the same length", () {
@@ -62,7 +62,7 @@ void main() {
 
     test("a hex larger than the whole cap is not kept and evicts nothing", () {
       final big = hexSpending(9, scriptSig: "ab" * 300);
-      final bigTxid = parseRawTransaction(big)!.txId;
+      final bigTxid = BtcTransaction.fromRaw(big).txId();
       final resolver = ElectrumTransactionResolver(
         _FakeWallet(),
         rawTxHexCacheCapChars: hexLength * 2,
