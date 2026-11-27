@@ -27,7 +27,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required Uint8List seedBytes,
     required EncryptionFileUtils encryptionFileUtils,
     String? passphrase,
@@ -41,7 +40,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
             password: password,
             walletInfo: walletInfo,
             derivationInfo: derivationInfo,
-            unspentCoinsInfo: unspentCoinsInfo,
             network: DogecoinNetwork.mainnet,
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
@@ -84,7 +82,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       required String password,
       required WalletInfo walletInfo,
       required DerivationInfo derivationInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required EncryptionFileUtils encryptionFileUtils,
       String? passphrase,
       String? addressPageType,
@@ -97,7 +94,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialBalance: initialBalance,
       seedBytes: MnemonicBip39.toSeed(mnemonic, passphrase: passphrase),
@@ -112,7 +108,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
   static Future<DogeCoinWallet> open({
     required String name,
     required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
@@ -151,7 +146,6 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialBalance: snp?.balance,
       seedBytes: await MnemonicBip39.toSeed(keysData.mnemonic!, passphrase: keysData.passphrase),
@@ -171,4 +165,7 @@ abstract class DogeCoinWalletBase extends ElectrumWallet with Store {
     );
     return priv.signMessage(StringUtils.encode(message));
   }
+
+  @override
+  Uri coinControlUrl(String txId) => Uri.https("dogechain.info", "/tx/${txId}");
 }

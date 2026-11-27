@@ -323,7 +323,9 @@ class CWMonero extends Monero {
 
   @override
   Object createMoneroTransactionCreationCredentials(
-          {required List<Output> outputs, required TransactionPriority priority}) =>
+          {required List<Output> outputs,
+          required TransactionPriority priority,
+          CoinSelection coinSelection = const AllCoinSelection()}) =>
       MoneroTransactionCreationCredentials(
           outputs: outputs
               .map((out) => OutputInfo(
@@ -336,7 +338,8 @@ class CWMonero extends Monero {
                     isParsedAddress: out.isParsedAddress,
                   ))
               .toList(),
-          priority: priority as MoneroTransactionPriority);
+          priority: priority as MoneroTransactionPriority,
+          coinSelection: coinSelection);
 
   @override
   Object createMoneroTransactionCreationCredentialsRaw(
@@ -379,8 +382,7 @@ class CWMonero extends Monero {
   }
 
   @override
-  WalletService createMoneroWalletService(Box<UnspentCoinsInfo> unspentCoinSource) =>
-      MoneroWalletService(unspentCoinSource);
+  WalletService createMoneroWalletService() => MoneroWalletService();
 
   @override
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
@@ -406,11 +408,6 @@ class CWMonero extends Monero {
     return moneroWallet.unspentCoins;
   }
 
-  @override
-  Future<void> updateUnspents(Object wallet) async {
-    final moneroWallet = wallet as MoneroWallet;
-    await moneroWallet.updateUnspent();
-  }
 
   @override
   Future<int> getCurrentHeight() async {
@@ -496,23 +493,4 @@ class CWMonero extends Monero {
 
   @override
   Map<String, dynamic> getWalletCacheDebug() => monero_wallet_api.getWalletCacheDebug();
-
-  @override
-  Future<Money> getSendingBalance(WalletBase wallet) async {
-    await updateUnspents(wallet);
-
-    Money total = Money.zero(CryptoCurrency.xmr);
-    Set<String> seen = {};
-    for (final item in getUnspents(wallet)) {
-      if (seen.contains(item.toString())) {
-        continue;
-      }
-      seen.add(item.toString());
-      if (item.isFrozen || !item.isSending || !item.isUnlocked) {
-        continue;
-      }
-      total += Money.fromInt(item.value, CryptoCurrency.xmr);
-    }
-    return total;
-  }
 }

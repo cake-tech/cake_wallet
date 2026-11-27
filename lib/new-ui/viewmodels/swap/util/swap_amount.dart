@@ -1,13 +1,13 @@
-import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/core/utilities.dart";
 import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/evm/evm.dart";
-import "package:cake_wallet/monero/monero.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/store/dashboard/fiat_conversion_store.dart";
 import "package:cake_wallet/store/settings_store.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/coin_control/coin_control_wallet.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/wallet_type.dart";
@@ -42,30 +42,16 @@ class SwapAmountFactory {
           <WalletType>[.bitcoin, .monero, .litecoin, .bitcoinCash, .dogecoin].contains(
               _appStore.wallet!.type);
 
-  Future<Money> _getMaximumTransactionAmount(CryptoCurrency curr) async {
-    if (<WalletType>[
-      .litecoin,
-      .bitcoin,
-      .bitcoinCash,
-      .dogecoin,
-    ].contains(_appStore.wallet!.type)) {
-      final priority = _appStore.settingsStore.getPriority(_appStore.wallet!.type)!;
-
-      return curr == CryptoCurrency.btcln
-          ? _appStore.wallet!.balance[CryptoCurrency.btcln]!.available -
-          Money.fromInt(10, curr)
-          : await bitcoin!.estimateFakeSendAllTxAmount(
-        _appStore.wallet!,
-        priority,
-        coinTypeToSpendFrom: _appStore.wallet!.type == WalletType.litecoin
-            ? UnspentCoinType.nonMweb
-            : curr == CryptoCurrency.btcln
-            ? UnspentCoinType.lightning
-            : UnspentCoinType.any,
+  Future<Money> _getMaximumTransactionAmount(CryptoCurrency curr, CoinSelection coinSelection) async {
+    if (curr == CryptoCurrency.btcln) {
+      return _appStore.wallet!.balance[CryptoCurrency.btcln]!.available - Money.fromInt(10, curr);
+    } else if (_appStore.wallet! is CoinControlWallet) {
+      return (_appStore.wallet! as CoinControlWallet).estimateSendAllAmount(
+        priority: _appStore.settingsStore.getPriority(_appStore.wallet!.type)!,
+        selection: coinSelection,
+        coinType: UnspentCoinType.nonMweb,
+        customFeeRate: _appStore.settingsStore.customBitcoinFeeRate,
       );
-
-    } else if (_appStore.wallet!.type == WalletType.monero) {
-      return monero!.getSendingBalance(_appStore.wallet!);
     } else if (isEVMCompatibleChain(_appStore.wallet!.type)) {
       final balanceCurrency = _appStore.wallet!.balance.keys.firstWhereOrNull(
             (currency) =>
@@ -94,8 +80,11 @@ class SwapAmountFactory {
     }
   }
 
-  Future<SwapAmount> getSwapAllAmount(CryptoCurrency curr) async {
-    final amount = await _getMaximumTransactionAmount(curr);
+  Future<SwapAmount> getSwapAllAmount(
+    CryptoCurrency curr, {
+    CoinSelection coinSelection = const AllCoinSelection(),
+  }) async {
+    final amount = await _getMaximumTransactionAmount(curr, coinSelection);
     final fiat = _appStore.settingsStore.fiatCurrency;
 
 

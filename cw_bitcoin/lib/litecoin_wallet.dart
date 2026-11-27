@@ -11,6 +11,7 @@ import 'package:cw_core/cake_hive.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/mweb_utxo.dart';
 import 'package:cw_core/unspent_coin_type.dart';
+import 'package:cw_core/unspent_transaction_output.dart';
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_mweb/mwebd.pbgrpc.dart';
@@ -44,7 +45,6 @@ import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_keys_file.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -69,7 +69,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     required String password,
     required WalletInfo walletInfo,
     required DerivationInfo derivationInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required EncryptionFileUtils encryptionFileUtils,
     Uint8List? seedBytes,
     String? mnemonic,
@@ -92,7 +91,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           xpub: xpub,
           walletInfo: walletInfo,
           derivationInfo: derivationInfo,
-          unspentCoinsInfo: unspentCoinsInfo,
           network: LitecoinNetwork.mainnet,
           initialAddresses: initialAddresses,
           initialBalance: initialBalance,
@@ -190,7 +188,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       required String password,
       required WalletInfo walletInfo,
       required DerivationInfo derivationInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required EncryptionFileUtils encryptionFileUtils,
       String? passphrase,
       String? addressPageType,
@@ -215,7 +212,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: initialAddresses,
       initialMwebAddresses: initialMwebAddresses,
       initialBalance: initialBalance,
@@ -239,7 +235,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   static Future<LitecoinWallet> open({
     required String name,
     required WalletInfo walletInfo,
-    required Box<UnspentCoinsInfo> unspentCoinsInfo,
     required String password,
     required EncryptionFileUtils encryptionFileUtils,
   }) async {
@@ -313,7 +308,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       password: password,
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfo,
       initialAddresses: snp?.addresses,
       initialMwebAddresses: snp?.mwebAddresses,
       initialBalance: snp?.balance,
@@ -863,6 +857,26 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
+  bool allowsCoinType(Unspent coin, UnspentCoinType coinType) {
+    final isMweb = coin is BitcoinUnspent &&
+        coin.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+
+    if (isMweb && !mwebEnabled) {
+      return false;
+    }
+
+    switch (coinType) {
+      case UnspentCoinType.mweb:
+        return isMweb;
+      case UnspentCoinType.nonMweb:
+        return !isMweb;
+      case UnspentCoinType.any:
+      case UnspentCoinType.lightning:
+        return true;
+    }
+  }
+
+  @override
   @action
   Future<void> updateAllUnspents() async {
     if (!mwebEnabled) {
@@ -905,8 +919,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       mwebUnspentCoins.add(unspent);
     });
 
-    // copy coin control attributes to mwebCoins:
-    await updateCoins(mwebUnspentCoins);
     // get regular ltc unspents (this resets unspentCoins):
     await super.updateAllUnspents();
     // add the mwebCoins:
@@ -950,27 +962,6 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       addressRecord.balance = 0;
       addressRecord.txCount = 0;
     }
-
-    unspentCoins.forEach((coin) {
-      final coinInfoList = unspentCoinsInfo.values.where(
-        (element) =>
-            element.walletId.contains(id) &&
-            element.hash.contains(coin.hash) &&
-            element.vout == coin.vout,
-      );
-
-      if (coinInfoList.isNotEmpty) {
-        final coinInfo = coinInfoList.first;
-
-        coin.isFrozen = coinInfo.isFrozen;
-        coin.isSending = coinInfo.isSending;
-        coin.note = coinInfo.note;
-        if (coin.bitcoinAddressRecord is! BitcoinSilentPaymentAddressRecord)
-          coin.bitcoinAddressRecord.balance += coinInfo.value;
-      } else {
-        super.addCoinInfo(coin);
-      }
-    });
 
     // update the txCount for each address using the tx history, since we can't rely on mwebd
     // to have an accurate count, we should just keep it in sync with what we know from the tx history:
@@ -1167,6 +1158,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
           priority: btcCreds.priority,
           feeRate: btcCreds.feeRate,
           coinTypeToSpendFrom: UnspentCoinType.nonMweb,
+          coinSelection: btcCreds.coinSelection,
         );
       } else {
         creds = credentials;
@@ -1616,4 +1608,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
     return BtcTransaction.fromRaw(rawHex);
   }
+
+  @override
+  Uri coinControlUrl(String txId) => Uri.https("blockchair.com", "litecoin/transaction/${txId}");
 }

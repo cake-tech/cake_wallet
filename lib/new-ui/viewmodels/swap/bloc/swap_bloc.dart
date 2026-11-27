@@ -37,6 +37,7 @@ import "package:cake_wallet/utils/list_extension.dart";
 import "package:cake_wallet/view_model/send/output.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
+import "package:cw_core/coin_control/coin_selection.dart";
 import "package:cw_core/crypto_currency.dart";
 import "package:cw_core/pending_transaction.dart";
 import "package:cw_core/sync_status.dart";
@@ -89,6 +90,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     on<ForcedProviderSelected>(_onForcedProviderSelected, transformer: restartable());
     on<ProviderToggled>(_onProviderToggled, transformer: sequential());
     on<FixedRateToggled>(_onFixedRateToggled, transformer: sequential());
+    on<CoinSelectionChanged>(_onCoinSelectionChanged, transformer: sequential());
     on<FiatCurrencyChanged>(_onFiatCurrencyChanged);
     on<ForceDecentralizedExchangesToggled>(
       _onForceDecentralizedExchangesToggled,
@@ -201,6 +203,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         availableProviders: _registry.allProviders,
         enabledProviders: _registry.enabledProviders,
         forceDecentralizedProviders: _appStore.settingsStore.forceDecentralizedExchanges,
+        coinSelection: const AllCoinSelection(),
       ),
     );
 
@@ -251,11 +254,18 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
               hasSwapAll: _amountFactory.hasSwapAll,
               depositAmount: depositAmount,
               payoutAmount: payoutAmount,
+              coinSelection: isWalletSwitched ? const AllCoinSelection() : null,
             ),
           );
         }
       } else {
-        emit(s.copyWith(source: event.newSource, hasSwapAll: _amountFactory.hasSwapAll));
+        emit(
+          s.copyWith(
+            source: event.newSource,
+            hasSwapAll: _amountFactory.hasSwapAll,
+            coinSelection: isWalletSwitched ? const AllCoinSelection() : null,
+          ),
+        );
       }
       add(RatesLoadStarted());
       if (event.initiateSwap) {
@@ -405,7 +415,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         return;
       }
 
-      final newDepositAmount = await _amountFactory.getSwapAllAmount(s.depositAmount.currency);
+      final newDepositAmount = await _amountFactory.getSwapAllAmount(
+        s.depositAmount.currency,
+        coinSelection: s.coinSelection,
+      );
       final newPayoutCryptoAmount =
           _bestRate(s)?.convert(newDepositAmount.cryptoAmount) ??
           Money.zero(s.payoutAmount.currency);
@@ -468,7 +481,10 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
                 _appStore.wallet!.balance.keys.any((item) => item.symbol == event.newCurrency.symbol);
 
         newDepositAmount = canSendNewCurrency
-            ? await _amountFactory.getSwapAllAmount(event.newCurrency)
+            ? await _amountFactory.getSwapAllAmount(
+                event.newCurrency,
+                coinSelection: s.coinSelection,
+              )
             : await _amountFactory.getSwapAmount(Money.zero(event.newCurrency), event.newCurrency);
         newPayoutAmount = await _amountFactory.getSwapAmount(
           Money.zero(s.payoutAmount.currency),
@@ -645,6 +661,15 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     }
   }
 
+  void _onCoinSelectionChanged(CoinSelectionChanged event, Emitter<SwapState> emit) {
+    if (state case final SwapInputState s) {
+      emit(s.copyWith(coinSelection: event.newSelection));
+      if (s.isSwapAll) {
+        add(const SwapAllEnabled());
+      }
+    }
+  }
+
   Future<void> _onFiatCurrencyChanged(FiatCurrencyChanged event, Emitter<SwapState> emit) async {
     _appStore.settingsStore.fiatCurrency = event.newCurrency;
     if (state case final SwapInputState s) {
@@ -810,7 +835,7 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
         emit(generatingState);
 
         try {
-          final tx = await _createSwapTransaction(trade, s.isSwapAll);
+          final tx = await _createSwapTransaction(trade, s.isSwapAll, s.coinSelection);
           final feeFiatAmount =
               (await _amountFactory.getSwapAmount(tx.fee, tx.fee.currency as CryptoCurrency)).fiatAmount;
           emit(
@@ -832,7 +857,11 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
     }
   }
 
-  Future<PendingTransaction> _createSwapTransaction(Trade trade, bool isSendAll) async {
+  Future<PendingTransaction> _createSwapTransaction(
+    Trade trade,
+    bool isSendAll,
+    CoinSelection coinSelection,
+  ) async {
     if (_registry.getProvider(trade.provider) case final TransactionCreationExchangeProvider p) {
       if (await p.createTransaction(_appStore.wallet!, trade) case final transaction?) {
         return transaction;
@@ -851,10 +880,17 @@ class SwapBloc extends Bloc<SwapEvent, SwapState>
       output.setCryptoAmount(trade.depositAmount.toString());
     } else {
       output.setSendAll(
-          (await _amountFactory.getSwapAllAmount(trade.depositCurrency)).cryptoAmount.toString());
+          (await _amountFactory.getSwapAllAmount(
+            trade.depositCurrency,
+            coinSelection: coinSelection,
+          )).cryptoAmount.toString());
     }
     output.address = trade.fundingAddress;
-    return _transactionService.createTransaction([output], coinTypeToSpendFrom: .nonMweb);
+    return _transactionService.createTransaction(
+      [output],
+      coinTypeToSpendFrom: .nonMweb,
+      coinSelection: coinSelection,
+    );
   }
 
   Future<void> _onSendConfirmed(SendConfirmed event, Emitter<SwapState> emit) async {

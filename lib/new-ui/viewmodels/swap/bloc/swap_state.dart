@@ -55,6 +55,7 @@ final class SwapInputState extends SwapStateWithInputs {
     required this.availableProviders,
     required this.enabledProviders,
     required this.forceDecentralizedProviders,
+    required this.coinSelection,
     this.forcedProvider,
   });
 
@@ -77,6 +78,7 @@ final class SwapInputState extends SwapStateWithInputs {
   final List<ExchangeProviderDescription> enabledProviders;
   final ExchangeProviderDescription? forcedProvider;
   final bool forceDecentralizedProviders;
+  final CoinSelection coinSelection;
 
   @override
   List<ExchangeProviderDescription> get usableProviders =>
@@ -101,6 +103,7 @@ final class SwapInputState extends SwapStateWithInputs {
     List<ExchangeProviderDescription>? enabledProviders,
     ExchangeProviderDescription? Function()? forcedProvider,
     bool? forceDecentralizedProviders,
+    CoinSelection? coinSelection,
   }) => SwapInputState(
     memo: memo ?? this.memo,
     depositAmount: depositAmount ?? this.depositAmount,
@@ -113,6 +116,7 @@ final class SwapInputState extends SwapStateWithInputs {
     enabledProviders: enabledProviders ?? this.enabledProviders,
     forcedProvider: forcedProvider != null ? forcedProvider.call() : this.forcedProvider,
     forceDecentralizedProviders: forceDecentralizedProviders ?? this.forceDecentralizedProviders,
+    coinSelection: coinSelection ?? this.coinSelection,
   );
 }
 

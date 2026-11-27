@@ -39,6 +39,29 @@ abstract class FiatConversionStoreBase with Store {
     return rate.convert(amount).copyWith(currency: target);
   }
 
+  Money? convertSync(Money amount, Currency target) {
+    if (_settingsStore.fiatApiMode == FiatApiMode.disabled) {
+      return null;
+    }
+
+    final (crypto, fiat) = switch ((amount.currency, target)) {
+      (final CryptoCurrency crypto, final FiatCurrency fiat) => (crypto, fiat),
+      (final FiatCurrency fiat, final CryptoCurrency crypto) => (crypto, fiat),
+      _ => throw ArgumentError("for now, only fiat <-> crypto conversions are supported"),
+    };
+
+    final price = prices[crypto];
+    if (price == null || price <= 0) {
+      return null;
+    }
+
+    final rate = ExchangeRate(
+      base: crypto,
+      quote: Money.parse(_plainDecimal(price), fiat, strictParsing: false),
+    );
+    return rate.convert(amount).copyWith(currency: target);
+  }
+
   Future<double?> _price(CryptoCurrency crypto, FiatCurrency fiat) async {
     final mode = _settingsStore.fiatApiMode;
     if (mode == FiatApiMode.disabled) {

@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:bitcoin_base/bitcoin_base.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonics_bip39.dart';
 import 'package:cw_bitcoin/mnemonic_is_incorrect_exception.dart';
+import "package:cw_core/coin_control/coin_notes_store.dart";
+import "package:cw_core/coin_control/frozen_coins_store.dart";
 import 'package:cw_core/encryption_file_utils.dart';
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/unspent_coins_info.dart';
@@ -21,9 +23,8 @@ class LitecoinWalletService extends WalletService<
     BitcoinRestoreWalletFromSeedCredentials,
     LitecoinWalletFromKeysCredentials,
     BitcoinRestoreWalletFromHardware> {
-  LitecoinWalletService(this.unspentCoinsInfoSource, this.isDirect);
+  LitecoinWalletService(this.isDirect);
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
   final bool isDirect;
 
   @override
@@ -51,7 +52,6 @@ class LitecoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       derivationInfo:
           credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
-      unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
@@ -76,7 +76,6 @@ class LitecoinWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -88,7 +87,6 @@ class LitecoinWalletService extends WalletService<
         password: password,
         name: name,
         walletInfo: walletInfo,
-        unspentCoinsInfo: unspentCoinsInfoSource,
         encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       );
       await wallet.init();
@@ -126,15 +124,8 @@ class LitecoinWalletService extends WalletService<
       }
     }
 
-    final unspentCoinsToDelete = unspentCoinsInfoSource.values
-        .where((unspentCoin) => unspentCoin.walletId == walletInfo.id)
-        .toList();
-
-    final keysToDelete = unspentCoinsToDelete.map((unspentCoin) => unspentCoin.key).toList();
-
-    if (keysToDelete.isNotEmpty) {
-      await unspentCoinsInfoSource.deleteAll(keysToDelete);
-    }
+    await FrozenCoinsStore.instance.deleteWallet(walletInfo.internalId);
+    await CoinNotesStore.instance.deleteWallet(walletInfo.internalId);
   }
 
   @override
@@ -161,7 +152,6 @@ class LitecoinWalletService extends WalletService<
       xpub: credentials.hwAccountData.xpub,
       walletInfo: credentials.walletInfo!,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();
@@ -182,7 +172,6 @@ class LitecoinWalletService extends WalletService<
       spendPubkeyOverride: credentials.spendPubkey,
       walletInfo: credentials.walletInfo!,
       derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
@@ -205,7 +194,6 @@ class LitecoinWalletService extends WalletService<
       walletInfo: credentials.walletInfo!,
       derivationInfo:
           credentials.derivationInfo ?? (await credentials.walletInfo!.getDerivationInfo()),
-      unspentCoinsInfo: unspentCoinsInfoSource,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
     await wallet.save();

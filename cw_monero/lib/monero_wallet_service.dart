@@ -103,9 +103,8 @@ class MoneroWalletService extends WalletService<
     MoneroRestoreWalletFromSeedCredentials,
     MoneroRestoreWalletFromKeysCredentials,
     MoneroRestoreWalletFromHardwareCredentials> {
-  MoneroWalletService(this.unspentCoinsInfoSource);
+  MoneroWalletService();
 
-  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
 
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
@@ -150,7 +149,6 @@ class MoneroWalletService extends WalletService<
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!,
           derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: credentials.password!);
       await wallet.init();
 
@@ -190,7 +188,6 @@ class MoneroWalletService extends WalletService<
       final wallet = MoneroWallet(
           walletInfo: walletInfo,
           derivationInfo: await walletInfo.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: password);
 
       if (wallet.hardwareWalletType == HardwareWalletType.ledger) {
@@ -261,7 +258,6 @@ class MoneroWalletService extends WalletService<
     final currentWallet = MoneroWallet(
       walletInfo: currentWalletInfo,
       derivationInfo: await currentWalletInfo.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfoSource,
       password: password,
     );
 
@@ -290,7 +286,6 @@ class MoneroWalletService extends WalletService<
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!,
           derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: credentials.password!);
       await wallet.init();
 
@@ -341,7 +336,6 @@ class MoneroWalletService extends WalletService<
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!,
           derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: credentials.password!);
       await wallet.init();
 
@@ -396,7 +390,6 @@ class MoneroWalletService extends WalletService<
       final wallet = MoneroWallet(
           walletInfo: credentials.walletInfo!,
           derivationInfo: await credentials.walletInfo!.getDerivationInfo(),
-          unspentCoinsInfo: unspentCoinsInfoSource,
           password: credentials.password!);
       await wallet.init();
 
@@ -443,7 +436,6 @@ class MoneroWalletService extends WalletService<
     final wallet = MoneroWallet(
       walletInfo: walletInfo,
       derivationInfo: derivationInfo,
-      unspentCoinsInfo: unspentCoinsInfoSource,
       password: password,
     );
     await wallet.init();
@@ -487,7 +479,6 @@ class MoneroWalletService extends WalletService<
       final wallet = MoneroWallet(
         walletInfo: walletInfo,
         derivationInfo: await walletInfo.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
         password: password,
       );
       await wallet.init();
@@ -519,7 +510,6 @@ class MoneroWalletService extends WalletService<
     final wallet = MoneroWallet(
       walletInfo: walletInfo,
       derivationInfo: await walletInfo.getDerivationInfo(),
-      unspentCoinsInfo: unspentCoinsInfoSource,
       password: password,
     );
     await wallet.init();
@@ -569,7 +559,6 @@ class MoneroWalletService extends WalletService<
       final wallet = MoneroWallet(
         walletInfo: walletInfo,
         derivationInfo: await walletInfo.getDerivationInfo(),
-        unspentCoinsInfo: unspentCoinsInfoSource,
         password: password,
       );
       return wallet.seed;

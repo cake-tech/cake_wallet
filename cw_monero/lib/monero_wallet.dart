@@ -16,9 +16,12 @@ import 'package:cw_core/node.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_direction.dart';
-import 'package:cw_core/unspent_coins_info.dart';
+import "package:cw_core/coin_control/coin_control_wallet.dart";
+import "package:cw_core/unspent_transaction_output.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:cw_core/utils/print_verbose.dart';
+import "package:cw_core/coin_control/coin_selection.dart";
+import "package:cw_core/unspent_coin_type.dart";
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_monero/api/account_list.dart';
@@ -36,12 +39,12 @@ import 'package:cw_monero/monero_transaction_creation_credentials.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_unspent.dart';
+import "package:cw_monero/monero_frozen_coins_store.dart";
 import 'package:cw_monero/monero_wallet_addresses.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/pending_monero_transaction.dart';
 import 'package:cw_monero/trezor.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:ledger_flutter_plus/ledger_flutter_plus.dart';
 import 'package:mobx/mobx.dart';
 import 'package:monero/monero.dart' as monero;
@@ -55,11 +58,11 @@ const MIN_RESTORE_HEIGHT = 1000;
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
 abstract class MoneroWalletBase
-    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo> with Store {
+    extends WalletBase<MoneroBalance, MoneroTransactionHistory, MoneroTransactionInfo>
+    with Store, CoinControlWallet {
   MoneroWalletBase(
       {required WalletInfo walletInfo,
       required DerivationInfo derivationInfo,
-      required Box<UnspentCoinsInfo> unspentCoinsInfo,
       required String password})
       : balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
           CryptoCurrency.xmr: MoneroBalance(
@@ -73,7 +76,6 @@ abstract class MoneroWalletBase
         _password = password,
         syncStatus = NotConnectedSyncStatus(),
         unspentCoins = [],
-        this.unspentCoinsInfo = unspentCoinsInfo,
         super(walletInfo, derivationInfo) {
     transactionHistory = MoneroTransactionHistory();
     walletAddresses = MoneroWalletAddresses(walletInfo, transactionHistory);
@@ -99,8 +101,6 @@ abstract class MoneroWalletBase
   }
 
   static const int _autoSaveInterval = 30;
-
-  Box<UnspentCoinsInfo> unspentCoinsInfo;
 
   void Function(FlutterErrorDetails)? onError;
 
@@ -161,6 +161,33 @@ abstract class MoneroWalletBase
   bool _hasSyncAfterStartup;
   Timer? _autoSaveTimer;
   List<MoneroUnspent> unspentCoins;
+
+  @override
+  List<Unspent> get unspents => unspentCoins;
+
+  @override
+  Future<void> refreshUnspents() => updateUnspent();
+
+  @override
+  Future<Money> estimateSendAllAmount({
+    required TransactionPriority priority,
+    CoinSelection selection = const AllCoinSelection(),
+    UnspentCoinType coinType = UnspentCoinType.any,
+    int? customFeeRate,
+  }) async {
+    await updateUnspent();
+    return Money.fromInt(
+      (await spendableCoins(selection: selection, coinType: coinType))
+          .cast<MoneroUnspent>()
+          .where((coin) => coin.isUnlocked)
+          .fold<int>(0, (sum, coin) => sum + coin.value),
+      currency,
+    );
+  }
+
+  @override
+  final MoneroFrozenCoinsStore frozenCoinsStore = MoneroFrozenCoinsStore();
+
   String _password;
 
   Future<void> init() async {
@@ -191,6 +218,9 @@ abstract class MoneroWalletBase
 
   @override
   Future<void>? updateBalance() => null;
+
+  @override
+  Future<void> refreshBalanceAfterFreeze() => _askForUpdateBalance();
 
   @override
   Future<bool> checkNodeHealth() async {
@@ -443,10 +473,9 @@ abstract class MoneroWalletBase
 
     await updateUnspent();
 
-    for (final utx in unspentCoins) {
-      if (utx.isSending) {
-        inputs.add(utx.keyImage!);
-      }
+    final candidates = await spendableCoins(selection: _credentials.coinSelection);
+    for (final utx in candidates) {
+      inputs.add(utx.keyImage!);
     }
 
     if (hasMultiDestination) {
@@ -511,7 +540,11 @@ abstract class MoneroWalletBase
   }
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int? amount) {
+  Future<int> calculateEstimatedFee(
+    TransactionPriority priority,
+    int? amount, {
+    CoinSelection selection = const AllCoinSelection(),
+  }) async {
     // FIXME: hardcoded value;
 
     if (priority is MoneroTransactionPriority) {
@@ -655,7 +688,7 @@ abstract class MoneroWalletBase
     setupBackgroundSync(password, currentWallet!);
     monero_wallet.rescanBlockchainAsync();
     await startSync();
-    _askForUpdateBalance();
+    await _askForUpdateBalance();
     walletAddresses.accountList.update();
     await updateTransactions();
     await save();
@@ -671,22 +704,26 @@ abstract class MoneroWalletBase
 
   Future<void> _updateUnspent() async {
     try {
-      refreshCoins(walletAddresses.account!.id);
+      await refreshCoins(walletAddresses.account!.id);
 
-      // Collected separately, so nobody ever sees a half filled list
-      final unspentCoins = <MoneroUnspent>[];
+      unspentCoins.clear();
+      frozenCoinsStore.beginRefresh();
 
-      final coinCount = await countOfCoins();
-      for (var i = 0; i < coinCount; i++) {
-        final coin = await getCoin(i);
+      final allCoins = await readAllCoins();
+      for (var i = 0; i < allCoins.length; i++) {
+        final coin = allCoins[i];
         final coinSpent = coin.spent();
         if (coinSpent == false && coin.subaddrAccount() == walletAddresses.account!.id) {
-          final unspent = await MoneroUnspent.fromUnspent(
+          frozenCoinsStore.record(
+            keyImage: coin.keyImage(),
+            index: i,
+            frozen: coin.frozen(),
+          );
+          final unspent = MoneroUnspent(
             address: coin.address(),
             hash: coin.hash(),
             keyImage: coin.keyImage(),
             value: coin.amount(),
-            isFrozen: coin.frozen(),
             isUnlocked: coin.unlocked(),
             isSpent: coinSpent,
           );
@@ -704,52 +741,8 @@ abstract class MoneroWalletBase
           unspentCoins.add(unspent);
         }
       }
-      this.unspentCoins
-        ..clear()
-        ..addAll(unspentCoins);
 
-      if (unspentCoinsInfo.isEmpty) {
-        unspentCoins.forEach((coin) => _addCoinInfo(coin));
-        return;
-      }
-
-      if (unspentCoins.isNotEmpty) {
-        final usedInfoKeys = <dynamic>{};
-        for (final coin in unspentCoins) {
-          final coinInfoList = unspentCoinsInfo.values
-              .where((element) =>
-                  element.walletId.contains(id) &&
-                  element.accountIndex == walletAddresses.account!.id &&
-                  !usedInfoKeys.contains(element.key) &&
-                  _isSameCoin(element, coin))
-              .toList();
-
-          if (coinInfoList.isNotEmpty) {
-            // The key image only breaks a tie between identical outputs of one transaction
-            final coinInfo = coinInfoList.firstWhere(
-              (element) => element.keyImage == coin.keyImage,
-              orElse: () => coinInfoList.first,
-            );
-            usedInfoKeys.add(coinInfo.key);
-
-            coin.isFrozen = coinInfo.isFrozen;
-            coin.isSending = coinInfo.isSending;
-            coin.note = coinInfo.note;
-
-            // The key image of a hardware wallet's output is only known after syncing with the
-            // device; keep the existing info (frozen state, note) instead of orphaning it.
-            if (coinInfo.keyImage != coin.keyImage) {
-              coinInfo.keyImage = coin.keyImage;
-              await coinInfo.save();
-            }
-          } else {
-            await _addCoinInfo(coin);
-          }
-        }
-      }
-
-      await _refreshUnspentCoinsInfo();
-      _askForUpdateBalance();
+      await _askForUpdateBalance();
     } catch (e, s) {
       printV(e.toString());
       onError?.call(FlutterErrorDetails(
@@ -757,53 +750,6 @@ abstract class MoneroWalletBase
         stack: s,
         library: this.runtimeType.toString(),
       ));
-    }
-  }
-
-  /// The key image can't identify an output: a hardware wallet doesn't know the key images of its
-  /// outputs until they are synced with the device, until then they all carry the same
-  /// placeholder, which made every output match the info of the first one.
-  bool _isSameCoin(UnspentCoinsInfo info, MoneroUnspent coin) =>
-      info.hash == coin.hash && info.address == coin.address && info.value == coin.value;
-
-  Future<void> _addCoinInfo(MoneroUnspent coin) async {
-    final newInfo = UnspentCoinsInfo(
-        walletId: id,
-        hash: coin.hash,
-        isFrozen: coin.isFrozen,
-        isSending: coin.isSending,
-        noteRaw: coin.note,
-        address: coin.address,
-        value: coin.value,
-        vout: 0,
-        keyImage: coin.keyImage,
-        isChange: coin.isChange,
-        accountIndex: walletAddresses.account!.id);
-
-    await unspentCoinsInfo.add(newInfo);
-  }
-
-  Future<void> _refreshUnspentCoinsInfo() async {
-    try {
-      final List<dynamic> keys = <dynamic>[];
-      final currentWalletUnspentCoins = unspentCoinsInfo.values.where((element) =>
-          element.walletId.contains(id) && element.accountIndex == walletAddresses.account!.id);
-
-      if (currentWalletUnspentCoins.isNotEmpty) {
-        currentWalletUnspentCoins.forEach((element) {
-          final existUnspentCoins = unspentCoins.where((coin) => _isSameCoin(element, coin));
-
-          if (existUnspentCoins.isEmpty) {
-            keys.add(element.key);
-          }
-        });
-      }
-
-      if (keys.isNotEmpty) {
-        await unspentCoinsInfo.deleteAll(keys);
-      }
-    } catch (e) {
-      printV(e.toString());
     }
   }
 
@@ -938,44 +884,33 @@ abstract class MoneroWalletBase
     return nodeHeight - heightDistance;
   }
 
-  void _askForUpdateBalance() {
+  Future<void> _askForUpdateBalance() async {
     final unlockedBalance = _getUnlockedBalance();
     final fullBalance = monero_wallet.getFullBalance(accountIndex: walletAddresses.account!.id);
-    final frozenBalance = _getFrozenBalance();
+    final frozen = Money.fromInt(await frozenBalance(), CryptoCurrency.xmr);
     if (balance[currency]!.fullBalance != fullBalance ||
         balance[currency]!.available != unlockedBalance ||
-        balance[currency]!.frozen != frozenBalance) {
-      balance[currency] = MoneroBalance(
-          fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozen: frozenBalance);
+        balance[currency]!.frozen != frozen) {
+      balance[currency] =
+          MoneroBalance(fullBalance: fullBalance, unlockedBalance: unlockedBalance, frozen: frozen);
     }
   }
 
   Money _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account!.id);
 
-  Money _getFrozenBalance() {
-    var frozenBalance = 0;
-
-    for (final coin in unspentCoinsInfo.values.where((element) =>
-        element.walletId == id && element.accountIndex == walletAddresses.account!.id)) {
-      if (coin.isFrozen && !coin.isSending) frozenBalance += coin.value;
-    }
-
-    return Money.fromInt(frozenBalance, CryptoCurrency.xmr);
-  }
-
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     printV("onNewBlock: $height, $blocksLeft, $ptc");
     try {
       if (walletInfo.isRecovery) {
         await updateTransactions();
-        _askForUpdateBalance();
+        await _askForUpdateBalance();
         walletAddresses.accountList.update();
       }
 
       if (blocksLeft < 100) {
         await updateTransactions();
-        _askForUpdateBalance();
+        await _askForUpdateBalance();
         walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
 
@@ -998,7 +933,7 @@ abstract class MoneroWalletBase
   void _onNewTransaction() async {
     try {
       await updateTransactions();
-      _askForUpdateBalance();
+      await _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
     } catch (e) {
       printV(e.toString());

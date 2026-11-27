@@ -1,11 +1,6 @@
-import 'package:cw_core/unspent_comparable_mixin.dart';
 
-class Unspent with UnspentComparable {
-  Unspent(this.address, this.hash, this.value, this.vout, this.keyImage)
-      : isSending = true,
-        isFrozen = false,
-        isChange = false,
-        note = '';
+class Unspent {
+  Unspent(this.address, this.hash, this.value, this.vout, this.keyImage) : isChange = false;
 
   final String address;
   final String hash;
@@ -14,16 +9,15 @@ class Unspent with UnspentComparable {
   final String? keyImage;
 
   bool isChange;
-  bool isSending;
-  bool isFrozen;
   int? confirmations;
-  String note;
+
+  String get id => keyImage ?? "$hash:$vout";
+
+  bool get isSilentPayment => false;
 
   bool get isP2wpkh =>
-      address.startsWith('bc') || address.startsWith('tb') || address.startsWith('ltc');
+      address.startsWith("bc") || address.startsWith("tb") || address.startsWith("ltc");
 
   @override
-  String toString() {
-    return 'Unspent(address: $address, hash: $hash, value: $value, vout: $vout, keyImage: $keyImage, isSending: $isSending, isFrozen: $isFrozen, isChange: $isChange, note: $note)';
-  }
+  String toString() => "Unspent(id: $id, address: $address, value: $value, isChange: $isChange)";
 }
