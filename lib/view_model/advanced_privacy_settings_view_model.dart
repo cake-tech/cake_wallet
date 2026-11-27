@@ -28,6 +28,8 @@ abstract class AdvancedPrivacySettingsViewModelBase with Store {
   @computed
   bool get useBlinkProtection => _settingsStore.useBlinkProtection;
 
+  Future<bool> get isBitcoinMempoolAPIEnabled async => _settingsStore.useMempoolFeeAPI;
+
   bool get canUseBlinkProtection {
     if (!isEVMCompatibleChain(type)) return false;
 

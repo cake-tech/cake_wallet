@@ -26,6 +26,7 @@ class ElectrumWalletSnapshot {
     required this.silentAddressIndex,
     required this.mwebAddresses,
     required this.alwaysScan,
+    this.birthdayPending = false,
     required this.useLightning,
     this.cachedLightningAddress,
     this.passphrase,
@@ -52,6 +53,7 @@ class ElectrumWalletSnapshot {
   List<BitcoinSilentPaymentAddressRecord> silentAddresses;
   List<BitcoinAddressRecord> mwebAddresses;
   bool alwaysScan;
+  bool birthdayPending;
   bool useLightning;
   String? cachedLightningAddress;
 
@@ -91,6 +93,7 @@ class ElectrumWalletSnapshot {
         .toList();
 
     final alwaysScan = data['alwaysScan'] as bool? ?? false;
+    final birthdayPending = data['birthdayPending'] as bool? ?? false;
     final useLightning = data['useLightning'] as bool? ?? true;
     final cachedLightningAddress = data['cachedLightningAddress'] as String?;
 
@@ -147,6 +150,7 @@ class ElectrumWalletSnapshot {
       silentAddressIndex: silentAddressIndex,
       mwebAddresses: mwebAddresses,
       alwaysScan: alwaysScan,
+      birthdayPending: birthdayPending,
       useLightning: useLightning,
       cachedLightningAddress: cachedLightningAddress,
     );

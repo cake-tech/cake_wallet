@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 enum LogLevel { info, debug, warn, error }
 
+const _maxLogFileBytes = 5 * 1024 * 1024;
+
 /// Pass an optional [file] to also write the log to a file.
 void printV(
   dynamic content, {
@@ -20,6 +22,24 @@ void printV(
     final logFile = File(file);
     if (!logFile.existsSync()) {
       logFile.createSync(recursive: true);
+    } else if (logFile.lengthSync() > _maxLogFileBytes) {
+      // keep a single previous generation so the log can't grow without bound
+      try {
+        final backup = File("$file.1");
+
+        if (backup.existsSync()) {
+          backup.deleteSync();
+        }
+
+        logFile.renameSync(backup.path);
+      } catch (_) {
+        // rotation must never make logging throw; fall back to truncating
+        logFile.writeAsStringSync("");
+      }
+
+      if (!logFile.existsSync()) {
+        logFile.createSync();
+      }
     }
     logFile.writeAsStringSync("$logLine\n", mode: FileMode.append, flush: true);
   }

@@ -37,10 +37,22 @@ abstract class WalletCreationVMBase with Store {
   @observable
   bool _useTestnet = false;
 
+  @observable
+  bool _alwaysScanSilentPayments = false;
+
+  @observable
+  int _silentPaymentsScanHeight = 0;
+
   int _zcashNetwork = ZcashNetworkType.mainnet;
 
   @computed
   bool get useTestnet => _useTestnet;
+
+  @computed
+  bool get alwaysScanSilentPayments => _alwaysScanSilentPayments;
+
+  @computed
+  int get silentPaymentsScanHeight => _silentPaymentsScanHeight;
 
   int get zcashNetwork => _zcashNetwork;
 
@@ -284,6 +296,16 @@ abstract class WalletCreationVMBase with Store {
   @action
   void toggleUseTestnet(bool? value) {
     _useTestnet = value ?? !_useTestnet;
+  }
+
+  @action
+  void toggleAlwaysScanSilentPayments(bool? value) {
+    _alwaysScanSilentPayments = value ?? !_alwaysScanSilentPayments;
+  }
+
+  @action
+  void setSilentPaymentsScanHeight(int height) {
+    _silentPaymentsScanHeight = height;
   }
 
   void setZcashNetwork(int network) {

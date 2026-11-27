@@ -126,6 +126,14 @@ class WalletRestorePage extends BasePage {
                             'toggleTestnet': walletRestoreViewModel.toggleUseTestnet,
                             'zcashNetwork': walletRestoreViewModel.zcashNetwork,
                             'setZcashNetwork': walletRestoreViewModel.setZcashNetwork,
+                            'alwaysScanSilentPayments':
+                                walletRestoreViewModel.alwaysScanSilentPayments,
+                            'toggleAlwaysScanSilentPayments':
+                                walletRestoreViewModel.toggleAlwaysScanSilentPayments,
+                            'silentPaymentsScanHeight':
+                                walletRestoreViewModel.silentPaymentsScanHeight,
+                            'setSilentPaymentsScanHeight':
+                                walletRestoreViewModel.setSilentPaymentsScanHeight,
                           },
                         );
                       },

@@ -70,6 +70,8 @@ class BitcoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
     );
 
+    wallet.birthdayPending = true;
+
     await wallet.save();
     await wallet.init();
 
@@ -178,6 +180,7 @@ class BitcoinWalletService extends WalletService<
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
       payjoinBox: payjoinSessionSource,
       useLightning: false,
+      alwaysScan: credentials.alwaysScan,
     );
 
     await wallet.save();
@@ -204,7 +207,9 @@ class BitcoinWalletService extends WalletService<
       payjoinBox: payjoinSessionSource,
       network: network,
       encryptionFileUtils: encryptionFileUtilsFor(isDirect),
+      alwaysScan: credentials.alwaysScan,
     );
+    wallet.birthdayPending = (credentials.height ?? 0) == 0;
     await wallet.save();
     await wallet.init();
     return wallet;
