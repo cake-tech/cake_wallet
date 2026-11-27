@@ -63,6 +63,8 @@ class NewReceivePage extends StatefulWidget {
 }
 
 class _NewReceivePageState extends State<NewReceivePage> {
+  late final ReactionDisposer _disposeAddressReaction;
+  late final ReactionDisposer _disposeReceiveOptionReaction;
   bool _largeQrMode = false;
   late WalletAddressListItem? _addressItemWithLabel;
 
@@ -89,14 +91,16 @@ class _NewReceivePageState extends State<NewReceivePage> {
       }
     });
 
-    reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
+    _disposeAddressReaction =
+        reaction((_) => widget.addressListViewModel.uri, _reloadAddressWithLabel);
 
     _addressItemWithLabel = widget.addressListViewModel.forceRecomputeItems.firstWhereOrNull(
       (item) =>
           item is WalletAddressListItem && item.address == widget.addressListViewModel.uri.address,
     ) as WalletAddressListItem?;
 
-    reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
+    _disposeReceiveOptionReaction =
+        reaction((_) => widget.receiveOptionViewModel.selectedReceiveOption, (option) {
       // The infobox depends on the selected address type, so the page has to be
       // rebuilt when it changes.
       if (mounted) setState(() {});
@@ -125,6 +129,13 @@ class _NewReceivePageState extends State<NewReceivePage> {
         widget.addressListViewModel.setAddressType(zcash!.getZcashAddressType(option));
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _disposeReceiveOptionReaction();
+    _disposeAddressReaction();
+    super.dispose();
   }
 
   @override
@@ -164,6 +175,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             ModalTopBar(
+              testId: "receive_page_top_bar",
               title: _largeQrMode ? "" : S.of(context).receive,
               leadingIcon: const Icon(Icons.close),
               leadingSemanticLabel: S.of(context).close,
@@ -183,6 +195,9 @@ class _NewReceivePageState extends State<NewReceivePage> {
                                   .contains("mweb")
                       ? ModernButton(
                           key: ValueKey(_largeQrMode),
+                          testId: _largeQrMode
+                              ? "receive_page_share_button_key"
+                              : "receive_page_rotate_button_key",
                           size: 36,
                           icon: _largeQrMode
                               ? const Icon(Icons.share)
@@ -247,6 +262,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                     excluding: _largeQrMode || !hasLabel,
                     child: MergeSemantics(
                       child: Semantics(
+                        identifier: "receive_page_label_chip_key",
                         button: true,
                         hint: S.of(context).set_label,
                         child: GestureDetector(
@@ -270,7 +286,7 @@ class _NewReceivePageState extends State<NewReceivePage> {
                           : ClipboardData(
                               text: widget.addressListViewModel.displayAmount.isEmpty
                                   ? widget.addressListViewModel.uri.address
-                                  : widget.addressListViewModel.uri.toString(),
+                                  : _copyText(widget.addressListViewModel.uri),
                             ),
                       onCopyButtonPressed: () {
                         if (widget.addressListViewModel.hasPayjoin) {
@@ -348,6 +364,11 @@ class _NewReceivePageState extends State<NewReceivePage> {
       _reloadAddressWithLabel(widget.addressListViewModel.uri);
     });
   }
+
+  /// Lightning invoices are copied without the `lightning:` scheme so they can
+  /// be pasted anywhere; the QR code keeps the scheme for deep links.
+  String _copyText(PaymentURI uri) =>
+      uri is LightningPaymentRequest ? uri.paymentRequest : uri.toString();
 
   void _reloadAddressWithLabel(PaymentURI newAddress) {
     // FIXME: viewmodel doesn't want to load address name here, so we make it. investigate why later

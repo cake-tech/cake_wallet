@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/network_image_cache.dart";
 import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
 
@@ -76,7 +77,11 @@ class _TokenImageWidgetState extends State<TokenImageWidget> {
     if (url.startsWith('assets/')) {
       provider = AssetImage(url);
     } else if (url.startsWith('http')) {
-      provider = NetworkImage(url);
+      final file = await NetworkImageCache.instance.getFile(url);
+      if (file == null) {
+        return _IconShape.clipOnly;
+      }
+      provider = FileImage(file);
     } else {
       return _IconShape.clipOnly;
     }

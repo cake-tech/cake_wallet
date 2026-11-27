@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/address_resolver/address_lookup_provider.dart';
 import 'package:cake_wallet/core/address_resolver/address_resolver_utils.dart';
 import 'package:cake_wallet/core/address_resolver/address_sources.dart';
+import 'package:cake_wallet/core/address_resolver/lnurl_pay/lnurlpay_record.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_resolver/twitter/twitter_api.dart';
 import 'package:cake_wallet/core/address_resolver/twitter/twitter_user.dart';
@@ -59,6 +60,12 @@ class TwitterAddressProvider extends AddressLookupProvider {
           ),
         );
 
+        if (currencies.contains(CryptoCurrency.btcln) &&
+            !result.containsKey(CryptoCurrency.btcln)) {
+          final lnurl = await _resolveLightningAddressFromText(item.text);
+          if (lnurl != null) result[CryptoCurrency.btcln] = lnurl;
+        }
+
         if (result.isEmpty) {
           final domainResult = await AddressResolverUtils.resolveUnstoppableDomainFromText(
             raw: item.text,
@@ -78,6 +85,23 @@ class TwitterAddressProvider extends AddressLookupProvider {
       printV('[address resolver service] Twitter error: $e');
       return [];
     }
+  }
+
+  /// Finds a Lightning address (user@domain, e.g. "⚡alice@cake.cash") in the text and resolves it
+  /// via LNURL-pay, the same way a Lightning address typed directly is resolved.
+  Future<String?> _resolveLightningAddressFromText(String text) async {
+    final matches = RegExp(r'(?<![\w.%+\-@])[\w.%+\-]+@[\w\-]+(\.[\w\-]+)*\.[a-zA-Z]{2,}')
+        .allMatches(text);
+
+    for (final match in matches) {
+      final record = await LNUrlPayRecord.fetchAddressAndName(
+        formattedName: match.group(0)!,
+        currency: CryptoCurrency.btcln,
+      );
+      if (record != null && record.address.isNotEmpty) return record.address;
+    }
+
+    return null;
   }
 
   ParsedAddress _buildTwitterParsedAddress(

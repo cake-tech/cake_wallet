@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
+import "package:cake_wallet/utils/test_id.dart";
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -16,6 +17,7 @@ class ModernButton extends StatelessWidget {
   /// visible caption) when omitted, so one of the two is required. Must be
   /// localized by the caller.
   final String? semanticLabel;
+  final String? testId;
   static const iconSvgSizeRatio = 2 / 3;
 
   const ModernButton(
@@ -27,7 +29,8 @@ class ModernButton extends StatelessWidget {
       this.iconColor,
       this.backgroundColor,
       this.label,
-      this.semanticLabel})
+      this.semanticLabel,
+      this.testId})
       : svgPath = null;
 
   const ModernButton.svg(
@@ -39,7 +42,8 @@ class ModernButton extends StatelessWidget {
       this.iconColor,
       this.backgroundColor,
       this.label,
-      this.semanticLabel})
+      this.semanticLabel,
+      this.testId})
       : icon = null;
 
   @override
@@ -68,6 +72,7 @@ class ModernButton extends StatelessWidget {
     // detached stop for screen readers.
     return MergeSemantics(
       child: Semantics(
+        identifier: testId ?? TestId.fromKey(key),
         button: true,
         label: semanticLabel ?? label,
         child: Column(
@@ -88,12 +93,22 @@ class ModernButton extends StatelessWidget {
             ),
             if (label != null && label!.isNotEmpty)
               ExcludeSemantics(
-                child: Text(
-                  label!,
-                  style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: Theme.of(context).colorScheme.onSurface),
+                // The caption can be longer than the circle (Tamil
+                // "தொகையை அமைக்கவும்"); bound it to the button width so rows of
+                // buttons cannot overflow the screen.
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: size + 16),
+                  child: Text(
+                    label!,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurface),
+                  ),
                 ),
               )
           ],

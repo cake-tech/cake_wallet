@@ -212,11 +212,17 @@ class OnRamperBuyProvider extends BuyProvider {
       String? countryCode}) async {
     String? paymentMethod;
 
-    if (paymentType == PaymentType.all)
-      paymentMethod = null;
-    else if (paymentType == PaymentType.unknown)
+    if (isBuyAction &&
+        cryptoCurrency == CryptoCurrency.xmr &&
+        (paymentType == null || paymentType == PaymentType.all)) {
+      paymentMethod = "debitcard";
+    } else if (paymentType == PaymentType.all) {
+      paymentMethod = recommendedPaymentType ?? (isBuyAction ? "creditcard" : null);
+    } else if (paymentType == PaymentType.unknown) {
       paymentMethod = customPaymentMethodType;
-    else if (paymentType != null) paymentMethod = normalizePaymentMethod(paymentType);
+    } else if (paymentType != null) {
+      paymentMethod = normalizePaymentMethod(paymentType);
+    }
 
     final actionType = isBuyAction ? 'buy' : 'sell';
 
@@ -259,8 +265,14 @@ class OnRamperBuyProvider extends BuyProvider {
 
           if (rampMetaData == null) continue;
 
-          final quote = Quote.fromOnramperJson(item, isBuyAction, _onrampMetadata,
-              _getPaymentTypeByString(paymentMethod), customPaymentMethodType);
+          final quotePaymentType = _getPaymentTypeByString(paymentMethod);
+          final quote = Quote.fromOnramperJson(
+            item,
+            isBuyAction,
+            _onrampMetadata,
+            quotePaymentType,
+            quotePaymentType == PaymentType.unknown ? paymentMethod : customPaymentMethodType,
+          );
           quote.setFiatCurrency = fiatCurrency;
           quote.setCryptoCurrency = cryptoCurrency;
           validQuotes.add(quote);

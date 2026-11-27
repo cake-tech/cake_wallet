@@ -118,12 +118,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       initialRegularAddressIndex: initialRegularAddressIndex,
       initialChangeAddressIndex: initialChangeAddressIndex,
       initialMwebAddresses: initialMwebAddresses,
-      mainHdByTypeAndAccount: mainHdByTypeAndAccount,
-      sideHdByTypeAndAccount: sideHdByTypeAndAccount,
-      accountIndexes: [currentAccountIndex],
-      currentAccountIndex: currentAccountIndex,
-      legacyMainHd: mainHd,
-      legacySideHd: sideHd,
+      accounts: accounts,
       network: network,
       mwebHd: mwebHd,
       mwebEnabled: mwebEnabled,
@@ -512,7 +507,18 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
     final oldBox = await CakeHive.openBox<MwebUtxo>(oldBoxName);
     final newBox = await CakeHive.openBox<MwebUtxo>(newBoxName);
     for (final key in oldBox.keys) {
-      await newBox.put(key, oldBox.get(key)!);
+      final utxo = oldBox.get(key)!;
+      await newBox.put(
+        key,
+        MwebUtxo(
+          height: utxo.height,
+          value: utxo.value,
+          address: utxo.address,
+          outputId: utxo.outputId,
+          blockTime: utxo.blockTime,
+          spent: utxo.spent,
+        ),
+      );
     }
   }
 
@@ -1433,12 +1439,8 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   }
 
   @override
-  Future<String> signMessage(String message, {String? address = null}) async {
-    final index = address != null
-        ? walletAddresses.allAddresses.firstWhere((element) => element.address == address).index
-        : null;
-    final HD = index == null ? mainHd : mainHd.childKey(Bip32KeyIndex(index));
-    final priv = ECPrivate.fromHex(HD.privateKey.privKey.toHex());
+  String signMessageWithKey(String message, Bip32Slip10Secp256k1 hd) {
+    final priv = ECPrivate.fromHex(hd.privateKey.privKey.toHex());
 
     final privateKey = ECDSAPrivateKey.fromBytes(
       priv.toBytes(),
