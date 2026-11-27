@@ -1,17 +1,13 @@
 import 'package:cake_wallet/core/address_resolver/address_resolver_service.dart';
 import 'package:cake_wallet/core/address_resolver/parsed_address.dart';
 import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/core/contact_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cw_core/utils/print_verbose.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/contact.dart';
 import 'package:cw_core/crypto_currency.dart';
 
 part 'contact_view_model.g.dart';
@@ -19,7 +15,8 @@ part 'contact_view_model.g.dart';
 class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._contacts, this.appStore, this.adrResService, {ContactRecord? contact})
+  ContactViewModelBase(this._contactService, this.appStore, this.adrResService,
+      {ContactRecord? contact})
       : state = InitialExecutionState(),
         currencies = CryptoCurrency.all,
         _contact = contact,
@@ -54,7 +51,7 @@ abstract class ContactViewModelBase with Store {
       name.isNotEmpty && (currency?.toString().isNotEmpty ?? false) && address.isNotEmpty;
 
   final List<CryptoCurrency> currencies;
-  final Box<Contact> _contacts;
+  final ContactService _contactService;
   final ContactRecord? _contact;
 
   @action
@@ -110,6 +107,11 @@ abstract class ContactViewModelBase with Store {
   Future<void> save() async {
     try {
       state = IsExecutingState();
+
+      // The duplicate-name check reads the cache, so make sure it's populated
+      // even if this page was reached without the list page loading first.
+      await _contactService.ensureLoaded();
+
       final now = DateTime.now();
 
       final nameExists = _contact == null
@@ -121,20 +123,20 @@ abstract class ContactViewModelBase with Store {
         return;
       }
 
-      if (_contact != null && _contact.original.isInBox) {
+      if (_contact != null && _contact.original.isSaved) {
         _contact.name = name;
         _contact.address = address;
         _contact.type = currency!;
         _contact.displayName = displayName;
         _contact.lastChange = now;
-        await _contact.save();
+        await _contactService.update(_contact);
       } else {
-        await _contacts.add(Contact(
-            name: name,
-            address: address,
-            type: currency!,
-            lastChange: now,
-            displayName: displayName));
+        await _contactService.add(
+          name: name,
+          address: address,
+          type: currency!,
+          displayName: displayName,
+        );
       }
 
       lastChange = now;
@@ -144,7 +146,6 @@ abstract class ContactViewModelBase with Store {
     }
   }
 
-  bool doesContactNameExist(String name) {
-    return _contacts.values.any((contact) => contact.name == name);
-  }
+  bool doesContactNameExist(String name) =>
+      _contactService.contacts.any((contact) => contact.name == name);
 }

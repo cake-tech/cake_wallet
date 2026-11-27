@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import "package:cake_wallet/core/contact_service.dart";
 import 'package:cake_wallet/entities/auto_generate_subaddress_status.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/contact_base.dart';
@@ -10,14 +11,12 @@ import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/wallet_connect.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/currency_for_wallet_type.dart';
 import "package:cw_core/utils/print_verbose.dart";
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'contact_list_view_model.g.dart';
@@ -25,24 +24,18 @@ part 'contact_list_view_model.g.dart';
 class ContactListViewModel = ContactListViewModelBase with _$ContactListViewModel;
 
 abstract class ContactListViewModelBase with Store {
-  ContactListViewModelBase(
-      this.contactSource, List<WalletInfo> wallets, this._currency, this.settingsStore)
-      : contacts = ObservableList<ContactRecord>(),
-        isAutoGenerateEnabled =
-            settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
+  ContactListViewModelBase(this.contactService, this._currency, this.settingsStore)
+    : isAutoGenerateEnabled =
+          settingsStore.autoGenerateSubaddressStatus == AutoGenerateSubaddressStatus.enabled {
     unawaited(_init());
   }
 
   Future<void> _init() async {
+    // Contacts now come from SQLite through ContactService and are loaded on
+    // demand; there is no Hive box to bind to anymore.
+    await contactService.ensureLoaded();
     await loadWalletContacts();
-
-    _subscription = contactSource.bindToListWithTransform(
-      contacts,
-      (contact) => ContactRecord(contactSource, contact),
-      initialFire: true,
-    );
-
-    setOrderType(settingsStore.contactListOrder);
+    await setOrderType(settingsStore.contactListOrder);
   }
 
   Future<void> _lastWalletContactsLoad = Future.value();
@@ -68,61 +61,70 @@ abstract class ContactListViewModelBase with Store {
             final address = value?.first;
             if (address != null) {
               final name = _createName(info.name, address.label, key: key);
-              loadedContacts.add(WalletContact(
-                address.address,
-                name,
-                getCryptoCurrencyForWalletListItem(
-                  info.type,
+              loadedContacts.add(
+                WalletContact(
+                  address.address,
+                  name,
+                  getCryptoCurrencyForWalletListItem(info.type),
+                  walletType: info.type,
                 ),
-                walletType: info.type,
-              ));
+              );
             }
           }
         } else if (addresses.isNotEmpty == true && addresses.length > 1) {
-          if ([WalletType.monero, WalletType.wownero, WalletType.haven, WalletType.decred]
-              .contains(info.type)) {
+          if ([
+            WalletType.monero,
+            WalletType.wownero,
+            WalletType.haven,
+            WalletType.decred,
+          ].contains(info.type)) {
             final address = info.address;
             final name = _createName(info.name, "", key: 0);
-            loadedContacts.add(WalletContact(
-              address,
-              name,
-              getCryptoCurrencyForWalletListItem(
-                info.type,
+            loadedContacts.add(
+              WalletContact(
+                address,
+                name,
+                getCryptoCurrencyForWalletListItem(info.type),
+                walletType: info.type,
               ),
-              walletType: info.type,
-            ));
+            );
           } else {
             addresses.forEach((address, label) {
               if (label.isEmpty) {
                 return;
               }
               final name = _createName(info.name, label, key: null);
-              loadedContacts.add(WalletContact(
-                address,
-                name,
-                getCryptoCurrencyForWalletListItem(
-                  info.type,
-                  isTestnet: info.network == null
-                      ? false
-                      : info.network!.toLowerCase().contains("testnet"),
+              loadedContacts.add(
+                WalletContact(
+                  address,
+                  name,
+                  getCryptoCurrencyForWalletListItem(
+                    info.type,
+                    isTestnet: info.network == null
+                        ? false
+                        : info.network!.toLowerCase().contains("testnet"),
+                  ),
+                  walletType: info.type,
+                  label: label,
                 ),
-                walletType: info.type,
-                label: label,
-              ));
+              );
             });
           }
         } else {
-          loadedContacts.add(WalletContact(
-            info.address,
-            _createName(info.name, "",
+          loadedContacts.add(
+            WalletContact(
+              info.address,
+              _createName(
+                info.name,
+                "",
                 key: [WalletType.monero, WalletType.wownero, WalletType.haven].contains(info.type)
                     ? 0
-                    : null),
-            getCryptoCurrencyForWalletListItem(
-              info.type,
+                    : null,
+              ),
+              getCryptoCurrencyForWalletListItem(info.type),
+              walletType: info.type,
             ),
-            walletType: info.type,
-          ));
+          );
         }
       }
 
@@ -143,12 +145,13 @@ abstract class ContactListViewModelBase with Store {
   }
 
   final bool isAutoGenerateEnabled;
-  final Box<Contact> contactSource;
-  final ObservableList<ContactRecord> contacts;
+  final ContactService contactService;
+
+  ObservableList<ContactRecord> get contacts => contactService.contacts;
+
   @observable
   List<WalletContact> walletContacts = [];
   final CryptoCurrency? _currency;
-  StreamSubscription<BoxEvent>? _subscription;
   final SettingsStore settingsStore;
 
   bool get isEditable => _currency == null;
@@ -161,7 +164,7 @@ abstract class ContactListViewModelBase with Store {
   bool get shouldRequireTOTP2FAForAddingContacts =>
       settingsStore.shouldRequireTOTP2FAForAddingContacts;
 
-  Future<void> delete(ContactRecord contact) async => contact.original.delete();
+  Future<void> delete(ContactRecord contact) => contactService.delete(contact);
 
   ObservableList<ContactRecord> get contactsToShow =>
       ObservableList.of(contacts.where((element) => _isValidForCurrency(element, false)));
@@ -199,45 +202,45 @@ abstract class ContactListViewModelBase with Store {
     return matches;
   }
 
-  void dispose() => _subscription?.cancel();
+  Future<void> saveCustomOrder() => reorderContacts(contacts.map((e) => e.original).toList());
 
-  void saveCustomOrder() {
-    final List<Contact> contactsSourceCopy = contacts.map((e) => e.original).toList();
-    reorderContacts(contactsSourceCopy);
+  Future<void> reorderAccordingToContactList() async {
+    settingsStore.contactListOrder = FilterListOrderType.Custom;
+    await reorderContacts(contacts.map((e) => e.original).toList());
   }
 
-  void reorderAccordingToContactList() =>
-      settingsStore.contactListOrder = FilterListOrderType.Custom;
-
-  Future<void> reorderContacts(List<Contact> contactCopy) async {
-    await contactSource.deleteAll(contactCopy.map((e) => e.key).toList());
-    await contactSource.addAll(contactCopy);
-  }
+  Future<void> reorderContacts(List<Contact> contactCopy) =>
+      contactService.reorder(contactCopy);
 
   Future<void> sortGroupByType() async {
-    List<Contact> contactsSourceCopy = contactSource.values.toList();
+    final contactsSourceCopy = contacts.map((e) => e.original).toList();
 
-    contactsSourceCopy.sort((a, b) => ascending
-        ? a.type.toString().compareTo(b.type.toString())
-        : b.type.toString().compareTo(a.type.toString()));
+    contactsSourceCopy.sort(
+      (a, b) => ascending
+          ? a.type.toString().compareTo(b.type.toString())
+          : b.type.toString().compareTo(a.type.toString()),
+    );
 
     await reorderContacts(contactsSourceCopy);
   }
 
   Future<void> sortAlphabetically() async {
-    List<Contact> contactsSourceCopy = contactSource.values.toList();
+    final contactsSourceCopy = contacts.map((e) => e.original).toList();
 
-    contactsSourceCopy
-        .sort((a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name));
+    contactsSourceCopy.sort(
+      (a, b) => ascending ? a.name.compareTo(b.name) : b.name.compareTo(a.name),
+    );
 
     await reorderContacts(contactsSourceCopy);
   }
 
   Future<void> sortByCreationDate() async {
-    List<Contact> contactsSourceCopy = contactSource.values.toList();
+    final contactsSourceCopy = contacts.map((e) => e.original).toList();
 
-    contactsSourceCopy.sort((a, b) =>
-        ascending ? a.lastChange.compareTo(b.lastChange) : b.lastChange.compareTo(a.lastChange));
+    contactsSourceCopy.sort(
+      (a, b) =>
+          ascending ? a.lastChange.compareTo(b.lastChange) : b.lastChange.compareTo(a.lastChange),
+    );
 
     await reorderContacts(contactsSourceCopy);
   }
@@ -260,7 +263,7 @@ abstract class ContactListViewModelBase with Store {
         await sortGroupByType();
         break;
       case FilterListOrderType.Custom:
-        reorderAccordingToContactList();
+        await reorderAccordingToContactList();
         break;
     }
   }

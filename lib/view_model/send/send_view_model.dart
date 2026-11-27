@@ -1125,7 +1125,6 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
           !contactAddresses.contains(address) &&
           selectedCryptoCurrency.raw != -1) {
         return ContactRecord(
-          contactListViewModel.contactSource,
           Contact(
             name: '',
             address: address,

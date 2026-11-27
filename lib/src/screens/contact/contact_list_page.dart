@@ -126,7 +126,6 @@ class _ContactPageBodyState extends State<ContactPageBody> with SingleTickerProv
   @override
   void dispose() {
     _tabController.dispose();
-    contactListViewModel.dispose();
     super.dispose();
   }
 
@@ -373,7 +372,7 @@ class _ContactListBodyState extends State<ContactListBody> {
               behavior: HitTestBehavior.opaque,
               child: widget.contactListViewModel.isEditable
                   ? Slidable(
-                      key: Key('${contact.key}'),
+                      key: Key('${contact.id}'),
                       endActionPane: _actionPane(context, contact),
                       child: contactContent,
                     )

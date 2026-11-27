@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:cw_core/db/sqlite_debug.dart";
+import "package:cw_core/db/trade_migration.dart";
 import "package:cw_core/exceptions/cake_exception.dart";
 import "package:cw_core/root_dir.dart";
 import "package:cw_core/utils/print_verbose.dart";
@@ -8,13 +9,6 @@ import "package:cw_core/wallet_type.dart";
 import "package:flutter/foundation.dart";
 import "package:path/path.dart" as p;
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
-import "package:cw_core/db/sqlite_debug.dart";
-import "package:cw_core/db/trade_migration.dart";
-import "package:cw_core/root_dir.dart";
-import "package:cw_core/utils/print_verbose.dart";
-import "package:flutter/foundation.dart";
-import "package:sqflite_common_ffi/sqflite_ffi.dart";
-import "package:path/path.dart" as p;
 
 Database? db;
 
@@ -78,7 +72,7 @@ Future<void> _initDb({String? pathOverride}) async {
   await db?.close();
   db = await openDatabase(
     dbFile.path,
-    version: 16,
+    version: 17,
     onUpgrade: (db, oldVersion, newVersion) async {
       printV("migrating: $oldVersion, $newVersion");
       if (oldVersion <= 1) {
@@ -133,7 +127,6 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       if (oldVersion <= 4) {
         await _createBridgeTransferTable(db);
       }
-
       if (oldVersion <= 5) {
         await _createOldTradeTable(db);
       }
@@ -215,6 +208,9 @@ CREATE TABLE IF NOT EXISTS BalanceCardStyleSettings (
       }
       if(oldVersion <= 15) {
         await migrateTradeTableToNewSchema(db);
+      }
+      if(oldVersion <= 16) {
+        await _createContactTable(db);
       }
     },
     onCreate: (Database db, int version) async {
@@ -323,6 +319,7 @@ CREATE TABLE BalanceCardStyleSettings (
       await _createTronTokenTable(db);
       await _createImportedNFTTable(db);
       await _createWalletInfoAccountTable(db);
+      await _createContactTable(db);
     },
   );
 }
@@ -474,6 +471,23 @@ Future<void> _migrateBitcoinCardStylesForAccounts(Database db) async {
         "WHERE accountIndex = -1 AND walletInfoId IN ($bitcoinWallets)",
     [btc],
   );
+}
+
+Future<void> _createContactTable(Database db) async {
+  await db.execute("""
+CREATE TABLE IF NOT EXISTS Contact (
+  contactId INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL DEFAULT '',
+  address TEXT NOT NULL DEFAULT '',
+  currencyRaw INTEGER NOT NULL,
+  lastChange INTEGER NOT NULL,
+  displayName TEXT NOT NULL DEFAULT '',
+  sortOrder INTEGER NOT NULL DEFAULT 0
+);
+""");
+  await db.execute("""
+CREATE INDEX IF NOT EXISTS idx_contact_address ON Contact(address);
+""");
 }
 
 Future<Map<String, dynamic>> dumpDb() async {

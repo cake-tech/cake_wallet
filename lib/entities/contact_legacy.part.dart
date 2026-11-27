@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'contact.dart';
+part of 'contact_legacy.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
