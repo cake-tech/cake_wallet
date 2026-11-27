@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/themes/core/theme_store.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:cw_core/cake_mempool_space.dart';
 import 'package:cw_core/payjoin_session.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:flutter/widgets.dart';
@@ -81,7 +82,7 @@ abstract class PayjoinDetailsViewModelBase with Store {
           value: '${S.current.view_transaction_on}mempool.space',
           onTap: () async {
             try {
-              final uri = Uri.parse('https://mempool.cakewallet.com/tx/${payjoinSession.txId!}');
+              final uri = Uri.parse("$cakeMempoolSpaceUrl/tx/${payjoinSession.txId!}");
               if (await canLaunchUrl(uri))
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
             } catch (e) {}

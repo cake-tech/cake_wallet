@@ -1,6 +1,7 @@
 import "package:cw_core/exceptions/cake_exception.dart";
 import 'package:cw_core/utils/proxy_wrapper.dart';
 import 'package:intl/intl.dart';
+import 'package:cw_core/cake_mempool_space.dart';
 import 'package:cw_core/get_height_by_date_xmr.dart';
 import 'dart:convert';
 
@@ -127,9 +128,12 @@ const bitcoinDates = {
 Future<int> getBitcoinHeightByDateAPI({required DateTime date}) async {
   final req = await ProxyWrapper()
       .getHttpClient()
-      .getUrl(Uri.parse(
-          "https://mempool.cakewallet.com/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}"))
-      .timeout(Duration(seconds: 15));
+      .getUrl(
+        Uri.parse(
+          "$cakeMempoolSpaceUrl/api/v1/mining/blocks/timestamp/${(date.millisecondsSinceEpoch / 1000).round()}",
+        ),
+      )
+      .timeout(const Duration(seconds: 15));
   final response = await req.close();
   final stringResponse = await response.transform(utf8.decoder).join();
 

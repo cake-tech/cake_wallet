@@ -1473,7 +1473,7 @@ abstract class SettingsStoreBase with Store {
         nodeSource.firstWhereOrNull((e) => e.uriRaw == newCakeWalletMoneroUri);
     final bitcoinElectrumServer =
         nodeSource.firstWhereOrNull((e) => e.id == bitcoinElectrumServerId) ??
-            nodeSource.firstWhereOrNull((e) => e.uriRaw == newCakeWalletBitcoinUri);
+            nodeSource.firstWhereOrNull((e) => e.uriRaw == cakeMempoolSpaceBitcoinUri);
     final litecoinElectrumServer =
         nodeSource.firstWhereOrNull((e) => e.id == litecoinElectrumServerId) ??
             nodeSource.firstWhereOrNull((e) => e.uriRaw == cakeWalletLitecoinElectrumUri);
