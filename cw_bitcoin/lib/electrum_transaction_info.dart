@@ -308,7 +308,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
         ownedInputCount > 0 &&
         ownedInputCount < totalInputCount;
 
-    if (receivedAllOutputs) {
+    final receivedTheTotalAmounts = receivedAllOutputs && !sentPartOfInputs;
+
+    if (receivedTheTotalAmounts) {
       direction = TransactionDirection.incoming;
       walletDisplayAmount = receivedAmounts.reduce((a, b) => a + b);
     } else if (sentPartOfInputs) {
@@ -324,10 +326,6 @@ class ElectrumTransactionInfo extends TransactionInfo {
       final ownedInputsFullyResolved = ownedInputs.length == ownedInputCount;
 
       if (rawDisplayAmount < 0 && ownedInputsFullyResolved) {
-        // We contributed input(s) but were credited with more value than we
-        // put in - e.g. the receiver side of a payjoin, where the receiver
-        // co-spends one of their own UTXOs and the resulting payment output
-        // is larger than that UTXO by design. Net effect is a receive.
         direction = TransactionDirection.incoming;
         walletDisplayAmount = -rawDisplayAmount;
       } else {
@@ -385,8 +383,10 @@ class ElectrumTransactionInfo extends TransactionInfo {
     // on this wallet's own inputs. Lets isAmountPending
     // (transaction_details_view_model.dart, transaction_list_item.dart) show
     // the final amount without waiting on unrelated foreign inputs.
-    final isWalletDisplayAmountExact =
-        receivedAllOutputs || allInputsConfirmedNotOurs || allInputsOwned || allOwnedInputsResolved;
+    final isWalletDisplayAmountExact = receivedTheTotalAmounts ||
+        allInputsConfirmedNotOurs ||
+        allInputsOwned ||
+        allOwnedInputsResolved;
 
     final walletCurrency = walletTypeToCryptoCurrency(type);
     final feeMoney = fee != null ? Money.fromInt(fee, walletCurrency) : null;

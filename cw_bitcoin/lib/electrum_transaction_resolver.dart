@@ -104,6 +104,10 @@ class ElectrumTransactionResolver {
   static const _historySaveInterval = Duration(seconds: 3);
 
   Future<void> _maybePersistHistory({bool force = false}) async {
+    if (_stopped) {
+      return;
+    }
+
     final now = DateTime.now();
     final timeSinceLastSave =
         _lastHistorySaveAt == null ? null : now.difference(_lastHistorySaveAt!);
@@ -141,12 +145,16 @@ class ElectrumTransactionResolver {
   // retries when a newly prioritized tx arrives.
   Completer<void>? _wake;
 
-  // Set by stop() (see ElectrumWalletBase.close) so a run in progress stops
-  // immediately.
   bool _stopped = false;
 
   void stop() {
     _stopped = true;
+
+    // Ends the idle wait between retries instead of leaving it to time out.
+    final wake = _wake;
+    if (wake != null && !wake.isCompleted) {
+      wake.complete();
+    }
   }
 
   /// Input-resolution chunk size for [_resolveTransactionDetails].
@@ -470,6 +478,10 @@ class ElectrumTransactionResolver {
     // A single whole-transaction fetch
     final timeoutMs = _timeoutMsFor(txId);
     final targetVerbose = await _wallet.fetchTransactionVerboseBatch([txId], timeoutMs: timeoutMs);
+    if (_stopped) {
+      return existingTxInfo;
+    }
+
     cacheVerboseHexes(targetVerbose);
     final targetOriginal = (await parseTransactions(targetVerbose))[txId];
     if (targetOriginal == null) {
@@ -530,6 +542,10 @@ class ElectrumTransactionResolver {
     final derived = totalInputs > maxInputsToProcessInline
         ? await deriveTransactionAddressesInIsolate(targetOriginal, ownAddresses, walletNetwork)
         : DerivedTransactionAddresses.derive(targetOriginal, ownAddresses, walletNetwork);
+
+    if (_stopped) {
+      return existingTxInfo;
+    }
 
     ElectrumTransactionInfo buildTransactionAndAddToHistory() {
       final ins = targetOriginal.inputs.map((v) => parsedInputTxById[v.txId]).toList();
@@ -597,6 +613,10 @@ class ElectrumTransactionResolver {
       // Escalates like the target fetch: a timeout here is swallowed
       // silently, so a too-short budget would otherwise never grow.
       final chunkVerbose = await _wallet.fetchTransactionVerboseBatch(chunk, timeoutMs: timeoutMs);
+      if (_stopped) {
+        return latestResolvedInfo;
+      }
+
       cacheVerboseHexes(chunkVerbose);
       final parsedThisChunk = await parseTransactions(chunkVerbose);
       parsedInputTxById.addAll(parsedThisChunk);
@@ -915,6 +935,9 @@ class ElectrumTransactionResolver {
         heightsByHash: heightsByHash,
         forceResolveInputs: forceResolveInputs,
       );
+      if (_stopped) {
+        return transactionsStillAmbiguous;
+      }
 
       var updated = false;
       for (final captured in chunk) {
