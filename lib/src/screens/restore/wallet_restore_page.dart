@@ -190,7 +190,7 @@ class WalletRestorePage extends BasePage {
     String passphrase,
     BuildContext context,
   ) async {
-    walletRestoreViewModel.seedSettingsViewModel.setPassphrase(passphrase);
+    walletRestoreViewModel.setEnteredPassphrase(passphrase);
     await _confirmForm(context);
   }
 
@@ -207,7 +207,7 @@ class WalletRestorePage extends BasePage {
                 -1;
       }
 
-      credentials['passphrase'] = seedSettingsViewModel.passphrase;
+      credentials['passphrase'] = walletRestoreViewModel.restorePassphrase;
 
       credentials['name'] =
           walletRestoreFromSeedFormKey.currentState!.nameTextEditingController.text;
@@ -328,6 +328,7 @@ class WalletRestorePage extends BasePage {
       this.derivationInfo = dInfo;
 
       await walletRestoreViewModel.create(options: _credentials());
+      walletRestoreViewModel.setEnteredPassphrase(null);
       seedSettingsViewModel.setPassphrase(null);
     } catch (e) {
       _formProcessing = false;
