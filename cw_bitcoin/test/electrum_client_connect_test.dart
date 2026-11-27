@@ -277,4 +277,86 @@ void main() {
     },
     timeout: const Timeout(Duration(seconds: 30)),
   );
+
+  test(
+    "a node whose pong always misses the 5 s window still reaches connected",
+    () async {
+      // Answers server.ping only after 7 s, so every ping times out, yet the pongs keep the
+      // socket alive and fresh. It must not sit on connecting forever.
+      final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+      server.listen((c) {
+        c.cast<List<int>>().transform(utf8.decoder).transform(const LineSplitter()).listen(
+          (line) {
+            final request = json.decode(line) as Map;
+            final reply = '{"jsonrpc":"2.0","result":null,"id":${json.encode(request["id"])}}\n';
+            if (request["method"] == "server.ping") {
+              Future.delayed(const Duration(seconds: 7), () {
+                try {
+                  c.write(reply);
+                } catch (_) {}
+              });
+            } else {
+              c.write(reply);
+            }
+          },
+          onError: (_) {},
+          onDone: () => c.destroy(),
+        );
+      });
+      final log = <ConnectionStatus>[];
+      final client = _client(log);
+
+      await client.connectToUri(
+        Uri.parse("tcp://127.0.0.1:${server.port}"),
+        useSSL: false,
+      );
+      await Future.delayed(const Duration(seconds: 14)); // first ping at 5 s, its pong at 12 s
+
+      expect(client.isConnected, isTrue);
+      expect(log, [ConnectionStatus.connecting, ConnectionStatus.connected]);
+      await client.close();
+      await server.close();
+    },
+    timeout: const Timeout(Duration(seconds: 40)),
+  );
+
+  test(
+    "a node that never answers pings but keeps sending data still reaches connected",
+    () async {
+      // A busy server: the ping is stuck behind other work, but a header notification arrives
+      // every 2 s. Data that keeps the socket open must also count as connected, or the client
+      // sits on connecting forever, neither dropped nor synced.
+      final server = await ServerSocket.bind(InternetAddress.loopbackIPv4, 0);
+      final pushers = <Timer>[];
+      server.listen((c) {
+        pushers.add(
+          Timer.periodic(const Duration(seconds: 2), (_) {
+            try {
+              c.write("{\"jsonrpc\":\"2.0\",\"method\":\"blockchain.headers.subscribe\","
+                  "\"params\":[{\"height\":1,\"hex\":\"\"}]}\n");
+            } catch (_) {}
+          }),
+        );
+        c.listen((_) {}, onError: (_) {}, onDone: () => c.destroy());
+      });
+      final log = <ConnectionStatus>[];
+      final client = _client(log);
+
+      await client.connectToUri(
+        Uri.parse("tcp://127.0.0.1:${server.port}"),
+        useSSL: false,
+      );
+      // The first push, at 2 s, reports connected: no ping has to succeed first.
+      await Future.delayed(const Duration(seconds: 3));
+
+      expect(client.isConnected, isTrue);
+      expect(log, [ConnectionStatus.connecting, ConnectionStatus.connected]);
+      for (final pusher in pushers) {
+        pusher.cancel();
+      }
+      await client.close();
+      await server.close();
+    },
+    timeout: const Timeout(Duration(seconds: 40)),
+  );
 }

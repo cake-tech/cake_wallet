@@ -251,6 +251,7 @@ class Node {
   String? path;
   bool? isElectrs;
   bool? supportsSilentPayments;
+  int? spMaxProtocolVersion;
   bool? supportsMweb;
   bool isEnabledForAutoSwitching;
   bool isOfficial;
