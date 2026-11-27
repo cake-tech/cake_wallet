@@ -42,6 +42,6 @@ void main() {
       reason: "The details opened for a different transaction than the one tapped",
     );
 
-    homePageRobot.hasTransactionIdRow();
+    await homePageRobot.hasTransactionIdRow();
   });
 }

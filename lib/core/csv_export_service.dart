@@ -98,6 +98,11 @@ class CsvExportService {
 
   String _transactionRow(TransactionListItem item, String primaryAddress) {
     final tx = item.transaction;
+    // A pending row would have to be written blank, which breaks the file, so export waits.
+    if (tx.isAmountPending) {
+      throw StateError("Transaction ${tx.id} is still pending; its amount is not final");
+    }
+
     final type = tx.direction == TransactionDirection.incoming ? 'incoming' : 'outgoing';
     final status = tx.isPending ? 'pending' : 'confirmed';
 
@@ -257,6 +262,11 @@ class CsvExportService {
       return;
     }
 
+    if (dataItems.whereType<TransactionListItem>().any((e) => e.transaction.isAmountPending)) {
+      await showBar<void>(context, S.current.csv_pending_transactions);
+      return;
+    }
+
     final now = DateTime.now();
     final fileName = 'cake_wallet_export_${DateFormat('yyyyMMdd_HHmmss').format(now)}.csv';
 
@@ -268,7 +278,18 @@ class CsvExportService {
     });
 
     showPersistentActionOverlay(context, exportFuture, text: S.current.generating_csv);
-    await exportFuture;
+
+    try {
+      await exportFuture;
+    } on StateError {
+      if (!context.mounted) {
+        return;
+      }
+
+      // A transaction went pending after the check above.
+      await showBar<void>(context, S.current.csv_pending_transactions);
+      return;
+    }
 
     if (!context.mounted) return;
 

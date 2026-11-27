@@ -219,8 +219,8 @@ packages:
     dependency: "direct overridden"
     description:
       path: "."
-      ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
-      resolved-ref: "4e41f96f4838139895c65c3f49109d05af5d46aa"
+      ref: "4e0ab92e6df56b78b17eb2395c95cc3743738e5a"
+      resolved-ref: "4e0ab92e6df56b78b17eb2395c95cc3743738e5a"
       url: "https://github.com/cake-tech/bitcoin_base"
     source: git
     version: "4.7.0"

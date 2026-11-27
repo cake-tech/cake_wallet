@@ -201,7 +201,7 @@ dev_dependencies:
 #   bitcoin_base:
 #     git:
 #       url: https://github.com/cake-tech/bitcoin_base
-#       ref: 4e41f96f4838139895c65c3f49109d05af5d46aa
+#       ref: 4e0ab92e6df56b78b17eb2395c95cc3743738e5a
 #   ffi: 2.1.0
 #   ledger_flutter_plus:
 #     git:

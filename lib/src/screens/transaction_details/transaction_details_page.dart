@@ -32,91 +32,97 @@ class TransactionDetailsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Column(
-      children: [
-        Expanded(
-          child: SectionStandardList(
-            sectionCount: 1,
-            itemCounter: (int _) => transactionDetailsViewModel.items.length,
-            itemBuilder: (__, index) {
-              final item = transactionDetailsViewModel.items[index];
+        children: [
+          Expanded(
+            child: SectionStandardList(
+                sectionCount: 1,
+                itemCounter: (int _) => transactionDetailsViewModel.items.length,
+                itemBuilder: (__, index) {
+                  final item = transactionDetailsViewModel.items[index];
 
-              if (item is StandartListItem) {
-                Widget? addressTextWidget;
+                  if (item is StandartListItem) {
+                    Widget? addressTextWidget;
 
-                if (item.title.toLowerCase() == 'recipient addresses' ||
-                    item.title.toLowerCase() == 'source address') {
-                  addressTextWidget = getFormattedAddress(
-                    context: context,
-                    value: item.value,
-                    walletType: transactionDetailsViewModel.sendViewModel.walletType,
-                  );
-                }
+                    if (item.title.toLowerCase() == 'recipient addresses' ||
+                        item.title.toLowerCase() == 'source address') {
+                      addressTextWidget = getFormattedAddress(
+                        context: context,
+                        value: item.value,
+                        walletType: transactionDetailsViewModel.sendViewModel.walletType,
+                      );
+                    }
 
                 return GestureDetector(
-                  key: item.key,
-                  onTap: () {
-                    final textToCopy = item.title.toLowerCase() ==
-                            S.of(context).transaction_details_transaction_id.toLowerCase()
-                        ? item.value.replaceAll(RegExp(r'_(incoming|outgoing)$'), '')
-                        : item.value;
-                    Clipboard.setData(ClipboardData(text: textToCopy));
-                    showBar<void>(context, S.of(context).transaction_details_copied(item.title));
-                  },
-                  child: ListRow(
-                    title: '${item.title}:',
-                    value: item.value,
-                    textWidget: addressTextWidget,
+                      key: item.key,
+                      onTap: () {
+                              final textToCopy = item.title.toLowerCase() ==
+                                      S.of(context).transaction_details_transaction_id.toLowerCase()
+                                  ? item.value.replaceAll(RegExp(r'_(incoming|outgoing)$'), '')
+                                  : item.value;
+                              Clipboard.setData(ClipboardData(text: textToCopy));
+                              showBar<void>(
+                                context,
+                                S.of(context).transaction_details_copied(item.title),
+                              );
+                            },
+                      child: ListRow(
+                        title: '${item.title}:',
+                        value: item.value,
+                        textWidget: addressTextWidget,
+                      ),
+                    );
+                  }
+
+                  if (item is BlockExplorerListItem) {
+                    return GestureDetector(
+                      key: item.key,
+                      onTap: item.onTap,
+                      child: ListRow(
+                        title: '${item.title}:',
+                        value: item.value,
+                        mainTextColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    );
+                  }
+
+                  if (item is TextFieldListItem) {
+                    return TextFieldListRow(
+                      key: item.key,
+                      title: item.title,
+                      value: item.value,
+                      onSubmitted: item.onSubmitted,
+                    );
+                  }
+
+                  return Container();
+                },
+              ),
+            ),
+        Observer(
+            builder: (_) {
+              if (transactionDetailsViewModel.canReplaceByFee) {
+                return Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: SelectButton(
+                    text: S.of(context).bump_fee,
+                    onTap: () async {
+                      Navigator.of(context).pushNamed(
+                        Routes.bumpFeePage,
+                        arguments: [
+                          transactionDetailsViewModel.transactionInfo,
+                          transactionDetailsViewModel.rawTransaction,
+                        ],
+                      );
+                    },
                   ),
                 );
               }
 
-              if (item is BlockExplorerListItem) {
-                return GestureDetector(
-                  key: item.key,
-                  onTap: item.onTap,
-                  child: ListRow(
-                    title: '${item.title}:',
-                    value: item.value,
-                    mainTextColor: Theme.of(context).colorScheme.primary,
-                  ),
-                );
-              }
-
-              if (item is TextFieldListItem) {
-                return TextFieldListRow(
-                  key: item.key,
-                  title: item.title,
-                  value: item.value,
-                  onSubmitted: item.onSubmitted,
-                );
-              }
-
-              return Container();
+              return const SizedBox();
             },
           ),
-        ),
-        Observer(
-          builder: (_) {
-            if (transactionDetailsViewModel.canReplaceByFee) {
-              return Padding(
-                padding: const EdgeInsets.all(24),
-                child: SelectButton(
-                  text: S.of(context).bump_fee,
-                  onTap: () async {
-                    Navigator.of(context).pushNamed(Routes.bumpFeePage, arguments: [
-                      transactionDetailsViewModel.transactionInfo,
-                      transactionDetailsViewModel.rawTransaction
-                    ]);
-                  },
-                ),
-              );
-            }
-
-            return const SizedBox();
-          },
-        ),
-      ],
-    );
+        ],
+      );
   }
 
   Widget getFormattedAddress({
