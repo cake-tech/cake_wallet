@@ -39,7 +39,7 @@ class SwapAmountFactory {
 
   bool get hasSwapAll =>
       isEVMCompatibleChain(_appStore.wallet!.type) ||
-          <WalletType>[.bitcoin, .monero, .litecoin, .bitcoinCash, .dogecoin].contains(
+          <WalletType>[.bitcoin, .monero, .litecoin, .bitcoinCash, .dogecoin, .pivx].contains(
               _appStore.wallet!.type);
 
   Future<Money> _getMaximumTransactionAmount(CryptoCurrency curr) async {
@@ -48,6 +48,7 @@ class SwapAmountFactory {
       .bitcoin,
       .bitcoinCash,
       .dogecoin,
+      .pivx,
     ].contains(_appStore.wallet!.type)) {
       final priority = _appStore.settingsStore.getPriority(_appStore.wallet!.type)!;
 
@@ -59,6 +60,9 @@ class SwapAmountFactory {
         priority,
         coinTypeToSpendFrom: _appStore.wallet!.type == WalletType.litecoin
             ? UnspentCoinType.nonMweb
+            // pivx: same pool as the swap send, or "any" quotes a notes sweep.
+            : _appStore.wallet!.type == WalletType.pivx
+            ? UnspentCoinType.transparent
             : curr == CryptoCurrency.btcln
             ? UnspentCoinType.lightning
             : UnspentCoinType.any,

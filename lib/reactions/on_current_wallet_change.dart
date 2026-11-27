@@ -83,6 +83,7 @@ void startCurrentWalletChangeReaction(
           wallet.type == WalletType.litecoin ||
           wallet.type == WalletType.bitcoinCash ||
           wallet.type == WalletType.dogecoin ||
+          wallet.type == WalletType.pivx ||
           wallet.type == WalletType.decred) {
         _setAutoGenerateSubaddressStatus(wallet, settingsStore);
       }

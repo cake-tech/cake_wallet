@@ -4,6 +4,7 @@ import "package:cake_wallet/decred/decred.dart";
 import "package:cake_wallet/dogecoin/dogecoin.dart";
 import "package:cake_wallet/evm/evm.dart";
 import "package:cake_wallet/monero/monero.dart";
+import "package:cake_wallet/pivx/pivx.dart";
 import "package:cake_wallet/store/app_store.dart";
 import "package:cake_wallet/zcash/zcash.dart";
 import "package:cw_core/wallet_base.dart";
@@ -47,6 +48,8 @@ class FeesHelper {
         return priority == decred!.getDecredTransactionPrioritySlow();
       case WalletType.dogecoin:
         return priority == dogecoin!.getDogeCoinTransactionPrioritySlow();
+      case WalletType.pivx:
+        return priority == pivx!.getPivxTransactionPrioritySlow();
       case WalletType.none:
       case WalletType.nano:
       case WalletType.banano:
@@ -106,6 +109,9 @@ class FeesHelper {
         break;
       case WalletType.dogecoin:
         _appStore.settingsStore.setPriority(wallet.type, dogecoin!.getDefaultTransactionPriority());
+        break;
+      case WalletType.pivx:
+        _appStore.settingsStore.setPriority(wallet.type, pivx!.getDefaultTransactionPriority());
         break;
       default:
         break;

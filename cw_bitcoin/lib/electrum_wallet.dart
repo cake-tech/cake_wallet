@@ -142,6 +142,8 @@ abstract class ElectrumWalletBase
         return 145;
       case CryptoCurrency.doge:
         return 3;
+      case CryptoCurrency.pivx:
+        return 119;
       default:
         return 0;
     }
@@ -178,6 +180,8 @@ abstract class ElectrumWalletBase
         return DOGECOIN_ADDRESS_TYPES;
       case WalletType.litecoin:
         return LITECOIN_ADDRESS_TYPES;
+      case WalletType.pivx:
+        return PIVX_ADDRESS_TYPES;
       default:
         return BITCOIN_ADDRESS_TYPES;
     }
@@ -209,6 +213,8 @@ abstract class ElectrumWalletBase
           return bitcoinCashHDWallet(seedBytes);
         case CryptoCurrency.doge:
           return dogecoinHDWallet(seedBytes);
+        case CryptoCurrency.pivx:
+          return pivxHDWallet(seedBytes);
         default:
           throw (currency == null ? ArgumentError("no currency") : BadCurrencyException("Unsupported currency",currency!));
       }
@@ -223,6 +229,9 @@ abstract class ElectrumWalletBase
 
   static Bip32Slip10Secp256k1 dogecoinHDWallet(Uint8List seedBytes) =>
       Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/3'/0'") as Bip32Slip10Secp256k1;
+
+  static Bip32Slip10Secp256k1 pivxHDWallet(Uint8List seedBytes) =>
+      Bip32Slip10Secp256k1.fromSeed(seedBytes).derivePath("m/44'/119'/0'") as Bip32Slip10Secp256k1;
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 68 + outputsCounts * 34 + 10;
@@ -1153,8 +1162,12 @@ abstract class ElectrumWalletBase
       switch (coinTypeToSpendFrom) {
         case UnspentCoinType.mweb:
           return utx.bitcoinAddressRecord.type == SegwitAddresType.mweb;
+        // PIVX has no MWEB coins; for any other caller transparent means non-MWEB.
         case UnspentCoinType.nonMweb:
+        case UnspentCoinType.transparent:
           return utx.bitcoinAddressRecord.type != SegwitAddresType.mweb;
+        case UnspentCoinType.sapling:
+          return false; // pivx shielded notes are not UTXOs
         case UnspentCoinType.any:
         case UnspentCoinType.lightning:
           return true;
@@ -1191,10 +1204,22 @@ abstract class ElectrumWalletBase
         values: [for (final u in availableInputs) u.value],
         // estimatedTransactionSize(0, 0) is the fixed tx overhead (version,
         // counters, locktime); the outputs' own vbytes come pre-computed per type.
-        target: credentialsAmount + (estimatedTransactionSize(0, 0) + outputsVBytes!) * feeRate,
+        // Priced through feeAmountWithFeeRate, the same rate * size the final fee uses.
+        target: credentialsAmount +
+            feeAmountWithFeeRate(
+              feeRate,
+              0,
+              0,
+              size: estimatedTransactionSize(0, 0) + outputsVBytes,
+            ),
         inputCosts: [
           for (final u in availableInputs)
-            estimatedInputSize(u.bitcoinAddressRecord.type) * feeRate
+            feeAmountWithFeeRate(
+              feeRate,
+              0,
+              0,
+              size: estimatedInputSize(u.bitcoinAddressRecord.type),
+            ),
         ],
         window: networkDustAmount.toInt(),
       );
@@ -1433,7 +1458,13 @@ abstract class ElectrumWalletBase
         outputsVBytes = null;
         break;
       }
-      outputsVBytes = outputsVBytes! + estimatedOutputSize(type);
+      // pivx: serialized size, since an exchange output is 35, not P2PKH's 34.
+      // Other coins keep the table as on dev: serializing moves their target
+      // for unusual scripts (an LTC P2WSH output is 43, the table says 31).
+      outputsVBytes = outputsVBytes! +
+          (this.type == WalletType.pivx
+              ? out.toOutput.toBytes().length
+              : estimatedOutputSize(type));
     }
 
     final utxoDetails = _createUTXOS(
@@ -1739,8 +1770,8 @@ abstract class ElectrumWalletBase
 
         credentialsAmount += outputAmount;
 
-        final address = RegexUtils.addressTypeFromStr(
-            out.isParsedAddress ? out.extractedAddress! : out.address, network);
+        final address = addressFromString(
+            out.isParsedAddress ? out.extractedAddress! : out.address);
         final isSilentPayment = address is SilentPaymentAddress;
 
         if (isSilentPayment) {
@@ -2130,9 +2161,7 @@ abstract class ElectrumWalletBase
       }
     }
 
-    final results = shouldUseBatchFetching
-        ? await _fetchUnspentsBatch(targetAddresses)
-        : await _fetchUnspentsRegular(targetAddresses);
+    final results = await fetchUnspentsForAddresses(targetAddresses);
 
     final failedCount = results.where((result) => result == null).length;
 
@@ -2165,6 +2194,16 @@ abstract class ElectrumWalletBase
     await updateCoins(unspentCoins);
     _updateAccountBalancesFromUnspents();
     await _refreshUnspentCoinsInfo();
+  }
+
+  // Null entry = fetch failed for that address. Overridden by pivx for its own
+  // scripthash and confirmation source.
+  Future<List<List<BitcoinUnspent>?>> fetchUnspentsForAddresses(
+    List<BitcoinAddressRecord> addresses,
+  ) async {
+    return shouldUseBatchFetching
+        ? await _fetchUnspentsBatch(addresses)
+        : await _fetchUnspentsRegular(addresses);
   }
 
   Future<List<List<BitcoinUnspent>?>> _fetchUnspentsRegular(
@@ -2904,6 +2943,9 @@ abstract class ElectrumWalletBase
         await Future.wait(DOGECOIN_ADDRESS_TYPES.map((type) => shouldUseBatchFetching
             ? fetchTransactionsForAddressTypeBatch(historiesWithDetails, type)
             : fetchTransactionsForAddressType(historiesWithDetails, type)));
+      } else if (type == WalletType.pivx) {
+        await Future.wait(PIVX_ADDRESS_TYPES
+            .map((type) => fetchTransactionsForAddressType(historiesWithDetails, type)));
       }
 
       printV('[QUICK_SYNC] deferred ${_missingHistoryQueue.length} transactions to background');
@@ -4232,6 +4274,14 @@ abstract class ElectrumWalletBase
   @override
   void setExceptionHandler(void Function(FlutterErrorDetails) onError) => _onError = onError;
 
+  // PIVX overrides it for exchange addresses bitcoin_base cannot decode.
+  BitcoinBaseAddress addressFromString(String address) =>
+      RegexUtils.addressTypeFromStr(address, network);
+
+  // Length-prefixed, as bitcoin_base's magicMessage expects. Coins with their
+  // own magic override it, or verifymessage on their node rejects the result.
+  String get messagePrefix => '\x18Bitcoin Signed Message:\n';
+
   @override
   Future<String> signMessage(String message, {String? address}) async {
     final addressRecord = getSigningAddressRecord(
@@ -4262,7 +4312,6 @@ abstract class ElectrumWalletBase
   String signMessageWithKey(String message, Bip32Slip10Secp256k1 hd) {
     final priv = ECPrivate.fromHex(hd.privateKey.privKey.toHex());
 
-    String messagePrefix = '\x18Bitcoin Signed Message:\n';
     final hexEncoded = priv.signMessage(utf8.encode(message), messagePrefix: messagePrefix);
     final decodedSig = hex.decode(hexEncoded);
     return base64Encode(decodedSig);
@@ -4346,7 +4395,6 @@ abstract class ElectrumWalletBase
           "signature must be 64 bytes without recover-id or 65 bytes with recover-id");
     }
 
-    String messagePrefix = '\x18Bitcoin Signed Message:\n';
     final messageHash = QuickCrypto.sha256Hash(
         BitcoinSignerUtils.magicMessage(utf8.encode(message), messagePrefix));
 

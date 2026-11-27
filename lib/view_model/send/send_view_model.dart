@@ -70,6 +70,7 @@ import 'package:cw_core/utils/print_verbose.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:cake_wallet/pivx/pivx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/utils/token_utilities.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -94,8 +95,27 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     // Update unspent coins list view model with the new wallet reference
     unspentCoinsListViewModel.updateWallet(wallet);
 
+    _normalizePivxSource();
+
     // Update sending balance to reflect the new wallet's balance
     updateSendingBalance();
+  }
+
+  // PIVX sources are transparent, sapling or any. The dashboard opens Send with
+  // nonMweb and a switch can carry mweb or lightning over, neither of which the
+  // PIVX wallet routes. Switching away resets the PIVX-only sources to the
+  // constructor default: sapling matches no Litecoin coin. Runs at
+  // construction and on a switch.
+  void _normalizePivxSource() {
+    if (wallet.type == WalletType.pivx) {
+      if (![UnspentCoinType.transparent, UnspentCoinType.sapling, UnspentCoinType.any]
+          .contains(coinTypeToSpendFrom)) {
+        coinTypeToSpendFrom = UnspentCoinType.transparent;
+      }
+    } else if (coinTypeToSpendFrom == UnspentCoinType.transparent ||
+        coinTypeToSpendFrom == UnspentCoinType.sapling) {
+      coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    }
   }
 
   UnspentCoinsListViewModel unspentCoinsListViewModel;
@@ -123,7 +143,32 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         fiatFromSettings = _appStore.settingsStore.fiatCurrency,
         fiatCurrencies = FiatCurrency.all,
         super(appStore: _appStore) {
-    outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
+    _normalizePivxSource();
+
+    outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler,
+        coinTypeToSpendFrom: () => coinTypeToSpendFrom));
+
+    // The wallet decides the pool; re-ask when the wallet, source, recipient or
+    // balance moves. Registered for every wallet so a switch into PIVX is seen.
+    reaction(
+        (_) => [
+              wallet.type,
+              coinTypeToSpendFrom,
+              _pivxRecipient,
+              balanceViewModel.balances[CryptoCurrency.pivx]?.availableBalance,
+              balanceViewModel.balances[CryptoCurrency.pivx]?.secondAvailableBalance,
+              // "any" stays on coins until the shielded pass ends.
+              wallet.syncStatus is SyncedSyncStatus,
+            ], (_) async {
+      if (wallet.type != WalletType.pivx) return;
+      // A slower earlier lookup must not overwrite a newer one.
+      final generation = ++_pivxSpendableGeneration;
+      try {
+        final value = walletTypeToCryptoCurrency(walletType).formatAmount(
+            BigInt.from(await pivx!.spendableAmount(wallet, coinTypeToSpendFrom, _pivxRecipient)));
+        if (generation == _pivxSpendableGeneration) _pivxSpendable.value = value;
+      } catch (_) {}
+    }, fireImmediately: true);
 
     unspentCoinsListViewModel.initialSetup();
     // .then((_) => unspentCoinsListViewModel.resetUnspentCoinsInfoSelections());
@@ -175,7 +220,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @action
   void addOutput() =>
-      outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler));
+      outputs.add(Output(wallet, _appStore, _fiatConversationStore, _outputCryptoCurrencyHandler,
+        coinTypeToSpendFrom: () => coinTypeToSpendFrom));
 
   @action
   void removeOutput(Output output) {
@@ -214,6 +260,13 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   void setAllowMwebCoins(bool allow) {
     if (wallet.type == WalletType.litecoin) {
       coinTypeToSpendFrom = allow ? UnspentCoinType.any : UnspentCoinType.nonMweb;
+    }
+  }
+
+  @action
+  void setPivxShielded(bool shielded) {
+    if (wallet.type == WalletType.pivx) {
+      coinTypeToSpendFrom = shielded ? UnspentCoinType.sapling : UnspentCoinType.transparent;
     }
   }
 
@@ -350,6 +403,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     );
   }
 
+  final _pivxSpendable = Observable<String>('0');
+  int _pivxSpendableGeneration = 0;
+
+  String get _pivxRecipient {
+    if (outputs.isEmpty) return '';
+    final o = outputs.first;
+    return o.isParsedAddress ? o.extractedAddress : o.address;
+  }
+
   @computed
   String get balance {
     if (walletType == WalletType.litecoin && coinTypeToSpendFrom == UnspentCoinType.mweb) {
@@ -359,6 +421,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       return balanceViewModel.balances.values.first.availableBalance;
     } else if (isMwebAvailable && coinTypeToSpendFrom == UnspentCoinType.any) {
       return balanceViewModel.balances.values.first.combinedAvailableBalance;
+    } else if (walletType == WalletType.pivx) {
+      return _pivxSpendable.value;
     }
 
     // Handle case where balance might not be available yet (e.g., during chain switch)
@@ -378,6 +442,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
     } else if (walletType == WalletType.litecoin &&
         coinTypeToSpendFrom == UnspentCoinType.nonMweb) {
       return wallet.balance.values.first.available;
+    } else if (walletType == WalletType.pivx) {
+      // Same pool as `balance`: available is transparent only.
+      return Money.parse(_pivxSpendable.value, CryptoCurrency.pivx);
     }
 
     return wallet.balance[selectedCryptoCurrency]?.available ?? Money.zero(selectedCryptoCurrency);
@@ -396,6 +463,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       coinTypeToSpendFrom = UnspentCoinType.any;
     } else if (currentType == UnspentCoinType.mweb) {
       coinTypeToSpendFrom = UnspentCoinType.nonMweb;
+    } else if (currentType == UnspentCoinType.transparent) {
+      coinTypeToSpendFrom = UnspentCoinType.sapling;
+    } else if (currentType == UnspentCoinType.sapling) {
+      coinTypeToSpendFrom = UnspentCoinType.transparent;
     }
 
     // set it back to the original value:
@@ -420,6 +491,9 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         final sendingBalance =
             await unspentCoinsListViewModel.getSendingBalance(coinTypeToSpendFrom);
         return walletTypeToCryptoCurrency(walletType).formatAmount(BigInt.from(sendingBalance));
+      case WalletType.pivx:
+        return walletTypeToCryptoCurrency(walletType).formatAmount(
+            BigInt.from(await pivx!.spendableAmount(wallet, coinTypeToSpendFrom, _pivxRecipient)));
       default:
         return balance;
     }
@@ -441,9 +515,15 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get isReadyForSend =>
-      canSendWithoutSync || wallet.syncStatus is SyncedSyncStatus ||
+      // canSendWithoutSync covers PIVX transparent and "any" (routed to
+      // transparent until the pass ends). An explicit shielded spend waits:
+      // mid catch-up it can pick a note already spent on chain.
+      !(wallet.type == WalletType.pivx &&
+          coinTypeToSpendFrom == UnspentCoinType.sapling &&
+          wallet.syncStatus is! SyncedSyncStatus) &&
+      (canSendWithoutSync || wallet.syncStatus is SyncedSyncStatus ||
       // If silent payments scanning, can still send payments
-      (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus);
+      (wallet.type == WalletType.bitcoin && wallet.syncStatus is SyncingSyncStatus));
 
   bool isSendToSilentPayments(Output output) {
     if (wallet.type != WalletType.bitcoin) return false;
@@ -458,7 +538,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
 
   @computed
   bool get hasCoinControl =>
-      wallet.hasCoinControl && coinTypeToSpendFrom != UnspentCoinType.lightning;
+      wallet.hasCoinControl &&
+      coinTypeToSpendFrom != UnspentCoinType.lightning &&
+      // Coin control lists transparent UTXOs; a shielded spend uses notes.
+      coinTypeToSpendFrom != UnspentCoinType.sapling;
 
   @computed
   bool get hasFees => feesViewModel.hasFees && coinTypeToSpendFrom != UnspentCoinType.lightning;
@@ -468,7 +551,8 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
         WalletType.bitcoin,
         WalletType.litecoin,
         WalletType.bitcoinCash,
-        WalletType.dogecoin
+        WalletType.dogecoin,
+        WalletType.pivx
       ].contains(wallet.type);
 
   @observable
@@ -514,7 +598,10 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       wallet.type != WalletType.solana &&
       wallet.type != WalletType.tron &&
       !isEVMCompatibleChain(wallet.type) &&
-      coinTypeToSpendFrom != UnspentCoinType.lightning;
+      coinTypeToSpendFrom != UnspentCoinType.lightning &&
+      // Shielded builds take one recipient, and a batch can turn shielded
+      // after receivers are added.
+      wallet.type != WalletType.pivx;
 
   @computed
   String get languageCode => _appStore.settingsStore.languageCode;
@@ -1018,6 +1105,7 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
       case WalletType.bitcoin:
       case WalletType.bitcoinCash:
       case WalletType.dogecoin:
+      case WalletType.pivx:
         return bitcoin!.createBitcoinTransactionCredentials(
           outputs,
           priority: priority!,
@@ -1102,10 +1190,11 @@ abstract class SendViewModelBase extends WalletChangeListenerViewModel with Stor
   }
 
   @computed
-  bool get hasMemos => [WalletType.zcash].contains(wallet.type);
+  bool get hasMemos => [WalletType.zcash, WalletType.pivx].contains(wallet.type);
 
   final Map<WalletType, int> _maxMemoLengths = {
     WalletType.zcash: 512,
+    WalletType.pivx: 512,
   };
 
   @computed
