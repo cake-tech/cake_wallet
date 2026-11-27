@@ -243,6 +243,7 @@ class WowneroWalletService extends WalletService<
     if (currentWalletInfo == null) {
       throw WalletNotFoundException(name: currentName);
     }
+    final oldWalletId = currentWalletInfo.id;
     final currentWallet = WowneroWallet(
         walletInfo: currentWalletInfo,
         derivationInfo: await currentWalletInfo.getDerivationInfo(),
@@ -256,6 +257,10 @@ class WowneroWalletService extends WalletService<
     newWalletInfo.name = newName;
 
     await newWalletInfo.save();
+    await rekeyUnspentCoinsAfterRename(
+      oldWalletId: oldWalletId,
+      newWalletId: newWalletInfo.id,
+    );
   }
 
   @override
