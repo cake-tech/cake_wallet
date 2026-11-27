@@ -1,5 +1,3 @@
-import 'package:cw_core/erc20_token.dart';
-
 /// USDT0 (Omnichain USDT) config.
 /// Addresses and EIDs from https://docs.usdt0.to/technical-documentation/deployments
 class USDT0Config {
@@ -36,17 +34,7 @@ class USDT0Config {
     return null;
   }
 
-  static String? getUsdt0TokenAddress(int chainId) => usdt0TokenAddressByChainId[chainId];
-
   static String? getOftContractAddress(int chainId) => oftContractAddressByChainId[chainId];
 
   static int? getEndpointId(int chainId) => endpointIdByChainId[chainId];
-
-  static bool isChainSupported(int chainId) => usdt0TokenAddressByChainId.containsKey(chainId);
-
-  static bool isUSDT0Token(Erc20Token token, int chainId) {
-    final address = getUsdt0TokenAddress(chainId);
-    if (address == null) return false;
-    return token.contractAddress.toLowerCase() == address.toLowerCase();
-  }
 }

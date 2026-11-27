@@ -2,8 +2,8 @@ import 'package:cake_wallet/entities/bridge_transfer.dart';
 import 'package:cake_wallet/evm/evm.dart';
 import 'package:cake_wallet/src/widgets/cake_image_widget.dart';
 import 'package:cake_wallet/themes/core/custom_theme_colors.dart';
+import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class TransferHistoryRow extends StatelessWidget {
   const TransferHistoryRow({
@@ -50,7 +50,10 @@ class TransferHistoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final sourceChainName = evm?.getChainInfoByChainId(transfer.sourceChainId)?.name;
     final destChainName = evm?.getChainInfoByChainId(transfer.destinationChainId)?.name;
-    final formattedDate = DateFormat('HH:mm').format(transfer.createdAt);
+    final formattedDate = DateFormatter.formatTransactionDate(
+      transfer.createdAt,
+      Localizations.localeOf(context).toString(),
+    );
     final statusText = _statusLabel(transfer.status);
 
     return InkWell(
@@ -137,31 +140,36 @@ class TransferHistoryRow extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Row(
-                        children: [
-                          Container(
-                            height: 8,
-                            width: 8,
-                            decoration: BoxDecoration(
-                              color: _statusColor(context, transfer.status),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.surface,
-                                width: 1.5,
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              height: 8,
+                              width: 8,
+                              decoration: BoxDecoration(
+                                color: _statusColor(context, transfer.status),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  width: 1.5,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            statusText,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
+                            SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                statusText,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         formattedDate,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(

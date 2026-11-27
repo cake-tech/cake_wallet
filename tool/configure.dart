@@ -1421,6 +1421,8 @@ import 'dart:math' as math;
 import 'package:cake_wallet/core/utilities.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/amount/money.dart';
+import 'package:cw_core/bridge_quote.dart';
+import 'package:cw_core/bridge_transfer_status.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/erc20_token.dart';
@@ -1449,6 +1451,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_api_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_evm/bridge_provider.dart';
 import 'package:cw_evm/utils/evm_chain_formatter.dart';
 import 'package:cw_evm/evm_chain_mnemonics.dart';
 import 'package:cw_evm/pending_evm_chain_transaction.dart';
@@ -1469,13 +1472,11 @@ import 'package:cw_evm/evm_chain_wallet_creation_credentials.dart';
 import 'package:cw_evm/utils/evm_chain_utils.dart';
 import 'package:cw_evm/evm_chain_default_tokens.dart';
 import 'package:cw_evm/deuro/deuro_savings.dart';
-import 'package:cw_evm/usdt0/usdt0_config.dart';
-import 'package:cw_evm/usdt0/usdt0_quote.dart';
-import 'package:cw_evm/usdt0/usdt0_service.dart';
+import 'package:cw_evm/cctp/cctp_bridge_provider.dart';
+import 'package:cw_evm/usdt0/usdt0_bridge_provider.dart';
 import 'package:eth_sig_util/util/utils.dart';
 export 'package:cw_evm/evm_chain_transaction_priority.dart';
 export 'package:cw_evm/evm_erc20_balance.dart';
-export 'package:cw_evm/usdt0/usdt0_quote.dart';
 
 """;
   const evmCwPart = "part 'cw_evm.dart';";
@@ -1640,18 +1641,19 @@ abstract class EVM {
 
   bool hasPriorityFee(int chainId);
 
-  bool isUSDT0Token(WalletBase wallet, CryptoCurrency token);
-  List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet);
+  bool isBridgeToken(WalletBase wallet, CryptoCurrency token);
+  List<ChainInfo> getBridgeDestinationChains(WalletBase wallet, CryptoCurrency token);
 
-  Future<BridgeQuote> quoteUSDT0Transfer({
+  Future<BridgeQuote> quoteBridgeTransfer({
     required WalletBase wallet,
+    required CryptoCurrency token,
     required int sourceChainId,
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
   });
 
-  Future<PendingTransaction> executeUSDT0Transfer({
+  Future<PendingTransaction> executeBridgeTransfer({
     required WalletBase wallet,
     required CryptoCurrency token,
     required int sourceChainId,
@@ -1661,6 +1663,12 @@ abstract class EVM {
     required BridgeQuote quote,
     required TransactionPriority priority,
     bool useBlinkProtection = true,
+  });
+
+  Future<BridgeTransferStatus?> getBridgeTransferStatus({
+    required int sourceChainId,
+    required String tokenContract,
+    required String sourceTxHash,
   });
   
   Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
@@ -1721,16 +1729,6 @@ class EvmWalletConnectFeeQuote {
   final int maxFeePerGasWei;
   final int maxPriorityFeePerGasWei;
   final int? latestBaseFeeWei;
-}
-
-class BridgeQuote {
-  const BridgeQuote({
-    required this.nativeFee,
-    required this.lzTokenFee,
-  });
-
-  final BigInt nativeFee;
-  final BigInt lzTokenFee;
 }
   """;
 

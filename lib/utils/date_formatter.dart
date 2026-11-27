@@ -42,4 +42,36 @@ class DateFormatter {
 
     return title;
   }
+
+  static String formatTransactionDate(DateTime date, String localeName) {
+    final time = DateFormat.Hm(localeName);
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final thatDay = DateTime(date.year, date.month, date.day);
+    final daysAgo = today.difference(thatDay).inDays;
+
+    final timeStr = time.format(date);
+
+    if (daysAgo == 0) {
+      return timeStr;
+    }
+
+    if (daysAgo == 1) {
+      return "${S.current.yesterday}, $timeStr";
+    }
+
+    if (daysAgo < 7) {
+      final weekday = DateFormat.EEEE(localeName).format(date);
+      return "$weekday, $timeStr";
+    }
+
+    if (date.year == now.year) {
+      final dayMonth = DateFormat("d MMMM", localeName).format(date);
+      return "$dayMonth, $timeStr";
+    }
+
+    final full = DateFormat("d MMM yyyy", localeName).format(date);
+    return "$full, $timeStr";
+  }
 }

@@ -598,24 +598,32 @@ class CWEVM extends EVM {
   @override
   bool hasPriorityFee(int chainId) => EVMChainUtils.hasPriorityFee(chainId);
 
+  static final _bridgeProviders = <BridgeProvider>[CctpBridgeProvider(), USDT0BridgeProvider()];
+
+  BridgeProvider? _bridgeProviderFor(String tokenContract, int chainId) => _bridgeProviders
+      .firstWhereOrNull((provider) => provider.supportsToken(tokenContract, chainId));
+
   @override
-  bool isUSDT0Token(WalletBase wallet, CryptoCurrency token) {
+  bool isBridgeToken(WalletBase wallet, CryptoCurrency token) {
     if (token is! Erc20Token) return false;
 
     final chainId = getSelectedChainId(wallet);
     if (chainId == null) return false;
 
-    return USDT0Config.isUSDT0Token(token, chainId);
+    return _bridgeProviderFor(token.contractAddress, chainId) != null;
   }
 
   @override
-  List<ChainInfo> getUSDT0DestinationChains(WalletBase wallet) {
+  List<ChainInfo> getBridgeDestinationChains(WalletBase wallet, CryptoCurrency token) {
     final currentChainId = getSelectedChainId(wallet);
-    if (currentChainId == null) return [];
+    if (currentChainId == null || token is! Erc20Token) return [];
+
+    final provider = _bridgeProviderFor(token.contractAddress, currentChainId);
+    if (provider == null) return [];
 
     final result = <ChainInfo>[];
     for (final config in _registry.getAllChains()) {
-      if (USDT0Config.isChainSupported(config.chainId) && config.chainId != currentChainId) {
+      if (provider.supportsChain(config.chainId) && config.chainId != currentChainId) {
         result.add(ChainInfo(
           chainId: config.chainId,
           name: config.name,
@@ -628,34 +636,29 @@ class CWEVM extends EVM {
   }
 
   @override
-  Future<BridgeQuote> quoteUSDT0Transfer({
+  Future<BridgeQuote> quoteBridgeTransfer({
     required WalletBase wallet,
+    required CryptoCurrency token,
     required int sourceChainId,
     required int destinationChainId,
     required BigInt amount,
     required String recipientAddress,
-  }) async {
+  }) {
     final evmWallet = wallet as EVMChainWallet;
-    final client = evmWallet.getWeb3Client();
-    if (client == null) {
-      throw StateError('Wallet not connected');
-    }
+    final tokenErc20 = token as Erc20Token;
 
-    final quote = await USDT0Service.quoteCrossChainTransfer(
-      client: client,
+    return _bridgeProviderFor(tokenErc20.contractAddress, sourceChainId)!.quoteTransfer(
+      wallet: evmWallet,
+      token: tokenErc20,
       sourceChainId: sourceChainId,
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
     );
-    return BridgeQuote(
-      nativeFee: quote.nativeFee,
-      lzTokenFee: quote.lzTokenFee,
-    );
   }
 
   @override
-  Future<PendingTransaction> executeUSDT0Transfer({
+  Future<PendingTransaction> executeBridgeTransfer({
     required WalletBase wallet,
     required CryptoCurrency token,
     required int sourceChainId,
@@ -669,18 +672,29 @@ class CWEVM extends EVM {
     final evmWallet = wallet as EVMChainWallet;
     final tokenErc20 = token as Erc20Token;
 
-    return USDT0Service.executeCrossChainTransfer(
+    return _bridgeProviderFor(tokenErc20.contractAddress, sourceChainId)!.executeTransfer(
       wallet: evmWallet,
+      token: tokenErc20,
       sourceChainId: sourceChainId,
       destinationChainId: destinationChainId,
       amount: amount,
       recipientAddress: recipientAddress,
-      quote: USDT0Quote(nativeFee: quote.nativeFee, lzTokenFee: quote.lzTokenFee),
-      token: tokenErc20,
+      quote: quote,
       priority: priority as EVMChainTransactionPriority,
       useBlinkProtection: useBlinkProtection,
     );
   }
+
+  @override
+  Future<BridgeTransferStatus?> getBridgeTransferStatus({
+    required int sourceChainId,
+    required String tokenContract,
+    required String sourceTxHash,
+  }) =>
+      _bridgeProviderFor(tokenContract, sourceChainId)!.getTransferStatus(
+        sourceChainId: sourceChainId,
+        sourceTxHash: sourceTxHash,
+      );
 
   Future<EvmWalletConnectFeeQuote?> getWCBufferedFeeQuote(
     WalletBase wallet,
