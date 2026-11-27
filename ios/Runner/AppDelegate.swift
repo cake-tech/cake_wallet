@@ -26,6 +26,8 @@ import CallKit
 
     let messenger = engineBridge.applicationRegistrar.messenger()
 
+    AskCakeModel.register(messenger: messenger)
+
       let legacyMigrationChannel = FlutterMethodChannel(
                 name: "com.cakewallet.cakewallet/legacy_wallet_migration",
                 binaryMessenger: messenger)

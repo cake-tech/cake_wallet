@@ -132,14 +132,16 @@ class CoinActionRow extends StatelessWidget {
                 ),
               ),
               label: S.of(context).scan,
-              action: () => _onPressedScan(context),
+              action: () => scanAndOpen(context, walletType),
             ),
         ],
       ),
     );
   }
 
-  Future<void> _onPressedScan(BuildContext context) async {
+  /// Opens the QR scanner and hands whatever was scanned to the right screen
+  /// (Send, WalletConnect or a new node). Also used by Ask Cake.
+  static Future<void> scanAndOpen(BuildContext context, WalletType walletType) async {
     final code = await presentQRScanner(context, showHelp: true);
 
     if (code == null || code.isEmpty) return;

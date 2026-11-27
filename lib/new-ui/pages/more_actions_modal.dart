@@ -1,5 +1,6 @@
 import "dart:async";
 
+import "package:cake_wallet/ask_cake/ask_cake_page.dart";
 import "package:cake_wallet/bitcoin/bitcoin.dart";
 import "package:cake_wallet/cake_pay/src/cards/cake_pay_cards_page.dart";
 import "package:cake_wallet/di.dart";
@@ -16,6 +17,7 @@ import "package:cake_wallet/view_model/dashboard/dashboard_view_model.dart";
 import "package:cw_core/unspent_coin_type.dart";
 import "package:cw_core/wallet_type.dart";
 import "package:flutter/cupertino.dart";
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:modal_bottom_sheet/modal_bottom_sheet.dart";
 
@@ -127,7 +129,17 @@ class ExtraAction {
     iconPath: "assets/new-ui/navbar/contacts.svg",
   );
 
-  static final all = [buy, sell, depositFromOnChain, withdrawToOnChain, cakePay, contacts];
+  // The on-device assistant. iOS only for now: it runs on Apple's on-device model and Core ML.
+  static final askCake = ExtraAction(
+    key: const ValueKey("more_actions_ask_cake_button_key"),
+    isModal: false,
+    applicable: (_) => defaultTargetPlatform == TargetPlatform.iOS,
+    destinationBuilder: (_) => const AskCakePage(),
+    name: (_) => "Ask Cake",
+    iconPath: "assets/new-ui/ask_cake_more_actions.svg",
+  );
+
+  static final all = [buy, sell, depositFromOnChain, withdrawToOnChain, cakePay, contacts, askCake];
 }
 
 class MoreActionsModal extends StatelessWidget {

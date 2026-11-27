@@ -470,6 +470,10 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Used to hear what you say when you tap the microphone in Ask Cake. Audio is turned into text on your device and is not recorded or sent anywhere.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Used to turn what you say into text when you tap the microphone in Ask Cake. Recognition runs on your device.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Used for scanning QR code and can be used to capture images for identification purposes by third-party providers.</string>
 	<key>NSDocumentsFolderUsageDescription</key>

@@ -18,6 +18,7 @@
 		724FDA327BF191BC29DCAA2E /* Constants.swift in Resources */ = {isa = PBXBuildFile; fileRef = 0CCA7ADAD6FF9185EBBB2BCA /* Constants.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		73138617307FA4F838D21D62 /* ServiceLogger.swift in Resources */ = {isa = PBXBuildFile; fileRef = F42258C3697CFE3C8C8D1933 /* ServiceLogger.swift */; settings = {ASSET_TAGS = (BreezSDK, ); }; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
+		A5CA4E012EC0000100A5CA4E /* AskCakeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5CA4E002EC0000100A5CA4E /* AskCakeModel.swift */; };
 		8482AC522FBB29FF00FFF059 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 8482AC512FBB29FF00FFF059 /* AppIcon.icon */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -69,6 +70,7 @@
 		5AFFEBFC279AD49C00F906A4 /* wakeLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = wakeLock.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A5CA4E002EC0000100A5CA4E /* AskCakeModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AskCakeModel.swift; sourceTree = "<group>"; };
 		78D25C60B94E9D9E48D52E5E /* ResourceHelper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ResourceHelper.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/ResourceHelper.swift"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7D3364C03978A8A74B6D586E /* LnurlPay.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LnurlPay.swift; path = "../.symlinks/plugins/breez_sdk/ios/bindings-swift/Sources/BreezSDK/Task/LnurlPay.swift"; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
+				A5CA4E002EC0000100A5CA4E /* AskCakeModel.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
 			path = Runner;
@@ -409,6 +412,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
+				A5CA4E012EC0000100A5CA4E /* AskCakeModel.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				0C9D68C9264854B60011B691 /* secRandom.swift in Sources */,
 				0C44A71A2518EF8000B570ED /* decrypt.swift in Sources */,
