@@ -13,6 +13,7 @@ import "package:cake_wallet/new-ui/viewmodels/swap/util/exchange_limits.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/provider_rate.dart";
 import "package:cake_wallet/reactions/wallet_connect.dart";
 import "package:cake_wallet/store/settings_store.dart";
+import "package:cake_wallet/utils/token_utilities.dart";
 import "package:cw_core/amount/exchange_rate.dart";
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_currency.dart";
@@ -578,6 +579,11 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
   }
 
   String _getTokenAddress({required CryptoCurrency currency, required SwapsXyzChain chain}) {
+    final knownContract = TokenUtilities.findErc20TokenForSwap(currency)?.contractAddress;
+    if (knownContract != null) {
+      return knownContract;
+    }
+
     final symbol = _normalizeCakeNativeTokenName(currency.title);
     final list = _tokensCache[chain.chainId];
 
@@ -628,6 +634,7 @@ class SwapsXyzExchangeProvider extends LimitsCacheExchangeProvider
     "TON" => "TONCOIN",
     "BCH" => "BITCOIN CASH",
     "ARB" => "ARBITRUM",
+    "ROB" => "ROBINHOOD CHAIN",
     _ => network.toUpperCase(),
   };
 

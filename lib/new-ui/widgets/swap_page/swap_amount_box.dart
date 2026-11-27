@@ -3,6 +3,7 @@ import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_address.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/util/swap_source.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/new-ui/widgets/modern_button.dart";
@@ -223,10 +224,9 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  CakeImageWidget(
+                                  TokenImageWidget(
                                     imageUrl: amount.currency.iconPath ?? "",
-                                    width: 28,
-                                    height: 28,
+                                    size: 28,
                                   ),
                                   const SizedBox(width: 10),
                                   Text(amount.currency.symbol, textAlign: TextAlign.center),

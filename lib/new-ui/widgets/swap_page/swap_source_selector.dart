@@ -1,5 +1,6 @@
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
+import "package:cake_wallet/new-ui/widgets/coins_page/token_image_widget.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_args.dart";
 import "package:cake_wallet/new-ui/widgets/currency_picker/currency_picker_sheet.dart";
 import "package:cake_wallet/src/widgets/cake_image_widget.dart";
@@ -65,10 +66,9 @@ class SwapSourceSelector extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    CakeImageWidget(
-                      imageUrl: state.depositAmount.currency.iconPath,
-                      width: 24,
-                      height: 24,
+                    TokenImageWidget(
+                      imageUrl: state.depositAmount.currency.iconPath ?? "",
+                      size: 24,
                     ),
                     const SizedBox(width: 8),
                     Text(
