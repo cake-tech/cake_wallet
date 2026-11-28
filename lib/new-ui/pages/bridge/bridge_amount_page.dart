@@ -203,7 +203,8 @@ class _BridgeAmountPageState extends State<BridgeAmountPage> {
                             child: Text(
                               bridgeViewModel.fiatAmountFormatted.isEmpty
                                   ? ''
-                                  : '~${bridgeViewModel.fiatAmountFormatted} ${bridgeViewModel.fiatCurrencyTitle}',
+                                  : bridgeViewModel.fiatCurrency
+                                      .format("~${bridgeViewModel.fiatAmountFormatted}"),
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                                 fontWeight: FontWeight.w600,

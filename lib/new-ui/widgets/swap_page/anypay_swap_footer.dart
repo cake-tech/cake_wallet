@@ -1,4 +1,5 @@
 import "package:auto_size_text/auto_size_text.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/bloc/swap_bloc.dart";
 import "package:cake_wallet/new-ui/viewmodels/swap/rates/rate_cubit.dart";
@@ -52,6 +53,7 @@ class AnyPaySwapFooter extends StatelessWidget {
           final provider = rate?.provider;
           final depositAmount = state.depositAmount;
           final depositFiat = state.depositAmount.fiatAmount;
+          final depositFiatCurrency = depositFiat.currency as FiatCurrency;
           return Row(
             children: [
               Expanded(
@@ -68,7 +70,7 @@ class AnyPaySwapFooter extends StatelessWidget {
                       children: [
                         TextSpan(text: "${depositAmount.cryptoAmount.toStringWithSymbol()}"),
                         TextSpan(
-                          text: "  ≈ ${depositFiat.toStringWithSymbol(fractionalDigits: 2)}",
+                          text: "  ${depositFiatCurrency.format("≈ ${depositFiat.toStringWithPrecision(fractionalDigits: 2)}")}",
                           style: TextStyle(color: colors.onSurfaceVariant),
                         ),
                       ],

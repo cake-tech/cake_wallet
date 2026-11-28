@@ -169,7 +169,8 @@ class _BridgeConfirmSheetState extends State<BridgeConfirmSheet> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            '${bridgeViewModel.fiatCurrencyTitle} ${bridgeViewModel.fiatAmountFormatted}',
+                            bridgeViewModel.fiatCurrency
+                                .format(bridgeViewModel.fiatAmountFormatted),
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w500,

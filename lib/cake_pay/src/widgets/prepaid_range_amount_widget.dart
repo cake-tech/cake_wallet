@@ -1,4 +1,5 @@
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import "package:cake_wallet/entities/fiat_currency.dart";
 import 'package:cake_wallet/view_model/cake_pay/cake_pay_buy_card_view_model.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class PrepaidRangeAmountWidget extends StatefulWidget {
     required this.onAmountChanged,
   });
 
-  final String fiatCurrency;
+  final FiatCurrency fiatCurrency;
   final List<PrepaidRange> prepaidRanges;
   final FocusNode amountFieldFocus;
   final TextEditingController amountController;
@@ -125,7 +126,10 @@ class _PrepaidRangeAmountWidgetState extends State<PrepaidRangeAmountWidget> {
   }
 
   String _rangeLabel(PrepaidRange range) {
-    return '${widget.fiatCurrency} ${_formatAmount(range.minValue)} - ${_formatAmount(range.maxValue)}';
+    final min = widget.fiatCurrency.format(_formatAmount(range.minValue));
+    final max = widget.fiatCurrency.format(_formatAmount(range.maxValue));
+
+    return "$min - $max";
   }
 
   String _formatAmount(double value) {

@@ -183,7 +183,9 @@ class _BuySellProviderPageState extends State<BuySellProviderPage> {
           MoneyText.optional(widget.buySellViewModel.amountForQuote(quote)),
           if (fiatAmount != null)
             Text(
-              "= ${fiatAmount.toStringWithSymbol(fractionalDigits: 2, trimZeros: false)}",
+              widget.buySellViewModel.fiatCurrency.format(
+                "= ${fiatAmount.toStringWithPrecision(fractionalDigits: 2, trimZeros: false)}",
+              ),
               style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant),
             ),
         ],
@@ -237,7 +239,7 @@ class BuySellQuoteFailure extends StatelessWidget {
               Text(
                 recommendedFiat == null
                     ? state.errorMessage
-                    : S.of(context).providers_in_region_use_fiat(recommendedFiat.title),
+                    : S.of(context).providers_in_region_use_fiat(recommendedFiat.label),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -245,7 +247,7 @@ class BuySellQuoteFailure extends StatelessWidget {
           if (recommendedFiat != null)
             NewPrimaryButton(
               onPressed: onRetryPressed,
-              text: S.of(context).switch_to_fiat(recommendedFiat.title),
+              text: S.of(context).switch_to_fiat(recommendedFiat.label),
               color: Theme.of(context).colorScheme.primary,
               textColor: Theme.of(context).colorScheme.onPrimary,
             ),

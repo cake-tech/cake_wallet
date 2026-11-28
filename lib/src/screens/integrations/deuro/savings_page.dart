@@ -219,7 +219,7 @@ class DEuroSavingsPage extends BasePage {
               ? _dEuroViewModel.accruedInterestFormated
               : tx.amount.toStringWithSymbol(),
           fiatAmountValue: _dEuroViewModel.actionType == DEuroActionType.reinvest
-              ? _dEuroViewModel.fiatAccruedInterestFormated
+              ? _dEuroViewModel.accruedInterestFiatAmountFormatted
               : _dEuroViewModel.pendingTransactionFiatAmountFormatted,
           fee: S.of(bottomSheetContext).send_estimated_fee,
           feeValue: tx.feeFormatted,

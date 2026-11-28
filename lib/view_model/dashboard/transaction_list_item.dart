@@ -252,7 +252,7 @@ class TransactionListItem extends ActionListItem with Keyable {
     transaction.changeFiatAmount(amount);
     return displayMode == BalanceDisplayMode.hiddenBalance
         ? '---'
-        : fiatCurrency.title + ' ' + transaction.fiatAmount();
+        : fiatCurrency.format(transaction.fiatAmount());
   }
 
   @override

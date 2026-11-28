@@ -1,4 +1,5 @@
 import 'package:cake_wallet/cake_pay/src/models/cake_pay_card.dart';
+import "package:cake_wallet/entities/fiat_currency.dart";
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/number_text_fild_widget.dart';
 import 'package:cake_wallet/typography.dart';
@@ -20,7 +21,7 @@ class DenominationsAmountWidget extends StatefulWidget {
     required this.onQuantityChanged,
   });
 
-  final String fiatCurrency;
+  final FiatCurrency fiatCurrency;
   final List<Denomination> denominations;
   final FocusNode amountFieldFocus;
   final TextEditingController amountController;
@@ -66,7 +67,7 @@ class _DenominationsAmountWidgetState extends State<DenominationsAmountWidget> {
               children: [
                 DropdownFilterList(
                   items: widget.denominations.map((e) => e.value.toString()).toList(),
-                  itemPrefix: widget.fiatCurrency,
+                  itemLabel: widget.fiatCurrency.format,
                   selectedItem: _selected.$1,
                   onItemSelected: (value) {
                     setState(() => _selected = (
@@ -140,7 +141,7 @@ class _DenominationsAmountWidgetState extends State<DenominationsAmountWidget> {
               children: [
                 Observer(
                   builder: (_) => Text(
-                    '${widget.fiatCurrency} ${widget.cakePayBuyCardViewModel.totalAmount}',
+                    widget.fiatCurrency.format("${widget.cakePayBuyCardViewModel.totalAmount}"),
                     maxLines: 1,
                     style: Theme.of(context).textTheme.titleMedium!,
                   ),

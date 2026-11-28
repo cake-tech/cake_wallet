@@ -45,6 +45,8 @@ import "package:mobx/mobx.dart" show Observable, runInAction;
 import "package:mocktail/mocktail.dart";
 import "package:sqflite_common_ffi/sqflite_ffi.dart";
 
+String ltr(String amount) => "\u2066$amount\u2069";
+
 class _MockAccountEditOrCreateViewModel extends Mock implements WalletAccountEditOrCreateViewModel {}
 
 class _MockDashboardViewModel extends Mock implements DashboardViewModel {}
@@ -309,22 +311,22 @@ void main() {
       await _waitForArchivePage(tester);
 
       expect(find.text("1.25 ${currency.title}"), findsOneWidget);
-      expect(find.text("25,00 USD"), findsOneWidget);
+      expect(find.text(ltr(r"$25,00")), findsOneWidget);
       expect(find.text("3. Travel"), findsOneWidget);
-      expect(find.text("0,00 USD"), findsNothing);
+      expect(find.text(ltr(r"$0,00")), findsNothing);
 
       if (currency == CryptoCurrency.btc) {
         runInAction(() => amountDisplayMode.value = BitcoinAmountDisplayMode.satoshi);
         await tester.pumpAndSettle();
         expect(find.text("125,000,000 sats"), findsOneWidget);
-        expect(find.text("25,00 USD"), findsOneWidget);
+        expect(find.text(ltr(r"$25,00")), findsOneWidget);
       }
 
       runInAction(() => displayMode.value = BalanceDisplayMode.hiddenBalance);
       await tester.pumpAndSettle();
       expect(find.text("●●●●●●"), findsOneWidget);
-      expect(find.text("●●●●● USD"), findsOneWidget);
-      expect(find.text("25,00 USD"), findsNothing);
+      expect(find.text(ltr(r"$●●●●●")), findsOneWidget);
+      expect(find.text(ltr(r"$25,00")), findsNothing);
     });
   }
 

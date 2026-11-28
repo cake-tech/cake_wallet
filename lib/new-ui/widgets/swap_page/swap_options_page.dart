@@ -122,7 +122,7 @@ class SwapOptionsPage extends StatelessWidget {
                       ListItemSelector(
                           keyValue: "curr",
                           label: S.of(context).change_fiat_currency,
-                          options: [bloc.fiat.name],
+                          options: [bloc.fiat.label],
                           onTap: () {
                             FiatCurrencyPickerSheet.show(
                               context: context,

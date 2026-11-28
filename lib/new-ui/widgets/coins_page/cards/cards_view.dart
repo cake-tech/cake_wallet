@@ -168,7 +168,9 @@ class _CardsViewState extends State<CardsView> {
                 }
               } else if (widget.dashboardViewModel.balanceViewModel.showCombinedBalance) {
                 walletBalance = "";
-                walletFiatBalance = widget.dashboardViewModel.balanceViewModel.combinedFiatBalance;
+                walletFiatBalance = (walletBalanceRecord?.fiatCurrency ??
+                        widget.dashboardViewModel.settingsStore.fiatCurrency)
+                    .format(widget.dashboardViewModel.balanceViewModel.combinedFiatBalance);
               } else {
                 walletBalance = walletBalanceRecord?.availableBalance ?? "0";
                 walletFiatBalance = walletBalanceRecord?.fiatAvailableBalance ?? "0.00";
@@ -202,8 +204,6 @@ class _CardsViewState extends State<CardsView> {
                 assetName: assetName,
                 capitalizeAssetName: _shouldCapitalizeAssetName(),
                 balance: walletBalance,
-                fiatCurrencyTitle: walletBalanceRecord?.fiatCurrency?.title ??
-                    widget.dashboardViewModel.settingsStore.fiatCurrency.title,
                 fiatFirst: widget.dashboardViewModel.balanceViewModel.showCombinedBalance,
                 fiatBalance: walletFiatBalance,
                 selected: _selectedIndex == visualIndex,

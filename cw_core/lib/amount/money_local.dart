@@ -1,5 +1,6 @@
 import "package:cw_core/amount/money.dart";
 import "package:cw_core/crypto_amount_format.dart";
+import "package:cw_core/currency.dart";
 
 extension WithLocalSeparator on Money {
   String toLocalStringWithSymbol({
@@ -15,6 +16,9 @@ extension WithLocalSeparator on Money {
       useBaseUnit: useBaseUnit,
       locale: locale,
     );
+    if (currency case final AmountFormatter formatter) {
+      return formatter.format(amount);
+    }
     final symbol = getSymbol(useBaseUnit: useBaseUnit);
 
     return withSymbolPrefix ? "$symbol $amount" : "$amount $symbol";

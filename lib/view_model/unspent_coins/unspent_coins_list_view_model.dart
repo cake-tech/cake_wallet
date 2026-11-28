@@ -83,7 +83,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       final formatted = formatAmountToString(item.value);
       final cryptoAmount = double.tryParse(formatted.replaceAll(',', '')) ?? 0.0;
       final fiatValue = price * cryptoAmount;
-      result[item.amount] = '${fiatCurrency.title} ${fiatValue.toStringAsFixed(2)}';
+      result[item.amount] = fiatCurrency.format(fiatValue.toStringAsFixed(2));
     }
 
     return result;

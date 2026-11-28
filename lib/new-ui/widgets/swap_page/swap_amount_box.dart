@@ -55,6 +55,16 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
     });
   }
 
+  Widget _fiatSign(BuildContext context) => Center(
+        child: Text(
+          widget.bloc.fiat.sign,
+          style: TextStyle(
+            fontSize: widget.bloc.fiat.signIsSingleCharacter ? 28 : 16,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) => BlocConsumer<SwapBloc, SwapState>(
     listener: (context, state) {
@@ -80,6 +90,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
       final amount = widget.isReceiverCard ? state.payoutAmount : state.depositAmount;
       final hasSwapAll = state is SwapInputState && state.hasSwapAll && !widget.bloc.spendingBalance.isZero;
       final Currency inputCurrency = _fiatInputMode ? widget.bloc.fiat : amount.currency;
+      final showsAll = !widget.isReceiverCard && state.isSwapAll && !amountFocusNode.hasFocus;
+      final showsFiatSign = _fiatInputMode && !showsAll;
       return Column(
         spacing: 12,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,9 +123,15 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                       children: [
                         Expanded(
                           child: Row(
-                            spacing: 4,
+                            textDirection: TextDirection.ltr,
+                            mainAxisAlignment: Directionality.of(context) == TextDirection.rtl
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.start,
+                            spacing: _fiatInputMode && widget.bloc.fiat.signTouchesAmount ? 0 : 4,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
+                              if (showsFiatSign && !widget.bloc.fiat.signAfterAmount)
+                                _fiatSign(context),
                               Flexible(
                                 child: IntrinsicWidth(
                                   child: Stack(
@@ -168,9 +186,7 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                         child: IgnorePointer(
                                           child: AnimatedOpacity(
                                             duration: const Duration(milliseconds: 150),
-                                            opacity: widget.isReceiverCard || !state.isSwapAll || amountFocusNode.hasFocus
-                                                ? 0
-                                                : 1,
+                                            opacity: showsAll ? 1 : 0,
                                             child: ExcludeSemantics(
                                               child: ColoredBox(
                                                 color: Theme.of(context).colorScheme.surfaceContainer,
@@ -192,16 +208,8 @@ class SwapAmountBoxState extends State<SwapAmountBox> {
                                   ),
                                 ),
                               ),
-                              if (_fiatInputMode)
-                                Center(
-                                  child: Text(
-                                    widget.bloc.fiat.title,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
+                              if (showsFiatSign && widget.bloc.fiat.signAfterAmount)
+                                _fiatSign(context),
                             ],
                           ),
                         ),

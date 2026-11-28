@@ -51,7 +51,7 @@ class BuySellConfirmationPage extends StatelessWidget {
                           spacing: 4,
                           children: [
                             Text(
-                              "${buySellViewModel.fiatAmount} ${buySellViewModel.fiatCurrency}",
+                              buySellViewModel.fiatCurrency.format(buySellViewModel.fiatAmount),
                               style: const TextStyle(fontSize: 32),
                             ),
                             if (buySellViewModel.amountForQuote(buySellViewModel.selectedQuote!) !=

@@ -293,6 +293,9 @@ class Money implements Comparable<Money> {
       trimZeros: trimZeros,
       useBaseUnit: useBaseUnit,
     );
+    if (currency case final AmountFormatter formatter) {
+      return formatter.format(amount);
+    }
     final symbol = getSymbol(useBaseUnit: useBaseUnit);
 
     return withSymbolPrefix ? "$symbol $amount" : "$amount $symbol";

@@ -1,5 +1,6 @@
 import "package:cake_wallet/entities/balance_display_mode.dart";
 import "package:cake_wallet/entities/bitcoin_amount_display_mode.dart";
+import "package:cake_wallet/entities/fiat_currency.dart";
 import "package:cake_wallet/generated/i18n.dart";
 import "package:cake_wallet/locales/locale.dart";
 import "package:cake_wallet/new-ui/widgets/money/money_settings_cubit.dart";
@@ -111,6 +112,15 @@ void main() {
 
       expect(find.text("0.12345678"), findsOneWidget);
       expect(find.text("0.12345678 BTC"), findsNothing);
+    });
+  });
+
+  group("fiat currency", () {
+    testWidgets("shows the sign the way FiatCurrency formats it", (tester) async {
+      await _pump(tester, MoneyText(Money.parse("1234.5", FiatCurrency.eur)), _visibleBtc);
+
+      expect(find.text("\u20661,234.5 €\u2069"), findsOneWidget);
+      expect(find.textContaining("EUR"), findsNothing);
     });
   });
 

@@ -29,7 +29,7 @@ abstract final class ChartsStateWithData extends ChartsState {
 
   Money? priceFor(CryptoCurrency curr) => null;
 
-  String get fiatTicker => "";
+  FiatCurrency? get fiatCurrency => null;
 
   bool get hasSingleCurrency => currencies.length == 1;
 
@@ -83,7 +83,11 @@ final class ChartsLoaded extends ChartsStateWithData {
   final Map<CryptoCurrency, List<PriceData>> _prices;
 
   @override
-  String get fiatTicker => _prices[_prices.keys.first]?.firstOrNull?.base.name ?? "";
+  FiatCurrency? get fiatCurrency {
+    final base = _prices[_prices.keys.first]?.firstOrNull?.base;
+
+    return base is FiatCurrency ? base : null;
+  }
 
   @override
   List<CryptoCurrency> get currencies {

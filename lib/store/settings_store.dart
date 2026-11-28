@@ -61,6 +61,7 @@ abstract class SettingsStoreBase with Store {
       required bool initialShouldShowMarketPlaceInDashboard,
       required bool initialShouldShowChartsInDashboard,
       required bool initialShouldShowNftsTab,
+      required bool initialShowFiatIsoCode,
       required bool initialShowAddressBookPopupEnabled,
       required bool initialShowCiBuildOverlay,
       required SyncStatusDisplayMode initialSyncStatusDisplayMode,
@@ -207,6 +208,7 @@ abstract class SettingsStoreBase with Store {
         shouldShowMarketPlaceInDashboard = initialShouldShowMarketPlaceInDashboard,
         shouldShowChartsInDashboard = initialShouldShowChartsInDashboard,
         shouldShowNftsTab = initialShouldShowNftsTab,
+        showFiatIsoCode = initialShowFiatIsoCode,
         showAddressBookPopupEnabled = initialShowAddressBookPopupEnabled,
         showCiBuildOverlay = initialShowCiBuildOverlay,
         syncStatusDisplayMode = initialSyncStatusDisplayMode,
@@ -235,6 +237,8 @@ abstract class SettingsStoreBase with Store {
         evmHiddenChainIds = ObservableSet.of(initialEvmHiddenChainIds),
         trocadorProviderStates = ObservableMap.of(initialTrocadorProviderStates),
         priority = ObservableMap<WalletType, TransactionPriority>() {
+    FiatCurrency.showsIsoCode = () => showFiatIsoCode;
+
     //this.nodes = ObservableMap<WalletType, Node>.of(nodes);
 
     if (initialMoneroTransactionPriority != null) {
@@ -469,6 +473,11 @@ abstract class SettingsStoreBase with Store {
     reaction(
       (_) => shouldShowNftsTab,
       (value) => sharedPreferences.setBool(PreferencesKey.shouldShowNftsTab, value),
+    );
+
+    reaction(
+      (_) => showFiatIsoCode,
+      (value) => sharedPreferences.setBool(PreferencesKey.showFiatIsoCode, value),
     );
 
     reaction(
@@ -857,6 +866,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   bool shouldShowNftsTab;
+
+  @observable
+  bool showFiatIsoCode;
 
   @observable
   bool showAddressBookPopupEnabled;
@@ -1357,6 +1369,7 @@ abstract class SettingsStoreBase with Store {
     final shouldShowChartsInDashboard =
         sharedPreferences.getBool(PreferencesKey.shouldShowChartsInDashboard) ?? true;
     final shouldShowNftsTab = sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? true;
+    final showFiatIsoCode = sharedPreferences.getBool(PreferencesKey.showFiatIsoCode) ?? false;
     final showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ?? true;
     final showCiBuildOverlay = sharedPreferences.getBool(PreferencesKey.showCiBuildOverlay) ?? true;
@@ -1708,6 +1721,7 @@ abstract class SettingsStoreBase with Store {
       initialShouldShowMarketPlaceInDashboard: shouldShowMarketPlaceInDashboard,
       initialShouldShowChartsInDashboard: shouldShowChartsInDashboard,
       initialShouldShowNftsTab: shouldShowNftsTab,
+      initialShowFiatIsoCode: showFiatIsoCode,
       initialShowAddressBookPopupEnabled: showAddressBookPopupEnabled,
       initialShowCiBuildOverlay: showCiBuildOverlay,
       initialSyncStatusDisplayMode: syncStatusDisplayMode,
@@ -1963,6 +1977,7 @@ abstract class SettingsStoreBase with Store {
             shouldShowChartsInDashboard;
     shouldShowNftsTab =
         sharedPreferences.getBool(PreferencesKey.shouldShowNftsTab) ?? shouldShowNftsTab;
+    showFiatIsoCode = sharedPreferences.getBool(PreferencesKey.showFiatIsoCode) ?? showFiatIsoCode;
     showAddressBookPopupEnabled =
         sharedPreferences.getBool(PreferencesKey.showAddressBookPopupEnabled) ??
             showAddressBookPopupEnabled;
